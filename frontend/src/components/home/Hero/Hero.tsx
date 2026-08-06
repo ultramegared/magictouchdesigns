@@ -4,9 +4,6 @@
  * Project: Magic Touch Designs
  * File: Hero.tsx
  * Module: Home
- * Language: TypeScript React
- * Description:
- * Home hero section.
  * ===============================================================
  */
 
@@ -28,9 +25,9 @@ function Hero({
 
     return (
 
-        <section>
+        <section className="hero">
 
-            <div>
+            <div className="hero__content">
 
                 <h1>
 
@@ -44,7 +41,7 @@ function Hero({
 
                 </p>
 
-                <div>
+                <div className="hero__buttons">
 
                     <button>
 
