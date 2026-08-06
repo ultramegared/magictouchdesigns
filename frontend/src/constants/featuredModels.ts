@@ -10,7 +10,7 @@
  * ===============================================================
  */
 
-import { FeaturedModel } from "../components/home/FeaturedModels/FeaturedModels.types";
+import type { FeaturedModel } from "../components/home/FeaturedModels/FeaturedModels.types";
 
 export const featuredModels: FeaturedModel[] = [
 
