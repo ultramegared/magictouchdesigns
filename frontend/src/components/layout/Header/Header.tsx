@@ -12,55 +12,7 @@
 
 import "./Header.css";
 
-import {
-
-    NavigationItem
-
-} from "./Header.types";
-
-const navigation: NavigationItem[] = [
-
-    {
-
-        label: "Home",
-
-        path: "/"
-
-    },
-
-    {
-
-        label: "Models",
-
-        path: "/models"
-
-    },
-
-    {
-
-        label: "Collections",
-
-        path: "/collections"
-
-    },
-
-    {
-
-        label: "Customize",
-
-        path: "/customize"
-
-    },
-
-    {
-
-        label: "Contact",
-
-        path: "/contact"
-
-    }
-
-];
+import { navigation } from "../../../constants/navigation";
 
 function Header() {
 
@@ -88,7 +40,7 @@ function Header() {
 
                             <a
 
-                                key={item.path}
+                                key={item.id}
 
                                 href={item.path}
 
@@ -108,7 +60,41 @@ function Header() {
 
             <div>
 
-                🔍 👤 🛒 EN | ES
+                <button>
+
+                    🔍
+
+                </button>
+
+                <button>
+
+                    👤
+
+                </button>
+
+                <button>
+
+                    🛒
+
+                </button>
+
+                <button>
+
+                    EN
+
+                </button>
+
+                <span>
+
+                    |
+
+                </span>
+
+                <button>
+
+                    ES
+
+                </button>
 
             </div>
 

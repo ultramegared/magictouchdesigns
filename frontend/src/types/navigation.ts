@@ -2,15 +2,17 @@
  * ===============================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
- * File: Header.types.ts
+ * File: navigation.ts
  * Module: Frontend
  * Language: TypeScript
  * Description:
- * Header navigation types.
+ * Navigation types.
  * ===============================================================
  */
 
 export interface NavigationItem {
+
+    id: number;
 
     label: string;
 
