@@ -2,39 +2,44 @@
  * ===============================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
- * File: AppRouter.tsx
+ * File: PublicRoutes.tsx
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Main application router.
+ * Public application routes.
  * ===============================================================
  */
 
 import {
 
-    BrowserRouter,
-    Routes
+    Route
 
 } from "react-router-dom";
 
-import PublicRoutes from "./PublicRoutes";
+import HomePage from "../pages/Home";
 
-function AppRouter() {
+function PublicRoutes() {
 
     return (
 
-        <BrowserRouter>
+        <>
 
-            <Routes>
+            <Route
 
-                <PublicRoutes />
+                path="/"
 
-            </Routes>
+                element={
 
-        </BrowserRouter>
+                    <HomePage />
+
+                }
+
+            />
+
+        </>
 
     );
 
 }
 
-export default AppRouter;
+export default PublicRoutes;
