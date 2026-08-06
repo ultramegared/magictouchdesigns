@@ -12,45 +12,11 @@
 
 import "./FeaturedModels.css";
 
-const featuredModels = [
+import {
 
-    {
+    featuredModels
 
-        id: 1,
-
-        name: "Classic White Mug",
-
-        price: 19.99,
-
-        image: ""
-
-    },
-
-    {
-
-        id: 2,
-
-        name: "Magic Black Mug",
-
-        price: 24.99,
-
-        image: ""
-
-    },
-
-    {
-
-        id: 3,
-
-        name: "Golden Premium Mug",
-
-        price: 29.99,
-
-        image: ""
-
-    }
-
-];
+} from "../../../constants/featuredModels";
 
 function FeaturedModels() {
 
@@ -96,7 +62,11 @@ function FeaturedModels() {
 
                                 <p>
 
-                                    ${model.price.toFixed(2)}
+                                    ${model.price.toFixed(
+
+                                        2
+
+                                    )}
 
                                 </p>
 
