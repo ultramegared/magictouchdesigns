@@ -13,6 +13,7 @@
 import "./HomePage.css";
 
 import Hero from "../../components/home/Hero";
+import FeaturedModels from "../../components/home/FeaturedModels";
 
 function HomePage() {
 
@@ -31,6 +32,8 @@ function HomePage() {
                 secondaryButton="Customize"
 
             />
+
+            <FeaturedModels />
 
         </>
 
