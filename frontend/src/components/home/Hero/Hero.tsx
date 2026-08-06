@@ -9,7 +9,7 @@
 
 import "./Hero.css";
 
-import { HeroProps } from "./Hero.types";
+import type { HeroProps } from "./Hero.types";
 
 function Hero({
 

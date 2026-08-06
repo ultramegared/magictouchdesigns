@@ -12,7 +12,7 @@
 
 import "./Button.css";
 
-import { ButtonProps } from "./Button.types";
+import type { ButtonProps } from "./Button.types";
 
 function Button({
 
