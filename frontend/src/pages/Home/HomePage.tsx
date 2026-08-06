@@ -14,11 +14,11 @@ function HomePage() {
 
     return (
 
-        <>
+        <h1>
 
-            Home
+            Magic Touch Designs
 
-        </>
+        </h1>
 
     );
 
