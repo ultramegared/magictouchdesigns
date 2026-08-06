@@ -12,6 +12,56 @@
 
 import "./Header.css";
 
+import {
+
+    NavigationItem
+
+} from "./Header.types";
+
+const navigation: NavigationItem[] = [
+
+    {
+
+        label: "Home",
+
+        path: "/"
+
+    },
+
+    {
+
+        label: "Models",
+
+        path: "/models"
+
+    },
+
+    {
+
+        label: "Collections",
+
+        path: "/collections"
+
+    },
+
+    {
+
+        label: "Customize",
+
+        path: "/customize"
+
+    },
+
+    {
+
+        label: "Contact",
+
+        path: "/contact"
+
+    }
+
+];
+
 function Header() {
 
     return (
@@ -26,75 +76,39 @@ function Header() {
 
             <nav>
 
-                <a href="/">
+                {
 
-                    Home
+                    navigation.map(
 
-                </a>
+                        (
 
-                <a href="/models">
+                            item
 
-                    Models
+                        ) => (
 
-                </a>
+                            <a
 
-                <a href="/collections">
+                                key={item.path}
 
-                    Collections
+                                href={item.path}
 
-                </a>
+                            >
 
-                <a href="/customize">
+                                {item.label}
 
-                    Customize
+                            </a>
 
-                </a>
+                        )
 
-                <a href="/contact">
+                    )
 
-                    Contact
-
-                </a>
+                }
 
             </nav>
 
             <div>
 
-                <button>
-
-                    🔍
-
-                </button>
-
-                <button>
-
-                    👤
-
-                </button>
-
-                <button>
-
-                    🛒
-
-                </button>
-
-                <button>
-
-                    EN
-
-                </button>
-
-                <span>
-
-                    |
-
-                </span>
-
-                <button>
-
-                    ES
-
-                </button>
+                🔍 👤 🛒 EN | ES
 
             </div>
 
