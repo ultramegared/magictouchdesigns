@@ -10,15 +10,29 @@
  * ===============================================================
  */
 
+import "./HomePage.css";
+
+import Hero from "../../components/home/Hero";
+
 function HomePage() {
 
     return (
 
-        <h1>
+        <>
 
-            Magic Touch Designs
+            <Hero
 
-        </h1>
+                title="Personalized Mugs Made Just for You"
+
+                subtitle="Premium custom mugs crafted with high-quality materials, vibrant printing, and fast shipping."
+
+                primaryButton="Shop Now"
+
+                secondaryButton="Customize"
+
+            />
+
+        </>
 
     );
 
