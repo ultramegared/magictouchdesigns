@@ -17,43 +17,11 @@ import Footer from "../../components/layout/Footer";
 
 function CustomizePage() {
 
-    const navigation = [
-
-        {
-            label: "Home",
-            path: "/"
-        },
-
-        {
-            label: "Products",
-            path: "/products"
-        },
-
-        {
-            label: "Collections",
-            path: "/collections"
-        },
-
-        {
-            label: "Customize",
-            path: "/customize"
-        },
-
-        {
-            label: "Contact",
-            path: "/contact"
-        }
-
-    ];
-
     return (
 
         <>
 
-            <Header
-                logo="/images/logo/logo.png"
-                navigation={navigation}
-            />
+            <Header />
 
             <main className="customize-page">
 
