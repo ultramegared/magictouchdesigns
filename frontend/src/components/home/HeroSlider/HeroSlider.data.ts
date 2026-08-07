@@ -27,7 +27,7 @@ export const heroSlides: HeroSlide[] = [
 
         secondaryButton: "BROWSE MODELS",
 
-        image: "/images/hero/hero-slide-1.png",
+        image: "/images/hero/hero-mug.png",
 
         background: "/images/hero/hero-background.jpg",
 
