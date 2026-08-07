@@ -3,14 +3,12 @@
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: FeaturedModels.tsx
- * Module: Home
- * Language: TypeScript React
- * Description:
- * Featured models section.
  * ===============================================================
  */
 
 import "./FeaturedModels.css";
+
+import { Eye } from "lucide-react";
 
 import {
 
@@ -22,15 +20,32 @@ function FeaturedModels() {
 
     return (
 
-        <section>
+        <section className="featured-models">
 
-            <h2>
+            <div className="featured-models__header">
 
-                Featured Models
+                <span>
 
-            </h2>
+                    BEST SELLERS
 
-            <div>
+                </span>
+
+                <h2>
+
+                    Featured Models
+
+                </h2>
+
+                <p>
+
+                    Discover our handcrafted personalized mugs designed
+                    for every special moment.
+
+                </p>
+
+            </div>
+
+            <div className="featured-models__grid">
 
                 {
 
@@ -46,35 +61,45 @@ function FeaturedModels() {
 
                                 key={model.id}
 
+                                className="featured-model"
+
                             >
 
-                                <div>
+                                <div className="featured-model__image">
 
-                                    Image
+                                    <img
+
+                                        src={model.image}
+
+                                        alt={model.name}
+
+                                    />
 
                                 </div>
 
-                                <h3>
+                                <div className="featured-model__body">
 
-                                    {model.name}
+                                    <h3>
 
-                                </h3>
+                                        {model.name}
 
-                                <p>
+                                    </h3>
 
-                                    ${model.price.toFixed(
+                                    <span>
 
-                                        2
+                                        ${model.price.toFixed(2)}
 
-                                    )}
+                                    </span>
 
-                                </p>
+                                    <button>
 
-                                <button>
+                                        <Eye size={18} />
 
-                                    View Details
+                                        View Details
 
-                                </button>
+                                    </button>
+
+                                </div>
 
                             </article>
 

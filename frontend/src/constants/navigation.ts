@@ -20,11 +20,11 @@ export const navigation: NavigationItem[] = [
         path: "/"
     },
 
-    {
-        id: 2,
-        label: "Models",
-        path: "/models"
-    },
+{
+    id: 2,
+    label: "Products",
+    path: "/products"
+},
 
     {
         id: 3,
