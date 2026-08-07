@@ -482,3 +482,35 @@
     }
 
 }
+
+.hero-slider__image{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.hero-slider__image img{
+
+    width:100%;
+
+    max-width:560px;
+
+    height:auto;
+
+    object-fit:contain;
+
+    filter:drop-shadow(0 35px 60px rgba(0,0,0,.45));
+
+    transition:transform .35s ease;
+
+}
+
+.hero-slider__image img:hover{
+
+    transform:scale(1.03);
+
+}
