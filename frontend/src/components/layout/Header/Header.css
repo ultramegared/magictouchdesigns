@@ -353,7 +353,19 @@
 
     .header__language{
 
-        display:none;
+        display:flex;
+
+        align-items:center;
+
+        gap:6px;
+
+        margin-left:0;
+
+    }
+
+    .header__language button{
+
+        font-size:.75rem;
 
     }
 
