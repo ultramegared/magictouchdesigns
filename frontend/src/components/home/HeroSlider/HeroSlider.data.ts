@@ -18,14 +18,14 @@ export const heroSlides: HeroSlide[] = [
 
         id: 1,
 
-        title: "EVERY MUG TELLS A STORY.",
+        title: "YOUR STORY.\nYOUR MUG.",
 
-        subtitle:
-            "Turn your memories into something beautiful, unique and unforgettable.",
+subtitle:
+    "Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.",
 
-        primaryButton: "START DESIGNING",
+primaryButton: "CREATE YOUR MUG",
 
-        secondaryButton: "BROWSE MODELS",
+secondaryButton: "SHOP MUGS",
 
         image: "/images/hero/hero-mug.png",
 
