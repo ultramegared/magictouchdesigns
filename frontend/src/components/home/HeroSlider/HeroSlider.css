@@ -58,11 +58,13 @@
 
     padding:40px 70px 60px;
 
-    display:flex;
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
 
     align-items:center;
 
-    justify-content:flex-start;
+    gap:60px;
 
 }
 
@@ -70,12 +72,13 @@
 
     width:100%;
 
-    max-width:560px;
+    max-width:600px;
+
+    justify-self:start;
 
     animation:fadeUp .8s ease;
 
 }
-
 .hero-slider__text span{
 
     display:inline-block;
