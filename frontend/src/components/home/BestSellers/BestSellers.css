@@ -108,18 +108,21 @@
 
     background:#141414;
 
+    border:1px solid rgba(200,155,60,.45);
+
     border-radius:22px;
 
     overflow:hidden;
-
-    border:1px solid rgba(255,255,255,.06);
 
     transition:
         transform .35s ease,
         box-shadow .35s ease,
         border-color .35s ease;
 
+    outline:none;
+
 }
+
 
 .best-sellers__card:hover{
 
@@ -130,6 +133,23 @@
     box-shadow:
         0 18px 45px rgba(0,0,0,.40),
         0 0 20px rgba(200,155,60,.18);
+
+}
+
+
+.best-sellers__card:focus,
+.best-sellers__card:focus-visible,
+.best-sellers__card:active{
+
+    border-color:#C89B3C;
+
+    outline:2px solid #C89B3C;
+
+    outline-offset:-2px;
+
+    box-shadow:
+        0 18px 45px rgba(0,0,0,.40),
+        0 0 20px rgba(200,155,60,.22);
 
 }
 
