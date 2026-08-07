@@ -3,6 +3,10 @@
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: FeaturedModels.tsx
+ * Module: Home
+ * Language: TypeScript React
+ * Description:
+ * Featured products section.
  * ===============================================================
  */
 
@@ -22,92 +26,98 @@ function FeaturedModels() {
 
         <section className="featured-models">
 
-            <div className="featured-models__header">
+            <div className="featured-models__container">
 
-                <span>
+                <div className="featured-models__header">
 
-                    BEST SELLERS
+                    <span>
 
-                </span>
+                        BEST SELLERS
 
-                <h2>
+                    </span>
 
-                    Featured Models
+                    <h2>
 
-                </h2>
+                        Featured Models
 
-                <p>
+                    </h2>
 
-                    Discover our handcrafted personalized mugs designed
-                    for every special moment.
+                    <p>
 
-                </p>
+                        Discover our handcrafted personalized mugs designed
+                        for every special moment.
 
-            </div>
+                    </p>
 
-            <div className="featured-models__grid">
+                </div>
 
-                {
+                <div className="featured-models__grid">
 
-                    featuredModels.map(
+                    {
 
-                        (
+                        featuredModels.map(
 
-                            model
+                            (
 
-                        ) => (
+                                model
 
-                            <article
+                            ) => (
 
-                                key={model.id}
+                                <article
 
-                                className="featured-model"
+                                    key={model.id}
 
-                            >
+                                    className="featured-model"
 
-                                <div className="featured-model__image">
+                                >
 
-                                    <img
+                                    <div className="featured-model__image">
 
-                                        src={model.image}
+                                        <img
 
-                                        alt={model.name}
+                                            src={model.image}
 
-                                    />
+                                            alt={model.name}
 
-                                </div>
+                                        />
 
-                                <div className="featured-model__body">
+                                    </div>
 
-                                    <h3>
+                                    <div className="featured-model__body">
 
-                                        {model.name}
+                                        <h3>
 
-                                    </h3>
+                                            {model.name}
 
-                                    <span>
+                                        </h3>
 
-                                        ${model.price.toFixed(2)}
+                                        <span className="featured-model__price">
 
-                                    </span>
+                                            ${model.price.toFixed(2)}
 
-                                    <button>
+                                        </span>
 
-                                        <Eye size={18} />
+                                        <button
+                                            className="featured-model__button"
+                                        >
 
-                                        View Details
+                                            <Eye size={18} />
 
-                                    </button>
+                                            View Details
 
-                                </div>
+                                        </button>
 
-                            </article>
+                                    </div>
+
+                                </article>
+
+                            )
 
                         )
 
-                    )
+                    }
 
-                }
+                </div>
 
             </div>
 
