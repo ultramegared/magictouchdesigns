@@ -164,7 +164,7 @@ function Header() {
 
             </div>
 
-            <nav
+                        <nav
                 className={`header__mobile ${menuOpen ? "header__mobile--open" : ""}`}
             >
 
@@ -186,6 +186,24 @@ function Header() {
                     ))
 
                 }
+
+                <div className="header__mobile-language">
+
+                    <button className="header__language--active">
+
+                        EN
+
+                    </button>
+
+                    <span>|</span>
+
+                    <button>
+
+                        ES
+
+                    </button>
+
+                </div>
 
             </nav>
 
