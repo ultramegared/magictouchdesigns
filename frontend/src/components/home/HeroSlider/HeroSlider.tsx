@@ -157,15 +157,15 @@ const nextSlide = () => {
 
     <div className="hero-slider__image">
 
-        <img
+    <img
 
-    src="/images/hero/hero-slide-1.png"
+        src={slide.image}
 
-    alt="Hero Mug"
+        alt={slide.title}
 
-/>
+    />
 
-    </div>
+</div>
 
 </div>
 
