@@ -20,43 +20,11 @@ import Newsletter from "../../components/home/Newsletter";
 
 function HomePage() {
 
-    const navigation = [
-
-        {
-            label: "Home",
-            path: "/"
-        },
-
-        {
-            label: "Products",
-            path: "/products"
-        },
-
-        {
-            label: "Collections",
-            path: "/collections"
-        },
-
-        {
-            label: "Customize",
-            path: "/customize"
-        },
-
-        {
-            label: "Contact",
-            path: "/contact"
-        }
-
-    ];
-
     return (
 
         <>
 
-            <Header
-                logo="/images/logo/logo.png"
-                navigation={navigation}
-            />
+            <Header />
 
             <main>
 
