@@ -69,9 +69,9 @@ position:relative;
 
     position:absolute;
 
-    right:-20px;
+    right:-50px;
 
-    bottom:90px;
+    bottom:170px;
 
     width:48%;
 
@@ -97,7 +97,7 @@ position:relative;
 
     object-fit:contain;
 
-    transform:translate(-120px,-30px);
+    transform:translate(-150px,-60px) scale(1.18);
 
     filter:drop-shadow(0 35px 70px rgba(0,0,0,.45));
 
