@@ -82,15 +82,15 @@
 
 .hero-slider__image img{
 
-    width:90%;
+    width:100%;
 
-    max-width:700px;
+    max-width:650px;
 
     height:auto;
 
-    object-fit:contain;
+    display:block;
 
-    filter:drop-shadow(0 35px 60px rgba(0,0,0,.45));
+    object-fit:contain;
 
 }
 
@@ -353,15 +353,19 @@
 
     .hero-slider__content{
 
-        min-height:calc(100vh - 86px);
+    min-height:calc(100vh - 86px);
 
-        justify-content:center;
+    grid-template-columns:1fr;
 
-        text-align:center;
+    justify-content:center;
 
-        padding:50px 30px 60px;
+    text-align:center;
 
-    }
+    padding:50px 30px 60px;
+
+    gap:40px;
+
+}
 
     .hero-slider__text{
 
