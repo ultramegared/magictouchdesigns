@@ -393,9 +393,39 @@
 
 @media(max-width:576px){
 
-    .header__brand-text{
+    .header__container{
 
-        display:none;
+        padding:0 16px;
+
+    }
+
+    .header__brand{
+
+        gap:10px;
+
+    }
+
+    .header__logo{
+
+        width:52px;
+
+        height:52px;
+
+    }
+
+    .header__brand-title{
+
+        font-size:.90rem;
+
+        letter-spacing:1px;
+
+    }
+
+    .header__brand-subtitle{
+
+        font-size:.62rem;
+
+        letter-spacing:2px;
 
     }
 
