@@ -117,45 +117,57 @@ const nextSlide = () => {
 
             <div className="hero-slider__content">
 
-                <div className="hero-slider__text">
+    <div className="hero-slider__text">
 
-                    <span>
+        <span>
 
-                        CUSTOM MUGS MADE WITH LOVE
+            CUSTOM MUGS MADE WITH LOVE
 
-                    </span>
+        </span>
 
-                    <h1>
+        <h1>
 
-                        {slide.title}
+            {slide.title}
 
-                    </h1>
+        </h1>
 
-                    <p>
+        <p>
 
-                        {slide.subtitle}
+            {slide.subtitle}
 
-                    </p>
+        </p>
 
-                    <div className="hero-slider__buttons">
+        <div className="hero-slider__buttons">
 
-                        <button className="hero-slider__primary">
+            <button className="hero-slider__primary">
 
-                            {slide.primaryButton}
+                {slide.primaryButton}
 
-                        </button>
+            </button>
 
-                        <button className="hero-slider__secondary">
+            <button className="hero-slider__secondary">
 
-                            {slide.secondaryButton}
+                {slide.secondaryButton}
 
-                        </button>
+            </button>
 
-                    </div>
+        </div>
 
-                </div>
+    </div>
 
-            </div>
+    <div className="hero-slider__image">
+
+        <img
+
+            src={slide.image}
+
+            alt={slide.title}
+
+        />
+
+    </div>
+
+</div>
 
             <button
 
