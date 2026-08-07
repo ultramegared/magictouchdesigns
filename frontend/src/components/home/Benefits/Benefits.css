@@ -1,0 +1,186 @@
+/**
+ * ================================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: Benefits.css
+ * Module: Home
+ * Description:
+ * Benefits Section Styles.
+ * ================================================================
+ */
+
+.benefits{
+
+    background:#0F0F10;
+
+    padding:0 0 70px;
+
+}
+
+.benefits__container{
+
+    max-width:1400px;
+
+    margin:auto;
+
+    padding:0 50px;
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:0;
+
+    border:1px solid rgba(255,255,255,.10);
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    background:#111111;
+
+}
+
+.benefit{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:22px;
+
+    padding:34px 28px;
+
+    border-right:1px solid rgba(255,255,255,.08);
+
+    transition:.30s ease;
+
+    cursor:default;
+
+}
+
+.benefit:last-child{
+
+    border-right:none;
+
+}
+
+.benefit:hover{
+
+    background:#171717;
+
+}
+
+.benefit__icon{
+
+    width:64px;
+
+    height:64px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-shrink:0;
+
+    color:#C89B3C;
+
+}
+
+.benefit__content h3{
+
+    margin:0 0 10px;
+
+    color:#FFFFFF;
+
+    font-size:1.1rem;
+
+    font-weight:700;
+
+}
+
+.benefit__content p{
+
+    margin:0;
+
+    color:#B8B8B8;
+
+    line-height:1.7;
+
+    font-size:.95rem;
+
+}
+
+@media(max-width:992px){
+
+    .benefits__container{
+
+        grid-template-columns:repeat(2,1fr);
+
+        margin:0 24px;
+
+        padding:0;
+
+    }
+
+    .benefit{
+
+        border-right:none;
+
+        border-bottom:1px solid rgba(255,255,255,.08);
+
+    }
+
+    .benefit:nth-last-child(-n+2){
+
+        border-bottom:none;
+
+    }
+
+}
+
+@media(max-width:576px){
+
+    .benefits{
+
+        padding:0 0 50px;
+
+    }
+
+    .benefits__container{
+
+        grid-template-columns:1fr;
+
+        margin:0 18px;
+
+    }
+
+    .benefit{
+
+        flex-direction:column;
+
+        text-align:center;
+
+        padding:28px 22px;
+
+        border-bottom:1px solid rgba(255,255,255,.08);
+
+    }
+
+    .benefit:last-child{
+
+        border-bottom:none;
+
+    }
+
+    .benefit__icon{
+
+        width:56px;
+
+        height:56px;
+
+    }
+
+}
