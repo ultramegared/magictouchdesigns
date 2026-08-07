@@ -29,7 +29,7 @@ export const heroSlides: HeroSlide[] = [
 
         image: "/images/hero/hero-slide-1.png",
 
-        background: "/images/hero/hero-bg-1.jpg"
+        background: "/images/hero/hero-background.jpg",
 
     },
 
@@ -48,7 +48,7 @@ export const heroSlides: HeroSlide[] = [
 
         image: "/images/hero/hero-slide-2.png",
 
-        background: "/images/hero/hero-bg-2.jpg"
+        background: "/images/hero/hero-background.jpg",
 
     },
 
@@ -67,7 +67,7 @@ export const heroSlides: HeroSlide[] = [
 
         image: "/images/hero/hero-slide-3.png",
 
-        background: "/images/hero/hero-bg-3.jpg"
+        background: "/images/hero/hero-background.jpg",
 
     }
 
