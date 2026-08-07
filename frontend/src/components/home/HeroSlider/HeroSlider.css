@@ -39,21 +39,27 @@
 
     max-width:1400px;
 
-    min-height:100vh;
+    height:100vh;
 
     margin:auto;
 
-    padding:130px 70px 90px;
+    padding:0 80px;
 
     display:flex;
 
     align-items:center;
 
+    justify-content:flex-start;
+
 }
 
 .hero-slider__text{
 
-    width:620px;
+    width:100%;
+
+    max-width:560px;
+
+    margin-left:20px;
 
     animation:fadeUp .8s ease;
 
@@ -166,28 +172,6 @@
     background:#FFFFFF;
 
     color:#111111;
-
-}
-
-.hero-slider__image{
-
-    flex:1;
-
-    display:flex;
-
-    justify-content:flex-end;
-
-}
-
-.hero-slider__image img{
-
-    width:100%;
-
-    max-width:720px;
-
-    object-fit:contain;
-
-    filter:drop-shadow(0 35px 60px rgba(0,0,0,.45));
 
 }
 

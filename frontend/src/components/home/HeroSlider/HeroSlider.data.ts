@@ -37,14 +37,14 @@ export const heroSlides: HeroSlide[] = [
 
         id: 2,
 
-        title: "CREATE SOMETHING TRULY YOURS.",
+        title: "CUSTOM GIFTS MADE WITH LOVE.",
 
         subtitle:
-            "Upload your photos, names or artwork and create a unique personalized gift.",
+            "Celebrate anniversaries and unforgettable moments with personalized mugs designed just for you.",
 
-        primaryButton: "CUSTOMIZE NOW",
+        primaryButton: "EXPLORE COLLECTION",
 
-        secondaryButton: "VIEW IDEAS",
+        secondaryButton: "CUSTOMIZE NOW",
 
         image: "/images/hero/hero-slide-2.png",
 
@@ -56,14 +56,14 @@ export const heroSlides: HeroSlide[] = [
 
         id: 3,
 
-        title: "PREMIUM GIFTS FOR EVERY OCCASION.",
+        title: "DISCOVER OUR PREMIUM COLLECTION.",
 
         subtitle:
-            "Birthday, Graduation, Family, Love and much more with premium quality printing.",
+            "Elegant mugs crafted with premium materials for every special occasion.",
 
-        primaryButton: "SHOP NOW",
+        primaryButton: "SHOP COLLECTION",
 
-        secondaryButton: "ALL COLLECTIONS",
+        secondaryButton: "VIEW ALL MODELS",
 
         image: "/images/hero/hero-slide-3.png",
 
