@@ -31,24 +31,24 @@ function HomePage() {
 
             <main>
 
-                <HeroSlider />
+    <HeroSlider />
 
-                <BestSellers />
+    <Benefits />
 
-                <Benefits />
+    <BestSellers />
 
-                {/*
-                    FeaturedModels se deshabilita temporalmente
-                    hasta terminar su diseño e imágenes.
-                */}
+    {/*
+        FeaturedModels se deshabilita temporalmente
+        hasta terminar su diseño e imágenes.
+    */}
 
-                {/* <FeaturedModels /> */}
+    {/* <FeaturedModels /> */}
 
-                <WhyChooseUs />
+    <WhyChooseUs />
 
-                <Newsletter />
+    <Newsletter />
 
-            </main>
+</main>
 
             <Footer />
 
