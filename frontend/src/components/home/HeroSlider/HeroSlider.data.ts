@@ -36,10 +36,10 @@ secondaryButton: "SHOP MUGS",
     {
     id: 2,
 
-    title: "WEAR YOUR\nBRAND.",
+    title: "WEAR\nYOUR BRAND.",
 
     subtitle:
-        "Create premium custom caps with your logo, business name or team design. Perfect for companies, events and everyday style.",
+        "Create premium custom caps with your logo, business name or team design. Perfect for businesses, events and everyday wear.,
 
     primaryButton: "CREATE YOUR CAP",
 
@@ -53,10 +53,10 @@ secondaryButton: "SHOP MUGS",
     {
     id: 3,
 
-    title: "WEAR YOUR\nIDENTITY.",
+    title: "YOUR STYLE.\nYOUR SHIRT.",
 
     subtitle:
-        "Design premium custom t-shirts with your logo, artwork or business branding. Made for teams, events and everyday style.",
+        "Design premium custom t-shirts with your logo, artwork or business branding. Perfect for teams, businesses and special events.,
 
     primaryButton: "CREATE YOUR SHIRT",
 
