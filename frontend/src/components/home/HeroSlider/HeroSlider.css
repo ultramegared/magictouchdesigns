@@ -87,9 +87,9 @@ position:relative;
 
 .hero-slider__image img{
 
-    width:100%;
+    width: 115%;
 
-    max-width:680px;
+    max-width: 760px;
 
     height:auto;
 
@@ -97,7 +97,7 @@ position:relative;
 
     object-fit:contain;
 
-    transform: translate(-105px, -40px) scale(1.15);
+    transform: translate(-80px, -40px) scale(1.22);
 
     filter:drop-shadow(0 35px 70px rgba(0,0,0,.45));
 
