@@ -143,13 +143,12 @@
 
     border-color:#C89B3C;
 
-    outline:2px solid #C89B3C;
-
-    outline-offset:-2px;
+    outline:none;
 
     box-shadow:
         0 18px 45px rgba(0,0,0,.40),
-        0 0 20px rgba(200,155,60,.22);
+        0 0 20px rgba(200,155,60,.22),
+        inset 0 0 0 1px #C89B3C;
 
 }
 
@@ -298,6 +297,27 @@
         min-width:280px;
 
         scroll-snap-align:start;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .best-sellers__card:active,
+    .best-sellers__card:focus,
+    .best-sellers__card:focus-visible{
+
+        transform:none;
+
+        border-color:#C89B3C;
+
+        outline:none;
+
+        box-shadow:
+            0 12px 30px rgba(0,0,0,.35),
+            0 0 18px rgba(200,155,60,.18),
+            inset 0 0 0 1px #C89B3C;
 
     }
 
