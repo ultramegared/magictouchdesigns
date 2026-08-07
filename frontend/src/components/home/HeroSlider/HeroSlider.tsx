@@ -159,11 +159,11 @@ const nextSlide = () => {
 
         <img
 
-            src={slide.image}
+    src="/images/hero/hero-slide-1.png"
 
-            alt={slide.title}
+    alt="Hero Mug"
 
-        />
+/>
 
     </div>
 
