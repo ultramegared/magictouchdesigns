@@ -13,33 +13,30 @@
 import type { HeroSlide } from "./HeroSlider.types";
 
 export const heroSlides: HeroSlide[] = [
+  {
+    id: 1,
 
-    {
+    title: "YOUR STORY.\nYOUR MUG.",
 
-        id: 1,
+    subtitle:
+      "Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.",
 
-        title: "YOUR STORY.\nYOUR MUG.",
+    primaryButton: "CREATE YOUR MUG",
 
-subtitle:
-    "Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.",
+    secondaryButton: "SHOP MUGS",
 
-primaryButton: "CREATE YOUR MUG",
+    image: "/images/hero/hero-mug.png",
 
-secondaryButton: "SHOP MUGS",
+    background: "/images/hero/hero-background.jpg",
+  },
 
-        image: "/images/hero/hero-mug.png",
-
-        background: "/images/hero/hero-background.jpg",
-
-    },
-
-    {
+  {
     id: 2,
 
     title: "WEAR\nYOUR BRAND.",
 
     subtitle:
-        "Create premium custom caps with your logo, business name or team design. Perfect for businesses, events and everyday wear.,
+      "Create premium custom caps with your logo, business name or team design. Perfect for businesses, events and everyday wear.",
 
     primaryButton: "CREATE YOUR CAP",
 
@@ -48,15 +45,15 @@ secondaryButton: "SHOP MUGS",
     image: "/images/hero/hero-cap.png",
 
     background: "/images/hero/hero-background.jpg",
-},
+  },
 
-    {
+  {
     id: 3,
 
     title: "YOUR STYLE.\nYOUR SHIRT.",
 
     subtitle:
-        "Design premium custom t-shirts with your logo, artwork or business branding. Perfect for teams, businesses and special events.,
+      "Design premium custom t-shirts with your logo, artwork or business branding. Perfect for teams, businesses and special events.",
 
     primaryButton: "CREATE YOUR SHIRT",
 
@@ -65,6 +62,5 @@ secondaryButton: "SHOP MUGS",
     image: "/images/hero/hero-shirt.png",
 
     background: "/images/hero/hero-background.jpg",
-},
-
+  },
 ];
