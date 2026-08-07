@@ -34,41 +34,37 @@ secondaryButton: "SHOP MUGS",
     },
 
     {
+    id: 2,
 
-        id: 2,
+    title: "WEAR YOUR\nBRAND.",
 
-        title: "CUSTOM GIFTS MADE WITH LOVE.",
+    subtitle:
+        "Create premium custom caps with your logo, business name or team design. Perfect for companies, events and everyday style.",
 
-        subtitle:
-            "Celebrate anniversaries and unforgettable moments with personalized mugs designed just for you.",
+    primaryButton: "CREATE YOUR CAP",
 
-        primaryButton: "EXPLORE COLLECTION",
+    secondaryButton: "SHOP CAPS",
 
-        secondaryButton: "CUSTOMIZE NOW",
+    image: "/images/hero/hero-cap.png",
 
-        image: "/images/hero/hero-slide-2.png",
-
-        background: "/images/hero/hero-background.jpg",
-
-    },
+    background: "/images/hero/hero-background.jpg",
+},
 
     {
+    id: 3,
 
-        id: 3,
+    title: "WEAR YOUR\nIDENTITY.",
 
-        title: "DISCOVER OUR PREMIUM COLLECTION.",
+    subtitle:
+        "Design premium custom t-shirts with your logo, artwork or business branding. Made for teams, events and everyday style.",
 
-        subtitle:
-            "Elegant mugs crafted with premium materials for every special occasion.",
+    primaryButton: "CREATE YOUR SHIRT",
 
-        primaryButton: "SHOP COLLECTION",
+    secondaryButton: "SHOP T-SHIRTS",
 
-        secondaryButton: "VIEW ALL MODELS",
+    image: "/images/hero/hero-shirt.png",
 
-        image: "/images/hero/hero-slide-3.png",
-
-        background: "/images/hero/hero-background.jpg",
-
-    }
+    background: "/images/hero/hero-background.jpg",
+},
 
 ];
