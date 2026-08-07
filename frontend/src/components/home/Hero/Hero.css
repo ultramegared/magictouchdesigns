@@ -6,11 +6,49 @@
 
 .hero{
 
+    position:relative;
+
     width:100%;
 
     min-height:100vh;
 
-    padding:140px 8% 80px;
+    overflow:hidden;
+
+    background:linear-gradient(
+        135deg,
+        #0F0F10 0%,
+        #1A1A1D 100%
+    );
+
+}
+
+.hero__overlay{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+        radial-gradient(circle at 80% 20%, rgba(200,155,60,.12), transparent 35%),
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,.04), transparent 40%);
+
+    pointer-events:none;
+
+}
+
+.hero__container{
+
+    position:relative;
+
+    z-index:2;
+
+    max-width:1400px;
+
+    margin:auto;
+
+    min-height:100vh;
+
+    padding:140px 60px 80px;
 
     display:flex;
 
@@ -20,14 +58,6 @@
 
     gap:80px;
 
-    background:linear-gradient(
-        135deg,
-        #0F0F10 0%,
-        #1A1A1D 100%
-    );
-
-    overflow:hidden;
-
 }
 
 .hero__content{
@@ -35,8 +65,6 @@
     flex:1;
 
     max-width:620px;
-
-    z-index:2;
 
 }
 
@@ -66,13 +94,13 @@
 
 .hero h1{
 
-    font-size:clamp(3.5rem,6vw,5.8rem);
-
-    line-height:1.05;
-
     color:#FFFFFF;
 
+    font-size:clamp(3.5rem,6vw,5.8rem);
+
     font-weight:800;
+
+    line-height:1.05;
 
     margin-bottom:24px;
 
@@ -80,11 +108,11 @@
 
 .hero p{
 
+    color:#D8D8D8;
+
     font-size:1.1rem;
 
     line-height:1.9;
-
-    color:#D8D8D8;
 
     margin-bottom:42px;
 
@@ -116,7 +144,7 @@
 
     font-weight:700;
 
-    transition:.30s;
+    transition:.3s;
 
 }
 
@@ -132,7 +160,7 @@
 
     transform:translateY(-4px);
 
-    box-shadow:0 18px 40px rgba(200,155,60,.35);
+    box-shadow:0 20px 40px rgba(200,155,60,.35);
 
 }
 
@@ -172,9 +200,7 @@
 
     max-width:760px;
 
-    transform:scale(1.15);
-
-    filter:drop-shadow(0 35px 60px rgba(0,0,0,.45));
+    filter:drop-shadow(0 35px 70px rgba(0,0,0,.45));
 
     transition:.35s;
 
@@ -182,21 +208,21 @@
 
 .hero__image img:hover{
 
-    transform:scale(1.20);
+    transform:scale(1.04);
 
 }
 
 @media(max-width:992px){
 
-    .hero{
+    .hero__container{
 
         flex-direction:column;
+
+        justify-content:center;
 
         text-align:center;
 
         padding:130px 24px 70px;
-
-        gap:50px;
 
     }
 
@@ -215,8 +241,6 @@
     .hero__image img{
 
         max-width:500px;
-
-        transform:none;
 
     }
 

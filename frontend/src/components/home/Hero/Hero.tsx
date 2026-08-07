@@ -30,50 +30,56 @@ function Hero({
 
         <section className="hero">
 
-            <div className="hero__content">
+            <div className="hero__overlay"></div>
 
-                <span className="hero__tag">
+            <div className="hero__container">
 
-                    Personalized • Handmade • Premium
+                <div className="hero__content">
 
-                </span>
+                    <span className="hero__tag">
 
-                <h1>
+                        Personalized • Handmade • Premium
 
-                    {title}
+                    </span>
 
-                </h1>
+                    <h1>
 
-                <p>
+                        {title}
 
-                    {subtitle}
+                    </h1>
 
-                </p>
+                    <p>
 
-                <div className="hero__buttons">
+                        {subtitle}
 
-                    <button className="hero__button hero__button--primary">
+                    </p>
 
-                        {primaryButton}
+                    <div className="hero__buttons">
 
-                    </button>
+                        <button className="hero__button hero__button--primary">
 
-                    <button className="hero__button hero__button--secondary">
+                            {primaryButton}
 
-                        {secondaryButton}
+                        </button>
 
-                    </button>
+                        <button className="hero__button hero__button--secondary">
+
+                            {secondaryButton}
+
+                        </button>
+
+                    </div>
 
                 </div>
 
-            </div>
+                <div className="hero__image">
 
-            <div className="hero__image">
+                    <img
+                        src="/images/hero/hero-mug2.png"
+                        alt="Magic Touch Designs Mug"
+                    />
 
-                <img
-                    src="/images/hero/hero-mug2.png"
-                    alt="Magic Touch Designs Mug"
-                />
+                </div>
 
             </div>
 
