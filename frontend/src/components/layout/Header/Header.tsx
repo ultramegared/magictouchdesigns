@@ -13,31 +13,16 @@
 import "./Header.css";
 
 import {
-
     Search,
     User,
     ShoppingCart,
     Menu
-
 } from "lucide-react";
 
-import {
+import { NavLink } from "react-router-dom";
 
-    NavLink
-
-} from "react-router-dom";
-
-import {
-
-    APP_CONFIG
-
-} from "../../../constants/config";
-
-import {
-
-    navigation
-
-} from "../../../constants/navigation";
+import { APP_CONFIG } from "../../../constants/config";
+import { navigation } from "../../../constants/navigation";
 
 function Header() {
 
@@ -49,13 +34,30 @@ function Header() {
 
                 <NavLink
                     to="/"
-                    className="header__logo"
+                    className="header__brand"
                 >
 
                     <img
                         src={APP_CONFIG.logo}
                         alt={APP_CONFIG.companyName}
+                        className="header__logo"
                     />
+
+                    <div className="header__brand-text">
+
+                        <span className="header__brand-title">
+
+                            MAGIC TOUCH
+
+                        </span>
+
+                        <span className="header__brand-subtitle">
+
+                            DESIGNS
+
+                        </span>
+
+                    </div>
 
                 </NavLink>
 
@@ -63,43 +65,31 @@ function Header() {
 
                     {
 
-                        navigation.map(
+                        navigation.map((item) => (
 
-                            (
+                            <NavLink
 
-                                item
+                                key={item.id}
 
-                            ) => (
+                                to={item.path}
 
-                                <NavLink
+                                className={({ isActive }) =>
 
-                                    key={item.id}
+                                    item.label === "Customize"
 
-                                    to={item.path}
+                                        ? `header__link header__link--cta ${isActive ? "header__link--active" : ""}`
 
-                                    className={({ isActive }) => {
+                                        : `header__link ${isActive ? "header__link--active" : ""}`
 
-                                        let classes = "header__link";
+                                }
 
-                                        if (isActive) {
+                            >
 
-                                            classes += " header__link--active";
+                                {item.label}
 
-                                        }
+                            </NavLink>
 
-                                        return classes;
-
-                                    }}
-
-                                >
-
-                                    {item.label}
-
-                                </NavLink>
-
-                            )
-
-                        )
+                        ))
 
                     }
 
@@ -111,42 +101,47 @@ function Header() {
                         className="header__icon"
                         aria-label="Search"
                     >
-
                         <Search size={20} />
-
                     </button>
 
                     <button
                         className="header__icon"
                         aria-label="Account"
                     >
-
                         <User size={20} />
-
                     </button>
 
                     <button
                         className="header__icon header__cart"
                         aria-label="Shopping Cart"
                     >
-
                         <ShoppingCart size={20} />
-
-                        <span>
-
-                            0
-
-                        </span>
-
+                        <span>0</span>
                     </button>
+
+                    <div className="header__language">
+
+                        <button className="header__language--active">
+
+                            EN
+
+                        </button>
+
+                        <span>|</span>
+
+                        <button>
+
+                            ES
+
+                        </button>
+
+                    </div>
 
                     <button
                         className="header__menu"
                         aria-label="Menu"
                     >
-
                         <Menu size={24} />
-
                     </button>
 
                 </div>

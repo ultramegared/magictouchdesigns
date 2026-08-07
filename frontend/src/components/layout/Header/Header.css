@@ -19,7 +19,7 @@
 
     z-index:1000;
 
-    background:rgba(15,15,16,.95);
+    background:rgba(15,15,16,.96);
 
     backdrop-filter:blur(18px);
 
@@ -43,27 +43,73 @@
 
     justify-content:space-between;
 
+    gap:40px;
+
 }
 
-.header__logo{
+.header__brand{
 
     display:flex;
 
     align-items:center;
 
+    gap:16px;
+
+    text-decoration:none;
+
+    flex-shrink:0;
+
 }
 
-.header__logo img{
+.header__logo{
 
-    height:64px;
+    width:60px;
+
+    height:60px;
+
+    object-fit:contain;
 
     transition:.3s;
 
 }
 
-.header__logo img:hover{
+.header__logo:hover{
 
     transform:scale(1.05);
+
+}
+
+.header__brand-text{
+
+    display:flex;
+
+    flex-direction:column;
+
+    line-height:1.1;
+
+}
+
+.header__brand-title{
+
+    color:#FFFFFF;
+
+    font-size:1.15rem;
+
+    font-weight:800;
+
+    letter-spacing:2px;
+
+}
+
+.header__brand-subtitle{
+
+    color:#C89B3C;
+
+    font-size:.82rem;
+
+    font-weight:700;
+
+    letter-spacing:4px;
 
 }
 
@@ -73,7 +119,9 @@
 
     align-items:center;
 
-    gap:38px;
+    gap:34px;
+
+    margin-left:auto;
 
 }
 
@@ -81,15 +129,13 @@
 
     position:relative;
 
-    text-decoration:none;
-
     color:#FFFFFF;
+
+    text-decoration:none;
 
     font-size:.95rem;
 
     font-weight:600;
-
-    letter-spacing:.4px;
 
     transition:.3s;
 
@@ -121,9 +167,17 @@
 
 }
 
-.header__link:hover::after{
+.header__link:hover::after,
+
+.header__link--active::after{
 
     width:100%;
+
+}
+
+.header__link--active{
+
+    color:#C89B3C;
 
 }
 
@@ -145,7 +199,7 @@
 
     transform:translateY(-2px);
 
-    box-shadow:0 15px 30px rgba(200,155,60,.35);
+    box-shadow:0 12px 24px rgba(200,155,60,.35);
 
 }
 
@@ -171,15 +225,15 @@
 
     height:46px;
 
+    border:none;
+
+    border-radius:50%;
+
     display:flex;
 
     justify-content:center;
 
     align-items:center;
-
-    border:none;
-
-    border-radius:50%;
 
     background:#1D1D1D;
 
@@ -197,8 +251,6 @@
 
     color:#111111;
 
-    transform:translateY(-2px);
-
 }
 
 .header__cart{
@@ -211,7 +263,7 @@
 
     position:absolute;
 
-    top:-6px;
+    top:-5px;
 
     right:-4px;
 
@@ -221,19 +273,59 @@
 
     border-radius:50%;
 
-    background:#C89B3C;
-
-    color:#111111;
-
     display:flex;
 
     justify-content:center;
 
     align-items:center;
 
-    font-size:.70rem;
+    background:#C89B3C;
+
+    color:#111111;
+
+    font-size:.7rem;
 
     font-weight:700;
+
+}
+
+.header__language{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-left:8px;
+
+}
+
+.header__language button{
+
+    background:none;
+
+    border:none;
+
+    color:#FFFFFF;
+
+    cursor:pointer;
+
+    font-size:.85rem;
+
+    font-weight:700;
+
+}
+
+.header__language--active{
+
+    color:#C89B3C !important;
+
+}
+
+.header__language span{
+
+    color:#777777;
 
 }
 
@@ -243,7 +335,7 @@
 
     border:none;
 
-    background:transparent;
+    background:none;
 
     color:#FFFFFF;
 
@@ -251,15 +343,15 @@
 
 }
 
-@media(max-width:992px){
+@media(max-width:1100px){
 
-    .header__container{
+    .header__nav{
 
-        padding:0 24px;
+        display:none;
 
     }
 
-    .header__nav{
+    .header__language{
 
         display:none;
 
@@ -277,52 +369,34 @@
 
 }
 
+@media(max-width:768px){
+
+    .header__container{
+
+        padding:0 24px;
+
+    }
+
+    .header__brand-title{
+
+        font-size:1rem;
+
+    }
+
+    .header__brand-subtitle{
+
+        font-size:.72rem;
+
+    }
+
+}
+
 @media(max-width:576px){
 
-    .header__logo img{
+    .header__brand-text{
 
-        height:52px;
-
-    }
-
-    .header__actions{
-
-        gap:8px;
+        display:none;
 
     }
-
-    .header__icon{
-
-        width:42px;
-
-        height:42px;
-
-    }
-
-}
-
-/**
- * ================================================================
- * Active Navigation Link
- * ================================================================
- */
-
-.header__link--active{
-
-    color:#C89B3C;
-
-}
-
-.header__link--active::after{
-
-    width:100%;
-
-}
-
-.header__link--cta.header__link--active{
-
-    background:#D6AA4A;
-
-    color:#111111;
 
 }
