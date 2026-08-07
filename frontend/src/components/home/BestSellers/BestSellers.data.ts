@@ -25,7 +25,7 @@ export const bestSellers: BestSeller[] = [
 
         reviews: 125,
 
-        image: "/images/products/mug-love.png",
+        image: "/images/products/best-seller-placeholder.png",
     },
 
     {
@@ -39,7 +39,7 @@ export const bestSellers: BestSeller[] = [
 
         reviews: 98,
 
-        image: "/images/products/mug-graduation.png",
+        image: "/images/products/best-seller-placeholder.png",
     },
 
     {
@@ -53,7 +53,7 @@ export const bestSellers: BestSeller[] = [
 
         reviews: 76,
 
-        image: "/images/products/mug-birthday.png",
+        image: "/images/products/best-seller-placeholder.png",
     },
 
     {
@@ -67,7 +67,7 @@ export const bestSellers: BestSeller[] = [
 
         reviews: 112,
 
-        image: "/images/products/mug-family.png",
+        image: "/images/products/best-seller-placeholder.png",
     },
 
 ];
