@@ -1,0 +1,273 @@
+/**
+ * ================================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: BestSellers.css
+ * Module: Home
+ * Language: CSS
+ * Description:
+ * Best Sellers Styles.
+ * ================================================================
+ */
+
+.best-sellers{
+
+    width:100%;
+
+    padding:100px 0;
+
+    background:#0d0d0d;
+
+}
+
+.best-sellers__container{
+
+    width:min(1400px,92%);
+
+    margin:0 auto;
+
+}
+
+.best-sellers__header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:end;
+
+    margin-bottom:60px;
+
+}
+
+.best-sellers__badge{
+
+    display:block;
+
+    color:#caa35c;
+
+    font-size:.85rem;
+
+    letter-spacing:3px;
+
+    font-weight:600;
+
+    margin-bottom:12px;
+
+    text-transform:uppercase;
+
+}
+
+.best-sellers__title{
+
+    color:#fff;
+
+    font-size:3rem;
+
+    font-weight:700;
+
+    line-height:1.1;
+
+}
+
+.best-sellers__view-all{
+
+    background:none;
+
+    border:none;
+
+    color:#fff;
+
+    font-size:.95rem;
+
+    letter-spacing:2px;
+
+    cursor:pointer;
+
+    transition:.30s;
+
+}
+
+.best-sellers__view-all:hover{
+
+    color:#caa35c;
+
+}
+
+.best-sellers__grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:30px;
+
+}
+
+.best-sellers__card{
+
+    background:#141414;
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    transition:.35s;
+
+    border:1px solid rgba(255,255,255,.06);
+
+}
+
+.best-sellers__card:hover{
+
+    transform:translateY(-8px);
+
+    border-color:#caa35c;
+
+    box-shadow:0 18px 45px rgba(0,0,0,.35);
+
+}
+
+.best-sellers__image{
+
+    width:100%;
+
+    aspect-ratio:1/1;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:30px;
+
+    background:#1b1b1b;
+
+}
+
+.best-sellers__image img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:contain;
+
+    transition:.35s;
+
+}
+
+.best-sellers__card:hover .best-sellers__image img{
+
+    transform:scale(1.05);
+
+}
+
+.best-sellers__content{
+
+    padding:24px;
+
+}
+
+.best-sellers__content h3{
+
+    color:#fff;
+
+    font-size:1.1rem;
+
+    margin-bottom:12px;
+
+}
+
+.best-sellers__rating{
+
+    color:#f4c542;
+
+    font-size:.95rem;
+
+    margin-bottom:14px;
+
+}
+
+.best-sellers__rating span{
+
+    color:#b8b8b8;
+
+    margin-left:8px;
+
+}
+
+.best-sellers__price{
+
+    color:#fff;
+
+    font-size:1.35rem;
+
+    font-weight:700;
+
+}
+
+@media (max-width:1024px){
+
+    .best-sellers__grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media (max-width:768px){
+
+    .best-sellers{
+
+        padding:70px 0;
+
+    }
+
+    .best-sellers__header{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:20px;
+
+    }
+
+    .best-sellers__title{
+
+        font-size:2.3rem;
+
+    }
+
+    .best-sellers__grid{
+
+        display:flex;
+
+        overflow-x:auto;
+
+        gap:20px;
+
+        scroll-snap-type:x mandatory;
+
+        padding-bottom:10px;
+
+    }
+
+    .best-sellers__grid::-webkit-scrollbar{
+
+        display:none;
+
+    }
+
+    .best-sellers__card{
+
+        min-width:280px;
+
+        scroll-snap-align:start;
+
+    }
+
+}

@@ -12,8 +12,8 @@
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
-
 import HeroSlider from "../../components/home/HeroSlider";
+import BestSellers from "../../components/home/BestSellers";
 import Benefits from "../../components/home/Benefits";
 
 // import FeaturedModels from "../../components/home/FeaturedModels";
@@ -32,6 +32,8 @@ function HomePage() {
             <main>
 
                 <HeroSlider />
+
+                <BestSellers />
 
                 <Benefits />
 
