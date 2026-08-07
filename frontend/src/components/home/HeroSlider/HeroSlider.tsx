@@ -39,17 +39,15 @@ function HeroSlider() {
 
     ] = useState(0);
 
-    const nextSlide = () => {
+const nextSlide = () => {
 
-        setCurrentSlide(
+    setCurrentSlide(previous =>
 
-            previous =>
+        (previous + 1) % heroSlides.length
 
-                (previous + 1) % heroSlides.length
+    );
 
-        );
-
-    };
+};
 
     const previousSlide = () => {
 
@@ -67,19 +65,25 @@ function HeroSlider() {
 
     };
 
-    useEffect(() => {
+   useEffect(() => {
 
-        const interval = setInterval(
+    const interval = window.setInterval(() => {
 
-            nextSlide,
+        setCurrentSlide(previous =>
 
-            6000
+            (previous + 1) % heroSlides.length
 
         );
 
-        return () => clearInterval(interval);
+    }, 8000);
 
-    }, []);
+    return () => {
+
+        window.clearInterval(interval);
+
+    };
+
+}, []);
 
     const slide = heroSlides[currentSlide];
 
