@@ -89,7 +89,7 @@ position:relative;
 
     width: 115%;
 
-    max-width: 760px;
+    max-width: 800px;
 
     height:auto;
 
@@ -97,7 +97,7 @@ position:relative;
 
     object-fit:contain;
 
-    transform: translate(-80px, -40px) scale(1.22);
+    transform: translate(-80px, -55px) scale(1.28);
 
     filter:drop-shadow(0 35px 70px rgba(0,0,0,.45));
 
