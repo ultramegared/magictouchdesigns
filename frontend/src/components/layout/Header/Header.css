@@ -407,27 +407,29 @@
 
     .header__container{
 
-        padding:0 16px;
+        padding:0 14px;
+
+        gap:12px;
 
     }
 
     .header__brand{
 
-        gap:10px;
+        gap:8px;
 
     }
 
     .header__logo{
 
-        width:52px;
+        width:48px;
 
-        height:52px;
+        height:48px;
 
     }
 
     .header__brand-title{
 
-        font-size:.90rem;
+        font-size:.82rem;
 
         letter-spacing:1px;
 
@@ -435,9 +437,39 @@
 
     .header__brand-subtitle{
 
-        font-size:.62rem;
+        font-size:.58rem;
 
         letter-spacing:2px;
+
+    }
+
+    .header__actions{
+
+        gap:8px;
+
+    }
+
+    .header__icon{
+
+        width:42px;
+
+        height:42px;
+
+    }
+
+    .header__language{
+
+        display:none;
+
+    }
+
+    .header__menu{
+
+        display:flex;
+
+        justify-content:center;
+
+        align-items:center;
 
     }
 
