@@ -1,0 +1,85 @@
+/**
+ * ===============================================================
+ * Toolbar Styles
+ * ===============================================================
+ */
+
+.toolbar{
+
+    background:#0F0F10;
+
+    padding:35px 8%;
+
+}
+
+.toolbar__container{
+
+    max-width:1400px;
+
+    margin:auto;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.toolbar p{
+
+    color:#FFFFFF;
+
+    font-size:1rem;
+
+}
+
+.toolbar select{
+
+    width:260px;
+
+    height:50px;
+
+    background:#181818;
+
+    color:#FFFFFF;
+
+    border:1px solid rgba(200,155,60,.25);
+
+    border-radius:10px;
+
+    padding:0 18px;
+
+    font-size:.95rem;
+
+    outline:none;
+
+    cursor:pointer;
+
+}
+
+.toolbar select:hover{
+
+    border-color:#C89B3C;
+
+}
+
+@media(max-width:768px){
+
+    .toolbar__container{
+
+        flex-direction:column;
+
+        gap:20px;
+
+        align-items:flex-start;
+
+    }
+
+    .toolbar select{
+
+        width:100%;
+
+    }
+
+}

@@ -1,9 +1,328 @@
 /**
  * ===============================================================
- * Header Styles
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: Header.css
+ * Module: Layout
  * ===============================================================
  */
 
-header {
+.header{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    z-index:1000;
+
+    background:rgba(15,15,16,.95);
+
+    backdrop-filter:blur(18px);
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+.header__container{
+
+    max-width:1400px;
+
+    height:86px;
+
+    margin:auto;
+
+    padding:0 50px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+}
+
+.header__logo{
+
+    display:flex;
+
+    align-items:center;
+
+}
+
+.header__logo img{
+
+    height:64px;
+
+    transition:.3s;
+
+}
+
+.header__logo img:hover{
+
+    transform:scale(1.05);
+
+}
+
+.header__nav{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:38px;
+
+}
+
+.header__link{
+
+    position:relative;
+
+    text-decoration:none;
+
+    color:#FFFFFF;
+
+    font-size:.95rem;
+
+    font-weight:600;
+
+    letter-spacing:.4px;
+
+    transition:.3s;
+
+}
+
+.header__link:hover{
+
+    color:#C89B3C;
+
+}
+
+.header__link::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+
+    bottom:-10px;
+
+    width:0;
+
+    height:2px;
+
+    background:#C89B3C;
+
+    transition:.3s;
+
+}
+
+.header__link:hover::after{
+
+    width:100%;
+
+}
+
+.header__link--cta{
+
+    padding:12px 24px;
+
+    border-radius:999px;
+
+    background:#C89B3C;
+
+    color:#111111;
+
+}
+
+.header__link--cta:hover{
+
+    color:#111111;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 15px 30px rgba(200,155,60,.35);
+
+}
+
+.header__link--cta::after{
+
+    display:none;
+
+}
+
+.header__actions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.header__icon{
+
+    width:46px;
+
+    height:46px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#1D1D1D;
+
+    color:#FFFFFF;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.header__icon:hover{
+
+    background:#C89B3C;
+
+    color:#111111;
+
+    transform:translateY(-2px);
+
+}
+
+.header__cart{
+
+    position:relative;
+
+}
+
+.header__cart span{
+
+    position:absolute;
+
+    top:-6px;
+
+    right:-4px;
+
+    width:20px;
+
+    height:20px;
+
+    border-radius:50%;
+
+    background:#C89B3C;
+
+    color:#111111;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:.70rem;
+
+    font-weight:700;
+
+}
+
+.header__menu{
+
+    display:none;
+
+    border:none;
+
+    background:transparent;
+
+    color:#FFFFFF;
+
+    cursor:pointer;
+
+}
+
+@media(max-width:992px){
+
+    .header__container{
+
+        padding:0 24px;
+
+    }
+
+    .header__nav{
+
+        display:none;
+
+    }
+
+    .header__menu{
+
+        display:flex;
+
+        justify-content:center;
+
+        align-items:center;
+
+    }
+
+}
+
+@media(max-width:576px){
+
+    .header__logo img{
+
+        height:52px;
+
+    }
+
+    .header__actions{
+
+        gap:8px;
+
+    }
+
+    .header__icon{
+
+        width:42px;
+
+        height:42px;
+
+    }
+
+}
+
+/**
+ * ================================================================
+ * Active Navigation Link
+ * ================================================================
+ */
+
+.header__link--active{
+
+    color:#C89B3C;
+
+}
+
+.header__link--active::after{
+
+    width:100%;
+
+}
+
+.header__link--cta.header__link--active{
+
+    background:#D6AA4A;
+
+    color:#111111;
 
 }

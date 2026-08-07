@@ -1,100 +1,155 @@
 /**
- * ===============================================================
+ * ================================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: Header.tsx
- * Module: Frontend
+ * Module: Layout
  * Language: TypeScript React
  * Description:
  * Main website header.
- * ===============================================================
+ * ================================================================
  */
 
 import "./Header.css";
 
-import { navigation } from "../../../constants/navigation";
+import {
+
+    Search,
+    User,
+    ShoppingCart,
+    Menu
+
+} from "lucide-react";
+
+import {
+
+    NavLink
+
+} from "react-router-dom";
+
+import {
+
+    APP_CONFIG
+
+} from "../../../constants/config";
+
+import {
+
+    navigation
+
+} from "../../../constants/navigation";
 
 function Header() {
 
     return (
 
-        <header>
+        <header className="header">
 
-            <div>
+            <div className="header__container">
 
-                MT
+                <NavLink
+                    to="/"
+                    className="header__logo"
+                >
 
-            </div>
+                    <img
+                        src={APP_CONFIG.logo}
+                        alt={APP_CONFIG.companyName}
+                    />
 
-            <nav>
+                </NavLink>
 
-                {
+                <nav className="header__nav">
 
-                    navigation.map(
+                    {
 
-                        (
+                        navigation.map(
 
-                            item
+                            (
 
-                        ) => (
+                                item
 
-                            <a
+                            ) => (
 
-                                key={item.id}
+                                <NavLink
 
-                                href={item.path}
+                                    key={item.id}
 
-                            >
+                                    to={item.path}
 
-                                {item.label}
+                                    className={({ isActive }) => {
 
-                            </a>
+                                        let classes = "header__link";
+
+                                        if (isActive) {
+
+                                            classes += " header__link--active";
+
+                                        }
+
+                                        return classes;
+
+                                    }}
+
+                                >
+
+                                    {item.label}
+
+                                </NavLink>
+
+                            )
 
                         )
 
-                    )
+                    }
 
-                }
+                </nav>
 
-            </nav>
+                <div className="header__actions">
 
-            <div>
+                    <button
+                        className="header__icon"
+                        aria-label="Search"
+                    >
 
-                <button>
+                        <Search size={20} />
 
-                    🔍
+                    </button>
 
-                </button>
+                    <button
+                        className="header__icon"
+                        aria-label="Account"
+                    >
 
-                <button>
+                        <User size={20} />
 
-                    👤
+                    </button>
 
-                </button>
+                    <button
+                        className="header__icon header__cart"
+                        aria-label="Shopping Cart"
+                    >
 
-                <button>
+                        <ShoppingCart size={20} />
 
-                    🛒
+                        <span>
 
-                </button>
+                            0
 
-                <button>
+                        </span>
 
-                    EN
+                    </button>
 
-                </button>
+                    <button
+                        className="header__menu"
+                        aria-label="Menu"
+                    >
 
-                <span>
+                        <Menu size={24} />
 
-                    |
+                    </button>
 
-                </span>
-
-                <button>
-
-                    ES
-
-                </button>
+                </div>
 
             </div>
 

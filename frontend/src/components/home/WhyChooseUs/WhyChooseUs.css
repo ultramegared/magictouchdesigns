@@ -1,0 +1,143 @@
+/**
+ * ===============================================================
+ * Why Choose Us Styles
+ * ===============================================================
+ */
+
+.why{
+
+    padding:110px 8%;
+
+    background:#101010;
+
+    color:#FFFFFF;
+
+}
+
+.why__header{
+
+    max-width:720px;
+
+    margin:0 auto 70px;
+
+    text-align:center;
+
+}
+
+.why__header span{
+
+    display:inline-block;
+
+    margin-bottom:18px;
+
+    color:#C89B3C;
+
+    font-size:.85rem;
+
+    font-weight:700;
+
+    letter-spacing:2px;
+
+}
+
+.why__header h2{
+
+    font-size:clamp(2.5rem,5vw,3.8rem);
+
+    margin-bottom:20px;
+
+}
+
+.why__header p{
+
+    color:#BDBDBD;
+
+    line-height:1.8;
+
+}
+
+.why__grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:30px;
+
+}
+
+.why__card{
+
+    background:#181818;
+
+    border:1px solid rgba(200,155,60,.15);
+
+    border-radius:22px;
+
+    padding:40px 30px;
+
+    text-align:center;
+
+    transition:.35s;
+
+}
+
+.why__card:hover{
+
+    transform:translateY(-8px);
+
+    border-color:#C89B3C;
+
+    box-shadow:0 25px 50px rgba(0,0,0,.35);
+
+}
+
+.why__card svg{
+
+    color:#C89B3C;
+
+    margin-bottom:25px;
+
+}
+
+.why__card h3{
+
+    font-size:1.25rem;
+
+    margin-bottom:15px;
+
+}
+
+.why__card p{
+
+    color:#BDBDBD;
+
+    line-height:1.7;
+
+}
+
+@media(max-width:992px){
+
+    .why__grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media(max-width:576px){
+
+    .why{
+
+        padding:80px 24px;
+
+    }
+
+    .why__grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}

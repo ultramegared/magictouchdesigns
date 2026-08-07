@@ -1,0 +1,47 @@
+/**
+ * ================================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: CollectionsPage.css
+ * Module: Frontend
+ * Language: CSS
+ * Description:
+ * Collections page styles.
+ * ================================================================
+ */
+
+.collections-page{
+
+    min-height:80vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:20px;
+
+    background:#111111;
+
+}
+
+.collections-page h1{
+
+    color:#C89B3C;
+
+    font-size:4rem;
+
+    font-weight:700;
+
+}
+
+.collections-page p{
+
+    color:#FFFFFF;
+
+    font-size:1.2rem;
+
+}

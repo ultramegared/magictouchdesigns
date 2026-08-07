@@ -1,9 +1,210 @@
 /**
  * ===============================================================
- * Featured Models Styles
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: FeaturedModels.css
+ * Module: Home
+ * Description:
+ * Featured Models Styles.
  * ===============================================================
  */
 
-section {
+.featured-models{
+
+    padding:110px 8%;
+
+    background:#F8F5F2;
+
+}
+
+.featured-models__header{
+
+    text-align:center;
+
+    max-width:700px;
+
+    margin:auto auto 70px;
+
+}
+
+.featured-models__header span{
+
+    display:inline-block;
+
+    margin-bottom:18px;
+
+    color:#C89B3C;
+
+    font-size:.85rem;
+
+    font-weight:700;
+
+    letter-spacing:2px;
+
+}
+
+.featured-models__header h2{
+
+    font-size:clamp(2.5rem,5vw,3.8rem);
+
+    color:#111111;
+
+    margin-bottom:18px;
+
+}
+
+.featured-models__header p{
+
+    color:#6B6B6B;
+
+    line-height:1.8;
+
+    font-size:1.05rem;
+
+}
+
+.featured-models__grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+
+    gap:35px;
+
+}
+
+.featured-model{
+
+    background:#FFFFFF;
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    box-shadow:0 20px 45px rgba(0,0,0,.08);
+
+    transition:.35s ease;
+
+}
+
+.featured-model:hover{
+
+    transform:translateY(-10px);
+
+    box-shadow:0 35px 70px rgba(0,0,0,.18);
+
+}
+
+.featured-model__image{
+
+    height:300px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#EFEFEF;
+
+    overflow:hidden;
+
+}
+
+.featured-model__image img{
+
+    width:85%;
+
+    height:85%;
+
+    object-fit:contain;
+
+    transition:.35s;
+
+}
+
+.featured-model:hover .featured-model__image img{
+
+    transform:scale(1.08);
+
+}
+
+.featured-model__body{
+
+    padding:30px;
+
+}
+
+.featured-model__body h3{
+
+    color:#111111;
+
+    font-size:1.35rem;
+
+    margin-bottom:14px;
+
+}
+
+.featured-model__body span{
+
+    display:block;
+
+    margin-bottom:26px;
+
+    color:#C89B3C;
+
+    font-size:1.45rem;
+
+    font-weight:700;
+
+}
+
+.featured-model__body button{
+
+    width:100%;
+
+    height:54px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#111111;
+
+    color:#FFFFFF;
+
+    cursor:pointer;
+
+    font-size:.95rem;
+
+    font-weight:600;
+
+    transition:.30s;
+
+}
+
+.featured-model__body button:hover{
+
+    background:#C89B3C;
+
+    color:#111111;
+
+}
+
+@media(max-width:768px){
+
+    .featured-models{
+
+        padding:90px 24px;
+
+    }
 
 }

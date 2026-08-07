@@ -2,23 +2,20 @@
  * ================================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
- * File: HomePage.tsx
+ * File: ContactPage.tsx
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Home page.
+ * Contact page.
  * ================================================================
  */
+
+import "./ContactPage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 
-import Hero from "../../components/home/Hero";
-import FeaturedModels from "../../components/home/FeaturedModels";
-import WhyChooseUs from "../../components/home/WhyChooseUs";
-import Newsletter from "../../components/home/Newsletter";
-
-function HomePage() {
+function ContactPage() {
 
     const navigation = [
 
@@ -58,20 +55,19 @@ function HomePage() {
                 navigation={navigation}
             />
 
-            <main>
+            <main className="contact-page">
 
-                <Hero
-                    title="Personalized Mugs Made Just for You"
-                    subtitle="Premium custom mugs crafted with high-quality materials, vibrant printing, and fast shipping."
-                    primaryButton="Shop Now"
-                    secondaryButton="Customize"
-                />
+                <h1>
 
-                <FeaturedModels />
+                    Contact
 
-                <WhyChooseUs />
+                </h1>
 
-                <Newsletter />
+                <p>
+
+                    Coming Soon...
+
+                </p>
 
             </main>
 
@@ -83,4 +79,4 @@ function HomePage() {
 
 }
 
-export default HomePage;
+export default ContactPage;
