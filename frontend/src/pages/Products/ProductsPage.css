@@ -99,9 +99,16 @@
 .products-filters {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
     margin-bottom: 30px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+}
+
+.products-filters > .products-sort {
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .products-filter,
@@ -137,8 +144,10 @@
 .products-sort {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 12px;
     margin-left: auto;
+    flex-shrink: 0;
 }
 
 .products-sort span {
