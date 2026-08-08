@@ -84,9 +84,13 @@ function Footer() {
 
     return (
 
-        <footer className="footer">
+    <footer className="footer">
 
-            <div className="footer__container">
+        <div style={{ color: "red", fontSize: "30px" }}>
+            FOOTER TEST
+        </div>
+
+        <div className="footer__container">
 
                 <div className="footer__desktop-grid">
 
