@@ -60,6 +60,33 @@ function CollectionsPage() {
         }
     ];
 
+    const benefits = [
+        {
+            id: 1,
+            title: "PREMIUM QUALITY",
+            description: "Top quality materials and long lasting prints.",
+            icon: "◇"
+        },
+        {
+            id: 2,
+            title: "FAST SHIPPING",
+            description: "Fast and secure shipping to your door.",
+            icon: "▱"
+        },
+        {
+            id: 3,
+            title: "CUSTOM DESIGNS",
+            description: "Create your own design and make it unique.",
+            icon: "✦"
+        },
+        {
+            id: 4,
+            title: "SECURE PAYMENT",
+            description: "100% secure payments and data protection.",
+            icon: "♢"
+        }
+    ];
+
     return (
 
         <>
@@ -170,6 +197,41 @@ function CollectionsPage() {
                                             →
                                         </span>
                                     </button>
+
+                                </div>
+
+                            </article>
+
+                        ))}
+
+                    </div>
+
+                    {/* ==================================================
+                        COLLECTION BENEFITS
+                       ================================================== */}
+
+                    <div className="collections-benefits">
+
+                        {benefits.map((benefit) => (
+
+                            <article
+                                className="collection-benefit"
+                                key={benefit.id}
+                            >
+
+                                <div className="collection-benefit__icon">
+                                    {benefit.icon}
+                                </div>
+
+                                <div className="collection-benefit__content">
+
+                                    <h3>
+                                        {benefit.title}
+                                    </h3>
+
+                                    <p>
+                                        {benefit.description}
+                                    </p>
 
                                 </div>
 
