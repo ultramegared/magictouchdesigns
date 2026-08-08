@@ -25,39 +25,72 @@ function CollectionsPage() {
 
             <main className="collections-page">
 
+                {/* ==================================================
+                    COLLECTIONS HERO
+                   ================================================== */}
+
                 <section className="collections-hero">
+
+                    <div className="collections-hero__background">
+
+                        <img
+                            src="/images/collections/collections-hero.jpg"
+                            alt="Magic Touch Designs collections"
+                        />
+
+                    </div>
+
+                    <div className="collections-hero__overlay"></div>
 
                     <div className="collections-hero__content">
 
                         <span className="collections-hero__eyebrow">
-                            MAGIC TOUCH DESIGNS
+                            COLLECTIONS
                         </span>
 
                         <h1>
                             Explore Our
-                            <span> Collections</span>
+                            <span>Collections</span>
                         </h1>
 
                         <p>
-                            Discover designs created to make every moment
-                            personal, memorable, and uniquely yours.
+                            Discover unique styles for every occasion.
+                            Each collection is carefully designed to
+                            match your style and every special moment.
                         </p>
 
                         <button
                             className="collections-hero__button"
                             type="button"
                         >
-                            Explore Collections
+                            VIEW ALL COLLECTIONS
+                            <span aria-hidden="true">›</span>
                         </button>
 
                     </div>
 
-                    <div className="collections-hero__visual">
+                </section>
 
-                        <img
-                            src="/images/collections/collections-hero.jpg"
-                            alt="Magic Touch Designs collection"
-                        />
+                {/* ==================================================
+                    BROWSE BY COLLECTION
+                   ================================================== */}
+
+                <section className="collections-browse">
+
+                    <div className="collections-section-heading">
+
+                        <span>
+                            BROWSE BY
+                        </span>
+
+                        <strong>
+                            COLLECTION
+                        </strong>
+
+                        <p>
+                            Each collection is carefully designed to
+                            match your style and every special moment.
+                        </p>
 
                     </div>
 
