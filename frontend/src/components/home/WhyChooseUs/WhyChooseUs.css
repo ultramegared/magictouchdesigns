@@ -334,6 +334,52 @@
 
     position:relative;
 
+    align-items:stretch;
+
+}
+
+
+.why-choose-us__step{
+
+    position:relative;
+
+    height:100%;
+
+}
+
+
+.why-choose-us__card{
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+.why-choose-us__card img{
+
+    display:block;
+
+    width:100%;
+
+    aspect-ratio:1.35 / 1;
+
+    object-fit:cover;
+
+    flex-shrink:0;
+
+}
+
+
+.why-choose-us__card-content{
+
+    padding:18px 22px 22px;
+
+    flex:1;
+
 }
 
 
