@@ -274,7 +274,7 @@
 }
 
 /* ===============================================================
-   BENEFITS
+   COLLECTION BENEFITS -- PREMIUM GOLD
    =============================================================== */
 
 .collections-benefits {
@@ -283,56 +283,197 @@
     margin: 55px auto 0;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    border: 1px solid rgba(200, 155, 60, 0.45);
-    border-radius: 8px;
+
+    border: 1px solid rgba(200, 155, 60, 0.55);
+    border-radius: 10px;
     overflow: hidden;
-    background: #111112;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(200, 155, 60, 0.07),
+            rgba(17, 17, 18, 0.98) 35%,
+            rgba(200, 155, 60, 0.04)
+        );
+
+    box-shadow:
+        0 0 25px rgba(200, 155, 60, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .collection-benefit {
-    min-height: 150px;
+    position: relative;
+    min-height: 155px;
+
     display: flex;
     align-items: center;
     gap: 18px;
+
     padding: 28px 24px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.025),
+            transparent 60%
+        );
+
+    transition:
+        background 0.3s ease,
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 }
+
+/* Línea divisoria */
 
 .collection-benefit + .collection-benefit {
-    border-left: 1px solid rgba(200, 155, 60, 0.35);
+    border-left: 1px solid rgba(200, 155, 60, 0.28);
 }
 
+/* Brillo superior */
+
+.collection-benefit::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(200, 155, 60, 0.65),
+        transparent
+    );
+
+    opacity: 0.65;
+}
+
+/* Hover */
+
+.collection-benefit:hover {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(200, 155, 60, 0.10),
+            rgba(255, 255, 255, 0.025)
+        );
+
+    box-shadow:
+        inset 0 0 30px rgba(200, 155, 60, 0.05);
+}
+
+/* ===============================================================
+   ICONO DORADO
+   =============================================================== */
+
 .collection-benefit__icon {
-    flex: 0 0 52px;
-    width: 52px;
-    height: 52px;
+    position: relative;
+
+    flex: 0 0 56px;
+    width: 56px;
+    height: 56px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border: 1px solid #C89B3C;
     border-radius: 50%;
+
     color: #C89B3C;
-    font-size: 30px;
+
+    font-size: 28px;
+    font-weight: 500;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(200, 155, 60, 0.16) 0%,
+            rgba(200, 155, 60, 0.04) 55%,
+            transparent 75%
+        );
+
+    box-shadow:
+        0 0 10px rgba(200, 155, 60, 0.18),
+        0 0 22px rgba(200, 155, 60, 0.08),
+        inset 0 0 12px rgba(200, 155, 60, 0.08);
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 }
+
+/* Halo exterior */
+
+.collection-benefit__icon::before {
+    content: "";
+
+    position: absolute;
+    inset: -5px;
+
+    border: 1px solid rgba(200, 155, 60, 0.18);
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+/* Brillo central */
+
+.collection-benefit__icon::after {
+    content: "";
+
+    position: absolute;
+    inset: 10px;
+
+    border-radius: 50%;
+
+    background: rgba(200, 155, 60, 0.06);
+
+    filter: blur(5px);
+
+    pointer-events: none;
+}
+
+.collection-benefit:hover .collection-benefit__icon {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 0 14px rgba(200, 155, 60, 0.28),
+        0 0 30px rgba(200, 155, 60, 0.12),
+        inset 0 0 15px rgba(200, 155, 60, 0.12);
+}
+
+/* ===============================================================
+   TEXTO
+   =============================================================== */
 
 .collection-benefit__content {
     min-width: 0;
 }
 
 .collection-benefit__content h3 {
-    margin: 0 0 8px;
+    margin: 0 0 9px;
+
     color: #FFFFFF;
+
     font-size: 0.82rem;
     line-height: 1.2;
     font-weight: 800;
+
     letter-spacing: 1.2px;
 }
 
 .collection-benefit__content p {
     margin: 0;
+
     color: #FFFFFF;
+
     font-size: 0.78rem;
     line-height: 1.5;
-    opacity: 0.7;
+
+    opacity: 0.68;
 }
 
 /* ===============================================================
@@ -341,126 +482,21 @@
 
 @media (max-width: 700px) {
 
-    .collections-hero {
-        min-height: 620px;
-        align-items: flex-end;
-    }
-
-    .collections-hero__background img {
-        object-position: 62% center;
-    }
-
-    .collections-hero__overlay {
-        background:
-            linear-gradient(
-                180deg,
-                rgba(15, 15, 16, 0.18) 0%,
-                rgba(15, 15, 16, 0.38) 34%,
-                rgba(15, 15, 16, 0.94) 78%,
-                rgba(15, 15, 16, 1) 100%
-            );
-    }
-
-    .collections-hero__content {
-        width: 100%;
-        margin-left: 0;
-        padding: 60px 24px 55px;
-        text-align: center;
-    }
-
-    .collections-hero__eyebrow {
-        margin-bottom: 14px;
-        font-size: 0.68rem;
-        letter-spacing: 3px;
-    }
-
-    .collections-hero__content h1 {
-        font-size: clamp(2.7rem, 12vw, 4rem);
-        letter-spacing: -1px;
-    }
-
-    .collections-hero__content p {
-        margin: 22px auto 28px;
-        max-width: 440px;
-        font-size: 0.94rem;
-        line-height: 1.7;
-    }
-
-    .collections-hero__button {
-        width: 100%;
-        max-width: 290px;
-    }
-
-    .collections-browse {
-        padding: 65px 20px;
-    }
-
-    .collections-section-heading {
-        margin-bottom: 35px;
-    }
-
-    .collections-section-heading span {
-        font-size: 0.68rem;
-        letter-spacing: 3px;
-    }
-
-    .collections-section-heading strong {
-        font-size: 2rem;
-    }
-
-    .collections-section-heading p {
-        font-size: 0.92rem;
-    }
-
-    /* COLLECTIONS */
-
-    .collections-grid {
-        width: 100%;
-        max-width: none;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-    }
-
-    .collection-card {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .collection-card__image {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1 / 1;
-    }
-
-    .collection-card__content {
-        padding: 15px 10px 16px;
-    }
-
-    .collection-card__content h2 {
-        margin-bottom: 12px;
-        font-size: 0.92rem;
-    }
-
-    .collection-card__button {
-        width: 100%;
-        min-height: 36px;
-        padding: 0 8px;
-        font-size: 0.58rem;
-        letter-spacing: 0.5px;
-    }
-
-    /* BENEFITS */
-
     .collections-benefits {
-        max-width: none;
         margin-top: 35px;
+
         grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        border-radius: 8px;
     }
 
     .collection-benefit {
-        min-height: 130px;
+        min-height: 135px;
+
         padding: 20px 15px;
-        gap: 12px;
+
+        gap: 13px;
+
         align-items: flex-start;
     }
 
@@ -469,28 +505,40 @@
     }
 
     .collection-benefit:nth-child(even) {
-        border-left: 1px solid rgba(200, 155, 60, 0.35);
+        border-left: 1px solid rgba(200, 155, 60, 0.28);
     }
 
     .collection-benefit:nth-child(n + 3) {
-        border-top: 1px solid rgba(200, 155, 60, 0.35);
+        border-top: 1px solid rgba(200, 155, 60, 0.28);
     }
 
     .collection-benefit__icon {
-        flex: 0 0 38px;
-        width: 38px;
-        height: 38px;
-        font-size: 22px;
+        flex: 0 0 42px;
+
+        width: 42px;
+        height: 42px;
+
+        font-size: 21px;
+    }
+
+    .collection-benefit__icon::before {
+        inset: -4px;
+    }
+
+    .collection-benefit__icon::after {
+        inset: 8px;
     }
 
     .collection-benefit__content h3 {
-        font-size: 0.65rem;
+        margin-bottom: 7px;
+
+        font-size: 0.63rem;
         letter-spacing: 0.7px;
     }
 
     .collection-benefit__content p {
-        font-size: 0.68rem;
-        line-height: 1.4;
+        font-size: 0.67rem;
+        line-height: 1.45;
     }
 }
 
@@ -500,63 +548,26 @@
 
 @media (max-width: 380px) {
 
-    .collections-hero {
-        min-height: 590px;
-    }
-
-    .collections-hero__content {
-        padding: 50px 18px 45px;
-    }
-
-    .collections-hero__content h1 {
-        font-size: 2.45rem;
-    }
-
-    .collections-hero__content p {
-        font-size: 0.88rem;
-    }
-
-    .collections-hero__button {
-        max-width: 260px;
-        min-height: 48px;
-        padding: 0 20px;
-        font-size: 0.72rem;
-    }
-
-    .collections-grid {
-        gap: 10px;
-    }
-
-    .collection-card__content h2 {
-        font-size: 0.82rem;
-    }
-
-    .collection-card__button {
-        font-size: 0.52rem;
-    }
-
-    .collections-benefits {
-        gap: 0;
-    }
-
     .collection-benefit {
         min-height: 125px;
-        padding: 16px 10px;
-        gap: 8px;
+        padding: 17px 10px;
+        gap: 9px;
     }
 
     .collection-benefit__icon {
-        flex: 0 0 32px;
-        width: 32px;
-        height: 32px;
+        flex: 0 0 35px;
+
+        width: 35px;
+        height: 35px;
+
         font-size: 18px;
     }
 
     .collection-benefit__content h3 {
-        font-size: 0.58rem;
+        font-size: 0.56rem;
     }
 
     .collection-benefit__content p {
-        font-size: 0.62rem;
+        font-size: 0.60rem;
     }
 }
