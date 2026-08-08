@@ -524,9 +524,9 @@
         align-items: flex-start;
     }
 
-    .collections-hero__background img {
-        object-position: center top;
-    }
+  .collections-hero__background img {
+    object-position: 58% center;
+}
 
     .collections-hero__overlay {
         background:
