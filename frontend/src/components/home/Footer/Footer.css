@@ -594,38 +594,6 @@
 }
 
 
-/* ================================================================
-   TABLET
-   ================================================================ */
-
-@media (max-width: 1000px) {
-
-    .footer__container {
-
-        width: min(100% - 36px, 900px);
-
-        padding-top: 55px;
-
-    }
-
-
-    .footer__desktop-grid {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-
-        row-gap: 45px;
-
-    }
-
-
-    .footer__desktop-grid > .footer__section {
-
-        min-height: auto;
-
-    }
-
-}
 
 
 /* ================================================================
