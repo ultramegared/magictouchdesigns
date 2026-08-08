@@ -167,18 +167,24 @@
 }
 
 /* ===============================================================
-   COLLECTIONS GRID
+   COLLECTIONS GRID - DESKTOP
    =============================================================== */
 
 .collections-grid {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4, 280px);
+    justify-content: center;
     gap: 24px;
 }
 
+/* ===============================================================
+   COLLECTION CARD
+   =============================================================== */
+
 .collection-card {
-    min-width: 0;
+    width: 280px;
+    min-width: 280px;
     overflow: hidden;
     border: 1px solid rgba(200, 155, 60, 0.22);
     border-radius: 8px;
@@ -196,8 +202,8 @@
 }
 
 .collection-card__image {
-    width: 100%;
-    aspect-ratio: 1 / 1;
+    width: 280px;
+    height: 280px;
     overflow: hidden;
     background: #111111;
 }
@@ -261,10 +267,10 @@
    TABLET
    =============================================================== */
 
-@media (max-width: 700px) {
+@media (max-width: 1250px) {
 
     .collections-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, 280px);
     }
 
 }
@@ -273,7 +279,7 @@
    MOBILE
    =============================================================== */
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
 
     .collections-hero {
         min-height: 620px;
@@ -296,11 +302,11 @@
     }
 
     .collections-hero__content {
-    width: 100%;
-    margin-left: 0;
-    padding: 35px 24px 95px;
-    text-align: center;
-}
+        width: 100%;
+        margin-left: 0;
+        padding: 60px 24px 55px;
+        text-align: center;
+    }
 
     .collections-hero__eyebrow {
         margin-bottom: 14px;
@@ -347,12 +353,22 @@
     }
 
     .collections-grid {
+        width: 100%;
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-content: stretch;
         gap: 14px;
     }
 
     .collection-card {
+        width: 100%;
+        min-width: 0;
         border-radius: 6px;
+    }
+
+    .collection-card__image {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
     }
 
     .collection-card__content {
