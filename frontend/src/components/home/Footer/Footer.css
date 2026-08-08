@@ -795,3 +795,48 @@
     transform: translateY(-2px);
 
 }
+
+/* ================================================================
+   SOCIAL MEDIA BRAND COLORS
+   ================================================================ */
+
+.footer__social-link--instagram {
+    color: #E1306C;
+}
+
+.footer__social-link--facebook {
+    color: #1877F2;
+}
+
+.footer__social-link--tiktok {
+    color: #FFFFFF;
+}
+
+.footer__social-link--youtube {
+    color: #FF0000;
+}
+
+
+/* SVG inherits each brand color */
+
+.footer__social-link svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+    color: inherit;
+}
+
+
+/* Keep gold circle */
+
+.footer__social-link {
+    border-color: #C89B3C;
+}
+
+
+/* Hover */
+
+.footer__social-link:hover {
+    background: rgba(200, 155, 60, 0.15);
+    transform: translateY(-2px);
+}
