@@ -209,13 +209,30 @@
 
     }
 
+
     .how-it-works__container{
+
+        width:100%;
 
         padding:0;
 
-        overflow:hidden;
+        overflow-x:auto;
+
+        overflow-y:hidden;
+
+        -webkit-overflow-scrolling:touch;
+
+        scrollbar-width:none;
 
     }
+
+
+    .how-it-works__container::-webkit-scrollbar{
+
+        display:none;
+
+    }
+
 
     .how-it-works__header{
 
@@ -225,17 +242,21 @@
 
     }
 
+
     .how-it-works__steps{
 
         width:max-content;
 
-        min-width:100%;
+        min-width:max-content;
 
-        padding:0 18px 12px;
+        display:flex;
+
+        padding:0 18px 20px;
 
         overflow:visible;
 
     }
+
 
     .how-it-works__item{
 
@@ -245,11 +266,13 @@
 
     }
 
+
     .how-it-works__step{
 
         padding:10px 8px;
 
     }
+
 
     .how-it-works__number{
 
@@ -261,6 +284,7 @@
 
     }
 
+
     .how-it-works__step h3{
 
         font-size:.78rem;
@@ -269,6 +293,7 @@
 
     }
 
+
     .how-it-works__step p{
 
         font-size:.75rem;
@@ -276,6 +301,7 @@
         line-height:1.5;
 
     }
+
 
     .how-it-works__arrow{
 
