@@ -131,7 +131,8 @@
 
 .collections-browse {
     width: 100%;
-    padding: 90px 7%;
+    box-sizing: border-box;
+    padding: 90px 5%;
     background: #0F0F10;
 }
 
@@ -167,14 +168,15 @@
 }
 
 /* ===============================================================
-   COLLECTIONS GRID
+   COLLECTIONS GRID - DESKTOP
    =============================================================== */
 
 .collections-grid {
     width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(4, 280px);
-    justify-content: center;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 24px;
 }
 
@@ -183,10 +185,10 @@
    =============================================================== */
 
 .collection-card {
-    width: 280px;
-    min-width: 280px;
+    width: 100%;
+    min-width: 0;
     overflow: hidden;
-    border: 1px solid rgba(200, 155, 60, 0.22);
+    border: 1px solid rgba(200, 155, 60, 0.30);
     border-radius: 8px;
     background: #151516;
     transition:
@@ -197,13 +199,17 @@
 
 .collection-card:hover {
     transform: translateY(-5px);
-    border-color: rgba(200, 155, 60, 0.65);
+    border-color: rgba(200, 155, 60, 0.70);
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
 }
 
+/* ===============================================================
+   CARD IMAGE
+   =============================================================== */
+
 .collection-card__image {
-    width: 280px;
-    height: 280px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     background: #111111;
 }
@@ -219,6 +225,10 @@
 .collection-card:hover .collection-card__image img {
     transform: scale(1.04);
 }
+
+/* ===============================================================
+   CARD CONTENT
+   =============================================================== */
 
 .collection-card__content {
     padding: 20px 18px 22px;
@@ -269,7 +279,8 @@
 
 .collections-benefits {
     width: 100%;
-    margin-top: 55px;
+    max-width: 1320px;
+    margin: 55px auto 0;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     border: 1px solid rgba(200, 155, 60, 0.45);
@@ -322,26 +333,6 @@
     font-size: 0.78rem;
     line-height: 1.5;
     opacity: 0.7;
-}
-
-/* ===============================================================
-   TABLET
-   =============================================================== */
-
-@media (max-width: 1250px) {
-
-    .collections-benefits {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .collection-benefit:nth-child(odd) {
-        border-left: none;
-    }
-
-    .collection-benefit:nth-child(n + 3) {
-        border-top: 1px solid rgba(200, 155, 60, 0.35);
-    }
-
 }
 
 /* ===============================================================
@@ -425,15 +416,14 @@
 
     .collections-grid {
         width: 100%;
+        max-width: none;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        justify-content: stretch;
         gap: 14px;
     }
 
     .collection-card {
         width: 100%;
         min-width: 0;
-        border-radius: 6px;
     }
 
     .collection-card__image {
@@ -462,6 +452,7 @@
     /* BENEFITS */
 
     .collections-benefits {
+        max-width: none;
         margin-top: 35px;
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -501,7 +492,6 @@
         font-size: 0.68rem;
         line-height: 1.4;
     }
-
 }
 
 /* ===============================================================
@@ -569,5 +559,4 @@
     .collection-benefit__content p {
         font-size: 0.62rem;
     }
-
 }
