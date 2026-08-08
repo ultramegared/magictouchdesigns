@@ -11,7 +11,7 @@
  */
 
 import Header from "../../components/layout/Header";
-import Footer from "../../components/layout/Footer";
+import Footer from "../../components/home/Footer";
 
 import HeroSlider from "../../components/home/HeroSlider";
 import Benefits from "../../components/home/Benefits";
