@@ -296,11 +296,11 @@
     }
 
     .collections-hero__content {
-        width: 100%;
-        margin-left: 0;
-        padding: 60px 24px 55px;
-        text-align: center;
-    }
+    width: 100%;
+    margin-left: 0;
+    padding: 35px 24px 95px;
+    text-align: center;
+}
 
     .collections-hero__eyebrow {
         margin-bottom: 14px;
