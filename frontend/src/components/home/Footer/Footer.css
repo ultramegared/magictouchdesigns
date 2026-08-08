@@ -738,3 +738,60 @@
     }
 
 }
+
+/* ================================================================
+   SOCIAL BRAND COLORS
+   ================================================================ */
+
+.footer__social-link svg {
+
+    width: 22px;
+
+    height: 22px;
+
+    display: block;
+
+}
+
+
+.footer__social-link--instagram {
+
+    color: #E1306C;
+
+}
+
+
+.footer__social-link--facebook {
+
+    color: #1877F2;
+
+}
+
+
+.footer__social-link--tiktok {
+
+    color: #FFFFFF;
+
+}
+
+
+.footer__social-link--youtube {
+
+    color: #FF0000;
+
+}
+
+
+/* ================================================================
+   SOCIAL HOVER
+   ================================================================ */
+
+.footer__social-link:hover {
+
+    color: #FFFFFF;
+
+    background: #C89B3C;
+
+    transform: translateY(-2px);
+
+}
