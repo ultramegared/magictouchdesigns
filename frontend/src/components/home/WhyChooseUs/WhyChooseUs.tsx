@@ -1,134 +1,262 @@
 /**
- * ===============================================================
+ * ================================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: WhyChooseUs.tsx
  * Module: Home
- * ===============================================================
+ * Language: TypeScript React
+ * Description:
+ * Why Choose Us Section.
+ * ================================================================
  */
 
 import "./WhyChooseUs.css";
 
 import {
+    whyChooseUsBenefits,
+    whyChooseUsSteps
+} from "./WhyChooseUs.data";
 
-    Truck,
-
-    Palette,
-
-    ShieldCheck,
-
-    Headset
-
-} from "lucide-react";
 
 function WhyChooseUs() {
 
     return (
 
-        <section className="why">
+        <section className="why-choose-us">
 
-            <div className="why__header">
+            <div className="why-choose-us__container">
 
-                <span>
+                <div className="why-choose-us__content">
 
-                    WHY CHOOSE US
+                    <span className="why-choose-us__eyebrow">
+                        WHY CHOOSE US?
+                    </span>
 
-                </span>
+                    <h2>
 
-                <h2>
+                        MAGIC TOUCH
 
-                    Crafted With Passion,
-                    Designed For You
+                        <span>
+                            DESIGNS
+                        </span>
 
-                </h2>
+                    </h2>
 
-                <p>
+                    <div className="why-choose-us__divider">
+                        <span />
+                    </div>
 
-                    We create premium personalized mugs using
-                    high-quality materials, vibrant printing,
-                    and careful craftsmanship.
+                    <p className="why-choose-us__intro">
 
-                </p>
+                        We don’t just print mugs,
 
-            </div>
+                        <em>
+                            we create memories
+                        </em>
 
-            <div className="why__grid">
-
-                <article className="why__card">
-
-                    <Truck size={40} />
-
-                    <h3>
-
-                        Fast Shipping
-
-                    </h3>
-
-                    <p>
-
-                        Quick and secure delivery
-                        directly to your door.
+                        that last forever.
 
                     </p>
 
-                </article>
 
-                <article className="why__card">
+                    <div className="why-choose-us__benefits">
 
-                    <Palette size={40} />
+                        {
+                            whyChooseUsBenefits.map(
 
-                    <h3>
+                                (benefit) => {
 
-                        Custom Designs
+                                    const Icon = benefit.icon;
 
-                    </h3>
+                                    return (
 
-                    <p>
+                                        <article
+                                            key={benefit.id}
+                                            className="why-choose-us__benefit"
+                                        >
 
-                        Create a unique mug
-                        exactly the way you imagine it.
+                                            <div className="why-choose-us__benefit-icon">
 
-                    </p>
+                                                <Icon size={30} />
 
-                </article>
+                                            </div>
 
-                <article className="why__card">
+                                            <div>
 
-                    <ShieldCheck size={40} />
+                                                <h3>
+                                                    {benefit.title}
+                                                </h3>
 
-                    <h3>
+                                                <p>
+                                                    {benefit.description}
+                                                </p>
 
-                        Premium Quality
+                                            </div>
 
-                    </h3>
+                                        </article>
 
-                    <p>
+                                    );
 
-                        Durable ceramic and
-                        long-lasting vibrant printing.
+                                }
 
-                    </p>
+                            )
+                        }
 
-                </article>
+                    </div>
 
-                <article className="why__card">
 
-                    <Headset size={40} />
+                    <button
+                        type="button"
+                        className="why-choose-us__button"
+                    >
 
-                    <h3>
+                        <span>
+                            LEARN MORE ABOUT US
+                        </span>
 
-                        Friendly Support
+                        <span>
+                            →
+                        </span>
 
-                    </h3>
+                    </button>
 
-                    <p>
+                </div>
 
-                        We're here whenever
-                        you need help.
 
-                    </p>
+                <div className="why-choose-us__visual">
 
-                </article>
+                    <div className="why-choose-us__step why-choose-us__step--1">
+
+                        <article className="why-choose-us__card">
+
+                            <span className="why-choose-us__number">
+                                1
+                            </span>
+
+                            <img
+                                src={whyChooseUsSteps[0].image}
+                                alt={whyChooseUsSteps[0].title}
+                            />
+
+                            <div className="why-choose-us__card-content">
+
+                                <h3>
+                                    {whyChooseUsSteps[0].title}
+                                </h3>
+
+                                <p>
+                                    {whyChooseUsSteps[0].description}
+                                </p>
+
+                            </div>
+
+                        </article>
+
+                        <span className="why-choose-us__arrow why-choose-us__arrow--right">
+                            →
+                        </span>
+
+                    </div>
+
+
+                    <div className="why-choose-us__step why-choose-us__step--2">
+
+                        <article className="why-choose-us__card">
+
+                            <span className="why-choose-us__number">
+                                2
+                            </span>
+
+                            <img
+                                src={whyChooseUsSteps[1].image}
+                                alt={whyChooseUsSteps[1].title}
+                            />
+
+                            <div className="why-choose-us__card-content">
+
+                                <h3>
+                                    {whyChooseUsSteps[1].title}
+                                </h3>
+
+                                <p>
+                                    {whyChooseUsSteps[1].description}
+                                </p>
+
+                            </div>
+
+                        </article>
+
+                        <span className="why-choose-us__arrow why-choose-us__arrow--down">
+                            ↓
+                        </span>
+
+                    </div>
+
+
+                    <div className="why-choose-us__step why-choose-us__step--3">
+
+                        <article className="why-choose-us__card">
+
+                            <span className="why-choose-us__number">
+                                3
+                            </span>
+
+                            <img
+                                src={whyChooseUsSteps[2].image}
+                                alt={whyChooseUsSteps[2].title}
+                            />
+
+                            <div className="why-choose-us__card-content">
+
+                                <h3>
+                                    {whyChooseUsSteps[2].title}
+                                </h3>
+
+                                <p>
+                                    {whyChooseUsSteps[2].description}
+                                </p>
+
+                            </div>
+
+                        </article>
+
+                        <span className="why-choose-us__arrow why-choose-us__arrow--left">
+                            ←
+                        </span>
+
+                    </div>
+
+
+                    <div className="why-choose-us__step why-choose-us__step--4">
+
+                        <article className="why-choose-us__card">
+
+                            <span className="why-choose-us__number">
+                                4
+                            </span>
+
+                            <img
+                                src={whyChooseUsSteps[3].image}
+                                alt={whyChooseUsSteps[3].title}
+                            />
+
+                            <div className="why-choose-us__card-content">
+
+                                <h3>
+                                    {whyChooseUsSteps[3].title}
+                                </h3>
+
+                                <p>
+                                    {whyChooseUsSteps[3].description}
+                                </p>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                </div>
 
             </div>
 
