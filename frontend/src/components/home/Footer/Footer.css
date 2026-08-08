@@ -30,6 +30,10 @@
 }
 
 
+/* ================================================================
+   CONTAINER
+   ================================================================ */
+
 .footer__container {
 
     width: min(1400px, calc(100% - 48px));
@@ -54,8 +58,6 @@
         1fr
         1fr
         1.15fr;
-
-    gap: 0;
 
 }
 
@@ -83,6 +85,23 @@
     padding-right: 0;
 
     border-right: none;
+
+}
+
+
+/* ================================================================
+   DESKTOP SECTION CONTENT
+   ================================================================ */
+
+.footer__desktop-grid .footer__section-content {
+
+    max-height: none;
+
+    overflow: visible;
+
+    opacity: 1;
+
+    padding: 0;
 
 }
 
@@ -123,6 +142,17 @@
     margin-top: 9px;
 
     background: #C89B3C;
+
+}
+
+
+/* ================================================================
+   DESKTOP SECTION BUTTON
+   ================================================================ */
+
+.footer__desktop-grid .footer__section-title {
+
+    display: none;
 
 }
 
@@ -205,7 +235,7 @@
 
 
 /* ================================================================
-   PAYMENTS
+   PAYMENT METHODS
    ================================================================ */
 
 .footer__payments {
@@ -305,7 +335,7 @@
 
 
 /* ================================================================
-   MOBILE ACCORDIONS
+   MOBILE SECTIONS
    ================================================================ */
 
 .footer__mobile-sections {
@@ -314,6 +344,10 @@
 
 }
 
+
+/* ================================================================
+   MOBILE ACCORDION
+   ================================================================ */
 
 .footer__section-title {
 
@@ -370,13 +404,15 @@
 }
 
 
-.footer__section-content {
+.footer__mobile-sections .footer__section-content {
 
     max-height: 0;
 
     overflow: hidden;
 
     opacity: 0;
+
+    padding: 0;
 
     transition:
         max-height 0.3s ease,
@@ -385,7 +421,7 @@
 }
 
 
-.footer__section-content.is-open {
+.footer__mobile-sections .footer__section-content.is-open {
 
     max-height: 500px;
 
@@ -397,7 +433,7 @@
 
 
 /* ================================================================
-   CONTACT CARD
+   CONTACT
    ================================================================ */
 
 .footer__contact {
