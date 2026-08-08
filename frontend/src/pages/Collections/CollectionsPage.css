@@ -330,10 +330,6 @@
 
 @media (max-width: 1250px) {
 
-    .collections-grid {
-        grid-template-columns: repeat(3, 280px);
-    }
-
     .collections-benefits {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
