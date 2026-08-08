@@ -432,3 +432,105 @@
     }
 
 }
+
+/* ===============================================================
+   COLLECTION BENEFITS
+   =============================================================== */
+
+.collections-benefits {
+    width: 100%;
+    margin-top: 55px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid rgba(200, 155, 60, 0.45);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #111112;
+}
+
+.collection-benefit {
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 28px 24px;
+}
+
+.collection-benefit + .collection-benefit {
+    border-left: 1px solid rgba(200, 155, 60, 0.35);
+}
+
+.collection-benefit__icon {
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #C89B3C;
+    border-radius: 50%;
+    color: #C89B3C;
+    font-size: 30px;
+}
+
+.collection-benefit__content h3 {
+    margin: 0 0 8px;
+    color: #FFFFFF;
+    font-size: 0.82rem;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+.collection-benefit__content p {
+    margin: 0;
+    color: #FFFFFF;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    opacity: 0.7;
+}
+
+/* ===============================================================
+   COLLECTION BENEFITS - MOBILE
+   =============================================================== */
+
+@media (max-width: 700px) {
+
+    .collections-benefits {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 35px;
+    }
+
+    .collection-benefit {
+        min-height: 130px;
+        padding: 20px 15px;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .collection-benefit:nth-child(odd) {
+        border-left: none;
+    }
+
+    .collection-benefit:nth-child(n + 3) {
+        border-top: 1px solid rgba(200, 155, 60, 0.35);
+    }
+
+    .collection-benefit__icon {
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        font-size: 22px;
+    }
+
+    .collection-benefit__content h3 {
+        font-size: 0.65rem;
+        letter-spacing: 0.7px;
+    }
+
+    .collection-benefit__content p {
+        font-size: 0.68rem;
+        line-height: 1.4;
+    }
+
+}
