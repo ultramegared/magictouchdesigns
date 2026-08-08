@@ -65,32 +65,138 @@ function CollectionsPage() {
             id: 1,
             title: "PREMIUM QUALITY",
             description: "Top quality materials and long lasting prints.",
-            icon: "◇"
+            icon: (
+                <svg
+                    viewBox="0 0 64 64"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M32 7L39 20L53 22L43 32L46 46L32 39L18 46L21 32L11 22L25 20Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinejoin="round"
+                    />
+
+                    <circle
+                        cx="32"
+                        cy="29"
+                        r="5"
+                        fill="currentColor"
+                    />
+                </svg>
+            )
         },
         {
             id: 2,
             title: "FAST SHIPPING",
             description: "Fast and secure shipping to your door.",
-            icon: "▱"
+            icon: (
+                <svg
+                    viewBox="0 0 64 64"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M7 17H39V43H7Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                    />
+
+                    <path
+                        d="M39 25H49L57 34V43H39Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                    />
+
+                    <circle
+                        cx="19"
+                        cy="48"
+                        r="5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    />
+
+                    <circle
+                        cx="47"
+                        cy="48"
+                        r="5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    />
+                </svg>
+            )
         },
         {
             id: 3,
             title: "CUSTOM DESIGNS",
             description: "Create your own design and make it unique.",
-            icon: "✦"
+            icon: (
+                <svg
+                    viewBox="0 0 64 64"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M11 53L17 38L43 12L52 21L26 47Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                    />
+
+                    <path
+                        d="M38 17L47 26"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    />
+
+                    <path
+                        d="M11 53L25 48"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    />
+                </svg>
+            )
         },
         {
             id: 4,
             title: "SECURE PAYMENT",
             description: "100% secure payments and data protection.",
-            icon: "♢"
+            icon: (
+                <svg
+                    viewBox="0 0 64 64"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M32 7L52 14V29C52 42 44 52 32 57C20 52 12 42 12 29V14Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                    />
+
+                    <path
+                        d="M21 32L29 40L44 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    />
+                </svg>
+            )
         }
     ];
 
     return (
-
         <>
-
             <Header />
 
             <main className="collections-page">
@@ -193,9 +299,11 @@ function CollectionsPage() {
                                         type="button"
                                     >
                                         VIEW COLLECTION
+
                                         <span aria-hidden="true">
                                             →
                                         </span>
+
                                     </button>
 
                                 </div>
@@ -246,11 +354,8 @@ function CollectionsPage() {
             </main>
 
             <Footer />
-
         </>
-
     );
-
 }
 
 export default CollectionsPage;
