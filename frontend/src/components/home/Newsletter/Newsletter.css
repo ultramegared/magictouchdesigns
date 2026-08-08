@@ -399,23 +399,23 @@
 
     .newsletter__container {
 
-        min-height: auto;
+    min-height: auto;
 
-        margin: 0 18px;
+    margin: 0 18px;
 
-        padding: 38px 22px;
+    padding: 30px 22px;
 
-        flex-direction: column;
+    flex-direction: column;
 
-        align-items: center;
+    align-items: center;
 
-        gap: 24px;
+    gap: 16px;
 
-        text-align: center;
+    text-align: center;
 
-        border-radius: 16px;
+    border-radius: 16px;
 
-    }
+}
 
 
     .newsletter__icon {
