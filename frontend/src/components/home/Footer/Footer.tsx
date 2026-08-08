@@ -85,11 +85,6 @@ function Footer() {
     return (
 
     <footer className="footer">
-
-        <div style={{ color: "red", fontSize: "30px" }}>
-            FOOTER TEST
-        </div>
-
         <div className="footer__container">
 
                 <div className="footer__desktop-grid">
@@ -327,19 +322,22 @@ function Footer() {
 
                 <div className="footer__social">
 
-                    {footerContent.social.map((social) => (
+{footerContent.social.map((social) => (
 
-                        <a
-                            key={social.name}
-                            href={social.href}
-                            className="footer__social-link"
-                            aria-label={social.name}
-                            title={social.name}
-                        >
-                            {social.name.charAt(0)}
-                        </a>
+    <a
+        key={social.name}
+        href={social.href}
+        className="footer__social-link"
+        aria-label={social.name}
+        title={social.name}
+    >
+        {social.name === "Instagram" && "◎"}
+        {social.name === "Facebook" && "f"}
+        {social.name === "TikTok" && "♪"}
+        {social.name === "YouTube" && "▶"}
+    </a>
 
-                    ))}
+))}
 
                 </div>
 
