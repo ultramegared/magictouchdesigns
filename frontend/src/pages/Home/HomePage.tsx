@@ -12,14 +12,15 @@
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
+
 import HeroSlider from "../../components/home/HeroSlider";
 import Benefits from "../../components/home/Benefits";
 import BestSellers from "../../components/home/BestSellers";
+import WhyChooseUs from "../../components/home/WhyChooseUs";
+import HowItWorks from "../../components/home/HowItWorks";
+import Newsletter from "../../components/home/Newsletter";
 
 // import FeaturedModels from "../../components/home/FeaturedModels";
-
-import WhyChooseUs from "../../components/home/WhyChooseUs";
-import Newsletter from "../../components/home/Newsletter";
 
 function HomePage() {
 
@@ -31,24 +32,26 @@ function HomePage() {
 
             <main>
 
-    <HeroSlider />
+                <HeroSlider />
 
-    <Benefits />
+                <Benefits />
 
-    <BestSellers />
+                <BestSellers />
 
-    {/*
-        FeaturedModels se deshabilita temporalmente
-        hasta terminar su diseño e imágenes.
-    */}
+                {/*
+                    FeaturedModels se deshabilita temporalmente
+                    hasta terminar su diseño e imágenes.
+                */}
 
-    {/* <FeaturedModels /> */}
+                {/* <FeaturedModels /> */}
 
-    <WhyChooseUs />
+                <WhyChooseUs />
 
-    <Newsletter />
+                <HowItWorks />
 
-</main>
+                <Newsletter />
+
+            </main>
 
             <Footer />
 
