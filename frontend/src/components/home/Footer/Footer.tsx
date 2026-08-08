@@ -323,7 +323,8 @@ function Footer() {
                 <div className="footer__social">
 
     <a
-        href={footerContent.social.instagram}
+        href={footerContent.social.find((social) => social.name === "Instagram")?.href ?? "#"}
+        
         className="footer__social-link footer__social-link--instagram"
         aria-label="Instagram"
         title="Instagram"
@@ -365,7 +366,7 @@ function Footer() {
 
 
     <a
-        href={footerContent.social.facebook}
+        href={footerContent.social.find((social) => social.name === "Facebook")?.href ?? "#"}
         className="footer__social-link footer__social-link--facebook"
         aria-label="Facebook"
         title="Facebook"
@@ -385,7 +386,7 @@ function Footer() {
 
 
     <a
-        href={footerContent.social.tiktok}
+        href={footerContent.social.find((social) => social.name === "TikTok")?.href ?? "#"}
         className="footer__social-link footer__social-link--tiktok"
         aria-label="TikTok"
         title="TikTok"
@@ -405,7 +406,7 @@ function Footer() {
 
 
     <a
-        href={footerContent.social.youtube}
+        href={footerContent.social.find((social) => social.name === "YouTube")?.href ?? "#"}
         className="footer__social-link footer__social-link--youtube"
         aria-label="YouTube"
         title="YouTube"
