@@ -1,0 +1,378 @@
+/**
+ * ================================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: CustomerGallery.css
+ * Module: Home
+ * Description:
+ * Customer Gallery Section Styles.
+ * ================================================================
+ */
+
+.customer-gallery{
+
+    background:#0F0F10;
+
+    padding:80px 0;
+
+}
+
+
+.customer-gallery__container{
+
+    max-width:1400px;
+
+    margin:0 auto;
+
+    padding:0 50px;
+
+}
+
+
+/* ================================================================
+   HEADER
+   ================================================================ */
+
+.customer-gallery__header{
+
+    text-align:center;
+
+    margin-bottom:45px;
+
+}
+
+
+.customer-gallery__eyebrow{
+
+    display:block;
+
+    margin-bottom:12px;
+
+    color:#C89B3C;
+
+    font-size:.85rem;
+
+    font-weight:700;
+
+    letter-spacing:.22em;
+
+}
+
+
+.customer-gallery__header h2{
+
+    margin:0 0 12px;
+
+    color:#FFFFFF;
+
+    font-size:2rem;
+
+    font-weight:700;
+
+}
+
+
+.customer-gallery__header p{
+
+    max-width:600px;
+
+    margin:0 auto;
+
+    color:#AFAFAF;
+
+    font-size:.95rem;
+
+    line-height:1.6;
+
+}
+
+
+/* ================================================================
+   GALLERY GRID
+   ================================================================ */
+
+.customer-gallery__grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4, 1fr);
+
+    gap:24px;
+
+}
+
+
+/* ================================================================
+   CARD
+   ================================================================ */
+
+.customer-gallery__card{
+
+    min-width:0;
+
+    overflow:hidden;
+
+    border:1px solid rgba(200,155,60,.45);
+
+    border-radius:14px;
+
+    background:#151517;
+
+}
+
+
+.customer-gallery__image-wrapper{
+
+    width:100%;
+
+    aspect-ratio:1 / 1;
+
+    overflow:hidden;
+
+}
+
+
+.customer-gallery__image-wrapper img{
+
+    display:block;
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+
+.customer-gallery__content{
+
+    height:125px;
+
+    padding:16px 18px;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+.customer-gallery__name{
+
+    margin-bottom:8px;
+
+    color:#C89B3C;
+
+    font-size:.85rem;
+
+    font-weight:700;
+
+}
+
+
+.customer-gallery__content p{
+
+    margin:0;
+
+    color:#D0D0D0;
+
+    font-size:.82rem;
+
+    line-height:1.55;
+
+    display:-webkit-box;
+
+    -webkit-line-clamp:3;
+
+    -webkit-box-orient:vertical;
+
+    overflow:hidden;
+
+}
+
+
+/* ================================================================
+   ACTION
+   ================================================================ */
+
+.customer-gallery__action{
+
+    display:flex;
+
+    justify-content:center;
+
+    margin-top:38px;
+
+}
+
+
+.customer-gallery__action button{
+
+    padding:12px 26px;
+
+    border:1px solid #C89B3C;
+
+    border-radius:4px;
+
+    background:transparent;
+
+    color:#C89B3C;
+
+    font-size:.8rem;
+
+    font-weight:700;
+
+    letter-spacing:.08em;
+
+    cursor:pointer;
+
+    transition:
+
+        background .25s ease,
+
+        color .25s ease;
+
+}
+
+
+.customer-gallery__action button:hover{
+
+    background:#C89B3C;
+
+    color:#0F0F10;
+
+}
+
+
+/* ================================================================
+   TABLET
+   ================================================================ */
+
+@media(max-width:992px){
+
+    .customer-gallery__container{
+
+        padding:0 30px;
+
+    }
+
+
+    .customer-gallery__grid{
+
+        gap:18px;
+
+    }
+
+
+    .customer-gallery__content{
+
+        height:120px;
+
+        padding:14px;
+
+    }
+
+
+    .customer-gallery__header h2{
+
+        font-size:1.75rem;
+
+    }
+
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media(max-width:576px){
+
+    .customer-gallery{
+
+        padding:60px 0;
+
+    }
+
+
+    .customer-gallery__container{
+
+        padding:0 18px;
+
+    }
+
+
+    .customer-gallery__header{
+
+        margin-bottom:30px;
+
+    }
+
+
+    .customer-gallery__header h2{
+
+        font-size:1.55rem;
+
+    }
+
+
+    .customer-gallery__header p{
+
+        font-size:.85rem;
+
+    }
+
+
+    .customer-gallery__grid{
+
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+
+        gap:16px;
+
+    }
+
+
+    .customer-gallery__card{
+
+        border-radius:12px;
+
+    }
+
+
+    .customer-gallery__content{
+
+        height:105px;
+
+        padding:12px;
+
+    }
+
+
+    .customer-gallery__name{
+
+        margin-bottom:6px;
+
+        font-size:.78rem;
+
+    }
+
+
+    .customer-gallery__content p{
+
+        font-size:.74rem;
+
+        line-height:1.45;
+
+        -webkit-line-clamp:3;
+
+    }
+
+
+    .customer-gallery__action{
+
+        margin-top:30px;
+
+    }
+
+}
