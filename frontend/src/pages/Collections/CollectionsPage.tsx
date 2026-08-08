@@ -25,17 +25,43 @@ function CollectionsPage() {
 
             <main className="collections-page">
 
-                <h1>
+                <section className="collections-hero">
 
-                    Collections
+                    <div className="collections-hero__content">
 
-                </h1>
+                        <span className="collections-hero__eyebrow">
+                            MAGIC TOUCH DESIGNS
+                        </span>
 
-                <p>
+                        <h1>
+                            Explore Our
+                            <span> Collections</span>
+                        </h1>
 
-                    Coming Soon...
+                        <p>
+                            Discover designs created to make every moment
+                            personal, memorable, and uniquely yours.
+                        </p>
 
-                </p>
+                        <button
+                            className="collections-hero__button"
+                            type="button"
+                        >
+                            Explore Collections
+                        </button>
+
+                    </div>
+
+                    <div className="collections-hero__visual">
+
+                        <img
+                            src="/images/collections/collections-hero.jpg"
+                            alt="Magic Touch Designs collection"
+                        />
+
+                    </div>
+
+                </section>
 
             </main>
 
