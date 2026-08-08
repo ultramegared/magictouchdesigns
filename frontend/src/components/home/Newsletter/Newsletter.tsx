@@ -1,58 +1,74 @@
 /**
- * ===============================================================
+ * ================================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: Newsletter.tsx
  * Module: Home
- * ===============================================================
+ * Language: TypeScript React
+ * Description:
+ * Newsletter Section.
+ * ================================================================
  */
 
 import "./Newsletter.css";
 
+import { newsletterContent } from "./Newsletter.data";
+
 function Newsletter() {
+
+    const {
+        eyebrow,
+        title,
+        description,
+        placeholder,
+        buttonText,
+        privacyText,
+    } = newsletterContent;
 
     return (
 
         <section className="newsletter">
 
-            <div className="newsletter__content">
+            <div className="newsletter__container">
 
-                <span>
+                <div className="newsletter__icon" aria-hidden="true">
+                    ✉
+                </div>
 
-                    NEWSLETTER
+                <div className="newsletter__content">
 
-                </span>
+                    <span className="newsletter__eyebrow">
+                        {eyebrow}
+                    </span>
 
-                <h2>
+                    <h2>
+                        {title}
+                    </h2>
 
-                    Stay Updated With Magic Touch Designs
+                    <p>
+                        {description}
+                    </p>
 
-                </h2>
+                    <form className="newsletter__form">
 
-                <p>
+                        <input
+                            type="email"
+                            placeholder={placeholder}
+                            aria-label="Email address"
+                            autoComplete="email"
+                        />
 
-                    Subscribe to receive exclusive offers,
-                    new collections and special discounts.
+                        <button type="submit">
+                            {buttonText}
+                        </button>
 
-                </p>
+                    </form>
 
-                <form className="newsletter__form">
+                    <span className="newsletter__privacy">
+                        {privacyText}
+                    </span>
 
-                    <input
-
-                        type="email"
-
-                        placeholder="Enter your email"
-
-                    />
-
-                    <button type="submit">
-
-                        Subscribe
-
-                    </button>
-
-                </form>
+                </div>
 
             </div>
 

@@ -1,0 +1,482 @@
+/**
+ * ================================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: Newsletter.css
+ * Module: Home
+ * Description:
+ * Newsletter Section Styles.
+ * ================================================================
+ */
+
+.newsletter {
+
+    padding: 80px 0;
+
+    background:
+        radial-gradient(
+            circle at 20% 50%,
+            rgba(30, 76, 120, 0.30),
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 80% 50%,
+            rgba(200, 155, 60, 0.12),
+            transparent 40%
+        ),
+        linear-gradient(
+            135deg,
+            #05070A 0%,
+            #0B1624 55%,
+            #07101A 100%
+        );
+
+}
+
+
+.newsletter__container {
+
+    position: relative;
+
+    max-width: 1250px;
+
+    min-height: 300px;
+
+    margin: 0 auto;
+
+    padding: 55px 60px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 45px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(200, 155, 60, 0.65);
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.35),
+        inset 0 0 45px rgba(30, 76, 120, 0.08);
+
+}
+
+
+/* ================================================================
+   DECORATIVE GLOW
+   ================================================================ */
+
+.newsletter__container::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 360px;
+
+    height: 360px;
+
+    left: -180px;
+
+    top: -180px;
+
+    border-radius: 50%;
+
+    background: rgba(30, 76, 120, 0.12);
+
+    filter: blur(30px);
+
+    pointer-events: none;
+
+}
+
+
+.newsletter__container::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 300px;
+
+    height: 300px;
+
+    right: -150px;
+
+    bottom: -150px;
+
+    border-radius: 50%;
+
+    background: rgba(200, 155, 60, 0.08);
+
+    filter: blur(30px);
+
+    pointer-events: none;
+
+}
+
+
+/* ================================================================
+   ICON
+   ================================================================ */
+
+.newsletter__icon {
+
+    position: relative;
+
+    z-index: 1;
+
+    flex: 0 0 115px;
+
+    width: 115px;
+
+    height: 115px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 1px solid rgba(200, 155, 60, 0.65);
+
+    border-radius: 50%;
+
+    background: rgba(5, 7, 10, 0.35);
+
+    color: #C89B3C;
+
+    font-size: 48px;
+
+    line-height: 1;
+
+}
+
+
+/* ================================================================
+   CONTENT
+   ================================================================ */
+
+.newsletter__content {
+
+    position: relative;
+
+    z-index: 1;
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+.newsletter__eyebrow {
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: #C89B3C;
+
+    font-size: 0.78rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.22em;
+
+}
+
+
+.newsletter__content h2 {
+
+    margin: 0 0 12px;
+
+    color: #FFFFFF;
+
+    font-size: 2rem;
+
+    font-weight: 700;
+
+    line-height: 1.2;
+
+}
+
+
+.newsletter__content p {
+
+    max-width: 650px;
+
+    margin: 0 0 24px;
+
+    color: #B9C1CA;
+
+    font-size: 0.95rem;
+
+    line-height: 1.6;
+
+}
+
+
+/* ================================================================
+   FORM
+   ================================================================ */
+
+.newsletter__form {
+
+    max-width: 700px;
+
+    display: flex;
+
+    gap: 10px;
+
+}
+
+
+.newsletter__form input {
+
+    flex: 1;
+
+    min-width: 0;
+
+    height: 48px;
+
+    padding: 0 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
+    border-radius: 6px;
+
+    outline: none;
+
+    background: rgba(0, 0, 0, 0.28);
+
+    color: #FFFFFF;
+
+    font-family: inherit;
+
+    font-size: 0.9rem;
+
+}
+
+
+.newsletter__form input::placeholder {
+
+    color: #7F8994;
+
+}
+
+
+.newsletter__form input:focus {
+
+    border-color: #C89B3C;
+
+}
+
+
+.newsletter__form button {
+
+    height: 48px;
+
+    padding: 0 25px;
+
+    border: 1px solid #C89B3C;
+
+    border-radius: 6px;
+
+    background: #C89B3C;
+
+    color: #080A0D;
+
+    font-family: inherit;
+
+    font-size: 0.78rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        transform 0.25s ease;
+
+}
+
+
+.newsletter__form button:hover {
+
+    background: transparent;
+
+    color: #C89B3C;
+
+    transform: translateY(-1px);
+
+}
+
+
+/* ================================================================
+   PRIVACY TEXT
+   ================================================================ */
+
+.newsletter__privacy {
+
+    display: block;
+
+    margin-top: 11px;
+
+    color: #737D88;
+
+    font-size: 0.72rem;
+
+    line-height: 1.4;
+
+}
+
+
+/* ================================================================
+   TABLET
+   ================================================================ */
+
+@media (max-width: 992px) {
+
+    .newsletter {
+
+        padding: 65px 0;
+
+    }
+
+
+    .newsletter__container {
+
+        margin: 0 30px;
+
+        padding: 45px;
+
+        gap: 30px;
+
+    }
+
+
+    .newsletter__icon {
+
+        flex-basis: 95px;
+
+        width: 95px;
+
+        height: 95px;
+
+        font-size: 40px;
+
+    }
+
+
+    .newsletter__content h2 {
+
+        font-size: 1.75rem;
+
+    }
+
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 576px) {
+
+    .newsletter {
+
+        padding: 55px 0;
+
+    }
+
+
+    .newsletter__container {
+
+        min-height: auto;
+
+        margin: 0 18px;
+
+        padding: 38px 22px;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        gap: 24px;
+
+        text-align: center;
+
+        border-radius: 16px;
+
+    }
+
+
+    .newsletter__icon {
+
+        flex: 0 0 82px;
+
+        width: 82px;
+
+        height: 82px;
+
+        font-size: 34px;
+
+    }
+
+
+    .newsletter__eyebrow {
+
+        font-size: 0.7rem;
+
+    }
+
+
+    .newsletter__content h2 {
+
+        font-size: 1.5rem;
+
+    }
+
+
+    .newsletter__content p {
+
+        margin-bottom: 20px;
+
+        font-size: 0.84rem;
+
+    }
+
+
+    .newsletter__form {
+
+        width: 100%;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+    }
+
+
+    .newsletter__form input,
+    .newsletter__form button {
+
+        width: 100%;
+
+    }
+
+
+    .newsletter__privacy {
+
+        font-size: 0.68rem;
+
+    }
+
+}

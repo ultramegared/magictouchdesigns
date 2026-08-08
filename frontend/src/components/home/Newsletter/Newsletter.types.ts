@@ -2,12 +2,26 @@
  * ================================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
- * File: index.ts
+ * File: Newsletter.types.ts
  * Module: Home
  * Language: TypeScript
  * Description:
- * Newsletter exports.
+ * Newsletter types.
  * ================================================================
  */
 
-export { default } from "./Newsletter";
+export interface NewsletterContent {
+
+    eyebrow: string;
+
+    title: string;
+
+    description: string;
+
+    placeholder: string;
+
+    buttonText: string;
+
+    privacyText: string;
+
+}
