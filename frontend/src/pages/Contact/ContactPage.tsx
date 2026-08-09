@@ -10,7 +10,7 @@
  * ================================================================
  */
 
-import { ChangeEvent, FormEvent, useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import "./ContactPage.css";
 
 import Header from "../../components/layout/Header";
