@@ -17,6 +17,7 @@ import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
 import CustomizePage from "./pages/Customize";
 import ContactPage from "./pages/Contact";
+import CartPage from "./pages/Cart";
 
 function App() {
 
@@ -49,6 +50,11 @@ function App() {
                 <Route
                     path="/contact"
                     element={<ContactPage />}
+                />
+
+                <Route
+                    path="/cart"
+                    element={<CartPage />}
                 />
 
             </Routes>
