@@ -732,10 +732,10 @@
 }
 
     .collections-hero__content {
-        width: calc(100% - 28px);
+    width: calc(100% - 28px);
 
-        padding-top: 42px;
-    }
+    padding-top: 108px;
+}
 
     .collections-hero__content h1 {
         font-size: 43px;
