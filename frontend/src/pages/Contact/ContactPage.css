@@ -803,11 +803,16 @@
 }
 
 /* ================================================================
-   CONTACT SUPPORT -- IMAGE BACKGROUND / FLOATING CONTENT
+   CONTACT SUPPORT -- BACKGROUND IMAGE + FLOATING CONTENT
    ================================================================ */
 
 .contact-support {
     position: relative;
+
+    display: block;
+
+    width: 100%;
+
     overflow: hidden;
 
     border: 1px solid rgba(210, 161, 59, 0.32);
@@ -817,13 +822,15 @@
 }
 
 
-/* IMAGE BEHIND SUPPORT CONTENT */
+/* ================================================================
+   IMAGE BACKGROUND
+   ================================================================ */
 
 .contact-support__image {
     position: absolute;
 
     top: 0;
-    right: 0;
+    left: 0;
 
     width: 100%;
     height: 520px;
@@ -831,6 +838,16 @@
     z-index: 0;
 
     overflow: hidden;
+}
+
+.contact-support__image img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+    object-position: center;
 }
 
 .contact-support__image::after {
@@ -844,44 +861,44 @@
         linear-gradient(
             90deg,
             rgba(15, 15, 16, 0.98) 0%,
-            rgba(15, 15, 16, 0.90) 28%,
-            rgba(15, 15, 16, 0.55) 52%,
-            rgba(15, 15, 16, 0.20) 100%
+            rgba(15, 15, 16, 0.90) 35%,
+            rgba(15, 15, 16, 0.55) 60%,
+            rgba(15, 15, 16, 0.18) 100%
         );
 }
 
-.contact-support__image img {
-    width: 100%;
-    height: 100%;
 
-    display: block;
-
-    object-fit: cover;
-    object-position: center;
-}
-
-
-/* FLOATING CONTENT */
+/* ================================================================
+   SUPPORT CONTENT
+   ================================================================ */
 
 .contact-support__content {
     position: relative;
 
     z-index: 2;
 
+    width: 58%;
+
     min-height: 520px;
 
-    padding: 55px 50% 55px 48px;
-
-    background: transparent;
+    padding: 55px 48px;
 }
 
 
-/* SUPPORT FORM STAYS BELOW IMAGE */
+/* ================================================================
+   SUPPORT FORM
+   ================================================================ */
 
 .contact-support__form {
     position: relative;
 
     z-index: 3;
+
+    width: 100%;
+
+    padding: 38px 48px 45px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 
     background:
         linear-gradient(
@@ -889,10 +906,6 @@
             #141415 0%,
             #111112 100%
         );
-
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-
-    padding: 38px 48px 45px;
 }
 
 
@@ -910,20 +923,18 @@
         background:
             linear-gradient(
                 180deg,
-                rgba(15, 15, 16, 0.28) 0%,
-                rgba(15, 15, 16, 0.72) 48%,
+                rgba(15, 15, 16, 0.30) 0%,
+                rgba(15, 15, 16, 0.72) 55%,
                 rgba(15, 15, 16, 0.98) 100%
             );
     }
 
-    .contact-support__image img {
-        object-position: center top;
-    }
-
     .contact-support__content {
+        width: 100%;
+
         min-height: 430px;
 
-        padding: 42px 28px 38px;
+        padding: 40px 28px 35px;
     }
 
     .contact-support__form {
