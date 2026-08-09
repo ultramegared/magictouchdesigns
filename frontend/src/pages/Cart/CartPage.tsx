@@ -102,7 +102,7 @@ function CartPage() {
                     <div className="cart-hero__background">
 
                         <img
-                            src="/images/hero/hero-background.jpg"
+                            src="/images/cart/cart-hero-background.jpg"
                             alt="Magic Touch Designs custom mug"
                         />
 
