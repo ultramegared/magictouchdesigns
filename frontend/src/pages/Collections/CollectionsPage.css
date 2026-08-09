@@ -519,10 +519,11 @@
 @media (max-width: 767px) {
 
     .collections-hero {
-        min-height: 610px;
+    min-height: 0;
+    height: auto;
 
-        align-items: flex-start;
-    }
+    align-items: flex-start;
+}
 
   .collections-hero__background img {
     object-position: center center;
@@ -726,8 +727,9 @@
 @media (max-width: 480px) {
 
     .collections-hero {
-        min-height: 590px;
-    }
+    min-height: 0;
+    height: auto;
+}
 
     .collections-hero__content {
         width: calc(100% - 28px);
@@ -786,8 +788,9 @@
 @media (max-width: 360px) {
 
     .collections-hero {
-        min-height: 570px;
-    }
+    min-height: 0;
+    height: auto;
+}
 
     .collections-hero__content h1 {
         font-size: 39px;
