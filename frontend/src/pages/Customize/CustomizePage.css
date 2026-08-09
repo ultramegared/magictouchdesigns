@@ -10,38 +10,811 @@
  * ================================================================
  */
 
-.customize-page{
+.customize-page {
+    width: 100%;
+    min-height: 100vh;
 
-    min-height:80vh;
+    padding: 55px 40px 80px;
 
-    display:flex;
+    background:
+        radial-gradient(
+            circle at 70% 20%,
+            rgba(200, 155, 60, 0.07),
+            transparent 32%
+        ),
+        #0f0f10;
 
-    flex-direction:column;
+    color: #ffffff;
+}
 
-    justify-content:center;
 
-    align-items:center;
+/* ================================================================
+   INTRO
+   ================================================================ */
 
-    gap:20px;
+.customize-intro {
+    max-width: 900px;
 
-    background:#111111;
+    margin: 0 auto 32px;
+
+    text-align: center;
+}
+
+.customize-eyebrow {
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: #d2a13b;
+
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.customize-intro h1 {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -2px;
+}
+
+.customize-intro p {
+    max-width: 650px;
+
+    margin: 18px auto 0;
+
+    color: rgba(255, 255, 255, 0.68);
+
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+
+/* ================================================================
+   STEPS
+   ================================================================ */
+
+.customize-steps {
+    width: min(700px, 100%);
+
+    margin: 0 auto 38px;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    border: 1px solid rgba(210, 161, 59, 0.28);
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.customize-step {
+    min-height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    border-right: 1px solid rgba(210, 161, 59, 0.18);
+
+    color: rgba(255, 255, 255, 0.48);
+
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.customize-step:last-child {
+    border-right: none;
+}
+
+.customize-step span {
+    color: rgba(255, 255, 255, 0.32);
+
+    font-size: 10px;
+}
+
+.customize-step strong {
+    font-weight: 800;
+}
+
+.customize-step--active {
+    background: rgba(210, 161, 59, 0.08);
+
+    color: #d2a13b;
+}
+
+.customize-step--active span {
+    color: #d2a13b;
+}
+
+
+/* ================================================================
+   WORKSPACE
+   ================================================================ */
+
+.customize-workspace {
+    width: min(1280px, 100%);
+
+    margin: 0 auto;
+
+    display: grid;
+
+    grid-template-columns: 360px minmax(0, 1fr);
+
+    gap: 24px;
+
+    align-items: stretch;
+}
+
+
+/* ================================================================
+   CONTROL PANEL
+   ================================================================ */
+
+.customize-panel {
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid rgba(210, 161, 59, 0.32);
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #171718 0%,
+            #111112 100%
+        );
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.28);
+}
+
+.customize-panel__header {
+    padding: 24px 24px 20px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.customize-panel__header span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #d2a13b;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.customize-panel__header strong {
+    color: #ffffff;
+
+    font-size: 23px;
+    font-weight: 800;
+}
+
+
+/* ================================================================
+   TOOLS
+   ================================================================ */
+
+.customize-tool {
+    padding: 19px 20px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.customize-tool__title {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    margin-bottom: 14px;
+}
+
+.customize-tool__icon {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(210, 161, 59, 0.7);
+    border-radius: 7px;
+
+    background: rgba(210, 161, 59, 0.07);
+
+    color: #d2a13b;
+
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.customize-tool__title div {
+    min-width: 0;
+}
+
+.customize-tool__title strong {
+    display: block;
+
+    color: #ffffff;
+
+    font-size: 13px;
+}
+
+.customize-tool__title small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: rgba(255, 255, 255, 0.42);
+
+    font-size: 10px;
+}
+
+.customize-tool button,
+.customize-tool select {
+    width: 100%;
+
+    min-height: 40px;
+
+    border: 1px solid rgba(210, 161, 59, 0.5);
+    border-radius: 5px;
+
+    background: #111112;
+
+    color: #d2a13b;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+
+    cursor: pointer;
+}
+
+.customize-tool select {
+    padding: 0 12px;
+
+    outline: none;
+}
+
+
+/* ================================================================
+   COLORS
+   ================================================================ */
+
+.customize-color-options {
+    display: flex;
+
+    gap: 9px;
+}
+
+.customize-color {
+    width: 30px !important;
+    height: 30px !important;
+
+    min-height: 30px !important;
+
+    padding: 0;
+
+    border-radius: 50% !important;
+}
+
+.customize-color--black {
+    background: #080808 !important;
+}
+
+.customize-color--white {
+    background: #ffffff !important;
+}
+
+.customize-color--gold {
+    background: #d2a13b !important;
+}
+
+
+/* ================================================================
+   PANEL ACTIONS
+   ================================================================ */
+
+.customize-panel__actions {
+    margin-top: auto;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 8px;
+
+    padding: 18px 20px;
+}
+
+.customize-panel__actions button {
+    min-height: 35px;
+
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 4px;
+
+    background: transparent;
+
+    color: rgba(255, 255, 255, 0.55);
+
+    font-size: 9px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* ================================================================
+   PREVIEW
+   ================================================================ */
+
+.customize-preview {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid rgba(210, 161, 59, 0.32);
+    border-radius: 10px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(210, 161, 59, 0.055),
+            transparent 45%
+        ),
+        #141415;
+
+    overflow: hidden;
+}
+
+.customize-preview__top {
+    min-height: 78px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 18px 24px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.customize-preview__top div span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #d2a13b;
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.customize-preview__top div strong {
+    color: #ffffff;
+
+    font-size: 18px;
+}
+
+.customize-preview__status {
+    color: rgba(255, 255, 255, 0.38);
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+
+/* ================================================================
+   PRODUCT
+   ================================================================ */
+
+.customize-product {
+    min-height: 500px;
+
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 45px;
+}
+
+.customize-mug {
+    position: relative;
+
+    width: 300px;
+    height: 310px;
+
+    filter:
+        drop-shadow(
+            0 30px 30px rgba(0, 0, 0, 0.5)
+        );
+}
+
+.customize-mug__body {
+    position: absolute;
+
+    left: 35px;
+    top: 10px;
+
+    width: 230px;
+    height: 275px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 16px;
+
+    border-radius:
+        12px 12px 48px 48px;
+
+    background:
+        linear-gradient(
+            105deg,
+            #d9d9d9 0%,
+            #ffffff 24%,
+            #ededed 55%,
+            #c7c7c7 100%
+        );
+
+    box-shadow:
+        inset -18px 0 30px rgba(0, 0, 0, 0.14),
+        inset 18px 0 25px rgba(255, 255, 255, 0.5);
+}
+
+.customize-mug__handle {
+    position: absolute;
+
+    right: 8px;
+    top: 68px;
+
+    width: 88px;
+    height: 135px;
+
+    border: 25px solid #d3d3d3;
+    border-left: none;
+
+    border-radius: 0 70px 70px 0;
+
+    box-shadow:
+        inset -8px 0 14px rgba(0, 0, 0, 0.15);
+}
+
+.customize-mug__logo {
+    color: #111111;
+
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.customize-mug__placeholder {
+    padding: 13px 22px;
+
+    border: 1px dashed rgba(210, 161, 59, 0.8);
+
+    color: #b38a2f;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+
+/* ================================================================
+   VIEW CONTROLS
+   ================================================================ */
+
+.customize-view-controls {
+    display: flex;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 14px 20px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.customize-view-controls button {
+    min-width: 72px;
+
+    padding: 8px 12px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+
+    background: transparent;
+
+    color: rgba(255, 255, 255, 0.48);
+
+    font-size: 9px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    cursor: pointer;
+}
+
+.customize-view-controls button.is-active {
+    border-color: #d2a13b;
+
+    background: rgba(210, 161, 59, 0.08);
+
+    color: #d2a13b;
+}
+
+
+/* ================================================================
+   PURCHASE
+   ================================================================ */
+
+.customize-preview__bottom {
+    min-height: 92px;
+
+    display: grid;
+
+    grid-template-columns: 150px 130px minmax(180px, 250px);
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 18px 24px;
+}
+
+.customize-price span,
+.customize-quantity > span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: rgba(255, 255, 255, 0.38);
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.customize-price strong {
+    color: #d2a13b;
+
+    font-size: 22px;
+}
+
+.customize-quantity > div {
+    display: inline-flex;
+    align-items: center;
+
+    border: 1px solid rgba(210, 161, 59, 0.4);
+    border-radius: 5px;
+}
+
+.customize-quantity button {
+    width: 34px;
+    height: 34px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #d2a13b;
+
+    cursor: pointer;
+}
+
+.customize-quantity strong {
+    min-width: 30px;
+
+    text-align: center;
+
+    color: #ffffff;
+
+    font-size: 12px;
+}
+
+.customize-add-cart {
+    min-height: 48px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 18px;
+
+    border: 1px solid #d2a13b;
+    border-radius: 5px;
+
+    background: #d2a13b;
+
+    color: #0b0b0c;
+
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+
+    cursor: pointer;
+}
+
+.customize-add-cart span {
+    font-size: 18px;
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 767px) {
+
+    .customize-page {
+        padding: 35px 14px 55px;
+    }
+
+    .customize-intro {
+        margin-bottom: 25px;
+    }
+
+    .customize-eyebrow {
+        font-size: 10px;
+        letter-spacing: 2px;
+    }
+
+    .customize-intro h1 {
+        font-size: 38px;
+        letter-spacing: -1px;
+    }
+
+    .customize-intro p {
+        margin-top: 14px;
+
+        font-size: 13px;
+    }
+
+    .customize-steps {
+        margin-bottom: 22px;
+    }
+
+    .customize-step {
+        min-height: 54px;
+
+        flex-direction: column;
+
+        gap: 4px;
+
+        font-size: 9px;
+    }
+
+    .customize-workspace {
+        grid-template-columns: 1fr;
+
+        gap: 16px;
+    }
+
+    .customize-panel {
+        order: 2;
+    }
+
+    .customize-preview {
+        order: 1;
+    }
+
+    .customize-preview__top {
+        min-height: 66px;
+
+        padding: 15px 16px;
+    }
+
+    .customize-product {
+        min-height: 360px;
+
+        padding: 25px 10px;
+    }
+
+    .customize-mug {
+        transform: scale(0.78);
+    }
+
+    .customize-view-controls {
+        gap: 5px;
+
+        padding: 11px 8px;
+    }
+
+    .customize-view-controls button {
+        min-width: 0;
+
+        flex: 1;
+
+        padding: 8px 4px;
+
+        font-size: 8px;
+    }
+
+    .customize-preview__bottom {
+        grid-template-columns: 1fr 1fr;
+
+        gap: 14px;
+
+        padding: 16px;
+    }
+
+    .customize-add-cart {
+        grid-column: 1 / -1;
+
+        width: 100%;
+    }
+
+    .customize-panel__header {
+        padding: 20px 18px 16px;
+    }
+
+    .customize-tool {
+        padding: 17px 16px;
+    }
+
+    .customize-panel__actions {
+        padding: 15px 16px;
+    }
 
 }
 
-.customize-page h1{
 
-    color:#C89B3C;
+/* ================================================================
+   SMALL MOBILE
+   ================================================================ */
 
-    font-size:4rem;
+@media (max-width: 480px) {
 
-    font-weight:700;
+    .customize-page {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 
-}
+    .customize-intro h1 {
+        font-size: 34px;
+    }
 
-.customize-page p{
+    .customize-intro p {
+        font-size: 12px;
+    }
 
-    color:#FFFFFF;
+    .customize-product {
+        min-height: 320px;
+    }
 
-    font-size:1.2rem;
+    .customize-mug {
+        transform: scale(0.67);
+    }
+
+    .customize-preview__bottom {
+        grid-template-columns: 1fr 1fr;
+    }
 
 }
