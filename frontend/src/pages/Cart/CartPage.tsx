@@ -38,7 +38,7 @@ function CartPage() {
             color: "Black",
             price: 24.99,
             quantity: 1,
-            image: "/images/products/classic-mug.jpg",
+            image: "/images/products/model-one.jpg",
         },
     ]);
 
@@ -102,7 +102,7 @@ function CartPage() {
                     <div className="cart-hero__background">
 
                         <img
-                            src="/images/cart/cart-hero.jpg"
+                            src="/images/hero/hero-background.jpg"
                             alt="Magic Touch Designs custom mug"
                         />
 
