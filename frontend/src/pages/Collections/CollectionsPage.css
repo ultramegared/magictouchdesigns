@@ -541,14 +541,14 @@
     }
 
     .collections-hero__content {
-        width: calc(100% - 34px);
+    width: calc(100% - 34px);
 
-        margin: 0 auto;
+    margin: 0 auto;
 
-        padding: 48px 0 35px;
+    padding: 70px 0 15px;
 
-        text-align: center;
-    }
+    text-align: center;
+}
 
     .collections-hero__eyebrow {
         margin-bottom: 13px;
