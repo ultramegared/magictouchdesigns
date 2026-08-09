@@ -441,6 +441,46 @@
     padding: 45px;
 }
 
+
+/* ================================================================
+   MUG ROTATION STAGE
+   ================================================================ */
+
+.customize-mug-stage {
+    width: 360px;
+    height: 350px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: grab;
+
+    touch-action: none;
+    user-select: none;
+
+    -webkit-user-select: none;
+}
+
+.customize-mug-stage:active {
+    cursor: grabbing;
+}
+
+.customize-mug-stage .customize-mug {
+    transform:
+        rotateY(var(--mug-rotation, 0deg));
+
+    transform-style: preserve-3d;
+
+    transition:
+        transform 0.08s linear;
+}
+
+
+/* ================================================================
+   MUG
+   ================================================================ */
+
 .customize-mug {
     position: relative;
 
@@ -527,6 +567,7 @@
 
 /* ================================================================
    VIEW CONTROLS
+   FRONT / BACK ONLY
    ================================================================ */
 
 .customize-view-controls {
@@ -674,8 +715,8 @@
 @media (max-width: 767px) {
 
     .customize-page {
-    padding: 85px 14px 55px;
-}
+        padding: 85px 14px 55px;
+    }
 
     .customize-intro {
         margin-bottom: 25px;
@@ -735,6 +776,11 @@
         min-height: 360px;
 
         padding: 25px 10px;
+    }
+
+    .customize-mug-stage {
+        width: 100%;
+        height: 330px;
     }
 
     .customize-mug {

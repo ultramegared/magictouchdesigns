@@ -10,18 +10,85 @@
  * ================================================================
  */
 
-import { useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import "./CustomizePage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 
-type MugView = "front" | "left" | "right" | "back";
+type MugView = "front" | "back";
 
 function CustomizePage() {
 
     const [activeView, setActiveView] = useState<MugView>("front");
     const [quantity, setQuantity] = useState(1);
+    const [mugRotation, setMugRotation] = useState(0);
+
+    const isDragging = useRef(false);
+    const lastPointerX = useRef(0);
+
+    const handleMugPointerDown = (
+        event: React.PointerEvent<HTMLDivElement>
+    ) => {
+        isDragging.current = true;
+        lastPointerX.current = event.clientX;
+
+        event.currentTarget.setPointerCapture(event.pointerId);
+    };
+
+    const handleMugPointerMove = (
+        event: React.PointerEvent<HTMLDivElement>
+    ) => {
+        if (!isDragging.current) return;
+
+        const deltaX =
+            event.clientX - lastPointerX.current;
+
+        lastPointerX.current = event.clientX;
+
+        setMugRotation((current) =>
+            Math.max(
+                0,
+                Math.min(
+                    390,
+                    current + deltaX * 0.8
+                )
+            )
+        );
+    };
+
+    const handleMugPointerUp = (
+        event: React.PointerEvent<HTMLDivElement>
+    ) => {
+        isDragging.current = false;
+
+        if (
+            event.currentTarget.hasPointerCapture(
+                event.pointerId
+            )
+        ) {
+            event.currentTarget.releasePointerCapture(
+                event.pointerId
+            );
+        }
+    };
+
+    const handleViewChange = (view: MugView) => {
+
+        setActiveView(view);
+
+        if (view === "front") {
+            setMugRotation(0);
+        }
+
+        if (view === "back") {
+            setMugRotation(180);
+        }
+    };
+
+    const mugStyle = {
+        "--mug-rotation": `${mugRotation}deg`,
+    } as CSSProperties;
 
     return (
 
@@ -49,7 +116,10 @@ function CustomizePage() {
                 </section>
 
 
-                <nav className="customize-steps" aria-label="Customization steps">
+                <nav
+                    className="customize-steps"
+                    aria-label="Customization steps"
+                >
 
                     <div className="customize-step customize-step--active">
                         <span>01</span>
@@ -237,19 +307,32 @@ function CustomizePage() {
 
                         <div className="customize-product">
 
-                            <div className="customize-mug">
+                            <div
+                                className="customize-mug-stage"
+                                onPointerDown={handleMugPointerDown}
+                                onPointerMove={handleMugPointerMove}
+                                onPointerUp={handleMugPointerUp}
+                                onPointerCancel={handleMugPointerUp}
+                                style={mugStyle}
+                                role="application"
+                                aria-label="Drag to rotate your mug"
+                            >
 
-                                <div className="customize-mug__handle" />
+                                <div className="customize-mug">
 
-                                <div className="customize-mug__body">
+                                    <div className="customize-mug__handle" />
 
-                                    <span className="customize-mug__logo">
-                                        MAGIC TOUCH
-                                    </span>
+                                    <div className="customize-mug__body">
 
-                                    <span className="customize-mug__placeholder">
-                                        YOUR DESIGN
-                                    </span>
+                                        <span className="customize-mug__logo">
+                                            MAGIC TOUCH
+                                        </span>
+
+                                        <span className="customize-mug__placeholder">
+                                            YOUR DESIGN
+                                        </span>
+
+                                    </div>
 
                                 </div>
 
@@ -260,7 +343,7 @@ function CustomizePage() {
 
                         <div className="customize-view-controls">
 
-                            {(["front", "left", "right", "back"] as MugView[]).map(
+                            {(["front", "back"] as MugView[]).map(
                                 (view) => (
 
                                     <button
@@ -271,7 +354,9 @@ function CustomizePage() {
                                                 ? "is-active"
                                                 : ""
                                         }
-                                        onClick={() => setActiveView(view)}
+                                        onClick={() =>
+                                            handleViewChange(view)
+                                        }
                                     >
                                         {view}
                                     </button>
@@ -303,7 +388,10 @@ function CustomizePage() {
                                         type="button"
                                         onClick={() =>
                                             setQuantity(
-                                                Math.max(1, quantity - 1)
+                                                Math.max(
+                                                    1,
+                                                    quantity - 1
+                                                )
                                             )
                                         }
                                     >
@@ -317,7 +405,9 @@ function CustomizePage() {
                                     <button
                                         type="button"
                                         onClick={() =>
-                                            setQuantity(quantity + 1)
+                                            setQuantity(
+                                                quantity + 1
+                                            )
                                         }
                                     >
                                         +
