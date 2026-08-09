@@ -20,16 +20,16 @@
 
     background:
         radial-gradient(
-            circle at 15% 20%,
-            rgba(210, 161, 59, 0.10),
+            circle at 12% 18%,
+            rgba(210, 161, 59, 0.12),
             transparent 30%
         ),
         radial-gradient(
-            circle at 85% 70%,
-            rgba(210, 161, 59, 0.07),
-            transparent 32%
+            circle at 88% 72%,
+            rgba(210, 161, 59, 0.08),
+            transparent 34%
         ),
-        #09090a;
+        #080809;
 }
 
 
@@ -39,16 +39,20 @@
 
 .cart-hero {
     position: relative;
-    min-height: 500px;
+
+    min-height: 520px;
 
     display: flex;
     align-items: center;
 
     overflow: hidden;
 
-    border-bottom: 1px solid rgba(210, 161, 59, 0.30);
+    border-bottom: 1px solid rgba(210, 161, 59, 0.35);
 
-    background: #080809;
+    background: #070708;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.55);
 }
 
 .cart-hero__background {
@@ -67,15 +71,32 @@
     display: block;
 
     object-fit: cover;
+
+    /*
+     * La taza de la imagen queda visible hacia la derecha.
+     * El lado izquierdo queda disponible para el texto.
+     */
     object-position: center center;
 
-    transform: scale(1.02);
+    transform: scale(1.035);
 
     filter:
-        saturate(0.95)
-        contrast(1.05)
-        brightness(0.82);
+        saturate(1.05)
+        contrast(1.06)
+        brightness(0.92);
+
+    transition:
+        transform 0.8s ease;
 }
+
+.cart-hero:hover .cart-hero__background img {
+    transform: scale(1.055);
+}
+
+
+/* ================================================================
+   HERO LIGHT / OVERLAY
+   ================================================================ */
 
 .cart-hero__overlay {
     position: absolute;
@@ -84,20 +105,33 @@
     z-index: 1;
 
     background:
+        /*
+         * Oscurece principalmente el lado izquierdo.
+         */
         linear-gradient(
             90deg,
-            rgba(7, 7, 8, 0.96) 0%,
-            rgba(7, 7, 8, 0.82) 27%,
-            rgba(7, 7, 8, 0.48) 53%,
-            rgba(7, 7, 8, 0.08) 100%
+            rgba(5, 5, 6, 0.90) 0%,
+            rgba(5, 5, 6, 0.68) 25%,
+            rgba(5, 5, 6, 0.30) 48%,
+            rgba(5, 5, 6, 0.05) 72%,
+            rgba(5, 5, 6, 0.12) 100%
         ),
+        /*
+         * Oscurece ligeramente la parte inferior
+         * para integrar el contenedor.
+         */
         linear-gradient(
             180deg,
-            rgba(0, 0, 0, 0.20) 0%,
-            rgba(0, 0, 0, 0.12) 45%,
-            rgba(0, 0, 0, 0.82) 100%
+            rgba(0, 0, 0, 0.04) 0%,
+            rgba(0, 0, 0, 0.05) 55%,
+            rgba(0, 0, 0, 0.78) 100%
         );
 }
+
+
+/* ================================================================
+   HERO CONTENT
+   ================================================================ */
 
 .cart-hero__content {
     position: relative;
@@ -108,7 +142,7 @@
 
     margin: 0 auto;
 
-    padding: 110px 20px 100px;
+    padding: 115px 20px 120px;
 }
 
 .cart-eyebrow {
@@ -116,16 +150,18 @@
 
     margin-bottom: 14px;
 
-    color: #d9a83e;
+    color: #e0ad43;
 
     font-size: 12px;
     font-weight: 900;
 
     letter-spacing: 4px;
+
     text-transform: uppercase;
 
     text-shadow:
-        0 0 20px rgba(210, 161, 59, 0.25);
+        0 2px 12px rgba(0, 0, 0, 0.75),
+        0 0 22px rgba(210, 161, 59, 0.25);
 }
 
 .cart-hero h1 {
@@ -133,26 +169,32 @@
 
     color: #ffffff;
 
-    font-size: clamp(48px, 6vw, 82px);
-    line-height: 0.95;
+    font-size: clamp(50px, 6vw, 84px);
+
+    line-height: 0.94;
 
     font-weight: 900;
 
     letter-spacing: -4px;
 
     text-shadow:
-        0 5px 20px rgba(0, 0, 0, 0.70);
+        0 5px 25px rgba(0, 0, 0, 0.85),
+        0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .cart-hero p {
-    max-width: 520px;
+    max-width: 500px;
 
-    margin: 22px 0 0;
+    margin: 24px 0 0;
 
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(255, 255, 255, 0.78);
 
     font-size: 16px;
+
     line-height: 1.65;
+
+    text-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.75);
 }
 
 
@@ -167,26 +209,52 @@
 
     width: min(1280px, calc(100% - 80px));
 
-    margin: -65px auto 0;
+    margin: -72px auto 0;
 
     padding: 30px;
 
-    border: 1px solid rgba(210, 161, 59, 0.34);
+    border: 1px solid rgba(210, 161, 59, 0.42);
 
     border-radius: 18px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(29, 29, 30, 0.98) 0%,
-            rgba(12, 12, 13, 0.98) 100%
+            rgba(35, 35, 36, 0.985) 0%,
+            rgba(18, 18, 19, 0.99) 45%,
+            rgba(10, 10, 11, 0.995) 100%
         );
 
     box-shadow:
-        0 35px 90px rgba(0, 0, 0, 0.72),
-        0 10px 30px rgba(0, 0, 0, 0.40),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.80);
+        0 40px 100px rgba(0, 0, 0, 0.78),
+        0 12px 35px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 255, 255, 0.025),
+        inset 0 2px 0 rgba(255, 255, 255, 0.09),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.90);
+
+    transform: translateZ(0);
+}
+
+.cart-container::before {
+    content: "";
+
+    position: absolute;
+
+    top: 1px;
+    left: 7%;
+    right: 7%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 219, 139, 0.42),
+            transparent
+        );
+
+    pointer-events: none;
 }
 
 
@@ -232,7 +300,7 @@
 }
 
 .cart-count {
-    color: rgba(255, 255, 255, 0.42);
+    color: rgba(255, 255, 255, 0.48);
 
     font-size: 10px;
     font-weight: 800;
@@ -289,29 +357,31 @@
 
     padding: 18px;
 
-    margin-bottom: 16px;
+    margin-bottom: 17px;
 
     overflow: hidden;
 
-    border: 1px solid rgba(210, 161, 59, 0.34);
+    border: 1px solid rgba(210, 161, 59, 0.40);
 
     border-radius: 14px;
 
     background:
         linear-gradient(
             145deg,
-            #222223 0%,
-            #161617 42%,
-            #0e0e0f 100%
+            #252526 0%,
+            #181819 42%,
+            #0d0d0e 100%
         );
 
     box-shadow:
-        0 24px 45px rgba(0, 0, 0, 0.55),
-        0 8px 18px rgba(0, 0, 0, 0.30),
-        inset 0 1px 0 rgba(255, 255, 255, 0.09),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.85);
+        0 28px 55px rgba(0, 0, 0, 0.62),
+        0 10px 22px rgba(0, 0, 0, 0.38),
+        inset 0 2px 0 rgba(255, 255, 255, 0.10),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.90);
 
-    transform: translateZ(0);
+    transform:
+        perspective(900px)
+        translateZ(0);
 
     transition:
         transform 0.25s ease,
@@ -320,15 +390,18 @@
 }
 
 .cart-item:hover {
-    transform: translateY(-3px);
+    transform:
+        perspective(900px)
+        translateY(-4px)
+        rotateX(0.4deg);
 
-    border-color: rgba(210, 161, 59, 0.58);
+    border-color: rgba(230, 181, 76, 0.68);
 
     box-shadow:
-        0 30px 55px rgba(0, 0, 0, 0.65),
-        0 10px 24px rgba(210, 161, 59, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.11),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.90);
+        0 35px 65px rgba(0, 0, 0, 0.70),
+        0 12px 30px rgba(210, 161, 59, 0.10),
+        inset 0 2px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.92);
 }
 
 .cart-item::before {
@@ -345,10 +418,10 @@
     background:
         linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.06),
-            transparent 25%,
-            transparent 72%,
-            rgba(210, 161, 59, 0.035)
+            rgba(255, 255, 255, 0.075),
+            transparent 27%,
+            transparent 70%,
+            rgba(210, 161, 59, 0.055)
         );
 }
 
@@ -367,7 +440,7 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(255, 215, 130, 0.28),
+            rgba(255, 218, 137, 0.40),
             transparent
         );
 
@@ -391,22 +464,22 @@
 
     overflow: hidden;
 
-    border: 1px solid rgba(210, 161, 59, 0.34);
+    border: 1px solid rgba(210, 161, 59, 0.42);
 
     border-radius: 11px;
 
     background:
         radial-gradient(
             circle at 50% 42%,
-            rgba(210, 161, 59, 0.12),
+            rgba(210, 161, 59, 0.15),
             transparent 62%
         ),
-        #0b0b0c;
+        #09090a;
 
     box-shadow:
-        0 14px 25px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.07),
-        inset 0 -3px 8px rgba(0, 0, 0, 0.60);
+        0 16px 30px rgba(0, 0, 0, 0.52),
+        inset 0 2px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -4px 10px rgba(0, 0, 0, 0.65);
 }
 
 .cart-item__image::after {
@@ -421,8 +494,8 @@
     background:
         linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.08),
-            transparent 35%
+            rgba(255, 255, 255, 0.10),
+            transparent 36%
         );
 }
 
@@ -435,14 +508,15 @@
     object-fit: cover;
 
     filter:
-        contrast(1.03)
-        brightness(1.02);
+        contrast(1.04)
+        brightness(1.03);
 
-    transition: transform 0.3s ease;
+    transition:
+        transform 0.3s ease;
 }
 
 .cart-item:hover .cart-item__image img {
-    transform: scale(1.035);
+    transform: scale(1.045);
 }
 
 
@@ -485,13 +559,13 @@
 
     gap: 8px 18px;
 
-    color: rgba(255, 255, 255, 0.46);
+    color: rgba(255, 255, 255, 0.48);
 
     font-size: 11px;
 }
 
 .cart-item__specs strong {
-    color: rgba(255, 255, 255, 0.82);
+    color: rgba(255, 255, 255, 0.86);
 }
 
 .cart-item__remove {
@@ -503,7 +577,7 @@
 
     background: transparent;
 
-    color: rgba(255, 255, 255, 0.38);
+    color: rgba(255, 255, 255, 0.40);
 
     font-size: 9px;
     font-weight: 800;
@@ -520,7 +594,7 @@
 }
 
 .cart-item__remove:hover {
-    color: #d9a83e;
+    color: #e0ad43;
 
     transform: translateX(3px);
 }
@@ -555,20 +629,20 @@
 
     overflow: hidden;
 
-    border: 1px solid rgba(210, 161, 59, 0.48);
+    border: 1px solid rgba(210, 161, 59, 0.52);
 
     border-radius: 7px;
 
     background:
         linear-gradient(
             145deg,
-            #181819,
-            #0c0c0d
+            #1b1b1c,
+            #0b0b0c
         );
 
     box-shadow:
-        0 8px 15px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        0 9px 18px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .cart-quantity button {
@@ -584,10 +658,13 @@
     font-size: 15px;
 
     cursor: pointer;
+
+    transition:
+        background 0.2s ease;
 }
 
 .cart-quantity button:hover {
-    background: rgba(210, 161, 59, 0.10);
+    background: rgba(210, 161, 59, 0.12);
 }
 
 .cart-quantity strong {
@@ -601,13 +678,13 @@
 }
 
 .cart-item__price {
-    color: #e0ad43;
+    color: #e5b248;
 
     font-size: 21px;
     font-weight: 900;
 
     text-shadow:
-        0 2px 10px rgba(210, 161, 59, 0.18);
+        0 3px 14px rgba(210, 161, 59, 0.22);
 }
 
 
@@ -627,16 +704,19 @@
 
     padding: 40px;
 
-    border: 1px dashed rgba(210, 161, 59, 0.30);
+    border: 1px dashed rgba(210, 161, 59, 0.34);
 
     border-radius: 14px;
 
     background:
         radial-gradient(
             circle at center,
-            rgba(210, 161, 59, 0.06),
+            rgba(210, 161, 59, 0.07),
             transparent 62%
         );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .cart-empty__icon {
@@ -721,23 +801,27 @@
 
     overflow: hidden;
 
-    border: 1px solid rgba(210, 161, 59, 0.38);
+    border: 1px solid rgba(210, 161, 59, 0.44);
 
     border-radius: 16px;
 
     background:
         linear-gradient(
             145deg,
-            #222223 0%,
-            #151516 42%,
-            #0d0d0e 100%
+            #252526 0%,
+            #171718 42%,
+            #0b0b0c 100%
         );
 
     box-shadow:
-        0 28px 55px rgba(0, 0, 0, 0.60),
-        0 8px 22px rgba(0, 0, 0, 0.38),
-        inset 0 1px 0 rgba(255, 255, 255, 0.09),
-        inset 0 -3px 0 rgba(0, 0, 0, 0.85);
+        0 32px 65px rgba(0, 0, 0, 0.68),
+        0 10px 25px rgba(0, 0, 0, 0.40),
+        inset 0 2px 0 rgba(255, 255, 255, 0.10),
+        inset 0 -4px 0 rgba(0, 0, 0, 0.90);
+
+    transform:
+        perspective(1000px)
+        translateZ(0);
 }
 
 .cart-summary::before {
@@ -754,10 +838,10 @@
     background:
         linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.06),
-            transparent 25%,
-            transparent 70%,
-            rgba(210, 161, 59, 0.035)
+            rgba(255, 255, 255, 0.075),
+            transparent 26%,
+            transparent 68%,
+            rgba(210, 161, 59, 0.055)
         );
 }
 
@@ -767,8 +851,8 @@
     position: absolute;
 
     top: 0;
-    left: 14%;
-    right: 14%;
+    left: 12%;
+    right: 12%;
 
     height: 1px;
 
@@ -776,7 +860,7 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(255, 214, 126, 0.38),
+            rgba(255, 220, 143, 0.46),
             transparent
         );
 }
@@ -815,7 +899,7 @@
 
 
 /* ================================================================
-   SUMMARY ROWS
+   SUMMARY
    ================================================================ */
 
 .cart-summary__rows {
@@ -883,13 +967,13 @@
 }
 
 .cart-summary__total strong {
-    color: #e3ae43;
+    color: #e5b248;
 
     font-size: 27px;
     font-weight: 900;
 
     text-shadow:
-        0 3px 14px rgba(210, 161, 59, 0.20);
+        0 4px 16px rgba(210, 161, 59, 0.24);
 }
 
 
@@ -915,16 +999,16 @@
 
     margin-top: 4px;
 
-    border: 1px solid rgba(255, 225, 145, 0.45);
+    border: 1px solid rgba(255, 225, 145, 0.50);
 
     border-radius: 9px;
 
     background:
         linear-gradient(
             145deg,
-            #f0bf58 0%,
-            #dca63a 52%,
-            #bf8825 100%
+            #f4c45e 0%,
+            #dda73b 52%,
+            #bd8524 100%
         );
 
     color: #111111;
@@ -939,10 +1023,10 @@
     cursor: pointer;
 
     box-shadow:
-        0 12px 25px rgba(0, 0, 0, 0.40),
-        0 4px 12px rgba(210, 161, 59, 0.22),
-        inset 0 2px 0 rgba(255, 255, 255, 0.35),
-        inset 0 -3px 0 rgba(107, 69, 13, 0.30);
+        0 15px 30px rgba(0, 0, 0, 0.48),
+        0 5px 16px rgba(210, 161, 59, 0.24),
+        inset 0 2px 0 rgba(255, 255, 255, 0.38),
+        inset 0 -4px 0 rgba(107, 69, 13, 0.30);
 
     transition:
         transform 0.2s ease,
@@ -950,13 +1034,13 @@
 }
 
 .cart-checkout:hover:not(:disabled) {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
 
     box-shadow:
-        0 17px 30px rgba(0, 0, 0, 0.48),
-        0 6px 18px rgba(210, 161, 59, 0.30),
-        inset 0 2px 0 rgba(255, 255, 255, 0.40),
-        inset 0 -3px 0 rgba(107, 69, 13, 0.25);
+        0 20px 35px rgba(0, 0, 0, 0.55),
+        0 7px 20px rgba(210, 161, 59, 0.32),
+        inset 0 2px 0 rgba(255, 255, 255, 0.42),
+        inset 0 -4px 0 rgba(107, 69, 13, 0.25);
 }
 
 .cart-checkout:disabled {
@@ -1003,7 +1087,7 @@
 
     flex-shrink: 0;
 
-    border: 1px solid rgba(210, 161, 59, 0.55);
+    border: 1px solid rgba(210, 161, 59, 0.58);
 
     border-radius: 50%;
 
@@ -1011,15 +1095,22 @@
 
     font-size: 15px;
 
+    background:
+        radial-gradient(
+            circle,
+            rgba(210, 161, 59, 0.10),
+            transparent 70%
+        );
+
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        0 5px 15px rgba(0, 0, 0, 0.35);
+        0 6px 16px rgba(0, 0, 0, 0.40);
 }
 
 .cart-secure strong {
     display: block;
 
-    color: rgba(255, 255, 255, 0.86);
+    color: rgba(255, 255, 255, 0.88);
 
     font-size: 12px;
 }
@@ -1032,12 +1123,13 @@
     color: rgba(255, 255, 255, 0.40);
 
     font-size: 10px;
+
     line-height: 1.4;
 }
 
 
 /* ================================================================
-   RESPONSIVE
+   TABLET
    ================================================================ */
 
 @media (max-width: 1000px) {
@@ -1057,36 +1149,59 @@
 }
 
 
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
 @media (max-width: 767px) {
 
     .cart-hero {
-        min-height: 390px;
-    }
-
-    .cart-hero__content {
-        width: 100%;
-
-        padding: 90px 28px 85px;
+        min-height: 430px;
     }
 
     .cart-hero__background img {
-        object-position: 62% center;
+        /*
+         * En móvil desplazamos la imagen para conservar
+         * la taza visible.
+         */
+        object-position: 68% center;
+
+        transform: scale(1.08);
     }
 
     .cart-hero__overlay {
         background:
             linear-gradient(
                 180deg,
-                rgba(7, 7, 8, 0.25) 0%,
-                rgba(7, 7, 8, 0.55) 48%,
-                rgba(7, 7, 8, 0.96) 100%
+                rgba(5, 5, 6, 0.16) 0%,
+                rgba(5, 5, 6, 0.42) 42%,
+                rgba(5, 5, 6, 0.88) 72%,
+                rgba(5, 5, 6, 0.98) 100%
             );
+    }
+
+    .cart-hero__content {
+        width: 100%;
+
+        padding: 90px 28px 100px;
+    }
+
+    .cart-hero h1 {
+        font-size: clamp(48px, 14vw, 68px);
+
+        letter-spacing: -3px;
+    }
+
+    .cart-hero p {
+        max-width: 380px;
+
+        font-size: 14px;
     }
 
     .cart-container {
         width: calc(100% - 28px);
 
-        margin-top: -38px;
+        margin-top: -48px;
 
         padding: 18px;
 
@@ -1110,7 +1225,9 @@
     }
 
     .cart-item {
-        grid-template-columns: 118px minmax(0, 1fr);
+        grid-template-columns:
+            118px
+            minmax(0, 1fr);
 
         gap: 15px;
 
@@ -1146,14 +1263,24 @@
 }
 
 
+/* ================================================================
+   SMALL MOBILE
+   ================================================================ */
+
 @media (max-width: 480px) {
 
     .cart-hero {
-        min-height: 360px;
+        min-height: 390px;
+    }
+
+    .cart-hero__background img {
+        object-position: 70% center;
+
+        transform: scale(1.12);
     }
 
     .cart-hero__content {
-        padding: 80px 22px 70px;
+        padding: 78px 22px 85px;
     }
 
     .cart-eyebrow {
@@ -1179,7 +1306,9 @@
     }
 
     .cart-item {
-        grid-template-columns: 100px minmax(0, 1fr);
+        grid-template-columns:
+            100px
+            minmax(0, 1fr);
 
         gap: 12px;
 
