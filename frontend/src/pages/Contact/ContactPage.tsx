@@ -323,4 +323,246 @@ function ContactPage() {
                                     <button
                                         type="button"
                                         onClick={() =>
-                                            setQuantity(quantity
+                                            setQuantity(quantity + 1)
+                                        }
+                                        aria-label="Increase quantity"
+                                    >
+                                        +
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="contact-field contact-field--full">
+
+                                <label htmlFor="custom-notes">
+                                    Additional Details
+                                </label>
+
+                                <textarea
+                                    id="custom-notes"
+                                    name="notes"
+                                    rows={4}
+                                    placeholder="Tell us anything else we should know about your design..."
+                                />
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="contact-price">
+
+                            <div>
+
+                                <span>
+                                    ESTIMATED PRICE
+                                </span>
+
+                                <strong>
+                                    ${estimatedTotal.toFixed(2)}
+                                </strong>
+
+                            </div>
+
+                            <small>
+                                ${pricePerMug.toFixed(2)} per mug
+                            </small>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            className="contact-primary-button"
+                        >
+                            Send Custom Request
+                            <span>→</span>
+                        </button>
+
+                    </form>
+
+                </section>
+
+
+                {/* ==================================================
+                   CONTACT SUPPORT
+                   ================================================== */}
+
+                <section className="contact-support">
+
+                    <div className="contact-support__content">
+
+                        <span className="contact-section-label">
+                            NEED HELP?
+                        </span>
+
+                        <h2>
+                            Contact Support
+                        </h2>
+
+                        <p>
+                            Have an issue with an order, a design,
+                            payment or anything else? Send us a
+                            message and our team will help you.
+                        </p>
+
+                        <div className="contact-info">
+
+                            <div className="contact-info__item">
+
+                                <span className="contact-info__icon">
+                                    @
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Email
+                                    </strong>
+
+                                    <span>
+                                        support@magictouchdesigns.com
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="contact-info__item">
+
+                                <span className="contact-info__icon">
+                                    ?
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Customer Support
+                                    </strong>
+
+                                    <span>
+                                        We're here to help with your order.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {/* ==================================================
+                       SUPPORT IMAGE
+                       ================================================== */}
+
+                    <div className="contact-support__image">
+
+                        <img
+                            src="/images/contact/contact-support.jpg"
+                            alt="Magic Touch Designs customer support"
+                        />
+
+                    </div>
+
+
+                    <form
+                        className="contact-support__form"
+                        onSubmit={handleSupportSubmit}
+                    >
+
+                        <div className="contact-field">
+
+                            <label htmlFor="support-name">
+                                Full Name
+                            </label>
+
+                            <input
+                                id="support-name"
+                                name="name"
+                                type="text"
+                                placeholder="Your name"
+                                required
+                            />
+
+                        </div>
+
+
+                        <div className="contact-field">
+
+                            <label htmlFor="support-email">
+                                Email
+                            </label>
+
+                            <input
+                                id="support-email"
+                                name="email"
+                                type="email"
+                                placeholder="you@example.com"
+                                required
+                            />
+
+                        </div>
+
+
+                        <div className="contact-field">
+
+                            <label htmlFor="support-order">
+                                Order Number
+                            </label>
+
+                            <input
+                                id="support-order"
+                                name="orderNumber"
+                                type="text"
+                                placeholder="Optional"
+                            />
+
+                        </div>
+
+
+                        <div className="contact-field">
+
+                            <label htmlFor="support-message">
+                                Message
+                            </label>
+
+                            <textarea
+                                id="support-message"
+                                name="message"
+                                rows={5}
+                                placeholder="How can we help?"
+                                required
+                            />
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            className="contact-secondary-button"
+                        >
+                            Send Message
+                            <span>→</span>
+                        </button>
+
+                    </form>
+
+                </section>
+
+            </main>
+
+            <Footer />
+
+        </>
+
+    );
+
+}
+
+export default ContactPage;
