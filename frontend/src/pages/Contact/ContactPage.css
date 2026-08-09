@@ -801,3 +801,156 @@
     }
 
 }
+
+/* ================================================================
+   CONTACT SUPPORT -- IMAGE BACKGROUND / FLOATING CONTENT
+   ================================================================ */
+
+.contact-support {
+    position: relative;
+    overflow: hidden;
+
+    border: 1px solid rgba(210, 161, 59, 0.32);
+    border-radius: 12px;
+
+    background: #141415;
+}
+
+
+/* IMAGE BEHIND SUPPORT CONTENT */
+
+.contact-support__image {
+    position: absolute;
+
+    top: 0;
+    right: 0;
+
+    width: 100%;
+    height: 520px;
+
+    z-index: 0;
+
+    overflow: hidden;
+}
+
+.contact-support__image::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(15, 15, 16, 0.98) 0%,
+            rgba(15, 15, 16, 0.90) 28%,
+            rgba(15, 15, 16, 0.55) 52%,
+            rgba(15, 15, 16, 0.20) 100%
+        );
+}
+
+.contact-support__image img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+    object-position: center;
+}
+
+
+/* FLOATING CONTENT */
+
+.contact-support__content {
+    position: relative;
+
+    z-index: 2;
+
+    min-height: 520px;
+
+    padding: 55px 50% 55px 48px;
+
+    background: transparent;
+}
+
+
+/* SUPPORT FORM STAYS BELOW IMAGE */
+
+.contact-support__form {
+    position: relative;
+
+    z-index: 3;
+
+    background:
+        linear-gradient(
+            180deg,
+            #141415 0%,
+            #111112 100%
+        );
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    padding: 38px 48px 45px;
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 767px) {
+
+    .contact-support__image {
+        height: 430px;
+    }
+
+    .contact-support__image::after {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(15, 15, 16, 0.28) 0%,
+                rgba(15, 15, 16, 0.72) 48%,
+                rgba(15, 15, 16, 0.98) 100%
+            );
+    }
+
+    .contact-support__image img {
+        object-position: center top;
+    }
+
+    .contact-support__content {
+        min-height: 430px;
+
+        padding: 42px 28px 38px;
+    }
+
+    .contact-support__form {
+        padding: 30px 28px 38px;
+    }
+
+}
+
+
+/* ================================================================
+   SMALL MOBILE
+   ================================================================ */
+
+@media (max-width: 480px) {
+
+    .contact-support__image {
+        height: 400px;
+    }
+
+    .contact-support__content {
+        min-height: 400px;
+
+        padding: 36px 24px 32px;
+    }
+
+    .contact-support__form {
+        padding: 28px 24px 34px;
+    }
+
+}
