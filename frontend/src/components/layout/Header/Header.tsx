@@ -12,7 +12,7 @@
 
 import "./Header.css";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
     Search,
@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
+import { getCartItems } from "../../../utils/cart";
+
 
 import { APP_CONFIG } from "../../../constants/config";
 import { navigation } from "../../../constants/navigation";
@@ -30,6 +32,7 @@ import { navigation } from "../../../constants/navigation";
 function Header() {
 
     const [menuOpen, setMenuOpen] = useState(false);
+    const [cartCount, setCartCount] = useState(0);
 
 const navigate = useNavigate();
 
@@ -125,7 +128,7 @@ const navigate = useNavigate();
 
     <ShoppingCart size={20} />
 
-    <span>0</span>
+    <span>{cartCount}</span>
 
 </button>
 
