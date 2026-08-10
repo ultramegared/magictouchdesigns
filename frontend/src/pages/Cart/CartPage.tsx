@@ -46,25 +46,35 @@ useEffect(() => {
 
 
     const updateQuantity = (
-        id: number,
-        change: number
-    ) => {
+    id: number,
+    change: number
+) => {
 
-        setCartItems((items) =>
-            items.map((item) =>
-                item.id === id
-                    ? {
-                        ...item,
-                        quantity: Math.max(
-                            1,
-                            item.quantity + change
-                        ),
-                    }
-                    : item
-            )
-        );
+    const currentItem = cartItems.find(
+        (item) => item.id === id
+    );
 
-    };
+    if (!currentItem) {
+        return;
+    }
+
+    const updatedItems = updateCartQuantity(
+        id,
+        currentItem.quantity + change
+    );
+
+    setCartItems(updatedItems);
+
+};
+
+
+const removeItem = (id: number) => {
+
+    const updatedItems = removeFromCart(id);
+
+    setCartItems(updatedItems);
+
+};
 
     const removeItem = (id: number) => {
 
