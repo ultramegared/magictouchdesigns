@@ -401,17 +401,19 @@ function CartPage() {
 
 
                             <button
-                                type="button"
-                                className="cart-checkout"
-                                disabled={cartItems.length === 0}
-                            >
-                                Proceed to Checkout
+    type="button"
+    className="cart-checkout"
+    disabled={cartItems.length === 0}
+    onClick={() => {
+        window.location.href = "/checkout";
+    }}
+>
+    Proceed to Checkout
 
-                                <span>
-                                    →
-                                </span>
-
-                            </button>
+    <span>
+        →
+    </span>
+</button>
 
 
                             <div className="cart-secure">
