@@ -27,6 +27,16 @@ function CheckoutPage() {
 
     const [cartItems, setCartItems] =
         useState<CartItem[]>([]);
+     const [deliveryType, setDeliveryType] =
+    useState<"house" | "apartment">("house");
+
+const [paymentMethod, setPaymentMethod] =
+    useState<
+        "credit-card" |
+        "debit-card" |
+        "paypal" |
+        "apple-pay"
+    >("credit-card");
 
 
     useEffect(() => {
@@ -201,85 +211,171 @@ function CheckoutPage() {
                                DELIVERY
                                ================================================== */}
 
-                            <div className="checkout-section">
+                           <div className="checkout-section">
 
-                                <span className="checkout-section__eyebrow">
-                                    DELIVERY
-                                </span>
+    <span className="checkout-section__eyebrow">
+        DELIVERY
+    </span>
 
-                                <h2>
-                                    Shipping Address
-                                </h2>
-
-
-                                <div className="checkout-fields">
-
-                                    <label className="checkout-field--full">
-
-                                        <span>
-                                            Address
-                                        </span>
-
-                                        <input
-                                            type="text"
-                                            name="address"
-                                            placeholder="Street address"
-                                            autoComplete="street-address"
-                                        />
-
-                                    </label>
+    <h2>
+        Shipping Address
+    </h2>
 
 
-                                    <label>
+    <div className="checkout-address-types">
 
-                                        <span>
-                                            City
-                                        </span>
+        <button
+            type="button"
+            className={`checkout-address-type ${
+                deliveryType === "house"
+                    ? "checkout-address-type--active"
+                    : ""
+            }`}
+            onClick={() =>
+                setDeliveryType("house")
+            }
+        >
 
-                                        <input
-                                            type="text"
-                                            name="city"
-                                            placeholder="City"
-                                            autoComplete="address-level2"
-                                        />
+            <span className="checkout-address-type__icon">
+                🏠
+            </span>
 
-                                    </label>
+            <span>
 
+                <strong>
+                    House
+                </strong>
 
-                                    <label>
+                <small>
+                    Residential home
+                </small>
 
-                                        <span>
-                                            State
-                                        </span>
+            </span>
 
-                                        <input
-                                            type="text"
-                                            name="state"
-                                            placeholder="State"
-                                            autoComplete="address-level1"
-                                        />
-
-                                    </label>
+        </button>
 
 
-                                    <label>
+        <button
+            type="button"
+            className={`checkout-address-type ${
+                deliveryType === "apartment"
+                    ? "checkout-address-type--active"
+                    : ""
+            }`}
+            onClick={() =>
+                setDeliveryType("apartment")
+            }
+        >
 
-                                        <span>
-                                            ZIP Code
-                                        </span>
+            <span className="checkout-address-type__icon">
+                🏢
+            </span>
 
-                                        <input
-                                            type="text"
-                                            name="zip"
-                                            placeholder="ZIP code"
-                                            autoComplete="postal-code"
-                                        />
+            <span>
 
-                                    </label>
+                <strong>
+                    Apartment
+                </strong>
 
-                                </div>
+                <small>
+                    Apartment or unit
+                </small>
 
-                            </div>
+            </span>
+
+        </button>
+
+    </div>
+
+
+    <div className="checkout-fields">
+
+        <label className="checkout-field--full">
+
+            <span>
+                Address
+            </span>
+
+            <input
+                type="text"
+                name="address"
+                placeholder="Street address"
+                autoComplete="street-address"
+            />
+
+        </label>
+
+
+        {deliveryType === "apartment" && (
+
+            <label className="checkout-field--full">
+
+                <span>
+                    Apartment / Unit Number
+                </span>
+
+                <input
+                    type="text"
+                    name="apartment"
+                    placeholder="Apartment or unit number"
+                    autoComplete="address-line2"
+                />
+
+            </label>
+
+        )}
+
+
+        <label>
+
+            <span>
+                City
+            </span>
+
+            <input
+                type="text"
+                name="city"
+                placeholder="City"
+                autoComplete="address-level2"
+            />
+
+        </label>
+
+
+        <label>
+
+            <span>
+                State
+            </span>
+
+            <input
+                type="text"
+                name="state"
+                placeholder="State"
+                autoComplete="address-level1"
+            />
+
+        </label>
+
+
+        <label>
+
+            <span>
+                ZIP Code
+            </span>
+
+            <input
+                type="text"
+                name="zip"
+                placeholder="ZIP code"
+                autoComplete="postal-code"
+            />
+
+        </label>
+
+    </div>
+
+</div>
 
 
                             {/* ==================================================
@@ -288,37 +384,202 @@ function CheckoutPage() {
 
                             <div className="checkout-section">
 
-                                <span className="checkout-section__eyebrow">
-                                    PAYMENT
-                                </span>
+    <span className="checkout-section__eyebrow">
+        PAYMENT
+    </span>
 
-                                <h2>
-                                    Payment Method
-                                </h2>
+    <h2>
+        Payment Method
+    </h2>
 
 
-                                <div className="checkout-payment">
+    <div className="checkout-payment-methods">
 
-                                    <div className="checkout-payment__icon">
-                                        $
-                                    </div>
+        <button
+            type="button"
+            className={`checkout-payment-method ${
+                paymentMethod === "credit-card"
+                    ? "checkout-payment-method--active"
+                    : ""
+            }`}
+            onClick={() =>
+                setPaymentMethod("credit-card")
+            }
+        >
 
-                                    <div>
+            <span className="checkout-payment-method__icon">
+                💳
+            </span>
 
-                                        <strong>
-                                            Secure Payment
-                                        </strong>
+            <span>
 
-                                        <p>
-                                            Payment processing will
-                                            be connected here.
-                                        </p>
+                <strong>
+                    Credit Card
+                </strong>
 
-                                    </div>
+                <small>
+                    Visa, Mastercard, Amex
+                </small>
 
-                                </div>
+            </span>
 
-                            </div>
+        </button>
+
+
+        <button
+            type="button"
+            className={`checkout-payment-method ${
+                paymentMethod === "debit-card"
+                    ? "checkout-payment-method--active"
+                    : ""
+            }`}
+            onClick={() =>
+                setPaymentMethod("debit-card")
+            }
+        >
+
+            <span className="checkout-payment-method__icon">
+                💳
+            </span>
+
+            <span>
+
+                <strong>
+                    Debit Card
+                </strong>
+
+                <small>
+                    Pay with your debit card
+                </small>
+
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            className={`checkout-payment-method ${
+                paymentMethod === "paypal"
+                    ? "checkout-payment-method--active"
+                    : ""
+            }`}
+            onClick={() =>
+                setPaymentMethod("paypal")
+            }
+        >
+
+            <span className="checkout-payment-method__icon">
+                P
+            </span>
+
+            <span>
+
+                <strong>
+                    PayPal
+                </strong>
+
+                <small>
+                    Pay securely with PayPal
+                </small>
+
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            className={`checkout-payment-method ${
+                paymentMethod === "apple-pay"
+                    ? "checkout-payment-method--active"
+                    : ""
+            }`}
+            onClick={() =>
+                setPaymentMethod("apple-pay")
+            }
+        >
+
+            <span className="checkout-payment-method__icon">
+                
+            </span>
+
+            <span>
+
+                <strong>
+                    Apple Pay
+                </strong>
+
+                <small>
+                    Fast and secure payment
+                </small>
+
+            </span>
+
+        </button>
+
+    </div>
+
+
+    {(paymentMethod === "credit-card" ||
+        paymentMethod === "debit-card") && (
+
+        <div className="checkout-card-fields">
+
+            <label className="checkout-field--full">
+
+                <span>
+                    Card Number
+                </span>
+
+                <input
+                    type="text"
+                    name="cardNumber"
+                    placeholder="1234 5678 9012 3456"
+                    inputMode="numeric"
+                    autoComplete="cc-number"
+                />
+
+            </label>
+
+
+            <label>
+
+                <span>
+                    Expiration Date
+                </span>
+
+                <input
+                    type="text"
+                    name="cardExpiry"
+                    placeholder="MM / YY"
+                    autoComplete="cc-exp"
+                />
+
+            </label>
+
+
+            <label>
+
+                <span>
+                    Security Code
+                </span>
+
+                <input
+                    type="password"
+                    name="cardCvc"
+                    placeholder="CVC"
+                    inputMode="numeric"
+                    autoComplete="cc-csc"
+                />
+
+            </label>
+
+        </div>
+
+    )}
+
+</div>
 
                         </div>
 
