@@ -620,17 +620,28 @@
 
 
 .cart-item__remove::before {
-    content: "🗑";
+    content: "";
 
-    font-size: 14px;
-    line-height: 1;
+    width: 15px;
+    height: 15px;
 
-    filter:
-        grayscale(1)
-        brightness(0)
-        sepia(1)
-        saturate(8)
-        hue-rotate(355deg);
+    display: inline-block;
+
+    flex: 0 0 15px;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0ad43' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16'/%3E%3Cpath d='M9 7V4h6v3'/%3E%3Cpath d='M7 7l1 13h8l1-13'/%3E%3Cpath d='M10 11v5'/%3E%3Cpath d='M14 11v5'/%3E%3C/svg%3E");
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    filter: drop-shadow(
+        0 1px 2px rgba(224, 173, 67, 0.35)
+    );
+
+    transition:
+        transform 0.16s ease,
+        filter 0.16s ease;
 }
 
 
