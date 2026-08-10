@@ -22,7 +22,7 @@ import {
     X
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import { APP_CONFIG } from "../../../constants/config";
 import { navigation } from "../../../constants/navigation";
@@ -30,6 +30,9 @@ import { navigation } from "../../../constants/navigation";
 function Header() {
 
     const [menuOpen, setMenuOpen] = useState(false);
+
+const navigate = useNavigate();
+
 
     return (
 
@@ -114,15 +117,17 @@ function Header() {
                     </button>
 
                     <button
-                        className="header__icon header__cart"
-                        aria-label="Shopping Cart"
-                    >
+    type="button"
+    className="header__icon header__cart"
+    aria-label="Shopping Cart"
+    onClick={() => navigate("/cart")}
+>
 
-                        <ShoppingCart size={20} />
+    <ShoppingCart size={20} />
 
-                        <span>0</span>
+    <span>0</span>
 
-                    </button>
+</button>
 
                     <div className="header__language">
 
