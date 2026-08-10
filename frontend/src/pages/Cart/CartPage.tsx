@@ -8,7 +8,6 @@
  * Description:
  * Shopping cart page.
  * ================================================================
- 
  */
 
 import { useEffect, useState } from "react";
@@ -25,64 +24,47 @@ import {
 } from "../../utils/cart";
 
 
-type CartItem = {
-    id: number;
-    name: string;
-    model: string;
-    size: string;
-    color: string;
-    price: number;
-    quantity: number;
-    image: string;
-};
-
 function CartPage() {
 
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-useEffect(() => {
-    setCartItems(getCartItems());
-}, []);
+
+    useEffect(() => {
+        setCartItems(getCartItems());
+    }, []);
 
 
     const updateQuantity = (
-    id: number,
-    change: number
-) => {
+        id: number,
+        change: number
+    ) => {
 
-    const currentItem = cartItems.find(
-        (item) => item.id === id
-    );
+        const currentItem = cartItems.find(
+            (item) => item.id === id
+        );
 
-    if (!currentItem) {
-        return;
-    }
+        if (!currentItem) {
+            return;
+        }
 
-    const updatedItems = updateCartQuantity(
-        id,
-        currentItem.quantity + change
-    );
+        const updatedItems = updateCartQuantity(
+            id,
+            currentItem.quantity + change
+        );
 
-    setCartItems(updatedItems);
+        setCartItems(updatedItems);
 
-};
+    };
 
-
-const removeItem = (id: number) => {
-
-    const updatedItems = removeFromCart(id);
-
-    setCartItems(updatedItems);
-
-};
 
     const removeItem = (id: number) => {
 
-        setCartItems((items) =>
-            items.filter((item) => item.id !== id)
-        );
+        const updatedItems = removeFromCart(id);
+
+        setCartItems(updatedItems);
 
     };
+
 
     const subtotal = cartItems.reduce(
         (total, item) =>
@@ -96,9 +78,11 @@ const removeItem = (id: number) => {
 
     const total = subtotal + delivery + taxes;
 
+
     const handleContinueShopping = () => {
         window.history.back();
     };
+
 
     return (
         <>
