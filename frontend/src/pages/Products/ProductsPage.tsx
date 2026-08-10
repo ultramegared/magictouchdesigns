@@ -17,6 +17,8 @@ import "./ProductsPage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
+import { addToCart } from "../../utils/cart";
+
 
 type Product = {
     id: number;
@@ -431,10 +433,24 @@ function ProductsPage() {
                                     </div>
 
 
-                                    <button className="product-card__button">
-                                        VIEW DETAILS
-                                        <span>♧</span>
-                                    </button>
+                                    <button
+    className="product-card__button"
+    type="button"
+    onClick={() => {
+        addToCart({
+            id: product.id,
+            name: product.name,
+            model: product.style,
+            size: product.size,
+            color: product.color,
+            price: product.price,
+            image: product.image,
+        });
+    }}
+>
+    ADD TO CART
+    <span>→</span>
+</button>
 
                                 </div>
 

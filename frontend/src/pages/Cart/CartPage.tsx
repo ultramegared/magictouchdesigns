@@ -8,13 +8,22 @@
  * Description:
  * Shopping cart page.
  * ================================================================
+ 
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./CartPage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
+
+import {
+    getCartItems,
+    removeFromCart,
+    updateCartQuantity,
+    type CartItem,
+} from "../../utils/cart";
+
 
 type CartItem = {
     id: number;
@@ -29,18 +38,12 @@ type CartItem = {
 
 function CartPage() {
 
-    const [cartItems, setCartItems] = useState<CartItem[]>([
-        {
-            id: 1,
-            name: "Classic Custom Mug",
-            model: "Classic",
-            size: "15 oz",
-            color: "Black",
-            price: 24.99,
-            quantity: 1,
-            image: "/images/products/model-one.jpg",
-        },
-    ]);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+useEffect(() => {
+    setCartItems(getCartItems());
+}, []);
+
 
     const updateQuantity = (
         id: number,
