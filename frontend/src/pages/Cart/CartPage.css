@@ -569,34 +569,104 @@
 }
 
 .cart-item__remove {
-    margin-top: 22px;
+    margin-top: 18px;
 
-    padding: 0;
+    min-width: 118px;
+    min-height: 42px;
 
-    border: none;
+    padding: 9px 16px;
 
-    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 
-    color: rgba(255, 255, 255, 0.40);
+    border: 1px solid #d9a62e;
+    border-radius: 9px;
 
-    font-size: 9px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(42, 36, 22, 0.98),
+            rgba(12, 12, 12, 0.98)
+        );
+
+    color: #e0ad43;
+
+    font-size: 10px;
     font-weight: 800;
 
-    letter-spacing: 1px;
+    letter-spacing: 1.4px;
 
     text-transform: uppercase;
 
     cursor: pointer;
 
+    box-shadow:
+        inset 0 1px 0 rgba(255, 215, 120, 0.28),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.75),
+        0 3px 0 #8b6418,
+        0 6px 14px rgba(0, 0, 0, 0.55);
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.7);
+
     transition:
-        color 0.2s ease,
-        transform 0.2s ease;
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        background 0.16s ease,
+        color 0.16s ease;
 }
 
-.cart-item__remove:hover {
-    color: #e0ad43;
 
-    transform: translateX(3px);
+.cart-item__remove::before {
+    content: "🗑";
+
+    font-size: 14px;
+    line-height: 1;
+
+    filter:
+        grayscale(1)
+        brightness(0)
+        sepia(1)
+        saturate(8)
+        hue-rotate(355deg);
+}
+
+
+.cart-item__remove:hover {
+    color: #fff1b8;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(74, 57, 24, 0.98),
+            rgba(20, 18, 12, 0.98)
+        );
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 230, 150, 0.45),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.75),
+        0 4px 0 #a8751d,
+        0 8px 20px rgba(224, 173, 67, 0.22);
+}
+
+
+.cart-item__remove:active {
+    transform: translateY(2px);
+
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.65),
+        0 1px 0 #8b6418,
+        0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+
+.cart-item__remove:focus-visible {
+    outline: 2px solid #e0ad43;
+    outline-offset: 3px;
 }
 
 
