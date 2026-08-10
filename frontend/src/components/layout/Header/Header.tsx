@@ -34,8 +34,26 @@ function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [cartCount, setCartCount] = useState(0);
 
-const navigate = useNavigate();
+    const navigate = useNavigate();
 
+    useEffect(() => {
+
+        const updateCartCount = () => {
+
+            const items = getCartItems();
+
+            const total = items.reduce(
+                (sum, item) => sum + item.quantity,
+                0
+            );
+
+            setCartCount(total);
+
+        };
+
+        updateCartCount();
+
+    }, []);
 
     return (
 
