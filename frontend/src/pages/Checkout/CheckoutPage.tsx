@@ -37,6 +37,17 @@ const [paymentMethod, setPaymentMethod] =
         "paypal" |
         "apple-pay"
     >("credit-card");
+    const [cardNumber, setCardNumber] =
+    useState("");
+
+const [cardName, setCardName] =
+    useState("");
+
+const [cardExpiry, setCardExpiry] =
+    useState("");
+
+const [cardCvc, setCardCvc] =
+    useState("");
 
 
     useEffect(() => {
@@ -521,8 +532,66 @@ const [paymentMethod, setPaymentMethod] =
     </div>
 
 
-    {(paymentMethod === "credit-card" ||
-        paymentMethod === "debit-card") && (
+   {(paymentMethod === "credit-card" ||
+    paymentMethod === "debit-card") && (
+
+    <div className="checkout-payment-content">
+
+        <div className="checkout-card-preview">
+
+            <div className="checkout-card-preview__top">
+
+                <span>
+                    MAGIC TOUCH
+                </span>
+
+                <strong>
+                    {paymentMethod === "credit-card"
+                        ? "CREDIT"
+                        : "DEBIT"}
+                </strong>
+
+            </div>
+
+
+            <div className="checkout-card-preview__number">
+
+                {cardNumber || "•••• •••• •••• ••••"}
+
+            </div>
+
+
+            <div className="checkout-card-preview__bottom">
+
+                <div>
+
+                    <small>
+                        CARD HOLDER
+                    </small>
+
+                    <strong>
+                        {cardName || "YOUR NAME"}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <small>
+                        EXPIRES
+                    </small>
+
+                    <strong>
+                        {cardExpiry || "MM / YY"}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
 
         <div className="checkout-card-fields">
 
@@ -535,9 +604,42 @@ const [paymentMethod, setPaymentMethod] =
                 <input
                     type="text"
                     name="cardNumber"
+                    value={cardNumber}
                     placeholder="1234 5678 9012 3456"
                     inputMode="numeric"
                     autoComplete="cc-number"
+                    maxLength={19}
+                    onChange={(event) => {
+
+                        const value =
+                            event.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 16)
+                                .replace(/(\d{4})(?=\d)/g, "$1 ");
+
+                        setCardNumber(value);
+
+                    }}
+                />
+
+            </label>
+
+
+            <label>
+
+                <span>
+                    Name on Card
+                </span>
+
+                <input
+                    type="text"
+                    name="cardName"
+                    value={cardName}
+                    placeholder="Your name"
+                    autoComplete="cc-name"
+                    onChange={(event) =>
+                        setCardName(event.target.value)
+                    }
                 />
 
             </label>
@@ -552,8 +654,25 @@ const [paymentMethod, setPaymentMethod] =
                 <input
                     type="text"
                     name="cardExpiry"
+                    value={cardExpiry}
                     placeholder="MM / YY"
+                    inputMode="numeric"
                     autoComplete="cc-exp"
+                    maxLength={7}
+                    onChange={(event) => {
+
+                        const value =
+                            event.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 4)
+                                .replace(
+                                    /(\d{2})(?=\d)/,
+                                    "$1 / "
+                                );
+
+                        setCardExpiry(value);
+
+                    }}
                 />
 
             </label>
@@ -568,17 +687,93 @@ const [paymentMethod, setPaymentMethod] =
                 <input
                     type="password"
                     name="cardCvc"
+                    value={cardCvc}
                     placeholder="CVC"
                     inputMode="numeric"
                     autoComplete="cc-csc"
+                    maxLength={4}
+                    onChange={(event) =>
+                        setCardCvc(
+                            event.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 4)
+                        )
+                    }
                 />
 
             </label>
 
         </div>
 
-    )}
+    </div>
 
+)}
+
+
+{paymentMethod === "paypal" && (
+
+    <div className="checkout-alternative-payment">
+
+        <div className="checkout-alternative-payment__icon">
+            P
+        </div>
+
+        <div className="checkout-alternative-payment__content">
+
+            <strong>
+                PayPal
+            </strong>
+
+            <p>
+                Pay securely using your PayPal account.
+            </p>
+
+        </div>
+
+        <button
+            type="button"
+            className="checkout-payment-action"
+        >
+            Continue with PayPal
+            <span>→</span>
+        </button>
+
+    </div>
+
+)}
+
+
+{paymentMethod === "apple-pay" && (
+
+    <div className="checkout-alternative-payment">
+
+        <div className="checkout-alternative-payment__icon checkout-alternative-payment__icon--apple">
+            
+        </div>
+
+        <div className="checkout-alternative-payment__content">
+
+            <strong>
+                Apple Pay
+            </strong>
+
+            <p>
+                Fast and secure checkout with Apple Pay.
+            </p>
+
+        </div>
+
+        <button
+            type="button"
+            className="checkout-payment-action"
+        >
+            Pay with Apple Pay
+            <span></span>
+        </button>
+
+    </div>
+
+)}
 </div>
 
                         </div>
