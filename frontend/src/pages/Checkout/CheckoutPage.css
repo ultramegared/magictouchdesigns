@@ -660,3 +660,272 @@
     }
 
 }
+
+/* ================================================================
+   DELIVERY TYPE
+   ================================================================ */
+
+.checkout-address-types {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+
+    margin-bottom: 22px;
+}
+
+
+.checkout-address-type {
+    min-height: 76px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 14px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(0, 0, 0, 0.35)
+        );
+
+    color: #fff;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 4px 10px rgba(0, 0, 0, 0.25);
+
+    transition:
+        transform 0.16s ease,
+        border-color 0.16s ease,
+        box-shadow 0.16s ease,
+        background 0.16s ease;
+}
+
+
+.checkout-address-type:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(224, 173, 67, 0.55);
+}
+
+
+.checkout-address-type--active {
+    border-color: #d9a62e;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(73, 56, 23, 0.95),
+            rgba(17, 16, 12, 0.98)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 225, 145, 0.2),
+        0 4px 0 #785716,
+        0 10px 20px rgba(224, 173, 67, 0.12);
+}
+
+
+.checkout-address-type__icon {
+    width: 40px;
+    height: 40px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 9px;
+
+    background: rgba(224, 173, 67, 0.1);
+
+    color: #e0ad43;
+
+    font-size: 20px;
+}
+
+
+.checkout-address-type strong,
+.checkout-address-type small {
+    display: block;
+}
+
+
+.checkout-address-type strong {
+    font-size: 13px;
+}
+
+
+.checkout-address-type small {
+    margin-top: 4px;
+
+    color: rgba(255, 255, 255, 0.48);
+
+    font-size: 10px;
+}
+
+
+/* ================================================================
+   PAYMENT METHODS
+   ================================================================ */
+
+.checkout-payment-methods {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+
+.checkout-payment-method {
+    min-height: 82px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 14px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(0, 0, 0, 0.35)
+        );
+
+    color: #fff;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 4px 10px rgba(0, 0, 0, 0.25);
+
+    transition:
+        transform 0.16s ease,
+        border-color 0.16s ease,
+        box-shadow 0.16s ease,
+        background 0.16s ease;
+}
+
+
+.checkout-payment-method:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(224, 173, 67, 0.55);
+}
+
+
+.checkout-payment-method--active {
+    border-color: #d9a62e;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(73, 56, 23, 0.95),
+            rgba(17, 16, 12, 0.98)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 225, 145, 0.2),
+        0 4px 0 #785716,
+        0 10px 20px rgba(224, 173, 67, 0.12);
+}
+
+
+.checkout-payment-method__icon {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 42px;
+
+    display: grid;
+
+    place-items: center;
+
+    border: 1px solid rgba(224, 173, 67, 0.42);
+
+    border-radius: 9px;
+
+    color: #e0ad43;
+
+    font-size: 18px;
+    font-weight: 800;
+
+    background: rgba(224, 173, 67, 0.07);
+}
+
+
+.checkout-payment-method strong,
+.checkout-payment-method small {
+    display: block;
+}
+
+
+.checkout-payment-method strong {
+    font-size: 12px;
+}
+
+
+.checkout-payment-method small {
+    margin-top: 4px;
+
+    color: rgba(255, 255, 255, 0.48);
+
+    font-size: 10px;
+}
+
+
+/* ================================================================
+   CARD FIELDS
+   ================================================================ */
+
+.checkout-card-fields {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-top: 20px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid rgba(224, 173, 67, 0.14);
+}
+
+
+@media (max-width: 600px) {
+
+    .checkout-address-types,
+    .checkout-payment-methods,
+    .checkout-card-fields {
+        grid-template-columns: 1fr;
+    }
+
+}
