@@ -137,18 +137,22 @@ const nextSlide = () => {
 
         </p>
 
-        <div className="hero-slider__buttons">
+               <div className="hero-slider__buttons">
 
-            <button className="hero-slider__primary">
-
+            <button
+                type="button"
+                className="hero-slider__primary"
+                onClick={() => window.location.href = "/customize"}
+            >
                 {slide.primaryButton}
-
             </button>
 
-            <button className="hero-slider__secondary">
-
+            <button
+                type="button"
+                className="hero-slider__secondary"
+                onClick={() => window.location.href = "/products"}
+            >
                 {slide.secondaryButton}
-
             </button>
 
         </div>
