@@ -11,7 +11,15 @@
  * ================================================================
  */
 
-import { useMemo, useState } from "react";
+import {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import {
+    useSearchParams
+} from "react-router-dom";
 
 import "./ProductsPage.css";
 
