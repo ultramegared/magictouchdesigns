@@ -139,6 +139,7 @@ function ProductsPage() {
     const [color, setColor] = useState("All");
     const [size, setSize] = useState("All");
     const [sort, setSort] = useState("Newest");
+    const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
     const productsPerPage =
