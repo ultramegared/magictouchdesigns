@@ -183,7 +183,7 @@ function ProductsPage() {
 
         return filtered;
 
-    }, [category, style, color, size, sort]);
+    }, [category, style, color, size, sort, searchTerm]);
 
     const totalPages = Math.max(
         1,
