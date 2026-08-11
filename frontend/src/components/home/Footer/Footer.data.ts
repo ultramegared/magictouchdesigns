@@ -19,7 +19,7 @@ export const footerContent: FooterContent = {
         links: [
             {
                 label: "All Models",
-                href: "/models",
+                href: "/products",
             },
             {
                 label: "Collections",
