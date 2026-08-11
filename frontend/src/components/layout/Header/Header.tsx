@@ -133,13 +133,15 @@ function Header() {
                 <div className="header__actions">
 
                     <button
-                        className="header__icon"
-                        aria-label="Search"
-                    >
+    type="button"
+    className="header__icon"
+    aria-label="Search"
+    onClick={() => navigate("/products")}
+>
 
-                        <Search size={20} />
+    <Search size={20} />
 
-                    </button>
+</button>
 
                     <button
                         className="header__icon"
