@@ -245,6 +245,30 @@
 
 }
 
+.header__search {
+    position: absolute;
+    top: 96px;
+    right: 50px;
+    width: 320px;
+    z-index: 1100;
+}
+
+.header__search input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid #C89B3C;
+    border-radius: 10px;
+    background: #111111;
+    color: #FFFFFF;
+    font-size: 1rem;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.header__search input::placeholder {
+    color: #777777;
+}
+
 .header__icon:hover{
 
     background:#C89B3C;
