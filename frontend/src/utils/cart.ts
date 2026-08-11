@@ -22,6 +22,7 @@ export type CartItem = {
 };
 
 const CART_STORAGE_KEY = "magic-touch-cart";
+const CART_UPDATED_EVENT = "magic-touch-cart-updated";
 
 
 export function getCartItems(): CartItem[] {
@@ -59,6 +60,10 @@ export function saveCartItems(
     localStorage.setItem(
         CART_STORAGE_KEY,
         JSON.stringify(items)
+    );
+
+    window.dispatchEvent(
+        new Event(CART_UPDATED_EVENT)
     );
 
 }
@@ -156,6 +161,10 @@ export function clearCart(): void {
 
     localStorage.removeItem(
         CART_STORAGE_KEY
+    );
+
+    window.dispatchEvent(
+        new Event(CART_UPDATED_EVENT)
     );
 
 }
