@@ -148,26 +148,35 @@ function ProductsPage() {
 
         const filtered = demoProducts.filter((product) => {
 
-            const categoryMatch =
-                category === "All" || product.category === category;
+    const searchMatch =
+        searchTerm.trim() === "" ||
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.style.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.size.toLowerCase().includes(searchTerm.toLowerCase());
 
-            const styleMatch =
-                style === "All" || product.style === style;
+    const categoryMatch =
+        category === "All" || product.category === category;
 
-            const colorMatch =
-                color === "All" || product.color === color;
+    const styleMatch =
+        style === "All" || product.style === style;
 
-            const sizeMatch =
-                size === "All" || product.size === size;
+    const colorMatch =
+        color === "All" || product.color === color;
 
-            return (
-                categoryMatch &&
-                styleMatch &&
-                colorMatch &&
-                sizeMatch
-            );
+    const sizeMatch =
+        size === "All" || product.size === size;
 
-        });
+    return (
+        searchMatch &&
+        categoryMatch &&
+        styleMatch &&
+        colorMatch &&
+        sizeMatch
+    );
+
+});
 
         if (sort === "Price Low") {
             return [...filtered].sort((a, b) => a.price - b.price);
