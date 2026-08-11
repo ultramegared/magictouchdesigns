@@ -38,23 +38,36 @@ function Header() {
 
     useEffect(() => {
 
-        const updateCartCount = () => {
+    const updateCartCount = () => {
 
-            const items = getCartItems();
+        const items = getCartItems();
 
-            const total = items.reduce(
-                (sum, item) => sum + item.quantity,
-                0
-            );
+        const total = items.reduce(
+            (sum, item) => sum + item.quantity,
+            0
+        );
 
-            setCartCount(total);
+        setCartCount(total);
 
-        };
+    };
 
-        updateCartCount();
+    updateCartCount();
 
-    }, []);
+    window.addEventListener(
+        "magic-touch-cart-updated",
+        updateCartCount
+    );
 
+    return () => {
+
+        window.removeEventListener(
+            "magic-touch-cart-updated",
+            updateCartCount
+        );
+
+    };
+
+}, []);
     return (
 
         <header className="header">
