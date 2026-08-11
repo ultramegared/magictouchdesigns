@@ -36,12 +36,13 @@ const BestSellers = () => {
                     </div>
 
                                         <button
-                        className="best-sellers__view-all"
-                        type="button"
-                        onClick={() => window.location.href = "/products"}
-                    >
-                        VIEW ALL →
-                    </button>
+    className="best-sellers__view-all"
+    type="button"
+    aria-label="View all products"
+    onClick={() => window.location.href = "/products"}
+>
+    VIEW ALL →
+</button>
 
                 </div>
 
