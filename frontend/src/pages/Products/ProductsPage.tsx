@@ -142,6 +142,8 @@ const demoProducts: Product[] = [
 
 function ProductsPage() {
 
+    const [searchParams] = useSearchParams();
+
     const [category, setCategory] = useState("All");
     const [style, setStyle] = useState("All");
     const [color, setColor] = useState("All");
@@ -150,9 +152,18 @@ function ProductsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
-    const productsPerPage =
-    window.innerWidth <= 700 ? 4 : 8;
+    useEffect(() => {
 
+        const search = searchParams.get("search") || "";
+
+        setSearchTerm(search);
+        setCurrentPage(1);
+
+    }, [searchParams]);
+
+    const productsPerPage =
+        window.innerWidth <= 700 ? 4 : 8;
+        
     const filteredProducts = useMemo(() => {
 
         const filtered = demoProducts.filter((product) => {
