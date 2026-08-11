@@ -33,6 +33,8 @@ function Header() {
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [cartCount, setCartCount] = useState(0);
+    const [searchOpen, setSearchOpen] = useState(false);
+const [searchQuery, setSearchQuery] = useState("");
 
     const navigate = useNavigate();
 
@@ -136,12 +138,37 @@ function Header() {
     type="button"
     className="header__icon"
     aria-label="Search"
-    onClick={() => navigate("/products")}
+    onClick={() => setSearchOpen(!searchOpen)}
 >
 
     <Search size={20} />
 
 </button>
+ 
+ {searchOpen && (
+    <div className="header__search">
+        <input
+            type="text"
+            value={searchQuery}
+            onChange={(event) =>
+                setSearchQuery(event.target.value)
+            }
+            onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                    navigate(
+                        `/products?search=${encodeURIComponent(
+                            searchQuery
+                        )}`
+                    );
+                    setSearchOpen(false);
+                }
+            }}
+            placeholder="Search products..."
+            aria-label="Search products"
+            autoFocus
+        />
+    </div>
+)}
 
                     <button
                         className="header__icon"
@@ -232,9 +259,9 @@ function Header() {
 
                     <button className="header__language--active">
 
-                        EN
+                            EN
 
-                    </button>
+                        </button>
 
                     <span>|</span>
 
