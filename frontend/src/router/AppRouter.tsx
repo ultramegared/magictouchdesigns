@@ -23,6 +23,8 @@ import ProductsPage from "../pages/Products";
 import CollectionsPage from "../pages/Collections";
 import CustomizePage from "../pages/Customize";
 import ContactPage from "../pages/Contact";
+import HowItWorksPage from "../pages/HowItWorks";
+
 
 function AppRoutes() {
 
@@ -52,9 +54,14 @@ function AppRoutes() {
                     element={<CustomizePage />}
                 />
 
-                <Route
+                               <Route
                     path="/contact"
                     element={<ContactPage />}
+                />
+
+                <Route
+                    path="/how-it-works"
+                    element={<HowItWorksPage />}
                 />
 
             </Routes>
