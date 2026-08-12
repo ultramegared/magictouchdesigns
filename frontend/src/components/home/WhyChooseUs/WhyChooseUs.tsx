@@ -106,19 +106,20 @@ function WhyChooseUs() {
 
 
                     <button
-                        type="button"
-                        className="why-choose-us__button"
-                    >
+    type="button"
+    className="why-choose-us__button"
+    onClick={() => window.location.href = "/about"}
+>
 
-                        <span>
-                            LEARN MORE ABOUT US
-                        </span>
+    <span>
+        LEARN MORE ABOUT US
+    </span>
 
-                        <span>
-                            →
-                        </span>
+    <span>
+        →
+    </span>
 
-                    </button>
+</button>
 
                 </div>
 
