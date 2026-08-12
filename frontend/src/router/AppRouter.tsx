@@ -65,7 +65,7 @@ function AppRoutes() {
     element={<HowItWorks />}
 />
 
-<Route
+                <Route
     path="/shipping-returns"
     element={<ShippingReturnsPage />}
 />
