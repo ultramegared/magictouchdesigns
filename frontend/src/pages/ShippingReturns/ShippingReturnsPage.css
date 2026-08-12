@@ -1,0 +1,147 @@
+/**
+ * ===============================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: ShippingReturnsPage.css
+ * Module: Frontend
+ * Language: CSS
+ * Description:
+ * Shipping & Returns page styles.
+ * ===============================================================
+ */
+
+.shipping-returns-page {
+    width: 100%;
+    background: #111;
+    color: #fff;
+}
+
+.shipping-returns-page__container {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+}
+
+.shipping-returns-page__hero {
+    padding: 110px 0 100px;
+    text-align: center;
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(201, 154, 50, 0.16),
+            transparent 45%
+        ),
+        #111;
+    border-bottom: 1px solid rgba(201, 154, 50, 0.35);
+}
+
+.shipping-returns-page__eyebrow {
+    display: block;
+    margin-bottom: 22px;
+    color: #d4a83d;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+}
+
+.shipping-returns-page h1 {
+    margin: 0;
+    font-size: clamp(42px, 7vw, 82px);
+    line-height: 1.05;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.shipping-returns-page h1 span {
+    display: block;
+    color: #d4a83d;
+    text-shadow:
+        0 0 18px rgba(212, 168, 61, 0.2),
+        0 4px 14px rgba(0, 0, 0, 0.8);
+}
+
+.shipping-returns-page__divider {
+    width: 70px;
+    height: 2px;
+    margin: 30px auto;
+    background: #c99a32;
+}
+
+.shipping-returns-page__divider span {
+    display: block;
+    width: 28px;
+    height: 2px;
+    margin: 0 auto;
+    background: #f1ce68;
+}
+
+.shipping-returns-page__intro {
+    max-width: 680px;
+    margin: 0 auto;
+    color: #d0d0d0;
+    font-size: 20px;
+    line-height: 1.7;
+}
+
+.shipping-returns-page__content {
+    padding: 90px 0 120px;
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(201, 154, 50, 0.06),
+            transparent 30%
+        ),
+        #111;
+}
+
+.shipping-returns-page__section {
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 42px 0;
+    border-bottom: 1px solid rgba(201, 154, 50, 0.28);
+}
+
+.shipping-returns-page__section:first-child {
+    padding-top: 0;
+}
+
+.shipping-returns-page__section:last-child {
+    border-bottom: 0;
+}
+
+.shipping-returns-page__section h2 {
+    margin: 0 0 18px;
+    color: #f0cf70;
+    font-size: clamp(26px, 4vw, 38px);
+    line-height: 1.15;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.shipping-returns-page__section p {
+    margin: 0;
+    color: #d0d0d0;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+@media (max-width: 700px) {
+    .shipping-returns-page__hero {
+        padding: 75px 0 70px;
+    }
+
+    .shipping-returns-page__content {
+        padding: 65px 0 85px;
+    }
+
+    .shipping-returns-page__intro {
+        font-size: 17px;
+    }
+
+    .shipping-returns-page__section {
+        padding: 32px 0;
+    }
+
+    .shipping-returns-page__section p {
+        font-size: 16px;
+    }
+}

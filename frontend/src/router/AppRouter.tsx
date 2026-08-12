@@ -24,6 +24,7 @@ import CollectionsPage from "../pages/Collections";
 import CustomizePage from "../pages/Customize";
 import ContactPage from "../pages/Contact";
 import HowItWorks from "../components/home/HowItWorks";
+import ShippingReturnsPage from "../pages/ShippingReturns";
 
 
 function AppRoutes() {
@@ -62,6 +63,11 @@ function AppRoutes() {
                 <Route
     path="/how-it-works"
     element={<HowItWorks />}
+/>
+
+<Route
+    path="/shipping-returns"
+    element={<ShippingReturnsPage />}
 />
 
             </Routes>
