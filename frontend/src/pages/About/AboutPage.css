@@ -23,6 +23,7 @@
     padding: 110px 0 100px;
     text-align: center;
     background: #f7f7f7;
+    color: #111;
 }
 
 .about-page__eyebrow {
@@ -96,6 +97,7 @@
     padding: 100px 0;
     text-align: center;
     background: #f7f7f7;
+    color: #111;
 }
 
 .about-page__cards {
@@ -108,6 +110,7 @@
 .about-page__card {
     padding: 34px 28px;
     background: #fff;
+    color: #111;
     text-align: left;
 }
 
