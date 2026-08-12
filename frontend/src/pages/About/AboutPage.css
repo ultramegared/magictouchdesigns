@@ -153,12 +153,12 @@
 }
 
 .about-page__button--primary {
-    background: #111;
-    color: #fff;
+    background: #c99a32;
+    color: #111;
 }
 
 .about-page__button--secondary {
-    border: 1px solid #111;
+    border: 1px solid #c99a32;
     color: #111;
     background: transparent;
 }
