@@ -17,6 +17,7 @@ import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
 import CustomizePage from "./pages/Customize";
 import ContactPage from "./pages/Contact";
+import AboutPage from "./pages/About";
 import CartPage from "./pages/Cart";
 import CheckoutPage from "./pages/Checkout";
 
@@ -52,6 +53,11 @@ function App() {
                     path="/contact"
                     element={<ContactPage />}
                 />
+                 
+                 <Route
+    path="/about"
+    element={<AboutPage />}
+/>
 
                 <Route
                     path="/cart"

@@ -1,0 +1,195 @@
+/**
+ * ================================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: AboutPage.css
+ * Module: Frontend
+ * Language: CSS
+ * Description:
+ * About Us page styles.
+ * ================================================================
+ */
+
+.about-page {
+    width: 100%;
+}
+
+.about-page__container {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+}
+
+.about-page__hero {
+    padding: 110px 0 100px;
+    text-align: center;
+    background: #f7f7f7;
+}
+
+.about-page__eyebrow {
+    display: block;
+    margin-bottom: 18px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+.about-page h1,
+.about-page h2 {
+    margin: 0;
+    line-height: 1.05;
+    letter-spacing: 1px;
+}
+
+.about-page h1 {
+    font-size: clamp(42px, 7vw, 82px);
+}
+
+.about-page h1 span,
+.about-page h2 span {
+    display: block;
+}
+
+.about-page__divider {
+    width: 70px;
+    height: 2px;
+    margin: 28px auto;
+    background: #111;
+}
+
+.about-page__divider span {
+    display: block;
+    width: 28px;
+    height: 2px;
+    margin: 0 auto;
+    background: #111;
+}
+
+.about-page__intro {
+    max-width: 650px;
+    margin: 0 auto;
+    font-size: 20px;
+    line-height: 1.7;
+}
+
+.about-page__story {
+    padding: 100px 0;
+}
+
+.about-page__content {
+    max-width: 820px;
+    margin: 0 auto;
+}
+
+.about-page__content h2,
+.about-page__values h2,
+.about-page__cta h2 {
+    font-size: clamp(34px, 5vw, 58px);
+}
+
+.about-page__content p {
+    margin: 22px 0 0;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+.about-page__values {
+    padding: 100px 0;
+    text-align: center;
+    background: #f7f7f7;
+}
+
+.about-page__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 50px;
+}
+
+.about-page__card {
+    padding: 34px 28px;
+    background: #fff;
+    text-align: left;
+}
+
+.about-page__card h3 {
+    margin: 0 0 14px;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+.about-page__card p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.about-page__cta {
+    padding: 110px 0;
+    text-align: center;
+}
+
+.about-page__actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 40px;
+}
+
+.about-page__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0 28px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: opacity 0.2s ease;
+}
+
+.about-page__button:hover {
+    opacity: 0.8;
+}
+
+.about-page__button--primary {
+    background: #111;
+    color: #fff;
+}
+
+.about-page__button--secondary {
+    border: 1px solid #111;
+    color: #111;
+    background: transparent;
+}
+
+@media (max-width: 700px) {
+
+    .about-page__hero,
+    .about-page__story,
+    .about-page__values,
+    .about-page__cta {
+        padding: 70px 0;
+    }
+
+    .about-page__intro {
+        font-size: 17px;
+    }
+
+    .about-page__cards {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 35px;
+    }
+
+    .about-page__actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .about-page__button {
+        width: 100%;
+    }
+
+}
