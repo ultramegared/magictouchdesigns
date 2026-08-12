@@ -21,6 +21,7 @@ import AboutPage from "./pages/About";
 import CartPage from "./pages/Cart";
 import CheckoutPage from "./pages/Checkout";
 import ShippingReturnsPage from "./pages/ShippingReturns";
+import FAQPage from "./pages/FAQ";
 
 function App() {
 
@@ -73,6 +74,11 @@ function App() {
                 <Route
                     path="/shipping-returns"
                     element={<ShippingReturnsPage />}
+                />
+
+                <Route
+                    path="/faqs"
+                    element={<FAQPage />}
                 />
 
             </Routes>
