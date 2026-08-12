@@ -2,38 +2,78 @@
  * ================================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
- * File: HowItWorksPage.tsx
- * Module: Frontend
+ * File: HowItWorks.tsx
+ * Module: Home
  * Language: TypeScript React
  * Description:
- * How It Works page.
+ * How It Works section.
  * ================================================================
  */
 
-import Header from "../../components/layout/Header";
-import Footer from "../../components/home/Footer";
-import HowItWorks from "../../components/home/HowItWorks/HowItWorks";
+import "./HowItWorks.css";
+import { howItWorksSteps } from "./HowItWorks.data";
 
-function HowItWorksPage() {
+function HowItWorks() {
 
     return (
 
-        <>
+        <section className="how-it-works">
 
-            <Header />
+            <div className="how-it-works__container">
 
-            <main>
+                <div className="how-it-works__header">
 
-                <HowItWorks />
+                    <span className="how-it-works__eyebrow">
+                        HOW IT WORKS
+                    </span>
 
-            </main>
+                </div>
 
-            <Footer />
+                <div className="how-it-works__steps">
 
-        </>
+                    {howItWorksSteps.map((step, index) => (
+
+                        <div
+                            className="how-it-works__item"
+                            key={step.id}
+                        >
+
+                            <div className="how-it-works__step">
+
+                                <div className="how-it-works__number">
+                                    {step.id}
+                                </div>
+
+                                <h3>
+                                    {step.title}
+                                </h3>
+
+                                <p>
+                                    {step.description}
+                                </p>
+
+                            </div>
+
+                            {index < howItWorksSteps.length - 1 && (
+
+                                <span className="how-it-works__arrow">
+                                    →
+                                </span>
+
+                            )}
+
+                        </div>
+
+                    ))}
+
+                </div>
+
+            </div>
+
+        </section>
 
     );
 
 }
 
-export default HowItWorksPage;
+export default HowItWorks;
