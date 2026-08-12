@@ -102,15 +102,14 @@ function CustomerGallery() {
                 </div>
 
 
-                <div className="customer-gallery__action">
-
-                    <button type="button">
-
-                        VIEW GALLERY →
-
-                    </button>
-
-                </div>
+               <div className="customer-gallery__action">
+    <button
+        type="button"
+        onClick={() => window.location.href = "/products"}
+    >
+        VIEW GALLERY →
+    </button>
+</div>
 
             </div>
 
