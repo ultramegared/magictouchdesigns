@@ -357,7 +357,7 @@ const footerLinkTranslations: Record<string, string> = {
                         href={`tel:${footerContent.phone.replace(/\D/g, "")}`}
                     >
                         <span className="footer__contact-label">
-                            CONTACT US
+                            {t.footer.contactUs}
                         </span>
 
                         <span className="footer__contact-number">
