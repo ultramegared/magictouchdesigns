@@ -23,6 +23,7 @@ import CheckoutPage from "./pages/Checkout";
 import ShippingReturnsPage from "./pages/ShippingReturns";
 import FAQPage from "./pages/FAQ";
 import TrackOrderPage from "./pages/TrackOrder";
+import PrivacyPage from "./pages/Privacy";
 
 function App() {
 
@@ -85,6 +86,11 @@ function App() {
                 <Route
                     path="/track-order"
                     element={<TrackOrderPage />}
+                />
+
+                <Route
+                    path="/privacy"
+                    element={<PrivacyPage />}
                 />
 
             </Routes>
