@@ -30,7 +30,6 @@ import { APP_CONFIG } from "../../../constants/config";
 import { navigation } from "../../../constants/navigation";
 import {
     useLanguage,
-    type Language,
 } from "../../../contexts/LanguageContext";
 
 function Header() {
