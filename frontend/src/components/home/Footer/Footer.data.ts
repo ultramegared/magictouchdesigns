@@ -71,7 +71,7 @@ export const footerContent: FooterContent = {
             },
             {
                 label: "Privacy Policy",
-                href: "/privacy-policy",
+                href: "/privacy",
             },
             {
                 label: "Terms of Service",
