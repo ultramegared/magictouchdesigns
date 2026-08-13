@@ -29,10 +29,6 @@ export const footerContent: FooterContent = {
                 label: "Customize",
                 href: "/customize",
             },
-            {
-                label: "Gift Cards",
-                href: "/gift-cards",
-            },
         ],
     },
 
