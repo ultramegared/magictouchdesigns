@@ -24,6 +24,7 @@ import ShippingReturnsPage from "./pages/ShippingReturns";
 import FAQPage from "./pages/FAQ";
 import TrackOrderPage from "./pages/TrackOrder";
 import PrivacyPage from "./pages/Privacy";
+import TermsOfServicePage from "./pages/TermsOfService";
 
 function App() {
 
@@ -91,6 +92,11 @@ function App() {
                 <Route
                     path="/privacy"
                     element={<PrivacyPage />}
+                />
+
+                <Route
+                    path="/terms-of-service"
+                    element={<TermsOfServicePage />}
                 />
 
             </Routes>
