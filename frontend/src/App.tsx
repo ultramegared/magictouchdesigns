@@ -22,6 +22,7 @@ import CartPage from "./pages/Cart";
 import CheckoutPage from "./pages/Checkout";
 import ShippingReturnsPage from "./pages/ShippingReturns";
 import FAQPage from "./pages/FAQ";
+import TrackOrderPage from "./pages/TrackOrder";
 
 function App() {
 
@@ -79,6 +80,11 @@ function App() {
                 <Route
                     path="/faqs"
                     element={<FAQPage />}
+                />
+
+                <Route
+                    path="/track-order"
+                    element={<TrackOrderPage />}
                 />
 
             </Routes>
