@@ -481,11 +481,11 @@ const footerLinkTranslations: Record<string, string> = {
                 <div className="footer__bottom">
 
                     <p className="footer__copyright">
-                        {footerContent.copyright}
+{t.footer.copyright}
                     </p>
 
                     <p className="footer__designer">
-                        {footerContent.designer}
+{t.footer.designer}
                     </p>
 
                 </div>
