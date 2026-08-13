@@ -28,6 +28,10 @@ import { getCartItems } from "../../../utils/cart";
 
 import { APP_CONFIG } from "../../../constants/config";
 import { navigation } from "../../../constants/navigation";
+import {
+    useLanguage,
+    type Language,
+} from "../../../contexts/LanguageContext";
 
 function Header() {
 
@@ -37,6 +41,11 @@ function Header() {
 const [searchQuery, setSearchQuery] = useState("");
 
     const navigate = useNavigate();
+    const {
+    language,
+    setLanguage,
+} = useLanguage();
+    
 
     useEffect(() => {
 
@@ -192,32 +201,44 @@ const [searchQuery, setSearchQuery] = useState("");
 
 </button>
 
-                    <div className="header__language">
+<div className="header__language">
 
-                        <button className="header__language--active">
+    <button
+        type="button"
+        className={
+            language === "en"
+                ? "header__language--active"
+                : ""
+        }
+        onClick={() => setLanguage("en")}
+        aria-pressed={language === "en"}
+    >
+        EN
+    </button>
 
-                            EN
+    <span>|</span>
 
-                        </button>
+    <button
+        type="button"
+        className={
+            language === "es"
+                ? "header__language--active"
+                : ""
+        }
+        onClick={() => setLanguage("es")}
+        aria-pressed={language === "es"}
+    >
+        ES
+    </button>
 
-                        <span>|</span>
-
-                        <button>
-
-                            ES
-
-                        </button>
-
-                    </div>
+</div>
 
                     <button
                         className="header__menu"
                         aria-label="Menu"
                         onClick={() => setMenuOpen(!menuOpen)}
                     >
-
                         {
-
                             menuOpen
 
                                 ? <X size={24} />
@@ -255,23 +276,37 @@ const [searchQuery, setSearchQuery] = useState("");
 
                 }
 
-                <div className="header__mobile-language">
+               <div className="header__mobile-language">
 
-                    <button className="header__language--active">
+    <button
+        type="button"
+        className={
+            language === "en"
+                ? "header__language--active"
+                : ""
+        }
+        onClick={() => setLanguage("en")}
+        aria-pressed={language === "en"}
+    >
+        EN
+    </button>
 
-                            EN
+    <span>|</span>
 
-                        </button>
+    <button
+        type="button"
+        className={
+            language === "es"
+                ? "header__language--active"
+                : ""
+        }
+        onClick={() => setLanguage("es")}
+        aria-pressed={language === "es"}
+    >
+        ES
+    </button>
 
-                    <span>|</span>
-
-                    <button>
-
-                        ES
-
-                    </button>
-
-                </div>
+</div>
 
             </nav>
 
