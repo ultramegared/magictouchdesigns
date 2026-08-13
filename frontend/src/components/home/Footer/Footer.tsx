@@ -12,6 +12,11 @@
 
 import { useState } from "react";
 
+import {
+    useLanguage,
+    type Language,
+} from "../../../contexts/LanguageContext";
+
 import "./Footer.css";
 
 import { footerContent } from "./Footer.data";
@@ -19,6 +24,10 @@ import { footerContent } from "./Footer.data";
 function Footer() {
 
     const [openSection, setOpenSection] = useState<string | null>(null);
+    const {
+    language,
+    setLanguage,
+} = useLanguage();
 
     const toggleSection = (section: string) => {
 
