@@ -38,6 +38,8 @@ export const en = {
         termsOfService: "Terms of Service",
         paymentMethods: "Payment Methods",
         language: "Language",
+        copyright: "© 2026 Magic Touch Designs. All rights reserved.",
+designer: "Designed by ultramegared",
     },
 
 };
