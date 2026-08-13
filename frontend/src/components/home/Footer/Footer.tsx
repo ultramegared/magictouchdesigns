@@ -19,6 +19,7 @@ import {
 import "./Footer.css";
 
 import { footerContent } from "./Footer.data";
+import { translations } from "../../../translations";
 
 function Footer() {
 
@@ -27,6 +28,20 @@ function Footer() {
     language,
     setLanguage,
 } = useLanguage();
+const t = translations[language];
+const footerLinkTranslations: Record<string, string> = {
+    "All Models": t.footer.allModels,
+    "Collections": t.footer.collections,
+    "Customize": t.footer.customize,
+    "About Us": t.footer.aboutUs,
+    "How It Works": t.footer.howItWorks,
+    "Shipping & Returns": t.footer.shippingReturns,
+    "FAQs": t.footer.faqs,
+    "Contact Us": t.footer.contactUs,
+    "Track My Order": t.footer.trackOrder,
+    "Privacy Policy": t.footer.privacyPolicy,
+    "Terms of Service": t.footer.termsOfService,
+};
 
     const toggleSection = (section: string) => {
 
@@ -99,20 +114,20 @@ function Footer() {
 
                     {renderSection(
                         "shop",
-                        footerContent.shop.title,
+                        t.navigation.shop,
                         footerContent.shop.links
                     )}
 
                     {renderSection(
                         "company",
-                        footerContent.company.title,
+                        t.navigation.company,
                         footerContent.company.links
                     )}
 
                     <div className="footer__section footer__section--support">
 
                         <div className="footer__section-heading">
-                            SUPPORT
+           {t.navigation.support}
                         </div>
 
                         <a
@@ -129,7 +144,7 @@ function Footer() {
                                 href={link.href}
                                 className="footer__link"
                             >
-                                {link.label}
+                                {footerLinkTranslations[link.label] ?? link.label}
                             </a>
 
                         ))}
@@ -139,7 +154,7 @@ function Footer() {
                     <div className="footer__section footer__section--payments">
 
                         <div className="footer__section-heading">
-                            PAYMENT METHODS
+                            {t.footer.paymentMethods}
                         </div>
 
                         <div className="footer__payments">
@@ -153,7 +168,7 @@ function Footer() {
                         </div>
 
                         <div className="footer__section-heading footer__language-heading">
-                            LANGUAGE
+                            {t.footer.language}
                         </div>
 
                         <div className="footer__languages">
@@ -194,19 +209,19 @@ function Footer() {
 
                     {renderSection(
                         "shop-mobile",
-                        footerContent.shop.title,
+                        t.navigation.shop,
                         footerContent.shop.links
                     )}
 
                     {renderSection(
                         "company-mobile",
-                        footerContent.company.title,
+                        t.navigation.company,
                         footerContent.company.links
                     )}
 
                     {renderSection(
                         "support-mobile",
-                        footerContent.support.title,
+                        t.navigation.support,
                         footerContent.support.links
                     )}
 
@@ -224,7 +239,7 @@ function Footer() {
                         >
 
                             <span>
-                                PAYMENT METHODS
+                                {t.footer.paymentMethods}
                             </span>
 
                             <span
@@ -276,7 +291,7 @@ function Footer() {
                         >
 
                             <span>
-                                LANGUAGE
+                                {t.footer.language}
                             </span>
 
                             <span
