@@ -159,21 +159,33 @@ function Footer() {
 
                         <div className="footer__languages">
 
-                            <button
-                                type="button"
-                                className="footer__language footer__language--active"
-                            >
-                                EN
-                            </button>
+    <button
+        type="button"
+        className={
+            language === "en"
+                ? "footer__language footer__language--active"
+                : "footer__language"
+        }
+        onClick={() => setLanguage("en")}
+        aria-pressed={language === "en"}
+    >
+        EN
+    </button>
 
-                            <button
-                                type="button"
-                                className="footer__language"
-                            >
-                                ES
-                            </button>
+    <button
+        type="button"
+        className={
+            language === "es"
+                ? "footer__language footer__language--active"
+                : "footer__language"
+        }
+        onClick={() => setLanguage("es")}
+        aria-pressed={language === "es"}
+    >
+        ES
+    </button>
 
-                        </div>
+</div>
 
                     </div>
 
@@ -291,21 +303,33 @@ function Footer() {
 
                             <div className="footer__languages">
 
-                                <button
-                                    type="button"
-                                    className="footer__language footer__language--active"
-                                >
-                                    EN
-                                </button>
+    <button
+        type="button"
+        className={
+            language === "en"
+                ? "footer__language footer__language--active"
+                : "footer__language"
+        }
+        onClick={() => setLanguage("en")}
+        aria-pressed={language === "en"}
+    >
+        EN
+    </button>
 
-                                <button
-                                    type="button"
-                                    className="footer__language"
-                                >
-                                    ES
-                                </button>
+    <button
+        type="button"
+        className={
+            language === "es"
+                ? "footer__language footer__language--active"
+                : "footer__language"
+        }
+        onClick={() => setLanguage("es")}
+        aria-pressed={language === "es"}
+    >
+        ES
+    </button>
 
-                            </div>
+</div>
 
                         </div>
 
