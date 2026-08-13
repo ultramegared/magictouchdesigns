@@ -1,0 +1,215 @@
+/**
+ * ===============================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: TrackOrderPage.css
+ * Module: Frontend
+ * Language: CSS
+ * Description:
+ * Order tracking page styles.
+ * ===============================================================
+ */
+
+.track-order-page {
+    width: 100%;
+    background: #111;
+    color: #fff;
+}
+
+.track-order-page__container {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+}
+
+.track-order-page__hero {
+    padding: 110px 0 100px;
+    text-align: center;
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(201, 154, 50, 0.16),
+            transparent 45%
+        ),
+        #111;
+    border-bottom: 1px solid rgba(201, 154, 50, 0.35);
+}
+
+.track-order-page__eyebrow {
+    display: block;
+    margin-bottom: 22px;
+    color: #d4a83d;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+}
+
+.track-order-page h1 {
+    margin: 0;
+    font-size: clamp(42px, 7vw, 82px);
+    line-height: 1.05;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.track-order-page h1 span {
+    display: block;
+    color: #d4a83d;
+    text-shadow:
+        0 0 18px rgba(212, 168, 61, 0.2),
+        0 4px 14px rgba(0, 0, 0, 0.8);
+}
+
+.track-order-page__divider {
+    width: 70px;
+    height: 2px;
+    margin: 30px auto;
+    background: #c99a32;
+}
+
+.track-order-page__divider span {
+    display: block;
+    width: 28px;
+    height: 2px;
+    margin: 0 auto;
+    background: #f1ce68;
+}
+
+.track-order-page__intro {
+    max-width: 700px;
+    margin: 0 auto;
+    color: #d0d0d0;
+    font-size: 20px;
+    line-height: 1.7;
+}
+
+.track-order-page__content {
+    padding: 90px 0 120px;
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(201, 154, 50, 0.06),
+            transparent 30%
+        ),
+        #111;
+}
+
+.track-order-page__card {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 45px;
+    border: 1px solid rgba(201, 154, 50, 0.35);
+    background: rgba(255, 255, 255, 0.025);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.track-order-page__card h2,
+.track-order-page__help h2 {
+    margin: 0 0 18px;
+    color: #f0cf70;
+    font-size: clamp(24px, 4vw, 34px);
+    line-height: 1.2;
+    letter-spacing: 1px;
+}
+
+.track-order-page__card > p,
+.track-order-page__help p {
+    margin: 0 0 35px;
+    color: #d0d0d0;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.track-order-page__form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.track-order-page__field {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.track-order-page__field label {
+    color: #d4a83d;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.track-order-page__field input {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border: 1px solid rgba(201, 154, 50, 0.4);
+    outline: none;
+    background: #181818;
+    color: #fff;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.track-order-page__field input::placeholder {
+    color: #777;
+}
+
+.track-order-page__field input:focus {
+    border-color: #d4a83d;
+}
+
+.track-order-page__button {
+    min-height: 54px;
+    margin-top: 8px;
+    border: 1px solid #c99a32;
+    background: #c99a32;
+    color: #111;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.track-order-page__button:hover {
+    background: #f0cf70;
+}
+
+.track-order-page__help {
+    max-width: 700px;
+    margin: 70px auto 0;
+    padding-top: 45px;
+    border-top: 1px solid rgba(201, 154, 50, 0.28);
+    text-align: center;
+}
+
+.track-order-page__help p {
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+    .track-order-page__hero {
+        padding: 75px 0 70px;
+    }
+
+    .track-order-page__content {
+        padding: 65px 0 85px;
+    }
+
+    .track-order-page__intro {
+        font-size: 17px;
+    }
+
+    .track-order-page__card {
+        padding: 30px 22px;
+    }
+
+    .track-order-page__card > p,
+    .track-order-page__help p {
+        font-size: 15px;
+    }
+}
