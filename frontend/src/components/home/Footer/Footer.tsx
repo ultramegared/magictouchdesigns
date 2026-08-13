@@ -14,7 +14,6 @@ import { useState } from "react";
 
 import {
     useLanguage,
-    type Language,
 } from "../../../contexts/LanguageContext";
 
 import "./Footer.css";
