@@ -16,9 +16,15 @@ export interface Benefit {
 
     id: number;
 
-    title: string;
+title: {
+    en: string;
+    es: string;
+};
 
-    description: string;
+description: {
+    en: string;
+    es: string;
+};
 
     icon: LucideIcon;
 
