@@ -38,6 +38,7 @@ export const en = {
     },
 
     home: {
+
         favorites: {
             eyebrow: "OUR FAVORITES",
             title: "BEST SELLERS",
@@ -45,44 +46,145 @@ export const en = {
         },
 
         whyChooseUs: {
+
             eyebrow: "WHY CHOOSE US?",
+
+            title: "MAGIC TOUCH",
+
+            titleAccent: "DESIGNS",
+
+            introBefore: "We don’t just print mugs,",
+
+            introAccent: "we create memories",
+
+            introAfter: "that last forever.",
+
             materials: "PREMIUM MATERIALS",
+
             printing: "EXPERT PRINTING",
+
             quality: "QUALITY CHECKED",
+
             packaging: "CAREFUL PACKAGING",
+
             learnMore: "LEARN MORE ABOUT US",
+
+            benefits: {
+
+                premiumMaterials: {
+                    title: "PREMIUM MATERIALS",
+                    description:
+                        "We use high quality ceramic mugs built to last.",
+                },
+
+                expertPrinting: {
+                    title: "EXPERT PRINTING",
+                    description:
+                        "Vibrant and long lasting prints with sharp detail.",
+                },
+
+                qualityChecked: {
+                    title: "QUALITY CHECKED",
+                    description:
+                        "Every mug is carefully inspected to ensure perfection.",
+                },
+
+                carefulPackaging: {
+                    title: "CAREFUL PACKAGING",
+                    description:
+                        "Secure and elegant packaging to protect your mug.",
+                },
+
+            },
+
+            steps: {
+
+                yourIdea: {
+                    title: "YOUR IDEA",
+                    description:
+                        "You share your idea, logo, photo or special design with us.",
+                },
+
+                wePrintIt: {
+                    title: "WE PRINT IT",
+                    description:
+                        "Our experts print your design with precision and care.",
+                },
+
+                qualityCheck: {
+                    title: "QUALITY CHECK",
+                    description:
+                        "Each mug is carefully checked to guarantee the highest quality.",
+                },
+
+                packedWithCare: {
+                    title: "PACKED WITH CARE",
+                    description:
+                        "We pack it securely and ship it to your door with care.",
+                },
+
+            },
+
         },
 
         howItWorks: {
+
             eyebrow: "HOW IT WORKS",
+
             chooseModel: "CHOOSE A MODEL",
+
             uploadPhoto: "UPLOAD YOUR PHOTO",
+
             customize: "CUSTOMIZE",
+
         },
 
         community: {
+
             eyebrow: "JOIN OUR COMMUNITY",
+
             description: "Get exclusive updates",
+
             subscribe: "SUBSCRIBE",
+
         },
+
     },
 
     footer: {
+
         allModels: "All Models",
+
         collections: "Collections",
+
         customize: "Customize",
+
         aboutUs: "About Us",
+
         howItWorks: "How It Works",
+
         shippingReturns: "Shipping & Returns",
+
         faqs: "FAQs",
+
         contactUs: "Contact Us",
+
         trackOrder: "Track My Order",
+
         privacyPolicy: "Privacy Policy",
+
         termsOfService: "Terms of Service",
+
         paymentMethods: "Payment Methods",
+
         language: "Language",
-        copyright: "© 2026 Magic Touch Designs. All rights reserved.",
-        designer: "Designed by ultramegared",
+
+        copyright:
+            "© 2026 Magic Touch Designs. All rights reserved.",
+
+        designer:
+            "Designed by ultramegared",
+
     },
 
 };

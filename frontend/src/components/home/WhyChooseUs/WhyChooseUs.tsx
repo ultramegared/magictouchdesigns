@@ -1,5 +1,5 @@
 /**
- * ================================================================
+ * ===============================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: WhyChooseUs.tsx
@@ -7,18 +7,71 @@
  * Language: TypeScript React
  * Description:
  * Why Choose Us Section.
- * ================================================================
+ * ===============================================================
  */
 
 import "./WhyChooseUs.css";
 
 import {
     whyChooseUsBenefits,
-    whyChooseUsSteps
+    whyChooseUsSteps,
 } from "./WhyChooseUs.data";
 
+import { useLanguage } from "../../../contexts/LanguageContext";
+
+import { translations } from "../../../translations";
 
 function WhyChooseUs() {
+
+    const { language } = useLanguage();
+
+    const t = translations[language].whyChooseUs;
+
+    const benefits = [
+        {
+            ...whyChooseUsBenefits[0],
+            title: t.benefits.premiumMaterials.title,
+            description: t.benefits.premiumMaterials.description,
+        },
+        {
+            ...whyChooseUsBenefits[1],
+            title: t.benefits.expertPrinting.title,
+            description: t.benefits.expertPrinting.description,
+        },
+        {
+            ...whyChooseUsBenefits[2],
+            title: t.benefits.qualityChecked.title,
+            description: t.benefits.qualityChecked.description,
+        },
+        {
+            ...whyChooseUsBenefits[3],
+            title: t.benefits.carefulPackaging.title,
+            description: t.benefits.carefulPackaging.description,
+        },
+    ];
+
+    const steps = [
+        {
+            ...whyChooseUsSteps[0],
+            title: t.steps.yourIdea.title,
+            description: t.steps.yourIdea.description,
+        },
+        {
+            ...whyChooseUsSteps[1],
+            title: t.steps.wePrintIt.title,
+            description: t.steps.wePrintIt.description,
+        },
+        {
+            ...whyChooseUsSteps[2],
+            title: t.steps.qualityCheck.title,
+            description: t.steps.qualityCheck.description,
+        },
+        {
+            ...whyChooseUsSteps[3],
+            title: t.steps.packedWithCare.title,
+            description: t.steps.packedWithCare.description,
+        },
+    ];
 
     return (
 
@@ -29,15 +82,15 @@ function WhyChooseUs() {
                 <div className="why-choose-us__content">
 
                     <span className="why-choose-us__eyebrow">
-                        WHY CHOOSE US?
+                        {t.eyebrow}
                     </span>
 
                     <h2>
 
-                        MAGIC TOUCH
+                        {t.title}
 
                         <span>
-                            DESIGNS
+                            {t.titleAccent}
                         </span>
 
                     </h2>
@@ -48,81 +101,72 @@ function WhyChooseUs() {
 
                     <p className="why-choose-us__intro">
 
-                        We don’t just print mugs,
+                        {t.introBefore}
 
                         <em>
-                            we create memories
+                            {t.introAccent}
                         </em>
 
-                        that last forever.
+                        {t.introAfter}
 
                     </p>
 
-
                     <div className="why-choose-us__benefits">
 
-                        {
-                            whyChooseUsBenefits.map(
+                        {benefits.map((benefit) => {
 
-                                (benefit) => {
+                            const Icon = benefit.icon;
 
-                                    const Icon = benefit.icon;
+                            return (
 
-                                    return (
+                                <article
+                                    key={benefit.id}
+                                    className="why-choose-us__benefit"
+                                >
 
-                                        <article
-                                            key={benefit.id}
-                                            className="why-choose-us__benefit"
-                                        >
+                                    <div className="why-choose-us__benefit-icon">
 
-                                            <div className="why-choose-us__benefit-icon">
+                                        <Icon size={30} />
 
-                                                <Icon size={30} />
+                                    </div>
 
-                                            </div>
+                                    <div>
 
-                                            <div>
+                                        <h3>
+                                            {benefit.title}
+                                        </h3>
 
-                                                <h3>
-                                                    {benefit.title}
-                                                </h3>
+                                        <p>
+                                            {benefit.description}
+                                        </p>
 
-                                                <p>
-                                                    {benefit.description}
-                                                </p>
+                                    </div>
 
-                                            </div>
+                                </article>
 
-                                        </article>
+                            );
 
-                                    );
-
-                                }
-
-                            )
-                        }
+                        })}
 
                     </div>
 
-
                     <button
-    type="button"
-    className="why-choose-us__button"
-    onClick={() => window.location.href = "/about"}
->
+                        type="button"
+                        className="why-choose-us__button"
+                        onClick={() => window.location.href = "/about"}
+                    >
 
-    <span>
-        LEARN MORE ABOUT US
-    </span>
+                        <span>
+                            {t.learnMore}
+                        </span>
 
-    <span>
-        →
-    </span>
+                        <span>
+                            →
+                        </span>
 
-</button>
+                    </button>
 
                 </div>
-
 
                 <div className="why-choose-us__visual">
 
@@ -135,18 +179,18 @@ function WhyChooseUs() {
                             </span>
 
                             <img
-                                src={whyChooseUsSteps[0].image}
-                                alt={whyChooseUsSteps[0].title}
+                                src={steps[0].image}
+                                alt={steps[0].title}
                             />
 
                             <div className="why-choose-us__card-content">
 
                                 <h3>
-                                    {whyChooseUsSteps[0].title}
+                                    {steps[0].title}
                                 </h3>
 
                                 <p>
-                                    {whyChooseUsSteps[0].description}
+                                    {steps[0].description}
                                 </p>
 
                             </div>
@@ -159,7 +203,6 @@ function WhyChooseUs() {
 
                     </div>
 
-
                     <div className="why-choose-us__step why-choose-us__step--2">
 
                         <article className="why-choose-us__card">
@@ -169,18 +212,18 @@ function WhyChooseUs() {
                             </span>
 
                             <img
-                                src={whyChooseUsSteps[1].image}
-                                alt={whyChooseUsSteps[1].title}
+                                src={steps[1].image}
+                                alt={steps[1].title}
                             />
 
                             <div className="why-choose-us__card-content">
 
                                 <h3>
-                                    {whyChooseUsSteps[1].title}
+                                    {steps[1].title}
                                 </h3>
 
                                 <p>
-                                    {whyChooseUsSteps[1].description}
+                                    {steps[1].description}
                                 </p>
 
                             </div>
@@ -193,7 +236,6 @@ function WhyChooseUs() {
 
                     </div>
 
-
                     <div className="why-choose-us__step why-choose-us__step--3">
 
                         <article className="why-choose-us__card">
@@ -203,18 +245,18 @@ function WhyChooseUs() {
                             </span>
 
                             <img
-                                src={whyChooseUsSteps[2].image}
-                                alt={whyChooseUsSteps[2].title}
+                                src={steps[2].image}
+                                alt={steps[2].title}
                             />
 
                             <div className="why-choose-us__card-content">
 
                                 <h3>
-                                    {whyChooseUsSteps[2].title}
+                                    {steps[2].title}
                                 </h3>
 
                                 <p>
-                                    {whyChooseUsSteps[2].description}
+                                    {steps[2].description}
                                 </p>
 
                             </div>
@@ -227,7 +269,6 @@ function WhyChooseUs() {
 
                     </div>
 
-
                     <div className="why-choose-us__step why-choose-us__step--4">
 
                         <article className="why-choose-us__card">
@@ -237,18 +278,18 @@ function WhyChooseUs() {
                             </span>
 
                             <img
-                                src={whyChooseUsSteps[3].image}
-                                alt={whyChooseUsSteps[3].title}
+                                src={steps[3].image}
+                                alt={steps[3].title}
                             />
 
                             <div className="why-choose-us__card-content">
 
                                 <h3>
-                                    {whyChooseUsSteps[3].title}
+                                    {steps[3].title}
                                 </h3>
 
                                 <p>
-                                    {whyChooseUsSteps[3].description}
+                                    {steps[3].description}
                                 </p>
 
                             </div>

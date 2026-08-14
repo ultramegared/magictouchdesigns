@@ -38,6 +38,7 @@ export const es = {
     },
 
     home: {
+
         favorites: {
             eyebrow: "NUESTROS FAVORITOS",
             title: "MÁS VENDIDOS",
@@ -45,44 +46,145 @@ export const es = {
         },
 
         whyChooseUs: {
+
             eyebrow: "¿POR QUÉ ELEGIRNOS?",
+
+            title: "MAGIC TOUCH",
+
+            titleAccent: "DESIGNS",
+
+            introBefore: "No solo imprimimos tazas,",
+
+            introAccent: "creamos recuerdos",
+
+            introAfter: "que duran para siempre.",
+
             materials: "MATERIALES PREMIUM",
+
             printing: "IMPRESIÓN PROFESIONAL",
+
             quality: "CALIDAD VERIFICADA",
+
             packaging: "EMPAQUE CUIDADOSO",
+
             learnMore: "CONOCE MÁS SOBRE NOSOTROS",
+
+            benefits: {
+
+                premiumMaterials: {
+                    title: "MATERIALES PREMIUM",
+                    description:
+                        "Utilizamos tazas de cerámica de alta calidad diseñadas para durar.",
+                },
+
+                expertPrinting: {
+                    title: "IMPRESIÓN PROFESIONAL",
+                    description:
+                        "Impresiones vibrantes y duraderas con detalles nítidos.",
+                },
+
+                qualityChecked: {
+                    title: "CALIDAD VERIFICADA",
+                    description:
+                        "Cada taza es cuidadosamente inspeccionada para garantizar la perfección.",
+                },
+
+                carefulPackaging: {
+                    title: "EMPAQUE CUIDADOSO",
+                    description:
+                        "Empaque seguro y elegante para proteger tu taza.",
+                },
+
+            },
+
+            steps: {
+
+                yourIdea: {
+                    title: "TU IDEA",
+                    description:
+                        "Comparte con nosotros tu idea, logotipo, foto o diseño especial.",
+                },
+
+                wePrintIt: {
+                    title: "NOSOTROS LO IMPRIMIMOS",
+                    description:
+                        "Nuestros expertos imprimen tu diseño con precisión y cuidado.",
+                },
+
+                qualityCheck: {
+                    title: "CONTROL DE CALIDAD",
+                    description:
+                        "Cada taza es cuidadosamente revisada para garantizar la máxima calidad.",
+                },
+
+                packedWithCare: {
+                    title: "EMPAQUE CON CUIDADO",
+                    description:
+                        "Empacamos tu pedido de forma segura y lo enviamos hasta tu puerta con cuidado.",
+                },
+
+            },
+
         },
 
         howItWorks: {
+
             eyebrow: "CÓMO FUNCIONA",
+
             chooseModel: "ELIGE UN MODELO",
+
             uploadPhoto: "SUBE TU FOTO",
+
             customize: "PERSONALIZA",
+
         },
 
         community: {
+
             eyebrow: "ÚNETE A NUESTRA COMUNIDAD",
+
             description: "Recibe actualizaciones exclusivas",
+
             subscribe: "SUSCRÍBETE",
+
         },
+
     },
 
     footer: {
+
         allModels: "Todos los modelos",
+
         collections: "Colecciones",
+
         customize: "Personalizar",
+
         aboutUs: "Sobre nosotros",
+
         howItWorks: "Cómo funciona",
+
         shippingReturns: "Envíos y devoluciones",
+
         faqs: "Preguntas frecuentes",
+
         contactUs: "Contáctanos",
+
         trackOrder: "Rastrear mi pedido",
+
         privacyPolicy: "Política de privacidad",
+
         termsOfService: "Términos de servicio",
+
         paymentMethods: "Métodos de pago",
+
         language: "Idioma",
-        copyright: "© 2026 Magic Touch Designs. Todos los derechos reservados.",
-        designer: "Diseñado por ultramegared",
+
+        copyright:
+            "© 2026 Magic Touch Designs. Todos los derechos reservados.",
+
+        designer:
+            "Diseñado por ultramegared",
+
     },
 
 };
