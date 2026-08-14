@@ -288,9 +288,12 @@
     min-width:0;
     scroll-snap-align:none;
 }
+.best-sellers__image{
+    height:230px;
+}
 }
 
-@media(max-width:768px){
+@media (max-width:768px){
 
     .best-sellers__card:active,
     .best-sellers__card:focus,
