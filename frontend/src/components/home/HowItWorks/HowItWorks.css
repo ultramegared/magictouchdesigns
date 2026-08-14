@@ -227,33 +227,25 @@
 }
 
 /* ===============================================================
-   MOBILE
+   MOBILE -- 2 x 2 + 1
    =============================================================== */
 
 @media (max-width: 576px) {
 
     .how-it-works {
-        padding: 58px 0 68px;
+        padding: 58px 0 70px;
     }
 
     .how-it-works__container {
         width: 100%;
-        padding: 0;
-
-        overflow-x: auto;
-        overflow-y: hidden;
-
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-
-    .how-it-works__container::-webkit-scrollbar {
-        display: none;
+        padding: 0 18px;
+        overflow: hidden;
     }
 
     .how-it-works__header {
-        padding: 0 18px;
-        margin-bottom: 38px;
+        padding: 0;
+        margin-bottom: 48px;
+        text-align: center;
     }
 
     .how-it-works__eyebrow {
@@ -261,55 +253,132 @@
         letter-spacing: 0.22em;
     }
 
+    /* ===========================================================
+       STEPS -- 2 x 2
+       =========================================================== */
+
     .how-it-works__steps {
-        width: max-content;
-        min-width: max-content;
+        width: 100%;
+        min-width: 0;
 
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
 
-        padding: 0 18px 12px;
+        gap: 52px 12px;
 
+        padding: 0;
         overflow: visible;
     }
 
+    /* ===========================================================
+       STEP ITEM
+       =========================================================== */
+
     .how-it-works__item {
-        width: 155px;
-        flex: 0 0 155px;
+        position: relative;
+
+        width: 100%;
+        min-width: 0;
+
+        display: flex;
+        align-items: flex-start;
+
+        flex: none;
     }
 
     .how-it-works__step {
-        padding: 8px 8px;
+        width: 100%;
+        min-width: 0;
+
+        padding: 0 4px;
+
+        text-align: center;
     }
 
+    /* ===========================================================
+       NUMBER
+       =========================================================== */
+
     .how-it-works__number {
-        width: 50px;
-        height: 50px;
+        width: 58px;
+        height: 58px;
 
-        margin-bottom: 15px;
+        margin: 0 auto 18px;
 
-        font-size: 1.05rem;
+        font-size: 1.1rem;
     }
 
     .how-it-works__number::after {
         inset: 4px;
     }
 
+    /* ===========================================================
+       TITLE
+       =========================================================== */
+
     .how-it-works__step h3 {
-        font-size: 0.78rem;
+        margin: 0 0 9px;
+
+        font-size: 0.82rem;
         line-height: 1.35;
         letter-spacing: 0.045em;
-
-        margin-bottom: 9px;
     }
 
-    .how-it-works__step p {
-        max-width: 145px;
+    /* ===========================================================
+       DESCRIPTION
+       =========================================================== */
 
-        font-size: 0.74rem;
+    .how-it-works__step p {
+        max-width: 150px;
+
+        margin: 0 auto;
+
+        font-size: 0.76rem;
         line-height: 1.5;
     }
 
+    /* ===========================================================
+       ARROWS
+       =========================================================== */
+
     .how-it-works__arrow {
+        position: absolute;
+
+        top: 78px;
+        right: -11px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
         font-size: 1.35rem;
+        line-height: 1;
+
+        z-index: 2;
     }
+
+    /*
+     * No arrow after the second item of each row.
+     */
+
+    .how-it-works__item:nth-child(even) .how-it-works__arrow {
+        display: none;
+    }
+
+    /* ===========================================================
+       FIFTH STEP -- CENTERED
+       =========================================================== */
+
+    .how-it-works__item:nth-child(5) {
+        grid-column: 1 / -1;
+
+        justify-self: center;
+
+        width: 50%;
+    }
+
+    .how-it-works__item:nth-child(5) .how-it-works__arrow {
+        display: none;
+    }
+
 }
