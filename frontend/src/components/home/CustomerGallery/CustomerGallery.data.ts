@@ -15,10 +15,13 @@ import type { CustomerGalleryItem } from "./CustomerGallery.types";
 export const customerGalleryItems: CustomerGalleryItem[] = [
 
     {
-        id: "review-1",
-reviewId: "review-1",
-userId: "user-1",
-productId: "product-1",
+        id: 1,
+
+        reviewId: "review-1",
+
+        userId: "user-1",
+
+        productId: "product-1",
 
         image: "/images/customers/customer-1.png",
 
@@ -31,26 +34,32 @@ productId: "product-1",
     },
 
     {
-    id: "review-2",
-    reviewId: "review-2",
-    userId: "user-2",
-    productId: "product-2",
+        id: 2,
 
-    image: "/images/customers/customer-2.png",
+        reviewId: "review-2",
 
-    customerName: "Michael",
+        userId: "user-2",
 
-    comment:
-        "The quality is amazing and the design looks even better in person.",
+        productId: "product-2",
 
-    createdAt: "2026-08-06",
-},
+        image: "/images/customers/customer-2.png",
+
+        customerName: "Michael",
+
+        comment:
+            "The quality is amazing and the design looks even better in person.",
+
+        createdAt: "2026-08-06",
+    },
 
     {
-        id: "review-3",
-reviewId: "review-3",
-userId: "user-3",
-productId: "product-3",
+        id: 3,
+
+        reviewId: "review-3",
+
+        userId: "user-3",
+
+        productId: "product-3",
 
         image: "/images/customers/customer-3.png",
 
@@ -63,10 +72,13 @@ productId: "product-3",
     },
 
     {
-        id: "review-4",
-reviewId: "review-4",
-userId: "user-4",
-productId: "product-4",
+        id: 4,
+
+        reviewId: "review-4",
+
+        userId: "user-4",
+
+        productId: "product-4",
 
         image: "/images/customers/customer-4.png",
 
