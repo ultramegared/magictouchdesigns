@@ -127,15 +127,43 @@ export const es = {
 
         },
 
-        howItWorks: {
+                howItWorks: {
 
             eyebrow: "CÓMO FUNCIONA",
 
-            chooseModel: "ELIGE UN MODELO",
+            steps: {
 
-            uploadPhoto: "SUBE TU FOTO",
+                chooseModel: {
+                    title: "ELIGE UN MODELO",
+                    description:
+                        "Elige tu modelo de taza favorito.",
+                },
 
-            customize: "PERSONALIZA",
+                uploadPhoto: {
+                    title: "SUBE TU FOTO",
+                    description:
+                        "Agrega tu foto o diseño.",
+                },
+
+                customize: {
+                    title: "PERSONALIZA",
+                    description:
+                        "Hazlo tuyo con texto y filtros.",
+                },
+
+                wePrint: {
+                    title: "LO IMPRIMIMOS",
+                    description:
+                        "Imprimimos tu taza con cuidado.",
+                },
+
+                delivered: {
+                    title: "ENTREGADO",
+                    description:
+                        "Envío rápido hasta tu puerta.",
+                },
+
+            },
 
         },
 
