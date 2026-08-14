@@ -14,6 +14,12 @@ export interface CustomerGalleryItem {
 
     id: number;
 
+    reviewId: string;
+
+    userId: string;
+
+    productId: string;
+
     image: string;
 
     customerName: string;
