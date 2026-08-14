@@ -37,6 +37,36 @@ export const en = {
         viewGallery: "VIEW GALLERY →",
     },
 
+    home: {
+        favorites: {
+            eyebrow: "OUR FAVORITES",
+            title: "BEST SELLERS",
+            viewAll: "VIEW ALL",
+        },
+
+        whyChooseUs: {
+            eyebrow: "WHY CHOOSE US?",
+            materials: "PREMIUM MATERIALS",
+            printing: "EXPERT PRINTING",
+            quality: "QUALITY CHECKED",
+            packaging: "CAREFUL PACKAGING",
+            learnMore: "LEARN MORE ABOUT US",
+        },
+
+        howItWorks: {
+            eyebrow: "HOW IT WORKS",
+            chooseModel: "CHOOSE A MODEL",
+            uploadPhoto: "UPLOAD YOUR PHOTO",
+            customize: "CUSTOMIZE",
+        },
+
+        community: {
+            eyebrow: "JOIN OUR COMMUNITY",
+            description: "Get exclusive updates",
+            subscribe: "SUBSCRIBE",
+        },
+    },
+
     footer: {
         allModels: "All Models",
         collections: "Collections",
