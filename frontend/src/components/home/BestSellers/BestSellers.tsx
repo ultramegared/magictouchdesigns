@@ -11,9 +11,18 @@
  */
 
 import "./BestSellers.css";
+
 import { bestSellers } from "./BestSellers.data";
 
+import { useLanguage } from "../../../contexts/LanguageContext";
+
+import { translations } from "../../../translations";
+
 const BestSellers = () => {
+
+    const { language } = useLanguage();
+
+    const t = translations[language];
 
     return (
 
@@ -26,23 +35,23 @@ const BestSellers = () => {
                     <div>
 
                         <span className="best-sellers__badge">
-                            OUR FAVORITES
+                            {t.home.favorites.eyebrow}
                         </span>
 
                         <h2 className="best-sellers__title">
-                            BEST SELLERS
+                            {t.home.favorites.title}
                         </h2>
 
                     </div>
 
-                                        <button
-    className="best-sellers__view-all"
-    type="button"
-    aria-label="View all products"
-    onClick={() => window.location.href = "/products"}
->
-    VIEW ALL →
-</button>
+                    <button
+                        className="best-sellers__view-all"
+                        type="button"
+                        aria-label={t.home.favorites.viewAll}
+                        onClick={() => window.location.href = "/products"}
+                    >
+                        {t.home.favorites.viewAll} →
+                    </button>
 
                 </div>
 
