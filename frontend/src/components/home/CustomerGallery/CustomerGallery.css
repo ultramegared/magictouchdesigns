@@ -122,6 +122,8 @@
 
 
 .customer-gallery__image-wrapper{
+    
+    position:relative;
 
     width:100%;
 
@@ -143,7 +145,63 @@
     object-fit:cover;
 
 }
+.customer-gallery__image-wrapper img{
 
+    display:block;
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+
+/* ===============================================================
+   IMAGE ZOOM BUTTON
+   =============================================================== */
+
+.customer-gallery__zoom {
+
+    position:absolute;
+
+    right:12px;
+    bottom:12px;
+
+    width:42px;
+    height:42px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid #C89B3C;
+    border-radius:50%;
+
+    background:rgba(15,15,16,.85);
+    color:#C89B3C;
+
+    font-size:24px;
+    line-height:1;
+
+    cursor:pointer;
+
+    z-index:2;
+
+    transition:
+        background .25s ease,
+        color .25s ease,
+        transform .25s ease;
+}
+
+.customer-gallery__zoom:hover {
+
+    background:#C89B3C;
+    color:#0F0F10;
+
+    transform:scale(1.08);
+}
 
 .customer-gallery__content{
 
@@ -191,58 +249,6 @@
 
 }
 
-
-/* ================================================================
-   ACTION
-   ================================================================ */
-
-.customer-gallery__action{
-
-    display:flex;
-
-    justify-content:center;
-
-    margin-top:38px;
-
-}
-
-
-.customer-gallery__action button{
-
-    padding:12px 26px;
-
-    border:1px solid #C89B3C;
-
-    border-radius:4px;
-
-    background:transparent;
-
-    color:#C89B3C;
-
-    font-size:.8rem;
-
-    font-weight:700;
-
-    letter-spacing:.08em;
-
-    cursor:pointer;
-
-    transition:
-
-        background .25s ease,
-
-        color .25s ease;
-
-}
-
-
-.customer-gallery__action button:hover{
-
-    background:#C89B3C;
-
-    color:#0F0F10;
-
-}
 
 
 /* ================================================================
