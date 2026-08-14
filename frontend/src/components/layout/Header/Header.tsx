@@ -276,14 +276,18 @@ const t = translations[language];
                             onClick={() => setMenuOpen(false)}
                         >
 
-                            {item.label === "Shop"
-    ? t.navigation.shop
-    : item.label === "Company"
-        ? t.navigation.company
-        : item.label === "Support"
-            ? t.navigation.support
-            : item.label}
-
+                            {item.label === "Home"
+    ? t.navigation.home
+    : item.label === "Products"
+        ? t.navigation.products
+        : item.label === "Collections"
+            ? t.navigation.collections
+            : item.label === "Customize"
+                ? t.navigation.customize
+                : item.label === "Contact"
+                    ? t.navigation.contact
+                    : item.label}
+                    
                         </NavLink>
 
                     ))
