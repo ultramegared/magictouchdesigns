@@ -94,7 +94,7 @@ const footerLinkTranslations: Record<string, string> = {
                         href={link.href}
                         className="footer__link"
                     >
-                        {link.label}
+                       {footerLinkTranslations[link.label] ?? link.label}
                     </a>
 
                 ))}
