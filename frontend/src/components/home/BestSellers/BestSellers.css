@@ -272,33 +272,22 @@
 
     }
 
-    .best-sellers__grid{
+   .best-sellers__grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:16px;
+    overflow:visible;
+    padding-bottom:0;
+}
 
-        display:flex;
+.best-sellers__grid::-webkit-scrollbar{
+    display:none;
+}
 
-        overflow-x:auto;
-
-        gap:20px;
-
-        scroll-snap-type:x mandatory;
-
-        padding-bottom:10px;
-
-    }
-
-    .best-sellers__grid::-webkit-scrollbar{
-
-        display:none;
-
-    }
-
-    .best-sellers__card{
-
-        min-width:280px;
-
-        scroll-snap-align:start;
-
-    }
+.best-sellers__card{
+    min-width:0;
+    scroll-snap-align:none;
+}
 
 }
 
