@@ -14,14 +14,57 @@
 
 import { useState } from "react";
 
+import {
+    Facebook,
+    Instagram,
+    Music2,
+    Youtube
+} from "lucide-react";
+
 import "./CustomerGallery.css";
 import { customerGalleryItems } from "./CustomerGallery.data";
 
-function CustomerGallery() {
-  const [selectedImage, setSelectedImage] = useState<{
+import { useLanguage } from "../../../contexts/LanguageContext";
+
+import { translations } from "../../../translations";
+const getSocialIcon = (
+    platform:
+        | "instagram"
+        | "facebook"
+        | "youtube"
+        | "tiktok"
+) => {
+
+    switch (platform) {
+
+        case "instagram":
+            return <Instagram size={18} />;
+
+        case "facebook":
+            return <Facebook size={18} />;
+
+        case "youtube":
+            return <Youtube size={18} />;
+
+        case "tiktok":
+            return <Music2 size={18} />;
+
+        default:
+            return null;
+
+    }
+
+};
+  function CustomerGallery() {
+
+    const { language } = useLanguage();
+
+    const t = translations[language];
+
+const [selectedImage, setSelectedImage] = useState<{
     image: string;
     customerName: string;
-  } | null>(null);
+} | null>(null);
 
   return (
     <section className="customer-gallery">
@@ -30,16 +73,16 @@ function CustomerGallery() {
         {/* HEADER */}
         <div className="customer-gallery__header">
           <span className="customer-gallery__eyebrow">
-            CUSTOMER GALLERY
-          </span>
+    {t.customerGallery.eyebrow}
+</span>
 
-          <h2>
-            Real mugs. Real people.
-          </h2>
+<h2>
+    {t.customerGallery.title}
+</h2>
 
-          <p>
-            See how our customers are enjoying their personalized mugs.
-          </p>
+<p>
+    {t.customerGallery.description}
+</p>
         </div>
 
         {/* GALLERY */}
@@ -75,14 +118,28 @@ function CustomerGallery() {
                 </div>
 
                 <div className="customer-gallery__content">
-                  <span className="customer-gallery__name">
-                    {item.customerName}
-                  </span>
 
-                  <p>
-                    {item.comment}
-                  </p>
-                </div>
+    <span className="customer-gallery__name">
+        {item.customerName}
+    </span>
+
+    <p>
+        {item.comment}
+    </p>
+
+    {item.social && (
+        <a
+            href={item.social.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="customer-gallery__social"
+            aria-label={`View ${item.customerName}'s ${item.social.platform}`}
+        >
+            {getSocialIcon(item.social.platform)}
+        </a>
+    )}
+
+</div>
               </article>
             ))}
         </div>

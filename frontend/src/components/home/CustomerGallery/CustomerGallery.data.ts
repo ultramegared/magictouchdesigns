@@ -31,6 +31,11 @@ export const customerGalleryItems: CustomerGalleryItem[] = [
             "I absolutely love my personalized mug! It turned out beautiful.",
 
         createdAt: "2026-08-07",
+
+        social: {
+            platform: "instagram",
+            url: "https://www.instagram.com/",
+        },
     },
 
     {
