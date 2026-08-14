@@ -6,7 +6,7 @@
  * Module: Home
  * Language: TypeScript React
  * Description:
- * How It Works section.
+ * Premium How It Works section.
  * ================================================================
  */
 
@@ -17,6 +17,78 @@ import { howItWorksSteps } from "./HowItWorks.data";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
 import { translations } from "../../../translations";
+
+function StepVisual({ step }: { step: number }) {
+
+    if (step === 1) {
+        return (
+            <div className="how-it-works__visual">
+                <div className="visual-mug">
+                    <div className="visual-mug__body">
+                        <span>♥</span>
+                    </div>
+                    <div className="visual-mug__handle" />
+                </div>
+                <div className="visual-platform" />
+            </div>
+        );
+    }
+
+    if (step === 2) {
+        return (
+            <div className="how-it-works__visual">
+                <div className="visual-cloud">
+                    <span>↑</span>
+                </div>
+                <div className="visual-platform" />
+            </div>
+        );
+    }
+
+    if (step === 3) {
+        return (
+            <div className="how-it-works__visual">
+                <div className="visual-design">
+                    <span className="visual-design__corner">✦</span>
+                    <strong>T</strong>
+                    <span className="visual-design__pen">✎</span>
+                </div>
+                <div className="visual-platform" />
+            </div>
+        );
+    }
+
+    if (step === 4) {
+        return (
+            <div className="how-it-works__visual">
+                <div className="visual-printer">
+                    <div className="visual-printer__top" />
+                    <div className="visual-printer__body">
+                        <div className="visual-printer__slot" />
+                        <div className="visual-printer__mug" />
+                    </div>
+                </div>
+                <div className="visual-platform" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="how-it-works__visual">
+            <div className="visual-truck">
+                <div className="visual-truck__cargo">
+                    <span>♥</span>
+                </div>
+                <div className="visual-truck__cab">
+                    <span />
+                </div>
+                <div className="visual-truck__wheel visual-truck__wheel--one" />
+                <div className="visual-truck__wheel visual-truck__wheel--two" />
+            </div>
+            <div className="visual-platform" />
+        </div>
+    );
+}
 
 function HowItWorks() {
 
@@ -37,50 +109,79 @@ function HowItWorks() {
 
             <div className="how-it-works__container">
 
-                <div className="how-it-works__header">
+                <header className="how-it-works__header">
 
-                    <span className="how-it-works__eyebrow">
+                    <div className="how-it-works__eyebrow">
+                        <span />
                         {t.eyebrow}
-                    </span>
+                        <span />
+                    </div>
 
-                </div>
+                    <h2>
+                        Crear tu taza{" "}
+                        <em>perfecta</em>{" "}
+                        es fácil
+                    </h2>
+
+                    <p>
+                        De tu idea a tu puerta en{" "}
+                        <strong>5</strong>{" "}
+                        simples pasos
+                    </p>
+
+                </header>
 
                 <div className="how-it-works__steps">
 
-                    {howItWorksSteps.map((step, index) => (
+                    {howItWorksSteps.map((step, index) => {
 
-                        <div
-                            className="how-it-works__item"
-                            key={step.id}
-                        >
+                        const content = translatedSteps[index];
 
-                            <div className="how-it-works__step">
+                        return (
+                            <div
+                                className={`how-it-works__item ${
+                                    index === 4
+                                        ? "how-it-works__item--last"
+                                        : ""
+                                }`}
+                                key={step.id}
+                            >
 
-                                <div className="how-it-works__number">
-                                    {String(step.id).padStart(2, "0")}
-                                </div>
+                                <article className="how-it-works__card">
 
-                                <h3>
-                                    {translatedSteps[index].title}
-                                </h3>
+                                    <div className="how-it-works__number">
+                                        {String(step.id).padStart(2, "0")}
+                                    </div>
 
-                                <p>
-                                    {translatedSteps[index].description}
-                                </p>
+                                    <StepVisual step={step.id} />
+
+                                    <div className="how-it-works__content">
+
+                                        <h3>
+                                            {content.title}
+                                        </h3>
+
+                                        <div className="how-it-works__divider">
+                                            <span />
+                                        </div>
+
+                                        <p>
+                                            {content.description}
+                                        </p>
+
+                                    </div>
+
+                                </article>
+
+                                {index < howItWorksSteps.length - 1 && (
+                                    <div className="how-it-works__connector">
+                                        <span>›</span>
+                                    </div>
+                                )}
 
                             </div>
-
-                            {index < howItWorksSteps.length - 1 && (
-
-                                <span className="how-it-works__arrow">
-                                    →
-                                </span>
-
-                            )}
-
-                        </div>
-
-                    ))}
+                        );
+                    })}
 
                 </div>
 
