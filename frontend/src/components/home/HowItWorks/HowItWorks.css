@@ -1,5 +1,5 @@
 /**
- * ================================================================
+ * ===============================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: HowItWorks.css
@@ -7,864 +7,828 @@
  * Language: CSS
  * Description:
  * Premium How It Works section.
- * ================================================================
+ * ===============================================================
  */
 
-/* ================================================================
-   SECTION
-================================================================ */
-
 .how-it-works {
-    width: 100%;
-    padding: 110px 0 120px;
-    background:
-        radial-gradient(
-            circle at 50% 42%,
-            rgba(212, 163, 61, 0.055),
-            transparent 38%
-        ),
-        #0d0d0d;
-    overflow: hidden;
+  width: 100%;
+  padding: 110px 0 120px;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(212, 163, 61, 0.055),
+      transparent 38%
+    ),
+    #0d0d0d;
+  overflow: hidden;
 }
 
 .how-it-works__container {
-    width: min(1400px, 94%);
-    margin: 0 auto;
+  width: min(1400px, 94%);
+  margin: 0 auto;
 }
 
-/* ================================================================
+/* ===============================================================
    HEADER
-================================================================ */
+   =============================================================== */
 
 .how-it-works__header {
-    text-align: center;
-    margin-bottom: 78px;
+  text-align: center;
+  margin-bottom: 105px;
 }
 
 .how-it-works__eyebrow {
-    display: inline-block;
-
-    color: #d4a33d;
-
-    font-size: 1rem;
-    font-weight: 700;
-
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-
-    text-shadow:
-        0 0 12px rgba(212, 163, 61, 0.18);
+  display: inline-block;
+  color: #d4a33d;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(212, 163, 61, 0.18);
 }
 
-/* ================================================================
-   STEPS
-================================================================ */
+.how-it-works__header h2 {
+  margin: 14px 0 10px;
+  color: #ffffff;
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.how-it-works__header h2 em {
+  color: #d4a33d;
+  font-style: italic;
+}
+
+.how-it-works__header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 1.1rem;
+}
+
+.how-it-works__header p strong {
+  color: #d4a33d;
+}
+
+/* ===============================================================
+   DESKTOP -- 5 EN FILA
+   =============================================================== */
 
 .how-it-works__steps {
-    display: grid;
-
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-
-    gap: 22px;
-
-    width: 100%;
-}
-
-/* ================================================================
-   ITEM
-================================================================ */
-
-.how-it-works__item {
-    position: relative;
-
-    min-width: 0;
-}
-
-/* ================================================================
-   CARD
-================================================================ */
-
-.how-it-works__step {
-    position: relative;
-
-    min-height: 365px;
-
-    padding: 92px 28px 38px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    text-align: center;
-
-    border: 1px solid rgba(212, 163, 61, 0.72);
-
-    border-radius: 0 0 26px 26px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255, 255, 255, 0.025),
-            rgba(255, 255, 255, 0.005)
-        ),
-        #111111;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.025),
-        0 18px 38px rgba(0, 0, 0, 0.35);
-
-    transition:
-        transform 0.3s ease,
-        border-color 0.3s ease,
-        box-shadow 0.3s ease;
-}
-
-.how-it-works__step:hover {
-    transform: translateY(-6px);
-
-    border-color: rgba(231, 186, 76, 0.95);
-
-    box-shadow:
-        0 22px 45px rgba(0, 0, 0, 0.45),
-        0 0 28px rgba(212, 163, 61, 0.08);
-}
-
-/* ================================================================
-   3D NUMBER MEDALLION
-================================================================ */
-
-.how-it-works__number {
-    position: absolute;
-
-    top: -39px;
-    left: 50%;
-
-    width: 82px;
-    height: 82px;
-
-    transform: translateX(-50%);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    color: #e1ad42;
-
-    font-size: 1.55rem;
-    font-weight: 800;
-
-    letter-spacing: 0.02em;
-
-    background:
-        radial-gradient(
-            circle at 35% 28%,
-            #3c3425 0%,
-            #171717 42%,
-            #080808 78%
-        );
-
-    border: 2px solid #d4a33d;
-
-    box-shadow:
-        0 0 0 5px #111111,
-        0 0 0 7px rgba(212, 163, 61, 0.9),
-        0 0 0 10px rgba(212, 163, 61, 0.12),
-        0 8px 18px rgba(0, 0, 0, 0.75),
-        0 0 22px rgba(212, 163, 61, 0.22);
-
-    text-shadow:
-        0 1px 0 #fff1b5,
-        0 3px 0 #8a641d,
-        0 5px 8px rgba(0, 0, 0, 0.85);
-
-    z-index: 5;
-
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
-}
-
-/* Inner 3D ring */
-
-.how-it-works__number::before {
-    content: "";
-
-    position: absolute;
-
-    inset: 7px;
-
-    border-radius: 50%;
-
-    border: 1px solid rgba(231, 186, 76, 0.55);
-
-    box-shadow:
-        inset 0 2px 5px rgba(255, 255, 255, 0.08),
-        inset 0 -5px 8px rgba(0, 0, 0, 0.8);
-
-    pointer-events: none;
-}
-
-/* Metallic highlight */
-
-.how-it-works__number::after {
-    content: "";
-
-    position: absolute;
-
-    top: 10px;
-    left: 18px;
-
-    width: 27px;
-    height: 10px;
-
-    border-radius: 50%;
-
-    background: rgba(255, 238, 180, 0.14);
-
-    filter: blur(2px);
-
-    transform: rotate(-25deg);
-
-    pointer-events: none;
-}
-
-.how-it-works__step:hover .how-it-works__number {
-    transform: translateX(-50%) translateY(-3px);
-
-    box-shadow:
-        0 0 0 5px #111111,
-        0 0 0 7px rgba(231, 186, 76, 1),
-        0 0 0 11px rgba(212, 163, 61, 0.17),
-        0 12px 22px rgba(0, 0, 0, 0.8),
-        0 0 30px rgba(212, 163, 61, 0.32);
-}
-
-/* ================================================================
-   TITLE
-================================================================ */
-
-.how-it-works__step h3 {
-    margin: 0 0 15px;
-
-    color: #ffffff;
-
-    font-size: 1.05rem;
-    font-weight: 800;
-
-    line-height: 1.25;
-
-    letter-spacing: 0.055em;
-
-    text-transform: uppercase;
-}
-
-/* ================================================================
-   GOLD DIVIDER
-================================================================ */
-
-.how-it-works__step h3::after {
-    content: "";
-
-    display: block;
-
-    width: 54px;
-    height: 1px;
-
-    margin: 16px auto 0;
-
-    background: linear-gradient(
-        90deg,
-        transparent,
-        #d4a33d,
-        transparent
-    );
-
-    box-shadow:
-        0 0 8px rgba(212, 163, 61, 0.3);
-}
-
-/* ================================================================
-   DESCRIPTION
-================================================================ */
-
-.how-it-works__step p {
-    max-width: 205px;
-
-    margin: 0;
-
-    color: rgba(255, 255, 255, 0.68);
-
-    font-size: 0.94rem;
-
-    line-height: 1.55;
-}
-
-/* ================================================================
-   ARROWS
-================================================================ */
-
-.how-it-works__arrow {
-    position: absolute;
-
-    top: 50%;
-    right: -18px;
-
-    transform: translateY(-50%);
-
-    z-index: 10;
-
-    color: #d4a33d;
-
-    font-size: 1.7rem;
-    font-weight: 300;
-
-    text-shadow:
-        0 0 10px rgba(212, 163, 61, 0.25);
-}
-
-/* ================================================================
-   TABLET
-================================================================ */
-
-@media (max-width: 1100px) {
-
-    .how-it-works {
-        padding: 95px 0 105px;
-    }
-
-    .how-it-works__container {
-        width: min(94%, 920px);
-    }
-
-    .how-it-works__steps {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 48px 22px;
-    }
-
-    .how-it-works__step {
-        min-height: 340px;
-        padding: 86px 22px 32px;
-    }
-
-    .how-it-works__arrow {
-        display: none;
-    }
-}
-
-/* ================================================================
-   MOBILE -- 2 × 2 + 1
-================================================================ */
-
-@media (max-width: 700px) {
-
-    .how-it-works {
-        padding: 78px 0 82px;
-    }
-
-    .how-it-works__container {
-        width: 100%;
-        padding: 0 22px;
-    }
-
-    .how-it-works__header {
-        margin-bottom: 72px;
-    }
-
-    .how-it-works__eyebrow {
-        font-size: 0.88rem;
-        letter-spacing: 0.22em;
-    }
-
-    .how-it-works__steps {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-
-        gap: 72px 22px;
-
-        width: 100%;
-    }
-
-    .how-it-works__step {
-        min-height: 325px;
-
-        padding: 82px 16px 30px;
-
-        border-radius: 0 0 22px 22px;
-    }
-
-    .how-it-works__number {
-        top: -36px;
-
-        width: 74px;
-        height: 74px;
-
-        font-size: 1.4rem;
-    }
-
-    .how-it-works__step h3 {
-        font-size: 0.94rem;
-
-        letter-spacing: 0.04em;
-    }
-
-    .how-it-works__step p {
-        max-width: 155px;
-
-        font-size: 0.87rem;
-
-        line-height: 1.5;
-    }
-
-    /*
-     * Fifth card centered
-     */
-
-    .how-it-works__item:last-child {
-        grid-column: 1 / -1;
-
-        width: calc(50% - 11px);
-
-        justify-self: center;
-    }
-}
-
-/* ================================================================
-   SMALL MOBILE
-================================================================ */
-
-@media (max-width: 420px) {
-
-    .how-it-works {
-        padding: 70px 0 76px;
-    }
-
-    .how-it-works__container {
-        padding: 0 16px;
-    }
-
-    .how-it-works__steps {
-        column-gap: 16px;
-        row-gap: 66px;
-    }
-
-    .how-it-works__step {
-        min-height: 300px;
-
-        padding: 78px 12px 26px;
-    }
-
-    .how-it-works__number {
-        width: 70px;
-        height: 70px;
-
-        top: -34px;
-
-        font-size: 1.3rem;
-    }
-
-    .how-it-works__step h3 {
-        font-size: 0.86rem;
-    }
-
-    .how-it-works__step p {
-        max-width: 135px;
-
-        font-size: 0.8rem;
-    }
-
-    .how-it-works__item:last-child {
-        width: calc(50% - 8px);
-    }
-}
-
-/* ================================================================
-   FINAL STRUCTURE FIX
-   5 DESKTOP / 2 + 2 + 1 MOBILE
-================================================================ */
-
-.how-it-works__steps {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 24px;
-    width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 22px;
+  width: 100%;
 }
 
 .how-it-works__item {
-    position: relative;
-    min-width: 0;
+  position: relative;
+  min-width: 0;
 }
 
-/* ================================================================
+/* ===============================================================
    CARD
-================================================================ */
+   =============================================================== */
 
 .how-it-works__card {
-    position: relative;
+  position: relative;
+  min-height: 365px;
+  padding: 92px 24px 34px;
 
-    height: 320px;
-    min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 
-    padding: 72px 24px 28px;
+  border: 1px solid rgba(212, 163, 61, 0.72);
+  border-radius: 0 0 26px 26px;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.005)
+    ),
+    #111111;
 
-    text-align: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 18px 38px rgba(0, 0, 0, 0.35);
 
-    border: 1px solid rgba(212, 163, 61, 0.72);
-
-    border-radius: 0 0 26px 26px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255, 255, 255, 0.025),
-            rgba(255, 255, 255, 0.005)
-        ),
-        #111111;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.025),
-        0 18px 38px rgba(0, 0, 0, 0.35);
-
-    transition:
-        transform 0.3s ease,
-        border-color 0.3s ease,
-        box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .how-it-works__card:hover {
-    transform: translateY(-6px);
+  transform: translateY(-6px);
+  border-color: rgba(231, 186, 76, 0.95);
 
-    border-color: rgba(231, 186, 76, 0.95);
-
-    box-shadow:
-        0 22px 45px rgba(0, 0, 0, 0.45),
-        0 0 28px rgba(212, 163, 61, 0.08);
+  box-shadow:
+    0 22px 45px rgba(0, 0, 0, 0.45),
+    0 0 28px rgba(212, 163, 61, 0.08);
 }
 
-/* ================================================================
-   NUMBER
-================================================================ */
+/* ===============================================================
+   3D NUMBER
+   =============================================================== */
 
-.how-it-works__card .how-it-works__number {
-    position: absolute;
+.how-it-works__number {
+  position: absolute;
+  top: -39px;
+  left: 50%;
 
-    top: -39px;
-    left: 50%;
+  width: 82px;
+  height: 82px;
 
-    width: 82px;
-    height: 82px;
+  transform: translateX(-50%);
 
-    transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  border-radius: 50%;
 
-    border-radius: 50%;
+  color: #e1ad42;
+  font-size: 1.55rem;
+  font-weight: 800;
 
-    color: #e1ad42;
+  background:
+    radial-gradient(
+      circle at 35% 28%,
+      #3c3425 0%,
+      #171717 42%,
+      #080808 78%
+    );
 
-    font-size: 1.55rem;
-    font-weight: 800;
+  border: 2px solid #d4a33d;
 
-    background:
-        radial-gradient(
-            circle at 35% 28%,
-            #3c3425 0%,
-            #171717 42%,
-            #080808 78%
-        );
+  box-shadow:
+    0 0 0 5px #111111,
+    0 0 0 7px rgba(212, 163, 61, 0.9),
+    0 0 0 10px rgba(212, 163, 61, 0.12),
+    0 8px 18px rgba(0, 0, 0, 0.75),
+    0 0 22px rgba(212, 163, 61, 0.22);
 
-    border: 2px solid #d4a33d;
+  text-shadow:
+    0 1px 0 #fff1b5,
+    0 3px 0 #8a641d,
+    0 5px 8px rgba(0, 0, 0, 0.85);
 
-    box-shadow:
-        0 0 0 5px #111111,
-        0 0 0 7px rgba(212, 163, 61, 0.9),
-        0 0 0 10px rgba(212, 163, 61, 0.12),
-        0 8px 18px rgba(0, 0, 0, 0.75),
-        0 0 22px rgba(212, 163, 61, 0.22);
-
-    text-shadow:
-        0 1px 0 #fff1b5,
-        0 3px 0 #8a641d,
-        0 5px 8px rgba(0, 0, 0, 0.85);
-
-    z-index: 10;
+  z-index: 5;
 }
 
-.how-it-works__card .how-it-works__number::before {
-    content: "";
+.how-it-works__number::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
 
-    position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(231, 186, 76, 0.55);
 
-    inset: 7px;
-
-    border-radius: 50%;
-
-    border: 1px solid rgba(231, 186, 76, 0.55);
-
-    box-shadow:
-        inset 0 2px 5px rgba(255, 255, 255, 0.08),
-        inset 0 -5px 8px rgba(0, 0, 0, 0.8);
+  box-shadow:
+    inset 0 2px 5px rgba(255, 255, 255, 0.08),
+    inset 0 -5px 8px rgba(0, 0, 0, 0.8);
 }
 
-.how-it-works__card .how-it-works__number::after {
-    content: "";
+.how-it-works__number::after {
+  content: "";
+  position: absolute;
 
-    position: absolute;
+  top: 10px;
+  left: 18px;
 
-    top: 10px;
-    left: 18px;
+  width: 27px;
+  height: 10px;
 
-    width: 27px;
-    height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 238, 180, 0.14);
 
-    border-radius: 50%;
-
-    background: rgba(255, 238, 180, 0.14);
-
-    filter: blur(2px);
-
-    transform: rotate(-25deg);
+  filter: blur(2px);
+  transform: rotate(-25deg);
 }
 
-/* ================================================================
-   VISUAL
-================================================================ */
+/* ===============================================================
+   VISUAL ICONS
+   =============================================================== */
 
-.how-it-works__card > * {
-    position: relative;
-    z-index: 2;
+.how-it-works__visual {
+  position: relative;
+
+  width: 170px;
+  height: 145px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
 }
 
-/* Number must remain above everything */
+.visual-platform {
+  position: absolute;
 
-.how-it-works__card .how-it-works__number {
-    z-index: 20;
+  bottom: 4px;
+  left: 50%;
+
+  width: 150px;
+  height: 22px;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      #d9a735 0%,
+      #8f671d 45%,
+      rgba(0, 0, 0, 0) 72%
+    );
+
+  filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.6));
 }
 
-/* ================================================================
+/* ===============================================================
+   MUG
+   =============================================================== */
+
+.visual-mug {
+  position: relative;
+  z-index: 2;
+
+  width: 82px;
+  height: 78px;
+}
+
+.visual-mug__body {
+  position: absolute;
+
+  left: 8px;
+  bottom: 8px;
+
+  width: 62px;
+  height: 70px;
+
+  border: 2px solid #d4a33d;
+  border-radius: 7px 7px 18px 18px;
+
+  background: linear-gradient(
+    145deg,
+    #ffffff,
+    #dddddd
+  );
+
+  box-shadow:
+    inset -7px 0 10px rgba(0, 0, 0, 0.12),
+    0 8px 14px rgba(0, 0, 0, 0.5);
+}
+
+.visual-mug__body span {
+  position: absolute;
+
+  top: 21px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  color: #d4a33d;
+  font-size: 2rem;
+
+  text-shadow:
+    0 2px 2px rgba(0, 0, 0, 0.25);
+}
+
+.visual-mug__handle {
+  position: absolute;
+
+  right: 0;
+  top: 25px;
+
+  width: 28px;
+  height: 34px;
+
+  border: 6px solid #d4a33d;
+  border-left: 0;
+
+  border-radius: 0 18px 18px 0;
+}
+
+/* ===============================================================
+   CLOUD / UPLOAD
+   =============================================================== */
+
+.visual-cloud {
+  position: relative;
+  z-index: 2;
+
+  width: 105px;
+  height: 65px;
+
+  border-radius: 40px;
+
+  background: #f2f2f2;
+
+  box-shadow:
+    0 10px 18px rgba(0, 0, 0, 0.45);
+}
+
+.visual-cloud::before,
+.visual-cloud::after {
+  content: "";
+  position: absolute;
+
+  background: #f2f2f2;
+  border-radius: 50%;
+}
+
+.visual-cloud::before {
+  width: 55px;
+  height: 55px;
+  left: 15px;
+  top: -24px;
+}
+
+.visual-cloud::after {
+  width: 48px;
+  height: 48px;
+  right: 12px;
+  top: -17px;
+}
+
+.visual-cloud span {
+  position: absolute;
+
+  z-index: 3;
+
+  left: 50%;
+  top: 5px;
+
+  transform: translateX(-50%);
+
+  color: #d4a33d;
+
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+/* ===============================================================
+   CUSTOMIZE
+   =============================================================== */
+
+.visual-design {
+  position: relative;
+  z-index: 2;
+
+  width: 110px;
+  height: 92px;
+
+  border: 2px solid #d4a33d;
+
+  background:
+    linear-gradient(
+      145deg,
+      #242424,
+      #0d0d0d
+    );
+
+  box-shadow:
+    0 10px 18px rgba(0, 0, 0, 0.55);
+}
+
+.visual-design::after {
+  content: "";
+
+  position: absolute;
+  inset: 10px;
+
+  border: 1px dashed rgba(212, 163, 61, 0.7);
+}
+
+.visual-design strong {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  z-index: 2;
+
+  color: #ffffff;
+
+  font-family: Georgia, serif;
+  font-size: 3.4rem;
+}
+
+.visual-design__corner {
+  position: absolute;
+  left: 8px;
+  top: 7px;
+
+  z-index: 3;
+
+  color: #d4a33d;
+}
+
+.visual-design__pen {
+  position: absolute;
+
+  right: 7px;
+  bottom: 4px;
+
+  z-index: 3;
+
+  color: #d4a33d;
+
+  font-size: 1.4rem;
+}
+
+/* ===============================================================
+   PRINTER
+   =============================================================== */
+
+.visual-printer {
+  position: relative;
+  z-index: 2;
+
+  width: 115px;
+  height: 95px;
+}
+
+.visual-printer__top {
+  position: absolute;
+
+  top: 0;
+  left: 15px;
+
+  width: 85px;
+  height: 32px;
+
+  border: 2px solid #d4a33d;
+  border-radius: 10px 10px 0 0;
+
+  background: #151515;
+}
+
+.visual-printer__body {
+  position: absolute;
+
+  bottom: 0;
+  left: 0;
+
+  width: 115px;
+  height: 70px;
+
+  border: 2px solid #d4a33d;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #242424,
+      #0c0c0c
+    );
+
+  box-shadow:
+    0 10px 18px rgba(0, 0, 0, 0.55);
+}
+
+.visual-printer__slot {
+  position: absolute;
+
+  top: 15px;
+  left: 22px;
+
+  width: 68px;
+  height: 7px;
+
+  border: 1px solid #d4a33d;
+  border-radius: 10px;
+}
+
+.visual-printer__mug {
+  position: absolute;
+
+  bottom: 8px;
+  left: 42px;
+
+  width: 30px;
+  height: 38px;
+
+  border-radius: 5px 5px 10px 10px;
+
+  background: #f4f4f4;
+
+  box-shadow:
+    inset -5px 0 7px rgba(0, 0, 0, 0.12);
+}
+
+/* ===============================================================
+   TRUCK
+   =============================================================== */
+
+.visual-truck {
+  position: relative;
+  z-index: 2;
+
+  width: 145px;
+  height: 78px;
+}
+
+.visual-truck__cargo {
+  position: absolute;
+
+  left: 0;
+  bottom: 12px;
+
+  width: 90px;
+  height: 58px;
+
+  border: 2px solid #d4a33d;
+  border-radius: 5px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #252525,
+      #0e0e0e
+    );
+}
+
+.visual-truck__cargo span {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  color: #d4a33d;
+  font-size: 1.5rem;
+}
+
+.visual-truck__cab {
+  position: absolute;
+
+  right: 0;
+  bottom: 12px;
+
+  width: 52px;
+  height: 45px;
+
+  border: 2px solid #d4a33d;
+  border-radius: 5px 12px 5px 5px;
+
+  background: #171717;
+}
+
+.visual-truck__cab span {
+  position: absolute;
+
+  top: 8px;
+  left: 9px;
+
+  width: 28px;
+  height: 16px;
+
+  border-radius: 3px;
+
+  background: #dddddd;
+}
+
+.visual-truck__wheel {
+  position: absolute;
+
+  bottom: 0;
+
+  width: 22px;
+  height: 22px;
+
+  border-radius: 50%;
+
+  background: #111111;
+  border: 3px solid #d4a33d;
+}
+
+.visual-truck__wheel--one {
+  left: 22px;
+}
+
+.visual-truck__wheel--two {
+  right: 14px;
+}
+
+/* ===============================================================
    CONTENT
-================================================================ */
+   =============================================================== */
 
 .how-it-works__content {
-    width: 100%;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    text-align: center;
+  width: 100%;
 }
 
 .how-it-works__content h3 {
-    margin: 14px 0 0;
+  margin: 0 0 15px;
 
-    color: #ffffff;
+  color: #ffffff;
 
-    font-size: 1rem;
-    font-weight: 800;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.25;
 
-    line-height: 1.3;
-
-    letter-spacing: 0.05em;
-
-    text-transform: uppercase;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
 }
 
 .how-it-works__divider {
-    width: 54px;
-
-    margin: 13px 0 13px;
-
-    display: flex;
-    justify-content: center;
-}
-
-.how-it-works__divider span {
-    display: block;
-
-    width: 54px;
-    height: 1px;
-
-    background: linear-gradient(
-        90deg,
-        transparent,
-        #d4a33d,
-        transparent
-    );
-
-    box-shadow:
-        0 0 8px rgba(212, 163, 61, 0.3);
+  display: none;
 }
 
 .how-it-works__content p {
-    max-width: 205px;
+  max-width: 205px;
 
-    margin: 0;
+  margin: 0 auto;
 
-    color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.68);
 
-    font-size: 0.9rem;
-
-    line-height: 1.5;
+  font-size: 0.94rem;
+  line-height: 1.55;
 }
 
-/* ================================================================
+/* ===============================================================
    CONNECTORS
-================================================================ */
+   =============================================================== */
 
 .how-it-works__connector {
-    position: absolute;
+  position: absolute;
 
-    top: 50%;
-    right: -19px;
+  top: 50%;
+  right: -17px;
 
-    transform: translateY(-50%);
+  transform: translateY(-50%);
 
-    z-index: 30;
+  z-index: 10;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  color: #d4a33d;
+  font-size: 2rem;
+  font-weight: 300;
 
-    color: #d4a33d;
-
-    font-size: 2rem;
-
-    font-weight: 300;
-
-    text-shadow:
-        0 0 10px rgba(212, 163, 61, 0.25);
+  text-shadow:
+    0 0 10px rgba(212, 163, 61, 0.25);
 }
 
-.how-it-works__connector span {
-    display: block;
-}
-
-/* ================================================================
+/* ===============================================================
    TABLET
-================================================================ */
+   =============================================================== */
 
 @media (max-width: 1100px) {
+  .how-it-works {
+    padding: 95px 0 105px;
+  }
 
-    .how-it-works__steps {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 70px 22px;
-    }
+  .how-it-works__container {
+    width: min(94%, 920px);
+  }
 
-    .how-it-works__connector {
-        display: none;
-    }
+  .how-it-works__steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 48px 22px;
+  }
 
-    .how-it-works__card {
-        height: 310px;
-        min-height: 310px;
+  .how-it-works__connector {
+    display: none;
+  }
 
-        padding: 70px 20px 28px;
-    }
+  .how-it-works__card {
+    min-height: 340px;
+    padding: 86px 22px 32px;
+  }
 }
 
-/* ================================================================
-   MOBILE
-   2 + 2 + 1
-================================================================ */
+/* ===============================================================
+   MOBILE -- 2 + 2 + 1
+   =============================================================== */
 
 @media (max-width: 700px) {
+  .how-it-works {
+    padding: 78px 0 82px;
+  }
 
-    .how-it-works__steps {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+  .how-it-works__container {
+    width: 100%;
+    padding: 0 22px;
+  }
 
-        gap: 72px 22px;
+  .how-it-works__header {
+    margin-bottom: 72px;
+  }
 
-        width: 100%;
-    }
+  .how-it-works__eyebrow {
+    font-size: 0.88rem;
+    letter-spacing: 0.22em;
+  }
 
-    .how-it-works__connector {
-        display: none;
-    }
+  .how-it-works__header h2 {
+    font-size: 1.9rem;
+  }
 
-    .how-it-works__card {
-        height: 285px;
-        min-height: 285px;
+  .how-it-works__header p {
+    font-size: 1rem;
+  }
 
-        padding: 68px 16px 26px;
+  .how-it-works__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 72px 22px;
+  }
 
-        border-radius: 0 0 22px 22px;
-    }
+  .how-it-works__card {
+    min-height: 325px;
+    padding: 82px 16px 30px;
+    border-radius: 0 0 22px 22px;
+  }
 
-    .how-it-works__card .how-it-works__number {
-        top: -36px;
+  .how-it-works__number {
+    top: -36px;
+    width: 74px;
+    height: 74px;
+    font-size: 1.4rem;
+  }
 
-        width: 74px;
-        height: 74px;
+  .how-it-works__visual {
+    width: 140px;
+    height: 125px;
+    margin-bottom: 14px;
+    transform: scale(0.9);
+  }
 
-        font-size: 1.4rem;
-    }
+  .how-it-works__content h3 {
+    font-size: 0.94rem;
+    letter-spacing: 0.04em;
+  }
 
-    .how-it-works__content h3 {
-        font-size: 0.92rem;
-    }
+  .how-it-works__content p {
+    max-width: 155px;
+    font-size: 0.87rem;
+    line-height: 1.5;
+  }
 
-    .how-it-works__content p {
-        max-width: 155px;
-
-        font-size: 0.84rem;
-    }
-
-    /* Fifth card centered */
-
-    .how-it-works__item--last {
-        grid-column: 1 / -1;
-
-        width: calc(50% - 11px);
-
-        justify-self: center;
-    }
+  /* Fifth card centered */
+  .how-it-works__item:last-child {
+    grid-column: 1 / -1;
+    width: calc(50% - 11px);
+    justify-self: center;
+  }
 }
 
-/* ================================================================
+/* ===============================================================
    SMALL MOBILE
-================================================================ */
+   =============================================================== */
 
 @media (max-width: 420px) {
+  .how-it-works {
+    padding: 70px 0 76px;
+  }
 
-    .how-it-works__steps {
-        column-gap: 16px;
-        row-gap: 66px;
-    }
+  .how-it-works__container {
+    padding: 0 16px;
+  }
 
-    .how-it-works__card {
-        height: 275px;
-        min-height: 275px;
+  .how-it-works__steps {
+    column-gap: 16px;
+    row-gap: 66px;
+  }
 
-        padding: 64px 12px 24px;
-    }
+  .how-it-works__card {
+    min-height: 300px;
+    padding: 78px 12px 26px;
+  }
 
-    .how-it-works__card .how-it-works__number {
-        width: 70px;
-        height: 70px;
+  .how-it-works__number {
+    width: 70px;
+    height: 70px;
+    top: -34px;
+    font-size: 1.3rem;
+  }
 
-        top: -34px;
+  .how-it-works__visual {
+    transform: scale(0.78);
+    margin-top: -8px;
+    margin-bottom: 2px;
+  }
 
-        font-size: 1.3rem;
-    }
+  .how-it-works__content h3 {
+    font-size: 0.86rem;
+  }
 
-    .how-it-works__content h3 {
-        font-size: 0.86rem;
-    }
+  .how-it-works__content p {
+    max-width: 135px;
+    font-size: 0.8rem;
+  }
 
-    .how-it-works__content p {
-        max-width: 135px;
-
-        font-size: 0.8rem;
-    }
-
-    .how-it-works__item--last {
-        width: calc(50% - 8px);
-    }
+  .how-it-works__item:last-child {
+    width: calc(50% - 8px);
+  }
 }
