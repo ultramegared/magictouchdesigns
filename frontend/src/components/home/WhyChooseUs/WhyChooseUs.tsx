@@ -25,7 +25,7 @@ function WhyChooseUs() {
 
     const { language } = useLanguage();
 
-    const t = translations[language].whyChooseUs;
+    const t = translations[language].home.whyChooseUs;
 
     const benefits = [
         {
