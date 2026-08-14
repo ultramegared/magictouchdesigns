@@ -13,8 +13,11 @@
 import "./Benefits.css";
 
 import { benefits } from "./Benefits.data";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 function Benefits() {
+
+    const { language } = useLanguage();
 
     return (
 
@@ -54,13 +57,13 @@ function Benefits() {
 
                                         <h3>
 
-                                            {benefit.title}
+                                            {benefit.title[language]}
 
                                         </h3>
 
                                         <p>
 
-                                            {benefit.description}
+                                            {benefit.description[language]}
 
                                         </p>
 
