@@ -276,7 +276,13 @@ const t = translations[language];
                             onClick={() => setMenuOpen(false)}
                         >
 
-                            {item.label}
+                            {item.label === "Shop"
+    ? t.navigation.shop
+    : item.label === "Company"
+        ? t.navigation.company
+        : item.label === "Support"
+            ? t.navigation.support
+            : item.label}
 
                         </NavLink>
 
