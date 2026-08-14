@@ -32,6 +32,8 @@ import {
     useLanguage,
 } from "../../../contexts/LanguageContext";
 
+import { translations } from "../../../translations";
+
 function Header() {
 
     const [menuOpen, setMenuOpen] = useState(false);
@@ -44,6 +46,7 @@ const [searchQuery, setSearchQuery] = useState("");
     language,
     setLanguage,
 } = useLanguage();
+const t = translations[language];
     
 
     useEffect(() => {
@@ -130,7 +133,13 @@ const [searchQuery, setSearchQuery] = useState("");
                                 }
                             >
 
-                                {item.label}
+                                {item.label === "Shop"
+    ? t.navigation.shop
+    : item.label === "Company"
+        ? t.navigation.company
+        : item.label === "Support"
+            ? t.navigation.support
+            : item.label}
 
                             </NavLink>
 
