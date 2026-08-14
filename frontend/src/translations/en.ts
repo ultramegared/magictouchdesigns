@@ -19,9 +19,14 @@ export const en = {
     },
 
     navigation: {
-        shop: "Shop",
-        company: "Company",
-        support: "Support",
+    home: "Home",
+    products: "Products",
+    collections: "Collections",
+    customize: "Customize",
+    contact: "Contact",
+    shop: "Shop",
+    company: "Company",
+    support: "Support",
     },
 
     footer: {
