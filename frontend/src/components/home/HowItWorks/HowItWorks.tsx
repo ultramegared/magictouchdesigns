@@ -6,7 +6,7 @@
  * Module: Home
  * Language: TypeScript React
  * Description:
- * How It Works section.
+ * Premium How It Works section.
  * ================================================================
  */
 
@@ -44,6 +44,18 @@ function HowItWorks() {
                         {t.eyebrow}
                     </span>
 
+                    <h2 className="how-it-works__title">
+                        {language === "es"
+                            ? "Crear tu taza perfecta es fácil"
+                            : "Creating your perfect mug is easy"}
+                    </h2>
+
+                    <p className="how-it-works__subtitle">
+                        {language === "es"
+                            ? "De tu idea a tu puerta en 5 simples pasos"
+                            : "From your idea to your door in 5 simple steps"}
+                    </p>
+
                 </div>
 
                 <div className="how-it-works__steps">
@@ -55,27 +67,53 @@ function HowItWorks() {
                             key={step.id}
                         >
 
-                            <div className="how-it-works__step">
+                            <article className="how-it-works__card">
 
                                 <div className="how-it-works__number">
-                                    {step.id}
+
+                                    <span>
+                                        {String(step.id).padStart(2, "0")}
+                                    </span>
+
                                 </div>
 
-                                <h3>
-                                    {translatedSteps[index].title}
-                                </h3>
+                                <div className="how-it-works__icon">
 
-                                <p>
-                                    {translatedSteps[index].description}
-                                </p>
+                                    <div className="how-it-works__icon-ring">
 
-                            </div>
+                                        <span>
+                                            {index === 0 && "✦"}
+                                            {index === 1 && "↑"}
+                                            {index === 2 && "✧"}
+                                            {index === 3 && "◈"}
+                                            {index === 4 && "➜"}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <div className="how-it-works__content">
+
+                                    <h3>
+                                        {translatedSteps[index].title}
+                                    </h3>
+
+                                    <p>
+                                        {translatedSteps[index].description}
+                                    </p>
+
+                                </div>
+
+                            </article>
 
                             {index < howItWorksSteps.length - 1 && (
 
-                                <span className="how-it-works__arrow">
-                                    →
-                                </span>
+                                <div className="how-it-works__connector">
+
+                                    <span />
+
+                                </div>
 
                             )}
 
