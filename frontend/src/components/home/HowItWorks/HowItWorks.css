@@ -477,3 +477,394 @@
         width: calc(50% - 8px);
     }
 }
+
+/* ================================================================
+   FINAL STRUCTURE FIX
+   5 DESKTOP / 2 + 2 + 1 MOBILE
+================================================================ */
+
+.how-it-works__steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 24px;
+    width: 100%;
+}
+
+.how-it-works__item {
+    position: relative;
+    min-width: 0;
+}
+
+/* ================================================================
+   CARD
+================================================================ */
+
+.how-it-works__card {
+    position: relative;
+
+    height: 320px;
+    min-height: 320px;
+
+    padding: 72px 24px 28px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+
+    border: 1px solid rgba(212, 163, 61, 0.72);
+
+    border-radius: 0 0 26px 26px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.025),
+            rgba(255, 255, 255, 0.005)
+        ),
+        #111111;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025),
+        0 18px 38px rgba(0, 0, 0, 0.35);
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.how-it-works__card:hover {
+    transform: translateY(-6px);
+
+    border-color: rgba(231, 186, 76, 0.95);
+
+    box-shadow:
+        0 22px 45px rgba(0, 0, 0, 0.45),
+        0 0 28px rgba(212, 163, 61, 0.08);
+}
+
+/* ================================================================
+   NUMBER
+================================================================ */
+
+.how-it-works__card .how-it-works__number {
+    position: absolute;
+
+    top: -39px;
+    left: 50%;
+
+    width: 82px;
+    height: 82px;
+
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    color: #e1ad42;
+
+    font-size: 1.55rem;
+    font-weight: 800;
+
+    background:
+        radial-gradient(
+            circle at 35% 28%,
+            #3c3425 0%,
+            #171717 42%,
+            #080808 78%
+        );
+
+    border: 2px solid #d4a33d;
+
+    box-shadow:
+        0 0 0 5px #111111,
+        0 0 0 7px rgba(212, 163, 61, 0.9),
+        0 0 0 10px rgba(212, 163, 61, 0.12),
+        0 8px 18px rgba(0, 0, 0, 0.75),
+        0 0 22px rgba(212, 163, 61, 0.22);
+
+    text-shadow:
+        0 1px 0 #fff1b5,
+        0 3px 0 #8a641d,
+        0 5px 8px rgba(0, 0, 0, 0.85);
+
+    z-index: 10;
+}
+
+.how-it-works__card .how-it-works__number::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 7px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(231, 186, 76, 0.55);
+
+    box-shadow:
+        inset 0 2px 5px rgba(255, 255, 255, 0.08),
+        inset 0 -5px 8px rgba(0, 0, 0, 0.8);
+}
+
+.how-it-works__card .how-it-works__number::after {
+    content: "";
+
+    position: absolute;
+
+    top: 10px;
+    left: 18px;
+
+    width: 27px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 238, 180, 0.14);
+
+    filter: blur(2px);
+
+    transform: rotate(-25deg);
+}
+
+/* ================================================================
+   VISUAL
+================================================================ */
+
+.how-it-works__card > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Number must remain above everything */
+
+.how-it-works__card .how-it-works__number {
+    z-index: 20;
+}
+
+/* ================================================================
+   CONTENT
+================================================================ */
+
+.how-it-works__content {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+}
+
+.how-it-works__content h3 {
+    margin: 14px 0 0;
+
+    color: #ffffff;
+
+    font-size: 1rem;
+    font-weight: 800;
+
+    line-height: 1.3;
+
+    letter-spacing: 0.05em;
+
+    text-transform: uppercase;
+}
+
+.how-it-works__divider {
+    width: 54px;
+
+    margin: 13px 0 13px;
+
+    display: flex;
+    justify-content: center;
+}
+
+.how-it-works__divider span {
+    display: block;
+
+    width: 54px;
+    height: 1px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #d4a33d,
+        transparent
+    );
+
+    box-shadow:
+        0 0 8px rgba(212, 163, 61, 0.3);
+}
+
+.how-it-works__content p {
+    max-width: 205px;
+
+    margin: 0;
+
+    color: rgba(255, 255, 255, 0.68);
+
+    font-size: 0.9rem;
+
+    line-height: 1.5;
+}
+
+/* ================================================================
+   CONNECTORS
+================================================================ */
+
+.how-it-works__connector {
+    position: absolute;
+
+    top: 50%;
+    right: -19px;
+
+    transform: translateY(-50%);
+
+    z-index: 30;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #d4a33d;
+
+    font-size: 2rem;
+
+    font-weight: 300;
+
+    text-shadow:
+        0 0 10px rgba(212, 163, 61, 0.25);
+}
+
+.how-it-works__connector span {
+    display: block;
+}
+
+/* ================================================================
+   TABLET
+================================================================ */
+
+@media (max-width: 1100px) {
+
+    .how-it-works__steps {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 70px 22px;
+    }
+
+    .how-it-works__connector {
+        display: none;
+    }
+
+    .how-it-works__card {
+        height: 310px;
+        min-height: 310px;
+
+        padding: 70px 20px 28px;
+    }
+}
+
+/* ================================================================
+   MOBILE
+   2 + 2 + 1
+================================================================ */
+
+@media (max-width: 700px) {
+
+    .how-it-works__steps {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        gap: 72px 22px;
+
+        width: 100%;
+    }
+
+    .how-it-works__connector {
+        display: none;
+    }
+
+    .how-it-works__card {
+        height: 285px;
+        min-height: 285px;
+
+        padding: 68px 16px 26px;
+
+        border-radius: 0 0 22px 22px;
+    }
+
+    .how-it-works__card .how-it-works__number {
+        top: -36px;
+
+        width: 74px;
+        height: 74px;
+
+        font-size: 1.4rem;
+    }
+
+    .how-it-works__content h3 {
+        font-size: 0.92rem;
+    }
+
+    .how-it-works__content p {
+        max-width: 155px;
+
+        font-size: 0.84rem;
+    }
+
+    /* Fifth card centered */
+
+    .how-it-works__item--last {
+        grid-column: 1 / -1;
+
+        width: calc(50% - 11px);
+
+        justify-self: center;
+    }
+}
+
+/* ================================================================
+   SMALL MOBILE
+================================================================ */
+
+@media (max-width: 420px) {
+
+    .how-it-works__steps {
+        column-gap: 16px;
+        row-gap: 66px;
+    }
+
+    .how-it-works__card {
+        height: 275px;
+        min-height: 275px;
+
+        padding: 64px 12px 24px;
+    }
+
+    .how-it-works__card .how-it-works__number {
+        width: 70px;
+        height: 70px;
+
+        top: -34px;
+
+        font-size: 1.3rem;
+    }
+
+    .how-it-works__content h3 {
+        font-size: 0.86rem;
+    }
+
+    .how-it-works__content p {
+        max-width: 135px;
+
+        font-size: 0.8rem;
+    }
+
+    .how-it-works__item--last {
+        width: calc(50% - 8px);
+    }
+}
