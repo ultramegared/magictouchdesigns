@@ -1,384 +1,1027 @@
 /**
- * ===============================================================
+ * ================================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: HowItWorks.css
  * Module: Home
  * Description:
- * Premium How It Works Section Styles.
- * ===============================================================
+ * Premium How It Works section.
+ * ================================================================
  */
 
 .how-it-works {
+    position: relative;
+    width: 100%;
+    padding: 110px 32px 125px;
     background:
         radial-gradient(
-            circle at 50% 35%,
-            rgba(200, 155, 60, 0.06),
-            transparent 42%
+            circle at 50% 42%,
+            rgba(191, 143, 43, 0.10),
+            transparent 38%
         ),
-        #0F0F10;
-
-    padding: 75px 0 85px;
+        linear-gradient(
+            180deg,
+            #0b0b0b 0%,
+            #101010 50%,
+            #0b0b0b 100%
+        );
     overflow: hidden;
 }
 
-.how-it-works__container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 50px;
+.how-it-works::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(201, 151, 48, 0.035),
+            transparent
+        );
 }
 
-/* ===============================================================
-   HEADER
-   =============================================================== */
+.how-it-works__container {
+    position: relative;
+    z-index: 2;
+    width: min(1500px, 100%);
+    margin: 0 auto;
+}
 
 .how-it-works__header {
     text-align: center;
-    margin-bottom: 58px;
+    margin-bottom: 72px;
 }
 
 .how-it-works__eyebrow {
-    color: #C89B3C;
-    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+
+    margin-bottom: 22px;
+
+    color: #d5a63a;
+
+    font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0.28em;
     text-transform: uppercase;
 }
 
-/* ===============================================================
+.how-it-works__eyebrow span {
+    width: 55px;
+    height: 1px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #c99a32
+    );
+}
+
+.how-it-works__eyebrow span:last-child {
+    background: linear-gradient(
+        90deg,
+        #c99a32,
+        transparent
+    );
+}
+
+.how-it-works__header h2 {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(2.5rem, 4.2vw, 4.4rem);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+}
+
+.how-it-works__header h2 em {
+    color: #d2a13a;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 8px;
+}
+
+.how-it-works__header p {
+    margin: 20px 0 0;
+
+    color: #c6c6c6;
+
+    font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+    line-height: 1.5;
+}
+
+.how-it-works__header p strong {
+    color: #d2a13a;
+}
+
+/* ================================================================
    STEPS
-   =============================================================== */
+   ================================================================ */
 
 .how-it-works__steps {
-    display: flex;
-    align-items: stretch;
-    width: 100%;
+    position: relative;
+
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+
+    gap: 24px;
+
+    padding-top: 12px;
+}
+
+.how-it-works__steps::before {
+    content: "";
+
+    position: absolute;
+
+    top: 72px;
+    left: 9%;
+    right: 9%;
+
+    height: 1px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(211, 163, 57, 0.85),
+        rgba(255, 215, 120, 0.95),
+        rgba(211, 163, 57, 0.85),
+        transparent
+    );
+
+    box-shadow:
+        0 0 10px rgba(210, 161, 58, 0.35);
 }
 
 .how-it-works__item {
-    flex: 1;
+    position: relative;
     min-width: 0;
-
-    display: flex;
-    align-items: center;
 }
 
-.how-it-works__step {
-    flex: 1;
-    text-align: center;
-    padding: 14px 20px;
-}
-
-/* ===============================================================
-   NUMBER
-   =============================================================== */
-
-.how-it-works__number {
+.how-it-works__card {
     position: relative;
 
-    width: 64px;
-    height: 64px;
+    min-height: 505px;
 
-    margin: 0 auto 22px;
+    padding: 58px 25px 32px;
+
+    border: 1px solid rgba(211, 163, 57, 0.65);
+    border-radius: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(37, 37, 37, 0.96),
+            rgba(13, 13, 13, 0.98)
+        );
+
+    box-shadow:
+        0 22px 55px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        inset 0 0 30px rgba(207, 157, 48, 0.025);
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.how-it-works__card:hover {
+    transform: translateY(-8px);
+
+    border-color: rgba(229, 184, 76, 0.95);
+
+    box-shadow:
+        0 30px 65px rgba(0, 0, 0, 0.7),
+        0 0 35px rgba(207, 157, 48, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ================================================================
+   NUMBER
+   ================================================================ */
+
+.how-it-works__number {
+    position: absolute;
+
+    top: -28px;
+    left: 50%;
+
+    transform: translateX(-50%);
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border: 1px solid #C89B3C;
+    width: 66px;
+    height: 66px;
+
+    border: 2px solid #d2a13a;
     border-radius: 50%;
 
     background:
         radial-gradient(
             circle at 35% 30%,
-            rgba(255, 255, 255, 0.08),
-            rgba(200, 155, 60, 0.03) 45%,
-            rgba(0, 0, 0, 0.35)
+            #303030,
+            #090909 68%
         );
 
-    color: #C89B3C;
+    color: #e1b34b;
 
     font-size: 1.35rem;
-    font-weight: 700;
+    font-weight: 800;
 
     box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.35),
-        inset 0 0 14px rgba(200, 155, 60, 0.08);
+        0 0 0 5px rgba(210, 161, 58, 0.08),
+        0 8px 20px rgba(0, 0, 0, 0.65),
+        0 0 18px rgba(210, 161, 58, 0.18);
 
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease,
-        background 0.3s ease;
+    z-index: 5;
 }
 
-.how-it-works__number::after {
-    content: "";
-    position: absolute;
+/* ================================================================
+   VISUAL AREA
+   ================================================================ */
 
-    inset: 5px;
+.how-it-works__visual {
+    position: relative;
 
-    border: 1px solid rgba(200, 155, 60, 0.18);
-    border-radius: 50%;
-
-    pointer-events: none;
-}
-
-.how-it-works__item:hover .how-it-works__number {
-    transform: translateY(-4px) scale(1.04);
-
-    box-shadow:
-        0 12px 30px rgba(0, 0, 0, 0.45),
-        0 0 22px rgba(200, 155, 60, 0.16),
-        inset 0 0 18px rgba(200, 155, 60, 0.08);
-}
-
-/* ===============================================================
-   TEXT
-   =============================================================== */
-
-.how-it-works__step h3 {
-    margin: 0 0 12px;
-
-    color: #FFFFFF;
-
-    font-size: 1rem;
-    font-weight: 700;
-
-    letter-spacing: 0.06em;
-    line-height: 1.35;
-
-    text-transform: uppercase;
-}
-
-.how-it-works__step p {
-    max-width: 190px;
-    margin: 0 auto;
-
-    color: #B8B8B8;
-
-    font-size: 0.88rem;
-    line-height: 1.6;
-}
-
-/* ===============================================================
-   ARROW
-   =============================================================== */
-
-.how-it-works__arrow {
-    flex-shrink: 0;
+    height: 220px;
 
     display: flex;
     align-items: center;
+    justify-content: center;
 
-    color: #C89B3C;
+    margin-bottom: 24px;
 
-    font-size: 1.7rem;
-    font-weight: 400;
-    line-height: 1;
+    border-radius: 18px;
 
-    opacity: 0.9;
+    background:
+        radial-gradient(
+            circle,
+            rgba(207, 157, 48, 0.10),
+            transparent 63%
+        );
+}
+
+.visual-platform {
+    position: absolute;
+
+    bottom: 19px;
+    left: 50%;
+
+    width: 155px;
+    height: 28px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e5bd61,
+            #8d6319 45%,
+            #d9a938
+        );
+
+    box-shadow:
+        0 8px 15px rgba(0, 0, 0, 0.65),
+        0 0 20px rgba(212, 162, 54, 0.22);
+}
+
+/* ================================================================
+   MUG
+   ================================================================ */
+
+.visual-mug {
+    position: relative;
+
+    z-index: 2;
+
+    width: 100px;
+    height: 115px;
+
+    transform: translateY(-6px);
+
+    filter:
+        drop-shadow(0 12px 9px rgba(0, 0, 0, 0.65));
+}
+
+.visual-mug__body {
+    position: absolute;
+
+    left: 7px;
+    top: 0;
+
+    width: 78px;
+    height: 102px;
+
+    border-radius: 8px 8px 18px 18px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #d9d9d9,
+            #ffffff 30%,
+            #f5f5f5 75%,
+            #bcbcbc
+        );
+
+    box-shadow:
+        inset -7px 0 10px rgba(0, 0, 0, 0.14),
+        inset 5px 0 8px rgba(255, 255, 255, 0.75);
+}
+
+.visual-mug__body span {
+    position: absolute;
+
+    top: 32px;
+    left: 25px;
+
+    color: #d2a13a;
+
+    font-size: 2rem;
+
+    filter:
+        drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+}
+
+.visual-mug__handle {
+    position: absolute;
+
+    right: -7px;
+    top: 26px;
+
+    width: 38px;
+    height: 50px;
+
+    border: 8px solid #d5a33b;
+    border-left: 0;
+
+    border-radius: 0 28px 28px 0;
+}
+
+/* ================================================================
+   CLOUD
+   ================================================================ */
+
+.visual-cloud {
+    position: relative;
+
+    z-index: 2;
+
+    width: 135px;
+    height: 92px;
+
+    border-radius: 55px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #cfcfcf
+        );
+
+    box-shadow:
+        0 14px 20px rgba(0, 0, 0, 0.45);
+}
+
+.visual-cloud::before,
+.visual-cloud::after {
+    content: "";
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+}
+
+.visual-cloud::before {
+    width: 67px;
+    height: 67px;
+
+    left: 17px;
+    top: -28px;
+}
+
+.visual-cloud::after {
+    width: 74px;
+    height: 74px;
+
+    right: 12px;
+    top: -34px;
+}
+
+.visual-cloud span {
+    position: absolute;
+
+    z-index: 3;
+
+    left: 50%;
+    top: 15px;
+
+    transform: translateX(-50%);
+
+    color: #c9962f;
+
+    font-size: 3.8rem;
+    font-weight: 800;
+}
+
+/* ================================================================
+   DESIGN
+   ================================================================ */
+
+.visual-design {
+    position: relative;
+
+    z-index: 2;
+
+    width: 130px;
+    height: 130px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 3px solid #d2a13a;
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #292929,
+            #0c0c0c
+        );
+
+    box-shadow:
+        0 15px 25px rgba(0, 0, 0, 0.55);
+}
+
+.visual-design::before {
+    content: "";
+
+    position: absolute;
+    inset: 9px;
+
+    border: 1px dashed rgba(218, 171, 72, 0.8);
+}
+
+.visual-design strong {
+    position: relative;
+    z-index: 2;
+
+    color: #eeeeee;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 4.2rem;
+}
+
+.visual-design__corner {
+    position: absolute;
+
+    top: 9px;
+    left: 12px;
+
+    color: #d5a33d;
+}
+
+.visual-design__pen {
+    position: absolute;
+
+    right: 8px;
+    bottom: 4px;
+
+    color: #d5a33d;
+
+    font-size: 2.2rem;
+
+    transform: rotate(-35deg);
+}
+
+/* ================================================================
+   PRINTER
+   ================================================================ */
+
+.visual-printer {
+    position: relative;
+
+    z-index: 2;
+
+    width: 140px;
+    height: 145px;
+}
+
+.visual-printer__top {
+    position: absolute;
+
+    top: 0;
+    left: 12px;
+
+    width: 116px;
+    height: 30px;
+
+    border-radius: 10px 10px 4px 4px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #333,
+            #0a0a0a
+        );
+
+    border: 2px solid #d1a039;
+}
+
+.visual-printer__body {
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 140px;
+    height: 118px;
+
+    border: 2px solid #b98524;
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #2b2b2b,
+            #090909
+        );
+
+    box-shadow:
+        0 15px 20px rgba(0, 0, 0, 0.65);
+}
+
+.visual-printer__slot {
+    position: absolute;
+
+    top: 25px;
+    left: 24px;
+
+    width: 88px;
+    height: 8px;
+
+    border-radius: 4px;
+
+    background: #050505;
+
+    box-shadow:
+        0 0 0 1px #d2a13a;
+}
+
+.visual-printer__mug {
+    position: absolute;
+
+    left: 50%;
+    bottom: 10px;
+
+    width: 45px;
+    height: 55px;
+
+    transform: translateX(-50%);
+
+    border-radius: 5px 5px 10px 10px;
+
+    background: #eeeeee;
+
+    box-shadow:
+        inset -5px 0 5px rgba(0, 0, 0, 0.18);
+}
+
+/* ================================================================
+   TRUCK
+   ================================================================ */
+
+.visual-truck {
+    position: relative;
+
+    z-index: 2;
+
+    width: 160px;
+    height: 105px;
+
+    transform: translateY(-3px);
+}
+
+.visual-truck__cargo {
+    position: absolute;
+
+    left: 0;
+    top: 5px;
+
+    width: 108px;
+    height: 75px;
+
+    border: 2px solid #d2a13a;
+    border-radius: 7px 7px 2px 2px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #292929,
+            #090909
+        );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 12px 18px rgba(0, 0, 0, 0.55);
+}
+
+.visual-truck__cargo span {
+    color: #d3a33d;
+    font-size: 2rem;
+}
+
+.visual-truck__cab {
+    position: absolute;
+
+    right: 0;
+    top: 31px;
+
+    width: 54px;
+    height: 49px;
+
+    border: 2px solid #d2a13a;
+    border-radius: 3px 10px 5px 3px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #363636,
+            #0a0a0a
+        );
+}
+
+.visual-truck__cab span {
+    position: absolute;
+
+    top: 7px;
+    left: 9px;
+
+    width: 30px;
+    height: 18px;
+
+    border-radius: 3px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #d9d9d9,
+            #555
+        );
+}
+
+.visual-truck__wheel {
+    position: absolute;
+
+    bottom: 4px;
+
+    width: 25px;
+    height: 25px;
+
+    border: 5px solid #111;
+
+    border-radius: 50%;
+
+    background: #d0a03a;
+
+    box-shadow:
+        0 0 0 2px #222;
+}
+
+.visual-truck__wheel--one {
+    left: 22px;
+}
+
+.visual-truck__wheel--two {
+    right: 15px;
+}
+
+/* ================================================================
+   CONTENT
+   ================================================================ */
+
+.how-it-works__content {
+    text-align: center;
+}
+
+.how-it-works__content h3 {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: 1.05rem;
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
+
+.how-it-works__divider {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 17px 0 14px;
+}
+
+.how-it-works__divider span {
+    position: relative;
+
+    width: 45px;
+    height: 1px;
+
+    background: #c99a32;
+}
+
+.how-it-works__divider span::before {
+    content: "";
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 7px;
+    height: 7px;
+
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background: #d7a83f;
+
+    box-shadow:
+        0 0 8px rgba(215, 168, 63, 0.45);
+}
+
+.how-it-works__content p {
+    max-width: 210px;
+
+    margin: 0 auto;
+
+    color: #bdbdbd;
+
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+/* ================================================================
+   CONNECTORS
+   ================================================================ */
+
+.how-it-works__connector {
+    position: absolute;
+
+    top: 232px;
+    right: -26px;
+
+    z-index: 8;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 32px;
+    height: 32px;
+
+    color: #d4a33a;
+
+    font-size: 2.5rem;
+    font-weight: 300;
 
     text-shadow:
-        0 0 12px rgba(200, 155, 60, 0.18);
+        0 0 12px rgba(212, 163, 58, 0.25);
 }
 
-/* ===============================================================
+.how-it-works__item:last-child .how-it-works__connector {
+    display: none;
+}
+
+/* ================================================================
    TABLET
-   =============================================================== */
+   ================================================================ */
 
-@media (max-width: 992px) {
+@media (max-width: 1150px) {
 
     .how-it-works {
-        padding: 65px 0 75px;
+        padding-left: 22px;
+        padding-right: 22px;
     }
 
-    .how-it-works__container {
-        padding: 0 30px;
+    .how-it-works__steps {
+        gap: 14px;
     }
 
-    .how-it-works__header {
-        margin-bottom: 48px;
+    .how-it-works__card {
+        padding-left: 17px;
+        padding-right: 17px;
     }
 
-    .how-it-works__step {
-        padding: 12px 10px;
+    .how-it-works__connector {
+        right: -22px;
     }
 
-    .how-it-works__number {
-        width: 56px;
-        height: 56px;
-
-        margin-bottom: 18px;
-
-        font-size: 1.15rem;
+    .how-it-works__content h3 {
+        font-size: 0.92rem;
     }
 
-    .how-it-works__step h3 {
-        font-size: 0.86rem;
-    }
-
-    .how-it-works__step p {
-        font-size: 0.78rem;
-    }
-
-    .how-it-works__arrow {
-        font-size: 1.45rem;
+    .how-it-works__content p {
+        font-size: 0.82rem;
     }
 }
 
-/* ===============================================================
-   MOBILE -- 2 x 2 + 1
-   =============================================================== */
+/* ================================================================
+   MOBILE
+   ================================================================ */
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
 
     .how-it-works {
-        padding: 58px 0 70px;
-    }
-
-    .how-it-works__container {
-        width: 100%;
-        padding: 0 18px;
-        overflow: hidden;
+        padding: 82px 16px 90px;
     }
 
     .how-it-works__header {
-        padding: 0;
-        margin-bottom: 48px;
-        text-align: center;
+        margin-bottom: 72px;
     }
 
     .how-it-works__eyebrow {
-        font-size: 0.9rem;
+        gap: 10px;
+
+        font-size: 0.78rem;
         letter-spacing: 0.22em;
     }
 
-    /* ===========================================================
-       STEPS -- 2 x 2
-       =========================================================== */
+    .how-it-works__eyebrow span {
+        width: 28px;
+    }
+
+    .how-it-works__header h2 {
+        font-size: clamp(2rem, 8vw, 2.7rem);
+    }
+
+    .how-it-works__header p {
+        font-size: 1rem;
+    }
 
     .how-it-works__steps {
-        width: 100%;
-        min-width: 0;
-
-        display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
 
-        gap: 52px 12px;
+        gap: 58px 14px;
 
-        padding: 0;
-        overflow: visible;
+        padding-top: 10px;
     }
 
-    /* ===========================================================
-       STEP ITEM
-       =========================================================== */
-
-    .how-it-works__item {
-        position: relative;
-
-        width: 100%;
-        min-width: 0;
-
-        display: flex;
-        align-items: flex-start;
-
-        flex: none;
+    .how-it-works__steps::before {
+        display: none;
     }
 
-    .how-it-works__step {
-        width: 100%;
-        min-width: 0;
+    .how-it-works__card {
+        min-height: 390px;
 
-        padding: 0 4px;
+        padding: 47px 12px 25px;
 
-        text-align: center;
+        border-radius: 19px;
     }
-
-    /* ===========================================================
-       NUMBER
-       =========================================================== */
 
     .how-it-works__number {
-        width: 58px;
-        height: 58px;
+        top: -24px;
 
-        margin: 0 auto 18px;
+        width: 57px;
+        height: 57px;
 
         font-size: 1.1rem;
     }
 
-    .how-it-works__number::after {
-        inset: 4px;
+    .how-it-works__visual {
+        height: 165px;
+
+        margin-bottom: 15px;
     }
 
-    /* ===========================================================
-       TITLE
-       =========================================================== */
-
-    .how-it-works__step h3 {
-        margin: 0 0 9px;
-
-        font-size: 0.82rem;
-        line-height: 1.35;
-        letter-spacing: 0.045em;
+    .visual-platform {
+        width: 115px;
+        height: 22px;
+        bottom: 12px;
     }
 
-    /* ===========================================================
-       DESCRIPTION
-       =========================================================== */
-
-    .how-it-works__step p {
-        max-width: 150px;
-
-        margin: 0 auto;
-
-        font-size: 0.76rem;
-        line-height: 1.5;
+    .visual-mug {
+        transform: scale(0.78) translateY(-8px);
     }
 
-    /* ===========================================================
-       ARROWS
-       =========================================================== */
-
-    .how-it-works__arrow {
-        position: absolute;
-
-        top: 78px;
-        right: -11px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        font-size: 1.35rem;
-        line-height: 1;
-
-        z-index: 2;
+    .visual-cloud {
+        transform: scale(0.8);
     }
 
-    /*
-     * No arrow after the second item of each row.
-     */
+    .visual-design {
+        transform: scale(0.78);
+    }
 
-    .how-it-works__item:nth-child(even) .how-it-works__arrow {
+    .visual-printer {
+        transform: scale(0.78);
+    }
+
+    .visual-truck {
+        transform: scale(0.78);
+    }
+
+    .how-it-works__content h3 {
+        font-size: 0.78rem;
+        letter-spacing: 0.025em;
+    }
+
+    .how-it-works__content p {
+        max-width: 145px;
+
+        font-size: 0.74rem;
+        line-height: 1.45;
+    }
+
+    .how-it-works__divider {
+        margin: 12px 0 10px;
+    }
+
+    .how-it-works__connector {
+        top: 195px;
+        right: -21px;
+
+        width: 25px;
+
+        font-size: 2rem;
+    }
+
+    .how-it-works__item:nth-child(2) .how-it-works__connector {
         display: none;
     }
 
-    /* ===========================================================
-       FIFTH STEP -- CENTERED
-       =========================================================== */
+    .how-it-works__item:nth-child(3) .how-it-works__connector {
+        display: none;
+    }
 
-    .how-it-works__item:nth-child(5) {
+    .how-it-works__item:nth-child(4) .how-it-works__connector {
+        display: none;
+    }
+
+    .how-it-works__item--last {
         grid-column: 1 / -1;
 
+        width: calc(50% - 7px);
         justify-self: center;
+    }
+}
 
-        width: 50%;
+/* ================================================================
+   SMALL MOBILE
+   ================================================================ */
+
+@media (max-width: 430px) {
+
+    .how-it-works {
+        padding-left: 12px;
+        padding-right: 12px;
     }
 
-    .how-it-works__item:nth-child(5) .how-it-works__arrow {
-        display: none;
+    .how-it-works__steps {
+        gap: 50px 10px;
     }
 
+    .how-it-works__card {
+        min-height: 365px;
+
+        padding-left: 9px;
+        padding-right: 9px;
+    }
+
+    .how-it-works__visual {
+        height: 150px;
+    }
+
+    .how-it-works__content h3 {
+        font-size: 0.73rem;
+    }
+
+    .how-it-works__content p {
+        font-size: 0.7rem;
+    }
+
+    .how-it-works__connector {
+        right: -19px;
+    }
 }
