@@ -127,15 +127,43 @@ export const en = {
 
         },
 
-        howItWorks: {
+                howItWorks: {
 
             eyebrow: "HOW IT WORKS",
 
-            chooseModel: "CHOOSE A MODEL",
+            steps: {
 
-            uploadPhoto: "UPLOAD YOUR PHOTO",
+                chooseModel: {
+                    title: "CHOOSE A MODEL",
+                    description:
+                        "Pick your favorite mug model.",
+                },
 
-            customize: "CUSTOMIZE",
+                uploadPhoto: {
+                    title: "UPLOAD YOUR PHOTO",
+                    description:
+                        "Add your photo or artwork.",
+                },
+
+                customize: {
+                    title: "CUSTOMIZE",
+                    description:
+                        "Make it yours with text and filters.",
+                },
+
+                wePrint: {
+                    title: "WE PRINT",
+                    description:
+                        "We print your mug with care.",
+                },
+
+                delivered: {
+                    title: "DELIVERED",
+                    description:
+                        "Fast shipping to your door.",
+                },
+
+            },
 
         },
 
