@@ -28,4 +28,12 @@ export interface CustomerGalleryItem {
 
     createdAt: string;
 
+    social?: {
+
+        platform: "instagram" | "facebook" | "youtube" | "tiktok";
+
+        url: string;
+
+    };
+
 }

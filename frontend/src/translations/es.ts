@@ -19,14 +19,22 @@ export const es = {
     },
 
     navigation: {
-    home: "Inicio",
-    products: "Productos",
-    collections: "Colecciones",
-    customize: "Personalizar",
-    contact: "Contacto",
-    shop: "Tienda",
-    company: "Empresa",
-    support: "Soporte",
+        home: "Inicio",
+        products: "Productos",
+        collections: "Colecciones",
+        customize: "Personalizar",
+        contact: "Contacto",
+        shop: "Tienda",
+        company: "Empresa",
+        support: "Soporte",
+    },
+
+    customerGallery: {
+        eyebrow: "GALERÍA DE CLIENTES",
+        title: "Tazas reales. Personas reales.",
+        description:
+            "Mira cómo nuestros clientes disfrutan sus tazas personalizadas.",
+        viewGallery: "VER GALERÍA →",
     },
 
     footer: {
@@ -44,7 +52,9 @@ export const es = {
         paymentMethods: "Métodos de pago",
         language: "Idioma",
         copyright: "© 2026 Magic Touch Designs. Todos los derechos reservados.",
-designer: "Diseñado por ultramegared",
+        designer: "Diseñado por ultramegared",
     },
 
 };
+
+export type TranslationDictionary = typeof es;

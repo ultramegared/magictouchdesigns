@@ -19,14 +19,22 @@ export const en = {
     },
 
     navigation: {
-    home: "Home",
-    products: "Products",
-    collections: "Collections",
-    customize: "Customize",
-    contact: "Contact",
-    shop: "Shop",
-    company: "Company",
-    support: "Support",
+        home: "Home",
+        products: "Products",
+        collections: "Collections",
+        customize: "Customize",
+        contact: "Contact",
+        shop: "Shop",
+        company: "Company",
+        support: "Support",
+    },
+
+    customerGallery: {
+        eyebrow: "CUSTOMER GALLERY",
+        title: "Real mugs. Real people.",
+        description:
+            "See how our customers are enjoying their personalized mugs.",
+        viewGallery: "VIEW GALLERY →",
     },
 
     footer: {
@@ -44,7 +52,7 @@ export const en = {
         paymentMethods: "Payment Methods",
         language: "Language",
         copyright: "© 2026 Magic Touch Designs. All rights reserved.",
-designer: "Designed by ultramegared",
+        designer: "Designed by ultramegared",
     },
 
 };
