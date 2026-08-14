@@ -215,6 +215,46 @@
 
 }
 
+.customer-gallery__social{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:34px;
+
+    height:34px;
+
+    margin-top:10px;
+
+    border:1px solid #C89B3C;
+
+    border-radius:50%;
+
+    color:#C89B3C;
+
+    text-decoration:none;
+
+    cursor:pointer;
+
+    transition:
+        background .25s ease,
+        color .25s ease,
+        transform .25s ease;
+
+}
+
+.customer-gallery__social:hover{
+
+    background:#C89B3C;
+
+    color:#0F0F10;
+
+    transform:scale(1.05);
+
+}
 
 .customer-gallery__name{
 
