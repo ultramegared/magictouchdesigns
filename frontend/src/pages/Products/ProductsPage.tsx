@@ -27,6 +27,9 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 import { addToCart } from "../../utils/cart";
 
+import { useLanguage } from "../../contexts/LanguageContext";
+import { translations } from "../../translations";
+
 
 type Product = {
     id: number;
@@ -40,6 +43,7 @@ type Product = {
     reviews: number;
     image: string;
 };
+
 
 const demoProducts: Product[] = [
     {
@@ -140,7 +144,12 @@ const demoProducts: Product[] = [
     }
 ];
 
+
 function ProductsPage() {
+
+    const { language } = useLanguage();
+
+    const t = translations[language].products;
 
     const [searchParams] = useSearchParams();
 
@@ -161,68 +170,93 @@ function ProductsPage() {
 
     }, [searchParams]);
 
+
     const productsPerPage =
         window.innerWidth <= 700 ? 4 : 8;
-        
+
+
     const filteredProducts = useMemo(() => {
 
         const filtered = demoProducts.filter((product) => {
 
-    const searchMatch =
-        searchTerm.trim() === "" ||
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.style.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.size.toLowerCase().includes(searchTerm.toLowerCase());
+            const searchMatch =
+                searchTerm.trim() === "" ||
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.style.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.size.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const categoryMatch =
-        category === "All" || product.category === category;
+            const categoryMatch =
+                category === "All" || product.category === category;
 
-    const styleMatch =
-        style === "All" || product.style === style;
+            const styleMatch =
+                style === "All" || product.style === style;
 
-    const colorMatch =
-        color === "All" || product.color === color;
+            const colorMatch =
+                color === "All" || product.color === color;
 
-    const sizeMatch =
-        size === "All" || product.size === size;
+            const sizeMatch =
+                size === "All" || product.size === size;
 
-    return (
-        searchMatch &&
-        categoryMatch &&
-        styleMatch &&
-        colorMatch &&
-        sizeMatch
-    );
+            return (
+                searchMatch &&
+                categoryMatch &&
+                styleMatch &&
+                colorMatch &&
+                sizeMatch
+            );
 
-});
+        });
+
 
         if (sort === "Price Low") {
-            return [...filtered].sort((a, b) => a.price - b.price);
+            return [...filtered].sort(
+                (a, b) => a.price - b.price
+            );
         }
+
 
         if (sort === "Price High") {
-            return [...filtered].sort((a, b) => b.price - a.price);
+            return [...filtered].sort(
+                (a, b) => b.price - a.price
+            );
         }
 
+
         if (sort === "Rating") {
-            return [...filtered].sort((a, b) => b.rating - a.rating);
+            return [...filtered].sort(
+                (a, b) => b.rating - a.rating
+            );
         }
+
 
         return filtered;
 
-    }, [category, style, color, size, sort, searchTerm]);
+    }, [
+        category,
+        style,
+        color,
+        size,
+        sort,
+        searchTerm
+    ]);
+
 
     const totalPages = Math.max(
         1,
-        Math.ceil(filteredProducts.length / productsPerPage)
+        Math.ceil(
+            filteredProducts.length / productsPerPage
+        )
     );
 
-    const visibleProducts = filteredProducts.slice(
-        (currentPage - 1) * productsPerPage,
-        currentPage * productsPerPage
-    );
+
+    const visibleProducts =
+        filteredProducts.slice(
+            (currentPage - 1) * productsPerPage,
+            currentPage * productsPerPage
+        );
+
 
     return (
 
@@ -243,11 +277,11 @@ function ProductsPage() {
                     </p>
 
                     <h1>
-                        OUR PRODUCTS
+                        {t.hero.title}
                     </h1>
 
                     <p className="products-hero__description">
-                        Premium designs. Timeless quality. Made for you.
+                        {t.hero.description}
                     </p>
 
                 </section>
@@ -268,7 +302,7 @@ function ProductsPage() {
                                 setCurrentPage(1);
                             }}
                         >
-                            ALL
+                            {t.filters.all}
                         </button>
 
 
@@ -280,16 +314,17 @@ function ProductsPage() {
                             }}
                         >
                             <option value="All">
-                                CATEGORY
+                                {t.filters.category}
                             </option>
 
                             <option value="Mug">
-                                Mug
+                                {t.options.categories.mug}
                             </option>
 
                             <option value="Tumbler">
-                                Tumbler
+                                {t.options.categories.tumbler}
                             </option>
+
                         </select>
 
 
@@ -301,20 +336,21 @@ function ProductsPage() {
                             }}
                         >
                             <option value="All">
-                                STYLE
+                                {t.filters.style}
                             </option>
 
                             <option value="Classic">
-                                Classic
+                                {t.options.styles.classic}
                             </option>
 
                             <option value="Marble">
-                                Marble
+                                {t.options.styles.marble}
                             </option>
 
                             <option value="Premium">
-                                Premium
+                                {t.options.styles.premium}
                             </option>
+
                         </select>
 
 
@@ -326,24 +362,25 @@ function ProductsPage() {
                             }}
                         >
                             <option value="All">
-                                COLOR
+                                {t.filters.color}
                             </option>
 
                             <option value="Black">
-                                Black
+                                {t.options.colors.black}
                             </option>
 
                             <option value="White">
-                                White
+                                {t.options.colors.white}
                             </option>
 
                             <option value="Pink">
-                                Pink
+                                {t.options.colors.pink}
                             </option>
 
                             <option value="Gold">
-                                Gold
+                                {t.options.colors.gold}
                             </option>
+
                         </select>
 
 
@@ -355,7 +392,7 @@ function ProductsPage() {
                             }}
                         >
                             <option value="All">
-                                SIZE
+                                {t.filters.size}
                             </option>
 
                             <option value="11 oz">
@@ -369,13 +406,14 @@ function ProductsPage() {
                             <option value="20 oz">
                                 20 oz
                             </option>
+
                         </select>
 
 
                         <div className="products-sort">
 
                             <span>
-                                SORT BY:
+                                {t.filters.sortBy}
                             </span>
 
                             <select
@@ -385,20 +423,21 @@ function ProductsPage() {
                                     setCurrentPage(1);
                                 }}
                             >
+
                                 <option value="Newest">
-                                    NEWEST
+                                    {t.sort.newest}
                                 </option>
 
                                 <option value="Price Low">
-                                    PRICE LOW
+                                    {t.sort.priceLow}
                                 </option>
 
                                 <option value="Price High">
-                                    PRICE HIGH
+                                    {t.sort.priceHigh}
                                 </option>
 
                                 <option value="Rating">
-                                    RATING
+                                    {t.sort.rating}
                                 </option>
 
                             </select>
@@ -426,7 +465,9 @@ function ProductsPage() {
 
                                     <button
                                         className="product-card__favorite"
-                                        aria-label={`Add ${product.name} to favorites`}
+                                        aria-label={
+                                            `${t.actions.addFavorite} ${product.name}`
+                                        }
                                     >
                                         ♡
                                     </button>
@@ -437,12 +478,19 @@ function ProductsPage() {
                                 <div className="product-card__content">
 
                                     <span className="product-card__category">
-                                        {product.category}
+
+                                        {product.category === "Mug"
+                                            ? t.options.categories.mug
+                                            : t.options.categories.tumbler
+                                        }
+
                                     </span>
+
 
                                     <h2>
                                         {product.name}
                                     </h2>
+
 
                                     <strong>
                                         ${product.price.toFixed(2)}
@@ -463,23 +511,30 @@ function ProductsPage() {
 
 
                                     <button
-    className="product-card__button"
-    type="button"
-    onClick={() => {
-        addToCart({
-            id: product.id,
-            name: product.name,
-            model: product.style,
-            size: product.size,
-            color: product.color,
-            price: product.price,
-            image: product.image,
-        });
-    }}
->
-    ADD TO CART
-    <span>→</span>
-</button>
+                                        className="product-card__button"
+                                        type="button"
+                                        onClick={() => {
+
+                                            addToCart({
+                                                id: product.id,
+                                                name: product.name,
+                                                model: product.style,
+                                                size: product.size,
+                                                color: product.color,
+                                                price: product.price,
+                                                image: product.image,
+                                            });
+
+                                        }}
+                                    >
+
+                                        {t.actions.addToCart}
+
+                                        <span>
+                                            →
+                                        </span>
+
+                                    </button>
 
                                 </div>
 
@@ -495,15 +550,22 @@ function ProductsPage() {
                         <button
                             disabled={currentPage === 1}
                             onClick={() =>
-                                setCurrentPage((page) => Math.max(1, page - 1))
+                                setCurrentPage(
+                                    (page) =>
+                                        Math.max(1, page - 1)
+                                )
                             }
                         >
                             ‹
                         </button>
 
+
                         {Array.from(
-                            { length: totalPages },
-                            (_, index) => index + 1
+                            {
+                                length: totalPages
+                            },
+                            (_, index) =>
+                                index + 1
                         ).map((page) => (
 
                             <button
@@ -513,18 +575,27 @@ function ProductsPage() {
                                         ? "products-pagination__active"
                                         : ""
                                 }
-                                onClick={() => setCurrentPage(page)}
+                                onClick={() =>
+                                    setCurrentPage(page)
+                                }
                             >
                                 {page}
                             </button>
 
                         ))}
 
+
                         <button
-                            disabled={currentPage === totalPages}
+                            disabled={
+                                currentPage === totalPages
+                            }
                             onClick={() =>
-                                setCurrentPage((page) =>
-                                    Math.min(totalPages, page + 1)
+                                setCurrentPage(
+                                    (page) =>
+                                        Math.min(
+                                            totalPages,
+                                            page + 1
+                                        )
                                 )
                             }
                         >
@@ -537,43 +608,54 @@ function ProductsPage() {
                     <div className="products-benefits">
 
                         <div>
+
                             <strong>
-                                FAST SHIPPING
+                                {t.benefits.fastShipping.title}
                             </strong>
 
                             <span>
-                                Quick & safe delivery
+                                {t.benefits.fastShipping.description}
                             </span>
+
                         </div>
 
+
                         <div>
+
                             <strong>
-                                SECURE PAYMENT
+                                {t.benefits.securePayment.title}
                             </strong>
 
                             <span>
-                                100% secure checkout
+                                {t.benefits.securePayment.description}
                             </span>
+
                         </div>
 
+
                         <div>
+
                             <strong>
-                                PREMIUM QUALITY
+                                {t.benefits.premiumQuality.title}
                             </strong>
 
                             <span>
-                                Top quality products
+                                {t.benefits.premiumQuality.description}
                             </span>
+
                         </div>
 
+
                         <div>
+
                             <strong>
-                                CUSTOMER SUPPORT
+                                {t.benefits.customerSupport.title}
                             </strong>
 
                             <span>
-                                We're here to help
+                                {t.benefits.customerSupport.description}
                             </span>
+
                         </div>
 
                     </div>
@@ -589,5 +671,6 @@ function ProductsPage() {
     );
 
 }
+
 
 export default ProductsPage;

@@ -58,6 +58,76 @@ usernamePlaceholder: "Ingresa tu nombre de usuario",
     backToLogin: "Volver al inicio de sesión",
 },
 
+products: {
+    hero: {
+        title: "NUESTROS PRODUCTOS",
+        description: "Diseños premium. Calidad atemporal. Hechos para ti.",
+    },
+
+    filters: {
+        all: "TODOS",
+        category: "CATEGORÍA",
+        style: "ESTILO",
+        color: "COLOR",
+        size: "TAMAÑO",
+        sortBy: "ORDENAR POR:",
+    },
+
+    options: {
+        categories: {
+            mug: "Taza",
+            tumbler: "Termo",
+        },
+
+        styles: {
+            classic: "Clásico",
+            marble: "Mármol",
+            premium: "Premium",
+        },
+
+        colors: {
+            black: "Negro",
+            white: "Blanco",
+            pink: "Rosa",
+            gold: "Dorado",
+        },
+    },
+
+    sort: {
+        newest: "MÁS RECIENTES",
+        priceLow: "PRECIO MENOR",
+        priceHigh: "PRECIO MAYOR",
+        rating: "VALORACIÓN",
+    },
+
+    actions: {
+        addToCart: "AGREGAR AL CARRITO",
+        addFavorite: "Agregar a favoritos",
+    },
+
+    benefits: {
+        fastShipping: {
+            title: "ENVÍO RÁPIDO",
+            description: "Entrega rápida y segura",
+        },
+
+        securePayment: {
+            title: "PAGO SEGURO",
+            description: "Checkout 100% seguro",
+        },
+
+        premiumQuality: {
+            title: "CALIDAD PREMIUM",
+            description: "Productos de máxima calidad",
+        },
+
+        customerSupport: {
+            title: "ATENCIÓN AL CLIENTE",
+            description: "Estamos aquí para ayudarte",
+        },
+    },
+},
+
 
 register: {
     eyebrow: "ÚNETE A NOSOTROS",

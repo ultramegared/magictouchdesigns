@@ -58,7 +58,77 @@ usernamePlaceholder: "Enter your username",
     successMessage: "If an account is associated with that Gmail address, a recovery link has been sent.",
     backToLogin: "Back to login",
 },
-   
+  
+  products: {
+    hero: {
+        title: "OUR PRODUCTS",
+        description: "Premium designs. Timeless quality. Made for you.",
+    },
+
+    filters: {
+        all: "ALL",
+        category: "CATEGORY",
+        style: "STYLE",
+        color: "COLOR",
+        size: "SIZE",
+        sortBy: "SORT BY:",
+    },
+
+    options: {
+        categories: {
+            mug: "Mug",
+            tumbler: "Tumbler",
+        },
+
+        styles: {
+            classic: "Classic",
+            marble: "Marble",
+            premium: "Premium",
+        },
+
+        colors: {
+            black: "Black",
+            white: "White",
+            pink: "Pink",
+            gold: "Gold",
+        },
+    },
+
+    sort: {
+        newest: "NEWEST",
+        priceLow: "PRICE LOW",
+        priceHigh: "PRICE HIGH",
+        rating: "RATING",
+    },
+
+    actions: {
+        addToCart: "ADD TO CART",
+        addFavorite: "Add to favorites",
+    },
+
+    benefits: {
+        fastShipping: {
+            title: "FAST SHIPPING",
+            description: "Quick & safe delivery",
+        },
+
+        securePayment: {
+            title: "SECURE PAYMENT",
+            description: "100% secure checkout",
+        },
+
+        premiumQuality: {
+            title: "PREMIUM QUALITY",
+            description: "Top quality products",
+        },
+
+        customerSupport: {
+            title: "CUSTOMER SUPPORT",
+            description: "We're here to help",
+        },
+    },
+},
+
    register: {
     eyebrow: "JOIN US",
     title: "Create your account",
