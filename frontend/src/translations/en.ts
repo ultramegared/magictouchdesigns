@@ -46,6 +46,27 @@ export const en = {
     hidePassword: "Hide password",
    },
    
+   register: {
+    eyebrow: "JOIN US",
+    title: "Create your account",
+    description: "Create an account and start your Magic Touch Designs experience.",
+    firstName: "First name",
+    firstNamePlaceholder: "Enter your first name",
+    lastName: "Last name",
+    lastNamePlaceholder: "Enter your last name",
+    email: "Email",
+    emailPlaceholder: "Enter your email",
+    password: "Password",
+    passwordPlaceholder: "Create a password",
+    confirmPassword: "Confirm password",
+    confirmPasswordPlaceholder: "Confirm your password",
+    createAccount: "CREATE ACCOUNT",
+    alreadyAccount: "Already have an account?",
+    signIn: "Sign in",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
+},
+
   customerGallery: {
     eyebrow: "CUSTOMER GALLERY",
     title: "Real mugs. Real people.",
