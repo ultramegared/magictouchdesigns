@@ -14,10 +14,10 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 
-import "./Login.css";
+import "../Login/Login.css";
 
-import { useLanguage } from "../contexts/LanguageContext";
-import { translations } from "../translations";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { translations } from "../../translations";
 
 function Register() {
 
