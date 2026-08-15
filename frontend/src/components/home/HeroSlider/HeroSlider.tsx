@@ -4,109 +4,111 @@
  * Project: Magic Touch Designs
  * File: HeroSlider.tsx
  * Module: Home
+ * Language: TypeScript React
+ * Description:
+ * Premium Hero Slider.
  * ================================================================
  */
 
 import "./HeroSlider.css";
 
 import {
-
     useEffect,
-    useState
-
+    useState,
 } from "react";
 
 import {
-
     ChevronLeft,
-    ChevronRight
-
+    ChevronRight,
 } from "lucide-react";
 
 import {
-
-    heroSlides
-
+    heroSlides,
 } from "./HeroSlider.data";
+
+import {
+    useLanguage,
+} from "../../../contexts/LanguageContext";
+
+import {
+    translations,
+} from "../../../translations";
 
 function HeroSlider() {
 
     const [
-
         currentSlide,
-
-        setCurrentSlide
-
+        setCurrentSlide,
     ] = useState(0);
 
-const nextSlide = () => {
+    const {
+        language,
+    } = useLanguage();
 
-    setCurrentSlide(previous =>
+    const t = translations[language].home.hero;
 
-        (previous + 1) % heroSlides.length
+    const nextSlide = () => {
 
-    );
+        setCurrentSlide(
+            previous =>
+                (previous + 1) % heroSlides.length
+        );
 
-};
+    };
 
     const previousSlide = () => {
 
         setCurrentSlide(
-
             previous =>
-
                 previous === 0
-
                     ? heroSlides.length - 1
-
                     : previous - 1
-
         );
 
     };
 
-   useEffect(() => {
+    useEffect(() => {
 
-    const interval = window.setInterval(() => {
+        const interval = window.setInterval(() => {
 
-        setCurrentSlide(previous =>
+            setCurrentSlide(
+                previous =>
+                    (previous + 1) % heroSlides.length
+            );
 
-            (previous + 1) % heroSlides.length
+        }, 8000);
 
-        );
+        return () => {
 
-    }, 8000);
+            window.clearInterval(interval);
 
-    return () => {
+        };
 
-        window.clearInterval(interval);
-
-    };
-
-}, []);
+    }, []);
 
     const slide = heroSlides[currentSlide];
+
+    const content = t.slides[slide.translationKey];
 
     return (
 
         <section
-
             className="hero-slider"
-
             style={{
-
-                backgroundImage: `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)), url(${slide.background})`
-
+                backgroundImage:
+                    `linear-gradient(
+                        rgba(0,0,0,.45),
+                        rgba(0,0,0,.45)
+                    ),
+                    url(${slide.background})`,
             }}
-
         >
 
             <button
-
+                type="button"
                 className="hero-slider__arrow hero-slider__arrow--left"
-
                 onClick={previousSlide}
-
+                aria-label={t.previousSlide}
             >
 
                 <ChevronLeft size={26} />
@@ -117,68 +119,62 @@ const nextSlide = () => {
 
             <div className="hero-slider__content">
 
-    <div className="hero-slider__text">
+                <div className="hero-slider__text">
 
-        <span>
+                    <span>
+                        {t.eyebrow}
+                    </span>
 
-            CUSTOM MUGS MADE WITH LOVE
+                    <h1>
+                        {content.title}
+                    </h1>
 
-        </span>
+                    <p>
+                        {content.subtitle}
+                    </p>
 
-        <h1>
+                    <div className="hero-slider__buttons">
 
-            {slide.title}
+                        <button
+                            type="button"
+                            className="hero-slider__primary"
+                            onClick={() =>
+                                window.location.href = "/customize"
+                            }
+                        >
+                            {content.primaryButton}
+                        </button>
 
-        </h1>
+                        <button
+                            type="button"
+                            className="hero-slider__secondary"
+                            onClick={() =>
+                                window.location.href = "/products"
+                            }
+                        >
+                            {content.secondaryButton}
+                        </button>
 
-        <p>
+                    </div>
 
-            {slide.subtitle}
+                </div>
 
-        </p>
+                <div className="hero-slider__image">
 
-               <div className="hero-slider__buttons">
+                    <img
+                        src={slide.image}
+                        alt={content.title.replace("\n", " ")}
+                    />
+
+                </div>
+
+            </div>
 
             <button
                 type="button"
-                className="hero-slider__primary"
-                onClick={() => window.location.href = "/customize"}
-            >
-                {slide.primaryButton}
-            </button>
-
-            <button
-                type="button"
-                className="hero-slider__secondary"
-                onClick={() => window.location.href = "/products"}
-            >
-                {slide.secondaryButton}
-            </button>
-
-        </div>
-
-    </div>
-
-    <div className="hero-slider__image">
-
-    <img
-
-        src={slide.image}
-
-        alt={slide.title}
-
-    />
-
-</div>
-
-</div>
-
-            <button
-
                 className="hero-slider__arrow hero-slider__arrow--right"
-
                 onClick={nextSlide}
-
+                aria-label={t.nextSlide}
             >
 
                 <ChevronRight size={26} />
@@ -187,35 +183,25 @@ const nextSlide = () => {
 
             <div className="hero-slider__dots">
 
-                {
+                {heroSlides.map((heroSlide, index) => (
 
-                    heroSlides.map((_, index) => (
+                    <button
+                        type="button"
+                        key={heroSlide.id}
+                        className={
+                            index === currentSlide
+                                ? "hero-slider__dot hero-slider__dot--active"
+                                : "hero-slider__dot"
+                        }
+                        onClick={() =>
+                            setCurrentSlide(index)
+                        }
+                        aria-label={
+                            `${t.goToSlide} ${index + 1}`
+                        }
+                    />
 
-                        <button
-
-                            key={index}
-
-                            className={
-
-                                index === currentSlide
-
-                                    ? "hero-slider__dot hero-slider__dot--active"
-
-                                    : "hero-slider__dot"
-
-                            }
-
-                            onClick={() =>
-
-                                setCurrentSlide(index)
-
-                            }
-
-                        />
-
-                    ))
-
-                }
+                ))}
 
             </div>
 

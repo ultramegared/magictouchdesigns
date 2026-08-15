@@ -39,6 +39,50 @@ export const en = {
 
     home: {
 
+          home: {
+
+    hero: {
+
+        eyebrow: "CUSTOM MUGS MADE WITH LOVE",
+
+        previousSlide: "Previous slide",
+
+        nextSlide: "Next slide",
+
+        goToSlide: "Go to slide",
+
+        slides: {
+
+            mug: {
+                title: "YOUR STORY.\nYOUR MUG.",
+                subtitle:
+                    "Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.",
+                primaryButton: "CREATE YOUR MUG",
+                secondaryButton: "SHOP MUGS",
+            },
+
+            cap: {
+                title: "WEAR\nYOUR BRAND.",
+                subtitle:
+                    "Create premium custom caps with your logo, business name or team design. Perfect for businesses, events and everyday wear.",
+                primaryButton: "CREATE YOUR CAP",
+                secondaryButton: "SHOP CAPS",
+            },
+
+            shirt: {
+                title: "YOUR STYLE.\nYOUR SHIRT.",
+                subtitle:
+                    "Design premium custom t-shirts with your logo, artwork or business branding. Perfect for teams, businesses and special events.",
+                primaryButton: "CREATE YOUR SHIRT",
+                secondaryButton: "SHOP T-SHIRTS",
+            },
+
+        },
+
+    },
+
+    favorites: {
+    
         favorites: {
             eyebrow: "OUR FAVORITES",
             title: "BEST SELLERS",
