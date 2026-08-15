@@ -29,7 +29,23 @@ export const en = {
     company: "Company",
     support: "Support",
   },
-
+  
+  login: {
+    eyebrow: "WELCOME BACK",
+    title: "Sign in",
+    description: "Access your Magic Touch Designs account.",
+    email: "Email",
+    emailPlaceholder: "Enter your email",
+    password: "Password",
+    passwordPlaceholder: "Enter your password",
+    forgotPassword: "Forgot password?",
+    signIn: "SIGN IN",
+    noAccount: "Don't have an account?",
+    createAccount: "Create account",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
+   },
+   
   customerGallery: {
     eyebrow: "CUSTOMER GALLERY",
     title: "Real mugs. Real people.",

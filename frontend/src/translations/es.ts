@@ -28,6 +28,22 @@ export const es = {
         company: "Empresa",
         support: "Soporte",
     },
+    
+    login: {
+    eyebrow: "BIENVENIDO DE NUEVO",
+    title: "Iniciar sesión",
+    description: "Accede a tu cuenta de Magic Touch Designs.",
+    email: "Correo electrónico",
+    emailPlaceholder: "Ingresa tu correo electrónico",
+    password: "Contraseña",
+    passwordPlaceholder: "Ingresa tu contraseña",
+    forgotPassword: "¿Olvidaste tu contraseña?",
+    signIn: "INICIAR SESIÓN",
+    noAccount: "¿No tienes una cuenta?",
+    createAccount: "Crear cuenta",
+    showPassword: "Mostrar contraseña",
+    hidePassword: "Ocultar contraseña",
+     },
 
     customerGallery: {
         eyebrow: "GALERÍA DE CLIENTES",

@@ -15,6 +15,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/Home";
 import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
+import LoginPage from "./pages/Login"; de
 import CustomizePage from "./pages/Customize";
 import ContactPage from "./pages/Contact";
 import AboutPage from "./pages/About";
@@ -38,6 +39,12 @@ function App() {
                     path="/"
                     element={<HomePage />}
                 />
+                
+                <Route
+    path="/login"
+    element={<LoginPage />}
+/>
+
 
                 <Route
                     path="/products"
