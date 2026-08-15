@@ -1153,3 +1153,597 @@
     }
 
 }
+
+/* ============================================================
+   MAGIC TOUCH DESIGNS
+   NEWSLETTER -- PREMIUM CHAMPAGNE 3D V2
+   Author: ultramegared
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   PREMIUM LIGHT ATMOSPHERE
+   ------------------------------------------------------------ */
+
+.newsletter {
+    position: relative;
+    isolation: isolate;
+    background:
+        radial-gradient(
+            ellipse at 50% 18%,
+            rgba(255, 226, 157, 0.18) 0%,
+            rgba(220, 177, 82, 0.08) 22%,
+            transparent 52%
+        ),
+        radial-gradient(
+            ellipse at 15% 75%,
+            rgba(39, 83, 120, 0.24) 0%,
+            transparent 48%
+        ),
+        radial-gradient(
+            ellipse at 90% 65%,
+            rgba(232, 197, 121, 0.12) 0%,
+            transparent 45%
+        ),
+        linear-gradient(
+            135deg,
+            #020304 0%,
+            #08121c 46%,
+            #050608 100%
+        );
+}
+
+/* Soft champagne light beams */
+
+.newsletter::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 75%;
+    height: 170%;
+    top: -35%;
+    left: 12%;
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            118deg,
+            transparent 25%,
+            rgba(255, 232, 176, 0.035) 38%,
+            rgba(255, 221, 145, 0.12) 48%,
+            rgba(255, 235, 183, 0.035) 58%,
+            transparent 72%
+        );
+
+    filter: blur(18px);
+    transform: rotate(-7deg);
+    animation: newsletterLightSweep 9s ease-in-out infinite;
+}
+
+.newsletter::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 65%;
+    height: 80%;
+    left: 18%;
+    top: 10%;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(255, 222, 149, 0.12),
+            transparent 68%
+        );
+
+    filter: blur(28px);
+    animation: newsletterAmbientGlow 6s ease-in-out infinite;
+}
+
+@keyframes newsletterLightSweep {
+    0%,
+    100% {
+        opacity: 0.45;
+        transform: translateX(-5%) rotate(-7deg);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateX(8%) rotate(-7deg);
+    }
+}
+
+@keyframes newsletterAmbientGlow {
+    0%,
+    100% {
+        opacity: 0.55;
+        transform: scale(0.95);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+}
+
+
+/* ------------------------------------------------------------
+   PREMIUM MAIN CARD
+   ------------------------------------------------------------ */
+
+.newsletter__container {
+    position: relative;
+    overflow: hidden;
+
+    border: 1px solid rgba(230, 193, 112, 0.82);
+    border-radius: 30px;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 0%,
+            rgba(255, 231, 171, 0.16),
+            transparent 42%
+        ),
+        radial-gradient(
+            ellipse at 12% 90%,
+            rgba(38, 80, 115, 0.30),
+            transparent 48%
+        ),
+        radial-gradient(
+            ellipse at 90% 55%,
+            rgba(235, 201, 130, 0.13),
+            transparent 42%
+        ),
+        linear-gradient(
+            145deg,
+            #080a0d 0%,
+            #101b25 48%,
+            #080a0c 100%
+        );
+
+    box-shadow:
+        0 35px 90px rgba(0, 0, 0, 0.72),
+        0 0 35px rgba(221, 180, 91, 0.16),
+        0 0 90px rgba(225, 187, 101, 0.08),
+        inset 0 1px 0 rgba(255, 246, 218, 0.25),
+        inset 0 -35px 55px rgba(0, 0, 0, 0.30);
+
+    transform: translateZ(0);
+}
+
+
+/* ------------------------------------------------------------
+   METALLIC GOLD BORDER
+   ------------------------------------------------------------ */
+
+.newsletter__container::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 29px;
+
+    background:
+        linear-gradient(
+            125deg,
+            transparent 8%,
+            rgba(255, 245, 207, 0.55) 20%,
+            rgba(255, 224, 145, 0.15) 31%,
+            transparent 43%,
+            transparent 60%,
+            rgba(255, 235, 178, 0.30) 76%,
+            transparent 91%
+        );
+
+    opacity: 0.95;
+    mix-blend-mode: screen;
+}
+
+
+/* ------------------------------------------------------------
+   VOLUMETRIC LIGHT
+   ------------------------------------------------------------ */
+
+.newsletter__container::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+
+    width: 700px;
+    height: 700px;
+
+    left: 50%;
+    top: -390px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 228, 158, 0.18) 0%,
+            rgba(238, 196, 103, 0.08) 30%,
+            transparent 68%
+        );
+
+    filter: blur(10px);
+    pointer-events: none;
+}
+
+
+/* ------------------------------------------------------------
+   EXTRA GOLD LIGHT SPOTS
+   ------------------------------------------------------------ */
+
+.newsletter__light--one {
+    width: 360px;
+    height: 360px;
+
+    left: -170px;
+    bottom: -180px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(45, 92, 132, 0.32),
+            rgba(30, 63, 91, 0.12) 38%,
+            transparent 70%
+        );
+
+    filter: blur(15px);
+}
+
+.newsletter__light--two {
+    width: 340px;
+    height: 340px;
+
+    right: -130px;
+    top: -120px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 220, 145, 0.22),
+            rgba(218, 177, 86, 0.08) 38%,
+            transparent 70%
+        );
+
+    filter: blur(16px);
+}
+
+
+/* ------------------------------------------------------------
+   SPARKLES -- BRIGHTER
+   ------------------------------------------------------------ */
+
+.newsletter__spark {
+    color: #fff0bf;
+
+    text-shadow:
+        0 0 5px rgba(255, 240, 191, 0.95),
+        0 0 14px rgba(240, 204, 119, 0.85),
+        0 0 30px rgba(220, 176, 78, 0.55);
+
+    filter: brightness(1.35);
+}
+
+.newsletter__spark--one {
+    font-size: 15px;
+}
+
+.newsletter__spark--two {
+    font-size: 23px;
+}
+
+.newsletter__spark--three {
+    font-size: 14px;
+}
+
+
+/* ------------------------------------------------------------
+   3D MAIL MEDALLION
+   ------------------------------------------------------------ */
+
+.newsletter__icon {
+    background:
+        radial-gradient(
+            circle at 35% 20%,
+            rgba(255, 248, 224, 0.18),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 70% 80%,
+            rgba(193, 145, 55, 0.20),
+            transparent 42%
+        ),
+        linear-gradient(
+            145deg,
+            #29251b 0%,
+            #090a0b 42%,
+            #1a160e 72%,
+            #050607 100%
+        );
+
+    border: 1px solid rgba(244, 211, 137, 0.88);
+
+    box-shadow:
+        0 0 0 1px rgba(255, 238, 186, 0.16),
+        0 0 18px rgba(240, 201, 115, 0.38),
+        0 0 42px rgba(225, 180, 82, 0.25),
+        0 0 80px rgba(225, 180, 82, 0.13),
+        inset 0 4px 12px rgba(255, 247, 220, 0.16),
+        inset 0 -12px 18px rgba(0, 0, 0, 0.78);
+
+    transform: translateZ(0);
+}
+
+
+/* Outer glowing ring */
+
+.newsletter__icon::before {
+    inset: -13px;
+
+    border: 1px solid rgba(247, 211, 133, 0.62);
+
+    box-shadow:
+        0 0 12px rgba(247, 211, 133, 0.40),
+        0 0 30px rgba(229, 185, 91, 0.26),
+        0 0 60px rgba(229, 185, 91, 0.13);
+}
+
+
+/* Soft halo */
+
+.newsletter__icon::after {
+    inset: -30px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(248, 216, 145, 0.22),
+            rgba(219, 174, 82, 0.08) 38%,
+            transparent 68%
+        );
+
+    filter: blur(12px);
+}
+
+
+/* Inner ring */
+
+.newsletter__icon-ring {
+    border: 1px solid rgba(245, 211, 137, 0.58);
+
+    background:
+        radial-gradient(
+            circle at 30% 20%,
+            rgba(255, 244, 211, 0.13),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle,
+            rgba(210, 165, 76, 0.08),
+            rgba(0, 0, 0, 0.52)
+        );
+
+    box-shadow:
+        inset 0 2px 8px rgba(255, 246, 216, 0.10),
+        inset 0 -8px 14px rgba(0, 0, 0, 0.60),
+        0 0 12px rgba(228, 187, 99, 0.15);
+}
+
+
+/* Mail icon */
+
+.newsletter__mail {
+    stroke: #ffe8a7;
+
+    filter:
+        drop-shadow(0 0 4px rgba(255, 229, 162, 0.95))
+        drop-shadow(0 0 12px rgba(225, 178, 76, 0.55));
+
+    transform: scale(1.03);
+}
+
+
+/* ------------------------------------------------------------
+   PREMIUM TYPOGRAPHY
+   ------------------------------------------------------------ */
+
+.newsletter__eyebrow {
+    color: #e8c46f;
+
+    text-shadow:
+        0 0 10px rgba(235, 196, 112, 0.22);
+}
+
+.newsletter__content h2 {
+    text-shadow:
+        0 3px 18px rgba(0, 0, 0, 0.42);
+}
+
+.newsletter__title-white {
+    color: #fffdf8;
+}
+
+.newsletter__title-gold {
+    background:
+        linear-gradient(
+            180deg,
+            #fff1bd 0%,
+            #f4d98e 30%,
+            #d9ad55 65%,
+            #ffe5a0 100%
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    filter:
+        drop-shadow(0 0 10px rgba(235, 195, 111, 0.20));
+}
+
+.newsletter__content p {
+    color: #d1d6da;
+    text-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+
+/* ------------------------------------------------------------
+   PREMIUM INPUT
+   ------------------------------------------------------------ */
+
+.newsletter__form input {
+    border-color: rgba(230, 193, 112, 0.48);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.07),
+            rgba(0, 0, 0, 0.46)
+        );
+
+    box-shadow:
+        inset 0 2px 8px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 238, 192, 0.08),
+        0 0 14px rgba(211, 169, 77, 0.04);
+}
+
+.newsletter__form input:focus {
+    border-color: rgba(250, 218, 145, 0.92);
+
+    box-shadow:
+        0 0 0 2px rgba(240, 202, 117, 0.10),
+        0 0 28px rgba(228, 186, 91, 0.18),
+        inset 0 2px 7px rgba(0, 0, 0, 0.40);
+}
+
+
+/* ------------------------------------------------------------
+   CHAMPAGNE BUTTON
+   ------------------------------------------------------------ */
+
+.newsletter__form button {
+    border: 1px solid #ffe5a2;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff0bd 0%,
+            #f3d083 25%,
+            #d5a64b 52%,
+            #f2cf80 78%,
+            #fff0bb 100%
+        );
+
+    box-shadow:
+        0 10px 25px rgba(205, 157, 55, 0.30),
+        0 0 25px rgba(244, 205, 126, 0.20),
+        inset 0 2px 0 rgba(255, 255, 255, 0.88),
+        inset 0 -5px 9px rgba(123, 80, 19, 0.20);
+
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.25);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        filter 0.25s ease;
+}
+
+.newsletter__form button:hover {
+    transform: translateY(-3px) scale(1.01);
+
+    filter: brightness(1.08);
+
+    box-shadow:
+        0 14px 32px rgba(220, 174, 75, 0.40),
+        0 0 35px rgba(246, 211, 135, 0.34),
+        0 0 65px rgba(228, 185, 91, 0.14),
+        inset 0 2px 0 rgba(255, 255, 255, 0.92);
+}
+
+
+/* ------------------------------------------------------------
+   PRIVACY LINE
+   ------------------------------------------------------------ */
+
+.newsletter__privacy {
+    color: #9da5ad;
+}
+
+.newsletter__privacy-icon {
+    color: #f0cc7c;
+
+    border-color: rgba(240, 204, 124, 0.72);
+
+    box-shadow:
+        0 0 10px rgba(236, 194, 98, 0.25);
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE -- KEEP PREMIUM LOOK
+   ------------------------------------------------------------ */
+
+@media (max-width: 576px) {
+
+    .newsletter {
+        padding: 62px 0;
+    }
+
+    .newsletter__container {
+        margin: 0 18px;
+        padding: 48px 22px 34px;
+
+        border-radius: 28px;
+
+        box-shadow:
+            0 25px 65px rgba(0, 0, 0, 0.72),
+            0 0 30px rgba(220, 178, 91, 0.15),
+            inset 0 1px 0 rgba(255, 246, 218, 0.25),
+            inset 0 -25px 40px rgba(0, 0, 0, 0.30);
+    }
+
+    .newsletter__icon {
+        box-shadow:
+            0 0 0 1px rgba(255, 238, 186, 0.18),
+            0 0 22px rgba(240, 201, 115, 0.42),
+            0 0 55px rgba(225, 180, 82, 0.22),
+            inset 0 4px 12px rgba(255, 247, 220, 0.16),
+            inset 0 -12px 18px rgba(0, 0, 0, 0.78);
+    }
+
+    .newsletter__content h2 {
+        font-size: 1.75rem;
+        line-height: 1.12;
+    }
+
+    .newsletter__content p {
+        color: #d0d5d9;
+    }
+
+    .newsletter__form button {
+        box-shadow:
+            0 10px 25px rgba(205, 157, 55, 0.34),
+            0 0 30px rgba(244, 205, 126, 0.22),
+            inset 0 2px 0 rgba(255, 255, 255, 0.88),
+            inset 0 -5px 9px rgba(123, 80, 19, 0.20);
+    }
+
+    .newsletter__spark--one {
+        left: 16%;
+    }
+
+    .newsletter__spark--two {
+        right: 10%;
+    }
+
+    .newsletter__spark--three {
+        right: 17%;
+    }
+}
