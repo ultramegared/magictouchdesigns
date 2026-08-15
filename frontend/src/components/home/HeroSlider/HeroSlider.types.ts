@@ -10,17 +10,16 @@
  * ================================================================
  */
 
+export type HeroSlideKey =
+    | "mug"
+    | "cap"
+    | "shirt";
+
 export interface HeroSlide {
 
     id: number;
 
-    title: string;
-
-    subtitle: string;
-
-    primaryButton: string;
-
-    secondaryButton: string;
+    translationKey: HeroSlideKey;
 
     image: string;
 

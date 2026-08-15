@@ -38,6 +38,61 @@ export const es = {
     },
 
     home: {
+    hero: {
+
+    eyebrow: "TAZAS PERSONALIZADAS HECHAS CON AMOR",
+
+    previousSlide: "Diapositiva anterior",
+
+    nextSlide: "Siguiente diapositiva",
+
+    goToSlide: "Ir a la diapositiva",
+
+    slides: {
+
+        mug: {
+
+            title: "TU HISTORIA.\nTU TAZA.",
+
+            subtitle:
+                "Diseña una taza personalizada premium con tu nombre, logotipo o foto favorita. Creada para convertir momentos en regalos inolvidables y recuerdos duraderos.",
+
+            primaryButton: "CREA TU TAZA",
+
+            secondaryButton: "COMPRAR TAZAS",
+
+        },
+
+        cap: {
+
+            title: "LLEVA\nTU MARCA.",
+
+            subtitle:
+                "Crea gorras personalizadas premium con tu logotipo, nombre de negocio o diseño de equipo. Perfectas para empresas, eventos y uso diario.",
+
+            primaryButton: "CREA TU GORRA",
+
+            secondaryButton: "COMPRAR GORRAS",
+
+        },
+
+        shirt: {
+
+            title: "TU ESTILO.\nTU CAMISETA.",
+
+            subtitle:
+                "Diseña camisetas personalizadas premium con tu logotipo, arte o identidad de negocio. Perfectas para equipos, empresas y eventos especiales.",
+
+            primaryButton: "CREA TU CAMISETA",
+
+            secondaryButton: "COMPRAR CAMISETAS",
+
+        },
+
+    },
+
+},
+
 
         favorites: {
             eyebrow: "NUESTROS FAVORITOS",
