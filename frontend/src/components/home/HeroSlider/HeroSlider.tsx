@@ -137,10 +137,6 @@ function HeroSlider() {
                     className="hero-slider__text"
                 >
 
-                    <span>
-                        {t.eyebrow}
-                    </span>
-
                     <h1>
                         {content.title}
                     </h1>
