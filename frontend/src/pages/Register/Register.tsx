@@ -108,6 +108,34 @@ function Register() {
                     className="login__form"
                     onSubmit={handleSubmit}
                 >
+                
+                {/* USERNAME */}
+
+<div className="login__field">
+
+    <label htmlFor="register-username">
+        {t.username}
+    </label>
+
+    <div className="login__input">
+
+        <User
+            size={19}
+            aria-hidden="true"
+        />
+
+        <input
+            id="register-username"
+            name="username"
+            type="text"
+            placeholder={t.usernamePlaceholder}
+            autoComplete="username"
+            required
+        />
+
+    </div>
+
+</div>
 
                     {/* FIRST NAME */}
 

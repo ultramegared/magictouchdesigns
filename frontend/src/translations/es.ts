@@ -46,43 +46,33 @@ export const es = {
      },
 
 register: {
-
     eyebrow: "ÚNETE A NOSOTROS",
-
     title: "Crea tu cuenta",
-
     description: "Crea una cuenta y comienza tu experiencia en Magic Touch Designs.",
 
-    firstName: "Nombre",
+    username: "Usuario",
+    usernamePlaceholder: "Ingresa tu nombre de usuario",
 
+    firstName: "Nombre",
     firstNamePlaceholder: "Ingresa tu nombre",
 
     lastName: "Apellido",
-
     lastNamePlaceholder: "Ingresa tu apellido",
 
     email: "Correo electrónico",
-
     emailPlaceholder: "Ingresa tu correo electrónico",
 
     password: "Contraseña",
-
     passwordPlaceholder: "Crea una contraseña",
 
     confirmPassword: "Confirmar contraseña",
-
     confirmPasswordPlaceholder: "Confirma tu contraseña",
 
     createAccount: "CREAR CUENTA",
-
     alreadyAccount: "¿Ya tienes una cuenta?",
-
     signIn: "Iniciar sesión",
-
     showPassword: "Mostrar contraseña",
-
     hidePassword: "Ocultar contraseña",
-
 },
 
     customerGallery: {
