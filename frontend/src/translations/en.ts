@@ -50,16 +50,25 @@ export const en = {
     eyebrow: "JOIN US",
     title: "Create your account",
     description: "Create an account and start your Magic Touch Designs experience.",
+
+    username: "Username",
+    usernamePlaceholder: "Enter your username",
+
     firstName: "First name",
     firstNamePlaceholder: "Enter your first name",
+
     lastName: "Last name",
     lastNamePlaceholder: "Enter your last name",
+
     email: "Email",
     emailPlaceholder: "Enter your email",
+
     password: "Password",
     passwordPlaceholder: "Create a password",
+
     confirmPassword: "Confirm password",
     confirmPasswordPlaceholder: "Confirm your password",
+
     createAccount: "CREATE ACCOUNT",
     alreadyAccount: "Already have an account?",
     signIn: "Sign in",
