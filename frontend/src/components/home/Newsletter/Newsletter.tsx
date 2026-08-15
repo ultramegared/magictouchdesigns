@@ -115,16 +115,8 @@ function Newsletter() {
                     </div>
 
                     <h2>
-
-                        <span className="newsletter__title-white">
-                            Get
-                        </span>{" "}
-
-                        <span className="newsletter__title-gold">
-                            exclusive updates
-                        </span>
-
-                    </h2>
+    {t.title}
+</h2>
 
                     <p>
                         {t.description}
