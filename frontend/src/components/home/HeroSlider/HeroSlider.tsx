@@ -41,6 +41,11 @@ function HeroSlider() {
         setCurrentSlide,
     ] = useState(0);
 
+    const [
+        isPaused,
+        setIsPaused,
+    ] = useState(false);
+
     const {
         language,
     } = useLanguage();
@@ -69,6 +74,10 @@ function HeroSlider() {
 
     useEffect(() => {
 
+        if (isPaused) {
+            return;
+        }
+
         const interval = window.setInterval(() => {
 
             setCurrentSlide(
@@ -84,7 +93,7 @@ function HeroSlider() {
 
         };
 
-    }, []);
+    }, [currentSlide, isPaused]);
 
     const slide = heroSlides[currentSlide];
 
@@ -102,6 +111,10 @@ function HeroSlider() {
                     ),
                     url(${slide.background})`,
             }}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onFocus={() => setIsPaused(true)}
+            onBlur={() => setIsPaused(false)}
         >
 
             <button
@@ -119,7 +132,10 @@ function HeroSlider() {
 
             <div className="hero-slider__content">
 
-                <div className="hero-slider__text">
+                <div
+                    key={`text-${slide.id}`}
+                    className="hero-slider__text"
+                >
 
                     <span>
                         {t.eyebrow}
@@ -159,7 +175,10 @@ function HeroSlider() {
 
                 </div>
 
-                <div className="hero-slider__image">
+                <div
+                    key={`image-${slide.id}`}
+                    className="hero-slider__image"
+                >
 
                     <img
                         src={slide.image}
