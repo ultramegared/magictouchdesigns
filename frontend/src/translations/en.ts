@@ -48,6 +48,17 @@ usernamePlaceholder: "Enter your username",
     hidePassword: "Hide password",
    },
    
+   forgotPassword: {
+    eyebrow: "PASSWORD RECOVERY",
+    title: "Forgot your password?",
+    description: "Enter the Gmail address associated with your account and we’ll send you a recovery link.",
+    email: "Gmail",
+    emailPlaceholder: "Enter your Gmail address",
+    sendLink: "SEND RECOVERY LINK",
+    successMessage: "If an account is associated with that Gmail address, a recovery link has been sent.",
+    backToLogin: "Back to login",
+},
+   
    register: {
     eyebrow: "JOIN US",
     title: "Create your account",

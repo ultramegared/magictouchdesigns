@@ -27,6 +27,7 @@ import FAQPage from "./pages/FAQ";
 import TrackOrderPage from "./pages/TrackOrder";
 import PrivacyPage from "./pages/Privacy";
 import TermsOfServicePage from "./pages/TermsOfService";
+import ForgotPasswordPage from "./pages/ForgotPassword/ForgotPassword";
 
 function App() {
     return (
@@ -42,6 +43,11 @@ function App() {
                     path="/login"
                     element={<LoginPage />}
                 />
+                
+                <Route
+    path="/forgot-password"
+    element={<ForgotPasswordPage />}
+/>
 
                 <Route
                     path="/register"

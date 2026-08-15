@@ -46,6 +46,18 @@ usernamePlaceholder: "Ingresa tu nombre de usuario",
     showPassword: "Mostrar contraseña",
     hidePassword: "Ocultar contraseña",
      },
+     
+     forgotPassword: {
+    eyebrow: "RECUPERACIÓN DE CONTRASEÑA",
+    title: "¿Olvidaste tu contraseña?",
+    description: "Ingresa el Gmail asociado a tu cuenta y te enviaremos un enlace de recuperación.",
+    email: "Gmail",
+    emailPlaceholder: "Ingresa tu dirección de Gmail",
+    sendLink: "ENVIAR ENLACE DE RECUPERACIÓN",
+    successMessage: "Si existe una cuenta asociada a ese Gmail, hemos enviado un enlace de recuperación.",
+    backToLogin: "Volver al inicio de sesión",
+},
+
 
 register: {
     eyebrow: "ÚNETE A NOSOTROS",
