@@ -5,7 +5,7 @@
  * File: HeroSlider.css
  * Module: Home
  * Description:
- * Hero Slider Styles.
+ * Premium Hero Slider Styles.
  * ================================================================
  */
 
@@ -59,10 +59,13 @@
     padding:40px 70px 60px;
 
     display:grid;
-grid-template-columns:58% 42%;
-align-items:center;
-gap:0;
-position:relative;
+
+    grid-template-columns:58% 42%;
+
+    align-items:center;
+
+    gap:0;
+
 }
 
 .hero-slider__image{
@@ -71,7 +74,7 @@ position:relative;
 
     right:-50px;
 
-    bottom: 145px;
+    bottom:145px;
 
     width:48%;
 
@@ -83,13 +86,15 @@ position:relative;
 
     pointer-events:none;
 
-} 
+    animation:heroImageIn .85s cubic-bezier(.22,1,.36,1);
+
+}
 
 .hero-slider__image img{
 
-    width: 115%;
+    width:115%;
 
-    max-width: 800px;
+    max-width:800px;
 
     height:auto;
 
@@ -97,9 +102,13 @@ position:relative;
 
     object-fit:contain;
 
-    transform: translate(-80px, -55px) scale(1.28);
+    transform:
+        translate(-80px,-55px)
+        scale(1.28);
 
-    filter:drop-shadow(0 35px 70px rgba(0,0,0,.45));
+    filter:
+        drop-shadow(0 35px 70px rgba(0,0,0,.45))
+        drop-shadow(0 0 22px rgba(200,155,60,.08));
 
     z-index:2;
 
@@ -107,17 +116,20 @@ position:relative;
 
 .hero-slider__text{
 
-    position: relative;
-z-index: 20;
+    position:relative;
+
+    z-index:20;
+
     width:100%;
 
     max-width:600px;
 
     justify-self:start;
 
-    animation:fadeUp .8s ease;
+    animation:heroTextIn .8s cubic-bezier(.22,1,.36,1);
 
 }
+
 .hero-slider__text span{
 
     display:inline-block;
@@ -140,6 +152,10 @@ z-index: 20;
 
     text-transform:uppercase;
 
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 8px 20px rgba(0,0,0,.18);
+
 }
 
 .hero-slider__text h1{
@@ -153,6 +169,9 @@ z-index: 20;
     font-weight:800;
 
     margin-bottom:24px;
+
+    text-shadow:
+        0 3px 20px rgba(0,0,0,.35);
 
 }
 
@@ -196,7 +215,10 @@ z-index: 20;
 
     font-weight:700;
 
-    transition:.30s;
+    transition:
+        transform .30s ease,
+        box-shadow .30s ease,
+        background .30s ease;
 
 }
 
@@ -230,7 +252,8 @@ z-index: 20;
 
     transform:translateY(-3px);
 
-    box-shadow:0 18px 40px rgba(200,155,60,.35);
+    box-shadow:
+        0 18px 40px rgba(200,155,60,.35);
 
 }
 
@@ -309,7 +332,10 @@ z-index: 20;
 
     z-index:20;
 
-    transition:.30s;
+    transition:
+        background .30s ease,
+        color .30s ease,
+        transform .30s ease;
 
 }
 
@@ -318,6 +344,10 @@ z-index: 20;
     background:#C89B3C;
 
     color:#111111;
+
+    transform:
+        translateY(-50%)
+        scale(1.06);
 
 }
 
@@ -353,9 +383,13 @@ z-index: 20;
 
 .hero-slider__dot{
 
+    position:relative;
+
     width:12px;
 
     height:12px;
+
+    padding:0;
 
     border:none;
 
@@ -365,7 +399,11 @@ z-index: 20;
 
     cursor:pointer;
 
-    transition:.30s;
+    overflow:hidden;
+
+    transition:
+        width .30s ease,
+        background .30s ease;
 
 }
 
@@ -375,7 +413,31 @@ z-index: 20;
 
     border-radius:999px;
 
-    background:#FFFFFF;
+    background:rgba(255,255,255,.25);
+
+}
+
+.hero-slider__dot--active::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+
+    top:0;
+
+    bottom:0;
+
+    width:100%;
+
+    border-radius:inherit;
+
+    background:#C89B3C;
+
+    transform-origin:left center;
+
+    animation:heroProgress 8s linear forwards;
 
 }
 
@@ -411,19 +473,19 @@ z-index: 20;
 
     .hero-slider__content{
 
-    min-height:calc(100vh - 86px);
+        min-height:calc(100vh - 86px);
 
-    grid-template-columns:1.1fr .9fr;
+        grid-template-columns:1.1fr .9fr;
 
-    justify-content:center;
+        justify-content:center;
 
-    text-align:center;
+        text-align:center;
 
-    padding:50px 30px 60px;
+        padding:50px 30px 60px;
 
-    gap:10px;
+        gap:10px;
 
-}
+    }
 
     .hero-slider__text{
 
@@ -551,13 +613,14 @@ z-index: 20;
 
 }
 
-@keyframes fadeUp{
+@keyframes heroTextIn{
 
     from{
 
         opacity:0;
 
-        transform:translateY(30px);
+        transform:
+            translateY(24px);
 
     }
 
@@ -565,9 +628,75 @@ z-index: 20;
 
         opacity:1;
 
-        transform:translateY(0);
+        transform:
+            translateY(0);
 
     }
 
 }
 
+@keyframes heroImageIn{
+
+    from{
+
+        opacity:0;
+
+        transform:
+            translateX(35px)
+            scale(.97);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+            translateX(0)
+            scale(1);
+
+    }
+
+}
+
+@keyframes heroProgress{
+
+    from{
+
+        transform:scaleX(0);
+
+    }
+
+    to{
+
+        transform:scaleX(1);
+
+    }
+
+}
+
+@media(prefers-reduced-motion:reduce){
+
+    .hero-slider__text,
+    .hero-slider__image{
+
+        animation:none;
+
+    }
+
+    .hero-slider__dot--active::after{
+
+        animation:none;
+
+    }
+
+    .hero-slider__primary,
+    .hero-slider__secondary,
+    .hero-slider__arrow,
+    .hero-slider__dot{
+
+        transition:none;
+
+    }
+
+}
