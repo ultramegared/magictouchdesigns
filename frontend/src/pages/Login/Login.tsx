@@ -12,7 +12,7 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, User } from "lucide-react";
 
 import "./Login.css";
 
@@ -107,33 +107,33 @@ function Login() {
                     onSubmit={handleSubmit}
                 >
 
-                    {/* EMAIL */}
+                    {/* USERNAME */}
 
-                    <div className="login__field">
+<div className="login__field">
 
-                        <label htmlFor="login-email">
-                            {t.email}
-                        </label>
+    <label htmlFor="login-username">
+        {t.username}
+    </label>
 
-                        <div className="login__input">
+    <div className="login__input">
 
-                            <Mail
-                                size={19}
-                                aria-hidden="true"
-                            />
+        <User
+            size={19}
+            aria-hidden="true"
+        />
 
-                            <input
-                                id="login-email"
-                                name="email"
-                                type="email"
-                                placeholder={t.emailPlaceholder}
-                                autoComplete="email"
-                                required
-                            />
+        <input
+            id="login-username"
+            name="username"
+            type="text"
+            placeholder={t.usernamePlaceholder}
+            autoComplete="username"
+            required
+        />
 
-                        </div>
+    </div>
 
-                    </div>
+</div>
 
                     {/* PASSWORD */}
 
