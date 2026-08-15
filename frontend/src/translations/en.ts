@@ -175,11 +175,26 @@ export const en = {
       },
     },
 
-    community: {
-      eyebrow: "JOIN OUR COMMUNITY",
-      description: "Get exclusive updates",
-      subscribe: "SUBSCRIBE",
-    },
+community: {
+
+    eyebrow: "JOIN OUR COMMUNITY",
+
+    title: "Get exclusive updates",
+
+    description:
+        "Be the first to discover new designs, special offers, and inspiration from Magic Touch Designs.",
+
+    placeholder: "Enter your email address",
+
+    emailLabel: "Email address",
+
+    subscribe: "SUBSCRIBE",
+
+    privacy:
+        "No spam. Just exclusive offers, new arrivals, and inspiration.",
+
+},
+
   },
 
   footer: {

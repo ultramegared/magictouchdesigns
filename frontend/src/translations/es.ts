@@ -222,15 +222,25 @@ export const es = {
 
         },
 
-        community: {
+       community: {
 
-            eyebrow: "ÚNETE A NUESTRA COMUNIDAD",
+    eyebrow: "ÚNETE A NUESTRA COMUNIDAD",
 
-            description: "Recibe actualizaciones exclusivas",
+    title: "Recibe actualizaciones exclusivas",
 
-            subscribe: "SUSCRÍBETE",
+    description:
+        "Sé el primero en descubrir nuevos diseños, ofertas especiales e inspiración de Magic Touch Designs.",
 
-        },
+    placeholder: "Ingresa tu correo electrónico",
+
+    emailLabel: "Correo electrónico",
+
+    subscribe: "SUSCRÍBETE",
+
+    privacy:
+        "Sin spam. Solo ofertas exclusivas, novedades e inspiración.",
+
+},
 
     },
 
