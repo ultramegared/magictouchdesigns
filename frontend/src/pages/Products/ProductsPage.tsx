@@ -11,11 +11,8 @@
  * ================================================================
  */
 
-import {
-    useEffect,
-    useMemo,
-    useState
-} from "react";
+import { useMemo, useState } from "react";
+import { Search, X } from "lucide-react";
 
 import {
     useSearchParams
@@ -160,6 +157,7 @@ function ProductsPage() {
     const [sort, setSort] = useState("Newest");
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
     useEffect(() => {
 
@@ -457,7 +455,14 @@ function ProductsPage() {
                             >
 
                                 <div className="product-card__image">
-
+<button
+    type="button"
+    className="product-card__zoom"
+    aria-label={`View ${product.name} image`}
+    onClick={() => setSelectedProduct(product)}
+>
+    <Search size={18} />
+</button>
                                     <img
                                         src={product.image}
                                         alt={product.name}
@@ -547,6 +552,43 @@ function ProductsPage() {
 
                     <div className="products-pagination">
 
+{selectedProduct && (
+    <div
+        className="product-lightbox"
+        role="dialog"
+        aria-modal="true"
+        aria-label={selectedProduct.name}
+        onClick={() => setSelectedProduct(null)}
+    >
+        <div
+            className="product-lightbox__content"
+            onClick={(event) => event.stopPropagation()}
+        >
+            <button
+                type="button"
+                className="product-lightbox__close"
+                aria-label="Close image"
+                onClick={() => setSelectedProduct(null)}
+            >
+                <X size={24} />
+            </button>
+
+            <img
+                src={selectedProduct.image}
+                alt={selectedProduct.name}
+                className="product-lightbox__image"
+            />
+
+            <div className="product-lightbox__info">
+                <span>{selectedProduct.category}</span>
+                <h2>{selectedProduct.name}</h2>
+                <strong>
+                    ${selectedProduct.price.toFixed(2)}
+                </strong>
+            </div>
+        </div>
+    </div>
+)}
                         <button
                             disabled={currentPage === 1}
                             onClick={() =>
