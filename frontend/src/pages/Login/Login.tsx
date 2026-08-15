@@ -72,7 +72,7 @@ function Login() {
                 <div className="login__brand">
 
                     <div className="login__brand-mark">
-                        MT
+                        MTD
                     </div>
 
                     <div className="login__brand-name">
