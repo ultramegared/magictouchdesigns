@@ -33,6 +33,8 @@ export const es = {
     eyebrow: "BIENVENIDO DE NUEVO",
     title: "Iniciar sesión",
     description: "Accede a tu cuenta de Magic Touch Designs.",
+    username: "Usuario",
+usernamePlaceholder: "Ingresa tu nombre de usuario",
     email: "Correo electrónico",
     emailPlaceholder: "Ingresa tu correo electrónico",
     password: "Contraseña",
