@@ -15,7 +15,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/Home";
 import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
-import LoginPage from "./pages/Login"; de
+import LoginPage from "./pages/Login/Login";
 import CustomizePage from "./pages/Customize";
 import ContactPage from "./pages/Contact";
 import AboutPage from "./pages/About";
@@ -28,23 +28,19 @@ import PrivacyPage from "./pages/Privacy";
 import TermsOfServicePage from "./pages/TermsOfService";
 
 function App() {
-
     return (
-
         <BrowserRouter>
-
             <Routes>
 
                 <Route
                     path="/"
                     element={<HomePage />}
                 />
-                
-                <Route
-    path="/login"
-    element={<LoginPage />}
-/>
 
+                <Route
+                    path="/login"
+                    element={<LoginPage />}
+                />
 
                 <Route
                     path="/products"
@@ -107,11 +103,8 @@ function App() {
                 />
 
             </Routes>
-
         </BrowserRouter>
-
     );
-
 }
 
 export default App;

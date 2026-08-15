@@ -10,7 +10,8 @@
  * ================================================================
  */
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 import "./Login.css";
