@@ -6,24 +6,20 @@
  * Module: Home
  * Language: TypeScript React
  * Description:
- * Newsletter Section.
+ * Bilingual Newsletter / Community Section.
  * ================================================================
  */
 
 import "./Newsletter.css";
 
-import { newsletterContent } from "./Newsletter.data";
+import { useLanguage } from "../../../contexts/LanguageContext";
+import { translations } from "../../../translations";
 
 function Newsletter() {
 
-    const {
-        eyebrow,
-        title,
-        description,
-        placeholder,
-        buttonText,
-        privacyText,
-    } = newsletterContent;
+    const { language } = useLanguage();
+
+    const t = translations[language].home.community;
 
     return (
 
@@ -31,41 +27,44 @@ function Newsletter() {
 
             <div className="newsletter__container">
 
-                <div className="newsletter__icon" aria-hidden="true">
+                <div
+                    className="newsletter__icon"
+                    aria-hidden="true"
+                >
                     ✉
                 </div>
 
                 <div className="newsletter__content">
 
                     <span className="newsletter__eyebrow">
-                        {eyebrow}
+                        {t.eyebrow}
                     </span>
 
                     <h2>
-                        {title}
+                        {t.title}
                     </h2>
 
                     <p>
-                        {description}
+                        {t.description}
                     </p>
 
                     <form className="newsletter__form">
 
                         <input
                             type="email"
-                            placeholder={placeholder}
-                            aria-label="Email address"
+                            placeholder={t.placeholder}
+                            aria-label={t.emailLabel}
                             autoComplete="email"
                         />
 
                         <button type="submit">
-                            {buttonText}
+                            {t.subscribe}
                         </button>
 
                     </form>
 
                     <span className="newsletter__privacy">
-                        {privacyText}
+                        {t.privacy}
                     </span>
 
                 </div>
