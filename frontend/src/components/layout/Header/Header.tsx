@@ -188,13 +188,13 @@ const t = translations[language];
 )}
 
                     <button
-                        className="header__icon"
-                        aria-label="Account"
-                    >
-
-                        <User size={20} />
-
-                    </button>
+    type="button"
+    className="header__icon"
+    aria-label="Account"
+    onClick={() => navigate("/login")}
+>
+    <User size={20} />
+</button>
 
                     <button
     type="button"
