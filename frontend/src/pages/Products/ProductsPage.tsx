@@ -12,7 +12,15 @@
  */
 
 import { useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import {
+    Grid2X2,
+    Heart,
+    List,
+    Search,
+    ShoppingBag,
+    SlidersHorizontal,
+    X,
+} from "lucide-react";
 
 import {
     useSearchParams
@@ -39,34 +47,37 @@ type Product = {
     rating: number;
     reviews: number;
     image: string;
+    badge?: "NEW" | "BEST SELLER";
 };
 
 
 const demoProducts: Product[] = [
     {
-        id: 1,
-        name: "Model One",
-        category: "Mug",
-        style: "Classic",
-        color: "Black",
-        size: "11 oz",
-        price: 24.99,
-        rating: 5,
-        reviews: 128,
-        image: "/images/products/model-one.jpg"
-    },
-    {
-        id: 2,
-        name: "Model Two",
-        category: "Mug",
-        style: "Marble",
-        color: "White",
-        size: "11 oz",
-        price: 24.99,
-        rating: 5,
-        reviews: 96,
-        image: "/images/products/model-two.jpg"
-    },
+    id: 1,
+    name: "Model One",
+    category: "Mug",
+    style: "Classic",
+    color: "Black",
+    size: "11 oz",
+    price: 24.99,
+    rating: 5,
+    reviews: 128,
+    image: "/images/products/model-one.jpg",
+    badge: "BEST SELLER",
+},
+{
+    id: 2,
+    name: "Model Two",
+    category: "Mug",
+    style: "Marble",
+    color: "White",
+    size: "11 oz",
+    price: 24.99,
+    rating: 5,
+    reviews: 96,
+    image: "/images/products/model-two.jpg",
+    badge: "NEW",
+},
     {
         id: 3,
         name: "Model Three",
@@ -455,29 +466,46 @@ function ProductsPage() {
                             >
 
                                 <div className="product-card__image">
-<button
-    type="button"
-    className="product-card__zoom"
-    aria-label={`View ${product.name} image`}
-    onClick={() => setSelectedProduct(product)}
->
-    <Search size={18} />
-</button>
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                    />
 
-                                    <button
-                                        className="product-card__favorite"
-                                        aria-label={
-                                            `${t.actions.addFavorite} ${product.name}`
-                                        }
-                                    >
-                                        ♡
-                                    </button>
+    {product.badge && (
+        <span
+            className={`product-card__badge ${
+                product.badge === "NEW"
+                    ? "product-card__badge--new"
+                    : "product-card__badge--best"
+            }`}
+        >
+            {product.badge}
+        </span>
+    )}
 
-                                </div>
+    <img
+        src={product.image}
+        alt={product.name}
+    />
+
+    <div className="product-card__actions">
+
+        <button
+            type="button"
+            className="product-card__action"
+            aria-label={`View ${product.name} image`}
+            onClick={() => setSelectedProduct(product)}
+        >
+            <Search size={17} strokeWidth={2} />
+        </button>
+
+        <button
+            type="button"
+            className="product-card__action product-card__favorite"
+            aria-label={`${t.actions.addFavorite} ${product.name}`}
+        >
+            <Heart size={17} strokeWidth={2} />
+        </button>
+
+    </div>
+
+</div>
 
 
                                 <div className="product-card__content">
@@ -516,8 +544,8 @@ function ProductsPage() {
 
 
                                     <button
-                                        className="product-card__button"
-                                        type="button"
+    className="product-card__button"
+    type="button"
                                         onClick={() => {
 
                                             addToCart({
