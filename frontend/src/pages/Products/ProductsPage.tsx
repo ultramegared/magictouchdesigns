@@ -169,7 +169,7 @@ function ProductsPage() {
     const [sort, setSort] = useState("Newest");
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
     useEffect(() => {
 
@@ -299,6 +299,69 @@ function ProductsPage() {
 
                 <section className="products-catalog">
 
+<section className="products-catalog">
+
+    <div className="products-search">
+        <Search size={19} />
+
+        <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => {
+                setSearchTerm(event.target.value);
+                setCurrentPage(1);
+            }}
+            placeholder={
+                language === "es"
+                    ? "Buscar productos..."
+                    : "Search products..."
+            }
+            aria-label={
+                language === "es"
+                    ? "Buscar productos"
+                    : "Search products"
+            }
+        />
+    </div>
+
+    <div className="products-category-chips">
+
+        <button
+            type="button"
+            className={category === "All" ? "active" : ""}
+            onClick={() => {
+                setCategory("All");
+                setCurrentPage(1);
+            }}
+        >
+            {t.filters.all}
+        </button>
+
+        <button
+            type="button"
+            className={category === "Mug" ? "active" : ""}
+            onClick={() => {
+                setCategory("Mug");
+                setCurrentPage(1);
+            }}
+        >
+            {t.options.categories.mug}
+        </button>
+
+        <button
+            type="button"
+            className={category === "Tumbler" ? "active" : ""}
+            onClick={() => {
+                setCategory("Tumbler");
+                setCurrentPage(1);
+            }}
+        >
+            {t.options.categories.tumbler}
+        </button>
+
+    </div>
+
+    <div className="products-filters">
                     <div className="products-filters">
 
                         <button
@@ -452,13 +515,37 @@ function ProductsPage() {
 
                             </select>
 
-                        </div>
+                       </div>
 
-                    </div>
+</div>
 
+<div className="products-view-toggle">
 
-                    <div className="products-grid">
+    <button
+        type="button"
+        className={viewMode === "grid" ? "active" : ""}
+        onClick={() => setViewMode("grid")}
+        aria-label="Grid view"
+        aria-pressed={viewMode === "grid"}
+    >
+        ▦
+    </button>
 
+    <button
+        type="button"
+        className={viewMode === "list" ? "active" : ""}
+        onClick={() => setViewMode("list")}
+        aria-label="List view"
+        aria-pressed={viewMode === "list"}
+    >
+        ☷
+    </button>
+
+</div>
+
+<div className={`products-grid products-grid--${viewMode}`}>
+
+                 <div className={`products-grid products-grid--${viewMode}`}>
                         {visibleProducts.map((product) => (
 
                             <article
