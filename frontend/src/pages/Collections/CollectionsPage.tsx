@@ -290,11 +290,11 @@ function CollectionsPage() {
                                     </div>
 
                                     <h3>
-                                        t.cards[collection.translationKey].title
+                                        {t.cards[collection.translationKey].title}
                                     </h3>
 
                                     <p>
-                                        t.cards[collection.translationKey].description
+                                        {t.cards[collection.translationKey].description}
                                         
                                     </p>
 
