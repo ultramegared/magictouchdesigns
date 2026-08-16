@@ -11,14 +11,15 @@
  * ================================================================
  */
 
-import { useMemo, useState } from "react";
 import {
-    Grid2X2,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+
+import {
     Heart,
-    List,
     Search,
-    ShoppingBag,
-    SlidersHorizontal,
     X,
 } from "lucide-react";
 
