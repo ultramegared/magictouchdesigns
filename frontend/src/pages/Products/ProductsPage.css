@@ -91,6 +91,114 @@
     padding: 40px 0 70px;
 }
 
+/* ===============================================================
+   PRODUCT SEARCH & CATEGORY CHIPS
+   =============================================================== */
+
+.products-search {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-height: 48px;
+    padding: 0 16px;
+
+    border: 1px solid rgba(200, 155, 60, 0.45);
+    border-radius: 12px;
+
+    background: rgba(18, 18, 18, 0.92);
+    color: #C89B3C;
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.products-search:focus-within {
+    border-color: #C89B3C;
+    box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.10);
+}
+
+.products-search svg {
+    flex-shrink: 0;
+}
+
+.products-search input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+    color: #FFFFFF;
+
+    font: inherit;
+    font-size: 14px;
+}
+
+.products-search input::placeholder {
+    color: rgba(255, 255, 255, 0.48);
+}
+
+/* CATEGORY CHIPS */
+
+.products-category-chips {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    margin-bottom: 20px;
+
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.products-category-chips::-webkit-scrollbar {
+    display: none;
+}
+
+.products-category-chips button {
+    flex: 0 0 auto;
+
+    min-height: 36px;
+    padding: 0 16px;
+
+    border: 1px solid rgba(200, 155, 60, 0.42);
+    border-radius: 999px;
+
+    background: rgba(18, 18, 18, 0.9);
+    color: rgba(255, 255, 255, 0.82);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        transform 0.2s ease;
+}
+
+.products-category-chips:hover {
+    border-color: #C89B3C;
+}
+
+.products-category-chips button.active {
+    border-color: #C89B3C;
+    background: #C89B3C;
+    color: #111111;
+}
+
+.products-category-chips button:active {
+    transform: scale(0.97);
+}
 
 /* ===============================================================
    FILTERS
@@ -163,9 +271,72 @@
    PC = 4 COLUMNS
    =============================================================== */
 
+/* ===============================================================
+   PRODUCT VIEW TOGGLE
+   =============================================================== */
+
+.products-view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    margin-bottom: 20px;
+}
+
+.products-view-toggle button {
+    width: 42px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(200, 155, 60, 0.45);
+    border-radius: 8px;
+
+    background: #151515;
+    color: #B9B9B9;
+
+    font-size: 19px;
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        transform 0.2s ease;
+}
+
+.products-view-toggle button:hover {
+    border-color: #C89B3C;
+    color: #C89B3C;
+}
+
+.products-view-toggle button.active {
+    background: #C89B3C;
+    border-color: #C89B3C;
+    color: #111111;
+}
+
+.products-view-toggle button:active {
+    transform: scale(0.95);
+}
+
+
+/* ===============================================================
+   PRODUCT GRID
+   PC = 3 COLUMNS
+   =============================================================== */
+
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
 }
 
@@ -216,19 +387,109 @@
     object-fit: cover;
 }
 
-.product-card__favorite {
+/* ===============================================================
+   PREMIUM PRODUCT IMAGE ACTIONS
+   =============================================================== */
+
+.product-card__image {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card__image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.45s ease;
+}
+
+.product-card:hover .product-card__image img {
+    transform: scale(1.045);
+}
+
+/* BADGES */
+
+.product-card__badge {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 38px;
-    height: 38px;
-    border: 1px solid rgba(200, 155, 60, 0.8);
+    top: 14px;
+    left: 14px;
+    z-index: 3;
+
+    padding: 6px 10px;
+    border-radius: 4px;
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+
+    color: #111111;
+}
+
+.product-card__badge--new {
+    background: #FFFFFF;
+}
+
+.product-card__badge--best {
+    background: #C89B3C;
+}
+
+/* ACTION BUTTONS */
+
+.product-card__actions {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 3;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.product-card__action {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(200, 155, 60, 0.75);
     border-radius: 50%;
-    background: rgba(8, 8, 8, 0.8);
+
+    background: rgba(10, 10, 10, 0.88);
     color: #C89B3C;
-    font-size: 22px;
-    line-height: 1;
+
     cursor: pointer;
+
+    backdrop-filter: blur(6px);
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        transform 0.25s ease;
+}
+
+.product-card__action:hover {
+    background: #C89B3C;
+    color: #111111;
+    transform: scale(1.08);
+}
+
+.product-card__favorite {
+    position: static;
+
+    width: 40px;
+    height: 40px;
+
+    border: 1px solid rgba(200, 155, 60, 0.75);
+    border-radius: 50%;
+
+    background: rgba(10, 10, 10, 0.88);
+    color: #C89B3C;
+
+    font-size: 0;
 }
 
 
@@ -424,6 +685,17 @@
     .products-hero {
         padding: 55px 20px 38px;
     }
+    
+    .products-view-toggle {
+    justify-content: flex-end;
+    margin-bottom: 14px;
+    }
+     
+     .products-view-toggle button {
+    width: 38px;
+    height: 34px;
+    font-size: 17px;
+}
 
     .products-hero__eyebrow {
         font-size: 10px;
@@ -443,7 +715,24 @@
         width: calc(100% - 28px);
         padding-top: 25px;
     }
+    
+     .products-search {
+    max-width: none;
+    margin-bottom: 12px;
+    min-height: 44px;
+}
 
+.products-category-chips {
+    justify-content: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 2px;
+}
+
+.products-category-chips button {
+    min-height: 34px;
+    padding: 0 14px;
+    font-size: 10px;
+}
 
     /* Filters */
 
