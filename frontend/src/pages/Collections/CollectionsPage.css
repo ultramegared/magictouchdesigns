@@ -690,126 +690,167 @@
    ================================================================ */
 
 .collections-benefits {
-    width: min(1200px, calc(100% - 40px));
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto 40px;
 
-    margin: 0 auto 40px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 
-    display: grid;
+  overflow: hidden;
 
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
+  border: 1px solid rgba(216, 166, 60, 0.82);
+  border-radius: 16px;
 
-    overflow: hidden;
+  background:
+    linear-gradient(
+      135deg,
+      #181715 0%,
+      #0f0f0f 55%,
+      #080808 100%
+    );
 
-    border:
-        1px solid rgba(216, 166, 60, 0.75);
-
-    border-radius: 14px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #151515,
-            #0e0e0e
-        );
+  box-shadow:
+    0 0 0 1px rgba(216, 166, 60, 0.08),
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
 .collection-benefit {
-    position: relative;
+  position: relative;
 
-    min-height: 145px;
+  min-height: 145px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    padding: 24px 22px;
+  padding: 24px 22px;
 
-    text-align: center;
+  text-align: center;
+
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(216, 166, 60, 0.055),
+      transparent 58%
+    );
+
+  transition:
+    background 0.3s ease,
+    transform 0.3s ease;
+}
+
+.collection-benefit:hover {
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(216, 166, 60, 0.12),
+      transparent 62%
+    );
+}
+
+.collection-benefit:nth-child(odd) {
+  border-right: 1px solid rgba(216, 166, 60, 0.45);
+}
+
+.collection-benefit:not(:nth-child(-n + 2)) {
+  border-top: 1px solid rgba(216, 166, 60, 0.28);
 }
 
 .collection-benefit__icon {
-    width: 57px;
-    height: 57px;
+  width: 57px;
+  height: 57px;
 
-    flex: 0 0 57px;
+  flex: 0 0 57px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    border:
-        1px solid #d8a63c;
+  border: 1px solid #d8a63c;
+  border-radius: 50%;
 
-    border-radius: 50%;
+  color: #d8a63c;
 
-    color: #d8a63c;
+  background:
+    radial-gradient(
+      circle,
+      rgba(216, 166, 60, 0.18),
+      rgba(216, 166, 60, 0.04) 62%,
+      transparent 74%
+    );
 
-    background:
-        radial-gradient(
-            circle,
-            rgba(216, 166, 60, 0.18),
-            rgba(216, 166, 60, 0.04) 62%,
-            transparent 74%
-        );
+  box-shadow:
+    0 0 0 4px rgba(216, 166, 60, 0.025),
+    0 0 22px rgba(216, 166, 60, 0.22);
 
-    box-shadow:
-        0 0 0 4px rgba(216, 166, 60, 0.025),
-        0 0 22px rgba(216, 166, 60, 0.22);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.collection-benefit:hover .collection-benefit__icon {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 0 0 4px rgba(216, 166, 60, 0.045),
+    0 0 30px rgba(216, 166, 60, 0.34);
 }
 
 .collection-benefit__icon svg {
-    width: 29px;
-    height: 29px;
+  width: 29px;
+  height: 29px;
 
-    display: block;
+  display: block;
 }
 
 .collection-benefit__text {
-    margin-left: 15px;
-
-    text-align: left;
+  margin-left: 15px;
+  text-align: left;
 }
 
 .collection-benefit__text h3 {
-    margin: 0 0 7px;
+  margin: 0 0 7px;
 
-    color: #ffffff;
+  color: #ffffff;
 
-    font-size: 12px;
-    line-height: 1.2;
-    font-weight: 800;
+  font-size: 12px;
+  line-height: 1.2;
 
-    letter-spacing: 1px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.08);
 }
 
 .collection-benefit__text p {
-    margin: 0;
+  margin: 0;
 
-    color: rgba(255, 255, 255, 0.67);
+  color: rgba(255, 255, 255, 0.67);
 
-    font-size: 10px;
-    line-height: 1.5;
+  font-size: 10px;
+  line-height: 1.5;
 }
 
 .collection-benefit__divider {
-    position: absolute;
+  position: absolute;
 
-    top: 23px;
-    right: 0;
+  top: 23px;
+  right: 0;
 
-    width: 1px;
-    height: calc(100% - 46px);
+  width: 1px;
+  height: calc(100% - 46px);
 
-    background:
-        linear-gradient(
-            180deg,
-            transparent,
-            rgba(216, 166, 60, 0.78),
-            transparent
-        );
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(216, 166, 60, 0.78),
+      transparent
+    );
 }
-
 
 /* ================================================================
    MOBILE

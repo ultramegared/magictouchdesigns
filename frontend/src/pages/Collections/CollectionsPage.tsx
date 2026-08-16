@@ -55,20 +55,38 @@ function CollectionsPage() {
             description: "Premium materials and high-quality finishes.",
             icon: (
                 <svg viewBox="0 0 64 64" aria-hidden="true">
-                    <path
-                        d="M32 7L39 20L53 22L43 32L46 46L32 39L18 46L21 32L11 22L25 20Z"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinejoin="round"
-                    />
-                    <circle
-                        cx="32"
-                        cy="29"
-                        r="5"
-                        fill="currentColor"
-                    />
-                </svg>
+    <path
+        d="M8 20L18 30L25 15L32 27L39 15L46 30L56 20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    />
+
+    <path
+        d="M14 34H50"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+    />
+
+    <path
+        d="M17 34L20 49H44L47 34"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.6"
+        strokeLinejoin="round"
+    />
+
+    <circle
+        cx="32"
+        cy="9"
+        r="2.2"
+        fill="currentColor"
+    />
+</svg>
             ),
         },
         {
@@ -100,23 +118,8 @@ function CollectionsPage() {
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="3"
-                    />
-
-                    <circle
-                        cx="47"
-                        cy="48"
-                        r="5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                    />
-                </svg>
-            ),
-        },
-        {
-            id: 3,
-            title: "CUSTOM DESIGNS",
-            description: "Personalized designs created just for you.",
+                   .mc
+                   
             icon: (
                 <svg viewBox="0 0 64 64" aria-hidden="true">
                     <path
