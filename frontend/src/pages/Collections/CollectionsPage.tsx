@@ -183,7 +183,7 @@ function CollectionsPage() {
 
                     <div className="collections-hero__image">
                         <img
-                            src="/images/collections/collections-hero.jpg"
+                            src="/images/collections/collections-hero2.jpg"
                             alt="Magic Touch Designs premium collection"
                         />
                     </div>
@@ -306,7 +306,7 @@ function CollectionsPage() {
 
                     <div className="love-edition__visual">
                         <img
-                            src="/images/collections/collection-1.jpg"
+                            src="/images/collections/love-edition.jpg"
                             alt="Love Edition"
                         />
                     </div>
