@@ -299,7 +299,6 @@ function ProductsPage() {
 
                 <section className="products-catalog">
 
-<section className="products-catalog">
 
     <div className="products-search">
         <Search size={19} />
