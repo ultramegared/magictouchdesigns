@@ -50,8 +50,7 @@ function CollectionsPage() {
     const benefits = [
         {
             id: 1,
-            title: "PREMIUM QUALITY",
-            description: "Premium materials and high-quality finishes.",
+            translationKey: "premiumQuality",
             icon: (
                 <svg viewBox="0 0 64 64" aria-hidden="true">
     <path
@@ -91,8 +90,7 @@ function CollectionsPage() {
         
         {
     id: 2,
-    title: "FAST SHIPPING",
-    description: "Fast and secure delivery to your door.",
+    translationKey: "fastShipping",
     icon: (
         <svg viewBox="0 0 64 64" aria-hidden="true">
             <path
@@ -131,8 +129,7 @@ function CollectionsPage() {
 },
 {
     id: 3,
-    title: "CUSTOM DESIGNS",
-    description: "Personalized designs created just for you.",
+    translationKey: "customDesigns",
     icon: (
         <svg viewBox="0 0 64 64" aria-hidden="true">
             <path
@@ -164,8 +161,7 @@ function CollectionsPage() {
 
         {
             id: 4,
-            title: "SECURE PAYMENT",
-            description: "Secure payments and protection of your data.",
+            translationKey: "securePayment",
             icon: (
                 <svg viewBox="0 0 64 64" aria-hidden="true">
                     <path
