@@ -79,7 +79,7 @@ export const footerContent: FooterContent = {
     social: [
         {
             name: "Instagram",
-            href: "#",
+            href: "https://www.instagram.com/magic.touch_designs",
         },
         {
             name: "Facebook",
@@ -91,7 +91,7 @@ export const footerContent: FooterContent = {
         },
         {
             name: "YouTube",
-            href: "#",
+            href: "https://youtube.com/@magictouchdesigns-u7t",
         },
     ],
 
