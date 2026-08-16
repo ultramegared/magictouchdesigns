@@ -6,7 +6,7 @@
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Premium collections page.
+ * Premium collections landing page.
  * ================================================================
  */
 
@@ -22,24 +22,28 @@ function CollectionsPage() {
             title: "LOVE & ROMANCE",
             description: "Perfect gifts for that special someone.",
             image: "/images/collections/collection-1.jpg",
+            icon: "♡",
         },
         {
             id: 2,
             title: "FAMILY & MEMORIES",
             description: "Turn memories into something beautiful.",
             image: "/images/collections/collection-2.jpg",
+            icon: "♧",
         },
         {
             id: 3,
             title: "BUSINESS & BRANDING",
             description: "Custom designs for your brand and business.",
             image: "/images/collections/collection-3.jpg",
+            icon: "▱",
         },
         {
             id: 4,
             title: "SPECIAL OCCASIONS",
             description: "Celebrate life's most important moments.",
             image: "/images/collections/collection-4.jpg",
+            icon: "✦",
         },
     ];
 
@@ -79,6 +83,7 @@ function CollectionsPage() {
                         strokeWidth="3"
                         strokeLinejoin="round"
                     />
+
                     <path
                         d="M39 25H49L57 34V43H39Z"
                         fill="none"
@@ -86,6 +91,7 @@ function CollectionsPage() {
                         strokeWidth="3"
                         strokeLinejoin="round"
                     />
+
                     <circle
                         cx="19"
                         cy="48"
@@ -94,6 +100,7 @@ function CollectionsPage() {
                         stroke="currentColor"
                         strokeWidth="3"
                     />
+
                     <circle
                         cx="47"
                         cy="48"
@@ -118,12 +125,14 @@ function CollectionsPage() {
                         strokeWidth="3"
                         strokeLinejoin="round"
                     />
+
                     <path
                         d="M38 17L47 26"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="3"
                     />
+
                     <path
                         d="M11 53L25 48"
                         fill="none"
@@ -146,6 +155,7 @@ function CollectionsPage() {
                         strokeWidth="3"
                         strokeLinejoin="round"
                     />
+
                     <path
                         d="M21 32L29 40L44 24"
                         fill="none"
@@ -159,15 +169,6 @@ function CollectionsPage() {
         },
     ];
 
-    const scrollToCollections = () => {
-        document
-            .getElementById("collections-grid")
-            ?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-            });
-    };
-
     return (
         <>
             <Header />
@@ -180,10 +181,10 @@ function CollectionsPage() {
 
                 <section className="collections-hero">
 
-                    <div className="collections-hero__background">
+                    <div className="collections-hero__image">
                         <img
                             src="/images/collections/collections-hero.jpg"
-                            alt="Magic Touch Designs collections"
+                            alt="Magic Touch Designs premium collection"
                         />
                     </div>
 
@@ -193,6 +194,9 @@ function CollectionsPage() {
 
                         <span className="collections-hero__eyebrow">
                             CURATED WITH LOVE
+                            <span className="collections-hero__crown">
+                                ♕
+                            </span>
                         </span>
 
                         <h1>
@@ -200,7 +204,7 @@ function CollectionsPage() {
                             <span>COLLECTIONS</span>
                         </h1>
 
-                        <div className="collections-hero__divider">
+                        <div className="collections-hero__ornament">
                             <span></span>
                             <b>◆</b>
                             <span></span>
@@ -211,37 +215,29 @@ function CollectionsPage() {
                             personalized just for you.
                         </p>
 
-                        <button
-                            className="collections-hero__button"
-                            type="button"
-                            onClick={scrollToCollections}
-                        >
-                            BROWSE OUR COLLECTIONS
-                            <span aria-hidden="true">↓</span>
-                        </button>
+                    </div>
 
+                    <div className="collections-hero__bottom-curve">
+                        <span></span>
                     </div>
 
                 </section>
 
 
                 {/* ==================================================
-                    COLLECTIONS
+                    BROWSE OUR COLLECTIONS
                    ================================================== */}
 
-                <section
-                    className="collections-browse"
-                    id="collections-grid"
-                >
+                <section className="collections-section">
 
-                    <div className="collections-section-heading">
+                    <div className="collections-heading">
 
-                        <div className="collections-section-heading__line">
+                        <div className="collections-heading__ornament">
                             <span></span>
 
                             <div>
                                 <b>♕</b>
-                                <strong>BROWSE OUR COLLECTIONS</strong>
+                                <h2>BROWSE OUR COLLECTIONS</h2>
                             </div>
 
                             <span></span>
@@ -259,42 +255,34 @@ function CollectionsPage() {
                                 key={collection.id}
                             >
 
-                                <div className="collection-card__image">
+                                <div className="collection-card__visual">
 
                                     <img
                                         src={collection.image}
                                         alt={collection.title}
                                     />
 
-                                    <div className="collection-card__image-overlay"></div>
+                                    <div className="collection-card__fade"></div>
 
                                 </div>
 
-                                <div className="collection-card__content">
+                                <div className="collection-card__body">
 
                                     <div className="collection-card__icon">
-
-                                        {collection.id === 1 && "♡"}
-
-                                        {collection.id === 2 && "♧"}
-
-                                        {collection.id === 3 && "▱"}
-
-                                        {collection.id === 4 && "✦"}
-
+                                        {collection.icon}
                                     </div>
 
-                                    <h2>
+                                    <h3>
                                         {collection.title}
-                                    </h2>
+                                    </h3>
 
                                     <p>
                                         {collection.description}
                                     </p>
 
                                     <button
-                                        className="collection-card__button"
                                         type="button"
+                                        className="collection-card__button"
                                     >
                                         VIEW COLLECTION
                                     </button>
@@ -311,18 +299,27 @@ function CollectionsPage() {
 
 
                 {/* ==================================================
-                    FEATURED COLLECTION
+                    LOVE EDITION
                    ================================================== */}
 
-                <section className="collections-featured">
+                <section className="love-edition">
 
-                    <div className="collections-featured__content">
+                    <div className="love-edition__visual">
+                        <img
+                            src="/images/collections/collection-1.jpg"
+                            alt="Love Edition"
+                        />
+                    </div>
 
-                        <span className="collections-featured__eyebrow">
+                    <div className="love-edition__overlay"></div>
+
+                    <div className="love-edition__content">
+
+                        <span className="love-edition__eyebrow">
                             FEATURED COLLECTION
                         </span>
 
-                        <div className="collections-featured__accent">
+                        <div className="love-edition__ornament">
                             <span></span>
                             <b>◆</b>
                         </div>
@@ -332,25 +329,16 @@ function CollectionsPage() {
                         </h2>
 
                         <p>
-                            Designed for moments that deserve
-                            to be remembered.
+                            Designed for moments that
+                            deserve to be remembered.
                         </p>
 
                         <button
-                            className="collections-featured__button"
                             type="button"
+                            className="love-edition__button"
                         >
                             EXPLORE LOVE EDITION
                         </button>
-
-                    </div>
-
-                    <div className="collections-featured__image">
-
-                        <img
-                            src="/images/collections/collection-1.jpg"
-                            alt="Love Edition collection"
-                        />
 
                     </div>
 
@@ -374,7 +362,7 @@ function CollectionsPage() {
                                 {benefit.icon}
                             </div>
 
-                            <div className="collection-benefit__content">
+                            <div className="collection-benefit__text">
 
                                 <h3>
                                     {benefit.title}
@@ -388,7 +376,7 @@ function CollectionsPage() {
 
                             {index < benefits.length - 1 && (
                                 <span
-                                    className="collection-benefit__separator"
+                                    className="collection-benefit__divider"
                                     aria-hidden="true"
                                 />
                             )}
