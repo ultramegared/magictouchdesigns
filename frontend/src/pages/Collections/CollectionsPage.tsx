@@ -11,42 +11,41 @@
  */
 
 import "./CollectionsPage.css";
-
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { translations } from "../../translations";
 
 function CollectionsPage() {
+  const { language } = useLanguage();
+  const t = translations[language].collections;
 
-   const collections = [
+     const collections = [
     {
-        id: 1,
-        title: "LOVE & ROMANCE",
-        description: "Perfect gifts for that special someone.",
-        image: "/images/collections/love-romance.jpg",
-        icon: "♡",
+      id: 1,
+      translationKey: "loveRomance",
+      image: "/images/collections/love-romance.jpg",
+      icon: "♡",
     },
     {
-        id: 2,
-        title: "FAMILY & MEMORIES",
-        description: "Turn memories into something beautiful.",
-        image: "/images/collections/family-memories.jpg",
-        icon: "♧",
+      id: 2,
+      translationKey: "familyMemories",
+      image: "/images/collections/family-memories.jpg",
+      icon: "♧",
     },
     {
-        id: 3,
-        title: "BUSINESS & BRANDING",
-        description: "Custom designs for your brand and business.",
-        image: "/images/collections/business-branding.jpg",
-        icon: "▱",
+      id: 3,
+      translationKey: "businessBranding",
+      image: "/images/collections/business-branding.jpg",
+      icon: "▱",
     },
     {
-        id: 4,
-        title: "SPECIAL OCCASIONS",
-        description: "Celebrate life's most important moments.",
-        image: "/images/collections/special-occasions.jpg",
-        icon: "✦",
+      id: 4,
+      translationKey: "specialOccasions",
+      image: "/images/collections/special-occasions.jpg",
+      icon: "✦",
     },
-];
+  ] as const;
 
     const benefits = [
         {
@@ -214,15 +213,16 @@ function CollectionsPage() {
                     <div className="collections-hero__content">
 
                         <span className="collections-hero__eyebrow">
-                            CURATED WITH LOVE
+                           {t.hero.eyebrow}
                             <span className="collections-hero__crown">
                                 ♕
                             </span>
                         </span>
 
                         <h1>
-                            OUR
-                            <span>COLLECTIONS</span>
+                            {t.hero.title}
+                        <span>{t.hero.titleAccent}</span>
+                            
                         </h1>
 
                         <div className="collections-hero__ornament">
@@ -232,8 +232,7 @@ function CollectionsPage() {
                         </div>
 
                         <p>
-                            Premium designs, timeless quality and
-                            personalized just for you.
+                            {t.hero.description}
                         </p>
 
                     </div>
@@ -258,7 +257,7 @@ function CollectionsPage() {
 
                             <div>
                                 <b>♕</b>
-                                <h2>BROWSE OUR COLLECTIONS</h2>
+                                <h2>{t.browse.title}</h2>
                             </div>
 
                             <span></span>
@@ -280,7 +279,8 @@ function CollectionsPage() {
 
                                     <img
                                         src={collection.image}
-                                        alt={collection.title}
+                                        alt={t.cards[collection.translationKey].title}
+                                        
                                     />
 
                                     <div className="collection-card__fade"></div>
@@ -294,18 +294,20 @@ function CollectionsPage() {
                                     </div>
 
                                     <h3>
-                                        {collection.title}
+                                        t.cards[collection.translationKey].title
                                     </h3>
 
                                     <p>
-                                        {collection.description}
+                                        t.cards[collection.translationKey].description
+                                        
                                     </p>
 
                                     <button
                                         type="button"
                                         className="collection-card__button"
                                     >
-                                        VIEW COLLECTION
+                                        {t.browse.viewCollection}
+                              
                                     </button>
 
                                 </div>
@@ -337,7 +339,7 @@ function CollectionsPage() {
                     <div className="love-edition__content">
 
                         <span className="love-edition__eyebrow">
-                            FEATURED COLLECTION
+                            {t.featured.eyebrow}
                         </span>
 
                         <div className="love-edition__ornament">
@@ -346,19 +348,18 @@ function CollectionsPage() {
                         </div>
 
                         <h2>
-                            LOVE EDITION
+                            {t.featured.title}
                         </h2>
 
                         <p>
-                            Designed for moments that
-                            deserve to be remembered.
+                            {t.featured.description}
                         </p>
 
                         <button
                             type="button"
                             className="love-edition__button"
                         >
-                            EXPLORE LOVE EDITION
+                            {t.featured.button}
                         </button>
 
                     </div>
@@ -386,12 +387,12 @@ function CollectionsPage() {
                             <div className="collection-benefit__text">
 
                                 <h3>
-                                    {benefit.title}
-                                </h3>
+  {t.benefits[benefit.translationKey].title}
+</h3>
 
-                                <p>
-                                    {benefit.description}
-                                </p>
+<p>
+  {t.benefits[benefit.translationKey].description}
+</p>
 
                             </div>
 

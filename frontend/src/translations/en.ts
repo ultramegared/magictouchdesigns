@@ -326,6 +326,72 @@ community: {
 
   },
 
+  collections: {
+    hero: {
+      eyebrow: "CURATED WITH LOVE",
+      title: "OUR",
+      titleAccent: "COLLECTIONS",
+      description:
+        "Premium designs, timeless quality and personalized just for you.",
+    },
+
+    browse: {
+      title: "BROWSE OUR COLLECTIONS",
+      viewCollection: "VIEW COLLECTION",
+    },
+
+    cards: {
+      loveRomance: {
+        title: "LOVE & ROMANCE",
+        description: "Perfect gifts for that special someone.",
+      },
+
+      familyMemories: {
+        title: "FAMILY & MEMORIES",
+        description: "Turn memories into something beautiful.",
+      },
+
+      businessBranding: {
+        title: "BUSINESS & BRANDING",
+        description: "Custom designs for your brand and business.",
+      },
+
+      specialOccasions: {
+        title: "SPECIAL OCCASIONS",
+        description: "Celebrate life's most important moments.",
+      },
+    },
+
+    featured: {
+      eyebrow: "FEATURED COLLECTION",
+      title: "LOVE EDITION",
+      description: "Designed for moments that deserve to be remembered.",
+      button: "EXPLORE LOVE EDITION",
+    },
+
+    benefits: {
+      premiumQuality: {
+        title: "PREMIUM QUALITY",
+        description: "Premium materials and high-quality finishes.",
+      },
+
+      fastShipping: {
+        title: "FAST SHIPPING",
+        description: "Fast and secure delivery to your door.",
+      },
+
+      customDesigns: {
+        title: "CUSTOM DESIGNS",
+        description: "Personalized designs created just for you.",
+      },
+
+      securePayment: {
+        title: "SECURE PAYMENT",
+        description: "Secure payments and protection of your data.",
+      },
+    },
+  },
+
   footer: {
     allModels: "All Models",
     collections: "Collections",

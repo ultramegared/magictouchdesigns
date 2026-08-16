@@ -373,6 +373,71 @@ register: {
 },
 
     },
+      collections: {
+    hero: {
+      eyebrow: "CREADO CON AMOR",
+      title: "NUESTRAS",
+      titleAccent: "COLECCIONES",
+      description:
+        "Diseños premium, calidad atemporal y personalizados especialmente para ti.",
+    },
+
+    browse: {
+      title: "EXPLORA NUESTRAS COLECCIONES",
+      viewCollection: "VER COLECCIÓN",
+    },
+
+    cards: {
+      loveRomance: {
+        title: "AMOR Y ROMANCE",
+        description: "Regalos perfectos para esa persona especial.",
+      },
+
+      familyMemories: {
+        title: "FAMILIA Y RECUERDOS",
+        description: "Convierte tus recuerdos en algo hermoso.",
+      },
+
+      businessBranding: {
+        title: "NEGOCIOS Y MARCA",
+        description: "Diseños personalizados para tu marca y negocio.",
+      },
+
+      specialOccasions: {
+        title: "OCASIONES ESPECIALES",
+        description: "Celebra los momentos más importantes de la vida.",
+      },
+    },
+
+    featured: {
+      eyebrow: "COLECCIÓN DESTACADA",
+      title: "EDICIÓN AMOR",
+      description: "Diseñada para momentos que merecen ser recordados.",
+      button: "EXPLORAR EDICIÓN AMOR",
+    },
+
+    benefits: {
+      premiumQuality: {
+        title: "CALIDAD PREMIUM",
+        description: "Materiales premium y acabados de alta calidad.",
+      },
+
+      fastShipping: {
+        title: "ENVÍO RÁPIDO",
+        description: "Envío rápido y seguro hasta tu puerta.",
+      },
+
+      customDesigns: {
+        title: "DISEÑOS PERSONALIZADOS",
+        description: "Diseños personalizados creados especialmente para ti.",
+      },
+
+      securePayment: {
+        title: "PAGO SEGURO",
+        description: "Pagos seguros y protección de tus datos.",
+      },
+    },
+  },
 
     footer: {
 
