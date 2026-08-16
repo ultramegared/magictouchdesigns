@@ -6,7 +6,7 @@
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Collections page.
+ * Premium collections page.
  * ================================================================
  */
 
@@ -16,60 +16,40 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 
 function CollectionsPage() {
-
     const collections = [
         {
             id: 1,
-            name: "Premium",
-            image: "/images/collections/collection-1.jpg"
+            title: "LOVE & ROMANCE",
+            description: "Perfect gifts for that special someone.",
+            image: "/images/collections/collection-1.jpg",
         },
         {
             id: 2,
-            name: "Classic",
-            image: "/images/collections/collection-2.jpg"
+            title: "FAMILY & MEMORIES",
+            description: "Turn memories into something beautiful.",
+            image: "/images/collections/collection-2.jpg",
         },
         {
             id: 3,
-            name: "Marble",
-            image: "/images/collections/collection-3.jpg"
+            title: "BUSINESS & BRANDING",
+            description: "Custom designs for your brand and business.",
+            image: "/images/collections/collection-3.jpg",
         },
         {
             id: 4,
-            name: "Personalized",
-            image: "/images/collections/collection-4.jpg"
+            title: "SPECIAL OCCASIONS",
+            description: "Celebrate life's most important moments.",
+            image: "/images/collections/collection-4.jpg",
         },
-        {
-            id: 5,
-            name: "Seasonal",
-            image: "/images/collections/collection-5.jpg"
-        },
-        {
-            id: 6,
-            name: "Best Sellers",
-            image: "/images/collections/collection-6.jpg"
-        },
-        {
-            id: 7,
-            name: "Floral",
-            image: "/images/collections/collection-7.jpg"
-        },
-        {
-            id: 8,
-            name: "Minimalist",
-            image: "/images/collections/collection-8.jpg"
-        }
     ];
 
     const benefits = [
         {
             id: 1,
             title: "PREMIUM QUALITY",
-            description: "Top quality materials and long lasting prints.",
+            description: "Premium materials and high-quality finishes.",
             icon: (
-                <svg
-                    viewBox="0 0 64 64"
-                    aria-hidden="true"
-                >
+                <svg viewBox="0 0 64 64" aria-hidden="true">
                     <path
                         d="M32 7L39 20L53 22L43 32L46 46L32 39L18 46L21 32L11 22L25 20Z"
                         fill="none"
@@ -77,7 +57,6 @@ function CollectionsPage() {
                         strokeWidth="2.5"
                         strokeLinejoin="round"
                     />
-
                     <circle
                         cx="32"
                         cy="29"
@@ -85,17 +64,14 @@ function CollectionsPage() {
                         fill="currentColor"
                     />
                 </svg>
-            )
+            ),
         },
         {
             id: 2,
             title: "FAST SHIPPING",
-            description: "Fast and secure shipping to your door.",
+            description: "Fast and secure delivery to your door.",
             icon: (
-                <svg
-                    viewBox="0 0 64 64"
-                    aria-hidden="true"
-                >
+                <svg viewBox="0 0 64 64" aria-hidden="true">
                     <path
                         d="M7 17H39V43H7Z"
                         fill="none"
@@ -103,7 +79,6 @@ function CollectionsPage() {
                         strokeWidth="3"
                         strokeLinejoin="round"
                     />
-
                     <path
                         d="M39 25H49L57 34V43H39Z"
                         fill="none"
@@ -111,7 +86,6 @@ function CollectionsPage() {
                         strokeWidth="3"
                         strokeLinejoin="round"
                     />
-
                     <circle
                         cx="19"
                         cy="48"
@@ -120,7 +94,6 @@ function CollectionsPage() {
                         stroke="currentColor"
                         strokeWidth="3"
                     />
-
                     <circle
                         cx="47"
                         cy="48"
@@ -130,17 +103,14 @@ function CollectionsPage() {
                         strokeWidth="3"
                     />
                 </svg>
-            )
+            ),
         },
         {
             id: 3,
             title: "CUSTOM DESIGNS",
-            description: "Create your own design and make it unique.",
+            description: "Personalized designs created just for you.",
             icon: (
-                <svg
-                    viewBox="0 0 64 64"
-                    aria-hidden="true"
-                >
+                <svg viewBox="0 0 64 64" aria-hidden="true">
                     <path
                         d="M11 53L17 38L43 12L52 21L26 47Z"
                         fill="none"
@@ -148,14 +118,12 @@ function CollectionsPage() {
                         strokeWidth="3"
                         strokeLinejoin="round"
                     />
-
                     <path
                         d="M38 17L47 26"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="3"
                     />
-
                     <path
                         d="M11 53L25 48"
                         fill="none"
@@ -163,17 +131,14 @@ function CollectionsPage() {
                         strokeWidth="3"
                     />
                 </svg>
-            )
+            ),
         },
         {
             id: 4,
             title: "SECURE PAYMENT",
-            description: "100% secure payments and data protection.",
+            description: "Secure payments and protection of your data.",
             icon: (
-                <svg
-                    viewBox="0 0 64 64"
-                    aria-hidden="true"
-                >
+                <svg viewBox="0 0 64 64" aria-hidden="true">
                     <path
                         d="M32 7L52 14V29C52 42 44 52 32 57C20 52 12 42 12 29V14Z"
                         fill="none"
@@ -181,7 +146,6 @@ function CollectionsPage() {
                         strokeWidth="3"
                         strokeLinejoin="round"
                     />
-
                     <path
                         d="M21 32L29 40L44 24"
                         fill="none"
@@ -191,9 +155,18 @@ function CollectionsPage() {
                         strokeLinejoin="round"
                     />
                 </svg>
-            )
-        }
+            ),
+        },
     ];
+
+    const scrollToCollections = () => {
+        document
+            .getElementById("collections-grid")
+            ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+    };
 
     return (
         <>
@@ -202,18 +175,16 @@ function CollectionsPage() {
             <main className="collections-page">
 
                 {/* ==================================================
-                    COLLECTIONS HERO
+                    HERO
                    ================================================== */}
 
                 <section className="collections-hero">
 
                     <div className="collections-hero__background">
-
                         <img
                             src="/images/collections/collections-hero.jpg"
                             alt="Magic Touch Designs collections"
                         />
-
                     </div>
 
                     <div className="collections-hero__overlay"></div>
@@ -221,54 +192,63 @@ function CollectionsPage() {
                     <div className="collections-hero__content">
 
                         <span className="collections-hero__eyebrow">
-                            COLLECTIONS
+                            CURATED WITH LOVE
                         </span>
 
                         <h1>
-                            Explore Our
-                            <span>Collections</span>
+                            OUR
+                            <span>COLLECTIONS</span>
                         </h1>
 
+                        <div className="collections-hero__divider">
+                            <span></span>
+                            <b>◆</b>
+                            <span></span>
+                        </div>
+
                         <p>
-                            Discover unique styles for every occasion.
-                            Each collection is carefully designed to
-                            match your style and every special moment.
+                            Premium designs, timeless quality and
+                            personalized just for you.
                         </p>
 
                         <button
                             className="collections-hero__button"
                             type="button"
+                            onClick={scrollToCollections}
                         >
-                            VIEW ALL COLLECTIONS
-                            <span aria-hidden="true">›</span>
+                            BROWSE OUR COLLECTIONS
+                            <span aria-hidden="true">↓</span>
                         </button>
 
                     </div>
 
                 </section>
 
+
                 {/* ==================================================
-                    BROWSE BY COLLECTION
+                    COLLECTIONS
                    ================================================== */}
 
-                <section className="collections-browse">
+                <section
+                    className="collections-browse"
+                    id="collections-grid"
+                >
 
                     <div className="collections-section-heading">
 
-                        <span>
-                            BROWSE BY
-                        </span>
+                        <div className="collections-section-heading__line">
+                            <span></span>
 
-                        <strong>
-                            COLLECTION
-                        </strong>
+                            <div>
+                                <b>♕</b>
+                                <strong>BROWSE OUR COLLECTIONS</strong>
+                            </div>
 
-                        <p>
-                            Each collection is carefully designed to
-                            match your style and every special moment.
-                        </p>
+                            <span></span>
+                        </div>
 
                     </div>
+
 
                     <div className="collections-grid">
 
@@ -283,27 +263,40 @@ function CollectionsPage() {
 
                                     <img
                                         src={collection.image}
-                                        alt={`${collection.name} collection`}
+                                        alt={collection.title}
                                     />
+
+                                    <div className="collection-card__image-overlay"></div>
 
                                 </div>
 
                                 <div className="collection-card__content">
 
+                                    <div className="collection-card__icon">
+
+                                        {collection.id === 1 && "♡"}
+
+                                        {collection.id === 2 && "♧"}
+
+                                        {collection.id === 3 && "▱"}
+
+                                        {collection.id === 4 && "✦"}
+
+                                    </div>
+
                                     <h2>
-                                        {collection.name}
+                                        {collection.title}
                                     </h2>
+
+                                    <p>
+                                        {collection.description}
+                                    </p>
 
                                     <button
                                         className="collection-card__button"
                                         type="button"
                                     >
                                         VIEW COLLECTION
-
-                                        <span aria-hidden="true">
-                                            →
-                                        </span>
-
                                     </button>
 
                                 </div>
@@ -314,40 +307,95 @@ function CollectionsPage() {
 
                     </div>
 
-                    {/* ==================================================
-                        COLLECTION BENEFITS
-                       ================================================== */}
+                </section>
 
-                    <div className="collections-benefits">
 
-                        {benefits.map((benefit) => (
+                {/* ==================================================
+                    FEATURED COLLECTION
+                   ================================================== */}
 
-                            <article
-                                className="collection-benefit"
-                                key={benefit.id}
-                            >
+                <section className="collections-featured">
 
-                                <div className="collection-benefit__icon">
-                                    {benefit.icon}
-                                </div>
+                    <div className="collections-featured__content">
 
-                                <div className="collection-benefit__content">
+                        <span className="collections-featured__eyebrow">
+                            FEATURED COLLECTION
+                        </span>
 
-                                    <h3>
-                                        {benefit.title}
-                                    </h3>
+                        <div className="collections-featured__accent">
+                            <span></span>
+                            <b>◆</b>
+                        </div>
 
-                                    <p>
-                                        {benefit.description}
-                                    </p>
+                        <h2>
+                            LOVE EDITION
+                        </h2>
 
-                                </div>
+                        <p>
+                            Designed for moments that deserve
+                            to be remembered.
+                        </p>
 
-                            </article>
-
-                        ))}
+                        <button
+                            className="collections-featured__button"
+                            type="button"
+                        >
+                            EXPLORE LOVE EDITION
+                        </button>
 
                     </div>
+
+                    <div className="collections-featured__image">
+
+                        <img
+                            src="/images/collections/collection-1.jpg"
+                            alt="Love Edition collection"
+                        />
+
+                    </div>
+
+                </section>
+
+
+                {/* ==================================================
+                    PREMIUM BENEFITS
+                   ================================================== */}
+
+                <section className="collections-benefits">
+
+                    {benefits.map((benefit, index) => (
+
+                        <article
+                            className="collection-benefit"
+                            key={benefit.id}
+                        >
+
+                            <div className="collection-benefit__icon">
+                                {benefit.icon}
+                            </div>
+
+                            <div className="collection-benefit__content">
+
+                                <h3>
+                                    {benefit.title}
+                                </h3>
+
+                                <p>
+                                    {benefit.description}
+                                </p>
+
+                            </div>
+
+                            {index < benefits.length - 1 && (
+                                <span
+                                    className="collection-benefit__separator"
+                                    aria-hidden="true"
+                                />
+                            )}
+
+                        </article>
+
+                    ))}
 
                 </section>
 
