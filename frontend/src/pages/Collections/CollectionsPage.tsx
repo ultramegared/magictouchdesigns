@@ -16,36 +16,37 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 
 function CollectionsPage() {
-    const collections = [
-        {
-            id: 1,
-            title: "LOVE & ROMANCE",
-            description: "Perfect gifts for that special someone.",
-            image: "/images/collections/collection-1.jpg",
-            icon: "♡",
-        },
-        {
-            id: 2,
-            title: "FAMILY & MEMORIES",
-            description: "Turn memories into something beautiful.",
-            image: "/images/collections/collection-2.jpg",
-            icon: "♧",
-        },
-        {
-            id: 3,
-            title: "BUSINESS & BRANDING",
-            description: "Custom designs for your brand and business.",
-            image: "/images/collections/collection-3.jpg",
-            icon: "▱",
-        },
-        {
-            id: 4,
-            title: "SPECIAL OCCASIONS",
-            description: "Celebrate life's most important moments.",
-            image: "/images/collections/collection-4.jpg",
-            icon: "✦",
-        },
-    ];
+
+   const collections = [
+    {
+        id: 1,
+        title: "LOVE & ROMANCE",
+        description: "Perfect gifts for that special someone.",
+        image: "/images/collections/love-romance.jpg",
+        icon: "♡",
+    },
+    {
+        id: 2,
+        title: "FAMILY & MEMORIES",
+        description: "Turn memories into something beautiful.",
+        image: "/images/collections/family-memories.jpg",
+        icon: "♧",
+    },
+    {
+        id: 3,
+        title: "BUSINESS & BRANDING",
+        description: "Custom designs for your brand and business.",
+        image: "/images/collections/business-branding.jpg",
+        icon: "▱",
+    },
+    {
+        id: 4,
+        title: "SPECIAL OCCASIONS",
+        description: "Celebrate life's most important moments.",
+        image: "/images/collections/special-occasions.jpg",
+        icon: "✦",
+    },
+];
 
     const benefits = [
         {
