@@ -383,11 +383,11 @@ function CollectionsPage() {
                             <div className="collection-benefit__text">
 
                                 <h3>
-  {t.benefits[benefit.translationKey].title}
+{t.benefits[benefit.translationKey as keyof typeof t.benefits].title}
 </h3>
 
 <p>
-  {t.benefits[benefit.translationKey].description}
+  {t.benefits[benefit.translationKey as keyof typeof t.benefits].description}
 </p>
 
                             </div>
