@@ -541,8 +541,6 @@ function ProductsPage() {
 
 </div>
 
-<div className={`products-grid products-grid--${viewMode}`}>
-
                  <div className={`products-grid products-grid--${viewMode}`}>
                         {visibleProducts.map((product) => (
 
