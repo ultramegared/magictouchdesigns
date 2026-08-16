@@ -95,7 +95,7 @@ export const footerContent: FooterContent = {
         },
     ],
 
-    phone: "336 (646) 9668",
+    phone: "+1 (346) 760-3007",
 
     copyright:
         "© 2026 Magic Touch Designs. All rights reserved.",
