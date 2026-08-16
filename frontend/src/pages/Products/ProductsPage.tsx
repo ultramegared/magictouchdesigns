@@ -170,6 +170,7 @@ function ProductsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
     useEffect(() => {
 
