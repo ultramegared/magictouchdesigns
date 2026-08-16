@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from "react";
 
-import "./CollectionsPage.css";
+import "./ProductsPage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
