@@ -713,7 +713,7 @@ function ProductsPage() {
                                 )
                             }
                         >
-                            ‹
+                            &lt;
                         </button>
 
 
