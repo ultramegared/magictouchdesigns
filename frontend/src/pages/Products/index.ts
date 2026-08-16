@@ -6,9 +6,8 @@
  * Module: Frontend
  * Language: TypeScript
  * Description:
- * Collections page export.
+ * Products page export.
  * ================================================================
  */
-
 
 export { default } from "./ProductsPage";
