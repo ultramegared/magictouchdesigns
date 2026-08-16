@@ -361,7 +361,6 @@ function ProductsPage() {
     </div>
 
     <div className="products-filters">
-                    <div className="products-filters">
 
                         <button
                             className={
