@@ -89,63 +89,80 @@ function CollectionsPage() {
 </svg>
             ),
         },
+        
         {
-            id: 2,
-            title: "FAST SHIPPING",
-            description: "Fast and secure delivery to your door.",
-            icon: (
-                <svg viewBox="0 0 64 64" aria-hidden="true">
-                    <path
-                        d="M7 17H39V43H7Z"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinejoin="round"
-                    />
+    id: 2,
+    title: "FAST SHIPPING",
+    description: "Fast and secure delivery to your door.",
+    icon: (
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path
+                d="M7 17H39V43H7Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinejoin="round"
+            />
 
-                    <path
-                        d="M39 25H49L57 34V43H39Z"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinejoin="round"
-                    />
+            <path
+                d="M39 25H48L57 34V43H39Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinejoin="round"
+            />
 
-                    <circle
-                        cx="19"
-                        cy="48"
-                        r="5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                   .mc
-                   
-            icon: (
-                <svg viewBox="0 0 64 64" aria-hidden="true">
-                    <path
-                        d="M11 53L17 38L43 12L52 21L26 47Z"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinejoin="round"
-                    />
+            <path
+                d="M15 43C15 46.3 17.7 49 21 49C24.3 49 27 46.3 27 43"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+            />
 
-                    <path
-                        d="M38 17L47 26"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                    />
+            <path
+                d="M43 43C43 46.3 45.7 49 49 49C52.3 49 55 46.3 55 43"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+            />
+        </svg>
+    ),
+},
+{
+    id: 3,
+    title: "CUSTOM DESIGNS",
+    description: "Personalized designs created just for you.",
+    icon: (
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path
+                d="M11 53L17 38L43 12L52 21L26 47L11 53Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinejoin="round"
+            />
 
-                    <path
-                        d="M11 53L25 48"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                    />
-                </svg>
-            ),
-        },
+            <path
+                d="M38 17L47 26"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+            />
+
+            <path
+                d="M11 53L25 49"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+            />
+        </svg>
+    ),
+},
+
         {
             id: 4,
             title: "SECURE PAYMENT",
