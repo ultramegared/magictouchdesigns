@@ -2,653 +2,578 @@
  * ================================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
- * File: ProductsPage.tsx
- * Module: Products
+ * File: CollectionsPage.tsx
+ * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Products / All Models page.
- * Frontend structure prepared for dynamic products and categories.
+ * Premium Collections page.
+ * Primary language: English (US).
+ * Secondary language: Spanish.
  * ================================================================
  */
 
-import {
-    useEffect,
-    useMemo,
-    useState,
-} from "react";
+import { useEffect, useState } from "react";
 
-import {
-    Heart,
-    Search,
-    X,
-} from "lucide-react";
-
-import {
-    useSearchParams
-} from "react-router-dom";
-
-import "./ProductsPage.css";
+import "./CollectionsPage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
-import { addToCart } from "../../utils/cart";
 
-import { useLanguage } from "../../contexts/LanguageContext";
-import { translations } from "../../translations";
+type Language = "en" | "es";
 
+function CollectionsPage() {
 
-type Product = {
-    id: number;
-    name: string;
-    category: string;
-    style: string;
-    color: string;
-    size: string;
-    price: number;
-    rating: number;
-    reviews: number;
-    image: string;
-    badge?: "NEW" | "BEST SELLER";
-};
-
-
-const demoProducts: Product[] = [
-    {
-    id: 1,
-    name: "Model One",
-    category: "Mug",
-    style: "Classic",
-    color: "Black",
-    size: "11 oz",
-    price: 24.99,
-    rating: 5,
-    reviews: 128,
-    image: "/images/products/model-one.jpg",
-    badge: "BEST SELLER",
-},
-{
-    id: 2,
-    name: "Model Two",
-    category: "Mug",
-    style: "Marble",
-    color: "White",
-    size: "11 oz",
-    price: 24.99,
-    rating: 5,
-    reviews: 96,
-    image: "/images/products/model-two.jpg",
-    badge: "NEW",
-},
-    {
-        id: 3,
-        name: "Model Three",
-        category: "Tumbler",
-        style: "Classic",
-        color: "Black",
-        size: "20 oz",
-        price: 24.99,
-        rating: 5,
-        reviews: 74,
-        image: "/images/products/model-three.jpg"
-    },
-    {
-        id: 4,
-        name: "Model Four",
-        category: "Tumbler",
-        style: "Classic",
-        color: "Pink",
-        size: "20 oz",
-        price: 29.99,
-        rating: 5,
-        reviews: 58,
-        image: "/images/products/model-four.jpg"
-    },
-    {
-        id: 5,
-        name: "Model Five",
-        category: "Mug",
-        style: "Premium",
-        color: "Gold",
-        size: "15 oz",
-        price: 27.99,
-        rating: 5,
-        reviews: 82,
-        image: "/images/products/model-five.jpg"
-    },
-    {
-        id: 6,
-        name: "Model Six",
-        category: "Mug",
-        style: "Classic",
-        color: "Black",
-        size: "15 oz",
-        price: 25.99,
-        rating: 5,
-        reviews: 64,
-        image: "/images/products/model-six.jpg"
-    },
-    {
-        id: 7,
-        name: "Model Seven",
-        category: "Tumbler",
-        style: "Premium",
-        color: "White",
-        size: "20 oz",
-        price: 31.99,
-        rating: 5,
-        reviews: 47,
-        image: "/images/products/model-seven.jpg"
-    },
-    {
-        id: 8,
-        name: "Model Eight",
-        category: "Mug",
-        style: "Marble",
-        color: "Pink",
-        size: "11 oz",
-        price: 26.99,
-        rating: 5,
-        reviews: 39,
-        image: "/images/products/model-eight.jpg"
-    }
-];
-
-
-function ProductsPage() {
-
-    const { language } = useLanguage();
-
-    const t = translations[language].products;
-
-    const [searchParams] = useSearchParams();
-
-    const [category, setCategory] = useState("All");
-    const [style, setStyle] = useState("All");
-    const [color, setColor] = useState("All");
-    const [size, setSize] = useState("All");
-    const [sort, setSort] = useState("Newest");
-    const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [language, setLanguage] = useState<Language>("en");
 
     useEffect(() => {
 
-        const search = searchParams.get("search") || "";
+        const storedLanguage = localStorage.getItem("language");
 
-        setSearchTerm(search);
-        setCurrentPage(1);
-
-    }, [searchParams]);
-
-
-    const productsPerPage =
-        window.innerWidth <= 700 ? 4 : 8;
-
-
-    const filteredProducts = useMemo(() => {
-
-        const filtered = demoProducts.filter((product) => {
-
-            const searchMatch =
-                searchTerm.trim() === "" ||
-                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.style.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.size.toLowerCase().includes(searchTerm.toLowerCase());
-
-            const categoryMatch =
-                category === "All" || product.category === category;
-
-            const styleMatch =
-                style === "All" || product.style === style;
-
-            const colorMatch =
-                color === "All" || product.color === color;
-
-            const sizeMatch =
-                size === "All" || product.size === size;
-
-            return (
-                searchMatch &&
-                categoryMatch &&
-                styleMatch &&
-                colorMatch &&
-                sizeMatch
-            );
-
-        });
-
-
-        if (sort === "Price Low") {
-            return [...filtered].sort(
-                (a, b) => a.price - b.price
-            );
+        if (storedLanguage === "es") {
+            setLanguage("es");
+        } else {
+            setLanguage("en");
         }
 
+        const handleLanguageChange = () => {
 
-        if (sort === "Price High") {
-            return [...filtered].sort(
-                (a, b) => b.price - a.price
+            const currentLanguage =
+                localStorage.getItem("language");
+
+            setLanguage(
+                currentLanguage === "es"
+                    ? "es"
+                    : "en"
             );
-        }
+        };
 
-
-        if (sort === "Rating") {
-            return [...filtered].sort(
-                (a, b) => b.rating - a.rating
-            );
-        }
-
-
-        return filtered;
-
-    }, [
-        category,
-        style,
-        color,
-        size,
-        sort,
-        searchTerm
-    ]);
-
-
-    const totalPages = Math.max(
-        1,
-        Math.ceil(
-            filteredProducts.length / productsPerPage
-        )
-    );
-
-
-    const visibleProducts =
-        filteredProducts.slice(
-            (currentPage - 1) * productsPerPage,
-            currentPage * productsPerPage
+        window.addEventListener(
+            "languagechange",
+            handleLanguageChange
         );
+
+        window.addEventListener(
+            "storage",
+            handleLanguageChange
+        );
+
+        return () => {
+
+            window.removeEventListener(
+                "languagechange",
+                handleLanguageChange
+            );
+
+            window.removeEventListener(
+                "storage",
+                handleLanguageChange
+            );
+        };
+
+    }, []);
+
+
+    const translations = {
+
+        en: {
+
+            heroEyebrow: "COLLECTIONS",
+
+            heroTitleFirst: "Explore Our",
+
+            heroTitleSecond: "Collections",
+
+            heroDescription:
+                "Discover unique styles for every occasion. Each collection is carefully designed to match your style and every special moment.",
+
+            browseEyebrow: "BROWSE BY",
+
+            browseTitle: "COLLECTION",
+
+            browseDescription:
+                "Each collection is carefully designed to match your style and every special moment.",
+
+            viewCollection: "VIEW COLLECTION",
+
+            loveEyebrow: "LOVE EDITION",
+
+            loveTitle:
+                "Made for the moments that matter.",
+
+            loveDescription:
+                "Celebrate love, connection, and unforgettable memories with designs created to make every special moment last.",
+
+            premiumQuality: "PREMIUM QUALITY",
+
+            premiumQualityDescription:
+                "Top quality materials and long lasting prints.",
+
+            fastShipping: "FAST SHIPPING",
+
+            fastShippingDescription:
+                "Fast and secure shipping to your door.",
+
+            customDesigns: "CUSTOM DESIGNS",
+
+            customDesignsDescription:
+                "Create your own design and make it unique.",
+
+            securePayment: "SECURE PAYMENT",
+
+            securePaymentDescription:
+                "100% secure payments and data protection."
+        },
+
+        es: {
+
+            heroEyebrow: "COLECCIONES",
+
+            heroTitleFirst: "Explora Nuestras",
+
+            heroTitleSecond: "Colecciones",
+
+            heroDescription:
+                "Descubre estilos únicos para cada ocasión. Cada colección está cuidadosamente diseñada para adaptarse a tu estilo y a cada momento especial.",
+
+            browseEyebrow: "EXPLORA POR",
+
+            browseTitle: "COLECCIÓN",
+
+            browseDescription:
+                "Cada colección está cuidadosamente diseñada para adaptarse a tu estilo y a cada momento especial.",
+
+            viewCollection: "VER COLECCIÓN",
+
+            loveEyebrow: "LOVE EDITION",
+
+            loveTitle:
+                "Creada para los momentos que importan.",
+
+            loveDescription:
+                "Celebra el amor, la conexión y los recuerdos inolvidables con diseños creados para hacer que cada momento especial perdure.",
+
+            premiumQuality: "CALIDAD PREMIUM",
+
+            premiumQualityDescription:
+                "Materiales de alta calidad e impresiones duraderas.",
+
+            fastShipping: "ENVÍO RÁPIDO",
+
+            fastShippingDescription:
+                "Envío rápido y seguro hasta tu puerta.",
+
+            customDesigns: "DISEÑOS PERSONALIZADOS",
+
+            customDesignsDescription:
+                "Crea tu propio diseño y hazlo único.",
+
+            securePayment: "PAGO SEGURO",
+
+            securePaymentDescription:
+                "Pagos 100% seguros y protección de tus datos."
+        }
+    };
+
+
+    const currentText =
+        translations[language];
+
+
+    /*
+     * ==============================================================
+     * COLLECTIONS
+     * ==============================================================
+     *
+     * English is the primary language.
+     * Spanish is the secondary translation.
+     *
+     * We keep the four existing collections.
+     * ==============================================================
+     */
+
+    const collections = [
+
+        {
+            id: 1,
+
+            name: {
+                en: "Premium",
+                es: "Premium"
+            },
+
+            image:
+                "/images/collections/collection-1.jpg"
+        },
+
+        {
+            id: 2,
+
+            name: {
+                en: "Classic",
+                es: "Clásica"
+            },
+
+            image:
+                "/images/collections/collection-2.jpg"
+        },
+
+        {
+            id: 3,
+
+            name: {
+                en: "Marble",
+                es: "Mármol"
+            },
+
+            image:
+                "/images/collections/collection-3.jpg"
+        },
+
+        {
+            id: 4,
+
+            name: {
+                en: "Personalized",
+                es: "Personalizada"
+            },
+
+            image:
+                "/images/collections/collection-4.jpg"
+        }
+    ];
+
+
+    /*
+     * ==============================================================
+     * BENEFITS
+     * ==============================================================
+     */
+
+    const benefits = [
+
+        {
+            id: 1,
+
+            title: currentText.premiumQuality,
+
+            description:
+                currentText.premiumQualityDescription,
+
+            icon: (
+
+                <svg
+                    viewBox="0 0 64 64"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M32 7L39 20L53 22L43 32L46 46L32 39L18 46L21 32L11 22L25 20Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinejoin="round"
+                    />
+
+                    <circle
+                        cx="32"
+                        cy="29"
+                        r="5"
+                        fill="currentColor"
+                    />
+
+                </svg>
+            )
+        },
+
+        {
+            id: 2,
+
+            title: currentText.fastShipping,
+
+            description:
+                currentText.fastShippingDescription,
+
+            icon: (
+
+                <svg
+                    viewBox="0 0 64 64"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M7 17H39V43H7Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                    />
+
+                    <path
+                        d="M39 25H49L57 34V43H39Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                    />
+
+                    <circle
+                        cx="19"
+                        cy="48"
+                        r="5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    />
+
+                    <circle
+                        cx="47"
+                        cy="48"
+                        r="5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    />
+
+                </svg>
+            )
+        },
+
+        {
+            id: 3,
+
+            title: currentText.customDesigns,
+
+            description:
+                currentText.customDesignsDescription,
+
+            icon: (
+
+                <svg
+                    viewBox="0 0 64 64"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M11 53L17 38L43 12L52 21L26 47Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                    />
+
+                    <path
+                        d="M38 17L47 26"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    />
+
+                    <path
+                        d="M11 53L25 48"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    />
+
+                </svg>
+            )
+        },
+
+        {
+            id: 4,
+
+            title: currentText.securePayment,
+
+            description:
+                currentText.securePaymentDescription,
+
+            icon: (
+
+                <svg
+                    viewBox="0 0 64 64"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M32 7L52 14V29C52 42 44 52 32 57C20 52 12 42 12 29V14Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                    />
+
+                    <path
+                        d="M21 32L29 40L44 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    />
+
+                </svg>
+            )
+        }
+    ];
 
 
     return (
 
         <>
-
             <Header />
 
-            <main className="products-page">
+            <main className="collections-page">
 
-                <section className="products-hero">
+                {/* ==================================================
+                    COLLECTIONS HERO
+                   ================================================== */}
 
-                    <div className="products-hero__crown">
-                        ✦
+                <section className="collections-hero">
+
+                    <div className="collections-hero__background">
+
+                        <img
+                            src="/images/collections/collections-hero.jpg"
+                            alt="Magic Touch Designs collections"
+                        />
+
                     </div>
 
-                    <p className="products-hero__eyebrow">
-                        MAGIC TOUCH DESIGNS
-                    </p>
 
-                    <h1>
-                        {t.hero.title}
-                    </h1>
+                    <div className="collections-hero__overlay"></div>
 
-                    <p className="products-hero__description">
-                        {t.hero.description}
-                    </p>
+
+                    <div className="collections-hero__content">
+
+                        <span className="collections-hero__eyebrow">
+
+                            {currentText.heroEyebrow}
+
+                        </span>
+
+
+                        <div className="collections-hero__ornament">
+
+                            <span></span>
+
+                            <i>
+                                ✦
+                            </i>
+
+                            <span></span>
+
+                        </div>
+
+
+                        <h1>
+
+                            {currentText.heroTitleFirst}
+
+                            <span>
+                                {currentText.heroTitleSecond}
+                            </span>
+
+                        </h1>
+
+
+                        <p>
+
+                            {currentText.heroDescription}
+
+                        </p>
+
+                    </div>
 
                 </section>
 
 
-                <section className="products-catalog">
+                {/* ==================================================
+                    BROWSE BY COLLECTION
+                   ================================================== */}
+
+                <section className="collections-browse">
+
+                    <div className="collections-section-heading">
+
+                        <span>
+
+                            {currentText.browseEyebrow}
+
+                        </span>
 
 
-    <div className="products-search">
-        <Search size={19} />
+                        <strong>
 
-        <input
-            type="search"
-            value={searchTerm}
-            onChange={(event) => {
-                setSearchTerm(event.target.value);
-                setCurrentPage(1);
-            }}
-            placeholder={
-                language === "es"
-                    ? "Buscar productos..."
-                    : "Search products..."
-            }
-            aria-label={
-                language === "es"
-                    ? "Buscar productos"
-                    : "Search products"
-            }
-        />
-    </div>
+                            {currentText.browseTitle}
 
-    <div className="products-category-chips">
-
-        <button
-            type="button"
-            className={category === "All" ? "active" : ""}
-            onClick={() => {
-                setCategory("All");
-                setCurrentPage(1);
-            }}
-        >
-            {t.filters.all}
-        </button>
-
-        <button
-            type="button"
-            className={category === "Mug" ? "active" : ""}
-            onClick={() => {
-                setCategory("Mug");
-                setCurrentPage(1);
-            }}
-        >
-            {t.options.categories.mug}
-        </button>
-
-        <button
-            type="button"
-            className={category === "Tumbler" ? "active" : ""}
-            onClick={() => {
-                setCategory("Tumbler");
-                setCurrentPage(1);
-            }}
-        >
-            {t.options.categories.tumbler}
-        </button>
-
-    </div>
-
-    <div className="products-filters">
-
-                        <button
-                            className={
-                                category === "All"
-                                    ? "products-filter products-filter--active"
-                                    : "products-filter"
-                            }
-                            onClick={() => {
-                                setCategory("All");
-                                setCurrentPage(1);
-                            }}
-                        >
-                            {t.filters.all}
-                        </button>
+                        </strong>
 
 
-                        <select
-                            value={category}
-                            onChange={(event) => {
-                                setCategory(event.target.value);
-                                setCurrentPage(1);
-                            }}
-                        >
-                            <option value="All">
-                                {t.filters.category}
-                            </option>
+                        <div className="collections-heading-line">
 
-                            <option value="Mug">
-                                {t.options.categories.mug}
-                            </option>
+                            <span></span>
 
-                            <option value="Tumbler">
-                                {t.options.categories.tumbler}
-                            </option>
+                            <i>
+                                ✦
+                            </i>
 
-                        </select>
+                            <span></span>
+
+                        </div>
 
 
-                        <select
-                            value={style}
-                            onChange={(event) => {
-                                setStyle(event.target.value);
-                                setCurrentPage(1);
-                            }}
-                        >
-                            <option value="All">
-                                {t.filters.style}
-                            </option>
+                        <p>
 
-                            <option value="Classic">
-                                {t.options.styles.classic}
-                            </option>
+                            {currentText.browseDescription}
 
-                            <option value="Marble">
-                                {t.options.styles.marble}
-                            </option>
+                        </p>
 
-                            <option value="Premium">
-                                {t.options.styles.premium}
-                            </option>
-
-                        </select>
+                    </div>
 
 
-                        <select
-                            value={color}
-                            onChange={(event) => {
-                                setColor(event.target.value);
-                                setCurrentPage(1);
-                            }}
-                        >
-                            <option value="All">
-                                {t.filters.color}
-                            </option>
+                    <div className="collections-grid">
 
-                            <option value="Black">
-                                {t.options.colors.black}
-                            </option>
-
-                            <option value="White">
-                                {t.options.colors.white}
-                            </option>
-
-                            <option value="Pink">
-                                {t.options.colors.pink}
-                            </option>
-
-                            <option value="Gold">
-                                {t.options.colors.gold}
-                            </option>
-
-                        </select>
-
-
-                        <select
-                            value={size}
-                            onChange={(event) => {
-                                setSize(event.target.value);
-                                setCurrentPage(1);
-                            }}
-                        >
-                            <option value="All">
-                                {t.filters.size}
-                            </option>
-
-                            <option value="11 oz">
-                                11 oz
-                            </option>
-
-                            <option value="15 oz">
-                                15 oz
-                            </option>
-
-                            <option value="20 oz">
-                                20 oz
-                            </option>
-
-                        </select>
-
-
-                        <div className="products-sort">
-
-                            <span>
-                                {t.filters.sortBy}
-                            </span>
-
-                            <select
-                                value={sort}
-                                onChange={(event) => {
-                                    setSort(event.target.value);
-                                    setCurrentPage(1);
-                                }}
-                            >
-
-                                <option value="Newest">
-                                    {t.sort.newest}
-                                </option>
-
-                                <option value="Price Low">
-                                    {t.sort.priceLow}
-                                </option>
-
-                                <option value="Price High">
-                                    {t.sort.priceHigh}
-                                </option>
-
-                                <option value="Rating">
-                                    {t.sort.rating}
-                                </option>
-
-                            </select>
-
-                       </div>
-
-</div>
-
-<div className="products-view-toggle">
-
-    <button
-        type="button"
-        className={viewMode === "grid" ? "active" : ""}
-        onClick={() => setViewMode("grid")}
-        aria-label="Grid view"
-        aria-pressed={viewMode === "grid"}
-    >
-        ▦
-    </button>
-
-    <button
-        type="button"
-        className={viewMode === "list" ? "active" : ""}
-        onClick={() => setViewMode("list")}
-        aria-label="List view"
-        aria-pressed={viewMode === "list"}
-    >
-        ☷
-    </button>
-
-</div>
-
-                 <div className={`products-grid products-grid--${viewMode}`}>
-                        {visibleProducts.map((product) => (
+                        {collections.map((collection) => (
 
                             <article
-                                className="product-card"
-                                key={product.id}
+                                className="collection-card"
+                                key={collection.id}
                             >
 
-                                <div className="product-card__image">
+                                <div className="collection-card__image">
 
-    {product.badge && (
-        <span
-            className={`product-card__badge ${
-                product.badge === "NEW"
-                    ? "product-card__badge--new"
-                    : "product-card__badge--best"
-            }`}
-        >
-            {product.badge}
-        </span>
-    )}
+                                    <img
+                                        src={collection.image}
+                                        alt={`${collection.name[language]} collection`}
+                                    />
 
-    <img
-        src={product.image}
-        alt={product.name}
-    />
-
-    <div className="product-card__actions">
-
-        <button
-            type="button"
-            className="product-card__action"
-            aria-label={`View ${product.name} image`}
-            onClick={() => setSelectedProduct(product)}
-        >
-            <Search size={17} strokeWidth={2} />
-        </button>
-
-        <button
-            type="button"
-            className="product-card__action product-card__favorite"
-            aria-label={`${t.actions.addFavorite} ${product.name}`}
-        >
-            <Heart size={17} strokeWidth={2} />
-        </button>
-
-    </div>
-
-</div>
+                                </div>
 
 
-                                <div className="product-card__content">
+                                <div className="collection-card__content">
 
-                                    <span className="product-card__category">
+                                    <span className="collection-card__number">
 
-                                        {product.category === "Mug"
-                                            ? t.options.categories.mug
-                                            : t.options.categories.tumbler
-                                        }
+                                        0{collection.id}
 
                                     </span>
 
 
                                     <h2>
-                                        {product.name}
+
+                                        {collection.name[language]}
+
                                     </h2>
 
 
-                                    <strong>
-                                        ${product.price.toFixed(2)}
-                                    </strong>
-
-
-                                    <div className="product-card__rating">
-
-                                        <span>
-                                            ★★★★★
-                                        </span>
-
-                                        <small>
-                                            ({product.reviews})
-                                        </small>
-
-                                    </div>
-
-
                                     <button
-    className="product-card__button"
-    type="button"
-                                        onClick={() => {
-
-                                            addToCart({
-                                                id: product.id,
-                                                name: product.name,
-                                                model: product.style,
-                                                size: product.size,
-                                                color: product.color,
-                                                price: product.price,
-                                                image: product.image,
-                                            });
-
-                                        }}
+                                        className="collection-card__button"
+                                        type="button"
                                     >
 
-                                        {t.actions.addToCart}
+                                        {currentText.viewCollection}
 
-                                        <span>
+                                        <span aria-hidden="true">
                                             →
                                         </span>
 
@@ -663,155 +588,102 @@ const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
                     </div>
 
 
-                    <div className="products-pagination">
+                    {/* ==================================================
+                        LOVE EDITION
+                       ================================================== */}
 
-{selectedProduct && (
-    <div
-        className="product-lightbox"
-        role="dialog"
-        aria-modal="true"
-        aria-label={selectedProduct.name}
-        onClick={() => setSelectedProduct(null)}
-    >
-        <div
-            className="product-lightbox__content"
-            onClick={(event) => event.stopPropagation()}
-        >
-            <button
-                type="button"
-                className="product-lightbox__close"
-                aria-label="Close image"
-                onClick={() => setSelectedProduct(null)}
-            >
-                <X size={24} />
-            </button>
+                    <section className="love-edition">
 
-            <img
-                src={selectedProduct.image}
-                alt={selectedProduct.name}
-                className="product-lightbox__image"
-            />
+                        <div className="love-edition__content">
 
-            <div className="product-lightbox__info">
-                <span>{selectedProduct.category}</span>
-                <h2>{selectedProduct.name}</h2>
-                <strong>
-                    ${selectedProduct.price.toFixed(2)}
-                </strong>
-            </div>
-        </div>
-    </div>
-)}
-                        <button
-                            disabled={currentPage === 1}
-                            onClick={() =>
-                                setCurrentPage(
-                                    (page) =>
-                                        Math.max(1, page - 1)
-                                )
-                            }
-                        >
-                            &lt;
-                        </button>
+                            <span className="love-edition__eyebrow">
+
+                                {currentText.loveEyebrow}
+
+                            </span>
 
 
-                        {Array.from(
-                            {
-                                length: totalPages
-                            },
-                            (_, index) =>
-                                index + 1
-                        ).map((page) => (
+                            <div className="love-edition__ornament">
 
-                            <button
-                                key={page}
-                                className={
-                                    currentPage === page
-                                        ? "products-pagination__active"
-                                        : ""
-                                }
-                                onClick={() =>
-                                    setCurrentPage(page)
-                                }
+                                <span></span>
+
+                                <i>
+                                    ♥
+                                </i>
+
+                                <span></span>
+
+                            </div>
+
+
+                            <h2>
+
+                                {currentText.loveTitle}
+
+                            </h2>
+
+
+                            <p>
+
+                                {currentText.loveDescription}
+
+                            </p>
+
+                        </div>
+
+
+                        <div className="love-edition__image">
+
+                            <img
+                                src="/images/collections/collection-1.jpg"
+                                alt="Love Edition"
+                            />
+
+                        </div>
+
+                    </section>
+
+
+                    {/* ==================================================
+                        COLLECTION BENEFITS
+                       ================================================== */}
+
+                    <div className="collections-benefits">
+
+                        {benefits.map((benefit) => (
+
+                            <article
+                                className="collection-benefit"
+                                key={benefit.id}
                             >
-                                {page}
-                            </button>
+
+                                <div className="collection-benefit__icon">
+
+                                    {benefit.icon}
+
+                                </div>
+
+
+                                <div className="collection-benefit__content">
+
+                                    <h3>
+
+                                        {benefit.title}
+
+                                    </h3>
+
+
+                                    <p>
+
+                                        {benefit.description}
+
+                                    </p>
+
+                                </div>
+
+                            </article>
 
                         ))}
-
-
-                        <button
-                            disabled={
-                                currentPage === totalPages
-                            }
-                            onClick={() =>
-                                setCurrentPage(
-                                    (page) =>
-                                        Math.min(
-                                            totalPages,
-                                            page + 1
-                                        )
-                                )
-                            }
-                        >
-                            ›
-                        </button>
-
-                    </div>
-
-
-                    <div className="products-benefits">
-
-                        <div>
-
-                            <strong>
-                                {t.benefits.fastShipping.title}
-                            </strong>
-
-                            <span>
-                                {t.benefits.fastShipping.description}
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                {t.benefits.securePayment.title}
-                            </strong>
-
-                            <span>
-                                {t.benefits.securePayment.description}
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                {t.benefits.premiumQuality.title}
-                            </strong>
-
-                            <span>
-                                {t.benefits.premiumQuality.description}
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                {t.benefits.customerSupport.title}
-                            </strong>
-
-                            <span>
-                                {t.benefits.customerSupport.description}
-                            </span>
-
-                        </div>
 
                     </div>
 
@@ -819,13 +691,12 @@ const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
             </main>
 
+
             <Footer />
 
         </>
 
     );
-
 }
 
-
-export default ProductsPage;
+export default CollectionsPage;
