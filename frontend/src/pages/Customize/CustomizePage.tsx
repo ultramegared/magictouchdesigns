@@ -32,31 +32,34 @@ width: number;
 height: number;
 }
 interface DesignText {
-value: string;
-x: number;
-y: number;
-fontSize: number;
-color: string;
-fontFamily: string;
+    value: string;
+    x: number;
+    y: number;
+    fontSize: number;
+    color: string;
+    fontFamily: string;
+}
+
 interface ViewDesign {
-image: DesignImage | null;
-text: DesignText | null;
+    image: DesignImage | null;
+    text: DesignText | null;
+}
+
 interface DragState {
-type: DesignType;
-startX: number;
-startY: number;
-originalX: number;
-originalY: number;
+    type: DesignType;
+    startX: number;
+    startY: number;
+    originalX: number;
+    originalY: number;
 }
-}
-}
+
 interface ResizeState {
-type: DesignType;
-startX: number;
-startY: number;
-originalWidth?: number;
-originalHeight?: number;
-originalSize?: number;
+    type: DesignType;
+    startX: number;
+    startY: number;
+    originalWidth?: number;
+    originalHeight?: number;
+    originalSize?: number;
 }
 const mugColorMap: Record<MugColor, string> = {
 white: "#f5f5f2",
