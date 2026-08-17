@@ -443,7 +443,7 @@ function CustomizePage() {
             10,
             Math.min(
                 90,
-                state.originalWidth +
+                state.originalWidth! +
                     deltaX * 0.12
             )
         );
@@ -452,7 +452,7 @@ function CustomizePage() {
             10,
             Math.min(
                 90,
-                state.originalHeight +
+                state.originalHeight! +
                     deltaY * 0.12
             )
         );
