@@ -30,6 +30,7 @@ interface DesignImage {
     x: number;
     y: number;
     width: number;
+    height: number;
 }
 
 interface DesignText {
@@ -57,7 +58,9 @@ interface DragState {
 interface ResizeState {
     type: DesignType;
     startX: number;
-    originalSize: number;
+    startY: number;
+    originalWidth: number;
+    originalHeight: number;
 }
 
 function CustomizePage() {
@@ -197,11 +200,12 @@ function CustomizePage() {
         const imageUrl = URL.createObjectURL(file);
 
         const newImage: DesignImage = {
-            src: imageUrl,
-            x: 50,
-            y: 45,
-            width: 42,
-        };
+    src: imageUrl,
+    x: 50,
+    y: 45,
+    width: 42,
+    height: 42,
+};
 
         setDesigns((current) => ({
             ...current,
@@ -377,90 +381,112 @@ function CustomizePage() {
         }
     };
 
-    const handleResizePointerDown = (
-        event: ReactPointerEvent<HTMLButtonElement>,
-        type: DesignType
-    ) => {
-        event.stopPropagation();
+   const handleResizePointerDown = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+    type: DesignType
+) => {
+    event.stopPropagation();
 
-        const design =
+    const design =
+        type === "image"
+            ? designs[activeView].image
+            : designs[activeView].text;
+
+    if (!design) return;
+
+    resizeState.current = {
+        type,
+        startX: event.clientX,
+        startY: event.clientY,
+        originalWidth:
             type === "image"
-                ? designs[activeView].image
-                : designs[activeView].text;
-
-        if (!design) return;
-
-       resizeState.current = {
-    type,
-    startX: event.clientX,
-   originalSize:
-    type === "image"
-        ? (design as DesignImage).width
-        : (design as DesignText).fontSize,
-};
-        setSelectedDesign(type);
-
-        event.currentTarget.setPointerCapture(
-            event.pointerId
-        );
+                ? design.width
+                : design.fontSize,
+        originalHeight:
+            type === "image"
+                ? design.height
+                : design.fontSize,
     };
+
+    setSelectedDesign(type);
+
+    event.currentTarget.setPointerCapture(
+        event.pointerId
+    );
+};
 
     const handleResizePointerMove = (
-        event: ReactPointerEvent<HTMLButtonElement>
-    ) => {
-        event.stopPropagation();
+    event: ReactPointerEvent<HTMLButtonElement>
+) => {
+    event.stopPropagation();
 
-        const state = resizeState.current;
+    const state = resizeState.current;
 
-        if (!state) return;
+    if (!state) return;
 
+    const deltaX =
+        event.clientX - state.startX;
+
+    const deltaY =
+        event.clientY - state.startY;
+
+    if (state.type === "image") {
+        const newWidth = Math.max(
+            10,
+            Math.min(
+                90,
+                state.originalWidth +
+                    deltaX * 0.12
+            )
+        );
+
+        const newHeight = Math.max(
+            10,
+            Math.min(
+                90,
+                state.originalHeight +
+                    deltaY * 0.12
+            )
+        );
+
+        updateCurrentDesign(
+            "image",
+            (current) => {
+                if (!current) return current;
+
+                return {
+                    ...current,
+                    width: newWidth,
+                    height: newHeight,
+                };
+            }
+        );
+    } else {
         const delta =
-            event.clientX - state.startX;
+            (deltaX + deltaY) / 2;
 
-        if (state.type === "image") {
-            const newWidth = Math.max(
-                10,
-                Math.min(
-                    85,
-                    state.originalSize +
-                        delta * 0.12
-                )
-            );
+        const newFontSize = Math.max(
+            12,
+            Math.min(
+                100,
+                state.originalWidth +
+                    delta * 0.15
+            )
+        );
 
-            updateCurrentDesign(
-                "image",
-                (current) => {
-                    if (!current) return current;
+        updateCurrentDesign(
+            "text",
+            (current) => {
+                if (!current) return current;
 
-                    return {
-                        ...current,
-                        width: newWidth,
-                    };
-                }
-            );
-        } else {
-            const newFontSize = Math.max(
-                12,
-                Math.min(
-                    100,
-                    state.originalSize +
-                        delta * 0.15
-                )
-            );
-
-            updateCurrentDesign(
-                "text",
-                (current) => {
-                    if (!current) return current;
-
-                    return {
-                        ...current,
-                        fontSize: newFontSize,
-                    };
-                }
-            );
-        }
-    };
+                return {
+                    ...current,
+                    fontSize: newFontSize,
+                };
+            }
+        );
+    }
+};
 
     const handleResizePointerUp = (
         event: ReactPointerEvent<HTMLButtonElement>
@@ -908,6 +934,7 @@ function CustomizePage() {
                                                         left: `${currentImage.x}%`,
                                                         top: `${currentImage.y}%`,
                                                         width: `${currentImage.width}%`,
+height: `${currentImage.height}%`,
                                                         transform:
                                                             "translate(-50%, -50%)",
                                                         zIndex: 2,
@@ -947,17 +974,13 @@ function CustomizePage() {
                                                         }
                                                         alt="Your uploaded design"
                                                         style={{
-                                                            display:
-                                                                "block",
-                                                            width:
-                                                                "100%",
-                                                            height:
-                                                                "auto",
-                                                            pointerEvents:
-                                                                "none",
-                                                            userSelect:
-                                                                "none",
-                                                        }}
+    display: "block",
+    width: "100%",
+    height: "100%",
+    objectFit: "fill",
+    pointerEvents: "none",
+    userSelect: "none",
+}}
                                                         draggable={false}
                                                     />
 
