@@ -23,6 +23,10 @@ function CustomizePage() {
     const [activeView, setActiveView] = useState<MugView>("front");
     const [quantity, setQuantity] = useState(1);
     const [mugRotation, setMugRotation] = useState(0);
+const [designText, setDesignText] = useState("");
+const [designImage, setDesignImage] = useState<string | null>(null);
+
+const imageInputRef = useRef<HTMLInputElement>(null);
 
     const isDragging = useRef(false);
     const lastPointerX = useRef(0);
@@ -85,6 +89,25 @@ function CustomizePage() {
             setMugRotation(180);
         }
     };
+
+const handleImageChange = (
+  event: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  const imageUrl = URL.createObjectURL(file);
+  setDesignImage(imageUrl);
+};
+
+const handleAddText = () => {
+  const text = window.prompt("Enter your text:");
+
+  if (text !== null) {
+    setDesignText(text);
+  }
+};
 
     const mugStyle = {
         "--mug-rotation": `${mugRotation}deg`,
@@ -167,12 +190,20 @@ function CustomizePage() {
 
                             </div>
 
-                            <button type="button">
-                                Choose Image
-                            </button>
+                            <input
+  ref={imageInputRef}
+  type="file"
+  accept="image/jpeg,image/png,image/webp"
+  style={{ display: "none" }}
+  onChange={handleImageChange}
+/>
 
-                        </div>
-
+<button
+  type="button"
+  onClick={() => imageInputRef.current?.click()}
+>
+  Choose Image
+</button>
 
                         <div className="customize-tool">
 
@@ -189,10 +220,12 @@ function CustomizePage() {
 
                             </div>
 
-                            <button type="button">
-                                Add Text
-                            </button>
-
+                            <button
+  type="button"
+  onClick={handleAddText}
+>
+  Add Text
+</button>
                         </div>
 
 
@@ -328,6 +361,20 @@ function CustomizePage() {
       activeView === "back" ? "is-back" : ""
     }`}
   >
+    {designImage && (
+  <img
+    src={designImage}
+    alt="Your design"
+    className="customize-mug__design-image"
+  />
+)}
+
+{designText ? (
+  <span className="customize-mug__design-text">
+    {designText}
+  </span>
+) : (
+  <>
     <span className="customize-mug__logo">
       MAGIC TOUCH
     </span>
@@ -335,6 +382,8 @@ function CustomizePage() {
     <span className="customize-mug__placeholder">
       YOUR DESIGN
     </span>
+  </>
+)}
   </div>
 </div>
 
