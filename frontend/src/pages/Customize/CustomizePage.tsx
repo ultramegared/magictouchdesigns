@@ -59,8 +59,8 @@ interface ResizeState {
     type: DesignType;
     startX: number;
     startY: number;
-    originalWidth: number;
-    originalHeight: number;
+    originalWidth?: number;
+     originalHeight?: number;
     originalSize?: number;
 }
 
