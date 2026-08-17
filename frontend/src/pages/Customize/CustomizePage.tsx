@@ -61,6 +61,7 @@ interface ResizeState {
     startY: number;
     originalWidth: number;
     originalHeight: number;
+    originalSize?: number;
 }
 
 function CustomizePage() {
