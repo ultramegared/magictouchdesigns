@@ -6,49 +6,117 @@
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Customize page.
+ * Interactive mug customization editor.
  * ===============================================================
  */
 
-import { useRef, useState, type CSSProperties } from "react";
+import {
+    useRef,
+    useState,
+    type CSSProperties,
+    type PointerEvent as ReactPointerEvent,
+} from "react";
+
 import "./CustomizePage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 
 type MugView = "front" | "back";
+type DesignType = "image" | "text";
+
+interface DesignImage {
+    src: string;
+    x: number;
+    y: number;
+    width: number;
+}
+
+interface DesignText {
+    value: string;
+    x: number;
+    y: number;
+    fontSize: number;
+    color: string;
+    fontFamily: string;
+}
+
+interface ViewDesign {
+    image: DesignImage | null;
+    text: DesignText | null;
+}
+
+interface DragState {
+    type: DesignType;
+    startX: number;
+    startY: number;
+    originalX: number;
+    originalY: number;
+}
+
+interface ResizeState {
+    type: DesignType;
+    startX: number;
+    originalSize: number;
+}
 
 function CustomizePage() {
-
     const [activeView, setActiveView] = useState<MugView>("front");
+
     const [quantity, setQuantity] = useState(1);
+
     const [mugRotation, setMugRotation] = useState(0);
-const [designText, setDesignText] = useState("");
-const [designImage, setDesignImage] = useState<string | null>(null);
 
-const imageInputRef = useRef<HTMLInputElement>(null);
+    const [selectedDesign, setSelectedDesign] =
+        useState<DesignType | null>(null);
 
-    const isDragging = useRef(false);
-    const lastPointerX = useRef(0);
+    const [designs, setDesigns] = useState<
+        Record<MugView, ViewDesign>
+    >({
+        front: {
+            image: null,
+            text: null,
+        },
+        back: {
+            image: null,
+            text: null,
+        },
+    });
+
+    const imageInputRef = useRef<HTMLInputElement>(null);
+
+    const isMugDragging = useRef(false);
+    const lastMugPointerX = useRef(0);
+
+    const dragState = useRef<DragState | null>(null);
+    const resizeState = useRef<ResizeState | null>(null);
+
+    const getContentElement = () => {
+        return document.querySelector(
+            ".customize-mug__content"
+        ) as HTMLElement | null;
+    };
 
     const handleMugPointerDown = (
-        event: React.PointerEvent<HTMLDivElement>
+        event: ReactPointerEvent<HTMLDivElement>
     ) => {
-        isDragging.current = true;
-        lastPointerX.current = event.clientX;
+        if (selectedDesign) return;
+
+        isMugDragging.current = true;
+        lastMugPointerX.current = event.clientX;
 
         event.currentTarget.setPointerCapture(event.pointerId);
     };
 
     const handleMugPointerMove = (
-        event: React.PointerEvent<HTMLDivElement>
+        event: ReactPointerEvent<HTMLDivElement>
     ) => {
-        if (!isDragging.current) return;
+        if (!isMugDragging.current) return;
 
         const deltaX =
-            event.clientX - lastPointerX.current;
+            event.clientX - lastMugPointerX.current;
 
-        lastPointerX.current = event.clientX;
+        lastMugPointerX.current = event.clientX;
 
         setMugRotation((current) =>
             Math.max(
@@ -62,9 +130,9 @@ const imageInputRef = useRef<HTMLInputElement>(null);
     };
 
     const handleMugPointerUp = (
-        event: React.PointerEvent<HTMLDivElement>
+        event: ReactPointerEvent<HTMLDivElement>
     ) => {
-        isDragging.current = false;
+        isMugDragging.current = false;
 
         if (
             event.currentTarget.hasPointerCapture(
@@ -78,8 +146,8 @@ const imageInputRef = useRef<HTMLInputElement>(null);
     };
 
     const handleViewChange = (view: MugView) => {
-
         setActiveView(view);
+        setSelectedDesign(null);
 
         if (view === "front") {
             setMugRotation(0);
@@ -90,33 +158,399 @@ const imageInputRef = useRef<HTMLInputElement>(null);
         }
     };
 
-const handleImageChange = (
-  event: React.ChangeEvent<HTMLInputElement>
-) => {
-  const file = event.target.files?.[0];
+    const updateCurrentDesign = (
+        type: DesignType,
+        updater: (
+            current: DesignImage | DesignText | null
+        ) => DesignImage | DesignText | null
+    ) => {
+        setDesigns((current) => {
+            const view = current[activeView];
 
-  if (!file) return;
+            if (type === "image") {
+                return {
+                    ...current,
+                    [activeView]: {
+                        ...view,
+                        image: updater(view.image) as DesignImage | null,
+                    },
+                };
+            }
 
-  const imageUrl = URL.createObjectURL(file);
-  setDesignImage(imageUrl);
-};
+            return {
+                ...current,
+                [activeView]: {
+                    ...view,
+                    text: updater(view.text) as DesignText | null,
+                },
+            };
+        });
+    };
 
-const handleAddText = () => {
-  const text = window.prompt("Enter your text:");
+    const handleImageChange = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
 
-  if (text !== null) {
-    setDesignText(text);
-  }
-};
+        if (!file) return;
+
+        const imageUrl = URL.createObjectURL(file);
+
+        const newImage: DesignImage = {
+            src: imageUrl,
+            x: 50,
+            y: 45,
+            width: 42,
+        };
+
+        setDesigns((current) => ({
+            ...current,
+            [activeView]: {
+                ...current[activeView],
+                image: newImage,
+            },
+        }));
+
+        setSelectedDesign("image");
+
+        event.target.value = "";
+    };
+
+    const handleAddText = () => {
+        const currentText =
+            designs[activeView].text?.value ?? "";
+
+        const text = window.prompt(
+            "Enter your text:",
+            currentText
+        );
+
+        if (text === null) return;
+
+        const newText: DesignText = {
+            value: text,
+            x: 50,
+            y: 72,
+            fontSize: 28,
+            color: "#111111",
+            fontFamily: "Arial, sans-serif",
+        };
+
+        setDesigns((current) => ({
+            ...current,
+            [activeView]: {
+                ...current[activeView],
+                text: newText,
+            },
+        }));
+
+        setSelectedDesign("text");
+    };
+
+    const handleEditText = () => {
+        const currentText =
+            designs[activeView].text;
+
+        if (!currentText) return;
+
+        const value = window.prompt(
+            "Edit your text:",
+            currentText.value
+        );
+
+        if (value === null) return;
+
+        updateCurrentDesign("text", (current) => {
+            if (!current || !("value" in current)) {
+                return current;
+            }
+
+            return {
+                ...current,
+                value,
+            };
+        });
+    };
+
+    const handleDesignPointerDown = (
+        event: ReactPointerEvent<HTMLDivElement>,
+        type: DesignType
+    ) => {
+        event.stopPropagation();
+
+        const content = getContentElement();
+
+        if (!content) return;
+
+        const rect = content.getBoundingClientRect();
+
+        const design =
+            type === "image"
+                ? designs[activeView].image
+                : designs[activeView].text;
+
+        if (!design) return;
+
+        setSelectedDesign(type);
+
+        dragState.current = {
+            type,
+            startX: event.clientX,
+            startY: event.clientY,
+            originalX: design.x,
+            originalY: design.y,
+        };
+
+        event.currentTarget.setPointerCapture(
+            event.pointerId
+        );
+    };
+
+    const handleDesignPointerMove = (
+        event: ReactPointerEvent<HTMLDivElement>
+    ) => {
+        event.stopPropagation();
+
+        const state = dragState.current;
+
+        if (!state) return;
+
+        const content = getContentElement();
+
+        if (!content) return;
+
+        const rect = content.getBoundingClientRect();
+
+        const deltaX =
+            ((event.clientX - state.startX) /
+                rect.width) *
+            100;
+
+        const deltaY =
+            ((event.clientY - state.startY) /
+                rect.height) *
+            100;
+
+        const newX = Math.max(
+            5,
+            Math.min(
+                95,
+                state.originalX + deltaX
+            )
+        );
+
+        const newY = Math.max(
+            5,
+            Math.min(
+                95,
+                state.originalY + deltaY
+            )
+        );
+
+        updateCurrentDesign(
+            state.type,
+            (current) => {
+                if (!current) return current;
+
+                return {
+                    ...current,
+                    x: newX,
+                    y: newY,
+                };
+            }
+        );
+    };
+
+    const handleDesignPointerUp = (
+        event: ReactPointerEvent<HTMLDivElement>
+    ) => {
+        event.stopPropagation();
+
+        dragState.current = null;
+
+        if (
+            event.currentTarget.hasPointerCapture(
+                event.pointerId
+            )
+        ) {
+            event.currentTarget.releasePointerCapture(
+                event.pointerId
+            );
+        }
+    };
+
+    const handleResizePointerDown = (
+        event: ReactPointerEvent<HTMLButtonElement>,
+        type: DesignType
+    ) => {
+        event.stopPropagation();
+
+        const design =
+            type === "image"
+                ? designs[activeView].image
+                : designs[activeView].text;
+
+        if (!design) return;
+
+        resizeState.current = {
+            type,
+            startX: event.clientX,
+            originalSize:
+                type === "image"
+                    ? design.width
+                    : design.fontSize,
+        };
+
+        setSelectedDesign(type);
+
+        event.currentTarget.setPointerCapture(
+            event.pointerId
+        );
+    };
+
+    const handleResizePointerMove = (
+        event: ReactPointerEvent<HTMLButtonElement>
+    ) => {
+        event.stopPropagation();
+
+        const state = resizeState.current;
+
+        if (!state) return;
+
+        const delta =
+            event.clientX - state.startX;
+
+        if (state.type === "image") {
+            const newWidth = Math.max(
+                10,
+                Math.min(
+                    85,
+                    state.originalSize +
+                        delta * 0.12
+                )
+            );
+
+            updateCurrentDesign(
+                "image",
+                (current) => {
+                    if (!current) return current;
+
+                    return {
+                        ...current,
+                        width: newWidth,
+                    };
+                }
+            );
+        } else {
+            const newFontSize = Math.max(
+                12,
+                Math.min(
+                    100,
+                    state.originalSize +
+                        delta * 0.15
+                )
+            );
+
+            updateCurrentDesign(
+                "text",
+                (current) => {
+                    if (!current) return current;
+
+                    return {
+                        ...current,
+                        fontSize: newFontSize,
+                    };
+                }
+            );
+        }
+    };
+
+    const handleResizePointerUp = (
+        event: ReactPointerEvent<HTMLButtonElement>
+    ) => {
+        event.stopPropagation();
+
+        resizeState.current = null;
+
+        if (
+            event.currentTarget.hasPointerCapture(
+                event.pointerId
+            )
+        ) {
+            event.currentTarget.releasePointerCapture(
+                event.pointerId
+            );
+        }
+    };
+
+    const handleDeleteSelected = () => {
+        if (!selectedDesign) return;
+
+        setDesigns((current) => ({
+            ...current,
+            [activeView]: {
+                ...current[activeView],
+                [selectedDesign]: null,
+            },
+        }));
+
+        setSelectedDesign(null);
+    };
+
+    const handleReset = () => {
+        setDesigns((current) => ({
+            ...current,
+            [activeView]: {
+                image: null,
+                text: null,
+            },
+        }));
+
+        setSelectedDesign(null);
+    };
+
+    const handleColorChange = (color: string) => {
+        updateCurrentDesign(
+            "text",
+            (current) => {
+                if (!current) return current;
+
+                return {
+                    ...current,
+                    color,
+                };
+            }
+        );
+    };
+
+    const handleFontChange = (
+        fontFamily: string
+    ) => {
+        updateCurrentDesign(
+            "text",
+            (current) => {
+                if (!current) return current;
+
+                return {
+                    ...current,
+                    fontFamily,
+                };
+            }
+        );
+    };
+
+    const currentImage =
+        designs[activeView].image;
+
+    const currentText =
+        designs[activeView].text;
 
     const mugStyle = {
         "--mug-rotation": `${mugRotation}deg`,
     } as CSSProperties;
 
     return (
-
         <>
-
             <Header />
 
             <main className="customize-page">
@@ -132,18 +566,17 @@ const handleAddText = () => {
                     </h1>
 
                     <p>
-                        Create something uniquely yours. Add your photo,
-                        text and personal details to make your mug special.
+                        Create something uniquely yours.
+                        Add your photo, text and personal
+                        details to make your mug special.
                     </p>
 
                 </section>
-
 
                 <nav
                     className="customize-steps"
                     aria-label="Customization steps"
                 >
-
                     <div className="customize-step customize-step--active">
                         <span>01</span>
                         <strong>Design</strong>
@@ -158,22 +591,16 @@ const handleAddText = () => {
                         <span>03</span>
                         <strong>Add to Cart</strong>
                     </div>
-
                 </nav>
-
 
                 <section className="customize-workspace">
 
                     <aside className="customize-panel">
 
                         <div className="customize-panel__header">
-
                             <span>YOUR DESIGN</span>
-
                             <strong>Customize</strong>
-
                         </div>
-
 
                         <div className="customize-tool">
 
@@ -184,27 +611,40 @@ const handleAddText = () => {
                                 </span>
 
                                 <div>
-                                    <strong>Upload Image</strong>
-                                    <small>JPG, PNG or WEBP</small>
+                                    <strong>
+                                        Upload Image
+                                    </strong>
+
+                                    <small>
+                                        JPG, PNG or WEBP
+                                    </small>
                                 </div>
 
                             </div>
 
                             <input
-  ref={imageInputRef}
-  type="file"
-  accept="image/jpeg,image/png,image/webp"
-  style={{ display: "none" }}
-  onChange={handleImageChange}
-/>
+                                ref={imageInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                style={{
+                                    display: "none",
+                                }}
+                                onChange={
+                                    handleImageChange
+                                }
+                            />
 
-<button
-  type="button"
-  onClick={() => imageInputRef.current?.click()}
->
-  Choose Image
-</button>
-</div>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    imageInputRef.current?.click()
+                                }
+                            >
+                                Choose Image
+                            </button>
+
+                        </div>
+
                         <div className="customize-tool">
 
                             <div className="customize-tool__title">
@@ -214,20 +654,27 @@ const handleAddText = () => {
                                 </span>
 
                                 <div>
-                                    <strong>Add Text</strong>
-                                    <small>Create your message</small>
+                                    <strong>
+                                        Add Text
+                                    </strong>
+
+                                    <small>
+                                        Create your message
+                                    </small>
                                 </div>
 
                             </div>
 
                             <button
-  type="button"
-  onClick={handleAddText}
->
-  Add Text
-</button>
-                        </div>
+                                type="button"
+                                onClick={
+                                    handleAddText
+                                }
+                            >
+                                Add Text
+                            </button>
 
+                        </div>
 
                         <div className="customize-tool">
 
@@ -238,30 +685,42 @@ const handleAddText = () => {
                                 </span>
 
                                 <div>
-                                    <strong>Font</strong>
-                                    <small>Choose your style</small>
+                                    <strong>
+                                        Font
+                                    </strong>
+
+                                    <small>
+                                        Choose your style
+                                    </small>
                                 </div>
 
                             </div>
 
-                            <select defaultValue="classic">
-
-                                <option value="classic">
+                            <select
+                                value={
+                                    currentText?.fontFamily ??
+                                    "Arial, sans-serif"
+                                }
+                                onChange={(event) =>
+                                    handleFontChange(
+                                        event.target.value
+                                    )
+                                }
+                            >
+                                <option value="Arial, sans-serif">
                                     Classic
                                 </option>
 
-                                <option value="modern">
-                                    Modern
-                                </option>
-
-                                <option value="elegant">
+                                <option value="Georgia, serif">
                                     Elegant
                                 </option>
 
+                                <option value="Verdana, sans-serif">
+                                    Modern
+                                </option>
                             </select>
 
                         </div>
-
 
                         <div className="customize-tool">
 
@@ -272,8 +731,13 @@ const handleAddText = () => {
                                 </span>
 
                                 <div>
-                                    <strong>Color</strong>
-                                    <small>Choose a color</small>
+                                    <strong>
+                                        Color
+                                    </strong>
+
+                                    <small>
+                                        Choose a color
+                                    </small>
                                 </div>
 
                             </div>
@@ -284,36 +748,75 @@ const handleAddText = () => {
                                     type="button"
                                     className="customize-color customize-color--black"
                                     aria-label="Black"
+                                    onClick={() =>
+                                        handleColorChange(
+                                            "#111111"
+                                        )
+                                    }
                                 />
 
                                 <button
                                     type="button"
                                     className="customize-color customize-color--white"
                                     aria-label="White"
+                                    onClick={() =>
+                                        handleColorChange(
+                                            "#ffffff"
+                                        )
+                                    }
                                 />
 
                                 <button
                                     type="button"
                                     className="customize-color customize-color--gold"
                                     aria-label="Gold"
+                                    onClick={() =>
+                                        handleColorChange(
+                                            "#c89b3c"
+                                        )
+                                    }
                                 />
 
                             </div>
 
                         </div>
 
+                        {selectedDesign && (
+                            <div
+                                style={{
+                                    display: "flex",
+                                    gap: "8px",
+                                    padding: "12px 0",
+                                }}
+                            >
+                                {selectedDesign === "text" && (
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            handleEditText
+                                        }
+                                    >
+                                        Edit Text
+                                    </button>
+                                )}
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        handleDeleteSelected
+                                    }
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        )}
 
                         <div className="customize-panel__actions">
 
-                            <button type="button">
-                                Undo
-                            </button>
-
-                            <button type="button">
-                                Redo
-                            </button>
-
-                            <button type="button">
+                            <button
+                                type="button"
+                                onClick={handleReset}
+                            >
                                 Reset
                             </button>
 
@@ -321,14 +824,18 @@ const handleAddText = () => {
 
                     </aside>
 
-
                     <section className="customize-preview">
 
                         <div className="customize-preview__top">
 
                             <div>
-                                <span>PREVIEW</span>
-                                <strong>Your Mug</strong>
+                                <span>
+                                    PREVIEW
+                                </span>
+
+                                <strong>
+                                    Your Mug
+                                </strong>
                             </div>
 
                             <span className="customize-preview__status">
@@ -337,15 +844,22 @@ const handleAddText = () => {
 
                         </div>
 
-
                         <div className="customize-product">
 
                             <div
                                 className="customize-mug-stage"
-                                onPointerDown={handleMugPointerDown}
-                                onPointerMove={handleMugPointerMove}
-                                onPointerUp={handleMugPointerUp}
-                                onPointerCancel={handleMugPointerUp}
+                                onPointerDown={
+                                    handleMugPointerDown
+                                }
+                                onPointerMove={
+                                    handleMugPointerMove
+                                }
+                                onPointerUp={
+                                    handleMugPointerUp
+                                }
+                                onPointerCancel={
+                                    handleMugPointerUp
+                                }
                                 style={mugStyle}
                                 role="application"
                                 aria-label="Drag to rotate your mug"
@@ -356,82 +870,315 @@ const handleAddText = () => {
                                     <div className="customize-mug__handle" />
 
                                     <div className="customize-mug__body">
-  <div
-    className={`customize-mug__content ${
-      activeView === "back" ? "is-back" : ""
-    }`}
-  >
-    {designImage && (
-  <img
-    src={designImage}
-    alt="Your design"
-    className="customize-mug__design-image"
-  />
-)}
 
-{designText ? (
-  <span className="customize-mug__design-text">
-    {designText}
-  </span>
-) : (
-  <>
-    <span className="customize-mug__logo">
-      MAGIC TOUCH
-    </span>
+                                        <div
+                                            className={`customize-mug__content ${
+                                                activeView === "back"
+                                                    ? "is-back"
+                                                    : ""
+                                            }`}
+                                            style={{
+                                                position:
+                                                    "relative",
+                                                overflow:
+                                                    "hidden",
+                                                touchAction:
+                                                    "none",
+                                            }}
+                                            onPointerDown={(event) =>
+                                                event.stopPropagation()
+                                            }
+                                        >
 
-    <span className="customize-mug__placeholder">
-      YOUR DESIGN
-    </span>
-  </>
-)}
-  </div>
-</div>
+                                            {!currentImage &&
+                                                !currentText && (
+                                                    <>
+                                                        <span className="customize-mug__logo">
+                                                            MAGIC TOUCH
+                                                        </span>
+
+                                                        <span className="customize-mug__placeholder">
+                                                            YOUR DESIGN
+                                                        </span>
+                                                    </>
+                                                )}
+
+                                            {currentImage && (
+                                                <div
+                                                    style={{
+                                                        position:
+                                                            "absolute",
+                                                        left: `${currentImage.x}%`,
+                                                        top: `${currentImage.y}%`,
+                                                        width: `${currentImage.width}%`,
+                                                        transform:
+                                                            "translate(-50%, -50%)",
+                                                        zIndex: 2,
+                                                        touchAction:
+                                                            "none",
+                                                        cursor:
+                                                            "move",
+                                                        border:
+                                                            selectedDesign ===
+                                                            "image"
+                                                                ? "2px solid #d4af37"
+                                                                : "2px solid transparent",
+                                                        boxSizing:
+                                                            "border-box",
+                                                    }}
+                                                    onPointerDown={(
+                                                        event
+                                                    ) =>
+                                                        handleDesignPointerDown(
+                                                            event,
+                                                            "image"
+                                                        )
+                                                    }
+                                                    onPointerMove={
+                                                        handleDesignPointerMove
+                                                    }
+                                                    onPointerUp={
+                                                        handleDesignPointerUp
+                                                    }
+                                                    onPointerCancel={
+                                                        handleDesignPointerUp
+                                                    }
+                                                >
+                                                    <img
+                                                        src={
+                                                            currentImage.src
+                                                        }
+                                                        alt="Your uploaded design"
+                                                        style={{
+                                                            display:
+                                                                "block",
+                                                            width:
+                                                                "100%",
+                                                            height:
+                                                                "auto",
+                                                            pointerEvents:
+                                                                "none",
+                                                            userSelect:
+                                                                "none",
+                                                        }}
+                                                        draggable={false}
+                                                    />
+
+                                                    {selectedDesign ===
+                                                        "image" && (
+                                                        <button
+                                                            type="button"
+                                                            aria-label="Resize image"
+                                                            style={{
+                                                                position:
+                                                                    "absolute",
+                                                                right:
+                                                                    "-10px",
+                                                                bottom:
+                                                                    "-10px",
+                                                                width:
+                                                                    "22px",
+                                                                height:
+                                                                    "22px",
+                                                                borderRadius:
+                                                                    "50%",
+                                                                border:
+                                                                    "2px solid white",
+                                                                background:
+                                                                    "#c89b3c",
+                                                                padding:
+                                                                    0,
+                                                                touchAction:
+                                                                    "none",
+                                                                cursor:
+                                                                    "nwse-resize",
+                                                            }}
+                                                            onPointerDown={(
+                                                                event
+                                                            ) =>
+                                                                handleResizePointerDown(
+                                                                    event,
+                                                                    "image"
+                                                                )
+                                                            }
+                                                            onPointerMove={
+                                                                handleResizePointerMove
+                                                            }
+                                                            onPointerUp={
+                                                                handleResizePointerUp
+                                                            }
+                                                            onPointerCancel={
+                                                                handleResizePointerUp
+                                                            }
+                                                        />
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {currentText && (
+                                                <div
+                                                    style={{
+                                                        position:
+                                                            "absolute",
+                                                        left: `${currentText.x}%`,
+                                                        top: `${currentText.y}%`,
+                                                        transform:
+                                                            "translate(-50%, -50%)",
+                                                        zIndex: 3,
+                                                        color:
+                                                            currentText.color,
+                                                        fontFamily:
+                                                            currentText.fontFamily,
+                                                        fontSize:
+                                                            `${currentText.fontSize}px`,
+                                                        fontWeight:
+                                                            700,
+                                                        whiteSpace:
+                                                            "nowrap",
+                                                        cursor:
+                                                            "move",
+                                                        userSelect:
+                                                            "none",
+                                                        touchAction:
+                                                            "none",
+                                                        border:
+                                                            selectedDesign ===
+                                                            "text"
+                                                                ? "2px solid #d4af37"
+                                                                : "2px solid transparent",
+                                                        padding:
+                                                            "6px",
+                                                    }}
+                                                    onPointerDown={(
+                                                        event
+                                                    ) =>
+                                                        handleDesignPointerDown(
+                                                            event,
+                                                            "text"
+                                                        )
+                                                    }
+                                                    onPointerMove={
+                                                        handleDesignPointerMove
+                                                    }
+                                                    onPointerUp={
+                                                        handleDesignPointerUp
+                                                    }
+                                                    onPointerCancel={
+                                                        handleDesignPointerUp
+                                                    }
+                                                    onDoubleClick={
+                                                        handleEditText
+                                                    }
+                                                >
+                                                    {currentText.value}
+
+                                                    {selectedDesign ===
+                                                        "text" && (
+                                                        <button
+                                                            type="button"
+                                                            aria-label="Resize text"
+                                                            style={{
+                                                                position:
+                                                                    "absolute",
+                                                                right:
+                                                                    "-12px",
+                                                                bottom:
+                                                                    "-12px",
+                                                                width:
+                                                                    "22px",
+                                                                height:
+                                                                    "22px",
+                                                                borderRadius:
+                                                                    "50%",
+                                                                border:
+                                                                    "2px solid white",
+                                                                background:
+                                                                    "#c89b3c",
+                                                                padding:
+                                                                    0,
+                                                                touchAction:
+                                                                    "none",
+                                                                cursor:
+                                                                    "nwse-resize",
+                                                            }}
+                                                            onPointerDown={(
+                                                                event
+                                                            ) =>
+                                                                handleResizePointerDown(
+                                                                    event,
+                                                                    "text"
+                                                                )
+                                                            }
+                                                            onPointerMove={
+                                                                handleResizePointerMove
+                                                            }
+                                                            onPointerUp={
+                                                                handleResizePointerUp
+                                                            }
+                                                            onPointerCancel={
+                                                                handleResizePointerUp
+                                                            }
+                                                        />
+                                                    )}
+                                                </div>
+                                            )}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
 
                             </div>
 
                         </div>
 
-
                         <div className="customize-view-controls">
 
-                            {(["front", "back"] as MugView[]).map(
-                                (view) => (
+                            {(
+                                ["front", "back"] as MugView[]
+                            ).map((view) => (
 
-                                    <button
-                                        key={view}
-                                        type="button"
-                                        className={
-                                            activeView === view
-                                                ? "is-active"
-                                                : ""
-                                        }
-                                        onClick={() =>
-                                            handleViewChange(view)
-                                        }
-                                    >
-                                        {view}
-                                    </button>
+                                <button
+                                    key={view}
+                                    type="button"
+                                    className={
+                                        activeView === view
+                                            ? "is-active"
+                                            : ""
+                                    }
+                                    onClick={() =>
+                                        handleViewChange(
+                                            view
+                                        )
+                                    }
+                                >
+                                    {view}
+                                </button>
 
-                                )
-                            )}
-</div>
+                            ))}
+
                         </div>
-
 
                         <div className="customize-preview__bottom">
 
                             <div className="customize-price">
 
-                                <span>PRICE</span>
+                                <span>
+                                    PRICE
+                                </span>
 
-                                <strong>$24.99</strong>
+                                <strong>
+                                    $24.99
+                                </strong>
 
                             </div>
 
-
                             <div className="customize-quantity">
 
-                                <span>QTY</span>
+                                <span>
+                                    QTY
+                                </span>
 
                                 <div>
 
@@ -468,7 +1215,6 @@ const handleAddText = () => {
 
                             </div>
 
-
                             <button
                                 type="button"
                                 className="customize-add-cart"
@@ -486,11 +1232,8 @@ const handleAddText = () => {
             </main>
 
             <Footer />
-
         </>
-
     );
-
 }
 
 export default CustomizePage;
