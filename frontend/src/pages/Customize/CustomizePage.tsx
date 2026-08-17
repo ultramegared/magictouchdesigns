@@ -365,7 +365,7 @@ function CustomizePage() {
 
                                 )
                             )}
-
+</div>
                         </div>
 
 
