@@ -393,10 +393,10 @@ function CustomizePage() {
        resizeState.current = {
     type,
     startX: event.clientX,
-    originalSize:
-        type === "image"
-            ? design.width
-            : design.fontSize,
+   originalSize:
+    type === "image"
+        ? (design as DesignImage).width
+        : (design as DesignText).fontSize,
 };
         setSelectedDesign(type);
 
