@@ -204,7 +204,7 @@ const handleAddText = () => {
 >
   Choose Image
 </button>
-
+</div>
                         <div className="customize-tool">
 
                             <div className="customize-tool__title">
