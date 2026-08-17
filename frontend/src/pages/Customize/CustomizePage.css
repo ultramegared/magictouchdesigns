@@ -1267,6 +1267,21 @@
     inset 0 -1px rgba(210, 161, 59, 0.08);
 }
 
+
+  .customize-workspace {
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .customize-panel {
+    order: 2;
+  }
+
+  .customize-preview {
+    order: 1;
+  }
+  
       .customize-preview__top {
   min-height: 66px;
   padding: 15px 16px;
