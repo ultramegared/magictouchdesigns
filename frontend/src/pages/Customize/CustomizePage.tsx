@@ -1,5 +1,5 @@
 /**
- * ================================================================
+ * ===============================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: CustomizePage.tsx
@@ -7,7 +7,7 @@
  * Language: TypeScript React
  * Description:
  * Customize page.
- * ================================================================
+ * ===============================================================
  */
 
 import { useRef, useState, type CSSProperties } from "react";
