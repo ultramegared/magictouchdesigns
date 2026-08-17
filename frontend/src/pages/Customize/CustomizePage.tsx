@@ -394,19 +394,26 @@ function CustomizePage() {
 
     if (!design) return;
 
-    resizeState.current = {
-        type,
-        startX: event.clientX,
-        startY: event.clientY,
-        originalWidth:
-            type === "image"
-                ? design.width
-                : design.fontSize,
-        originalHeight:
-            type === "image"
-                ? design.height
-                : design.fontSize,
-    };
+    if (type === "image") {
+        const image = design as DesignImage;
+
+        resizeState.current = {
+            type: "image",
+            startX: event.clientX,
+            startY: event.clientY,
+            originalWidth: image.width,
+            originalHeight: image.height,
+        };
+    } else {
+        const text = design as DesignText;
+
+        resizeState.current = {
+            type: "text",
+            startX: event.clientX,
+            startY: event.clientY,
+            originalSize: text.fontSize,
+        };
+    }
 
     setSelectedDesign(type);
 
@@ -469,8 +476,8 @@ function CustomizePage() {
             12,
             Math.min(
                 100,
-                state.originalWidth +
-                    delta * 0.15
+                state.originalSize! +
+                 delta * 0.15
             )
         );
 
