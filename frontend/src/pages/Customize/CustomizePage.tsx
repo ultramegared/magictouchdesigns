@@ -282,8 +282,6 @@ function CustomizePage() {
 
         if (!content) return;
 
-        const rect = content.getBoundingClientRect();
-
         const design =
             type === "image"
                 ? designs[activeView].image
@@ -392,15 +390,14 @@ function CustomizePage() {
 
         if (!design) return;
 
-        resizeState.current = {
-            type,
-            startX: event.clientX,
-            originalSize:
-                type === "image"
-                    ? design.width
-                    : design.fontSize,
-        };
-
+       resizeState.current = {
+    type,
+    startX: event.clientX,
+    originalSize:
+        type === "image"
+            ? design.width
+            : design.fontSize,
+};
         setSelectedDesign(type);
 
         event.currentTarget.setPointerCapture(
