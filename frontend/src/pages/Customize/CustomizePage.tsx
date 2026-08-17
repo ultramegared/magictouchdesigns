@@ -323,18 +323,20 @@ function CustomizePage() {
                                     <div className="customize-mug__handle" />
 
                                     <div className="customize-mug__body">
+  <div
+    className={`customize-mug__content ${
+      activeView === "back" ? "is-back" : ""
+    }`}
+  >
+    <span className="customize-mug__logo">
+      MAGIC TOUCH
+    </span>
 
-                                        <span className="customize-mug__logo">
-                                            MAGIC TOUCH
-                                        </span>
-
-                                        <span className="customize-mug__placeholder">
-                                            YOUR DESIGN
-                                        </span>
-
-                                    </div>
-
-                                </div>
+    <span className="customize-mug__placeholder">
+      YOUR DESIGN
+    </span>
+  </div>
+</div>
 
                             </div>
 
