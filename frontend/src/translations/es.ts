@@ -534,6 +534,7 @@ register: {
         },
     },
     },
+    },
   
 
     footer: {
