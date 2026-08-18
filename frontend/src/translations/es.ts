@@ -533,6 +533,7 @@ register: {
                 "Algo salió mal. Inténtalo nuevamente.",
         },
     },
+    },
   
 
     footer: {
