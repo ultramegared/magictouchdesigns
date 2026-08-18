@@ -1,0 +1,324 @@
+/**
+ * ===============================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: CustomizePageUnderConstruction.css
+ * Module: Frontend
+ * Language: CSS
+ * Description:
+ * Temporary construction page for the mug customization editor.
+ * ===============================================================
+ */
+
+.customize-page--construction {
+    min-height: 720px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(200, 155, 60, 0.08),
+            transparent 35%
+        ),
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #fafafa 100%
+        );
+}
+
+.customize-construction {
+    width: min(100%, 1050px);
+    text-align: center;
+    padding: 70px 50px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.08),
+        0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.customize-construction__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 18px;
+    border: 1px solid rgba(200, 155, 60, 0.45);
+    border-radius: 999px;
+    color: #9a7428;
+    background: rgba(200, 155, 60, 0.08);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+}
+
+.customize-construction__icon {
+    width: 105px;
+    height: 105px;
+    margin: 32px auto 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #eeeeee
+        );
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 20px 45px rgba(0, 0, 0, 0.12);
+    font-size: 48px;
+}
+
+.customize-construction__eyebrow {
+    display: block;
+    margin-bottom: 14px;
+    color: #9a7428;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+}
+
+.customize-construction h1 {
+    margin: 0;
+    color: #111111;
+    font-size: clamp(38px, 6vw, 68px);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.customize-construction > p {
+    max-width: 700px;
+    margin: 20px auto 0;
+    color: #666666;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.customize-construction > p + p {
+    margin-top: 8px;
+    font-size: 15px;
+    color: #888888;
+}
+
+.customize-construction__features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 48px auto 34px;
+    max-width: 850px;
+}
+
+.customize-construction__features > div {
+    padding: 25px 20px;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 18px;
+    background: #fafafa;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.customize-construction__features > div:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.07);
+}
+
+.customize-construction__features span {
+    display: block;
+    margin-bottom: 12px;
+    color: #c89b3c;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+}
+
+.customize-construction__features strong {
+    display: block;
+    margin-bottom: 7px;
+    color: #181818;
+    font-size: 16px;
+}
+
+.customize-construction__features small {
+    display: block;
+    color: #888888;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.customize-construction__sizes {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: 13px 20px;
+    border-radius: 999px;
+    background: #111111;
+    color: #ffffff;
+}
+
+.customize-construction__sizes span {
+    color: #c89b3c;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.customize-construction__sizes strong {
+    font-size: 13px;
+    letter-spacing: 0.05em;
+}
+
+.customize-construction__colors {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.customize-construction__color {
+    width: 24px;
+    height: 24px;
+    display: block;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.14),
+        0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.customize-construction__color--white {
+    background: #ffffff;
+}
+
+.customize-construction__color--black {
+    background: #111111;
+}
+
+.customize-construction__color--magic {
+    background:
+        linear-gradient(
+            135deg,
+            #111111 0%,
+            #555555 45%,
+            #111111 100%
+        );
+}
+
+.customize-construction__color--red {
+    background: #b52222;
+}
+
+.customize-construction__status {
+    margin-top: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #777777;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.customize-construction__status span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #c89b3c;
+    box-shadow: 0 0 0 5px rgba(200, 155, 60, 0.12);
+}
+
+/* ===============================================================
+   RESPONSIVE
+   =============================================================== */
+
+@media (max-width: 800px) {
+
+    .customize-page--construction {
+        min-height: 650px;
+        padding: 50px 18px;
+    }
+
+    .customize-construction {
+        padding: 55px 24px;
+        border-radius: 22px;
+    }
+
+    .customize-construction__features {
+        grid-template-columns: 1fr;
+        max-width: 430px;
+        margin-top: 36px;
+    }
+
+    .customize-construction__features > div {
+        padding: 20px;
+    }
+
+    .customize-construction__icon {
+        width: 88px;
+        height: 88px;
+        margin-top: 26px;
+        font-size: 40px;
+    }
+
+    .customize-construction > p {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .customize-page--construction {
+        min-height: 620px;
+        padding: 35px 14px;
+    }
+
+    .customize-construction {
+        padding: 42px 18px;
+        border-radius: 18px;
+    }
+
+    .customize-construction__badge {
+        font-size: 9px;
+        padding: 7px 13px;
+    }
+
+    .customize-construction__eyebrow {
+        font-size: 10px;
+        letter-spacing: 0.15em;
+    }
+
+    .customize-construction h1 {
+        font-size: 39px;
+    }
+
+    .customize-construction > p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .customize-construction__sizes {
+        gap: 10px;
+        padding: 11px 15px;
+    }
+
+    .customize-construction__sizes span {
+        font-size: 8px;
+    }
+
+    .customize-construction__sizes strong {
+        font-size: 12px;
+    }
+
+    .customize-construction__status {
+        font-size: 9px;
+    }
+}
