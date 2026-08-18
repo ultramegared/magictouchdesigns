@@ -10,11 +10,26 @@
  * ================================================================
  */
 
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import {
+    useState,
+    type ChangeEvent,
+    type FormEvent,
+} from "react";
+
 import "./ContactPage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
+
+const PRICE_PER_MUG = 24.99;
+
+const ALLOWED_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+];
+
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 
 function ContactPage() {
 
@@ -23,8 +38,21 @@ function ContactPage() {
     const [mugColor, setMugColor] = useState("Black");
     const [quantity, setQuantity] = useState(1);
 
-    const pricePerMug = 24.99;
-    const estimatedTotal = pricePerMug * quantity;
+    const [customStatus, setCustomStatus] =
+        useState<"idle" | "sending" | "success" | "error">("idle");
+
+    const [supportStatus, setSupportStatus] =
+        useState<"idle" | "sending" | "success" | "error">("idle");
+
+    const [imageError, setImageError] = useState("");
+
+    const estimatedTotal =
+        PRICE_PER_MUG * quantity;
+
+
+    /* ============================================================
+       IMAGE
+       ============================================================ */
 
     const handleImageChange = (
         event: ChangeEvent<HTMLInputElement>
@@ -32,11 +60,42 @@ function ContactPage() {
 
         const file = event.target.files?.[0];
 
-        if (file) {
-            setImageName(file.name);
+        setImageError("");
+        setImageName("");
+
+        if (!file) {
+            return;
         }
 
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+
+            setImageError(
+                "Please upload a JPG, PNG or WEBP image."
+            );
+
+            event.target.value = "";
+
+            return;
+        }
+
+        if (file.size > MAX_IMAGE_SIZE) {
+
+            setImageError(
+                "The image must be smaller than 10 MB."
+            );
+
+            event.target.value = "";
+
+            return;
+        }
+
+        setImageName(file.name);
     };
+
+
+    /* ============================================================
+       CUSTOM REQUEST
+       ============================================================ */
 
     const handleCustomRequestSubmit = (
         event: FormEvent<HTMLFormElement>
@@ -44,9 +103,30 @@ function ContactPage() {
 
         event.preventDefault();
 
-        // Backend / payment integration will be connected later.
+        if (imageError) {
+            return;
+        }
 
+        setCustomStatus("sending");
+
+        /*
+         * Frontend only for now.
+         *
+         * The real email/API connection will be added
+         * when the backend is created.
+         */
+
+        window.setTimeout(() => {
+
+            setCustomStatus("success");
+
+        }, 800);
     };
+
+
+    /* ============================================================
+       SUPPORT
+       ============================================================ */
 
     const handleSupportSubmit = (
         event: FormEvent<HTMLFormElement>
@@ -54,9 +134,41 @@ function ContactPage() {
 
         event.preventDefault();
 
-        // Support submission will be connected later.
+        setSupportStatus("sending");
 
+        /*
+         * Frontend only for now.
+         *
+         * The real email/API connection will be added
+         * when the backend is created.
+         */
+
+        window.setTimeout(() => {
+
+            setSupportStatus("success");
+
+        }, 800);
     };
+
+
+    /* ============================================================
+       QUANTITY
+       ============================================================ */
+
+    const decreaseQuantity = () => {
+
+        setQuantity((current) =>
+            Math.max(1, current - 1)
+        );
+    };
+
+    const increaseQuantity = () => {
+
+        setQuantity((current) =>
+            current + 1
+        );
+    };
+
 
     return (
 
@@ -121,6 +233,8 @@ function ContactPage() {
 
                         <div className="contact-form-grid">
 
+                            {/* NAME */}
+
                             <div className="contact-field">
 
                                 <label htmlFor="custom-name">
@@ -132,11 +246,14 @@ function ContactPage() {
                                     name="name"
                                     type="text"
                                     placeholder="Your name"
+                                    minLength={2}
                                     required
                                 />
 
                             </div>
 
+
+                            {/* EMAIL */}
 
                             <div className="contact-field">
 
@@ -154,6 +271,8 @@ function ContactPage() {
 
                             </div>
 
+
+                            {/* IMAGE */}
 
                             <div className="contact-field contact-field--full">
 
@@ -175,7 +294,7 @@ function ContactPage() {
                                     </strong>
 
                                     <small>
-                                        JPG, PNG or WEBP
+                                        JPG, PNG or WEBP • Max 10 MB
                                     </small>
 
                                 </label>
@@ -184,12 +303,25 @@ function ContactPage() {
                                     id="custom-image"
                                     name="image"
                                     type="file"
-                                    accept=".jpg,.jpeg,.png,.webp"
+                                    accept="image/jpeg,image/png,image/webp"
                                     onChange={handleImageChange}
                                 />
 
+                                {imageError && (
+                                    <small
+                                        style={{
+                                            color: "#d95c5c",
+                                            marginTop: "6px",
+                                        }}
+                                    >
+                                        {imageError}
+                                    </small>
+                                )}
+
                             </div>
 
+
+                            {/* TEXT */}
 
                             <div className="contact-field contact-field--full">
 
@@ -202,10 +334,13 @@ function ContactPage() {
                                     name="text"
                                     rows={4}
                                     placeholder="Tell us exactly what text you would like on your mug..."
+                                    maxLength={500}
                                 />
 
                             </div>
 
+
+                            {/* MODEL */}
 
                             <div className="contact-field">
 
@@ -232,6 +367,8 @@ function ContactPage() {
                             </div>
 
 
+                            {/* SIZE */}
+
                             <div className="contact-field">
 
                                 <label htmlFor="mug-size">
@@ -243,16 +380,14 @@ function ContactPage() {
                                     name="size"
                                     value={mugSize}
                                     onChange={(event) =>
-                                        setMugSize(event.target.value)
+                                        setMugSize(
+                                            event.target.value
+                                        )
                                     }
                                 >
 
                                     <option value="11 oz">
                                         11 oz
-                                    </option>
-
-                                    <option value="13 oz">
-                                        13 oz
                                     </option>
 
                                     <option value="15 oz">
@@ -263,6 +398,8 @@ function ContactPage() {
 
                             </div>
 
+
+                            {/* COLOR */}
 
                             <div className="contact-field">
 
@@ -275,7 +412,9 @@ function ContactPage() {
                                     name="color"
                                     value={mugColor}
                                     onChange={(event) =>
-                                        setMugColor(event.target.value)
+                                        setMugColor(
+                                            event.target.value
+                                        )
                                     }
                                 >
 
@@ -287,14 +426,20 @@ function ContactPage() {
                                         White
                                     </option>
 
-                                    <option value="Gold">
-                                        Gold
+                                    <option value="Magic Black">
+                                        Magic Black
+                                    </option>
+
+                                    <option value="Red">
+                                        Red
                                     </option>
 
                                 </select>
 
                             </div>
 
+
+                            {/* QUANTITY */}
 
                             <div className="contact-field">
 
@@ -306,10 +451,8 @@ function ContactPage() {
 
                                     <button
                                         type="button"
-                                        onClick={() =>
-                                            setQuantity(
-                                                Math.max(1, quantity - 1)
-                                            )
+                                        onClick={
+                                            decreaseQuantity
                                         }
                                         aria-label="Decrease quantity"
                                     >
@@ -322,8 +465,8 @@ function ContactPage() {
 
                                     <button
                                         type="button"
-                                        onClick={() =>
-                                            setQuantity(quantity + 1)
+                                        onClick={
+                                            increaseQuantity
                                         }
                                         aria-label="Increase quantity"
                                     >
@@ -334,6 +477,8 @@ function ContactPage() {
 
                             </div>
 
+
+                            {/* DETAILS */}
 
                             <div className="contact-field contact-field--full">
 
@@ -346,12 +491,15 @@ function ContactPage() {
                                     name="notes"
                                     rows={4}
                                     placeholder="Tell us anything else we should know about your design..."
+                                    maxLength={1000}
                                 />
 
                             </div>
 
                         </div>
 
+
+                        {/* PRICE */}
 
                         <div className="contact-price">
 
@@ -368,18 +516,68 @@ function ContactPage() {
                             </div>
 
                             <small>
-                                ${pricePerMug.toFixed(2)} per mug
+                                ${PRICE_PER_MUG.toFixed(2)} per mug
                             </small>
 
                         </div>
 
 
+                        {/* STATUS */}
+
+                        {customStatus === "success" && (
+
+                            <div
+                                style={{
+                                    marginTop: "18px",
+                                    padding: "14px 16px",
+                                    borderRadius: "6px",
+                                    background:
+                                        "rgba(76, 175, 80, 0.10)",
+                                    border:
+                                        "1px solid rgba(76, 175, 80, 0.35)",
+                                    color: "#72c878",
+                                    fontSize: "12px",
+                                }}
+                            >
+                                Your custom request is ready to be
+                                connected to our email system.
+                            </div>
+
+                        )}
+
+
+                        {customStatus === "error" && (
+
+                            <div
+                                style={{
+                                    marginTop: "18px",
+                                    color: "#d95c5c",
+                                    fontSize: "12px",
+                                }}
+                            >
+                                Something went wrong. Please try again.
+                            </div>
+
+                        )}
+
+
                         <button
                             type="submit"
                             className="contact-primary-button"
+                            disabled={
+                                customStatus === "sending"
+                            }
                         >
-                            Send Custom Request
-                            <span>→</span>
+
+                            {customStatus === "sending"
+                                ? "Preparing Request..."
+                                : "Send Custom Request"
+                            }
+
+                            <span>
+                                →
+                            </span>
+
                         </button>
 
                     </form>
@@ -408,6 +606,7 @@ function ContactPage() {
                             payment or anything else? Send us a
                             message and our team will help you.
                         </p>
+
 
                         <div className="contact-info">
 
@@ -457,9 +656,7 @@ function ContactPage() {
                     </div>
 
 
-                    {/* ==================================================
-                       SUPPORT IMAGE
-                       ================================================== */}
+                    {/* SUPPORT IMAGE */}
 
                     <div className="contact-support__image">
 
@@ -470,6 +667,8 @@ function ContactPage() {
 
                     </div>
 
+
+                    {/* SUPPORT FORM */}
 
                     <form
                         className="contact-support__form"
@@ -487,6 +686,7 @@ function ContactPage() {
                                 name="name"
                                 type="text"
                                 placeholder="Your name"
+                                minLength={2}
                                 required
                             />
 
@@ -521,6 +721,7 @@ function ContactPage() {
                                 name="orderNumber"
                                 type="text"
                                 placeholder="Optional"
+                                maxLength={50}
                             />
 
                         </div>
@@ -537,18 +738,66 @@ function ContactPage() {
                                 name="message"
                                 rows={5}
                                 placeholder="How can we help?"
+                                minLength={5}
+                                maxLength={2000}
                                 required
                             />
 
                         </div>
 
 
+                        {supportStatus === "success" && (
+
+                            <div
+                                style={{
+                                    padding: "14px 16px",
+                                    borderRadius: "6px",
+                                    background:
+                                        "rgba(76, 175, 80, 0.10)",
+                                    border:
+                                        "1px solid rgba(76, 175, 80, 0.35)",
+                                    color: "#72c878",
+                                    fontSize: "12px",
+                                }}
+                            >
+                                Your support message is ready to be
+                                connected to our email system.
+                            </div>
+
+                        )}
+
+
+                        {supportStatus === "error" && (
+
+                            <div
+                                style={{
+                                    color: "#d95c5c",
+                                    fontSize: "12px",
+                                }}
+                            >
+                                Something went wrong. Please try again.
+                            </div>
+
+                        )}
+
+
                         <button
                             type="submit"
                             className="contact-secondary-button"
+                            disabled={
+                                supportStatus === "sending"
+                            }
                         >
-                            Send Message
-                            <span>→</span>
+
+                            {supportStatus === "sending"
+                                ? "Preparing Message..."
+                                : "Send Message"
+                            }
+
+                            <span>
+                                →
+                            </span>
+
                         </button>
 
                     </form>
@@ -562,7 +811,6 @@ function ContactPage() {
         </>
 
     );
-
 }
 
 export default ContactPage;
