@@ -487,7 +487,7 @@ community: {
         "Something went wrong. Please try again.",
     },
   },
-  
+  },
   footer: {
     allModels: "All Models",
     collections: "Collections",
