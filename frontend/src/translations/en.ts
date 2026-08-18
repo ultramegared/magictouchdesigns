@@ -486,7 +486,7 @@ community: {
       errorMessage:
         "Something went wrong. Please try again.",
     },
-  },
+
 
   footer: {
     allModels: "All Models",
