@@ -436,6 +436,102 @@ register: {
         title: "PAGO SEGURO",
         description: "Pagos seguros y protección de tus datos.",
       },
+        contact: {
+        eyebrow: "CONTÁCTANOS",
+        title: "Contáctanos",
+        intro:
+            "¿Necesitas ayuda creando tu taza? Envíanos tu idea, imagen o mensaje y te ayudaremos a hacer realidad tu diseño.",
+
+        customRequest: {
+            label: "SOLICITUD DE TAZA PERSONALIZADA",
+            title: "Déjanos Crear Tu Taza",
+            description:
+                "Si lo prefieres, envíanos tu imagen y los detalles de tu diseño y nuestro equipo puede preparar tu taza personalizada.",
+
+            fullName: "Nombre completo",
+            namePlaceholder: "Tu nombre",
+
+            email: "Correo electrónico",
+            emailPlaceholder: "tu@ejemplo.com",
+
+            uploadImage: "Sube Tu Imagen",
+            chooseImage: "Elegir Imagen",
+            imageFormats: "JPG, PNG o WEBP • Máximo 10 MB",
+
+            imageError:
+                "Sube una imagen JPG, PNG o WEBP.",
+            imageSizeError:
+                "La imagen debe ser menor de 10 MB.",
+
+            textForMug: "Texto Para Tu Taza",
+            textPlaceholder:
+                "Dinos exactamente qué texto quieres en tu taza...",
+
+            mugModel: "Modelo de Taza",
+            classic: "Clásica",
+            premium: "Premium",
+
+            mugSize: "Tamaño de Taza",
+            size11: "11 oz",
+            size15: "15 oz",
+
+            mugColor: "Color de Taza",
+            black: "Negro",
+            white: "Blanco",
+            magicBlack: "Negro Magic",
+            red: "Rojo",
+
+            quantity: "Cantidad",
+
+            additionalDetails: "Detalles Adicionales",
+            detailsPlaceholder:
+                "Dinos cualquier otro detalle que debamos saber sobre tu diseño...",
+
+            estimatedPrice: "PRECIO ESTIMADO",
+            perMug: "por taza",
+
+            sendRequest: "Enviar Solicitud Personalizada",
+            preparingRequest: "Preparando Solicitud...",
+
+            successMessage:
+                "Tu solicitud personalizada está lista para conectarse con nuestro sistema de correo.",
+
+            errorMessage:
+                "Algo salió mal. Inténtalo nuevamente.",
+        },
+
+        support: {
+            label: "¿NECESITAS AYUDA?",
+            title: "Contacta a Soporte",
+            description:
+                "¿Tienes algún problema con un pedido, diseño, pago o cualquier otra cosa? Envíanos un mensaje y nuestro equipo te ayudará.",
+
+            email: "Correo electrónico",
+            customerSupport: "Atención al Cliente",
+            customerSupportDescription:
+                "Estamos aquí para ayudarte con tu pedido.",
+
+            fullName: "Nombre completo",
+            namePlaceholder: "Tu nombre",
+
+            emailLabel: "Correo electrónico",
+            emailPlaceholder: "tu@ejemplo.com",
+
+            orderNumber: "Número de Pedido",
+            orderOptional: "Opcional",
+
+            message: "Mensaje",
+            messagePlaceholder: "¿Cómo podemos ayudarte?",
+
+            sendMessage: "Enviar Mensaje",
+            preparingMessage: "Preparando Mensaje...",
+
+            successMessage:
+                "Tu mensaje de soporte está listo para conectarse con nuestro sistema de correo.",
+
+            errorMessage:
+                "Algo salió mal. Inténtalo nuevamente.",
+        },
     },
   },
 

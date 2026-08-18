@@ -6,7 +6,7 @@
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Contact page.
+ * Contact page with multilingual support.
  * ================================================================
  */
 
@@ -21,6 +21,9 @@ import "./ContactPage.css";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 
+import { useLanguage } from "../../contexts/LanguageContext";
+import { translations } from "../../translations";
+
 const PRICE_PER_MUG = 24.99;
 
 const ALLOWED_IMAGE_TYPES = [
@@ -33,25 +36,35 @@ const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 
 function ContactPage() {
 
+    const { language } = useLanguage();
+
+    const t = translations[language].contact;
+
     const [imageName, setImageName] = useState("");
+
     const [mugSize, setMugSize] = useState("15 oz");
+
     const [mugColor, setMugColor] = useState("Black");
+
     const [quantity, setQuantity] = useState(1);
 
-    const [customStatus, setCustomStatus] =
-        useState<"idle" | "sending" | "success" | "error">("idle");
-
-    const [supportStatus, setSupportStatus] =
-        useState<"idle" | "sending" | "success" | "error">("idle");
-
     const [imageError, setImageError] = useState("");
+
+    const [customStatus, setCustomStatus] = useState<
+        "idle" | "sending" | "success" | "error"
+    >("idle");
+
+    const [supportStatus, setSupportStatus] = useState<
+        "idle" | "sending" | "success" | "error"
+    >("idle");
+
 
     const estimatedTotal =
         PRICE_PER_MUG * quantity;
 
 
     /* ============================================================
-       IMAGE
+       IMAGE VALIDATION
        ============================================================ */
 
     const handleImageChange = (
@@ -70,7 +83,7 @@ function ContactPage() {
         if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
 
             setImageError(
-                "Please upload a JPG, PNG or WEBP image."
+                t.customRequest.imageError
             );
 
             event.target.value = "";
@@ -81,7 +94,7 @@ function ContactPage() {
         if (file.size > MAX_IMAGE_SIZE) {
 
             setImageError(
-                "The image must be smaller than 10 MB."
+                t.customRequest.imageSizeError
             );
 
             event.target.value = "";
@@ -94,7 +107,7 @@ function ContactPage() {
 
 
     /* ============================================================
-       CUSTOM REQUEST
+       CUSTOM MUG REQUEST
        ============================================================ */
 
     const handleCustomRequestSubmit = (
@@ -110,10 +123,8 @@ function ContactPage() {
         setCustomStatus("sending");
 
         /*
-         * Frontend only for now.
-         *
-         * The real email/API connection will be added
-         * when the backend is created.
+         * Email / backend integration will be connected later.
+         * Frontend structure remains ready for the backend.
          */
 
         window.setTimeout(() => {
@@ -134,14 +145,11 @@ function ContactPage() {
 
         event.preventDefault();
 
-        setSupportStatus("sending");
-
         /*
-         * Frontend only for now.
-         *
-         * The real email/API connection will be added
-         * when the backend is created.
+         * Email / backend integration will be connected later.
          */
+
+        setSupportStatus("sending");
 
         window.setTimeout(() => {
 
@@ -161,6 +169,7 @@ function ContactPage() {
             Math.max(1, current - 1)
         );
     };
+
 
     const increaseQuantity = () => {
 
@@ -185,17 +194,15 @@ function ContactPage() {
                 <section className="contact-intro">
 
                     <span className="contact-eyebrow">
-                        GET IN TOUCH
+                        {t.eyebrow}
                     </span>
 
                     <h1>
-                        Contact Us
+                        {t.title}
                     </h1>
 
                     <p>
-                        Need help creating your mug? Send us your
-                        idea, image or message and we'll help bring
-                        your design to life.
+                        {t.intro}
                     </p>
 
                 </section>
@@ -210,17 +217,15 @@ function ContactPage() {
                     <div className="contact-section-heading">
 
                         <span>
-                            CUSTOM MUG REQUEST
+                            {t.customRequest.label}
                         </span>
 
                         <h2>
-                            Let Us Create Your Mug
+                            {t.customRequest.title}
                         </h2>
 
                         <p>
-                            If you prefer, send us your image and
-                            design details and our team can prepare
-                            your personalized mug for you.
+                            {t.customRequest.description}
                         </p>
 
                     </div>
@@ -228,24 +233,31 @@ function ContactPage() {
 
                     <form
                         className="contact-custom__form"
-                        onSubmit={handleCustomRequestSubmit}
+                        onSubmit={
+                            handleCustomRequestSubmit
+                        }
                     >
 
                         <div className="contact-form-grid">
 
-                            {/* NAME */}
+
+                            {/* ==================================================
+                               FULL NAME
+                               ================================================== */}
 
                             <div className="contact-field">
 
                                 <label htmlFor="custom-name">
-                                    Full Name
+                                    {t.customRequest.fullName}
                                 </label>
 
                                 <input
                                     id="custom-name"
                                     name="name"
                                     type="text"
-                                    placeholder="Your name"
+                                    placeholder={
+                                        t.customRequest.namePlaceholder
+                                    }
                                     minLength={2}
                                     required
                                 />
@@ -253,31 +265,37 @@ function ContactPage() {
                             </div>
 
 
-                            {/* EMAIL */}
+                            {/* ==================================================
+                               EMAIL
+                               ================================================== */}
 
                             <div className="contact-field">
 
                                 <label htmlFor="custom-email">
-                                    Email
+                                    {t.customRequest.email}
                                 </label>
 
                                 <input
                                     id="custom-email"
                                     name="email"
                                     type="email"
-                                    placeholder="you@example.com"
+                                    placeholder={
+                                        t.customRequest.emailPlaceholder
+                                    }
                                     required
                                 />
 
                             </div>
 
 
-                            {/* IMAGE */}
+                            {/* ==================================================
+                               IMAGE UPLOAD
+                               ================================================== */}
 
                             <div className="contact-field contact-field--full">
 
                                 <label htmlFor="custom-image">
-                                    Upload Your Image
+                                    {t.customRequest.uploadImage}
                                 </label>
 
                                 <label
@@ -290,11 +308,14 @@ function ContactPage() {
                                     </span>
 
                                     <strong>
-                                        {imageName || "Choose Image"}
+                                        {
+                                            imageName ||
+                                            t.customRequest.chooseImage
+                                        }
                                     </strong>
 
                                     <small>
-                                        JPG, PNG or WEBP • Max 10 MB
+                                        {t.customRequest.imageFormats}
                                     </small>
 
                                 </label>
@@ -304,10 +325,13 @@ function ContactPage() {
                                     name="image"
                                     type="file"
                                     accept="image/jpeg,image/png,image/webp"
-                                    onChange={handleImageChange}
+                                    onChange={
+                                        handleImageChange
+                                    }
                                 />
 
                                 {imageError && (
+
                                     <small
                                         style={{
                                             color: "#d95c5c",
@@ -316,36 +340,43 @@ function ContactPage() {
                                     >
                                         {imageError}
                                     </small>
+
                                 )}
 
                             </div>
 
 
-                            {/* TEXT */}
+                            {/* ==================================================
+                               TEXT FOR MUG
+                               ================================================== */}
 
                             <div className="contact-field contact-field--full">
 
                                 <label htmlFor="custom-text">
-                                    Text For Your Mug
+                                    {t.customRequest.textForMug}
                                 </label>
 
                                 <textarea
                                     id="custom-text"
                                     name="text"
                                     rows={4}
-                                    placeholder="Tell us exactly what text you would like on your mug..."
+                                    placeholder={
+                                        t.customRequest.textPlaceholder
+                                    }
                                     maxLength={500}
                                 />
 
                             </div>
 
 
-                            {/* MODEL */}
+                            {/* ==================================================
+                               MUG MODEL
+                               ================================================== */}
 
                             <div className="contact-field">
 
                                 <label htmlFor="mug-model">
-                                    Mug Model
+                                    {t.customRequest.mugModel}
                                 </label>
 
                                 <select
@@ -355,11 +386,11 @@ function ContactPage() {
                                 >
 
                                     <option value="Classic">
-                                        Classic
+                                        {t.customRequest.classic}
                                     </option>
 
                                     <option value="Premium">
-                                        Premium
+                                        {t.customRequest.premium}
                                     </option>
 
                                 </select>
@@ -367,12 +398,14 @@ function ContactPage() {
                             </div>
 
 
-                            {/* SIZE */}
+                            {/* ==================================================
+                               MUG SIZE
+                               ================================================== */}
 
                             <div className="contact-field">
 
                                 <label htmlFor="mug-size">
-                                    Mug Size
+                                    {t.customRequest.mugSize}
                                 </label>
 
                                 <select
@@ -387,11 +420,11 @@ function ContactPage() {
                                 >
 
                                     <option value="11 oz">
-                                        11 oz
+                                        {t.customRequest.size11}
                                     </option>
 
                                     <option value="15 oz">
-                                        15 oz
+                                        {t.customRequest.size15}
                                     </option>
 
                                 </select>
@@ -399,12 +432,14 @@ function ContactPage() {
                             </div>
 
 
-                            {/* COLOR */}
+                            {/* ==================================================
+                               MUG COLOR
+                               ================================================== */}
 
                             <div className="contact-field">
 
                                 <label htmlFor="mug-color">
-                                    Mug Color
+                                    {t.customRequest.mugColor}
                                 </label>
 
                                 <select
@@ -419,19 +454,19 @@ function ContactPage() {
                                 >
 
                                     <option value="Black">
-                                        Black
+                                        {t.customRequest.black}
                                     </option>
 
                                     <option value="White">
-                                        White
+                                        {t.customRequest.white}
                                     </option>
 
                                     <option value="Magic Black">
-                                        Magic Black
+                                        {t.customRequest.magicBlack}
                                     </option>
 
                                     <option value="Red">
-                                        Red
+                                        {t.customRequest.red}
                                     </option>
 
                                 </select>
@@ -439,12 +474,14 @@ function ContactPage() {
                             </div>
 
 
-                            {/* QUANTITY */}
+                            {/* ==================================================
+                               QUANTITY
+                               ================================================== */}
 
                             <div className="contact-field">
 
                                 <label htmlFor="mug-quantity">
-                                    Quantity
+                                    {t.customRequest.quantity}
                                 </label>
 
                                 <div className="contact-quantity">
@@ -478,19 +515,23 @@ function ContactPage() {
                             </div>
 
 
-                            {/* DETAILS */}
+                            {/* ==================================================
+                               ADDITIONAL DETAILS
+                               ================================================== */}
 
                             <div className="contact-field contact-field--full">
 
                                 <label htmlFor="custom-notes">
-                                    Additional Details
+                                    {t.customRequest.additionalDetails}
                                 </label>
 
                                 <textarea
                                     id="custom-notes"
                                     name="notes"
                                     rows={4}
-                                    placeholder="Tell us anything else we should know about your design..."
+                                    placeholder={
+                                        t.customRequest.detailsPlaceholder
+                                    }
                                     maxLength={1000}
                                 />
 
@@ -499,14 +540,16 @@ function ContactPage() {
                         </div>
 
 
-                        {/* PRICE */}
+                        {/* ==================================================
+                           PRICE
+                           ================================================== */}
 
                         <div className="contact-price">
 
                             <div>
 
                                 <span>
-                                    ESTIMATED PRICE
+                                    {t.customRequest.estimatedPrice}
                                 </span>
 
                                 <strong>
@@ -516,13 +559,16 @@ function ContactPage() {
                             </div>
 
                             <small>
-                                ${PRICE_PER_MUG.toFixed(2)} per mug
+                                ${PRICE_PER_MUG.toFixed(2)}{" "}
+                                {t.customRequest.perMug}
                             </small>
 
                         </div>
 
 
-                        {/* STATUS */}
+                        {/* ==================================================
+                           CUSTOM SUCCESS
+                           ================================================== */}
 
                         {customStatus === "success" && (
 
@@ -539,12 +585,18 @@ function ContactPage() {
                                     fontSize: "12px",
                                 }}
                             >
-                                Your custom request is ready to be
-                                connected to our email system.
+                                {
+                                    t.customRequest
+                                        .successMessage
+                                }
                             </div>
 
                         )}
 
+
+                        {/* ==================================================
+                           CUSTOM ERROR
+                           ================================================== */}
 
                         {customStatus === "error" && (
 
@@ -555,11 +607,18 @@ function ContactPage() {
                                     fontSize: "12px",
                                 }}
                             >
-                                Something went wrong. Please try again.
+                                {
+                                    t.customRequest
+                                        .errorMessage
+                                }
                             </div>
 
                         )}
 
+
+                        {/* ==================================================
+                           CUSTOM BUTTON
+                           ================================================== */}
 
                         <button
                             type="submit"
@@ -569,9 +628,12 @@ function ContactPage() {
                             }
                         >
 
-                            {customStatus === "sending"
-                                ? "Preparing Request..."
-                                : "Send Custom Request"
+                            {
+                                customStatus === "sending"
+                                    ? t.customRequest
+                                        .preparingRequest
+                                    : t.customRequest
+                                        .sendRequest
                             }
 
                             <span>
@@ -591,24 +653,30 @@ function ContactPage() {
 
                 <section className="contact-support">
 
+
+                    {/* ==================================================
+                       SUPPORT CONTENT
+                       ================================================== */}
+
                     <div className="contact-support__content">
 
                         <span className="contact-section-label">
-                            NEED HELP?
+                            {t.support.label}
                         </span>
 
                         <h2>
-                            Contact Support
+                            {t.support.title}
                         </h2>
 
                         <p>
-                            Have an issue with an order, a design,
-                            payment or anything else? Send us a
-                            message and our team will help you.
+                            {t.support.description}
                         </p>
 
 
                         <div className="contact-info">
+
+
+                            {/* EMAIL */}
 
                             <div className="contact-info__item">
 
@@ -619,7 +687,7 @@ function ContactPage() {
                                 <div>
 
                                     <strong>
-                                        Email
+                                        {t.support.email}
                                     </strong>
 
                                     <span>
@@ -631,6 +699,8 @@ function ContactPage() {
                             </div>
 
 
+                            {/* CUSTOMER SUPPORT */}
+
                             <div className="contact-info__item">
 
                                 <span className="contact-info__icon">
@@ -640,11 +710,14 @@ function ContactPage() {
                                 <div>
 
                                     <strong>
-                                        Customer Support
+                                        {t.support.customerSupport}
                                     </strong>
 
                                     <span>
-                                        We're here to help with your order.
+                                        {
+                                            t.support
+                                                .customerSupportDescription
+                                        }
                                     </span>
 
                                 </div>
@@ -656,36 +729,47 @@ function ContactPage() {
                     </div>
 
 
-                    {/* SUPPORT IMAGE */}
+                    {/* ==================================================
+                       SUPPORT IMAGE
+                       ================================================== */}
 
                     <div className="contact-support__image">
 
                         <img
                             src="/images/contact/contact-support.jpg"
-                            alt="Magic Touch Designs customer support"
+                            alt={t.support.title}
                         />
 
                     </div>
 
 
-                    {/* SUPPORT FORM */}
+                    {/* ==================================================
+                       SUPPORT FORM
+                       ================================================== */}
 
                     <form
                         className="contact-support__form"
-                        onSubmit={handleSupportSubmit}
+                        onSubmit={
+                            handleSupportSubmit
+                        }
                     >
+
+
+                        {/* FULL NAME */}
 
                         <div className="contact-field">
 
                             <label htmlFor="support-name">
-                                Full Name
+                                {t.support.fullName}
                             </label>
 
                             <input
                                 id="support-name"
                                 name="name"
                                 type="text"
-                                placeholder="Your name"
+                                placeholder={
+                                    t.support.namePlaceholder
+                                }
                                 minLength={2}
                                 required
                             />
@@ -693,51 +777,63 @@ function ContactPage() {
                         </div>
 
 
+                        {/* EMAIL */}
+
                         <div className="contact-field">
 
                             <label htmlFor="support-email">
-                                Email
+                                {t.support.emailLabel}
                             </label>
 
                             <input
                                 id="support-email"
                                 name="email"
                                 type="email"
-                                placeholder="you@example.com"
+                                placeholder={
+                                    t.support.emailPlaceholder
+                                }
                                 required
                             />
 
                         </div>
 
 
+                        {/* ORDER NUMBER */}
+
                         <div className="contact-field">
 
                             <label htmlFor="support-order">
-                                Order Number
+                                {t.support.orderNumber}
                             </label>
 
                             <input
                                 id="support-order"
                                 name="orderNumber"
                                 type="text"
-                                placeholder="Optional"
+                                placeholder={
+                                    t.support.orderOptional
+                                }
                                 maxLength={50}
                             />
 
                         </div>
 
 
+                        {/* MESSAGE */}
+
                         <div className="contact-field">
 
                             <label htmlFor="support-message">
-                                Message
+                                {t.support.message}
                             </label>
 
                             <textarea
                                 id="support-message"
                                 name="message"
                                 rows={5}
-                                placeholder="How can we help?"
+                                placeholder={
+                                    t.support.messagePlaceholder
+                                }
                                 minLength={5}
                                 maxLength={2000}
                                 required
@@ -745,6 +841,10 @@ function ContactPage() {
 
                         </div>
 
+
+                        {/* ==================================================
+                           SUPPORT SUCCESS
+                           ================================================== */}
 
                         {supportStatus === "success" && (
 
@@ -760,12 +860,18 @@ function ContactPage() {
                                     fontSize: "12px",
                                 }}
                             >
-                                Your support message is ready to be
-                                connected to our email system.
+                                {
+                                    t.support
+                                        .successMessage
+                                }
                             </div>
 
                         )}
 
+
+                        {/* ==================================================
+                           SUPPORT ERROR
+                           ================================================== */}
 
                         {supportStatus === "error" && (
 
@@ -775,11 +881,18 @@ function ContactPage() {
                                     fontSize: "12px",
                                 }}
                             >
-                                Something went wrong. Please try again.
+                                {
+                                    t.support
+                                        .errorMessage
+                                }
                             </div>
 
                         )}
 
+
+                        {/* ==================================================
+                           SUPPORT BUTTON
+                           ================================================== */}
 
                         <button
                             type="submit"
@@ -789,9 +902,12 @@ function ContactPage() {
                             }
                         >
 
-                            {supportStatus === "sending"
-                                ? "Preparing Message..."
-                                : "Send Message"
+                            {
+                                supportStatus === "sending"
+                                    ? t.support
+                                        .preparingMessage
+                                    : t.support
+                                        .sendMessage
                             }
 
                             <span>
