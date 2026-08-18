@@ -623,7 +623,7 @@ function ContactPage() {
                                     </strong>
 
                                     <span>
-                                        support@magictouchdesigns.com
+                                        business.magic.t.d@gmail.com
                                     </span>
 
                                 </div>
