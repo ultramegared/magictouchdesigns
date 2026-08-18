@@ -390,6 +390,102 @@ community: {
         description: "Secure payments and protection of your data.",
       },
     },
+      contact: {
+    eyebrow: "GET IN TOUCH",
+    title: "Contact Us",
+    intro:
+      "Need help creating your mug? Send us your idea, image or message and we'll help bring your design to life.",
+
+    customRequest: {
+      label: "CUSTOM MUG REQUEST",
+      title: "Let Us Create Your Mug",
+      description:
+        "If you prefer, send us your image and design details and our team can prepare your personalized mug for you.",
+
+      fullName: "Full Name",
+      namePlaceholder: "Your name",
+
+      email: "Email",
+      emailPlaceholder: "you@example.com",
+
+      uploadImage: "Upload Your Image",
+      chooseImage: "Choose Image",
+      imageFormats: "JPG, PNG or WEBP • Max 10 MB",
+
+      imageError:
+        "Please upload a JPG, PNG or WEBP image.",
+      imageSizeError:
+        "The image must be smaller than 10 MB.",
+
+      textForMug: "Text For Your Mug",
+      textPlaceholder:
+        "Tell us exactly what text you would like on your mug...",
+
+      mugModel: "Mug Model",
+      classic: "Classic",
+      premium: "Premium",
+
+      mugSize: "Mug Size",
+      size11: "11 oz",
+      size15: "15 oz",
+
+      mugColor: "Mug Color",
+      black: "Black",
+      white: "White",
+      magicBlack: "Magic Black",
+      red: "Red",
+
+      quantity: "Quantity",
+
+      additionalDetails: "Additional Details",
+      detailsPlaceholder:
+        "Tell us anything else we should know about your design...",
+
+      estimatedPrice: "ESTIMATED PRICE",
+      perMug: "per mug",
+
+      sendRequest: "Send Custom Request",
+      preparingRequest: "Preparing Request...",
+
+      successMessage:
+        "Your custom request is ready to be connected to our email system.",
+
+      errorMessage:
+        "Something went wrong. Please try again.",
+    },
+
+    support: {
+      label: "NEED HELP?",
+      title: "Contact Support",
+      description:
+        "Have an issue with an order, a design, payment or anything else? Send us a message and our team will help you.",
+
+      email: "Email",
+      customerSupport: "Customer Support",
+      customerSupportDescription:
+        "We're here to help with your order.",
+
+      fullName: "Full Name",
+      namePlaceholder: "Your name",
+
+      emailLabel: "Email",
+      emailPlaceholder: "you@example.com",
+
+      orderNumber: "Order Number",
+      orderOptional: "Optional",
+
+      message: "Message",
+      messagePlaceholder: "How can we help?",
+
+      sendMessage: "Send Message",
+      preparingMessage: "Preparing Message...",
+
+      successMessage:
+        "Your support message is ready to be connected to our email system.",
+
+      errorMessage:
+        "Something went wrong. Please try again.",
+    },
   },
 
   footer: {
