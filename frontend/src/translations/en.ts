@@ -490,6 +490,126 @@ community: {
     },
   },
  
+   about: {
+    hero: {
+      eyebrow: "ABOUT US",
+      title: "MAGIC TOUCH",
+      titleAccent: "DESIGNS",
+      intro:
+        "We are José and Yafira, the couple behind Magic Touch Designs, a small business built with creativity, dedication, and the desire to turn ideas into something special.",
+    },
+
+    story: {
+      eyebrow: "OUR STORY",
+      title: "A BUSINESS",
+      titleAccent: "MADE WITH PURPOSE",
+
+      paragraphOne:
+        "Magic Touch Designs is a family-owned creative business founded by José and Yafira. What started as an entrepreneurial dream became a space where creativity, personalization, and quality come together.",
+
+      paragraphTwo:
+        "We create personalized products for individuals, families, businesses, restaurants, schools, teams, promotions, celebrations, and special occasions.",
+
+      paragraphThree:
+        "Our goal is simple: to bring your ideas to life and create products that represent your personality, your brand, and the moments that matter to you.",
+    },
+
+    storyCard: {
+      number: "01",
+      label: "OUR MISSION",
+      title: "YOUR IDEA.",
+      titleAccent: "OUR CRAFT.",
+      description:
+        "We combine creativity, attention to detail, and personalized service to create products you can be proud to give, wear, use, or share.",
+    },
+
+    services: {
+      eyebrow: "WHAT WE OFFER",
+      title: "MADE FOR",
+      titleAccent: "EVERY OCCASION",
+
+      mugs: {
+        title: "PERSONALIZED MUGS",
+        description:
+          "Custom mugs designed with your photos, names, messages, logos, and ideas.",
+      },
+
+      magicMugs: {
+        title: "MAGIC MUGS",
+        description:
+          "Special mugs that reveal your personalized design when exposed to heat.",
+      },
+
+      shirts: {
+        title: "CUSTOM APPAREL",
+        description:
+          "Personalized shirts and apparel for individuals, families, businesses, teams, and events.",
+      },
+
+      caps: {
+        title: "CUSTOM CAPS",
+        description:
+          "Personalized caps featuring your logo, name, team, business, or special design.",
+      },
+
+      businesses: {
+        title: "BUSINESS & BRANDING",
+        description:
+          "Custom products for restaurants, companies, schools, promotions, teams, and special events.",
+      },
+
+      occasions: {
+        title: "SPECIAL OCCASIONS",
+        description:
+          "Personalized products for birthdays, graduations, anniversaries, celebrations, gifts, and unforgettable moments.",
+      },
+    },
+
+    values: {
+      eyebrow: "WHAT WE BELIEVE",
+      title: "OUR VALUES",
+      titleAccent: "DEFINE US",
+
+      quality: {
+        title: "QUALITY",
+        description:
+          "We care about every detail and strive to deliver products that look great and last.",
+      },
+
+      creativity: {
+        title: "CREATIVITY",
+        description:
+          "Every customer has a unique idea, and we love turning those ideas into original designs.",
+      },
+
+      personalTouch: {
+        title: "PERSONAL TOUCH",
+        description:
+          "Behind every order is a person, a story, or a special moment. That is what makes our work meaningful.",
+      },
+    },
+
+    vision: {
+      eyebrow: "OUR VISION",
+      title: "CREATING MORE",
+      titleAccent: "THAN PRODUCTS",
+      description:
+        "We want Magic Touch Designs to grow into a trusted creative brand known for personalized products, quality work, and genuine customer service.",
+    },
+
+    cta: {
+      eyebrow: "LET'S CREATE SOMETHING SPECIAL",
+      title: "YOUR IDEA",
+      titleAccent: "STARTS HERE",
+      description:
+        "Explore our collections, discover our work, and find something made for you or someone special.",
+      primaryButton: "VIEW OUR COLLECTIONS",
+      secondaryButton: "START CUSTOMIZING",
+      socialText:
+        "Follow us on social media, support our small business, and be part of the Magic Touch Designs community.",
+    },
+  },
+ 
   footer: {
     allModels: "All Models",
     collections: "Collections",
