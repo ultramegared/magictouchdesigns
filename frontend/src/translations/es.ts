@@ -432,11 +432,14 @@ register: {
         description: "Diseños personalizados creados especialmente para ti.",
       },
 
-      securePayment: {
+            securePayment: {
         title: "PAGO SEGURO",
         description: "Pagos seguros y protección de tus datos.",
       },
-        contact: {
+    },
+  },
+
+  contact: {
         eyebrow: "CONTÁCTANOS",
         title: "Contáctanos",
         intro:
@@ -533,8 +536,6 @@ register: {
                 "Algo salió mal. Inténtalo nuevamente.",
         },
     },
-    },
-  
 
     footer: {
 
