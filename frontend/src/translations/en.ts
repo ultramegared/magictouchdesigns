@@ -385,13 +385,14 @@ community: {
         description: "Personalized designs created just for you.",
       },
 
-      securePayment: {
+            securePayment: {
         title: "SECURE PAYMENT",
         description: "Secure payments and protection of your data.",
       },
-      },
     },
-      contact: {
+  },
+
+  contact: {
     eyebrow: "GET IN TOUCH",
     title: "Contact Us",
     intro:
@@ -488,7 +489,7 @@ community: {
         "Something went wrong. Please try again.",
     },
   },
-  },
+ 
   footer: {
     allModels: "All Models",
     collections: "Collections",
