@@ -6,7 +6,7 @@
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Premium About Us page.
+ * Premium bilingual About Us page for Magic Touch Designs.
  * ================================================================
  */
 
@@ -14,8 +14,13 @@ import "./AboutPage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
+import { translations } from "../../translations";
+import { useLanguage } from "../../context/LanguageContext";
 
 function AboutPage() {
+    const { language } = useLanguage();
+    const t = translations[language];
+
     return (
         <>
             <Header />
@@ -34,12 +39,12 @@ function AboutPage() {
                     <div className="about-page__container">
 
                         <span className="about-page__eyebrow">
-                            ABOUT US
+                            {t.about.hero.eyebrow}
                         </span>
 
                         <h1>
-                            MAGIC TOUCH
-                            <span>DESIGNS</span>
+                            {t.about.hero.title}
+                            <span>{t.about.hero.titleAccent}</span>
                         </h1>
 
                         <div className="about-page__divider">
@@ -47,27 +52,15 @@ function AboutPage() {
                         </div>
 
                         <p className="about-page__intro">
-                            We turn everyday products into
-                            meaningful memories.
+                            {t.about.hero.intro}
                         </p>
-
-                        <div className="about-page__hero-product">
-
-                            <div className="about-page__hero-glow" />
-
-                            <img
-                                src="/images/hero/hero-mug2.png"
-                                alt="Magic Touch Designs personalized mug"
-                            />
-
-                        </div>
 
                     </div>
 
                 </section>
 
                 {/* =================================================
-                    STORY
+                    OUR STORY
                 ================================================= */}
 
                 <section className="about-page__story">
@@ -79,34 +72,26 @@ function AboutPage() {
                             <div className="about-page__content">
 
                                 <span className="about-page__eyebrow">
-                                    OUR STORY
+                                    {t.about.story.eyebrow}
                                 </span>
 
                                 <h2>
-                                    DESIGNS MADE
-                                    <span>WITH MEANING</span>
+                                    {t.about.story.title}
+                                    <span>{t.about.story.titleAccent}</span>
                                 </h2>
 
                                 <div className="about-page__gold-line" />
 
                                 <p>
-                                    At Magic Touch Designs, we believe
-                                    that the smallest details can make
-                                    the biggest memories.
+                                    {t.about.story.paragraph1}
                                 </p>
 
                                 <p>
-                                    We create personalized mugs,
-                                    caps, shirts, and other custom
-                                    products designed to celebrate
-                                    the people, moments, and ideas
-                                    that matter most.
+                                    {t.about.story.paragraph2}
                                 </p>
 
                                 <p>
-                                    Every design is created with
-                                    attention to detail, creativity,
-                                    and a personal touch.
+                                    {t.about.story.paragraph3}
                                 </p>
 
                             </div>
@@ -120,25 +105,282 @@ function AboutPage() {
                                     </span>
 
                                     <span className="about-page__story-label">
-                                        MAGIC TOUCH
+                                        {t.about.story.cardLabel}
                                     </span>
 
                                     <h3>
-                                        Made with
-                                        <span>meaning.</span>
+                                        {t.about.story.cardTitle}
+                                        <span>
+                                            {t.about.story.cardAccent}
+                                        </span>
                                     </h3>
 
                                     <div className="about-page__story-card-line" />
 
                                     <p>
-                                        Personalized products created
-                                        to turn ordinary moments into
-                                        something unforgettable.
+                                        {t.about.story.cardDescription}
                                     </p>
 
                                 </div>
 
                             </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                {/* =================================================
+                    MISSION & VISION
+                ================================================= */}
+
+                <section className="about-page__mission">
+
+                    <div className="about-page__container">
+
+                        <div className="about-page__section-heading">
+
+                            <span className="about-page__eyebrow">
+                                {t.about.missionVision.eyebrow}
+                            </span>
+
+                            <h2>
+                                {t.about.missionVision.title}
+                                <span>
+                                    {t.about.missionVision.titleAccent}
+                                </span>
+                            </h2>
+
+                            <div className="about-page__gold-line about-page__gold-line--center" />
+
+                        </div>
+
+                        <div className="about-page__mission-grid">
+
+                            <article className="about-page__mission-card">
+
+                                <span className="about-page__mission-number">
+                                    01
+                                </span>
+
+                                <div className="about-page__mission-icon">
+                                    ✦
+                                </div>
+
+                                <h3>
+                                    {t.about.missionVision.mission.title}
+                                </h3>
+
+                                <p>
+                                    {t.about.missionVision.mission.description}
+                                </p>
+
+                            </article>
+
+                            <article className="about-page__mission-card">
+
+                                <span className="about-page__mission-number">
+                                    02
+                                </span>
+
+                                <div className="about-page__mission-icon">
+                                    ◇
+                                </div>
+
+                                <h3>
+                                    {t.about.missionVision.vision.title}
+                                </h3>
+
+                                <p>
+                                    {t.about.missionVision.vision.description}
+                                </p>
+
+                            </article>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                {/* =================================================
+                    WHAT WE OFFER
+                ================================================= */}
+
+                <section className="about-page__services">
+
+                    <div className="about-page__container">
+
+                        <div className="about-page__section-heading">
+
+                            <span className="about-page__eyebrow">
+                                {t.about.services.eyebrow}
+                            </span>
+
+                            <h2>
+                                {t.about.services.title}
+                                <span>
+                                    {t.about.services.titleAccent}
+                                </span>
+                            </h2>
+
+                            <p className="about-page__section-intro">
+                                {t.about.services.intro}
+                            </p>
+
+                            <div className="about-page__gold-line about-page__gold-line--center" />
+
+                        </div>
+
+                        <div className="about-page__service-grid">
+
+                            <article className="about-page__service-card">
+                                <div className="about-page__service-icon">
+                                    ☕
+                                </div>
+
+                                <h3>
+                                    {t.about.services.mugs.title}
+                                </h3>
+
+                                <p>
+                                    {t.about.services.mugs.description}
+                                </p>
+                            </article>
+
+                            <article className="about-page__service-card">
+                                <div className="about-page__service-icon">
+                                    ✨
+                                </div>
+
+                                <h3>
+                                    {t.about.services.magicMugs.title}
+                                </h3>
+
+                                <p>
+                                    {t.about.services.magicMugs.description}
+                                </p>
+                            </article>
+
+                            <article className="about-page__service-card">
+                                <div className="about-page__service-icon">
+                                    👕
+                                </div>
+
+                                <h3>
+                                    {t.about.services.shirts.title}
+                                </h3>
+
+                                <p>
+                                    {t.about.services.shirts.description}
+                                </p>
+                            </article>
+
+                            <article className="about-page__service-card">
+                                <div className="about-page__service-icon">
+                                    🧢
+                                </div>
+
+                                <h3>
+                                    {t.about.services.caps.title}
+                                </h3>
+
+                                <p>
+                                    {t.about.services.caps.description}
+                                </p>
+                            </article>
+
+                            <article className="about-page__service-card">
+                                <div className="about-page__service-icon">
+                                    👚
+                                </div>
+
+                                <h3>
+                                    {t.about.services.clothing.title}
+                                </h3>
+
+                                <p>
+                                    {t.about.services.clothing.description}
+                                </p>
+                            </article>
+
+                            <article className="about-page__service-card">
+                                <div className="about-page__service-icon">
+                                    ✦
+                                </div>
+
+                                <h3>
+                                    {t.about.services.custom.title}
+                                </h3>
+
+                                <p>
+                                    {t.about.services.custom.description}
+                                </p>
+                            </article>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                {/* =================================================
+                    WHO WE SERVE
+                ================================================= */}
+
+                <section className="about-page__audience">
+
+                    <div className="about-page__container">
+
+                        <div className="about-page__section-heading">
+
+                            <span className="about-page__eyebrow">
+                                {t.about.audience.eyebrow}
+                            </span>
+
+                            <h2>
+                                {t.about.audience.title}
+                                <span>
+                                    {t.about.audience.titleAccent}
+                                </span>
+                            </h2>
+
+                            <div className="about-page__gold-line about-page__gold-line--center" />
+
+                        </div>
+
+                        <div className="about-page__audience-grid">
+
+                            <article className="about-page__audience-card">
+                                <span>01</span>
+                                <h3>{t.about.audience.people}</h3>
+                            </article>
+
+                            <article className="about-page__audience-card">
+                                <span>02</span>
+                                <h3>{t.about.audience.businesses}</h3>
+                            </article>
+
+                            <article className="about-page__audience-card">
+                                <span>03</span>
+                                <h3>{t.about.audience.restaurants}</h3>
+                            </article>
+
+                            <article className="about-page__audience-card">
+                                <span>04</span>
+                                <h3>{t.about.audience.schools}</h3>
+                            </article>
+
+                            <article className="about-page__audience-card">
+                                <span>05</span>
+                                <h3>{t.about.audience.events}</h3>
+                            </article>
+
+                            <article className="about-page__audience-card">
+                                <span>06</span>
+                                <h3>{t.about.audience.promotions}</h3>
+                            </article>
 
                         </div>
 
@@ -154,16 +396,22 @@ function AboutPage() {
 
                     <div className="about-page__container">
 
-                        <span className="about-page__eyebrow">
-                            WHAT WE VALUE
-                        </span>
+                        <div className="about-page__section-heading">
 
-                        <h2>
-                            WHY MAGIC TOUCH
-                            <span>DESIGNS?</span>
-                        </h2>
+                            <span className="about-page__eyebrow">
+                                {t.about.values.eyebrow}
+                            </span>
 
-                        <div className="about-page__gold-line about-page__gold-line--center" />
+                            <h2>
+                                {t.about.values.title}
+                                <span>
+                                    {t.about.values.titleAccent}
+                                </span>
+                            </h2>
+
+                            <div className="about-page__gold-line about-page__gold-line--center" />
+
+                        </div>
 
                         <div className="about-page__cards">
 
@@ -178,13 +426,11 @@ function AboutPage() {
                                 </div>
 
                                 <h3>
-                                    QUALITY
+                                    {t.about.values.quality.title}
                                 </h3>
 
                                 <p>
-                                    We focus on creating products
-                                    that look great and are made
-                                    with attention to detail.
+                                    {t.about.values.quality.description}
                                 </p>
 
                             </article>
@@ -200,13 +446,11 @@ function AboutPage() {
                                 </div>
 
                                 <h3>
-                                    CREATIVITY
+                                    {t.about.values.creativity.title}
                                 </h3>
 
                                 <p>
-                                    Every design is an opportunity
-                                    to create something unique
-                                    and personal.
+                                    {t.about.values.creativity.description}
                                 </p>
 
                             </article>
@@ -222,13 +466,31 @@ function AboutPage() {
                                 </div>
 
                                 <h3>
-                                    PERSONAL TOUCH
+                                    {t.about.values.personalization.title}
                                 </h3>
 
                                 <p>
-                                    Your memories and ideas are
-                                    what inspire everything we
-                                    create.
+                                    {t.about.values.personalization.description}
+                                </p>
+
+                            </article>
+
+                            <article className="about-page__card">
+
+                                <div className="about-page__card-number">
+                                    04
+                                </div>
+
+                                <div className="about-page__card-icon">
+                                    ★
+                                </div>
+
+                                <h3>
+                                    {t.about.values.commitment.title}
+                                </h3>
+
+                                <p>
+                                    {t.about.values.commitment.description}
                                 </p>
 
                             </article>
@@ -240,7 +502,41 @@ function AboutPage() {
                 </section>
 
                 {/* =================================================
-                    CTA
+                    BRAND MESSAGE
+                ================================================= */}
+
+                <section className="about-page__brand">
+
+                    <div className="about-page__container">
+
+                        <span className="about-page__eyebrow">
+                            {t.about.brand.eyebrow}
+                        </span>
+
+                        <h2>
+                            {t.about.brand.title}
+                            <span>
+                                {t.about.brand.titleAccent}
+                            </span>
+                        </h2>
+
+                        <p>
+                            {t.about.brand.description}
+                        </p>
+
+                        <div className="about-page__brand-signature">
+                            <span>José &amp; Yafira</span>
+                            <small>
+                                {t.about.brand.signature}
+                            </small>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                {/* =================================================
+                    CTA -- COLLECTIONS
                 ================================================= */}
 
                 <section className="about-page__cta">
@@ -250,33 +546,70 @@ function AboutPage() {
                     <div className="about-page__container">
 
                         <span className="about-page__eyebrow">
-                            CREATE SOMETHING SPECIAL
+                            {t.about.cta.eyebrow}
                         </span>
 
                         <h2>
-                            READY TO CREATE
-                            <span>YOUR DESIGN?</span>
+                            {t.about.cta.title}
+                            <span>
+                                {t.about.cta.titleAccent}
+                            </span>
                         </h2>
 
                         <div className="about-page__gold-line about-page__gold-line--center" />
 
+                        <p className="about-page__cta-description">
+                            {t.about.cta.description}
+                        </p>
+
                         <div className="about-page__actions">
 
                             <a
-                                href="/products"
+                                href="/collections"
                                 className="about-page__button about-page__button--primary"
                             >
-                                SHOP PRODUCTS
+                                {t.about.cta.collectionsButton}
                             </a>
 
                             <a
                                 href="/customize"
                                 className="about-page__button about-page__button--secondary"
                             >
-                                START CUSTOMIZING
+                                {t.about.cta.orderButton}
                             </a>
 
                         </div>
+
+                    </div>
+
+                </section>
+
+                {/* =================================================
+                    SOCIAL
+                ================================================= */}
+
+                <section className="about-page__social">
+
+                    <div className="about-page__container">
+
+                        <span className="about-page__eyebrow">
+                            {t.about.social.eyebrow}
+                        </span>
+
+                        <h2>
+                            {t.about.social.title}
+                            <span>
+                                {t.about.social.titleAccent}
+                            </span>
+                        </h2>
+
+                        <p>
+                            {t.about.social.description}
+                        </p>
+
+                        <p className="about-page__social-thanks">
+                            {t.about.social.thanks}
+                        </p>
 
                     </div>
 
