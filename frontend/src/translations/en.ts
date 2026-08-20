@@ -389,6 +389,7 @@ community: {
         title: "SECURE PAYMENT",
         description: "Secure payments and protection of your data.",
       },
+      },
     },
       contact: {
     eyebrow: "GET IN TOUCH",
