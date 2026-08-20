@@ -537,123 +537,123 @@ register: {
         },
     },
 
-  about: {
+    about: {
     hero: {
-      eyebrow: "ABOUT US",
+      eyebrow: "SOBRE NOSOTROS",
       title: "MAGIC TOUCH",
       titleAccent: "DESIGNS",
       intro:
-        "We are José and Yafira, the couple behind Magic Touch Designs, a small business built with creativity, dedication, and the desire to turn ideas into something special.",
+        "Somos José y Yafira, la pareja detrás de Magic Touch Designs, un pequeño negocio creado con creatividad, dedicación y el deseo de convertir ideas en algo especial.",
     },
 
     story: {
-      eyebrow: "OUR STORY",
-      title: "A BUSINESS",
-      titleAccent: "MADE WITH PURPOSE",
+      eyebrow: "NUESTRA HISTORIA",
+      title: "UN NEGOCIO",
+      titleAccent: "CREADO CON PROPÓSITO",
 
       paragraphOne:
-        "Magic Touch Designs is a family-owned creative business founded by José and Yafira. What started as an entrepreneurial dream became a space where creativity, personalization, and quality come together.",
+        "Magic Touch Designs es un negocio creativo familiar fundado por José y Yafira. Lo que comenzó como un sueño emprendedor se convirtió en un espacio donde la creatividad, la personalización y la calidad se unen.",
 
       paragraphTwo:
-        "We create personalized products for individuals, families, businesses, restaurants, schools, teams, promotions, celebrations, and special occasions.",
+        "Creamos productos personalizados para personas, familias, negocios, restaurantes, escuelas, equipos, promociones, celebraciones y ocasiones especiales.",
 
       paragraphThree:
-        "Our goal is simple: to bring your ideas to life and create products that represent your personality, your brand, and the moments that matter to you.",
+        "Nuestro objetivo es simple: convertir tus ideas en realidad y crear productos que representen tu personalidad, tu marca y los momentos que son importantes para ti.",
     },
 
     storyCard: {
       number: "01",
-      label: "OUR MISSION",
-      title: "YOUR IDEA.",
-      titleAccent: "OUR CRAFT.",
+      label: "NUESTRA MISIÓN",
+      title: "TU IDEA.",
+      titleAccent: "NUESTRA CREACIÓN.",
       description:
-        "We combine creativity, attention to detail, and personalized service to create products you can be proud to give, wear, use, or share.",
+        "Combinamos creatividad, atención al detalle y un servicio personalizado para crear productos que puedas sentirte orgulloso de regalar, usar, vestir o compartir.",
     },
 
     services: {
-      eyebrow: "WHAT WE OFFER",
-      title: "MADE FOR",
-      titleAccent: "EVERY OCCASION",
+      eyebrow: "LO QUE OFRECEMOS",
+      title: "HECHO PARA",
+      titleAccent: "CADA OCASIÓN",
 
       mugs: {
-        title: "PERSONALIZED MUGS",
+        title: "TAZAS PERSONALIZADAS",
         description:
-          "Custom mugs designed with your photos, names, messages, logos, and ideas.",
+          "Tazas personalizadas diseñadas con tus fotos, nombres, mensajes, logotipos e ideas.",
       },
 
       magicMugs: {
-        title: "MAGIC MUGS",
+        title: "TAZAS MÁGICAS",
         description:
-          "Special mugs that reveal your personalized design when exposed to heat.",
+          "Tazas especiales que revelan tu diseño personalizado cuando entran en contacto con el calor.",
       },
 
       shirts: {
-        title: "CUSTOM APPAREL",
+        title: "ROPA PERSONALIZADA",
         description:
-          "Personalized shirts and apparel for individuals, families, businesses, teams, and events.",
+          "Camisetas y prendas personalizadas para personas, familias, negocios, equipos y eventos.",
       },
 
       caps: {
-        title: "CUSTOM CAPS",
+        title: "GORRAS PERSONALIZADAS",
         description:
-          "Personalized caps featuring your logo, name, team, business, or special design.",
+          "Gorras personalizadas con tu logotipo, nombre, equipo, negocio o diseño especial.",
       },
 
       businesses: {
-        title: "BUSINESS & BRANDING",
+        title: "NEGOCIOS Y MARCA",
         description:
-          "Custom products for restaurants, companies, schools, promotions, teams, and special events.",
+          "Productos personalizados para restaurantes, empresas, escuelas, promociones, equipos y eventos especiales.",
       },
 
       occasions: {
-        title: "SPECIAL OCCASIONS",
+        title: "OCASIONES ESPECIALES",
         description:
-          "Personalized products for birthdays, graduations, anniversaries, celebrations, gifts, and unforgettable moments.",
+          "Productos personalizados para cumpleaños, graduaciones, aniversarios, celebraciones, regalos y momentos inolvidables.",
       },
     },
 
     values: {
-      eyebrow: "WHAT WE BELIEVE",
-      title: "OUR VALUES",
-      titleAccent: "DEFINE US",
+      eyebrow: "EN LO QUE CREEMOS",
+      title: "NUESTROS VALORES",
+      titleAccent: "NOS DEFINEN",
 
       quality: {
-        title: "QUALITY",
+        title: "CALIDAD",
         description:
-          "We care about every detail and strive to deliver products that look great and last.",
+          "Cuidamos cada detalle y nos esforzamos por entregar productos que se vean excelentes y duren.",
       },
 
       creativity: {
-        title: "CREATIVITY",
+        title: "CREATIVIDAD",
         description:
-          "Every customer has a unique idea, and we love turning those ideas into original designs.",
+          "Cada cliente tiene una idea única y nos encanta convertir esas ideas en diseños originales.",
       },
 
       personalTouch: {
-        title: "PERSONAL TOUCH",
+        title: "TOQUE PERSONAL",
         description:
-          "Behind every order is a person, a story, or a special moment. That is what makes our work meaningful.",
+          "Detrás de cada pedido hay una persona, una historia o un momento especial. Eso es lo que hace significativo nuestro trabajo.",
       },
     },
 
     vision: {
-      eyebrow: "OUR VISION",
-      title: "CREATING MORE",
-      titleAccent: "THAN PRODUCTS",
+      eyebrow: "NUESTRA VISIÓN",
+      title: "CREAR MÁS",
+      titleAccent: "QUE PRODUCTOS",
       description:
-        "We want Magic Touch Designs to grow into a trusted creative brand known for personalized products, quality work, and genuine customer service.",
+        "Queremos que Magic Touch Designs crezca hasta convertirse en una marca creativa de confianza, reconocida por sus productos personalizados, trabajo de calidad y auténtico servicio al cliente.",
     },
 
     cta: {
-      eyebrow: "LET'S CREATE SOMETHING SPECIAL",
-      title: "YOUR IDEA",
-      titleAccent: "STARTS HERE",
+      eyebrow: "CREEMOS ALGO ESPECIAL",
+      title: "TU IDEA",
+      titleAccent: "COMIENZA AQUÍ",
       description:
-        "Explore our collections, discover our work, and find something made for you or someone special.",
-      primaryButton: "VIEW OUR COLLECTIONS",
-      secondaryButton: "START CUSTOMIZING",
+        "Explora nuestras colecciones, descubre nuestro trabajo y encuentra algo hecho para ti o para alguien especial.",
+      primaryButton: "VER NUESTRAS COLECCIONES",
+      secondaryButton: "COMENZAR A PERSONALIZAR",
       socialText:
-        "Follow us on social media, support our small business, and be part of the Magic Touch Designs community.",
+        "Síguenos en las redes sociales, apoya nuestro pequeño negocio y sé parte de la comunidad de Magic Touch Designs.",
     },
   },
 
