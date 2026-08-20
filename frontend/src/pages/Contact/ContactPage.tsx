@@ -38,7 +38,7 @@ function ContactPage() {
 
     const { language } = useLanguage();
 
-const t = translations.en.contact;
+const t = translations[language].contact;
 
     const [imageName, setImageName] = useState("");
 
