@@ -15,7 +15,7 @@ import "./AboutPage.css";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 import { translations } from "../../translations";
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 function AboutPage() {
     const { language } = useLanguage();
