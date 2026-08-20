@@ -83,15 +83,15 @@ function AboutPage() {
                                 <div className="about-page__gold-line" />
 
                                 <p>
-                                    {t.about.story.paragraph1}
+                                    {t.about.story.paragraphOne}
                                 </p>
 
                                 <p>
-                                    {t.about.story.paragraph2}
+                                    {t.about.story.paragraphTwo}
                                 </p>
 
                                 <p>
-                                    {t.about.story.paragraph3}
+                                    {t.about.story.paragraphThree}
                                 </p>
 
                             </div>
@@ -101,24 +101,24 @@ function AboutPage() {
                                 <div className="about-page__story-card-inner">
 
                                     <span className="about-page__story-number">
-                                        01
+                                        {t.about.storyCard.number}
                                     </span>
 
                                     <span className="about-page__story-label">
-                                        {t.about.story.cardLabel}
+                                        {t.about.storyCard.label}
                                     </span>
 
                                     <h3>
-                                        {t.about.story.cardTitle}
+                                        {t.about.storyCard.title}
                                         <span>
-                                            {t.about.story.cardAccent}
+                                            {t.about.storyCard.titleAccent}
                                         </span>
                                     </h3>
 
                                     <div className="about-page__story-card-line" />
 
                                     <p>
-                                        {t.about.story.cardDescription}
+                                        {t.about.storyCard.description}
                                     </p>
 
                                 </div>
@@ -142,13 +142,13 @@ function AboutPage() {
                         <div className="about-page__section-heading">
 
                             <span className="about-page__eyebrow">
-                                {t.about.missionVision.eyebrow}
+                                {t.about.vision.eyebrow}
                             </span>
 
                             <h2>
-                                {t.about.missionVision.title}
+                                {t.about.vision.title}
                                 <span>
-                                    {t.about.missionVision.titleAccent}
+                                    {t.about.vision.titleAccent}
                                 </span>
                             </h2>
 
@@ -161,7 +161,7 @@ function AboutPage() {
                             <article className="about-page__mission-card">
 
                                 <span className="about-page__mission-number">
-                                    01
+                                    {t.about.storyCard.number}
                                 </span>
 
                                 <div className="about-page__mission-icon">
@@ -169,11 +169,11 @@ function AboutPage() {
                                 </div>
 
                                 <h3>
-                                    {t.about.missionVision.mission.title}
+                                    {t.about.storyCard.label}
                                 </h3>
 
                                 <p>
-                                    {t.about.missionVision.mission.description}
+                                    {t.about.storyCard.description}
                                 </p>
 
                             </article>
@@ -189,11 +189,11 @@ function AboutPage() {
                                 </div>
 
                                 <h3>
-                                    {t.about.missionVision.vision.title}
+                                    {t.about.vision.title}
                                 </h3>
 
                                 <p>
-                                    {t.about.missionVision.vision.description}
+                                    {t.about.vision.description}
                                 </p>
 
                             </article>
@@ -225,10 +225,6 @@ function AboutPage() {
                                 </span>
                             </h2>
 
-                            <p className="about-page__section-intro">
-                                {t.about.services.intro}
-                            </p>
-
                             <div className="about-page__gold-line about-page__gold-line--center" />
 
                         </div>
@@ -236,6 +232,7 @@ function AboutPage() {
                         <div className="about-page__service-grid">
 
                             <article className="about-page__service-card">
+
                                 <div className="about-page__service-icon">
                                     ☕
                                 </div>
@@ -247,9 +244,11 @@ function AboutPage() {
                                 <p>
                                     {t.about.services.mugs.description}
                                 </p>
+
                             </article>
 
                             <article className="about-page__service-card">
+
                                 <div className="about-page__service-icon">
                                     ✨
                                 </div>
@@ -261,9 +260,11 @@ function AboutPage() {
                                 <p>
                                     {t.about.services.magicMugs.description}
                                 </p>
+
                             </article>
 
                             <article className="about-page__service-card">
+
                                 <div className="about-page__service-icon">
                                     👕
                                 </div>
@@ -275,9 +276,11 @@ function AboutPage() {
                                 <p>
                                     {t.about.services.shirts.description}
                                 </p>
+
                             </article>
 
                             <article className="about-page__service-card">
+
                                 <div className="about-page__service-icon">
                                     🧢
                                 </div>
@@ -289,97 +292,39 @@ function AboutPage() {
                                 <p>
                                     {t.about.services.caps.description}
                                 </p>
+
                             </article>
 
                             <article className="about-page__service-card">
-                                <div className="about-page__service-icon">
-                                    👚
-                                </div>
 
-                                <h3>
-                                    {t.about.services.clothing.title}
-                                </h3>
-
-                                <p>
-                                    {t.about.services.clothing.description}
-                                </p>
-                            </article>
-
-                            <article className="about-page__service-card">
                                 <div className="about-page__service-icon">
                                     ✦
                                 </div>
 
                                 <h3>
-                                    {t.about.services.custom.title}
+                                    {t.about.services.businesses.title}
                                 </h3>
 
                                 <p>
-                                    {t.about.services.custom.description}
+                                    {t.about.services.businesses.description}
                                 </p>
+
                             </article>
 
-                        </div>
+                            <article className="about-page__service-card">
 
-                    </div>
+                                <div className="about-page__service-icon">
+                                    🎉
+                                </div>
 
-                </section>
+                                <h3>
+                                    {t.about.services.occasions.title}
+                                </h3>
 
-                {/* =================================================
-                    WHO WE SERVE
-                ================================================= */}
+                                <p>
+                                    {t.about.services.occasions.description}
+                                </p>
 
-                <section className="about-page__audience">
-
-                    <div className="about-page__container">
-
-                        <div className="about-page__section-heading">
-
-                            <span className="about-page__eyebrow">
-                                {t.about.audience.eyebrow}
-                            </span>
-
-                            <h2>
-                                {t.about.audience.title}
-                                <span>
-                                    {t.about.audience.titleAccent}
-                                </span>
-                            </h2>
-
-                            <div className="about-page__gold-line about-page__gold-line--center" />
-
-                        </div>
-
-                        <div className="about-page__audience-grid">
-
-                            <article className="about-page__audience-card">
-                                <span>01</span>
-                                <h3>{t.about.audience.people}</h3>
-                            </article>
-
-                            <article className="about-page__audience-card">
-                                <span>02</span>
-                                <h3>{t.about.audience.businesses}</h3>
-                            </article>
-
-                            <article className="about-page__audience-card">
-                                <span>03</span>
-                                <h3>{t.about.audience.restaurants}</h3>
-                            </article>
-
-                            <article className="about-page__audience-card">
-                                <span>04</span>
-                                <h3>{t.about.audience.schools}</h3>
-                            </article>
-
-                            <article className="about-page__audience-card">
-                                <span>05</span>
-                                <h3>{t.about.audience.events}</h3>
-                            </article>
-
-                            <article className="about-page__audience-card">
-                                <span>06</span>
-                                <h3>{t.about.audience.promotions}</h3>
                             </article>
 
                         </div>
@@ -466,31 +411,11 @@ function AboutPage() {
                                 </div>
 
                                 <h3>
-                                    {t.about.values.personalization.title}
+                                    {t.about.values.personalTouch.title}
                                 </h3>
 
                                 <p>
-                                    {t.about.values.personalization.description}
-                                </p>
-
-                            </article>
-
-                            <article className="about-page__card">
-
-                                <div className="about-page__card-number">
-                                    04
-                                </div>
-
-                                <div className="about-page__card-icon">
-                                    ★
-                                </div>
-
-                                <h3>
-                                    {t.about.values.commitment.title}
-                                </h3>
-
-                                <p>
-                                    {t.about.values.commitment.description}
+                                    {t.about.values.personalTouch.description}
                                 </p>
 
                             </article>
@@ -502,7 +427,7 @@ function AboutPage() {
                 </section>
 
                 {/* =================================================
-                    BRAND MESSAGE
+                    VISION
                 ================================================= */}
 
                 <section className="about-page__brand">
@@ -510,25 +435,22 @@ function AboutPage() {
                     <div className="about-page__container">
 
                         <span className="about-page__eyebrow">
-                            {t.about.brand.eyebrow}
+                            {t.about.vision.eyebrow}
                         </span>
 
                         <h2>
-                            {t.about.brand.title}
+                            {t.about.vision.title}
                             <span>
-                                {t.about.brand.titleAccent}
+                                {t.about.vision.titleAccent}
                             </span>
                         </h2>
 
                         <p>
-                            {t.about.brand.description}
+                            {t.about.vision.description}
                         </p>
 
                         <div className="about-page__brand-signature">
                             <span>José &amp; Yafira</span>
-                            <small>
-                                {t.about.brand.signature}
-                            </small>
                         </div>
 
                     </div>
@@ -536,7 +458,7 @@ function AboutPage() {
                 </section>
 
                 {/* =================================================
-                    CTA -- COLLECTIONS
+                    CTA
                 ================================================= */}
 
                 <section className="about-page__cta">
@@ -568,47 +490,20 @@ function AboutPage() {
                                 href="/collections"
                                 className="about-page__button about-page__button--primary"
                             >
-                                {t.about.cta.collectionsButton}
+                                {t.about.cta.primaryButton}
                             </a>
 
                             <a
                                 href="/customize"
                                 className="about-page__button about-page__button--secondary"
                             >
-                                {t.about.cta.orderButton}
+                                {t.about.cta.secondaryButton}
                             </a>
 
                         </div>
 
-                    </div>
-
-                </section>
-
-                {/* =================================================
-                    SOCIAL
-                ================================================= */}
-
-                <section className="about-page__social">
-
-                    <div className="about-page__container">
-
-                        <span className="about-page__eyebrow">
-                            {t.about.social.eyebrow}
-                        </span>
-
-                        <h2>
-                            {t.about.social.title}
-                            <span>
-                                {t.about.social.titleAccent}
-                            </span>
-                        </h2>
-
                         <p>
-                            {t.about.social.description}
-                        </p>
-
-                        <p className="about-page__social-thanks">
-                            {t.about.social.thanks}
+                            {t.about.cta.socialText}
                         </p>
 
                     </div>
