@@ -6,210 +6,862 @@
  * Module: Frontend
  * Language: CSS
  * Description:
- * Order tracking page styles.
+ * Premium black and gold Order Tracking page.
  * ===============================================================
  */
 
 .track-order-page {
+    position: relative;
+
     width: 100%;
-    background: #111;
+    min-height: 100vh;
+
+    overflow: hidden;
+
     color: #fff;
+
+    background:
+        radial-gradient(
+            circle at 50% 12%,
+            rgba(212, 163, 61, 0.10),
+            transparent 32%
+        ),
+        linear-gradient(
+            180deg,
+            #080808 0%,
+            #0d0d0d 52%,
+            #080808 100%
+        );
 }
 
 .track-order-page__container {
-    width: min(1200px, 92%);
+    width: min(1120px, 92%);
     margin: 0 auto;
 }
 
+/* ===============================================================
+   HERO
+   =============================================================== */
+
 .track-order-page__hero {
-    padding: 110px 0 100px;
+    position: relative;
+
+    padding: 120px 0 108px;
+
     text-align: center;
+
+    border-bottom: 1px solid rgba(212, 163, 61, 0.28);
+
     background:
         radial-gradient(
-            circle at 50% 20%,
-            rgba(201, 154, 50, 0.16),
+            ellipse at 50% 45%,
+            rgba(212, 163, 61, 0.075),
             transparent 45%
-        ),
-        #111;
-    border-bottom: 1px solid rgba(201, 154, 50, 0.35);
+        );
+}
+
+.track-order-page__hero::before {
+    content: "";
+
+    position: absolute;
+
+    top: 25px;
+    left: 50%;
+
+    width: 500px;
+    height: 220px;
+
+    transform: translateX(-50%);
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(212, 163, 61, 0.075),
+            transparent 70%
+        );
+
+    filter: blur(18px);
+
+    pointer-events: none;
 }
 
 .track-order-page__eyebrow {
-    display: block;
-    margin-bottom: 22px;
-    color: #d4a83d;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 4px;
+    position: relative;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 14px;
+
+    margin-bottom: 20px;
+
+    color: #d4a33d;
+
+    font-size: 0.78rem;
+    font-weight: 800;
+
+    letter-spacing: 0.24em;
+
+    text-transform: uppercase;
+
+    text-shadow:
+        0 0 14px rgba(212, 163, 61, 0.2);
+}
+
+.track-order-page__eyebrow::before,
+.track-order-page__eyebrow::after {
+    content: "";
+
+    width: 30px;
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #d4a33d
+        );
+}
+
+.track-order-page__eyebrow::after {
+    background:
+        linear-gradient(
+            90deg,
+            #d4a33d,
+            transparent
+        );
 }
 
 .track-order-page h1 {
+    position: relative;
+
     margin: 0;
-    font-size: clamp(42px, 7vw, 82px);
-    line-height: 1.05;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+
+    color: #ffffff;
+
+    font-size: clamp(
+        2.7rem,
+        6vw,
+        5.3rem
+    );
+
+    font-weight: 700;
+
+    line-height: 1.02;
+
+    letter-spacing: -0.045em;
+
+    text-shadow:
+        0 6px 25px rgba(0, 0, 0, 0.65);
 }
 
 .track-order-page h1 span {
     display: block;
-    color: #d4a83d;
+
+    color: #d4a33d;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-style: italic;
+
+    font-weight: 500;
+
     text-shadow:
-        0 0 18px rgba(212, 168, 61, 0.2),
-        0 4px 14px rgba(0, 0, 0, 0.8);
+        0 0 22px rgba(212, 163, 61, 0.18),
+        0 6px 22px rgba(0, 0, 0, 0.7);
 }
 
 .track-order-page__divider {
-    width: 70px;
+    position: relative;
+
+    width: 90px;
     height: 2px;
+
     margin: 30px auto;
-    background: #c99a32;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #d4a33d,
+            transparent
+        );
 }
 
 .track-order-page__divider span {
-    display: block;
-    width: 28px;
-    height: 2px;
-    margin: 0 auto;
-    background: #f1ce68;
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 8px;
+    height: 8px;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(45deg);
+
+    background: #d4a33d;
+
+    box-shadow:
+        0 0 14px rgba(212, 163, 61, 0.55);
 }
 
 .track-order-page__intro {
-    max-width: 700px;
+    position: relative;
+
+    max-width: 690px;
+
     margin: 0 auto;
-    color: #d0d0d0;
-    font-size: 20px;
-    line-height: 1.7;
+
+    color: rgba(255, 255, 255, 0.67);
+
+    font-size: 1.05rem;
+
+    line-height: 1.75;
 }
 
+/* ===============================================================
+   CONTENT
+   =============================================================== */
+
 .track-order-page__content {
-    padding: 90px 0 120px;
+    position: relative;
+
+    padding: 95px 0 125px;
+
     background:
         radial-gradient(
             circle at 15% 20%,
-            rgba(201, 154, 50, 0.06),
+            rgba(212, 163, 61, 0.045),
             transparent 30%
-        ),
-        #111;
+        );
 }
+
+/* ===============================================================
+   TRACKING CARD
+   =============================================================== */
 
 .track-order-page__card {
-    max-width: 700px;
+    position: relative;
+
+    max-width: 720px;
+
     margin: 0 auto;
-    padding: 45px;
-    border: 1px solid rgba(201, 154, 50, 0.35);
-    background: rgba(255, 255, 255, 0.025);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+    padding: 48px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(212, 163, 61, 0.38);
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.045),
+        0 25px 65px rgba(0, 0, 0, 0.55),
+        0 0 35px rgba(212, 163, 61, 0.035);
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
-.track-order-page__card h2,
-.track-order-page__help h2 {
-    margin: 0 0 18px;
+.track-order-page__card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 10%;
+
+    width: 80%;
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(241, 206, 104, 0.7),
+            transparent
+        );
+}
+
+.track-order-page__card::after {
+    content: "";
+
+    position: absolute;
+
+    top: -120px;
+    right: -100px;
+
+    width: 260px;
+    height: 260px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(212, 163, 61, 0.075),
+            transparent 70%
+        );
+
+    pointer-events: none;
+}
+
+.track-order-page__card h2 {
+    position: relative;
+
+    margin: 0 0 17px;
+
     color: #f0cf70;
-    font-size: clamp(24px, 4vw, 34px);
+
+    font-size: clamp(
+        1.55rem,
+        3vw,
+        2.15rem
+    );
+
+    font-weight: 800;
+
     line-height: 1.2;
-    letter-spacing: 1px;
+
+    letter-spacing: 0.055em;
+
+    text-transform: uppercase;
 }
 
-.track-order-page__card > p,
-.track-order-page__help p {
-    margin: 0 0 35px;
-    color: #d0d0d0;
-    font-size: 16px;
-    line-height: 1.8;
+.track-order-page__card > p {
+    position: relative;
+
+    margin: 0 0 36px;
+
+    color: rgba(255, 255, 255, 0.64);
+
+    font-size: 0.96rem;
+
+    line-height: 1.75;
 }
+
+/* ===============================================================
+   FORM
+   =============================================================== */
 
 .track-order-page__form {
+    position: relative;
+
     display: flex;
+
     flex-direction: column;
-    gap: 24px;
+
+    gap: 23px;
 }
 
 .track-order-page__field {
     display: flex;
+
     flex-direction: column;
+
     gap: 9px;
 }
 
 .track-order-page__field label {
-    color: #d4a83d;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 2px;
+    color: #d4a33d;
+
+    font-size: 0.72rem;
+
+    font-weight: 800;
+
+    letter-spacing: 0.16em;
 }
 
 .track-order-page__field input {
     width: 100%;
-    min-height: 52px;
-    padding: 0 16px;
-    border: 1px solid rgba(201, 154, 50, 0.4);
-    outline: none;
-    background: #181818;
-    color: #fff;
-    font-size: 15px;
+
+    min-height: 56px;
+
+    padding: 0 17px;
+
     box-sizing: border-box;
-    transition: border-color 0.2s ease;
+
+    border: 1px solid rgba(
+        212,
+        163,
+        61,
+        0.30
+    );
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background:
+        linear-gradient(
+            145deg,
+            #181818,
+            #0d0d0d
+        );
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 0.94rem;
+
+    box-shadow:
+        inset 0 2px 7px rgba(0, 0, 0, 0.45),
+        0 4px 12px rgba(0, 0, 0, 0.18);
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease,
+        transform 0.25s ease;
 }
 
 .track-order-page__field input::placeholder {
-    color: #777;
+    color: rgba(255, 255, 255, 0.32);
+}
+
+.track-order-page__field input:hover {
+    border-color: rgba(
+        212,
+        163,
+        61,
+        0.48
+    );
 }
 
 .track-order-page__field input:focus {
-    border-color: #d4a83d;
+    border-color: #d4a33d;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1b1b1b,
+            #101010
+        );
+
+    box-shadow:
+        0 0 0 3px rgba(
+            212,
+            163,
+            61,
+            0.08
+        ),
+        0 0 20px rgba(
+            212,
+            163,
+            61,
+            0.07
+        ),
+        inset 0 2px 7px rgba(
+            0,
+            0,
+            0,
+            0.45
+        );
+
+    transform: translateY(-1px);
 }
 
+/* ===============================================================
+   BUTTON
+   =============================================================== */
+
 .track-order-page__button {
-    min-height: 54px;
+    position: relative;
+
+    min-height: 58px;
+
     margin-top: 8px;
-    border: 1px solid #c99a32;
-    background: #c99a32;
-    color: #111;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 2px;
+
+    overflow: hidden;
+
+    border: 1px solid #d4a33d;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f0cf70 0%,
+            #d4a33d 45%,
+            #a97918 100%
+        );
+
+    color: #101010;
+
+    font-family: inherit;
+
+    font-size: 0.76rem;
+
+    font-weight: 900;
+
+    letter-spacing: 0.17em;
+
     cursor: pointer;
+
+    box-shadow:
+        0 10px 24px rgba(
+            0,
+            0,
+            0,
+            0.45
+        ),
+        0 0 20px rgba(
+            212,
+            163,
+            61,
+            0.10
+        );
+
     transition:
-        background 0.2s ease,
-        color 0.2s ease;
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        filter 0.25s ease;
+}
+
+.track-order-page__button::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -110%;
+
+    width: 60%;
+    height: 100%;
+
+    transform: skewX(-22deg);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.38),
+            transparent
+        );
+
+    transition: left 0.55s ease;
 }
 
 .track-order-page__button:hover {
-    background: #f0cf70;
+    transform: translateY(-3px);
+
+    filter: brightness(1.07);
+
+    box-shadow:
+        0 15px 30px rgba(
+            0,
+            0,
+            0,
+            0.55
+        ),
+        0 0 28px rgba(
+            212,
+            163,
+            61,
+            0.18
+        );
 }
 
+.track-order-page__button:hover::before {
+    left: 130%;
+}
+
+.track-order-page__button:active {
+    transform: translateY(-1px);
+}
+
+/* ===============================================================
+   HELP
+   =============================================================== */
+
 .track-order-page__help {
-    max-width: 700px;
-    margin: 70px auto 0;
-    padding-top: 45px;
-    border-top: 1px solid rgba(201, 154, 50, 0.28);
+    position: relative;
+
+    max-width: 720px;
+
+    margin: 72px auto 0;
+
+    padding: 38px 35px;
+
     text-align: center;
+
+    border: 1px solid rgba(
+        212,
+        163,
+        61,
+        0.22
+    );
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.025),
+            rgba(255, 255, 255, 0.005)
+        );
+
+    box-shadow:
+        0 15px 35px rgba(
+            0,
+            0,
+            0,
+            0.30
+        );
+}
+
+.track-order-page__help::before {
+    content: "✦";
+
+    position: absolute;
+
+    top: -13px;
+    left: 50%;
+
+    width: 26px;
+    height: 26px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    transform: translateX(-50%);
+
+    border: 1px solid #d4a33d;
+
+    border-radius: 50%;
+
+    background: #101010;
+
+    color: #d4a33d;
+
+    font-size: 0.75rem;
+
+    box-shadow:
+        0 0 15px rgba(
+            212,
+            163,
+            61,
+            0.12
+        );
+}
+
+.track-order-page__help h2 {
+    margin: 0 0 15px;
+
+    color: #f0cf70;
+
+    font-size: 1.55rem;
+
+    font-weight: 800;
+
+    letter-spacing: 0.07em;
+
+    text-transform: uppercase;
 }
 
 .track-order-page__help p {
     max-width: 650px;
+
     margin: 0 auto;
+
+    color: rgba(
+        255,
+        255,
+        255,
+        0.60
+    );
+
+    font-size: 0.94rem;
+
+    line-height: 1.75;
 }
 
-@media (max-width: 700px) {
+/* ===============================================================
+   TABLET
+   =============================================================== */
+
+@media (max-width: 900px) {
+
     .track-order-page__hero {
-        padding: 75px 0 70px;
+        padding: 100px 0 90px;
+    }
+
+    .track-order-page__content {
+        padding: 80px 0 105px;
+    }
+
+}
+
+/* ===============================================================
+   MOBILE
+   =============================================================== */
+
+@media (max-width: 700px) {
+
+    .track-order-page__container {
+        width: calc(100% - 32px);
+    }
+
+    .track-order-page__hero {
+        padding: 78px 0 72px;
+    }
+
+    .track-order-page__eyebrow {
+        font-size: 0.66rem;
+
+        letter-spacing: 0.16em;
+    }
+
+    .track-order-page__eyebrow::before,
+    .track-order-page__eyebrow::after {
+        width: 20px;
+    }
+
+    .track-order-page h1 {
+        font-size: 2.55rem;
+    }
+
+    .track-order-page__intro {
+        font-size: 0.92rem;
+
+        line-height: 1.65;
     }
 
     .track-order-page__content {
         padding: 65px 0 85px;
     }
 
+    .track-order-page__card {
+        padding: 32px 20px;
+
+        border-radius: 16px;
+    }
+
+    .track-order-page__card h2 {
+        font-size: 1.35rem;
+    }
+
+    .track-order-page__card > p {
+        font-size: 0.87rem;
+
+        margin-bottom: 29px;
+    }
+
+    .track-order-page__form {
+        gap: 19px;
+    }
+
+    .track-order-page__field input {
+        min-height: 53px;
+
+        font-size: 0.88rem;
+    }
+
+    .track-order-page__button {
+        min-height: 55px;
+
+        font-size: 0.70rem;
+    }
+
+    .track-order-page__help {
+        margin-top: 58px;
+
+        padding: 34px 20px 28px;
+    }
+
+    .track-order-page__help h2 {
+        font-size: 1.25rem;
+    }
+
+    .track-order-page__help p {
+        font-size: 0.84rem;
+    }
+
+}
+
+/* ===============================================================
+   SMALL MOBILE
+   =============================================================== */
+
+@media (max-width: 420px) {
+
+    .track-order-page__container {
+        width: calc(100% - 24px);
+    }
+
+    .track-order-page__hero {
+        padding: 68px 0 62px;
+    }
+
+    .track-order-page h1 {
+        font-size: 2.15rem;
+    }
+
     .track-order-page__intro {
-        font-size: 17px;
+        font-size: 0.84rem;
+    }
+
+    .track-order-page__content {
+        padding: 55px 0 70px;
     }
 
     .track-order-page__card {
-        padding: 30px 22px;
+        padding: 28px 15px;
     }
 
-    .track-order-page__card > p,
-    .track-order-page__help p {
-        font-size: 15px;
+    .track-order-page__card h2 {
+        font-size: 1.2rem;
     }
+
+    .track-order-page__field label {
+        font-size: 0.64rem;
+    }
+
+    .track-order-page__field input {
+        min-height: 50px;
+
+        padding: 0 14px;
+
+        font-size: 0.83rem;
+    }
+
+    .track-order-page__button {
+        min-height: 52px;
+
+        font-size: 0.65rem;
+
+        letter-spacing: 0.13em;
+    }
+
+    .track-order-page__help {
+        padding:
+            32px 15px
+            25px;
+    }
+
+    .track-order-page__help p {
+        font-size: 0.78rem;
+    }
+
 }
