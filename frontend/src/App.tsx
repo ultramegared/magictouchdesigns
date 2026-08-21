@@ -20,6 +20,7 @@ import RegisterPage from "./pages/Register/Register";
 import CustomizePage from "./pages/Customize";
 import ContactPage from "./pages/Contact";
 import AboutPage from "./pages/About";
+import HowItWorks from "./components/home/HowItWorks/HowItWorks";
 import CartPage from "./pages/Cart";
 import CheckoutPage from "./pages/Checkout";
 import ShippingReturnsPage from "./pages/ShippingReturns";
