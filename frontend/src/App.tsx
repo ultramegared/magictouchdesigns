@@ -78,6 +78,11 @@ function App() {
                     path="/about"
                     element={<AboutPage />}
                 />
+                
+                <Route
+    path="/how-it-works"
+    element={<HowItWorks />}
+/> 
 
                 <Route
                     path="/cart"
