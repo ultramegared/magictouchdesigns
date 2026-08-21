@@ -21,6 +21,9 @@ import Footer from "../../../../components/home/Footer";
 import { useLanguage } from "../../../../contexts/LanguageContext";
 import { translations } from "../../../../translations";
 
+import { addToCart } from "../../../../utils/cart";
+
+
 interface CollectionImage {
     id: string;
     imageUrl: string;
@@ -31,22 +34,15 @@ interface CollectionImage {
     /**
      * Temporary product information.
      *
-     * This structure is prepared for future backend/admin
-     * integration. These values will later come from the backend.
+     * Prepared for future backend/admin integration.
      */
     name: string;
     description: string;
     price: number;
+    rating: number;
 }
 
 
-/**
- * Temporary frontend data.
- *
- * This structure is intentionally prepared for future backend/admin
- * integration. Later, the administrator will be able to manage
- * collection products without modifying this page.
- */
 const loveRomanceImages: CollectionImage[] = [
     {
         id: "love-romance-01",
@@ -59,6 +55,7 @@ const loveRomanceImages: CollectionImage[] = [
         description:
             "A beautiful personalized design created to celebrate love, meaningful moments and unforgettable memories.",
         price: 24.99,
+        rating: 5,
     },
     {
         id: "love-romance-02",
@@ -71,6 +68,7 @@ const loveRomanceImages: CollectionImage[] = [
         description:
             "A romantic personalized design created to make your special moments even more memorable.",
         price: 24.99,
+        rating: 5,
     },
     {
         id: "love-romance-03",
@@ -83,6 +81,7 @@ const loveRomanceImages: CollectionImage[] = [
         description:
             "A premium personalized design made for couples, anniversaries and meaningful celebrations.",
         price: 24.99,
+        rating: 5,
     },
     {
         id: "love-romance-04",
@@ -95,6 +94,7 @@ const loveRomanceImages: CollectionImage[] = [
         description:
             "An elegant personalized design created to turn your favorite memories into something special.",
         price: 24.99,
+        rating: 5,
     },
     {
         id: "love-romance-05",
@@ -107,6 +107,7 @@ const loveRomanceImages: CollectionImage[] = [
         description:
             "A sophisticated romantic design perfect for gifts and unforgettable occasions.",
         price: 24.99,
+        rating: 5,
     },
     {
         id: "love-romance-06",
@@ -119,6 +120,7 @@ const loveRomanceImages: CollectionImage[] = [
         description:
             "A personalized premium design created with love for the moments that matter most.",
         price: 24.99,
+        rating: 5,
     },
     {
         id: "love-romance-07",
@@ -131,6 +133,7 @@ const loveRomanceImages: CollectionImage[] = [
         description:
             "A timeless personalized design created to celebrate your unique story together.",
         price: 24.99,
+        rating: 5,
     },
     {
         id: "love-romance-08",
@@ -143,6 +146,7 @@ const loveRomanceImages: CollectionImage[] = [
         description:
             "A premium romantic design made to transform special memories into beautiful keepsakes.",
         price: 24.99,
+        rating: 5,
     },
 ];
 
@@ -153,24 +157,97 @@ function LoveRomancePage() {
 
     const t = translations[language].loveRomance;
 
+
     const [selectedImage, setSelectedImage] =
         useState<CollectionImage | null>(null);
+
+
+    const [quantities, setQuantities] =
+        useState<Record<string, number>>({});
+
 
     const activeImages = loveRomanceImages
         .filter((image) => image.isActive)
         .sort((a, b) => a.sortOrder - b.sortOrder);
 
 
-    const handleAddToCart = (image: CollectionImage) => {
+    const getQuantity = (id: string): number => {
 
-        /**
-         * Temporary cart action.
-         *
-         * The real cart integration will be connected later
-         * with the backend/cart system.
-         */
+        return quantities[id] ?? 1;
 
-        console.log("Add to cart:", image);
+    };
+
+
+    const changeQuantity = (
+        id: string,
+        change: number
+    ) => {
+
+        setQuantities((current) => {
+
+            const currentQuantity =
+                current[id] ?? 1;
+
+            const nextQuantity =
+                Math.max(
+                    1,
+                    currentQuantity + change
+                );
+
+            return {
+                ...current,
+                [id]: nextQuantity,
+            };
+
+        });
+
+    };
+
+
+    const handleAddToCart = (
+        image: CollectionImage,
+        quantity: number = 1
+    ) => {
+
+        addToCart(
+            {
+                id: image.id,
+                name: image.name,
+                model: "Love & Romance",
+                size: "Standard",
+                color: "Default",
+                price: image.price,
+                image: image.imageUrl,
+            },
+            quantity
+        );
+
+    };
+
+
+    const handleCardAddToCart = (
+        image: CollectionImage
+    ) => {
+
+        const quantity =
+            getQuantity(image.id);
+
+        handleAddToCart(
+            image,
+            quantity
+        );
+
+    };
+
+
+    const handleLightboxAddToCart = (
+        image: CollectionImage
+    ) => {
+
+        handleAddToCart(
+            image,
+            1
+        );
 
     };
 
@@ -296,7 +373,7 @@ function LoveRomancePage() {
 
 
                 {/* ==================================================
-                    COLLECTION IMAGES
+                    COLLECTION PRODUCTS
                    ================================================== */}
 
                 <section className="love-romance-products">
@@ -322,69 +399,143 @@ function LoveRomancePage() {
 
                     <div className="love-romance-products__grid">
 
-                        {activeImages.map((image) => (
+                        {activeImages.map((image) => {
 
-                            <article
-                                className="love-romance-product"
-                                key={image.id}
-                            >
+                            const quantity =
+                                getQuantity(image.id);
 
-                                <div
-                                    className="love-romance-product__image"
-                                    onClick={() =>
-                                        setSelectedImage(image)
-                                    }
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(event) => {
+                            return (
 
-                                        if (
-                                            event.key === "Enter" ||
-                                            event.key === " "
-                                        ) {
-                                            event.preventDefault();
-                                            setSelectedImage(image);
-                                        }
-
-                                    }}
-                                    aria-label={
-                                        language === "es"
-                                            ? `Ver ${image.name} en grande`
-                                            : `View ${image.name} enlarged`
-                                    }
+                                <article
+                                    className="love-romance-product"
+                                    key={image.id}
                                 >
 
-                                    <img
-                                        src={image.imageUrl}
-                                        alt={image.alt}
-                                    />
+                                    {/* IMAGE */}
 
-                                    <div className="love-romance-product__shine"></div>
-
-                                </div>
-
-
-                                <div className="love-romance-product__body">
-
-                                    <span className="love-romance-product__number">
-                                        {String(image.sortOrder).padStart(2, "0")}
-                                    </span>
-
-                                    <button
-                                        type="button"
-                                        className="love-romance-product__button"
+                                    <div
+                                        className="love-romance-product__image"
                                         onClick={() =>
                                             setSelectedImage(image)
                                         }
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(event) => {
+
+                                            if (
+                                                event.key === "Enter" ||
+                                                event.key === " "
+                                            ) {
+
+                                                event.preventDefault();
+
+                                                setSelectedImage(image);
+
+                                            }
+
+                                        }}
+                                        aria-label={
+                                            language === "es"
+                                                ? `Ver ${image.name} en grande`
+                                                : `View ${image.name} enlarged`
+                                        }
                                     >
-                                        {t.products.viewProduct}
-                                    </button>
 
-                                </div>
+                                        <img
+                                            src={image.imageUrl}
+                                            alt={image.alt}
+                                        />
 
-                            </article>
+                                        <div className="love-romance-product__shine"></div>
 
-                        ))}
+                                    </div>
+
+
+                                    {/* PRODUCT BODY */}
+
+                                    <div className="love-romance-product__body">
+
+                                        <div className="love-romance-product__info">
+
+                                            <span className="love-romance-product__number">
+                                                {String(
+                                                    image.sortOrder
+                                                ).padStart(2, "0")}
+                                            </span>
+
+                                            <strong className="love-romance-product__price">
+                                                ${image.price.toFixed(2)}
+                                            </strong>
+
+                                        </div>
+
+
+                                        {/* QUANTITY */}
+
+                                        <div className="love-romance-product__quantity">
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    changeQuantity(
+                                                        image.id,
+                                                        -1
+                                                    )
+                                                }
+                                                aria-label={
+                                                    language === "es"
+                                                        ? "Disminuir cantidad"
+                                                        : "Decrease quantity"
+                                                }
+                                            >
+                                                −
+                                            </button>
+
+                                            <span>
+                                                {quantity}
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    changeQuantity(
+                                                        image.id,
+                                                        1
+                                                    )
+                                                }
+                                                aria-label={
+                                                    language === "es"
+                                                        ? "Aumentar cantidad"
+                                                        : "Increase quantity"
+                                                }
+                                            >
+                                                +
+                                            </button>
+
+                                        </div>
+
+
+                                        {/* ADD TO CART */}
+
+                                        <button
+                                            type="button"
+                                            className="love-romance-product__button"
+                                            onClick={() =>
+                                                handleCardAddToCart(image)
+                                            }
+                                        >
+                                            {language === "es"
+                                                ? "AGREGAR AL CARRITO"
+                                                : "ADD TO CART"}
+                                        </button>
+
+                                    </div>
+
+                                </article>
+
+                            );
+
+                        })}
 
                     </div>
 
@@ -557,14 +708,46 @@ function LoveRomancePage() {
                             <div className="love-romance-lightbox__details">
 
                                 <span className="love-romance-lightbox__eyebrow">
-                                    {language === "es"
-                                        ? "LOVE & ROMANCE"
-                                        : "LOVE & ROMANCE"}
+                                    LOVE & ROMANCE
                                 </span>
 
                                 <h2>
                                     {selectedImage.name}
                                 </h2>
+
+
+                                {/* RATING */}
+
+                                <div
+                                    className="love-romance-lightbox__rating"
+                                    aria-label={
+                                        language === "es"
+                                            ? `${selectedImage.rating} de 5 estrellas`
+                                            : `${selectedImage.rating} out of 5 stars`
+                                    }
+                                >
+
+                                    {Array.from(
+                                        { length: 5 },
+                                        (_, index) => (
+
+                                            <span
+                                                key={index}
+                                                className={
+                                                    index <
+                                                    selectedImage.rating
+                                                        ? "is-active"
+                                                        : ""
+                                                }
+                                            >
+                                                ★
+                                            </span>
+
+                                        )
+                                    )}
+
+                                </div>
+
 
                                 <div className="love-romance-lightbox__ornament">
 
@@ -576,9 +759,11 @@ function LoveRomancePage() {
 
                                 </div>
 
+
                                 <p>
                                     {selectedImage.description}
                                 </p>
+
 
                                 <div className="love-romance-lightbox__price">
 
@@ -594,11 +779,14 @@ function LoveRomancePage() {
 
                                 </div>
 
+
                                 <button
                                     type="button"
                                     className="love-romance-lightbox__cart-button"
                                     onClick={() =>
-                                        handleAddToCart(selectedImage)
+                                        handleLightboxAddToCart(
+                                            selectedImage
+                                        )
                                     }
                                 >
                                     {language === "es"
