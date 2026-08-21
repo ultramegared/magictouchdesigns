@@ -643,6 +643,64 @@ register: {
     },
   },
   
+    privacy: {
+    hero: {
+      eyebrow: "TU PRIVACIDAD ES IMPORTANTE",
+      title: "Política de",
+      titleAccent: "Privacidad",
+      intro:
+        "Conoce cómo Magic Touch Designs maneja la información relacionada con tus visitas, pedidos e interacciones con nuestro sitio web.",
+    },
+
+    information: {
+      title: "Información que Recopilamos",
+      description:
+        "Cuando interactúas con Magic Touch Designs, puedes proporcionar información al realizar un pedido, contactarnos, crear una cuenta o utilizar las funciones disponibles en nuestro sitio web.",
+    },
+
+    usage: {
+      title: "Cómo Utilizamos la Información",
+      description:
+        "La información puede utilizarse para procesar pedidos, brindar atención al cliente, responder a tus solicitudes y mejorar la experiencia que ofrecemos a través de nuestro sitio web.",
+    },
+
+    ordersPayments: {
+      title: "Pedidos y Pagos",
+      description:
+        "La información asociada con un pedido puede utilizarse para procesarlo y completarlo, proporcionar actualizaciones sobre el pedido y ayudarte con cualquier consulta de servicio al cliente.",
+    },
+
+    communications: {
+      title: "Comunicaciones",
+      description:
+        "Si nos contactas o eliges recibir comunicaciones de nuestra parte, la información que proporciones puede utilizarse para responder a tu solicitud o proporcionar la comunicación que hayas solicitado.",
+    },
+
+    websiteExperience: {
+      title: "Experiencia en el Sitio Web",
+      description:
+        "Podemos utilizar información relacionada con la actividad del sitio web para ayudar a mantener, mejorar y personalizar tu experiencia en nuestro sitio.",
+    },
+
+    security: {
+      title: "Seguridad de la Información",
+      description:
+        "Tomamos medidas razonables para ayudar a proteger la información asociada con nuestro sitio web y las interacciones con nuestros clientes. Sin embargo, ningún método de transmisión o almacenamiento puede garantizar una seguridad completa.",
+    },
+
+    thirdParty: {
+      title: "Servicios de Terceros",
+      description:
+        "Ciertas funciones del sitio web, procesamiento de pagos, envíos, análisis u otros servicios pueden involucrar proveedores externos. El manejo de la información por parte de estos proveedores puede estar sujeto a sus propias políticas de privacidad.",
+    },
+
+    questions: {
+      title: "Preguntas sobre Privacidad",
+      description:
+        "Si tienes preguntas sobre privacidad, información relacionada con tu pedido o cómo contactarnos respecto a tu información, puedes comunicarte con nosotros a través de nuestra página de Contacto.",
+    },
+  },
+  
   
     about: {
     hero: {
