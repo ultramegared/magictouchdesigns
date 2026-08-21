@@ -192,6 +192,8 @@
         .85s
         cubic-bezier(.22, 1, .36, 1);
 
+    z-index: 2;
+
 }
 
 
@@ -307,13 +309,51 @@
    ================================================================ */
 
 .hero-slider__text {
+
+    position: relative;
+
+    z-index: 20;
+
     grid-column: 1;
+
     grid-row: 1;
+
+    width: 100%;
+
+    max-width: 600px;
+
+    justify-self: start;
+
+    animation:
+        heroTextIn
+        .8s
+        cubic-bezier(.22, 1, .36, 1);
+
 }
 
+
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+
 .hero-slider__buttons {
+
+    position: relative;
+
+    z-index: 20;
+
     grid-column: 1;
+
     grid-row: 2;
+
+    display: flex;
+
+    gap: 18px;
+
+    flex-wrap: wrap;
+
+    margin-top: 0;
+
 }
 
 
@@ -485,21 +525,8 @@
 
 
 /* ================================================================
-   BUTTONS
+   BUTTON BASE
    ================================================================ */
-
-.hero-slider__buttons {
-
-    display: flex;
-
-    gap: 18px;
-
-    flex-wrap: wrap;
-
-    margin-top: 0;
-
-}
-
 
 .hero-slider__primary,
 .hero-slider__secondary {
@@ -1046,7 +1073,7 @@
         flex-direction:column;
 
         justify-content:flex-start;
-            order: 0;
+
         padding:
             48px
             24px
@@ -1063,6 +1090,8 @@
         padding-top:18px;
 
         margin:auto;
+
+        order:0;
 
     }
 
@@ -1112,25 +1141,6 @@
 
     }
 
-    .hero-slider__buttons{
-
-        flex-direction:column;
-
-        align-items:center;
-
-        gap:12px;
-
-    }
-
-    .hero-slider__primary,
-    .hero-slider__secondary{
-
-        width:100%;
-
-        max-width:320px;
-
-    }
-
     .hero-slider__image{
 
         position:relative;
@@ -1148,6 +1158,31 @@
         justify-content:center;
 
         align-items:center;
+
+        order:1;
+
+        z-index:2;
+
+    }
+
+    .hero-slider__buttons{
+
+        flex-direction:column;
+
+        align-items:center;
+
+        gap:12px;
+
+        order:2;
+
+    }
+
+    .hero-slider__primary,
+    .hero-slider__secondary{
+
+        width:100%;
+
+        max-width:320px;
 
     }
 
