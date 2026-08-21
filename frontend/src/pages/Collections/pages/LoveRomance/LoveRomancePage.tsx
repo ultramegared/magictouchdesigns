@@ -83,7 +83,8 @@ function LoveRomancePage() {
                             type="button"
                             className="love-romance-hero__button"
                         >
-                            {t.hero.primaryButton}
+                            {t.hero.button}
+                            
                         </button>
 
                     </div>
