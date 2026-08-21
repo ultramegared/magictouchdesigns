@@ -11,7 +11,7 @@
  */
 
 export type CartItem = {
-    id: number;
+    id: string | number;
     name: string;
     model: string;
     size: string;
@@ -69,11 +69,23 @@ export function saveCartItems(
 }
 
 
+/**
+ * Add a product to the shopping cart.
+ *
+ * Quantity defaults to 1 so existing product
+ * integrations continue working without changes.
+ */
 export function addToCart(
-    item: Omit<CartItem, "quantity">
+    item: Omit<CartItem, "quantity">,
+    quantity: number = 1
 ): CartItem[] {
 
     const currentItems = getCartItems();
+
+    const safeQuantity = Math.max(
+        1,
+        Math.floor(quantity)
+    );
 
     const existingItem = currentItems.find(
         (cartItem) =>
@@ -93,7 +105,7 @@ export function addToCart(
                     ? {
                         ...cartItem,
                         quantity:
-                            cartItem.quantity + 1,
+                            cartItem.quantity + safeQuantity,
                     }
                     : cartItem
         );
@@ -104,7 +116,7 @@ export function addToCart(
             ...currentItems,
             {
                 ...item,
-                quantity: 1,
+                quantity: safeQuantity,
             },
         ];
 
@@ -118,7 +130,7 @@ export function addToCart(
 
 
 export function removeFromCart(
-    id: number
+    id: string | number
 ): CartItem[] {
 
     const updatedItems = getCartItems().filter(
@@ -133,7 +145,7 @@ export function removeFromCart(
 
 
 export function updateCartQuantity(
-    id: number,
+    id: string | number,
     quantity: number
 ): CartItem[] {
 
@@ -144,7 +156,7 @@ export function updateCartQuantity(
                     ...item,
                     quantity: Math.max(
                         1,
-                        quantity
+                        Math.floor(quantity)
                     ),
                 }
                 : item
