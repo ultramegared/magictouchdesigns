@@ -20,11 +20,98 @@ import Footer from "../../../../components/home/Footer";
 import { useLanguage } from "../../../../contexts/LanguageContext";
 import { translations } from "../../../../translations";
 
+interface CollectionImage {
+    id: string;
+    imageUrl: string;
+    alt: string;
+    sortOrder: number;
+    isActive: boolean;
+}
+
+
+/**
+ * Temporary frontend data.
+ *
+ * This structure is intentionally prepared for future backend/admin
+ * integration. Later, the administrator will be able to manage
+ * collection images without modifying this page.
+ */
+const loveRomanceImages: CollectionImage[] = [
+    {
+        id: "love-romance-01",
+        imageUrl:
+            "/images/collections/love-romance/love-romance-01.jpg",
+        alt: "Love & Romance design 01",
+        sortOrder: 1,
+        isActive: true,
+    },
+    {
+        id: "love-romance-02",
+        imageUrl:
+            "/images/collections/love-romance/love-romance-01.jpg",
+        alt: "Love & Romance design 02",
+        sortOrder: 2,
+        isActive: true,
+    },
+    {
+        id: "love-romance-03",
+        imageUrl:
+            "/images/collections/love-romance/love-romance-01.jpg",
+        alt: "Love & Romance design 03",
+        sortOrder: 3,
+        isActive: true,
+    },
+    {
+        id: "love-romance-04",
+        imageUrl:
+            "/images/collections/love-romance/love-romance-01.jpg",
+        alt: "Love & Romance design 04",
+        sortOrder: 4,
+        isActive: true,
+    },
+    {
+        id: "love-romance-05",
+        imageUrl:
+            "/images/collections/love-romance/love-romance-01.jpg",
+        alt: "Love & Romance design 05",
+        sortOrder: 5,
+        isActive: true,
+    },
+    {
+        id: "love-romance-06",
+        imageUrl:
+            "/images/collections/love-romance/love-romance-01.jpg",
+        alt: "Love & Romance design 06",
+        sortOrder: 6,
+        isActive: true,
+    },
+    {
+        id: "love-romance-07",
+        imageUrl:
+            "/images/collections/love-romance/love-romance-01.jpg",
+        alt: "Love & Romance design 07",
+        sortOrder: 7,
+        isActive: true,
+    },
+    {
+        id: "love-romance-08",
+        imageUrl:
+            "/images/collections/love-romance/love-romance-01.jpg",
+        alt: "Love & Romance design 08",
+        sortOrder: 8,
+        isActive: true,
+    },
+];
+
 function LoveRomancePage() {
 
     const { language } = useLanguage();
 
     const t = translations[language].loveRomance;
+
+    const activeImages = loveRomanceImages
+        .filter((image) => image.isActive)
+        .sort((a, b) => a.sortOrder - b.sortOrder);
 
     return (
         <>
@@ -57,7 +144,8 @@ function LoveRomancePage() {
                             to="/collections"
                             className="love-romance-back-link"
                         >
-                            ← {language === "es"
+                            ←{" "}
+                            {language === "es"
                                 ? "VOLVER A COLECCIONES"
                                 : "BACK TO COLLECTIONS"}
                         </Link>
@@ -146,7 +234,7 @@ function LoveRomancePage() {
 
 
                 {/* ==================================================
-                    PRODUCT SHOWCASE
+                    COLLECTION IMAGES
                    ================================================== */}
 
                 <section className="love-romance-products">
@@ -172,128 +260,42 @@ function LoveRomancePage() {
 
                     <div className="love-romance-products__grid">
 
-                        <article className="love-romance-product">
+                        {activeImages.map((image) => (
 
-                            <div className="love-romance-product__image">
+                            <article
+                                className="love-romance-product"
+                                key={image.id}
+                            >
 
-                                <img
-                                    src="/images/collections/love-romance/love-romance-01.jpg"
-                                    alt={t.products.title}
-                                />
+                                <div className="love-romance-product__image">
 
-                                <div className="love-romance-product__shine"></div>
+                                    <img
+                                        src={image.imageUrl}
+                                        alt={image.alt}
+                                    />
 
-                            </div>
+                                    <div className="love-romance-product__shine"></div>
 
-                            <div className="love-romance-product__body">
+                                </div>
 
-                                <span className="love-romance-product__number">
-                                    01
-                                </span>
+                                <div className="love-romance-product__body">
 
-                                <button
-                                    type="button"
-                                    className="love-romance-product__button"
-                                >
-                                    {t.products.viewProduct}
-                                </button>
+                                    <span className="love-romance-product__number">
+                                        {String(image.sortOrder).padStart(2, "0")}
+                                    </span>
 
-                            </div>
+                                    <button
+                                        type="button"
+                                        className="love-romance-product__button"
+                                    >
+                                        {t.products.viewProduct}
+                                    </button>
 
-                        </article>
+                                </div>
 
+                            </article>
 
-                        <article className="love-romance-product">
-
-                            <div className="love-romance-product__image">
-
-                                <img
-                                    src="/images/collections/love-romance/love-romance-02.jpg"
-                                    alt={t.products.title}
-                                />
-
-                                <div className="love-romance-product__shine"></div>
-
-                            </div>
-
-                            <div className="love-romance-product__body">
-
-                                <span className="love-romance-product__number">
-                                    02
-                                </span>
-
-                                <button
-                                    type="button"
-                                    className="love-romance-product__button"
-                                >
-                                    {t.products.viewProduct}
-                                </button>
-
-                            </div>
-
-                        </article>
-
-
-                        <article className="love-romance-product">
-
-                            <div className="love-romance-product__image">
-
-                                <img
-                                    src="/images/collections/love-romance/love-romance-03.jpg"
-                                    alt={t.products.title}
-                                />
-
-                                <div className="love-romance-product__shine"></div>
-
-                            </div>
-
-                            <div className="love-romance-product__body">
-
-                                <span className="love-romance-product__number">
-                                    03
-                                </span>
-
-                                <button
-                                    type="button"
-                                    className="love-romance-product__button"
-                                >
-                                    {t.products.viewProduct}
-                                </button>
-
-                            </div>
-
-                        </article>
-
-
-                        <article className="love-romance-product">
-
-                            <div className="love-romance-product__image">
-
-                                <img
-                                    src="/images/collections/love-romance/love-romance-04.jpg"
-                                    alt={t.products.title}
-                                />
-
-                                <div className="love-romance-product__shine"></div>
-
-                            </div>
-
-                            <div className="love-romance-product__body">
-
-                                <span className="love-romance-product__number">
-                                    04
-                                </span>
-
-                                <button
-                                    type="button"
-                                    className="love-romance-product__button"
-                                >
-                                    {t.products.viewProduct}
-                                </button>
-
-                            </div>
-
-                        </article>
+                        ))}
 
                     </div>
 
