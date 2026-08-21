@@ -35,7 +35,7 @@ function CartPage() {
 
 
     const updateQuantity = (
-        id: number,
+        id: string | number,
         change: number
     ) => {
 
@@ -57,7 +57,9 @@ function CartPage() {
     };
 
 
-    const removeItem = (id: number) => {
+    const removeItem = (
+        id: string | number
+    ) => {
 
         const updatedItems = removeFromCart(id);
 
@@ -171,7 +173,7 @@ function CartPage() {
 
                                     <article
                                         className="cart-item"
-                                        key={item.id}
+                                        key={`${item.id}-${item.model}-${item.size}-${item.color}`}
                                     >
 
                                         <div className="cart-item__image">
@@ -401,19 +403,19 @@ function CartPage() {
 
 
                             <button
-    type="button"
-    className="cart-checkout"
-    disabled={cartItems.length === 0}
-    onClick={() => {
-        window.location.href = "/checkout";
-    }}
->
-    Proceed to Checkout
+                                type="button"
+                                className="cart-checkout"
+                                disabled={cartItems.length === 0}
+                                onClick={() => {
+                                    window.location.href = "/checkout";
+                                }}
+                            >
+                                Proceed to Checkout
 
-    <span>
-        →
-    </span>
-</button>
+                                <span>
+                                    →
+                                </span>
+                            </button>
 
 
                             <div className="cart-secure">
