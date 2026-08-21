@@ -6,7 +6,7 @@
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Order tracking page.
+ * Bilingual premium order tracking page.
  * ===============================================================
  */
 
@@ -15,7 +15,14 @@ import "./TrackOrderPage.css";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 
+import { useLanguage } from "../../contexts/LanguageContext";
+import { translations } from "../../translations";
+
 function TrackOrderPage() {
+    const { language } = useLanguage();
+
+    const t = translations[language].trackOrder;
+
     return (
         <>
             <Header />
@@ -23,15 +30,16 @@ function TrackOrderPage() {
             <main className="track-order-page">
 
                 <section className="track-order-page__hero">
+
                     <div className="track-order-page__container">
 
                         <span className="track-order-page__eyebrow">
-                            ORDER SUPPORT
+                            {t.hero.eyebrow}
                         </span>
 
                         <h1>
-                            TRACK YOUR
-                            <span>ORDER</span>
+                            {t.hero.title}
+                            <span>{t.hero.titleAccent}</span>
                         </h1>
 
                         <div className="track-order-page__divider">
@@ -39,62 +47,68 @@ function TrackOrderPage() {
                         </div>
 
                         <p className="track-order-page__intro">
-                            Enter your order information to check the
-                            available status and tracking details for
-                            your order.
+                            {t.hero.intro}
                         </p>
 
                     </div>
+
                 </section>
 
                 <section className="track-order-page__content">
+
                     <div className="track-order-page__container">
 
                         <div className="track-order-page__card">
 
                             <h2>
-                                TRACKING INFORMATION
+                                {t.tracking.title}
                             </h2>
 
                             <p>
-                                Once your order has been processed and
-                                shipped, available tracking information
-                                will be provided for your order.
+                                {t.tracking.description}
                             </p>
 
                             <form className="track-order-page__form">
 
                                 <div className="track-order-page__field">
+
                                     <label htmlFor="order-number">
-                                        ORDER NUMBER
+                                        {t.tracking.orderNumberLabel}
                                     </label>
 
                                     <input
                                         id="order-number"
                                         name="orderNumber"
                                         type="text"
-                                        placeholder="Enter your order number"
+                                        placeholder={
+                                            t.tracking.orderNumberPlaceholder
+                                        }
                                     />
+
                                 </div>
 
                                 <div className="track-order-page__field">
+
                                     <label htmlFor="email">
-                                        EMAIL ADDRESS
+                                        {t.tracking.emailLabel}
                                     </label>
 
                                     <input
                                         id="email"
                                         name="email"
                                         type="email"
-                                        placeholder="Enter your email address"
+                                        placeholder={
+                                            t.tracking.emailPlaceholder
+                                        }
                                     />
+
                                 </div>
 
                                 <button
                                     type="button"
                                     className="track-order-page__button"
                                 >
-                                    TRACK ORDER
+                                    {t.tracking.button}
                                 </button>
 
                             </form>
@@ -104,18 +118,17 @@ function TrackOrderPage() {
                         <div className="track-order-page__help">
 
                             <h2>
-                                NEED HELP?
+                                {t.help.title}
                             </h2>
 
                             <p>
-                                If you have questions about your order,
-                                shipping, or tracking information, please
-                                contact us and we will be happy to help.
+                                {t.help.description}
                             </p>
 
                         </div>
 
                     </div>
+
                 </section>
 
             </main>
