@@ -145,61 +145,45 @@ function HeroSlider() {
                         {content.subtitle}
                     </p>
 
-                    <div className="hero-slider__content">
+                                  </div>
 
-    <div
-        key={`text-${slide.id}`}
-        className="hero-slider__text"
-    >
+                <div
+                    key={`image-${slide.id}`}
+                    className="hero-slider__image"
+                >
 
-        <h1>
-            {content.title}
-        </h1>
+                    <img
+                        src={slide.image}
+                        alt={content.title.replace("\n", " ")}
+                    />
 
-        <p>
-            {content.subtitle}
-        </p>
+                </div>
 
-    </div>
+                <div className="hero-slider__buttons">
 
-    <div
-        key={`image-${slide.id}`}
-        className="hero-slider__image"
-    >
+                    <button
+                        type="button"
+                        className="hero-slider__primary"
+                        onClick={() =>
+                            window.location.href = "/customize"
+                        }
+                    >
+                        {content.primaryButton}
+                    </button>
 
-        <img
-            src={slide.image}
-            alt={content.title.replace("\n", " ")}
-        />
+                    <button
+                        type="button"
+                        className="hero-slider__secondary"
+                        onClick={() =>
+                            window.location.href = "/products"
+                        }
+                    >
+                        {content.secondaryButton}
+                    </button>
 
-    </div>
+                </div>
 
-    <div className="hero-slider__buttons">
-
-        <button
-            type="button"
-            className="hero-slider__primary"
-            onClick={() =>
-                window.location.href = "/customize"
-            }
-        >
-            {content.primaryButton}
-        </button>
-
-        <button
-            type="button"
-            className="hero-slider__secondary"
-            onClick={() =>
-                window.location.href = "/products"
-            }
-        >
-            {content.secondaryButton}
-        </button>
-
-    </div>
-
-</div>
-
+            </div>
                 <div
                     key={`image-${slide.id}`}
                     className="hero-slider__image"
