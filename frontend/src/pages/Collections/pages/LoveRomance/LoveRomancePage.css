@@ -827,6 +827,11 @@
 }
 
 
+/* ===============================================================
+   PRODUCT BODY
+   Price + Quantity + Cart
+   =============================================================== */
+
 .love-romance-product__body {
 
     min-height: 72px;
@@ -837,9 +842,9 @@
 
     justify-content: space-between;
 
-    gap: 10px;
+    gap: 12px;
 
-    padding: 14px 15px;
+    padding: 12px 14px;
 
     border-top:
         1px solid rgba(216,166,60,.12);
@@ -847,16 +852,218 @@
 }
 
 
-.love-romance-product__number {
+.love-romance-product__info {
 
-    color: rgba(255,255,255,.34);
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+
+.love-romance-product__price {
+
+    color: #f2d17b;
 
     font-family:
         Georgia,
         "Times New Roman",
         serif;
 
-    font-size: 20px;
+    font-size: 19px;
+
+    font-weight: 500;
+
+    line-height: 1;
+
+    white-space: nowrap;
+
+    text-shadow:
+        0 2px 8px rgba(0,0,0,.35);
+
+}
+
+
+/* ===============================================================
+   FLOATING PRODUCT ID
+   =============================================================== */
+
+.love-romance-product__image
+.love-romance-product__number {
+
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    z-index: 4;
+
+    width: 27px;
+    height: 27px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(238,201,105,.60);
+
+    border-radius: 50%;
+
+    background:
+        rgba(7,7,7,.62);
+
+    color:
+        rgba(255,255,255,.82);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 10px;
+
+    font-weight: 500;
+
+    line-height: 1;
+
+    letter-spacing: .5px;
+
+    box-shadow:
+
+        0 4px 12px rgba(0,0,0,.35),
+
+        inset 0 1px 0 rgba(255,255,255,.12);
+
+    backdrop-filter:
+        blur(6px);
+
+    -webkit-backdrop-filter:
+        blur(6px);
+
+    pointer-events: none;
+
+}
+
+
+/* ===============================================================
+   QUANTITY
+   =============================================================== */
+
+.love-romance-product__quantity {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    flex-shrink: 0;
+
+}
+
+
+.love-romance-product__quantity button {
+
+    width: 25px;
+    height: 25px;
+
+    min-width: 25px;
+    min-height: 25px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid rgba(216,166,60,.38);
+
+    border-radius: 50%;
+
+    background:
+        rgba(216,166,60,.07);
+
+    color:
+        rgba(255,255,255,.78);
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size: 15px;
+
+    font-weight: 400;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        color .2s ease,
+        transform .2s ease;
+
+}
+
+
+.love-romance-product__quantity button:hover {
+
+    background:
+        rgba(216,166,60,.18);
+
+    border-color:
+        rgba(216,166,60,.75);
+
+    color:
+        #f2d17b;
+
+    transform:
+        scale(1.06);
+
+}
+
+
+.love-romance-product__quantity button:active {
+
+    transform:
+        scale(.92);
+
+}
+
+
+.love-romance-product__quantity button:focus-visible {
+
+    outline:
+        1px solid #f2d17b;
+
+    outline-offset:
+        3px;
+
+}
+
+
+.love-romance-product__quantity span {
+
+    min-width: 18px;
+
+    color:
+        rgba(255,255,255,.78);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-align: center;
+
+    line-height: 1;
 
 }
 
@@ -924,12 +1131,6 @@
 }
 
 
-/*
-   Premium cart icon.
-   The original button text remains available to assistive
-   technologies while the visual button displays the cart.
-*/
-
 .love-romance-product__button::before {
 
     content: "🛒";
@@ -958,8 +1159,6 @@
 }
 
 
-/* Premium glass highlight */
-
 .love-romance-product__button::after {
 
     content: "";
@@ -977,7 +1176,8 @@
     background:
         rgba(255,255,255,.58);
 
-    filter: blur(1px);
+    filter:
+        blur(1px);
 
     pointer-events: none;
 
@@ -1922,26 +2122,78 @@
     }
 
 
+    /* ===========================================================
+       MOBILE PRODUCT BODY
+       =========================================================== */
+
     .love-romance-product__body {
 
         min-height: 58px;
 
-        padding: 9px;
+        padding: 8px 9px;
+
+        gap: 7px;
 
     }
 
 
+    .love-romance-product__price {
+
+        font-size: 15px;
+
+    }
+
+
+    .love-romance-product__quantity {
+
+        gap: 4px;
+
+    }
+
+
+    .love-romance-product__quantity button {
+
+        width: 22px;
+        height: 22px;
+
+        min-width: 22px;
+        min-height: 22px;
+
+        font-size: 13px;
+
+    }
+
+
+    .love-romance-product__quantity span {
+
+        min-width: 14px;
+
+        font-size: 9px;
+
+    }
+
+
+    /* ===========================================================
+       MOBILE FLOATING PRODUCT ID
+       =========================================================== */
+
+    .love-romance-product__image
     .love-romance-product__number {
 
-        font-size: 14px;
+        top: 7px;
+        left: 7px;
+
+        width: 23px;
+        height: 23px;
+
+        font-size: 8px;
 
     }
 
 
-    /*
-       MOBILE CART:
-       Keep the same compact premium button.
-    */
+    /* ===========================================================
+       MOBILE CART
+       =========================================================== */
 
     .love-romance-product__button {
 
@@ -2157,14 +2409,59 @@
 
     .love-romance-product__body {
 
-        padding: 8px;
+        padding: 7px 8px;
+
+        gap: 5px;
 
     }
 
 
-    .love-romance-product__number {
+    .love-romance-product__price {
+
+        font-size: 14px;
+
+    }
+
+
+    .love-romance-product__quantity {
+
+        gap: 3px;
+
+    }
+
+
+    .love-romance-product__quantity button {
+
+        width: 20px;
+        height: 20px;
+
+        min-width: 20px;
+        min-height: 20px;
 
         font-size: 12px;
+
+    }
+
+
+    .love-romance-product__quantity span {
+
+        min-width: 12px;
+
+        font-size: 8px;
+
+    }
+
+
+    .love-romance-product__image
+    .love-romance-product__number {
+
+        top: 6px;
+        left: 6px;
+
+        width: 21px;
+        height: 21px;
+
+        font-size: 7px;
 
     }
 
@@ -2172,14 +2469,10 @@
     .love-romance-product__button {
 
         width: 38px;
-
         height: 38px;
 
         min-width: 38px;
-
         min-height: 38px;
-
-        padding: 0;
 
     }
 
@@ -2257,10 +2550,61 @@
     }
 
 
+    .love-romance-product__body {
+
+        padding: 6px 7px;
+
+        gap: 4px;
+
+    }
+
+
+    .love-romance-product__price {
+
+        font-size: 13px;
+
+    }
+
+
+    .love-romance-product__quantity button {
+
+        width: 19px;
+        height: 19px;
+
+        min-width: 19px;
+        min-height: 19px;
+
+        font-size: 11px;
+
+    }
+
+
+    .love-romance-product__quantity span {
+
+        min-width: 11px;
+
+        font-size: 8px;
+
+    }
+
+
+    .love-romance-product__image
+    .love-romance-product__number {
+
+        top: 5px;
+        left: 5px;
+
+        width: 20px;
+        height: 20px;
+
+        font-size: 7px;
+
+    }
+
+
     .love-romance-product__button {
 
         width: 36px;
-
         height: 36px;
 
         min-width: 36px;
