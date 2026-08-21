@@ -441,56 +441,7 @@ community: {
   },
 },
 
-  
-      loveRomance: {
-
-      hero: {
-        eyebrow: "LOVE & ROMANCE COLLECTION",
-        title: "MADE FOR",
-        titleAccent: "LOVE",
-        description:
-          "Thoughtful personalized designs created to celebrate love, connection, and the moments you never want to forget.",
-        button: "EXPLORE THE COLLECTION",
-      },
-
-      intro: {
-        eyebrow: "FOR SOMEONE SPECIAL",
-        title: "GIFTS WITH",
-        titleAccent: "MEANING",
-        description:
-          "Create something personal for the person who means the most to you. From romantic gestures to unforgettable memories, every design is made to feel truly special.",
-      },
-
-      products: {
-        eyebrow: "LOVE FAVORITES",
-        title: "DESIGNS MADE",
-        titleAccent: "FOR TWO",
-        description:
-          "Discover personalized pieces created for couples, anniversaries, Valentine's Day, and every beautiful moment in between.",
-        viewProduct: "VIEW PRODUCT",
-      },
-
-      featured: {
-        eyebrow: "LOVE EDITION",
-        title: "A PERSONAL TOUCH",
-        titleAccent: "THAT LASTS",
-        description:
-          "Turn your favorite photo, message, or memory into something beautiful you can keep and share.",
-        button: "CREATE YOUR GIFT",
-      },
-
-      cta: {
-        eyebrow: "MAKE IT PERSONAL",
-        title: "CREATE SOMETHING",
-        titleAccent: "MEANINGFUL",
-        description:
-          "Choose a design, add your personal touch, and create a gift made especially for someone you love.",
-        button: "START CUSTOMIZING",
-      },
-
-    },
-    
-
+ 
   contact: {
     eyebrow: "GET IN TOUCH",
     title: "Contact Us",
