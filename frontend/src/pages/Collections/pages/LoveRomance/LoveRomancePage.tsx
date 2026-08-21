@@ -27,6 +27,16 @@ interface CollectionImage {
     alt: string;
     sortOrder: number;
     isActive: boolean;
+
+    /**
+     * Temporary product information.
+     *
+     * This structure is prepared for future backend/admin
+     * integration. These values will later come from the backend.
+     */
+    name: string;
+    description: string;
+    price: number;
 }
 
 
@@ -35,7 +45,7 @@ interface CollectionImage {
  *
  * This structure is intentionally prepared for future backend/admin
  * integration. Later, the administrator will be able to manage
- * collection images without modifying this page.
+ * collection products without modifying this page.
  */
 const loveRomanceImages: CollectionImage[] = [
     {
@@ -45,6 +55,10 @@ const loveRomanceImages: CollectionImage[] = [
         alt: "Love & Romance design 01",
         sortOrder: 1,
         isActive: true,
+        name: "Love & Romance Design 01",
+        description:
+            "A beautiful personalized design created to celebrate love, meaningful moments and unforgettable memories.",
+        price: 24.99,
     },
     {
         id: "love-romance-02",
@@ -53,6 +67,10 @@ const loveRomanceImages: CollectionImage[] = [
         alt: "Love & Romance design 02",
         sortOrder: 2,
         isActive: true,
+        name: "Love & Romance Design 02",
+        description:
+            "A romantic personalized design created to make your special moments even more memorable.",
+        price: 24.99,
     },
     {
         id: "love-romance-03",
@@ -61,6 +79,10 @@ const loveRomanceImages: CollectionImage[] = [
         alt: "Love & Romance design 03",
         sortOrder: 3,
         isActive: true,
+        name: "Love & Romance Design 03",
+        description:
+            "A premium personalized design made for couples, anniversaries and meaningful celebrations.",
+        price: 24.99,
     },
     {
         id: "love-romance-04",
@@ -69,6 +91,10 @@ const loveRomanceImages: CollectionImage[] = [
         alt: "Love & Romance design 04",
         sortOrder: 4,
         isActive: true,
+        name: "Love & Romance Design 04",
+        description:
+            "An elegant personalized design created to turn your favorite memories into something special.",
+        price: 24.99,
     },
     {
         id: "love-romance-05",
@@ -77,6 +103,10 @@ const loveRomanceImages: CollectionImage[] = [
         alt: "Love & Romance design 05",
         sortOrder: 5,
         isActive: true,
+        name: "Love & Romance Design 05",
+        description:
+            "A sophisticated romantic design perfect for gifts and unforgettable occasions.",
+        price: 24.99,
     },
     {
         id: "love-romance-06",
@@ -85,6 +115,10 @@ const loveRomanceImages: CollectionImage[] = [
         alt: "Love & Romance design 06",
         sortOrder: 6,
         isActive: true,
+        name: "Love & Romance Design 06",
+        description:
+            "A personalized premium design created with love for the moments that matter most.",
+        price: 24.99,
     },
     {
         id: "love-romance-07",
@@ -93,6 +127,10 @@ const loveRomanceImages: CollectionImage[] = [
         alt: "Love & Romance design 07",
         sortOrder: 7,
         isActive: true,
+        name: "Love & Romance Design 07",
+        description:
+            "A timeless personalized design created to celebrate your unique story together.",
+        price: 24.99,
     },
     {
         id: "love-romance-08",
@@ -101,6 +139,10 @@ const loveRomanceImages: CollectionImage[] = [
         alt: "Love & Romance design 08",
         sortOrder: 8,
         isActive: true,
+        name: "Love & Romance Design 08",
+        description:
+            "A premium romantic design made to transform special memories into beautiful keepsakes.",
+        price: 24.99,
     },
 ];
 
@@ -117,6 +159,20 @@ function LoveRomancePage() {
     const activeImages = loveRomanceImages
         .filter((image) => image.isActive)
         .sort((a, b) => a.sortOrder - b.sortOrder);
+
+
+    const handleAddToCart = (image: CollectionImage) => {
+
+        /**
+         * Temporary cart action.
+         *
+         * The real cart integration will be connected later
+         * with the backend/cart system.
+         */
+
+        console.log("Add to cart:", image);
+
+    };
 
 
     return (
@@ -286,14 +342,15 @@ function LoveRomancePage() {
                                             event.key === "Enter" ||
                                             event.key === " "
                                         ) {
+                                            event.preventDefault();
                                             setSelectedImage(image);
                                         }
 
                                     }}
                                     aria-label={
                                         language === "es"
-                                            ? `Ver diseño ${image.sortOrder} en grande`
-                                            : `View design ${image.sortOrder} enlarged`
+                                            ? `Ver ${image.name} en grande`
+                                            : `View ${image.name} enlarged`
                                     }
                                 >
 
@@ -444,7 +501,7 @@ function LoveRomancePage() {
 
 
                 {/* ==================================================
-                    IMAGE LIGHTBOX
+                    PRODUCT LIGHTBOX
                    ================================================== */}
 
                 {selectedImage && (
@@ -455,8 +512,8 @@ function LoveRomancePage() {
                         aria-modal="true"
                         aria-label={
                             language === "es"
-                                ? "Vista ampliada del diseño"
-                                : "Enlarged design view"
+                                ? "Detalles del producto"
+                                : "Product details"
                         }
                         onClick={() =>
                             setSelectedImage(null)
@@ -471,8 +528,8 @@ function LoveRomancePage() {
                             }
                             aria-label={
                                 language === "es"
-                                    ? "Cerrar imagen"
-                                    : "Close image"
+                                    ? "Cerrar"
+                                    : "Close"
                             }
                         >
                             ×
@@ -486,11 +543,70 @@ function LoveRomancePage() {
                             }
                         >
 
-                            <img
-                                src={selectedImage.imageUrl}
-                                alt={selectedImage.alt}
-                                className="love-romance-lightbox__image"
-                            />
+                            <div className="love-romance-lightbox__visual">
+
+                                <img
+                                    src={selectedImage.imageUrl}
+                                    alt={selectedImage.alt}
+                                    className="love-romance-lightbox__image"
+                                />
+
+                            </div>
+
+
+                            <div className="love-romance-lightbox__details">
+
+                                <span className="love-romance-lightbox__eyebrow">
+                                    {language === "es"
+                                        ? "LOVE & ROMANCE"
+                                        : "LOVE & ROMANCE"}
+                                </span>
+
+                                <h2>
+                                    {selectedImage.name}
+                                </h2>
+
+                                <div className="love-romance-lightbox__ornament">
+
+                                    <span></span>
+
+                                    <b>♥</b>
+
+                                    <span></span>
+
+                                </div>
+
+                                <p>
+                                    {selectedImage.description}
+                                </p>
+
+                                <div className="love-romance-lightbox__price">
+
+                                    <span>
+                                        {language === "es"
+                                            ? "PRECIO"
+                                            : "PRICE"}
+                                    </span>
+
+                                    <strong>
+                                        ${selectedImage.price.toFixed(2)}
+                                    </strong>
+
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="love-romance-lightbox__cart-button"
+                                    onClick={() =>
+                                        handleAddToCart(selectedImage)
+                                    }
+                                >
+                                    {language === "es"
+                                        ? "AGREGAR AL CARRITO"
+                                        : "ADD TO CART"}
+                                </button>
+
+                            </div>
 
                         </div>
 
