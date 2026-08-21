@@ -861,49 +861,167 @@
 }
 
 
+/* ===============================================================
+   PREMIUM 3D CART BUTTON
+   =============================================================== */
+
 .love-romance-product__button {
 
-    min-height: 35px;
+    position: relative;
 
-    padding: 0 14px;
+    width: 44px;
+    height: 44px;
+
+    min-width: 44px;
+    min-height: 44px;
+
+    padding: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
 
     border:
-        1px solid rgba(216,166,60,.72);
+        1px solid rgba(238,201,105,.90);
 
-    border-radius: 999px;
+    border-radius: 50%;
 
     background:
-        rgba(216,166,60,.08);
 
-    color: #e7bd66;
+        radial-gradient(
+            circle at 30% 22%,
+            #fff4c4 0%,
+            #f1ce78 17%,
+            #d6a541 42%,
+            #a96f1e 68%,
+            #70450f 100%
+        );
 
-    font-size: 8px;
+    color: transparent;
 
-    font-weight: 800;
+    font-size: 0;
 
-    letter-spacing: 1px;
+    line-height: 1;
 
     cursor: pointer;
 
+    box-shadow:
+
+        inset 0 2px 2px rgba(255,255,255,.65),
+
+        inset 0 -4px 6px rgba(67,38,5,.52),
+
+        0 5px 12px rgba(0,0,0,.50),
+
+        0 0 14px rgba(216,166,60,.15);
+
     transition:
-        background .25s ease,
-        color .25s ease,
+        transform .25s ease,
         box-shadow .25s ease,
-        transform .25s ease;
+        filter .25s ease;
+
+}
+
+
+/*
+   Premium cart icon.
+   The original button text remains available to assistive
+   technologies while the visual button displays the cart.
+*/
+
+.love-romance-product__button::before {
+
+    content: "🛒";
+
+    display: block;
+
+    font-family:
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        sans-serif;
+
+    font-size: 20px;
+
+    line-height: 1;
+
+    transform:
+        translateY(-1px)
+        scale(1.03);
+
+    filter:
+
+        drop-shadow(
+            0 2px 1px rgba(0,0,0,.65)
+        );
+
+}
+
+
+/* Premium glass highlight */
+
+.love-romance-product__button::after {
+
+    content: "";
+
+    position: absolute;
+
+    top: 6px;
+    left: 9px;
+
+    width: 11px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.58);
+
+    filter: blur(1px);
+
+    pointer-events: none;
 
 }
 
 
 .love-romance-product__button:hover {
 
-    background: #d8a63c;
+    transform:
+        translateY(-3px)
+        scale(1.07);
 
-    color: #151008;
+    filter:
+        brightness(1.10);
 
     box-shadow:
-        0 0 20px rgba(216,166,60,.24);
 
-    transform: translateY(-1px);
+        inset 0 2px 2px rgba(255,255,255,.75),
+
+        inset 0 -4px 6px rgba(67,38,5,.45),
+
+        0 9px 20px rgba(0,0,0,.55),
+
+        0 0 28px rgba(216,166,60,.30);
+
+}
+
+
+.love-romance-product__button:active {
+
+    transform:
+        translateY(0)
+        scale(.93);
+
+}
+
+
+.love-romance-product__button:focus-visible {
+
+    outline:
+        2px solid #f2d17b;
+
+    outline-offset:
+        4px;
 
 }
 
@@ -1820,13 +1938,29 @@
     }
 
 
+    /*
+       MOBILE CART:
+       Keep the same compact premium button.
+    */
+
     .love-romance-product__button {
 
-        min-height: 31px;
+        width: 40px;
 
-        padding: 0 9px;
+        height: 40px;
 
-        font-size: 6.5px;
+        min-width: 40px;
+
+        min-height: 40px;
+
+        padding: 0;
+
+    }
+
+
+    .love-romance-product__button::before {
+
+        font-size: 18px;
 
     }
 
@@ -2037,9 +2171,22 @@
 
     .love-romance-product__button {
 
-        padding: 0 7px;
+        width: 38px;
 
-        font-size: 6px;
+        height: 38px;
+
+        min-width: 38px;
+
+        min-height: 38px;
+
+        padding: 0;
+
+    }
+
+
+    .love-romance-product__button::before {
+
+        font-size: 17px;
 
     }
 
@@ -2112,7 +2259,20 @@
 
     .love-romance-product__button {
 
-        font-size: 5.5px;
+        width: 36px;
+
+        height: 36px;
+
+        min-width: 36px;
+
+        min-height: 36px;
+
+    }
+
+
+    .love-romance-product__button::before {
+
+        font-size: 16px;
 
     }
 
@@ -2198,6 +2358,7 @@
     }
 
 }
+
 
 /* ===============================================================
    PRODUCT LIGHTBOX
