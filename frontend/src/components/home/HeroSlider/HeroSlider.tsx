@@ -145,31 +145,60 @@ function HeroSlider() {
                         {content.subtitle}
                     </p>
 
-                    <div className="hero-slider__buttons">
+                    <div className="hero-slider__content">
 
-                        <button
-                            type="button"
-                            className="hero-slider__primary"
-                            onClick={() =>
-                                window.location.href = "/customize"
-                            }
-                        >
-                            {content.primaryButton}
-                        </button>
+    <div
+        key={`text-${slide.id}`}
+        className="hero-slider__text"
+    >
 
-                        <button
-                            type="button"
-                            className="hero-slider__secondary"
-                            onClick={() =>
-                                window.location.href = "/products"
-                            }
-                        >
-                            {content.secondaryButton}
-                        </button>
+        <h1>
+            {content.title}
+        </h1>
 
-                    </div>
+        <p>
+            {content.subtitle}
+        </p>
 
-                </div>
+    </div>
+
+    <div
+        key={`image-${slide.id}`}
+        className="hero-slider__image"
+    >
+
+        <img
+            src={slide.image}
+            alt={content.title.replace("\n", " ")}
+        />
+
+    </div>
+
+    <div className="hero-slider__buttons">
+
+        <button
+            type="button"
+            className="hero-slider__primary"
+            onClick={() =>
+                window.location.href = "/customize"
+            }
+        >
+            {content.primaryButton}
+        </button>
+
+        <button
+            type="button"
+            className="hero-slider__secondary"
+            onClick={() =>
+                window.location.href = "/products"
+            }
+        >
+            {content.secondaryButton}
+        </button>
+
+    </div>
+
+</div>
 
                 <div
                     key={`image-${slide.id}`}

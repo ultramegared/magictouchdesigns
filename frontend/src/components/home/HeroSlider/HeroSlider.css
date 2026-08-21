@@ -175,7 +175,7 @@
 
     right: -50px;
 
-    bottom: 145px;
+    bottom: 110px;
 
     width: 48%;
 
@@ -307,22 +307,13 @@
    ================================================================ */
 
 .hero-slider__text {
+    grid-column: 1;
+    grid-row: 1;
+}
 
-    position: relative;
-
-    z-index: 20;
-
-    width: 100%;
-
-    max-width: 600px;
-
-    justify-self: start;
-
-    animation:
-        heroTextIn
-        .8s
-        cubic-bezier(.22, 1, .36, 1);
-
+.hero-slider__buttons {
+    grid-column: 1;
+    grid-row: 2;
 }
 
 
@@ -504,6 +495,8 @@
     gap: 18px;
 
     flex-wrap: wrap;
+
+    margin-top: 0;
 
 }
 
@@ -1053,7 +1046,7 @@
         flex-direction:column;
 
         justify-content:flex-start;
-
+            order: 0;
         padding:
             48px
             24px
