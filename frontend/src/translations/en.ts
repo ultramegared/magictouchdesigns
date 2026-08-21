@@ -605,6 +605,64 @@ community: {
     },
   },
   
+    privacy: {
+    hero: {
+      eyebrow: "YOUR PRIVACY MATTERS",
+      title: "Privacy",
+      titleAccent: "Policy",
+      intro:
+        "Learn how Magic Touch Designs handles information related to your visits, orders, and interactions with our website.",
+    },
+
+    information: {
+      title: "Information We Collect",
+      description:
+        "When you interact with Magic Touch Designs, information may be provided when you place an order, contact us, create an account, or use features available through our website.",
+    },
+
+    usage: {
+      title: "How We Use Information",
+      description:
+        "Information may be used to process orders, provide customer support, communicate about your requests, and improve the experience provided through our website.",
+    },
+
+    ordersPayments: {
+      title: "Orders & Payments",
+      description:
+        "Information associated with an order may be used to process and fulfill that order, provide order updates, and assist with customer service.",
+    },
+
+    communications: {
+      title: "Communications",
+      description:
+        "If you contact us or choose to receive communications from us, the information you provide may be used to respond to your request or provide the communication you requested.",
+    },
+
+    websiteExperience: {
+      title: "Website Experience",
+      description:
+        "We may use information related to website activity to help maintain, improve, and personalize the experience of our website.",
+    },
+
+    security: {
+      title: "Information Security",
+      description:
+        "We take reasonable measures to help protect information associated with our website and customer interactions. However, no method of transmission or storage can be guaranteed to be completely secure.",
+    },
+
+    thirdParty: {
+      title: "Third-Party Services",
+      description:
+        "Certain website functions, payment processing, shipping, analytics, or other services may involve third-party providers. Their handling of information may be governed by their own privacy policies.",
+    },
+
+    questions: {
+      title: "Questions About Privacy",
+      description:
+        "If you have questions about privacy, information associated with your order, or how to contact us regarding your information, please reach out through our Contact page.",
+    },
+  },
+  
   
    about: {
     hero: {
