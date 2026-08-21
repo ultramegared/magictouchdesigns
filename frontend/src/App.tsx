@@ -44,11 +44,11 @@ function App() {
                     path="/login"
                     element={<LoginPage />}
                 />
-                
+
                 <Route
-    path="/forgot-password"
-    element={<ForgotPasswordPage />}
-/>
+                    path="/forgot-password"
+                    element={<ForgotPasswordPage />}
+                />
 
                 <Route
                     path="/register"
@@ -66,9 +66,14 @@ function App() {
                 />
 
                 <Route
-    path="/how-it-works"
-    element={<HowItWorksPage />}
-/>
+                    path="/customize"
+                    element={<CustomizePage />}
+                />
+
+                <Route
+                    path="/how-it-works"
+                    element={<HowItWorksPage />}
+                />
 
                 <Route
                     path="/contact"
@@ -79,11 +84,6 @@ function App() {
                     path="/about"
                     element={<AboutPage />}
                 />
-                
-                <Route
-    path="/how-it-works"
-    element={<HowItWorks />}
-/> 
 
                 <Route
                     path="/cart"
