@@ -12,11 +12,11 @@
 
 import "./LoveRomancePage.css";
 
-import Header from "../../components/layout/Header";
-import Footer from "../../components/home/Footer";
+import Header from "../../../../components/layout/Header";
+import Footer from "../../../../components/home/Footer";
 
-import { useLanguage } from "../../contexts/LanguageContext";
-import { translations } from "../../translations";
+import { useLanguage } from "../../../../contexts/LanguageContext";
+import { translations } from "../../../../translations";
 
 function LoveRomancePage() {
 
