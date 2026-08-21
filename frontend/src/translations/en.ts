@@ -29,13 +29,13 @@ export const en = {
     company: "Company",
     support: "Support",
   },
-  
+
   login: {
     eyebrow: "WELCOME BACK",
     title: "Sign in",
     description: "Access your Magic Touch Designs account.",
     username: "Username",
-usernamePlaceholder: "Enter your username",
+    usernamePlaceholder: "Enter your username",
     email: "Email",
     emailPlaceholder: "Enter your email",
     password: "Password",
@@ -46,93 +46,96 @@ usernamePlaceholder: "Enter your username",
     createAccount: "Create account",
     showPassword: "Show password",
     hidePassword: "Hide password",
-   },
-   
-   forgotPassword: {
+  },
+
+  forgotPassword: {
     eyebrow: "PASSWORD RECOVERY",
     title: "Forgot your password?",
-    description: "Enter the Gmail address associated with your account and we’ll send you a recovery link.",
+    description:
+      "Enter the Gmail address associated with your account and we’ll send you a recovery link.",
     email: "Gmail",
     emailPlaceholder: "Enter your Gmail address",
     sendLink: "SEND RECOVERY LINK",
-    successMessage: "If an account is associated with that Gmail address, a recovery link has been sent.",
+    successMessage:
+      "If an account is associated with that Gmail address, a recovery link has been sent.",
     backToLogin: "Back to login",
-},
-  
+  },
+
   products: {
     hero: {
-        title: "OUR PRODUCTS",
-        description: "Premium designs. Timeless quality. Made for you.",
+      title: "OUR PRODUCTS",
+      description: "Premium designs. Timeless quality. Made for you.",
     },
 
     filters: {
-        all: "ALL",
-        category: "CATEGORY",
-        style: "STYLE",
-        color: "COLOR",
-        size: "SIZE",
-        sortBy: "SORT BY:",
+      all: "ALL",
+      category: "CATEGORY",
+      style: "STYLE",
+      color: "COLOR",
+      size: "SIZE",
+      sortBy: "SORT BY:",
     },
 
     options: {
-        categories: {
-            mug: "Mug",
-            tumbler: "Tumbler",
-        },
+      categories: {
+        mug: "Mug",
+        tumbler: "Tumbler",
+      },
 
-        styles: {
-            classic: "Classic",
-            marble: "Marble",
-            premium: "Premium",
-        },
+      styles: {
+        classic: "Classic",
+        marble: "Marble",
+        premium: "Premium",
+      },
 
-        colors: {
-            black: "Black",
-            white: "White",
-            pink: "Pink",
-            gold: "Gold",
-        },
+      colors: {
+        black: "Black",
+        white: "White",
+        pink: "Pink",
+        gold: "Gold",
+      },
     },
 
     sort: {
-        newest: "NEWEST",
-        priceLow: "PRICE LOW",
-        priceHigh: "PRICE HIGH",
-        rating: "RATING",
+      newest: "NEWEST",
+      priceLow: "PRICE LOW",
+      priceHigh: "PRICE HIGH",
+      rating: "RATING",
     },
 
     actions: {
-        addToCart: "ADD TO CART",
-        addFavorite: "Add to favorites",
+      addToCart: "ADD TO CART",
+      addFavorite: "Add to favorites",
     },
 
     benefits: {
-        fastShipping: {
-            title: "FAST SHIPPING",
-            description: "Quick & safe delivery",
-        },
+      fastShipping: {
+        title: "FAST SHIPPING",
+        description: "Quick & safe delivery",
+      },
 
-        securePayment: {
-            title: "SECURE PAYMENT",
-            description: "100% secure checkout",
-        },
+      securePayment: {
+        title: "SECURE PAYMENT",
+        description: "100% secure checkout",
+      },
 
-        premiumQuality: {
-            title: "PREMIUM QUALITY",
-            description: "Top quality products",
-        },
+      premiumQuality: {
+        title: "PREMIUM QUALITY",
+        description: "Top quality products",
+      },
 
-        customerSupport: {
-            title: "CUSTOMER SUPPORT",
-            description: "We're here to help",
-        },
+      customerSupport: {
+        title: "CUSTOMER SUPPORT",
+        description: "We're here to help",
+      },
     },
-},
+  },
 
-   register: {
+  register: {
     eyebrow: "JOIN US",
     title: "Create your account",
-    description: "Create an account and start your Magic Touch Designs experience.",
+    description:
+      "Create an account and start your Magic Touch Designs experience.",
 
     username: "Username",
     usernamePlaceholder: "Enter your username",
@@ -157,7 +160,7 @@ usernamePlaceholder: "Enter your username",
     signIn: "Sign in",
     showPassword: "Show password",
     hidePassword: "Hide password",
-},
+  },
 
   customerGallery: {
     eyebrow: "CUSTOMER GALLERY",
@@ -274,61 +277,58 @@ usernamePlaceholder: "Enter your username",
     },
 
     howItWorks: {
-  eyebrow: "HOW IT WORKS",
+      eyebrow: "HOW IT WORKS",
 
-  title: "Creating your",
-  titleAccent: "perfect mug",
-  descriptionBefore: "From your idea to your door in",
-  descriptionAfter: "simple steps",
+      title: "Creating your",
+      titleAccent: "perfect mug",
+      descriptionBefore: "From your idea to your door in",
+      descriptionAfter: "simple steps",
 
-  steps: {
-    chooseModel: {
-      title: "CHOOSE A MODEL",
-      description: "Pick your favorite mug model.",
+      steps: {
+        chooseModel: {
+          title: "CHOOSE A MODEL",
+          description: "Pick your favorite mug model.",
+        },
+
+        uploadPhoto: {
+          title: "UPLOAD YOUR PHOTO",
+          description: "Add your photo or artwork.",
+        },
+
+        customize: {
+          title: "CUSTOMIZE",
+          description: "Make it yours with text and filters.",
+        },
+
+        wePrint: {
+          title: "WE PRINT",
+          description: "We print your mug with care.",
+        },
+
+        delivered: {
+          title: "DELIVERED",
+          description: "Fast shipping to your door.",
+        },
+      },
     },
 
-    uploadPhoto: {
-      title: "UPLOAD YOUR PHOTO",
-      description: "Add your photo or artwork.",
-    },
+    community: {
+      eyebrow: "JOIN OUR COMMUNITY",
 
-    customize: {
-      title: "CUSTOMIZE",
-      description: "Make it yours with text and filters.",
-    },
+      title: "Get exclusive updates",
 
-    wePrint: {
-      title: "WE PRINT",
-      description: "We print your mug with care.",
-    },
-
-    delivered: {
-      title: "DELIVERED",
-      description: "Fast shipping to your door.",
-    },
-  },
-},
-
-community: {
-
-    eyebrow: "JOIN OUR COMMUNITY",
-
-    title: "Get exclusive updates",
-
-    description:
+      description:
         "Be the first to discover new designs, special offers, and inspiration from Magic Touch Designs.",
 
-    placeholder: "Enter your email address",
+      placeholder: "Enter your email address",
 
-    emailLabel: "Email address",
+      emailLabel: "Email address",
 
-    subscribe: "SUBSCRIBE",
+      subscribe: "SUBSCRIBE",
 
-    privacy:
+      privacy:
         "No spam. Just exclusive offers, new arrivals, and inspiration.",
-
-},
-
+    },
   },
 
   collections: {
@@ -390,58 +390,89 @@ community: {
         description: "Personalized designs created just for you.",
       },
 
-            securePayment: {
+      securePayment: {
         title: "SECURE PAYMENT",
         description: "Secure payments and protection of your data.",
       },
     },
   },
-  
+
   loveRomance: {
-  hero: {
-    eyebrow: "COLECCIÓN LOVE & ROMANCE",
-    title: "HECHO PARA",
-    titleAccent: "EL AMOR",
-    description:
-      "Diseños personalizados creados para celebrar el amor, la conexión y esos momentos que nunca quieres olvidar.",
-    button: "EXPLORAR LA COLECCIÓN",
+    hero: {
+      eyebrow: "LOVE & ROMANCE COLLECTION",
+      title: "LOVE",
+      titleAccent: "AND ROMANCE",
+      description:
+        "Designs created to celebrate love, special details, and those moments that deserve to become memories forever.",
+      button: "EXPLORE DESIGNS",
+    },
+
+    intro: {
+      eyebrow: "MADE FOR SPECIAL MOMENTS",
+      title: "GIFTS THAT",
+      titleAccent: "SPEAK FOR YOU",
+      description:
+        "Discover personalized designs created for couples, anniversaries, special dates, and gifts that carry a unique meaning.",
+    },
+
+    products: {
+      eyebrow: "LOVE & ROMANCE",
+      title: "DESIGNS FOR",
+      titleAccent: "LOVERS",
+      viewProduct: "VIEW PRODUCT",
+      customize: "CUSTOMIZE",
+      addToCart: "ADD TO CART",
+    },
+
+    featured: {
+      eyebrow: "FEATURED",
+      title: "CREATED FOR",
+      titleAccent: "YOU BOTH",
+      description:
+        "Make a special moment even more memorable with a design created especially for the two of you.",
+      button: "CREATE MY DESIGN",
+    },
+
+    occasions: {
+      eyebrow: "CELEBRATE THE MOMENT",
+      title: "PERFECT FOR",
+      titleAccent: "EVERY OCCASION",
+
+      birthday: {
+        title: "BIRTHDAY",
+        description:
+          "A personalized gift to celebrate the person you love.",
+      },
+
+      anniversary: {
+        title: "ANNIVERSARY",
+        description:
+          "Celebrate the story you have built together.",
+      },
+
+      wedding: {
+        title: "WEDDING",
+        description:
+          "Personalized memories for one of the most important days.",
+      },
+
+      justBecause: {
+        title: "JUST BECAUSE",
+        description:
+          "You don't need a special date to show your love.",
+      },
+    },
+
+    cta: {
+      eyebrow: "MAKE IT PERSONAL",
+      title: "YOUR STORY.",
+      titleAccent: "YOUR DESIGN.",
+      description:
+        "Turn a photo, name, date, or special message into a unique gift.",
+      button: "START CUSTOMIZING",
+    },
   },
 
-  intro: {
-    eyebrow: "PARA ALGUIEN ESPECIAL",
-    title: "REGALOS CON",
-    titleAccent: "SIGNIFICADO",
-    description:
-      "Crea algo personal para esa persona que significa tanto para ti. Desde gestos románticos hasta recuerdos inolvidables, cada diseño está creado para sentirse verdaderamente especial.",
-  },
-
-  products: {
-    eyebrow: "FAVORITOS DEL AMOR",
-    title: "DISEÑOS HECHOS",
-    titleAccent: "PARA DOS",
-    viewProduct: "VER PRODUCTO",
-  },
-
-  featured: {
-    eyebrow: "EDICIÓN AMOR",
-    title: "UN TOQUE PERSONAL",
-    titleAccent: "QUE PERDURA",
-    description:
-      "Convierte tu foto, mensaje o recuerdo favorito en algo hermoso que puedas conservar y compartir.",
-    button: "CREAR TU REGALO",
-  },
-
-  cta: {
-    eyebrow: "HAZLO PERSONAL",
-    title: "CREA ALGO",
-    titleAccent: "SIGNIFICATIVO",
-    description:
-      "Elige un diseño, agrega tu toque personal y crea un regalo hecho especialmente para alguien que amas.",
-    button: "COMENZAR A PERSONALIZAR",
-  },
-},
-
- 
   contact: {
     eyebrow: "GET IN TOUCH",
     title: "Contact Us",
@@ -539,8 +570,8 @@ community: {
         "Something went wrong. Please try again.",
     },
   },
- 
-   shippingReturns: {
+
+  shippingReturns: {
     hero: {
       eyebrow: "SHIPPING & RETURNS",
       title: "Shipping &",
@@ -573,8 +604,8 @@ community: {
         "If you have questions about an order, shipping, or a return, please contact us and we will be happy to help.",
     },
   },
-  
-    faq: {
+
+  faq: {
     hero: {
       eyebrow: "FREQUENTLY ASKED QUESTIONS",
       title: "Frequently Asked",
@@ -621,9 +652,8 @@ community: {
       },
     },
   },
- 
- 
-   trackOrder: {
+
+  trackOrder: {
     hero: {
       eyebrow: "ORDER SUPPORT",
       title: "Track Your",
@@ -649,8 +679,8 @@ community: {
         "If you have questions about your order, shipping, or tracking information, please contact us and we will be happy to help.",
     },
   },
-  
-    privacy: {
+
+  privacy: {
     hero: {
       eyebrow: "YOUR PRIVACY MATTERS",
       title: "Privacy",
@@ -707,9 +737,8 @@ community: {
         "If you have questions about privacy, information associated with your order, or how to contact us regarding your information, please reach out through our Contact page.",
     },
   },
-  
-  
-    termsOfService: {
+
+  termsOfService: {
     hero: {
       eyebrow: "TERMS & CONDITIONS",
       title: "Terms of",
@@ -778,9 +807,8 @@ community: {
         "If you have questions regarding these Terms of Service, please contact Magic Touch Designs through our Contact page.",
     },
   },
-  
-  
-   about: {
+
+  about: {
     hero: {
       eyebrow: "ABOUT US",
       title: "MAGIC TOUCH",
@@ -899,7 +927,7 @@ community: {
         "Follow us on social media, support our small business, and be part of the Magic Touch Designs community.",
     },
   },
- 
+
   footer: {
     allModels: "All Models",
     collections: "Collections",
