@@ -139,6 +139,10 @@
 }
 
 
+/* ===============================================================
+   HERO CONTENT
+   =============================================================== */
+
 .love-romance-hero__content {
 
     position: relative;
@@ -149,6 +153,57 @@
     margin: 0 auto;
 
     padding: 80px 0;
+
+}
+
+
+/* ===============================================================
+   BACK TO COLLECTIONS
+   =============================================================== */
+
+.love-romance-back-link {
+
+    display: inline-flex;
+    align-items: center;
+
+    width: fit-content;
+
+    margin-bottom: 30px;
+
+    color: rgba(255,255,255,.72);
+
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: 1.7px;
+
+    text-decoration: none;
+    text-transform: uppercase;
+
+    transition:
+        color .3s ease,
+        transform .3s ease,
+        opacity .3s ease;
+
+}
+
+
+.love-romance-back-link:hover {
+
+    color: #e4bb68;
+
+    transform: translateX(-3px);
+
+}
+
+
+.love-romance-back-link:focus-visible {
+
+    outline: 1px solid #d8a63c;
+
+    outline-offset: 7px;
+
+    border-radius: 4px;
 
 }
 
@@ -696,6 +751,17 @@
 
         #171512;
 
+    cursor: zoom-in;
+
+}
+
+
+.love-romance-product__image:focus-visible {
+
+    outline: 1px solid #e5bd68;
+
+    outline-offset: -3px;
+
 }
 
 
@@ -822,7 +888,8 @@
     transition:
         background .25s ease,
         color .25s ease,
-        box-shadow .25s ease;
+        box-shadow .25s ease,
+        transform .25s ease;
 
 }
 
@@ -835,6 +902,204 @@
 
     box-shadow:
         0 0 20px rgba(216,166,60,.24);
+
+    transform: translateY(-1px);
+
+}
+
+
+/* ===============================================================
+   IMAGE LIGHTBOX
+   =============================================================== */
+
+.love-romance-lightbox {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px;
+
+    background:
+        rgba(3,3,3,.92);
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+
+    animation:
+        loveRomanceLightboxIn .28s ease forwards;
+
+}
+
+
+.love-romance-lightbox__content {
+
+    position: relative;
+
+    max-width: min(1100px, 92vw);
+    max-height: 90vh;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px;
+
+    border:
+        1px solid rgba(216,166,60,.45);
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(35,31,25,.95),
+            rgba(8,8,8,.98)
+        );
+
+    box-shadow:
+
+        0 35px 100px rgba(0,0,0,.70),
+
+        0 0 45px rgba(216,166,60,.10),
+
+        inset 0 1px 0 rgba(255,255,255,.08);
+
+    animation:
+        loveRomanceLightboxImageIn .35s ease forwards;
+
+}
+
+
+.love-romance-lightbox__image {
+
+    display: block;
+
+    width: auto;
+    height: auto;
+
+    max-width: calc(92vw - 16px);
+    max-height: calc(90vh - 16px);
+
+    object-fit: contain;
+
+    border-radius: 10px;
+
+}
+
+
+.love-romance-lightbox__close {
+
+    position: fixed;
+
+    top: 24px;
+    right: 28px;
+
+    z-index: 10001;
+
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(216,166,60,.55);
+
+    border-radius: 50%;
+
+    background:
+        rgba(12,12,12,.82);
+
+    color: #f1d080;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size: 30px;
+    font-weight: 300;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.45);
+
+    transition:
+        background .25s ease,
+        color .25s ease,
+        transform .25s ease,
+        border-color .25s ease;
+
+}
+
+
+.love-romance-lightbox__close:hover {
+
+    transform: rotate(90deg);
+
+    background:
+        #d8a63c;
+
+    border-color:
+        #f0cc78;
+
+    color:
+        #151008;
+
+}
+
+
+.love-romance-lightbox__close:focus-visible {
+
+    outline:
+        1px solid #f0cc78;
+
+    outline-offset:
+        4px;
+
+}
+
+
+@keyframes loveRomanceLightboxIn {
+
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+}
+
+
+@keyframes loveRomanceLightboxImageIn {
+
+    from {
+        opacity: 0;
+        transform: scale(.94);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 
 }
 
@@ -1407,6 +1672,19 @@
     }
 
 
+    .love-romance-back-link {
+
+        margin-bottom: 24px;
+
+        font-size: 8px;
+
+        letter-spacing: 1.3px;
+
+        color: rgba(255,255,255,.68);
+
+    }
+
+
     .love-romance-hero__eyebrow {
 
         font-size: 9px;
@@ -1504,6 +1782,11 @@
     }
 
 
+    /*
+       MOBILE:
+       2 columns = 8 images displayed as 4 rows.
+    */
+
     .love-romance-products__grid {
 
         grid-template-columns:
@@ -1544,6 +1827,52 @@
         padding: 0 9px;
 
         font-size: 6.5px;
+
+    }
+
+
+    /* ===========================================================
+       LIGHTBOX MOBILE
+       =========================================================== */
+
+    .love-romance-lightbox {
+
+        padding: 18px;
+
+    }
+
+
+    .love-romance-lightbox__content {
+
+        max-width: 94vw;
+        max-height: 82vh;
+
+        padding: 5px;
+
+        border-radius: 13px;
+
+    }
+
+
+    .love-romance-lightbox__image {
+
+        max-width: calc(94vw - 10px);
+        max-height: calc(82vh - 10px);
+
+        border-radius: 8px;
+
+    }
+
+
+    .love-romance-lightbox__close {
+
+        top: 16px;
+        right: 16px;
+
+        width: 40px;
+        height: 40px;
+
+        font-size: 27px;
 
     }
 
@@ -1801,6 +2130,44 @@
 
     }
 
+
+    .love-romance-lightbox {
+
+        padding: 12px;
+
+    }
+
+
+    .love-romance-lightbox__content {
+
+        max-width: 96vw;
+
+        max-height: 78vh;
+
+    }
+
+
+    .love-romance-lightbox__image {
+
+        max-width: calc(96vw - 10px);
+
+        max-height: calc(78vh - 10px);
+
+    }
+
+
+    .love-romance-lightbox__close {
+
+        top: 12px;
+        right: 12px;
+
+        width: 38px;
+        height: 38px;
+
+        font-size: 25px;
+
+    }
+
 }
 
 
@@ -1817,6 +2184,14 @@
         scroll-behavior: auto !important;
 
         transition: none !important;
+
+        animation: none !important;
+
+    }
+
+
+    .love-romance-lightbox,
+    .love-romance-lightbox__content {
 
         animation: none !important;
 
