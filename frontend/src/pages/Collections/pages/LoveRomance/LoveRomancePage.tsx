@@ -12,6 +12,7 @@
 
 import "./LoveRomancePage.css";
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import Header from "../../../../components/layout/Header";
@@ -103,15 +104,20 @@ const loveRomanceImages: CollectionImage[] = [
     },
 ];
 
+
 function LoveRomancePage() {
 
     const { language } = useLanguage();
 
     const t = translations[language].loveRomance;
 
+    const [selectedImage, setSelectedImage] =
+        useState<CollectionImage | null>(null);
+
     const activeImages = loveRomanceImages
         .filter((image) => image.isActive)
         .sort((a, b) => a.sortOrder - b.sortOrder);
+
 
     return (
         <>
@@ -267,7 +273,29 @@ function LoveRomancePage() {
                                 key={image.id}
                             >
 
-                                <div className="love-romance-product__image">
+                                <div
+                                    className="love-romance-product__image"
+                                    onClick={() =>
+                                        setSelectedImage(image)
+                                    }
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(event) => {
+
+                                        if (
+                                            event.key === "Enter" ||
+                                            event.key === " "
+                                        ) {
+                                            setSelectedImage(image);
+                                        }
+
+                                    }}
+                                    aria-label={
+                                        language === "es"
+                                            ? `Ver diseño ${image.sortOrder} en grande`
+                                            : `View design ${image.sortOrder} enlarged`
+                                    }
+                                >
 
                                     <img
                                         src={image.imageUrl}
@@ -278,6 +306,7 @@ function LoveRomancePage() {
 
                                 </div>
 
+
                                 <div className="love-romance-product__body">
 
                                     <span className="love-romance-product__number">
@@ -287,6 +316,9 @@ function LoveRomancePage() {
                                     <button
                                         type="button"
                                         className="love-romance-product__button"
+                                        onClick={() =>
+                                            setSelectedImage(image)
+                                        }
                                     >
                                         {t.products.viewProduct}
                                     </button>
@@ -409,6 +441,62 @@ function LoveRomancePage() {
                     </div>
 
                 </section>
+
+
+                {/* ==================================================
+                    IMAGE LIGHTBOX
+                   ================================================== */}
+
+                {selectedImage && (
+
+                    <div
+                        className="love-romance-lightbox"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={
+                            language === "es"
+                                ? "Vista ampliada del diseño"
+                                : "Enlarged design view"
+                        }
+                        onClick={() =>
+                            setSelectedImage(null)
+                        }
+                    >
+
+                        <button
+                            type="button"
+                            className="love-romance-lightbox__close"
+                            onClick={() =>
+                                setSelectedImage(null)
+                            }
+                            aria-label={
+                                language === "es"
+                                    ? "Cerrar imagen"
+                                    : "Close image"
+                            }
+                        >
+                            ×
+                        </button>
+
+
+                        <div
+                            className="love-romance-lightbox__content"
+                            onClick={(event) =>
+                                event.stopPropagation()
+                            }
+                        >
+
+                            <img
+                                src={selectedImage.imageUrl}
+                                alt={selectedImage.alt}
+                                className="love-romance-lightbox__image"
+                            />
+
+                        </div>
+
+                    </div>
+
+                )}
 
             </main>
 
