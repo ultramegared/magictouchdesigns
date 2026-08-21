@@ -1,5 +1,4 @@
 /**
- *
  * ===============================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
@@ -8,11 +7,11 @@
  * Language: English
  * Description:
  * English translation dictionary.
- *
  * ===============================================================
  */
 
 export const en = {
+
   common: {
     language: "Language",
     english: "English",
@@ -173,6 +172,7 @@ export const en = {
   home: {
     hero: {
       eyebrow: "CUSTOM MUGS MADE WITH LOVE",
+
       previousSlide: "Previous slide",
       nextSlide: "Next slide",
       goToSlide: "Go to slide",
@@ -214,13 +214,16 @@ export const en = {
       eyebrow: "WHY CHOOSE US?",
       title: "MAGIC TOUCH",
       titleAccent: "DESIGNS",
+
       introBefore: "We don’t just print mugs,",
       introAccent: "we create memories",
       introAfter: "that last forever.",
+
       materials: "PREMIUM MATERIALS",
       printing: "EXPERT PRINTING",
       quality: "QUALITY CHECKED",
       packaging: "CAREFUL PACKAGING",
+
       learnMore: "LEARN MORE ABOUT US",
 
       benefits: {
@@ -400,25 +403,33 @@ export const en = {
   loveRomance: {
     hero: {
       eyebrow: "LOVE & ROMANCE COLLECTION",
+
       title: "LOVE",
       titleAccent: "AND ROMANCE",
+
       description:
         "Designs created to celebrate love, special details, and those moments that deserve to become memories forever.",
-      button: "EXPLORE DESIGNS",
+
+      primaryButton: "EXPLORE DESIGNS",
+      secondaryButton: "CUSTOMIZE NOW",
     },
 
     intro: {
       eyebrow: "MADE FOR SPECIAL MOMENTS",
+
       title: "GIFTS THAT",
       titleAccent: "SPEAK FOR YOU",
+
       description:
         "Discover personalized designs created for couples, anniversaries, special dates, and gifts that carry a unique meaning.",
     },
 
     products: {
       eyebrow: "LOVE & ROMANCE",
+
       title: "DESIGNS FOR",
       titleAccent: "LOVERS",
+
       viewProduct: "VIEW PRODUCT",
       customize: "CUSTOMIZE",
       addToCart: "ADD TO CART",
@@ -426,15 +437,19 @@ export const en = {
 
     featured: {
       eyebrow: "FEATURED",
+
       title: "CREATED FOR",
       titleAccent: "YOU BOTH",
+
       description:
         "Make a special moment even more memorable with a design created especially for the two of you.",
+
       button: "CREATE MY DESIGN",
     },
 
     occasions: {
       eyebrow: "CELEBRATE THE MOMENT",
+
       title: "PERFECT FOR",
       titleAccent: "EVERY OCCASION",
 
@@ -465,10 +480,13 @@ export const en = {
 
     cta: {
       eyebrow: "MAKE IT PERSONAL",
+
       title: "YOUR STORY.",
       titleAccent: "YOUR DESIGN.",
+
       description:
         "Turn a photo, name, date, or special message into a unique gift.",
+
       button: "START CUSTOMIZING",
     },
   },
@@ -476,12 +494,14 @@ export const en = {
   contact: {
     eyebrow: "GET IN TOUCH",
     title: "Contact Us",
+
     intro:
       "Need help creating your mug? Send us your idea, image or message and we'll help bring your design to life.",
 
     customRequest: {
       label: "CUSTOM MUG REQUEST",
       title: "Let Us Create Your Mug",
+
       description:
         "If you prefer, send us your image and design details and our team can prepare your personalized mug for you.",
 
@@ -497,10 +517,12 @@ export const en = {
 
       imageError:
         "Please upload a JPG, PNG or WEBP image.",
+
       imageSizeError:
         "The image must be smaller than 10 MB.",
 
       textForMug: "Text For Your Mug",
+
       textPlaceholder:
         "Tell us exactly what text you would like on your mug...",
 
@@ -521,6 +543,7 @@ export const en = {
       quantity: "Quantity",
 
       additionalDetails: "Additional Details",
+
       detailsPlaceholder:
         "Tell us anything else we should know about your design...",
 
@@ -540,11 +563,14 @@ export const en = {
     support: {
       label: "NEED HELP?",
       title: "Contact Support",
+
       description:
         "Have an issue with an order, a design, payment or anything else? Send us a message and our team will help you.",
 
       email: "Email",
+
       customerSupport: "Customer Support",
+
       customerSupportDescription:
         "We're here to help with your order.",
 
@@ -576,30 +602,35 @@ export const en = {
       eyebrow: "SHIPPING & RETURNS",
       title: "Shipping &",
       titleAccent: "Returns",
+
       intro:
         "Everything you need to know about shipping, delivery, returns, and your order.",
     },
 
     shipping: {
       title: "Shipping",
+
       description:
         "We carefully prepare every order before it is shipped. Shipping times may vary depending on the product, customization, destination, and order volume.",
     },
 
     processing: {
       title: "Processing & Delivery",
+
       description:
         "Once your order has been processed and shipped, you will receive the available tracking information for your order.",
     },
 
     returns: {
       title: "Returns",
+
       description:
         "Because many of our products are personalized or customized, return eligibility may vary depending on the product and the reason for the return.",
     },
 
     help: {
       title: "Need Help?",
+
       description:
         "If you have questions about an order, shipping, or a return, please contact us and we will be happy to help.",
     },
@@ -610,6 +641,7 @@ export const en = {
       eyebrow: "FREQUENTLY ASKED QUESTIONS",
       title: "Frequently Asked",
       titleAccent: "Questions",
+
       intro:
         "Find answers to the most common questions about our products, orders, customization, shipping, and returns.",
     },
@@ -658,23 +690,29 @@ export const en = {
       eyebrow: "ORDER SUPPORT",
       title: "Track Your",
       titleAccent: "Order",
+
       intro:
         "Enter your order information to check the available status and tracking details for your order.",
     },
 
     tracking: {
       title: "Tracking Information",
+
       description:
         "Once your order has been processed and shipped, available tracking information will be provided for your order.",
+
       orderNumberLabel: "ORDER NUMBER",
       orderNumberPlaceholder: "Enter your order number",
+
       emailLabel: "EMAIL ADDRESS",
       emailPlaceholder: "Enter your email address",
+
       button: "TRACK ORDER",
     },
 
     help: {
       title: "Need Help?",
+
       description:
         "If you have questions about your order, shipping, or tracking information, please contact us and we will be happy to help.",
     },
@@ -685,54 +723,63 @@ export const en = {
       eyebrow: "YOUR PRIVACY MATTERS",
       title: "Privacy",
       titleAccent: "Policy",
+
       intro:
         "Learn how Magic Touch Designs handles information related to your visits, orders, and interactions with our website.",
     },
 
     information: {
       title: "Information We Collect",
+
       description:
         "When you interact with Magic Touch Designs, information may be provided when you place an order, contact us, create an account, or use features available through our website.",
     },
 
     usage: {
       title: "How We Use Information",
+
       description:
         "Information may be used to process orders, provide customer support, communicate about your requests, and improve the experience provided through our website.",
     },
 
     ordersPayments: {
       title: "Orders & Payments",
+
       description:
         "Information associated with an order may be used to process and fulfill that order, provide order updates, and assist with customer service.",
     },
 
     communications: {
       title: "Communications",
+
       description:
         "If you contact us or choose to receive communications from us, the information you provide may be used to respond to your request or provide the communication you requested.",
     },
 
     websiteExperience: {
       title: "Website Experience",
+
       description:
         "We may use information related to website activity to help maintain, improve, and personalize the experience of our website.",
     },
 
     security: {
       title: "Information Security",
+
       description:
         "We take reasonable measures to help protect information associated with our website and customer interactions. However, no method of transmission or storage can be guaranteed to be completely secure.",
     },
 
     thirdParty: {
       title: "Third-Party Services",
+
       description:
         "Certain website functions, payment processing, shipping, analytics, or other services may involve third-party providers. Their handling of information may be governed by their own privacy policies.",
     },
 
     questions: {
       title: "Questions About Privacy",
+
       description:
         "If you have questions about privacy, information associated with your order, or how to contact us regarding your information, please reach out through our Contact page.",
     },
@@ -743,66 +790,77 @@ export const en = {
       eyebrow: "TERMS & CONDITIONS",
       title: "Terms of",
       titleAccent: "Service",
+
       intro:
         "Please review the terms and conditions that apply when using the Magic Touch Designs website and purchasing our products.",
     },
 
     acceptance: {
       title: "Acceptance of Terms",
+
       description:
         "By accessing or using the Magic Touch Designs website, you acknowledge that you have read, understood, and agree to be bound by these terms and conditions.",
     },
 
     website: {
       title: "Use of Our Website",
+
       description:
         "You agree to use this website only for lawful purposes and in a manner that does not interfere with the operation of the website or the experience of other users.",
     },
 
     products: {
       title: "Products & Custom Orders",
+
       description:
         "Magic Touch Designs offers products that may include personalized or customized designs. Customers are responsible for providing accurate information and reviewing submitted customization details before completing an order.",
     },
 
     ordersPayment: {
       title: "Orders & Payment",
+
       description:
         "Orders are subject to availability, acceptance, and successful payment processing. We reserve the right to review, limit, or cancel an order when necessary.",
     },
 
     pricing: {
       title: "Pricing & Product Information",
+
       description:
         "We make reasonable efforts to keep product descriptions, images, prices, and other information accurate. Information may be updated or corrected when necessary.",
     },
 
     shipping: {
       title: "Shipping & Delivery",
+
       description:
         "Shipping times and delivery estimates may vary depending on the destination, carrier, order processing, and other circumstances. Additional information is available on our Shipping & Returns page.",
     },
 
     intellectualProperty: {
       title: "Intellectual Property",
+
       description:
         "Website content, branding, graphics, photographs, designs, logos, text, and other materials belonging to Magic Touch Designs may not be copied, reproduced, distributed, or used without appropriate authorization.",
     },
 
     liability: {
       title: "Limitation of Liability",
+
       description:
         "To the extent permitted by applicable law, Magic Touch Designs is not responsible for losses or damages resulting from the use or inability to use the website or from circumstances beyond our reasonable control.",
     },
 
     changes: {
       title: "Changes to These Terms",
+
       description:
         "These terms may be updated from time to time. Any changes will be reflected on this page, and continued use of the website after changes are posted constitutes acceptance of the updated terms.",
     },
 
     contact: {
       title: "Contact Us",
+
       description:
         "If you have questions regarding these Terms of Service, please contact Magic Touch Designs through our Contact page.",
     },
@@ -813,6 +871,7 @@ export const en = {
       eyebrow: "ABOUT US",
       title: "MAGIC TOUCH",
       titleAccent: "DESIGNS",
+
       intro:
         "We are José and Yafira, the couple behind Magic Touch Designs, a small business built with creativity, dedication, and the desire to turn ideas into something special.",
     },
@@ -837,6 +896,7 @@ export const en = {
       label: "OUR MISSION",
       title: "YOUR IDEA.",
       titleAccent: "OUR CRAFT.",
+
       description:
         "We combine creativity, attention to detail, and personalized service to create products you can be proud to give, wear, use, or share.",
     },
@@ -911,6 +971,7 @@ export const en = {
       eyebrow: "OUR VISION",
       title: "CREATING MORE",
       titleAccent: "THAN PRODUCTS",
+
       description:
         "We want Magic Touch Designs to grow into a trusted creative brand known for personalized products, quality work, and genuine customer service.",
     },
@@ -919,10 +980,13 @@ export const en = {
       eyebrow: "LET'S CREATE SOMETHING SPECIAL",
       title: "YOUR IDEA",
       titleAccent: "STARTS HERE",
+
       description:
         "Explore our collections, discover our work, and find something made for you or someone special.",
+
       primaryButton: "VIEW OUR COLLECTIONS",
       secondaryButton: "START CUSTOMIZING",
+
       socialText:
         "Follow us on social media, support our small business, and be part of the Magic Touch Designs community.",
     },
@@ -942,9 +1006,12 @@ export const en = {
     termsOfService: "Terms of Service",
     paymentMethods: "Payment Methods",
     language: "Language",
+
     copyright:
       "© 2026 Magic Touch Designs. All rights reserved.",
-    designer: "Designed by ultramegared",
+
+    designer:
+      "Designed by ultramegared",
   },
 };
 
