@@ -6,97 +6,103 @@
  * Module: Home
  * Language: CSS
  * Description:
- * Premium responsive hero section.
- * Luxury black, cream and gold visual system.
+ * Premium responsive Hero design.
  * ===============================================================
  */
 
 .hero {
     position: relative;
-
     width: 100%;
     min-height: 100vh;
-
+    min-height: 100svh;
     overflow: hidden;
 
-    color: #111;
+    color: #ffffff;
 
     background:
         radial-gradient(
-            circle at 72% 38%,
-            rgba(221, 199, 157, 0.22),
-            transparent 28%
+            ellipse at 72% 38%,
+            rgba(232, 207, 153, 0.14) 0%,
+            rgba(200, 155, 60, 0.08) 18%,
+            transparent 46%
         ),
         radial-gradient(
-            circle at 18% 78%,
-            rgba(200, 155, 60, 0.09),
-            transparent 28%
+            ellipse at 15% 80%,
+            rgba(200, 155, 60, 0.08) 0%,
+            transparent 38%
         ),
         linear-gradient(
-            125deg,
-            #08090a 0%,
-            #101113 45%,
-            #171719 100%
+            135deg,
+            #050608 0%,
+            #0c0d10 45%,
+            #111214 100%
         );
+
+    isolation: isolate;
 }
 
 
 /* ===============================================================
-   AMBIENT LIGHT
+   PREMIUM LIGHT
    =============================================================== */
 
 .hero::before {
     content: "";
 
     position: absolute;
-
-    top: -25%;
-    right: -10%;
+    z-index: -1;
 
     width: 680px;
     height: 680px;
+
+    right: -120px;
+    top: 50%;
+
+    transform: translateY(-50%);
 
     border-radius: 50%;
 
     background:
         radial-gradient(
             circle,
-            rgba(241, 224, 194, 0.13) 0%,
-            rgba(212, 176, 101, 0.055) 32%,
-            transparent 70%
+            rgba(245, 226, 178, 0.17) 0%,
+            rgba(200, 155, 60, 0.10) 25%,
+            rgba(200, 155, 60, 0.035) 48%,
+            transparent 72%
         );
 
-    filter: blur(18px);
+    filter: blur(10px);
 
     pointer-events: none;
 }
 
 
 /* ===============================================================
-   SECONDARY AMBIENT LIGHT
+   PREMIUM AMBIENT GLOW
    =============================================================== */
 
 .hero::after {
     content: "";
 
     position: absolute;
+    z-index: -1;
 
-    left: -180px;
-    bottom: -220px;
+    width: 70%;
+    height: 35%;
 
-    width: 600px;
-    height: 600px;
+    left: 15%;
+    bottom: -15%;
 
     border-radius: 50%;
 
     background:
         radial-gradient(
-            circle,
-            rgba(200, 155, 60, 0.08),
+            ellipse,
+            rgba(200, 155, 60, 0.13),
             transparent 68%
         );
 
-    filter: blur(24px);
+    filter: blur(35px);
 
     pointer-events: none;
 }
@@ -108,46 +114,26 @@
 
 .hero__overlay {
     position: absolute;
-
     inset: 0;
 
     z-index: 1;
 
+    pointer-events: none;
+
     background:
         linear-gradient(
             90deg,
-            rgba(4, 5, 6, 0.92) 0%,
-            rgba(7, 8, 9, 0.72) 40%,
-            rgba(7, 8, 9, 0.28) 72%,
-            rgba(7, 8, 9, 0.48) 100%
+            rgba(0, 0, 0, 0.48) 0%,
+            rgba(0, 0, 0, 0.22) 42%,
+            rgba(0, 0, 0, 0.03) 78%,
+            rgba(0, 0, 0, 0.22) 100%
+        ),
+        radial-gradient(
+            circle at 65% 50%,
+            transparent 0%,
+            rgba(0, 0, 0, 0.22) 72%,
+            rgba(0, 0, 0, 0.42) 100%
         );
-
-    pointer-events: none;
-}
-
-
-/* ===============================================================
-   SUBTLE DECORATIVE FRAME
-   =============================================================== */
-
-.hero__overlay::before {
-    content: "";
-
-    position: absolute;
-
-    top: 34px;
-    left: 34px;
-    right: 34px;
-    bottom: 34px;
-
-    border: 1px solid rgba(
-        241,
-        224,
-        194,
-        0.055
-    );
-
-    pointer-events: none;
 }
 
 
@@ -160,31 +146,24 @@
 
     z-index: 2;
 
-    width: min(
-        1440px,
-        calc(100% - 100px)
-    );
+    width: min(1440px, 100%);
 
     min-height: 100vh;
+    min-height: 100svh;
 
     margin: 0 auto;
 
     padding:
-        125px
-        0
-        80px;
+        120px
+        clamp(32px, 6vw, 90px)
+        70px;
 
-    display: grid;
-
-    grid-template-columns:
-        minmax(0, 0.92fr)
-        minmax(0, 1.08fr);
+    display: flex;
 
     align-items: center;
+    justify-content: space-between;
 
-    gap: 40px;
-
-    box-sizing: border-box;
+    gap: clamp(40px, 6vw, 100px);
 }
 
 
@@ -195,135 +174,146 @@
 .hero__content {
     position: relative;
 
-    max-width: 650px;
+    flex: 0 1 610px;
 
-    z-index: 3;
+    max-width: 610px;
+
+    padding: 30px 0;
 }
 
 
 /* ===============================================================
-   PREMIUM TAG
+   GOLD DECORATIVE LINE
+   =============================================================== */
+
+.hero__content::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 58px;
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #f6df9b,
+            #c89b3c,
+            #805813
+        );
+
+    box-shadow:
+        0 0 14px rgba(200, 155, 60, 0.35);
+}
+
+
+/* ===============================================================
+   TAG
    =============================================================== */
 
 .hero__tag {
-    position: relative;
-
     display: inline-flex;
 
     align-items: center;
 
+    min-height: 38px;
+
     margin-bottom: 28px;
 
-    padding: 10px 17px 10px 14px;
+    padding: 8px 17px;
 
-    border: 1px solid rgba(
-        212,
-        176,
-        101,
-        0.35
-    );
+    border:
+        1px solid
+        rgba(216, 181, 94, 0.48);
 
     border-radius: 999px;
 
     background:
         linear-gradient(
             135deg,
-            rgba(241, 224, 194, 0.08),
-            rgba(200, 155, 60, 0.035)
+            rgba(245, 226, 178, 0.11),
+            rgba(200, 155, 60, 0.045)
         );
 
     box-shadow:
-        inset 0 1px 0 rgba(
-            255,
-            255,
-            255,
-            0.07
-        ),
-        0 10px 30px rgba(
-            0,
-            0,
-            0,
-            0.20
-        );
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 8px 25px rgba(0, 0, 0, 0.22);
 
-    color: #e3c47c;
+    color: #e8ca78;
 
-    font-size: 0.70rem;
+    font-size: 0.72rem;
 
     font-weight: 800;
 
-    letter-spacing: 0.19em;
+    letter-spacing: 2.2px;
 
     text-transform: uppercase;
 }
 
-.hero__tag::before {
-    content: "";
-
-    width: 7px;
-    height: 7px;
-
-    margin-right: 10px;
-
-    border-radius: 50%;
-
-    background: #d8b765;
-
-    box-shadow:
-        0 0 12px rgba(
-            216,
-            183,
-            101,
-            0.75
-        );
-}
-
 
 /* ===============================================================
-   HEADING
+   MAIN TITLE
    =============================================================== */
 
 .hero h1 {
     max-width: 720px;
 
-    margin: 0 0 27px;
+    margin: 0 0 28px;
 
-    color: #ffffff;
+    font-size:
+        clamp(
+            3.4rem,
+            6.4vw,
+            6.7rem
+        );
 
-    font-size: clamp(
-        3.7rem,
-        6.2vw,
-        6.6rem
-    );
+    font-weight: 950;
 
-    font-weight: 800;
-
-    line-height: 0.96;
+    line-height: 0.94;
 
     letter-spacing: -0.055em;
 
-    text-shadow:
-        0 18px 45px rgba(
-            0,
-            0,
-            0,
-            0.48
+    text-transform: uppercase;
+
+    white-space: pre-line;
+
+    color: #d7b45c;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff4c9 0%,
+            #f1d77f 12%,
+            #d6ad4e 34%,
+            #b27b20 57%,
+            #815313 75%,
+            #e3bf61 92%,
+            #fff0b4 100%
         );
-}
 
+    -webkit-background-clip: text;
+    background-clip: text;
 
-/* ===============================================================
-   TITLE GOLD ACCENT
-   =============================================================== */
+    -webkit-text-fill-color: transparent;
 
-.hero h1::first-line {
-    text-shadow:
-        0 10px 35px rgba(
-            0,
-            0,
-            0,
-            0.55
+    filter:
+        drop-shadow(
+            0 2px 0 rgba(255, 245, 205, 0.20)
+        )
+        drop-shadow(
+            0 7px 5px rgba(63, 39, 7, 0.75)
+        )
+        drop-shadow(
+            0 18px 28px rgba(0, 0, 0, 0.62)
         );
+
+    text-shadow:
+        0 1px 0 rgba(255, 245, 205, 0.18),
+        0 4px 0 rgba(83, 53, 10, 0.55),
+        0 9px 18px rgba(0, 0, 0, 0.55);
 }
 
 
@@ -332,22 +322,27 @@
    =============================================================== */
 
 .hero p {
-    max-width: 590px;
+    max-width: 570px;
 
     margin: 0 0 40px;
 
-    color: rgba(
-        255,
-        255,
-        255,
-        0.68
-    );
+    color: #eee8dc;
 
-    font-size: 1.05rem;
+    font-size:
+        clamp(
+            1rem,
+            1.3vw,
+            1.16rem
+        );
+
+    font-weight: 400;
 
     line-height: 1.85;
 
-    letter-spacing: 0.005em;
+    letter-spacing: 0.01em;
+
+    text-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.8);
 }
 
 
@@ -360,35 +355,36 @@
 
     align-items: center;
 
-    gap: 14px;
+    gap: 16px;
 
     flex-wrap: wrap;
 }
+
 
 .hero__button {
     position: relative;
 
     min-width: 190px;
 
-    height: 56px;
+    height: 58px;
 
-    padding: 0 25px;
+    padding: 0 28px;
 
-    border-radius: 11px;
-
-    font-family: inherit;
-
-    font-size: 0.78rem;
-
-    font-weight: 800;
-
-    letter-spacing: 0.08em;
-
-    text-transform: uppercase;
+    border-radius: 15px;
 
     cursor: pointer;
 
     overflow: hidden;
+
+    font-family: inherit;
+
+    font-size: 0.88rem;
+
+    font-weight: 850;
+
+    letter-spacing: 0.04em;
+
+    text-transform: uppercase;
 
     transition:
         transform 0.28s ease,
@@ -403,38 +399,29 @@
    =============================================================== */
 
 .hero__button--primary {
-    border: 1px solid #d9b65d;
+    border:
+        1px solid
+        rgba(255, 238, 172, 0.85);
+
+    color: #17120a;
 
     background:
         linear-gradient(
-            135deg,
-            #e5c875 0%,
-            #c89b3c 50%,
-            #a87921 100%
+            180deg,
+            #ffe9a1 0%,
+            #e4bd55 38%,
+            #bd861f 72%,
+            #8e5d13 100%
         );
-
-    color: #111111;
 
     box-shadow:
-        inset 0 1px 0 rgba(
-            255,
-            255,
-            255,
-            0.38
-        ),
-        0 7px 0 rgba(
-            82,
-            57,
-            15,
-            0.45
-        ),
-        0 18px 35px rgba(
-            200,
-            155,
-            60,
-            0.18
-        );
+        inset 0 1px 1px rgba(255, 255, 255, 0.65),
+        inset 0 -4px 8px rgba(91, 55, 7, 0.28),
+        0 7px 0 rgba(91, 57, 9, 0.55),
+        0 16px 32px rgba(0, 0, 0, 0.38),
+        0 0 24px rgba(200, 155, 60, 0.16);
 }
+
 
 .hero__button--primary::before {
     content: "";
@@ -444,54 +431,36 @@
     top: 0;
     left: -100%;
 
-    width: 60%;
+    width: 55%;
     height: 100%;
+
+    transform: skewX(-22deg);
 
     background:
         linear-gradient(
             90deg,
             transparent,
-            rgba(
-                255,
-                255,
-                255,
-                0.28
-            ),
+            rgba(255, 255, 255, 0.38),
             transparent
         );
 
-    transform: skewX(-20deg);
-
-    transition:
-        left 0.55s ease;
+    transition: left 0.55s ease;
 }
 
-.hero__button--primary:hover {
-    transform: translateY(-4px);
-
-    box-shadow:
-        inset 0 1px 0 rgba(
-            255,
-            255,
-            255,
-            0.45
-        ),
-        0 7px 0 rgba(
-            82,
-            57,
-            15,
-            0.42
-        ),
-        0 22px 45px rgba(
-            200,
-            155,
-            60,
-            0.28
-        );
-}
 
 .hero__button--primary:hover::before {
-    left: 140%;
+    left: 150%;
+}
+
+
+.hero__button--primary:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.7),
+        0 9px 0 rgba(91, 57, 9, 0.45),
+        0 20px 40px rgba(0, 0, 0, 0.42),
+        0 0 35px rgba(200, 155, 60, 0.28);
 }
 
 
@@ -500,170 +469,42 @@
    =============================================================== */
 
 .hero__button--secondary {
-    border: 1px solid rgba(
-        241,
-        224,
-        194,
-        0.34
-    );
+    border:
+        1px solid
+        rgba(218, 181, 91, 0.72);
+
+    color: #f1d27d;
 
     background:
-        rgba(
-            255,
-            255,
-            255,
-            0.025
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.055),
+            rgba(200, 155, 60, 0.025)
         );
-
-    color: #ffffff;
 
     box-shadow:
-        inset 0 1px 0 rgba(
-            255,
-            255,
-            255,
-            0.06
-        ),
-        0 12px 30px rgba(
-            0,
-            0,
-            0,
-            0.20
-        );
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 10px 25px rgba(0, 0, 0, 0.28);
 }
+
 
 .hero__button--secondary:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
 
-    border-color:
-        rgba(
-            212,
-            176,
-            101,
-            0.70
-        );
+    border-color: #f0d47e;
+
+    color: #17120a;
 
     background:
-        rgba(
-            241,
-            224,
-            194,
-            0.08
+        linear-gradient(
+            180deg,
+            #f8dfa0,
+            #c99a32
         );
-
-    color: #f1dfb5;
 
     box-shadow:
-        inset 0 1px 0 rgba(
-            255,
-            255,
-            255,
-            0.08
-        ),
-        0 18px 35px rgba(
-            0,
-            0,
-            0,
-            0.30
-        );
-}
-
-
-/* ===============================================================
-   PRODUCT AREA
-   =============================================================== */
-
-.hero__image {
-    position: relative;
-
-    min-width: 0;
-
-    min-height: 650px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    isolation: isolate;
-}
-
-
-/* ===============================================================
-   PRODUCT LIGHT
-   =============================================================== */
-
-.hero__image::before {
-    content: "";
-
-    position: absolute;
-
-    width: 560px;
-    height: 560px;
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(
-                241,
-                224,
-                194,
-                0.18
-            ) 0%,
-            rgba(
-                212,
-                176,
-                101,
-                0.08
-            ) 34%,
-            transparent 70%
-        );
-
-    filter: blur(7px);
-
-    z-index: -2;
-}
-
-
-/* ===============================================================
-   PRODUCT SHADOW / DEPTH
-   =============================================================== */
-
-.hero__image::after {
-    content: "";
-
-    position: absolute;
-
-    bottom: 8%;
-
-    left: 50%;
-
-    width: 410px;
-    height: 75px;
-
-    transform:
-        translateX(-50%);
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            ellipse,
-            rgba(
-                0,
-                0,
-                0,
-                0.75
-            ),
-            transparent 70%
-        );
-
-    filter: blur(13px);
-
-    z-index: -1;
+        0 12px 30px rgba(0, 0, 0, 0.38),
+        0 0 24px rgba(200, 155, 60, 0.18);
 }
 
 
@@ -671,202 +512,164 @@
    PRODUCT IMAGE
    =============================================================== */
 
+.hero__image {
+    position: relative;
+
+    flex: 1 1 600px;
+
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Product spotlight */
+
+.hero__image::before {
+    content: "";
+
+    position: absolute;
+
+    width: 78%;
+    aspect-ratio: 1;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 239, 193, 0.16) 0%,
+            rgba(216, 178, 85, 0.10) 25%,
+            rgba(200, 155, 60, 0.035) 50%,
+            transparent 72%
+        );
+
+    filter: blur(18px);
+
+    pointer-events: none;
+}
+
+
+/* Product floor shadow */
+
+.hero__image::after {
+    content: "";
+
+    position: absolute;
+
+    width: 62%;
+    height: 12%;
+
+    left: 50%;
+    bottom: 7%;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(0, 0, 0, 0.82),
+            transparent 70%
+        );
+
+    filter: blur(16px);
+
+    pointer-events: none;
+}
+
+
 .hero__image img {
     position: relative;
+
+    z-index: 2;
 
     display: block;
 
     width: min(
         100%,
-        720px
+        760px
     );
 
-    max-height: 690px;
+    max-height: 72vh;
 
     object-fit: contain;
 
     filter:
         drop-shadow(
-            0 35px 35px
-            rgba(0, 0, 0, 0.52)
+            0 22px 25px rgba(0, 0, 0, 0.72)
         )
         drop-shadow(
-            0 10px 65px
-            rgba(212, 176, 101, 0.14)
+            0 38px 60px rgba(0, 0, 0, 0.48)
         );
 
     transform:
-        translate3d(0, 0, 0)
-        rotate(0deg);
+        translateY(0)
+        scale(1);
 
     transition:
-        transform 0.55s cubic-bezier(
-            0.2,
-            0.75,
-            0.25,
-            1
-        ),
-        filter 0.55s ease;
+        transform 0.5s ease,
+        filter 0.5s ease;
+}
+
+
+.hero__image img:hover {
+    transform:
+        translateY(-7px)
+        scale(1.025);
+
+    filter:
+        drop-shadow(
+            0 28px 30px rgba(0, 0, 0, 0.72)
+        )
+        drop-shadow(
+            0 45px 70px rgba(0, 0, 0, 0.48)
+        );
 }
 
 
 /* ===============================================================
-   PRODUCT HOVER
-   =============================================================== */
-
-@media (hover: hover) and (pointer: fine) {
-
-    .hero__image img:hover {
-        transform:
-            translateY(-8px)
-            scale(1.025);
-
-        filter:
-            drop-shadow(
-                0 42px 42px
-                rgba(0, 0, 0, 0.56)
-            )
-            drop-shadow(
-                0 12px 72px
-                rgba(212, 176, 101, 0.19)
-            );
-    }
-
-}
-
-
-/* ===============================================================
-   LARGE TABLET
+   TABLET
    =============================================================== */
 
 @media (max-width: 1100px) {
 
     .hero__container {
-        width: min(
-            94%,
-            1000px
-        );
-
         padding:
             120px
-            0
-            70px;
+            35px
+            60px;
 
-        grid-template-columns:
-            minmax(0, 0.95fr)
-            minmax(0, 1.05fr);
-
-        gap: 20px;
+        gap: 40px;
     }
 
-    .hero__image {
-        min-height: 560px;
-    }
-
-    .hero__image img {
-        width: min(
-            100%,
-            570px
-        );
-    }
-
-}
-
-
-/* ===============================================================
-   TABLET / PORTRAIT
-   =============================================================== */
-
-@media (max-width: 850px) {
-
-    .hero {
-        min-height: auto;
-    }
-
-    .hero__overlay {
-        background:
-            linear-gradient(
-                180deg,
-                rgba(5, 6, 7, 0.90),
-                rgba(10, 10, 11, 0.72)
-            );
-    }
-
-    .hero__overlay::before {
-        top: 20px;
-        left: 20px;
-        right: 20px;
-        bottom: 20px;
-    }
-
-    .hero__container {
-        width: min(
-            92%,
-            650px
-        );
-
-        min-height: auto;
-
-        padding:
-            120px
-            0
-            75px;
-
-        display: flex;
-
-        flex-direction: column;
-
-        gap: 25px;
-
-        text-align: center;
-    }
 
     .hero__content {
-        max-width: 650px;
+        flex-basis: 52%;
     }
 
-    .hero__tag {
-        margin-bottom: 22px;
+
+    .hero__image {
+        flex-basis: 48%;
     }
+
 
     .hero h1 {
         font-size:
             clamp(
-                3rem,
-                9vw,
+                3.2rem,
+                6vw,
                 5rem
             );
     }
 
-    .hero p {
-        max-width: 600px;
 
-        margin-left: auto;
-        margin-right: auto;
-
-        font-size: 1rem;
-    }
-
-    .hero__buttons {
-        justify-content: center;
-    }
-
-    .hero__image {
-        width: 100%;
-
-        min-height: 480px;
-    }
-
-    .hero__image::before {
-        width: 450px;
-        height: 450px;
-    }
-
-    .hero__image img {
-        width: min(
-            100%,
-            540px
-        );
+    .hero__button {
+        min-width: 175px;
     }
 
 }
@@ -876,159 +679,214 @@
    MOBILE
    =============================================================== */
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+
+    .hero {
+        min-height: auto;
+
+        background:
+            radial-gradient(
+                ellipse at 72% 36%,
+                rgba(232, 207, 153, 0.13),
+                transparent 42%
+            ),
+            linear-gradient(
+                180deg,
+                #050608 0%,
+                #0a0b0d 65%,
+                #111214 100%
+            );
+    }
+
 
     .hero::before {
-        top: 5%;
-        right: -220px;
+        width: 520px;
+        height: 520px;
 
-        width: 500px;
-        height: 500px;
+        right: -180px;
+        top: 43%;
     }
+
 
     .hero::after {
-        left: -250px;
-        bottom: -180px;
+        width: 100%;
+        height: 28%;
 
-        width: 480px;
-        height: 480px;
+        left: 0;
+        bottom: -10%;
     }
+
+
+    .hero__overlay {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(0, 0, 0, 0.28),
+                rgba(0, 0, 0, 0.05) 45%,
+                rgba(0, 0, 0, 0.38) 100%
+            );
+    }
+
 
     .hero__container {
-        width: calc(
-            100% - 30px
-        );
+        width: 100%;
+
+        min-height: auto;
 
         padding:
-            92px
+            75px
+            22px
+            55px;
+
+        display: flex;
+
+        flex-direction: column;
+
+        justify-content: center;
+
+        gap: 18px;
+
+        text-align: center;
+    }
+
+
+    .hero__content {
+        width: 100%;
+
+        max-width: 620px;
+
+        padding:
+            24px
             0
-            48px;
+            5px;
 
-        gap: 12px;
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
     }
 
-    .hero__overlay::before {
-        top: 14px;
-        left: 14px;
-        right: 14px;
-        bottom: 14px;
+
+    .hero__content::before {
+        left: 50%;
+
+        transform: translateX(-50%);
+
+        width: 48px;
     }
+
 
     .hero__tag {
-        margin-bottom: 19px;
+        margin-bottom: 22px;
 
         padding:
-            8px
-            12px;
+            7px
+            13px;
 
-        font-size: 0.57rem;
+        font-size: 0.62rem;
 
-        letter-spacing: 0.12em;
+        letter-spacing: 1.55px;
     }
 
-    .hero__tag::before {
-        width: 5px;
-        height: 5px;
-
-        margin-right: 7px;
-    }
 
     .hero h1 {
-        margin-bottom: 20px;
+        width: 100%;
+
+        margin-bottom: 22px;
 
         font-size:
             clamp(
-                2.45rem,
-                12vw,
-                3.5rem
+                3rem,
+                13vw,
+                4.4rem
             );
 
-        line-height: 0.98;
+        line-height: 0.91;
 
         letter-spacing: -0.045em;
+
+        text-align: center;
     }
+
 
     .hero p {
-        margin-bottom: 29px;
+        max-width: 540px;
 
-        font-size: 0.91rem;
+        margin-bottom: 28px;
 
-        line-height: 1.72;
+        font-size:
+            clamp(
+                0.95rem,
+                4vw,
+                1.05rem
+            );
+
+        line-height: 1.7;
+
+        color: #eee9df;
     }
+
 
     .hero__buttons {
         width: 100%;
 
-        gap: 11px;
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 14px;
     }
+
 
     .hero__button {
         width: 100%;
 
         min-width: 0;
 
-        height: 53px;
-
-        border-radius: 10px;
-
-        font-size: 0.70rem;
+        height: 57px;
     }
+
 
     .hero__image {
         width: 100%;
 
-        min-height: 330px;
+        flex: none;
 
-        margin-top: 8px;
+        min-height: 300px;
+
+        margin-top: -2px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
     }
+
 
     .hero__image::before {
-        width: 330px;
-        height: 330px;
+        width: 110%;
 
-        background:
-            radial-gradient(
-                circle,
-                rgba(
-                    241,
-                    224,
-                    194,
-                    0.17
-                ),
-                rgba(
-                    212,
-                    176,
-                    101,
-                    0.06
-                ) 38%,
-                transparent 72%
-            );
+        max-width: 500px;
     }
+
 
     .hero__image::after {
-        bottom: 5%;
+        width: 68%;
 
-        width: 260px;
-        height: 48px;
+        bottom: 7%;
     }
 
+
     .hero__image img {
-        width: min(
-            100%,
-            390px
-        );
+        width: 112%;
 
-        max-height: 370px;
+        max-width: 600px;
 
-        filter:
-            drop-shadow(
-                0 25px 28px
-                rgba(0, 0, 0, 0.52)
-            )
-            drop-shadow(
-                0 8px 45px
-                rgba(212, 176, 101, 0.12)
-            );
+        max-height: 42vh;
     }
 
 }
@@ -1038,40 +896,116 @@
    SMALL MOBILE
    =============================================================== */
 
-@media (max-width: 380px) {
+@media (max-width: 480px) {
 
     .hero__container {
-        width: calc(
-            100% - 22px
-        );
-
         padding:
-            82px
-            0
-            40px;
+            62px
+            17px
+            42px;
+
+        gap: 8px;
     }
+
+
+    .hero__content {
+        padding-top: 21px;
+    }
+
+
+    .hero__tag {
+        max-width: 94%;
+
+        font-size: 0.56rem;
+
+        letter-spacing: 1.25px;
+
+        white-space: nowrap;
+    }
+
+
+    .hero h1 {
+        font-size:
+            clamp(
+                2.8rem,
+                14vw,
+                3.8rem
+            );
+    }
+
+
+    .hero p {
+        font-size: 0.94rem;
+
+        line-height: 1.68;
+    }
+
+
+    .hero__image {
+        min-height: 255px;
+    }
+
+
+    .hero__image img {
+        width: 118%;
+
+        max-height: 36vh;
+    }
+
+
+    .hero__button {
+        height: 55px;
+
+        font-size: 0.82rem;
+    }
+
+}
+
+
+/* ===============================================================
+   VERY SMALL DEVICES
+   =============================================================== */
+
+@media (max-width: 360px) {
+
+    .hero__container {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+
+    .hero h1 {
+        font-size: 2.65rem;
+    }
+
 
     .hero__tag {
         font-size: 0.52rem;
     }
 
-    .hero h1 {
-        font-size: 2.25rem;
-    }
 
     .hero p {
-        font-size: 0.84rem;
+        font-size: 0.9rem;
     }
+
 
     .hero__image {
-        min-height: 290px;
+        min-height: 225px;
     }
 
-    .hero__image img {
-        width: min(
-            100%,
-            330px
-        );
+}
+
+
+/* ===============================================================
+   REDUCED MOTION
+   =============================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .hero__image img,
+    .hero__button,
+    .hero__button--primary::before {
+        transition: none;
     }
 
 }
