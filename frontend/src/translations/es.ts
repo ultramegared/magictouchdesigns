@@ -423,8 +423,7 @@ export const es = {
             description:
                 "Diseños creados para celebrar el amor, los detalles especiales y esos momentos que merecen convertirse en recuerdos para siempre.",
 
-            primaryButton: "EXPLORAR DISEÑOS",
-            secondaryButton: "PERSONALIZAR AHORA",
+       button: "EXPLORAR DISEÑOS",
         },
 
         intro: {
