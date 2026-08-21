@@ -567,6 +567,54 @@ register: {
     },
   },
 
+  faq: {
+    hero: {
+      eyebrow: "PREGUNTAS FRECUENTES",
+      title: "Preguntas",
+      titleAccent: "Frecuentes",
+      intro:
+        "Encuentra respuestas a las preguntas más comunes sobre nuestros productos, pedidos, personalización, envíos y devoluciones.",
+    },
+
+    questions: {
+      products: {
+        question: "¿Qué productos ofrecen?",
+        answer:
+          "Ofrecemos una variedad de productos diseñados para uso personal, regalos y experiencias personalizadas. La disponibilidad de los productos puede variar con el tiempo.",
+      },
+
+      customization: {
+        question: "¿Puedo personalizar mi pedido?",
+        answer:
+          "Sí. Algunos productos pueden personalizarse según las opciones disponibles en la página del producto o de personalización.",
+      },
+
+      shipping: {
+        question: "¿Cuánto tarda el envío?",
+        answer:
+          "Los tiempos de procesamiento y entrega pueden variar según el producto, la personalización, el destino y el volumen de pedidos.",
+      },
+
+      tracking: {
+        question: "¿Cómo puedo rastrear mi pedido?",
+        answer:
+          "Cuando haya información de seguimiento disponible, se proporcionará después de que tu pedido haya sido procesado y enviado.",
+      },
+
+      returns: {
+        question: "¿Puedo devolver un producto personalizado?",
+        answer:
+          "La posibilidad de devolución puede variar en el caso de productos personalizados. Consulta nuestra información de Envíos y devoluciones antes de realizar tu pedido.",
+      },
+
+      contact: {
+        question: "¿Cómo puedo contactarlos?",
+        answer:
+          "Si necesitas ayuda con un pedido, producto, personalización, envío o devolución, contáctanos a través de nuestra página de Contacto.",
+      },
+    },
+  },
+  
     about: {
     hero: {
       eyebrow: "SOBRE NOSOTROS",

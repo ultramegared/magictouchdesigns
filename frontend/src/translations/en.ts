@@ -529,6 +529,53 @@ community: {
     },
   },
   
+    faq: {
+    hero: {
+      eyebrow: "FREQUENTLY ASKED QUESTIONS",
+      title: "Frequently Asked",
+      titleAccent: "Questions",
+      intro:
+        "Find answers to the most common questions about our products, orders, customization, shipping, and returns.",
+    },
+
+    questions: {
+      products: {
+        question: "What products do you offer?",
+        answer:
+          "We offer a variety of products designed for personal use, gifts, and customized experiences. Product availability may vary over time.",
+      },
+
+      customization: {
+        question: "Can I customize my order?",
+        answer:
+          "Yes. Selected products may be customized according to the options available on the product or customization page.",
+      },
+
+      shipping: {
+        question: "How long does shipping take?",
+        answer:
+          "Processing and delivery times may vary depending on the product, customization, destination, and order volume.",
+      },
+
+      tracking: {
+        question: "How can I track my order?",
+        answer:
+          "When tracking information is available, it will be provided after your order has been processed and shipped.",
+      },
+
+      returns: {
+        question: "Can I return a customized product?",
+        answer:
+          "Return eligibility may vary for customized products. Please review our Shipping & Returns information before placing your order.",
+      },
+
+      contact: {
+        question: "How can I contact you?",
+        answer:
+          "If you need assistance with an order, product, customization, shipping, or returns, please contact us through our Contact page.",
+      },
+    },
+  },
  
    about: {
     hero: {
