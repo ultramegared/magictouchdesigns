@@ -12,6 +12,8 @@
 
 import "./LoveRomancePage.css";
 
+import { Link } from "react-router-dom";
+
 import Header from "../../../../components/layout/Header";
 import Footer from "../../../../components/home/Footer";
 
@@ -51,6 +53,15 @@ function LoveRomancePage() {
 
                     <div className="love-romance-hero__content">
 
+                        <Link
+                            to="/collections"
+                            className="love-romance-back-link"
+                        >
+                            ← {language === "es"
+                                ? "VOLVER A COLECCIONES"
+                                : "BACK TO COLLECTIONS"}
+                        </Link>
+
                         <span className="love-romance-hero__eyebrow">
                             {t.hero.eyebrow}
                         </span>
@@ -84,7 +95,6 @@ function LoveRomancePage() {
                             className="love-romance-hero__button"
                         >
                             {t.hero.button}
-                            
                         </button>
 
                     </div>
@@ -156,8 +166,6 @@ function LoveRomancePage() {
                             </strong>
 
                         </h2>
-
-                     
 
                     </div>
 
