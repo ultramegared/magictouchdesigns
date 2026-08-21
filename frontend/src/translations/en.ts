@@ -397,6 +397,51 @@ community: {
     },
   },
   
+  loveRomance: {
+  hero: {
+    eyebrow: "COLECCIÓN LOVE & ROMANCE",
+    title: "HECHO PARA",
+    titleAccent: "EL AMOR",
+    description:
+      "Diseños personalizados creados para celebrar el amor, la conexión y esos momentos que nunca quieres olvidar.",
+    button: "EXPLORAR LA COLECCIÓN",
+  },
+
+  intro: {
+    eyebrow: "PARA ALGUIEN ESPECIAL",
+    title: "REGALOS CON",
+    titleAccent: "SIGNIFICADO",
+    description:
+      "Crea algo personal para esa persona que significa tanto para ti. Desde gestos románticos hasta recuerdos inolvidables, cada diseño está creado para sentirse verdaderamente especial.",
+  },
+
+  products: {
+    eyebrow: "FAVORITOS DEL AMOR",
+    title: "DISEÑOS HECHOS",
+    titleAccent: "PARA DOS",
+    viewProduct: "VER PRODUCTO",
+  },
+
+  featured: {
+    eyebrow: "EDICIÓN AMOR",
+    title: "UN TOQUE PERSONAL",
+    titleAccent: "QUE PERDURA",
+    description:
+      "Convierte tu foto, mensaje o recuerdo favorito en algo hermoso que puedas conservar y compartir.",
+    button: "CREAR TU REGALO",
+  },
+
+  cta: {
+    eyebrow: "HAZLO PERSONAL",
+    title: "CREA ALGO",
+    titleAccent: "SIGNIFICATIVO",
+    description:
+      "Elige un diseño, agrega tu toque personal y crea un regalo hecho especialmente para alguien que amas.",
+    button: "COMENZAR A PERSONALIZAR",
+  },
+},
+
+  
       loveRomance: {
 
       hero: {
