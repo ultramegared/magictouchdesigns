@@ -415,11 +415,6 @@
             0 8px 18px rgba(0, 0, 0, 0.30);
     }
 
-    .footer__payments span:last-child {
-        grid-column: 1 / -1;
-        width: calc(50% - 6px);
-        justify-self: start;
-    }
 }
 
 
