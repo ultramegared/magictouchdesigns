@@ -3343,3 +3343,113 @@
     }
 
 }
+
+/* ===============================================================
+   FLOATING ZOOM INDICATOR
+   =============================================================== */
+
+.love-romance-product__zoom {
+
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+
+    z-index: 5;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(255,255,255,.55);
+
+    border-radius: 50%;
+
+    background:
+        rgba(7,7,7,.58);
+
+    box-shadow:
+
+        0 5px 14px rgba(0,0,0,.38),
+
+        inset 0 1px 0 rgba(255,255,255,.16);
+
+    backdrop-filter:
+        blur(7px);
+
+    -webkit-backdrop-filter:
+        blur(7px);
+
+    pointer-events: none;
+
+    transition:
+        transform .25s ease,
+        background .25s ease,
+        border-color .25s ease;
+
+}
+
+
+.love-romance-product__zoom svg {
+
+    width: 17px;
+    height: 17px;
+
+    fill: none;
+
+    stroke: #ffffff;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    filter:
+        drop-shadow(
+            0 1px 2px rgba(0,0,0,.55)
+        );
+
+}
+
+
+.love-romance-product:hover
+.love-romance-product__zoom {
+
+    transform:
+        scale(1.08);
+
+    background:
+        rgba(216,166,60,.72);
+
+    border-color:
+        rgba(255,255,255,.82);
+
+}
+
+
+@media (max-width: 767px) {
+
+    .love-romance-product__zoom {
+
+        top: 8px;
+        right: 8px;
+
+        width: 30px;
+        height: 30px;
+
+    }
+
+
+    .love-romance-product__zoom svg {
+
+        width: 15px;
+        height: 15px;
+
+    }
+
+}
