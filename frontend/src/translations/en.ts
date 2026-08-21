@@ -495,6 +495,41 @@ community: {
     },
   },
  
+   shippingReturns: {
+    hero: {
+      eyebrow: "SHIPPING & RETURNS",
+      title: "Shipping &",
+      titleAccent: "Returns",
+      intro:
+        "Everything you need to know about shipping, delivery, returns, and your order.",
+    },
+
+    shipping: {
+      title: "Shipping",
+      description:
+        "We carefully prepare every order before it is shipped. Shipping times may vary depending on the product, customization, destination, and order volume.",
+    },
+
+    processing: {
+      title: "Processing & Delivery",
+      description:
+        "Once your order has been processed and shipped, you will receive the available tracking information for your order.",
+    },
+
+    returns: {
+      title: "Returns",
+      description:
+        "Because many of our products are personalized or customized, return eligibility may vary depending on the product and the reason for the return.",
+    },
+
+    help: {
+      title: "Need Help?",
+      description:
+        "If you have questions about an order, shipping, or a return, please contact us and we will be happy to help.",
+    },
+  },
+  
+ 
    about: {
     hero: {
       eyebrow: "ABOUT US",

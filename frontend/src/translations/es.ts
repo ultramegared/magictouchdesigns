@@ -532,6 +532,40 @@ register: {
                 "Algo salió mal. Inténtalo nuevamente.",
         },
     },
+    
+      shippingReturns: {
+    hero: {
+      eyebrow: "ENVÍOS Y DEVOLUCIONES",
+      title: "Envíos y",
+      titleAccent: "Devoluciones",
+      intro:
+        "Todo lo que necesitas saber sobre envíos, entregas, devoluciones y tu pedido.",
+    },
+
+    shipping: {
+      title: "Envíos",
+      description:
+        "Preparamos cuidadosamente cada pedido antes de enviarlo. Los tiempos de envío pueden variar según el producto, la personalización, el destino y el volumen de pedidos.",
+    },
+
+    processing: {
+      title: "Procesamiento y Entrega",
+      description:
+        "Una vez que tu pedido haya sido procesado y enviado, recibirás la información de seguimiento disponible para tu pedido.",
+    },
+
+    returns: {
+      title: "Devoluciones",
+      description:
+        "Debido a que muchos de nuestros productos son personalizados o hechos a medida, la posibilidad de devolución puede variar según el producto y el motivo de la devolución.",
+    },
+
+    help: {
+      title: "¿Necesitas ayuda?",
+      description:
+        "Si tienes preguntas sobre un pedido, envío o devolución, contáctanos y estaremos encantados de ayudarte.",
+    },
+  },
 
     about: {
     hero: {

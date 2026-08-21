@@ -6,7 +6,7 @@
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Shipping & Returns page.
+ * Bilingual Shipping & Returns page.
  * ===============================================================
  */
 
@@ -15,21 +15,35 @@ import "./ShippingReturnsPage.css";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 
+import { useLanguage } from "../../contexts/LanguageContext";
+import { translations } from "../../translations";
+
 function ShippingReturnsPage() {
+    const { language } = useLanguage();
+
+    const t = translations[language].shippingReturns;
+
     return (
         <>
             <Header />
 
             <main className="shipping-returns-page">
+
+                {/* =================================================
+                    HERO
+                ================================================= */}
+
                 <section className="shipping-returns-page__hero">
+
                     <div className="shipping-returns-page__container">
+
                         <span className="shipping-returns-page__eyebrow">
-                            SHIPPING & RETURNS
+                            {t.hero.eyebrow}
                         </span>
 
                         <h1>
-                            Shipping &amp;
-                            <span>Returns</span>
+                            {t.hero.title}
+                            <span>{t.hero.titleAccent}</span>
                         </h1>
 
                         <div className="shipping-returns-page__divider">
@@ -37,59 +51,73 @@ function ShippingReturnsPage() {
                         </div>
 
                         <p className="shipping-returns-page__intro">
-                            Everything you need to know about shipping,
-                            delivery, returns, and your order.
+                            {t.hero.intro}
                         </p>
+
                     </div>
+
                 </section>
 
+                {/* =================================================
+                    CONTENT
+                ================================================= */}
+
                 <section className="shipping-returns-page__content">
+
                     <div className="shipping-returns-page__container">
 
                         <article className="shipping-returns-page__section">
-                            <h2>Shipping</h2>
+
+                            <h2>
+                                {t.shipping.title}
+                            </h2>
 
                             <p>
-                                We carefully prepare every order before it
-                                is shipped. Shipping times may vary depending
-                                on the product, customization, destination,
-                                and order volume.
+                                {t.shipping.description}
                             </p>
+
                         </article>
 
                         <article className="shipping-returns-page__section">
-                            <h2>Processing &amp; Delivery</h2>
+
+                            <h2>
+                                {t.processing.title}
+                            </h2>
 
                             <p>
-                                Once your order has been processed and shipped,
-                                you will receive the available tracking
-                                information for your order.
+                                {t.processing.description}
                             </p>
+
                         </article>
 
                         <article className="shipping-returns-page__section">
-                            <h2>Returns</h2>
+
+                            <h2>
+                                {t.returns.title}
+                            </h2>
 
                             <p>
-                                Because many of our products are personalized
-                                or customized, return eligibility may vary
-                                depending on the product and the reason for
-                                the return.
+                                {t.returns.description}
                             </p>
+
                         </article>
 
                         <article className="shipping-returns-page__section">
-                            <h2>Need Help?</h2>
+
+                            <h2>
+                                {t.help.title}
+                            </h2>
 
                             <p>
-                                If you have questions about an order, shipping,
-                                or a return, please contact us and we will be
-                                happy to help.
+                                {t.help.description}
                             </p>
+
                         </article>
 
                     </div>
+
                 </section>
+
             </main>
 
             <Footer />
