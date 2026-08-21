@@ -15,6 +15,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/Home";
 import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
+import LoveRomancePage from "./pages/Collections/pages/LoveRomance/LoveRomancePage";
 import LoginPage from "./pages/Login/Login";
 import RegisterPage from "./pages/Register/Register";
 import CustomizePage from "./pages/Customize";
@@ -64,6 +65,11 @@ function App() {
                     path="/collections"
                     element={<CollectionsPage />}
                 />
+                
+                <Route
+    path="/collections/love-romance"
+    element={<LoveRomancePage />}
+/>
 
                 <Route
                     path="/customize"

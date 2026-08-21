@@ -15,9 +15,12 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
+import { useNavigate } from "react-router-dom";
+
 
 function CollectionsPage() {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const t = translations[language].collections;
 
      const collections = [
@@ -299,12 +302,16 @@ function CollectionsPage() {
                                     </p>
 
                                     <button
-                                        type="button"
-                                        className="collection-card__button"
-                                    >
-                                        {t.browse.viewCollection}
-                              
-                                    </button>
+    type="button"
+    className="collection-card__button"
+    onClick={() => {
+        if (collection.translationKey === "loveRomance") {
+            navigate("/collections/love-romance");
+        }
+    }}
+>
+    {t.browse.viewCollection}
+</button>
 
                                 </div>
 
