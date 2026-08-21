@@ -413,50 +413,67 @@ function LoveRomancePage() {
 
                                     {/* IMAGE */}
 
-                                    <div
-                                        className="love-romance-product__image"
-                                        onClick={() =>
-                                            setSelectedImage(image)
-                                        }
-                                        role="button"
-                                        tabIndex={0}
-                                        onKeyDown={(event) => {
+                                   <div
+    className="love-romance-product__image"
+    onClick={() =>
+        setSelectedImage(image)
+    }
+    role="button"
+    tabIndex={0}
+    onKeyDown={(event) => {
 
-                                            if (
-                                                event.key === "Enter" ||
-                                                event.key === " "
-                                            ) {
+        if (
+            event.key === "Enter" ||
+            event.key === " "
+        ) {
 
-                                                event.preventDefault();
+            event.preventDefault();
 
-                                                setSelectedImage(image);
+            setSelectedImage(image);
 
-                                            }
+        }
 
-                                        }}
-                                        aria-label={
-                                            language === "es"
-                                                ? `Ver ${image.name} en grande`
-                                                : `View ${image.name} enlarged`
-                                        }
-                                    >
+    }}
+    aria-label={
+        language === "es"
+            ? `Ver ${image.name} en grande`
+            : `View ${image.name} enlarged`
+    }
+>
 
-                                        <img
-                                            src={image.imageUrl}
-                                            alt={image.alt}
-                                        />
+    <img
+        src={image.imageUrl}
+        alt={image.alt}
+    />
 
-                                        {/* FLOATING PRODUCT ID */}
+    <span
+        className="love-romance-product__zoom"
+        aria-hidden="true"
+    >
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <circle
+                cx="11"
+                cy="11"
+                r="6.5"
+            />
+            <path
+                d="M16 16L21 21"
+            />
+        </svg>
+    </span>
 
-                                        <span className="love-romance-product__number">
-                                            {String(
-                                                image.sortOrder
-                                            ).padStart(2, "0")}
-                                        </span>
+    <span className="love-romance-product__number">
+        {String(
+            image.sortOrder
+        ).padStart(2, "0")}
+    </span>
 
-                                        <div className="love-romance-product__shine"></div>
+    <div className="love-romance-product__shine"></div>
 
-                                    </div>
+</div>
 
 
                                     {/* PRODUCT BODY */}
