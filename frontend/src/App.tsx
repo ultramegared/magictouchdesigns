@@ -20,7 +20,7 @@ import RegisterPage from "./pages/Register/Register";
 import CustomizePage from "./pages/Customize";
 import ContactPage from "./pages/Contact";
 import AboutPage from "./pages/About";
-import HowItWorks from "./components/home/HowItWorks/HowItWorks";
+import HowItWorksPage from "./pages/HowItWorks/HowItWorksPage";
 import CartPage from "./pages/Cart";
 import CheckoutPage from "./pages/Checkout";
 import ShippingReturnsPage from "./pages/ShippingReturns";
@@ -66,9 +66,9 @@ function App() {
                 />
 
                 <Route
-                    path="/customize"
-                    element={<CustomizePage />}
-                />
+    path="/how-it-works"
+    element={<HowItWorksPage />}
+/>
 
                 <Route
                     path="/contact"
