@@ -446,6 +446,14 @@ function LoveRomancePage() {
                                             alt={image.alt}
                                         />
 
+                                        {/* FLOATING PRODUCT ID */}
+
+                                        <span className="love-romance-product__number">
+                                            {String(
+                                                image.sortOrder
+                                            ).padStart(2, "0")}
+                                        </span>
+
                                         <div className="love-romance-product__shine"></div>
 
                                     </div>
@@ -456,12 +464,6 @@ function LoveRomancePage() {
                                     <div className="love-romance-product__body">
 
                                         <div className="love-romance-product__info">
-
-                                            <span className="love-romance-product__number">
-                                                {String(
-                                                    image.sortOrder
-                                                ).padStart(2, "0")}
-                                            </span>
 
                                             <strong className="love-romance-product__price">
                                                 ${image.price.toFixed(2)}
@@ -522,6 +524,11 @@ function LoveRomancePage() {
                                             className="love-romance-product__button"
                                             onClick={() =>
                                                 handleCardAddToCart(image)
+                                            }
+                                            aria-label={
+                                                language === "es"
+                                                    ? `Agregar ${image.name} al carrito`
+                                                    : `Add ${image.name} to cart`
                                             }
                                         >
                                             {language === "es"
