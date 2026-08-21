@@ -410,8 +410,7 @@ export const en = {
       description:
         "Designs created to celebrate love, special details, and those moments that deserve to become memories forever.",
 
-      primaryButton: "EXPLORE DESIGNS",
-      secondaryButton: "CUSTOMIZE NOW",
+      button: "EXPLORE DESIGNS",
     },
 
     intro: {
