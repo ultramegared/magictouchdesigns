@@ -274,35 +274,40 @@ usernamePlaceholder: "Enter your username",
     },
 
     howItWorks: {
-      eyebrow: "HOW IT WORKS",
+  eyebrow: "HOW IT WORKS",
 
-      steps: {
-        chooseModel: {
-          title: "CHOOSE A MODEL",
-          description: "Pick your favorite mug model.",
-        },
+  title: "Creating your",
+  titleAccent: "perfect mug",
+  descriptionBefore: "From your idea to your door in",
+  descriptionAfter: "simple steps",
 
-        uploadPhoto: {
-          title: "UPLOAD YOUR PHOTO",
-          description: "Add your photo or artwork.",
-        },
-
-        customize: {
-          title: "CUSTOMIZE",
-          description: "Make it yours with text and filters.",
-        },
-
-        wePrint: {
-          title: "WE PRINT",
-          description: "We print your mug with care.",
-        },
-
-        delivered: {
-          title: "DELIVERED",
-          description: "Fast shipping to your door.",
-        },
-      },
+  steps: {
+    chooseModel: {
+      title: "CHOOSE A MODEL",
+      description: "Pick your favorite mug model.",
     },
+
+    uploadPhoto: {
+      title: "UPLOAD YOUR PHOTO",
+      description: "Add your photo or artwork.",
+    },
+
+    customize: {
+      title: "CUSTOMIZE",
+      description: "Make it yours with text and filters.",
+    },
+
+    wePrint: {
+      title: "WE PRINT",
+      description: "We print your mug with care.",
+    },
+
+    delivered: {
+      title: "DELIVERED",
+      description: "Fast shipping to your door.",
+    },
+  },
+},
 
 community: {
 

@@ -312,45 +312,41 @@ register: {
 
         },
 
-                howItWorks: {
+               howItWorks: {
+  eyebrow: "CÓMO FUNCIONA",
 
-            eyebrow: "CÓMO FUNCIONA",
+  title: "Crear tu",
+  titleAccent: "taza perfecta",
+  descriptionBefore: "De tu idea hasta tu puerta en",
+  descriptionAfter: "simples pasos",
 
-            steps: {
+  steps: {
+    chooseModel: {
+      title: "ELIGE UN MODELO",
+      description: "Elige tu modelo de taza favorito.",
+    },
 
-                chooseModel: {
-                    title: "ELIGE UN MODELO",
-                    description:
-                        "Elige tu modelo de taza favorito.",
-                },
+    uploadPhoto: {
+      title: "SUBE TU FOTO",
+      description: "Agrega tu foto o diseño.",
+    },
 
-                uploadPhoto: {
-                    title: "SUBE TU FOTO",
-                    description:
-                        "Agrega tu foto o diseño.",
-                },
+    customize: {
+      title: "PERSONALIZA",
+      description: "Hazlo tuyo con texto y filtros.",
+    },
 
-                customize: {
-                    title: "PERSONALIZA",
-                    description:
-                        "Hazlo tuyo con texto y filtros.",
-                },
+    wePrint: {
+      title: "LO IMPRIMIMOS",
+      description: "Imprimimos tu taza con cuidado.",
+    },
 
-                wePrint: {
-                    title: "LO IMPRIMIMOS",
-                    description:
-                        "Imprimimos tu taza con cuidado.",
-                },
-
-                delivered: {
-                    title: "ENTREGADO",
-                    description:
-                        "Envío rápido hasta tu puerta.",
-                },
-
-            },
-
-        },
+    delivered: {
+      title: "ENTREGADO",
+      description: "Envío rápido hasta tu puerta.",
+    },
+  },
+},
 
        community: {
 
