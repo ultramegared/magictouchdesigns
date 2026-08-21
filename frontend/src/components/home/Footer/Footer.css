@@ -235,7 +235,7 @@
 
 
 /* ================================================================
-   PAYMENT METHODS
+   PAYMENT METHODS -- PREMIUM
    ================================================================ */
 
 .footer__payments {
@@ -244,20 +244,26 @@
 
     flex-wrap: wrap;
 
-    gap: 10px;
+    gap: 12px;
 
     margin-bottom: 32px;
 
 }
 
 
+/* ================================================================
+   PAYMENT CARD
+   ================================================================ */
+
 .footer__payments span {
 
-    min-width: 72px;
+    position: relative;
 
-    height: 42px;
+    min-width: 82px;
 
-    padding: 0 10px;
+    height: 48px;
+
+    padding: 0 14px;
 
     display: flex;
 
@@ -265,20 +271,203 @@
 
     justify-content: center;
 
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-sizing: border-box;
 
-    border-radius: 6px;
+    border: 1px solid rgba(
+        200,
+        155,
+        60,
+        0.30
+    );
 
-    background: rgba(255, 255, 255, 0.025);
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.065),
+            rgba(255, 255, 255, 0.015)
+        );
 
     color: #FFFFFF;
 
     font-size: 0.72rem;
 
-    font-weight: 700;
+    font-weight: 800;
+
+    letter-spacing: 0.02em;
+
+    box-shadow:
+        inset 0 1px 0 rgba(
+            255,
+            255,
+            255,
+            0.07
+        ),
+        0 8px 20px rgba(
+            0,
+            0,
+            0,
+            0.22
+        );
+
+    overflow: hidden;
+
+    transition:
+        transform 0.28s ease,
+        border-color 0.28s ease,
+        box-shadow 0.28s ease,
+        background 0.28s ease;
 
 }
 
+
+/* ================================================================
+   GOLDEN LIGHT
+   ================================================================ */
+
+.footer__payments span::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -35px;
+
+    left: 50%;
+
+    width: 85px;
+
+    height: 70px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(
+                200,
+                155,
+                60,
+                0.16
+            ),
+            transparent 70%
+        );
+
+    pointer-events: none;
+
+}
+
+
+/* ================================================================
+   PREMIUM HIGHLIGHT
+   ================================================================ */
+
+.footer__payments span::after {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: -120%;
+
+    width: 70%;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(
+                255,
+                255,
+                255,
+                0.08
+            ),
+            transparent
+        );
+
+    transform: skewX(-20deg);
+
+    transition:
+        left 0.55s ease;
+
+    pointer-events: none;
+
+}
+
+
+/* ================================================================
+   DESKTOP HOVER
+   ================================================================ */
+
+@media (hover: hover) and (pointer: fine) {
+
+    .footer__payments span:hover {
+
+        transform:
+            translateY(-4px);
+
+        border-color:
+            rgba(
+                200,
+                155,
+                60,
+                0.72
+            );
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(
+                    200,
+                    155,
+                    60,
+                    0.10
+                ),
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.025
+                )
+            );
+
+        box-shadow:
+            inset 0 1px 0 rgba(
+                255,
+                255,
+                255,
+                0.10
+            ),
+            0 12px 28px rgba(
+                0,
+                0,
+                0,
+                0.35
+            ),
+            0 0 22px rgba(
+                200,
+                155,
+                60,
+                0.08
+            );
+
+    }
+
+
+    .footer__payments span:hover::after {
+
+        left: 140%;
+
+    }
+
+}
 
 /* ================================================================
    LANGUAGE
