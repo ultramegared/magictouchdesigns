@@ -97,7 +97,8 @@ function HeroSlider() {
 
     const slide = heroSlides[currentSlide];
 
-    const content = t.slides[slide.translationKey];
+    const content =
+        t.slides[slide.translationKey];
 
     return (
 
@@ -111,10 +112,18 @@ function HeroSlider() {
                     ),
                     url(${slide.background})`,
             }}
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-            onFocus={() => setIsPaused(true)}
-            onBlur={() => setIsPaused(false)}
+            onMouseEnter={() =>
+                setIsPaused(true)
+            }
+            onMouseLeave={() =>
+                setIsPaused(false)
+            }
+            onFocus={() =>
+                setIsPaused(true)
+            }
+            onBlur={() =>
+                setIsPaused(false)
+            }
         >
 
             <button
@@ -145,7 +154,7 @@ function HeroSlider() {
                         {content.subtitle}
                     </p>
 
-                                  </div>
+                </div>
 
                 <div
                     key={`image-${slide.id}`}
@@ -154,7 +163,10 @@ function HeroSlider() {
 
                     <img
                         src={slide.image}
-                        alt={content.title.replace("\n", " ")}
+                        alt={content.title.replace(
+                            "\n",
+                            " "
+                        )}
                     />
 
                 </div>
@@ -165,34 +177,27 @@ function HeroSlider() {
                         type="button"
                         className="hero-slider__primary"
                         onClick={() =>
-                            window.location.href = "/customize"
+                            window.location.href =
+                                "/customize"
                         }
                     >
+
                         {content.primaryButton}
+
                     </button>
 
                     <button
                         type="button"
                         className="hero-slider__secondary"
                         onClick={() =>
-                            window.location.href = "/products"
+                            window.location.href =
+                                "/products"
                         }
                     >
+
                         {content.secondaryButton}
+
                     </button>
-
-                </div>
-
-            </div>
-                <div
-                    key={`image-${slide.id}`}
-                    className="hero-slider__image"
-                >
-
-                    <img
-                        src={slide.image}
-                        alt={content.title.replace("\n", " ")}
-                    />
 
                 </div>
 
@@ -211,25 +216,27 @@ function HeroSlider() {
 
             <div className="hero-slider__dots">
 
-                {heroSlides.map((heroSlide, index) => (
+                {heroSlides.map(
+                    (heroSlide, index) => (
 
-                    <button
-                        type="button"
-                        key={heroSlide.id}
-                        className={
-                            index === currentSlide
-                                ? "hero-slider__dot hero-slider__dot--active"
-                                : "hero-slider__dot"
-                        }
-                        onClick={() =>
-                            setCurrentSlide(index)
-                        }
-                        aria-label={
-                            `${t.goToSlide} ${index + 1}`
-                        }
-                    />
+                        <button
+                            type="button"
+                            key={heroSlide.id}
+                            className={
+                                index === currentSlide
+                                    ? "hero-slider__dot hero-slider__dot--active"
+                                    : "hero-slider__dot"
+                            }
+                            onClick={() =>
+                                setCurrentSlide(index)
+                            }
+                            aria-label={
+                                `${t.goToSlide} ${index + 1}`
+                            }
+                        />
 
-                ))}
+                    )
+                )}
 
             </div>
 
