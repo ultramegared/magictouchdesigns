@@ -664,6 +664,77 @@ community: {
   },
   
   
+    termsOfService: {
+    hero: {
+      eyebrow: "TERMS & CONDITIONS",
+      title: "Terms of",
+      titleAccent: "Service",
+      intro:
+        "Please review the terms and conditions that apply when using the Magic Touch Designs website and purchasing our products.",
+    },
+
+    acceptance: {
+      title: "Acceptance of Terms",
+      description:
+        "By accessing or using the Magic Touch Designs website, you acknowledge that you have read, understood, and agree to be bound by these terms and conditions.",
+    },
+
+    website: {
+      title: "Use of Our Website",
+      description:
+        "You agree to use this website only for lawful purposes and in a manner that does not interfere with the operation of the website or the experience of other users.",
+    },
+
+    products: {
+      title: "Products & Custom Orders",
+      description:
+        "Magic Touch Designs offers products that may include personalized or customized designs. Customers are responsible for providing accurate information and reviewing submitted customization details before completing an order.",
+    },
+
+    ordersPayment: {
+      title: "Orders & Payment",
+      description:
+        "Orders are subject to availability, acceptance, and successful payment processing. We reserve the right to review, limit, or cancel an order when necessary.",
+    },
+
+    pricing: {
+      title: "Pricing & Product Information",
+      description:
+        "We make reasonable efforts to keep product descriptions, images, prices, and other information accurate. Information may be updated or corrected when necessary.",
+    },
+
+    shipping: {
+      title: "Shipping & Delivery",
+      description:
+        "Shipping times and delivery estimates may vary depending on the destination, carrier, order processing, and other circumstances. Additional information is available on our Shipping & Returns page.",
+    },
+
+    intellectualProperty: {
+      title: "Intellectual Property",
+      description:
+        "Website content, branding, graphics, photographs, designs, logos, text, and other materials belonging to Magic Touch Designs may not be copied, reproduced, distributed, or used without appropriate authorization.",
+    },
+
+    liability: {
+      title: "Limitation of Liability",
+      description:
+        "To the extent permitted by applicable law, Magic Touch Designs is not responsible for losses or damages resulting from the use or inability to use the website or from circumstances beyond our reasonable control.",
+    },
+
+    changes: {
+      title: "Changes to These Terms",
+      description:
+        "These terms may be updated from time to time. Any changes will be reflected on this page, and continued use of the website after changes are posted constitutes acceptance of the updated terms.",
+    },
+
+    contact: {
+      title: "Contact Us",
+      description:
+        "If you have questions regarding these Terms of Service, please contact Magic Touch Designs through our Contact page.",
+    },
+  },
+  
+  
    about: {
     hero: {
       eyebrow: "ABOUT US",

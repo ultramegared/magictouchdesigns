@@ -701,6 +701,76 @@ register: {
     },
   },
   
+    termsOfService: {
+    hero: {
+      eyebrow: "TÉRMINOS Y CONDICIONES",
+      title: "Términos de",
+      titleAccent: "Servicio",
+      intro:
+        "Revisa los términos y condiciones que se aplican al utilizar el sitio web de Magic Touch Designs y comprar nuestros productos.",
+    },
+
+    acceptance: {
+      title: "Aceptación de los Términos",
+      description:
+        "Al acceder o utilizar el sitio web de Magic Touch Designs, reconoces que has leído, comprendido y aceptas estar sujeto a estos términos y condiciones.",
+    },
+
+    website: {
+      title: "Uso de Nuestro Sitio Web",
+      description:
+        "Aceptas utilizar este sitio web únicamente para fines legales y de una manera que no interfiera con el funcionamiento del sitio ni con la experiencia de otros usuarios.",
+    },
+
+    products: {
+      title: "Productos y Pedidos Personalizados",
+      description:
+        "Magic Touch Designs ofrece productos que pueden incluir diseños personalizados. Los clientes son responsables de proporcionar información correcta y revisar los detalles de personalización enviados antes de completar un pedido.",
+    },
+
+    ordersPayment: {
+      title: "Pedidos y Pagos",
+      description:
+        "Los pedidos están sujetos a disponibilidad, aceptación y procesamiento exitoso del pago. Nos reservamos el derecho de revisar, limitar o cancelar un pedido cuando sea necesario.",
+    },
+
+    pricing: {
+      title: "Precios e Información de los Productos",
+      description:
+        "Realizamos esfuerzos razonables para mantener actualizadas las descripciones, imágenes, precios y demás información de los productos. La información puede actualizarse o corregirse cuando sea necesario.",
+    },
+
+    shipping: {
+      title: "Envíos y Entrega",
+      description:
+        "Los tiempos de envío y las estimaciones de entrega pueden variar según el destino, la empresa transportista, el procesamiento del pedido y otras circunstancias. Puedes encontrar información adicional en nuestra página de Envíos y Devoluciones.",
+    },
+
+    intellectualProperty: {
+      title: "Propiedad Intelectual",
+      description:
+        "El contenido del sitio web, la marca, gráficos, fotografías, diseños, logotipos, textos y otros materiales pertenecientes a Magic Touch Designs no pueden copiarse, reproducirse, distribuirse ni utilizarse sin la autorización correspondiente.",
+    },
+
+    liability: {
+      title: "Limitación de Responsabilidad",
+      description:
+        "En la medida permitida por la legislación aplicable, Magic Touch Designs no se responsabiliza por pérdidas o daños derivados del uso o la imposibilidad de utilizar el sitio web, ni por circunstancias que estén fuera de nuestro control razonable.",
+    },
+
+    changes: {
+      title: "Cambios en Estos Términos",
+      description:
+        "Estos términos pueden actualizarse periódicamente. Cualquier cambio se reflejará en esta página, y el uso continuado del sitio web después de la publicación de los cambios constituye la aceptación de los términos actualizados.",
+    },
+
+    contact: {
+      title: "Contáctanos",
+      description:
+        "Si tienes preguntas sobre estos Términos de Servicio, puedes comunicarte con Magic Touch Designs a través de nuestra página de Contacto.",
+    },
+  },
+  
   
     about: {
     hero: {
