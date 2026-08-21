@@ -160,7 +160,6 @@ const footerLinkTranslations: Record<string, string> = {
                         <div className="footer__payments">
 
                             <span>VISA</span>
-                            <span>MC</span>
                             <span>AMEX</span>
                             <span>PayPal</span>
                             <span> Pay</span>
@@ -265,8 +264,7 @@ const footerLinkTranslations: Record<string, string> = {
 
                             <div className="footer__payments">
 
-                                <span>VISA</span>
-                                <span>MC</span>
+                                <span>VISA</span> 
                                 <span>AMEX</span>
                                 <span>PayPal</span>
                                 <span> Pay</span>

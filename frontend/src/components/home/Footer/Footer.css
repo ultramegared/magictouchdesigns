@@ -235,175 +235,126 @@
 
 
 /* ================================================================
-   PAYMENT METHODS -- PREMIUM
+   PAYMENT METHODS -- PREMIUM 3D
    ================================================================ */
 
 .footer__payments {
-
     display: flex;
-
     flex-wrap: wrap;
-
-    gap: 12px;
-
+    gap: 13px;
     margin-bottom: 32px;
-
 }
 
-
-/* ================================================================
-   PAYMENT CARD
-   ================================================================ */
-
 .footer__payments span {
-
     position: relative;
 
-    min-width: 82px;
-
-    height: 48px;
-
-    padding: 0 14px;
+    min-width: 88px;
+    height: 50px;
+    padding: 0 16px;
 
     display: flex;
-
     align-items: center;
-
     justify-content: center;
 
     box-sizing: border-box;
 
-    border: 1px solid rgba(
-        200,
-        155,
-        60,
-        0.30
-    );
-
-    border-radius: 9px;
+    border: 1px solid rgba(200, 155, 60, 0.42);
+    border-radius: 10px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(255, 255, 255, 0.065),
-            rgba(255, 255, 255, 0.015)
+            rgba(255, 255, 255, 0.09) 0%,
+            rgba(255, 255, 255, 0.025) 45%,
+            rgba(0, 0, 0, 0.28) 100%
         );
 
-    color: #FFFFFF;
+    color: #ffffff;
 
     font-size: 0.72rem;
-
     font-weight: 800;
-
-    letter-spacing: 0.02em;
+    letter-spacing: 0.025em;
 
     box-shadow:
-        inset 0 1px 0 rgba(
-            255,
-            255,
-            255,
-            0.07
-        ),
-        0 8px 20px rgba(
-            0,
-            0,
-            0,
-            0.22
-        );
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+        0 5px 0 rgba(88, 61, 17, 0.32),
+        0 10px 22px rgba(0, 0, 0, 0.32);
+
+    transform: translateY(0);
 
     overflow: hidden;
 
     transition:
-        transform 0.28s ease,
-        border-color 0.28s ease,
-        box-shadow 0.28s ease,
-        background 0.28s ease;
-
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 
 /* ================================================================
-   GOLDEN LIGHT
+   TOP LIGHT
    ================================================================ */
 
 .footer__payments span::before {
-
-    content: "";
-
-    position: absolute;
-
-    top: -35px;
-
-    left: 50%;
-
-    width: 85px;
-
-    height: 70px;
-
-    transform: translateX(-50%);
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(
-                200,
-                155,
-                60,
-                0.16
-            ),
-            transparent 70%
-        );
-
-    pointer-events: none;
-
-}
-
-
-/* ================================================================
-   PREMIUM HIGHLIGHT
-   ================================================================ */
-
-.footer__payments span::after {
-
     content: "";
 
     position: absolute;
 
     top: 0;
+    left: 10%;
 
-    left: -120%;
-
-    width: 70%;
-
-    height: 100%;
+    width: 80%;
+    height: 1px;
 
     background:
         linear-gradient(
             90deg,
             transparent,
-            rgba(
-                255,
-                255,
-                255,
-                0.08
-            ),
+            rgba(255, 222, 133, 0.75),
             transparent
         );
 
-    transform: skewX(-20deg);
+    opacity: 0.8;
+
+    pointer-events: none;
+}
+
+
+/* ================================================================
+   DIAGONAL REFLECTION
+   ================================================================ */
+
+.footer__payments span::after {
+    content: "";
+
+    position: absolute;
+
+    top: -80%;
+    left: -70%;
+
+    width: 45%;
+    height: 240%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.13),
+            transparent
+        );
+
+    transform: rotate(24deg);
 
     transition:
         left 0.55s ease;
 
     pointer-events: none;
-
 }
 
 
 /* ================================================================
-   DESKTOP HOVER
+   DESKTOP 3D HOVER
    ================================================================ */
 
 @media (hover: hover) and (pointer: fine) {
@@ -411,63 +362,66 @@
     .footer__payments span:hover {
 
         transform:
-            translateY(-4px);
+            translateY(-5px);
 
         border-color:
-            rgba(
-                200,
-                155,
-                60,
-                0.72
-            );
-
-        background:
-            linear-gradient(
-                145deg,
-                rgba(
-                    200,
-                    155,
-                    60,
-                    0.10
-                ),
-                rgba(
-                    255,
-                    255,
-                    255,
-                    0.025
-                )
-            );
+            rgba(221, 180, 82, 0.85);
 
         box-shadow:
-            inset 0 1px 0 rgba(
-                255,
-                255,
-                255,
-                0.10
-            ),
-            0 12px 28px rgba(
-                0,
-                0,
-                0,
-                0.35
-            ),
-            0 0 22px rgba(
-                200,
-                155,
-                60,
-                0.08
-            );
-
+            inset 0 1px 0 rgba(255, 255, 255, 0.16),
+            inset 0 -2px 0 rgba(0, 0, 0, 0.30),
+            0 5px 0 rgba(88, 61, 17, 0.38),
+            0 16px 30px rgba(0, 0, 0, 0.42),
+            0 0 22px rgba(200, 155, 60, 0.10);
     }
-
 
     .footer__payments span:hover::after {
+        left: 135%;
+    }
+}
 
-        left: 140%;
 
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 700px) {
+
+    .footer__payments {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 12px;
+
+        width: 100%;
     }
 
+    .footer__payments span {
+        min-width: 0;
+
+        width: 100%;
+        height: 50px;
+
+        padding: 0 10px;
+
+        border-radius: 10px;
+
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.11),
+            inset 0 -2px 0 rgba(0, 0, 0, 0.32),
+            0 4px 0 rgba(88, 61, 17, 0.30),
+            0 8px 18px rgba(0, 0, 0, 0.30);
+    }
+
+    .footer__payments span:last-child {
+        grid-column: 1 / -1;
+        width: calc(50% - 6px);
+        justify-self: start;
+    }
 }
+
 
 /* ================================================================
    LANGUAGE
