@@ -6,32 +6,67 @@
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Frequently Asked Questions page.
+ * Premium bilingual Frequently Asked Questions page.
  * ===============================================================
  */
+
+import { useState } from "react";
 
 import "./FAQPage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 
+import { useLanguage } from "../../contexts/LanguageContext";
+import { translations } from "../../translations";
+
 function FAQPage() {
+    const { language } = useLanguage();
+
+    const t = translations[language].faq;
+
+    const [openQuestion, setOpenQuestion] = useState<string | null>(null);
+
+    const questions = [
+        t.questions.products,
+        t.questions.customization,
+        t.questions.shipping,
+        t.questions.tracking,
+        t.questions.returns,
+        t.questions.contact,
+    ];
+
+    const toggleQuestion = (id: string) => {
+        setOpenQuestion((current) =>
+            current === id ? null : id
+        );
+    };
+
     return (
         <>
             <Header />
 
             <main className="faq-page">
 
+                {/* =================================================
+                    HERO
+                ================================================= */}
+
                 <section className="faq-page__hero">
+
+                    <div className="faq-page__hero-glow" />
+
                     <div className="faq-page__container">
 
                         <span className="faq-page__eyebrow">
-                            FREQUENTLY ASKED QUESTIONS
+                            <span />
+                            {t.hero.eyebrow}
+                            <span />
                         </span>
 
                         <h1>
-                            Frequently Asked
-                            <span>Questions</span>
+                            {t.hero.title}
+                            <span>{t.hero.titleAccent}</span>
                         </h1>
 
                         <div className="faq-page__divider">
@@ -39,81 +74,86 @@ function FAQPage() {
                         </div>
 
                         <p className="faq-page__intro">
-                            Find answers to the most common questions
-                            about our products, orders, customization,
-                            shipping, and returns.
+                            {t.hero.intro}
                         </p>
 
                     </div>
+
                 </section>
 
+                {/* =================================================
+                    QUESTIONS
+                ================================================= */}
+
                 <section className="faq-page__content">
+
                     <div className="faq-page__container">
 
-                        <article className="faq-page__item">
-                            <h2>What products do you offer?</h2>
+                        <div className="faq-page__list">
 
-                            <p>
-                                We offer a variety of products designed
-                                for personal use, gifts, and customized
-                                experiences. Product availability may
-                                vary over time.
-                            </p>
-                        </article>
+                            {questions.map((item, index) => {
 
-                        <article className="faq-page__item">
-                            <h2>Can I customize my order?</h2>
+                                const id = `faq-${index + 1}`;
 
-                            <p>
-                                Yes. Selected products may be customized
-                                according to the options available on
-                                the product or customization page.
-                            </p>
-                        </article>
+                                const isOpen =
+                                    openQuestion === id;
 
-                        <article className="faq-page__item">
-                            <h2>How long does shipping take?</h2>
+                                return (
+                                    <article
+                                        className={`faq-page__item ${
+                                            isOpen
+                                                ? "faq-page__item--open"
+                                                : ""
+                                        }`}
+                                        key={id}
+                                    >
 
-                            <p>
-                                Processing and delivery times may vary
-                                depending on the product, customization,
-                                destination, and order volume.
-                            </p>
-                        </article>
+                                        <button
+                                            type="button"
+                                            className="faq-page__question"
+                                            onClick={() =>
+                                                toggleQuestion(id)
+                                            }
+                                            aria-expanded={isOpen}
+                                            aria-controls={`${id}-answer`}
+                                        >
 
-                        <article className="faq-page__item">
-                            <h2>How can I track my order?</h2>
+                                            <span className="faq-page__number">
+                                                {String(index + 1).padStart(
+                                                    2,
+                                                    "0"
+                                                )}
+                                            </span>
 
-                            <p>
-                                When tracking information is available,
-                                it will be provided after your order has
-                                been processed and shipped.
-                            </p>
-                        </article>
+                                            <span className="faq-page__question-text">
+                                                {item.question}
+                                            </span>
 
-                        <article className="faq-page__item">
-                            <h2>Can I return a customized product?</h2>
+                                            <span className="faq-page__icon">
+                                                {isOpen ? "−" : "+"}
+                                            </span>
 
-                            <p>
-                                Return eligibility may vary for customized
-                                products. Please review our Shipping &
-                                Returns information before placing your
-                                order.
-                            </p>
-                        </article>
+                                        </button>
 
-                        <article className="faq-page__item">
-                            <h2>How can I contact you?</h2>
+                                        <div
+                                            id={`${id}-answer`}
+                                            className="faq-page__answer"
+                                        >
+                                            <div>
+                                                <p>
+                                                    {item.answer}
+                                                </p>
+                                            </div>
+                                        </div>
 
-                            <p>
-                                If you need assistance with an order,
-                                product, customization, shipping, or
-                                returns, please contact us through our
-                                Contact page.
-                            </p>
-                        </article>
+                                    </article>
+                                );
+                            })}
+
+                        </div>
 
                     </div>
+
                 </section>
 
             </main>
