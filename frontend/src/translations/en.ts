@@ -577,6 +577,35 @@ community: {
     },
   },
  
+ 
+   trackOrder: {
+    hero: {
+      eyebrow: "ORDER SUPPORT",
+      title: "Track Your",
+      titleAccent: "Order",
+      intro:
+        "Enter your order information to check the available status and tracking details for your order.",
+    },
+
+    tracking: {
+      title: "Tracking Information",
+      description:
+        "Once your order has been processed and shipped, available tracking information will be provided for your order.",
+      orderNumberLabel: "ORDER NUMBER",
+      orderNumberPlaceholder: "Enter your order number",
+      emailLabel: "EMAIL ADDRESS",
+      emailPlaceholder: "Enter your email address",
+      button: "TRACK ORDER",
+    },
+
+    help: {
+      title: "Need Help?",
+      description:
+        "If you have questions about your order, shipping, or tracking information, please contact us and we will be happy to help.",
+    },
+  },
+  
+  
    about: {
     hero: {
       eyebrow: "ABOUT US",

@@ -615,6 +615,35 @@ register: {
     },
   },
   
+  
+    trackOrder: {
+    hero: {
+      eyebrow: "SOPORTE DE PEDIDOS",
+      title: "Rastrea tu",
+      titleAccent: "Pedido",
+      intro:
+        "Ingresa la información de tu pedido para consultar el estado disponible y los detalles de seguimiento.",
+    },
+
+    tracking: {
+      title: "Información de Seguimiento",
+      description:
+        "Una vez que tu pedido haya sido procesado y enviado, se proporcionará la información de seguimiento disponible.",
+      orderNumberLabel: "NÚMERO DE PEDIDO",
+      orderNumberPlaceholder: "Ingresa tu número de pedido",
+      emailLabel: "CORREO ELECTRÓNICO",
+      emailPlaceholder: "Ingresa tu correo electrónico",
+      button: "RASTREAR PEDIDO",
+    },
+
+    help: {
+      title: "¿Necesitas ayuda?",
+      description:
+        "Si tienes preguntas sobre tu pedido, envío o información de seguimiento, contáctanos y estaremos encantados de ayudarte.",
+    },
+  },
+  
+  
     about: {
     hero: {
       eyebrow: "SOBRE NOSOTROS",
