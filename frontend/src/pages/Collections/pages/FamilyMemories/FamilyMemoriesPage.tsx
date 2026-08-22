@@ -327,7 +327,7 @@ function FamilyMemoriesPage() {
                         </p>
 
                         <Link
-    to="/customize"
+    to="/collections"
     className="family-memories-hero__button"
 >
     {t.hero.button}
