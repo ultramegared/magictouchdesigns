@@ -326,12 +326,12 @@ function FamilyMemoriesPage() {
                             {t.hero.description}
                         </p>
 
-                        <button
-                            type="button"
-                            className="family-memories-hero__button"
-                        >
-                            {t.hero.button}
-                        </button>
+                        <Link
+    to="/customize"
+    className="family-memories-hero__button"
+>
+    {t.hero.button}
+</Link>
 
                     </div>
 
@@ -593,13 +593,12 @@ function FamilyMemoriesPage() {
                             {t.featured.description}
                         </p>
 
-                        <button
-                            type="button"
-                            className="family-memories-featured__button"
-                        >
-                            {t.featured.button}
-                        </button>
-
+                        <Link
+    to="/customize"
+    className="family-memories-featured__button"
+>
+    {t.featured.button}
+</Link>
                     </div>
 
                 </section>
@@ -643,12 +642,12 @@ function FamilyMemoriesPage() {
                             {t.cta.description}
                         </p>
 
-                        <button
-                            type="button"
-                            className="family-memories-cta__button"
-                        >
-                            {t.cta.button}
-                        </button>
+                        <Link
+    to="/customize"
+    className="family-memories-cta__button"
+>
+    {t.cta.button}
+</Link>
 
                     </div>
 
