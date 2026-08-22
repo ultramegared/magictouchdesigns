@@ -593,6 +593,41 @@ export const es = {
         },
     },
     
+    
+    businessBranding: {
+    hero: {
+        eyebrow: "NEGOCIOS & MARCA",
+        title: "Impulsa Tu",
+        titleAccent: "Marca",
+        description:
+            "Diseños personalizados y profesionales creados para darle a tu negocio una presencia distintiva y convertir cada detalle en parte de tu identidad.",
+        button: "CREA TU DISEÑO",
+    },
+
+    products: {
+        eyebrow: "NUESTRA COLECCIÓN EMPRESARIAL",
+        title: "Diseñados Para",
+        titleAccent: "Tu Marca",
+    },
+
+    featured: {
+        eyebrow: "DEJA UNA IMPRESIÓN",
+        title: "Tu Marca",
+        titleAccent: "Merece Más",
+        description:
+            "Desde artículos promocionales hasta regalos personalizados, crea productos que representen tu negocio con estilo y propósito.",
+        button: "PERSONALIZAR AHORA",
+    },
+
+    cta: {
+        eyebrow: "¿LISTO PARA DESTACAR?",
+        title: "Dale Vida A Tu",
+        titleAccent: "Marca",
+        description:
+            "Elige tu diseño, personaliza cada detalle y crea algo que tus clientes recuerden.",
+        button: "EMPEZAR A CREAR",
+    },
+},
 
     contact: {
         eyebrow: "CONTÁCTANOS",

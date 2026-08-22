@@ -580,6 +580,41 @@ export const en = {
     },
   },
   
+businessBranding: {
+    hero: {
+        eyebrow: "BUSINESS & BRANDING",
+        title: "Build Your",
+        titleAccent: "Brand",
+        description:
+            "Professional custom designs created to give your business a distinctive presence and turn every detail into part of your brand.",
+        button: "CREATE YOUR DESIGN",
+    },
+
+    products: {
+        eyebrow: "OUR BUSINESS COLLECTION",
+        title: "Designed For",
+        titleAccent: "Your Brand",
+    },
+
+    featured: {
+        eyebrow: "MAKE AN IMPRESSION",
+        title: "Your Brand",
+        titleAccent: "Deserves More",
+        description:
+            "From promotional pieces to personalized gifts, create products that represent your business with style and purpose.",
+        button: "CUSTOMIZE NOW",
+    },
+
+    cta: {
+        eyebrow: "READY TO STAND OUT?",
+        title: "Bring Your",
+        titleAccent: "Brand To Life",
+        description:
+            "Choose your design, personalize the details and create something your customers will remember.",
+        button: "START CREATING",
+    },
+},
+
 
   contact: {
     eyebrow: "GET IN TOUCH",

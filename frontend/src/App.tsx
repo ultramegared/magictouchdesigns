@@ -17,6 +17,7 @@ import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
 import LoveRomancePage from "./pages/Collections/pages/LoveRomance/LoveRomancePage";
 import FamilyMemoriesPage from "./pages/Collections/pages/FamilyMemories/FamilyMemoriesPage";
+import BusinessBrandingPage from "./pages/Collections/pages/BusinessBranding/BusinessBrandingPage";
 
 import LoginPage from "./pages/Login/Login";
 import RegisterPage from "./pages/Register/Register";
@@ -76,6 +77,11 @@ function App() {
 <Route
     path="/collections/family-memories"
     element={<FamilyMemoriesPage />}
+/>
+
+<Route
+    path="/collections/business-branding"
+    element={<BusinessBrandingPage />}
 />
 
                 <Route
