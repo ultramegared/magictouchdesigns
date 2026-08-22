@@ -308,6 +308,10 @@ function CollectionsPage() {
         if (collection.translationKey === "loveRomance") {
             navigate("/collections/love-romance");
         }
+
+        if (collection.translationKey === "familyMemories") {
+            navigate("/collections/family-memories");
+        }
     }}
 >
     {t.browse.viewCollection}
