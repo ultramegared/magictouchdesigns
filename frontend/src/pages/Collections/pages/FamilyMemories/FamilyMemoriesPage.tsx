@@ -344,41 +344,6 @@ function FamilyMemoriesPage() {
                     INTRO
                    ================================================== */}
 
-                <section className="family-memories-intro">
-
-                    <div className="family-memories-intro__ornament">
-
-                        <span></span>
-
-                        <div>
-
-                            <b>♥</b>
-
-                            <small>
-                                {t.intro.eyebrow}
-                            </small>
-
-                        </div>
-
-                        <span></span>
-
-                    </div>
-
-                    <h2>
-
-                        {t.intro.title}
-
-                        <span>
-                            {t.intro.titleAccent}
-                        </span>
-
-                    </h2>
-
-                    <p>
-                        {t.intro.description}
-                    </p>
-
-                </section>
 
 
                 {/* ==================================================
