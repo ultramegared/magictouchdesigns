@@ -312,6 +312,10 @@ function CollectionsPage() {
         if (collection.translationKey === "familyMemories") {
             navigate("/collections/family-memories");
         }
+        
+        if (collection.translationKey === "businessBranding") {
+    navigate("/collections/business-branding");
+        } 
     }}
 >
     {t.browse.viewCollection}

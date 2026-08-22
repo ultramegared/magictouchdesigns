@@ -1,0 +1,2219 @@
+/**
+ * ===============================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: BusinessBrandingPage.css
+ * Module: Collections / Business & Branding
+ * Language: CSS
+ * Description:
+ * Premium Business & Branding collection page.
+ * ===============================================================
+ */
+
+.business-branding-page {
+
+    width: 100%;
+    min-height: 100vh;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 50% 12%,
+            rgba(214, 166, 65, .08),
+            transparent 28%
+        ),
+        linear-gradient(
+            180deg,
+            #080808 0%,
+            #0d0c0b 45%,
+            #080808 100%
+        );
+
+    color: #ffffff;
+
+}
+
+
+/* ===============================================================
+   HERO
+   =============================================================== */
+
+.business-branding-hero {
+
+    position: relative;
+
+    width: 100%;
+    min-height: 680px;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    background: #070707;
+
+}
+
+
+.business-branding-hero__visual {
+
+    position: absolute;
+    inset: 0;
+
+}
+
+
+.business-branding-hero__visual img {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+    object-position: center;
+
+    filter:
+        saturate(.88)
+        contrast(1.08)
+        brightness(.80);
+
+    transform: scale(1.02);
+
+}
+
+
+.business-branding-hero__overlay {
+
+    position: absolute;
+    inset: 0;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            rgba(4, 4, 4, .96) 0%,
+            rgba(6, 5, 5, .89) 28%,
+            rgba(8, 7, 7, .54) 55%,
+            rgba(8, 7, 7, .12) 100%
+        ),
+
+        linear-gradient(
+            180deg,
+            rgba(0, 0, 0, .30),
+            transparent 42%,
+            rgba(0, 0, 0, .74)
+        );
+
+}
+
+
+.business-branding-hero__glow {
+
+    position: absolute;
+
+    width: 620px;
+    height: 620px;
+
+    left: -130px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(
+            circle,
+            rgba(214, 166, 65, .16) 0%,
+            rgba(214, 166, 65, .06) 34%,
+            transparent 70%
+        );
+
+    filter: blur(18px);
+
+    pointer-events: none;
+
+}
+
+
+/* ===============================================================
+   HERO CONTENT
+   =============================================================== */
+
+.business-branding-hero__content {
+
+    position: relative;
+    z-index: 3;
+
+    width: min(1200px, calc(100% - 80px));
+
+    margin: 0 auto;
+
+    padding: 80px 0;
+
+}
+
+
+.business-branding-back-link {
+
+    display: inline-flex;
+    align-items: center;
+
+    width: fit-content;
+
+    margin-bottom: 30px;
+
+    color: rgba(255,255,255,.72);
+
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: 1.7px;
+
+    text-decoration: none;
+    text-transform: uppercase;
+
+    transition:
+        color .3s ease,
+        transform .3s ease,
+        opacity .3s ease;
+
+}
+
+
+.business-branding-back-link:hover {
+
+    color: #e4bb68;
+
+    transform: translateX(-3px);
+
+}
+
+
+.business-branding-back-link:focus-visible {
+
+    outline: 1px solid #d8a63c;
+
+    outline-offset: 7px;
+
+    border-radius: 4px;
+
+}
+
+
+.business-branding-hero__eyebrow {
+
+    display: inline-flex;
+    align-items: center;
+
+    margin-bottom: 18px;
+
+    color: #d9ab50;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+    text-transform: uppercase;
+
+}
+
+
+.business-branding-hero__content h1 {
+
+    max-width: 650px;
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(64px, 8vw, 108px);
+
+    line-height: .84;
+
+    font-weight: 500;
+
+    letter-spacing: -4px;
+
+    text-shadow:
+        0 8px 30px rgba(0,0,0,.45);
+
+}
+
+
+.business-branding-hero__content h1 span {
+
+    display: block;
+
+    margin-top: 12px;
+
+    color: #d9ab50;
+
+    background:
+
+        linear-gradient(
+            120deg,
+            #9d6a1e 0%,
+            #f4d07c 32%,
+            #c89336 56%,
+            #f2cf79 78%,
+            #a36d20 100%
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+.business-branding-hero__ornament {
+
+    width: 270px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    margin: 28px 0 22px;
+
+}
+
+
+.business-branding-hero__ornament span {
+
+    height: 1px;
+
+    flex: 1;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #d9ab50
+        );
+
+}
+
+
+.business-branding-hero__ornament span:last-child {
+
+    background:
+        linear-gradient(
+            90deg,
+            #d9ab50,
+            transparent
+        );
+
+}
+
+
+.business-branding-hero__ornament b {
+
+    color: #f0c96d;
+
+    font-size: 16px;
+
+    text-shadow:
+        0 0 15px rgba(240,201,109,.55);
+
+}
+
+
+.business-branding-hero__content p {
+
+    max-width: 480px;
+
+    margin: 0 0 30px;
+
+    color: rgba(255,255,255,.78);
+
+    font-size: 16px;
+
+    line-height: 1.75;
+
+}
+
+
+.business-branding-hero__button {
+
+    min-height: 48px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 28px;
+
+    border:
+        1px solid #e0b85d;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f3cf79 0%,
+            #c58b2c 100%
+        );
+
+    color: #171108;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.6px;
+
+    text-decoration: none;
+
+    box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,.70),
+
+        0 8px 24px rgba(0,0,0,.38),
+
+        0 0 24px rgba(214,166,65,.12);
+
+    cursor: pointer;
+
+    transition:
+        transform .3s ease,
+        box-shadow .3s ease,
+        filter .3s ease;
+
+}
+
+
+.business-branding-hero__button:hover {
+
+    transform: translateY(-3px);
+
+    filter: brightness(1.08);
+
+    box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,.78),
+
+        0 12px 30px rgba(0,0,0,.45),
+
+        0 0 32px rgba(214,166,65,.25);
+
+}
+
+
+.business-branding-hero__bottom-glow {
+
+    position: absolute;
+
+    z-index: 2;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 130px;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            rgba(7,7,7,.96)
+        );
+
+    pointer-events: none;
+
+}
+
+
+/* ===============================================================
+   PRODUCTS
+   =============================================================== */
+
+.business-branding-products {
+
+    width: min(1200px, calc(100% - 40px));
+
+    margin: 0 auto;
+
+    padding: 75px 0 90px;
+
+}
+
+
+.business-branding-section-heading {
+
+    margin-bottom: 35px;
+
+    text-align: center;
+
+}
+
+
+.business-branding-section-heading > span {
+
+    color: #d8a63c;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+}
+
+
+.business-branding-section-heading h2 {
+
+    margin: 12px 0;
+
+    color: #ffffff;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(35px, 4vw, 52px);
+
+    line-height: .95;
+
+    font-weight: 500;
+
+}
+
+
+.business-branding-section-heading h2 strong {
+
+    display: block;
+
+    color: #d8a63c;
+
+    font-weight: 500;
+
+}
+
+
+.business-branding-products__grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 18px;
+
+}
+
+
+.business-branding-product {
+
+    position: relative;
+
+    overflow: hidden;
+
+    border:
+        1px solid rgba(216,166,60,.52);
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #24201b 0%,
+            #141312 45%,
+            #090909 100%
+        );
+
+    box-shadow:
+
+        0 15px 35px rgba(0,0,0,.38),
+
+        inset 0 1px 0 rgba(255,255,255,.04);
+
+    transition:
+        transform .35s ease,
+        border-color .35s ease,
+        box-shadow .35s ease;
+
+}
+
+
+.business-branding-product:hover {
+
+    transform: translateY(-8px);
+
+    border-color: rgba(238,199,107,.95);
+
+    box-shadow:
+
+        0 25px 50px rgba(0,0,0,.48),
+
+        0 0 28px rgba(216,166,60,.14);
+
+}
+
+
+/* ===============================================================
+   PRODUCT IMAGE
+   =============================================================== */
+
+.business-branding-product__image {
+
+    position: relative;
+
+    width: 100%;
+
+    aspect-ratio: .92 / 1;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 50% 42%,
+            rgba(243,210,142,.15),
+            transparent 65%
+        ),
+        #171512;
+
+    cursor: zoom-in;
+
+}
+
+
+.business-branding-product__image:focus-visible {
+
+    outline: 1px solid #e5bd68;
+
+    outline-offset: -3px;
+
+}
+
+
+.business-branding-product__image img {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition:
+        transform .6s ease,
+        filter .6s ease;
+
+}
+
+
+.business-branding-product:hover
+.business-branding-product__image img {
+
+    transform: scale(1.06);
+
+    filter:
+        brightness(1.06)
+        saturate(1.04);
+
+}
+
+
+/* ===============================================================
+   ZOOM
+   =============================================================== */
+
+.business-branding-product__zoom {
+
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+
+    z-index: 5;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(255,255,255,.55);
+
+    border-radius: 50%;
+
+    background:
+        rgba(7,7,7,.58);
+
+    box-shadow:
+
+        0 5px 14px rgba(0,0,0,.38),
+
+        inset 0 1px 0 rgba(255,255,255,.16);
+
+    backdrop-filter: blur(7px);
+
+    -webkit-backdrop-filter: blur(7px);
+
+    pointer-events: none;
+
+}
+
+
+.business-branding-product__zoom svg {
+
+    width: 17px;
+    height: 17px;
+
+    fill: none;
+
+    stroke: #ffffff;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+}
+
+
+.business-branding-product:hover
+.business-branding-product__zoom {
+
+    transform: scale(1.08);
+
+    background:
+        rgba(216,166,60,.72);
+
+    border-color:
+        rgba(255,255,255,.82);
+
+}
+
+
+/* ===============================================================
+   PRODUCT NUMBER
+   =============================================================== */
+
+.business-branding-product__number {
+
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    z-index: 4;
+
+    width: 27px;
+    height: 27px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(238,201,105,.60);
+
+    border-radius: 50%;
+
+    background:
+        rgba(7,7,7,.62);
+
+    color:
+        rgba(255,255,255,.82);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 10px;
+
+    line-height: 1;
+
+    backdrop-filter: blur(6px);
+
+    -webkit-backdrop-filter: blur(6px);
+
+    pointer-events: none;
+
+}
+
+
+/* ===============================================================
+   PRODUCT BODY
+   =============================================================== */
+
+.business-branding-product__body {
+
+    min-height: 72px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 12px 14px;
+
+    border-top:
+        1px solid rgba(216,166,60,.12);
+
+}
+
+
+.business-branding-product__info {
+
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+
+.business-branding-product__price {
+
+    color: #f2d17b;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 19px;
+
+    font-weight: 500;
+
+    white-space: nowrap;
+
+}
+
+
+/* ===============================================================
+   QUANTITY
+   =============================================================== */
+
+.business-branding-product__quantity {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    flex-shrink: 0;
+
+}
+
+
+.business-branding-product__quantity button {
+
+    width: 25px;
+    height: 25px;
+
+    min-width: 25px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid rgba(216,166,60,.38);
+
+    border-radius: 50%;
+
+    background:
+        rgba(216,166,60,.07);
+
+    color:
+        rgba(255,255,255,.78);
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+}
+
+
+.business-branding-product__quantity button:hover {
+
+    background:
+        rgba(216,166,60,.18);
+
+    border-color:
+        rgba(216,166,60,.75);
+
+    color:
+        #f2d17b;
+
+}
+
+
+.business-branding-product__quantity span {
+
+    min-width: 18px;
+
+    color:
+        rgba(255,255,255,.78);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-align: center;
+
+}
+
+
+/* ===============================================================
+   CART BUTTON
+   =============================================================== */
+
+.business-branding-product__button {
+
+    position: relative;
+
+    width: 44px;
+    height: 44px;
+
+    min-width: 44px;
+
+    padding: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(238,201,105,.90);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 30% 22%,
+            #fff4c4 0%,
+            #f1ce78 17%,
+            #d6a541 42%,
+            #a96f1e 68%,
+            #70450f 100%
+        );
+
+    color: transparent;
+
+    font-size: 0;
+
+    cursor: pointer;
+
+    box-shadow:
+
+        inset 0 2px 2px rgba(255,255,255,.65),
+
+        inset 0 -4px 6px rgba(67,38,5,.52),
+
+        0 5px 12px rgba(0,0,0,.50);
+
+}
+
+
+.business-branding-product__button::before {
+
+    content: "";
+
+    display: block;
+
+    width: 21px;
+    height: 21px;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h2l2.2 11.2c.2 1 1.1 1.8 2.1 1.8h9.2c.9 0 1.7-.6 2-1.5L22 9H6' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='9' cy='21' r='1.5' fill='white'/%3E%3Ccircle cx='18' cy='21' r='1.5' fill='white'/%3E%3C/svg%3E");
+
+    background-repeat: no-repeat;
+
+    background-position: center;
+
+    background-size: contain;
+
+    filter:
+        drop-shadow(
+            0 2px 1px rgba(0,0,0,.65)
+        );
+
+}
+
+
+.business-branding-product__button::after {
+
+    content: "";
+
+    position: absolute;
+
+    top: 6px;
+    left: 9px;
+
+    width: 11px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.58);
+
+    filter: blur(1px);
+
+}
+
+
+.business-branding-product__button:hover {
+
+    transform:
+        translateY(-3px)
+        scale(1.07);
+
+    filter: brightness(1.10);
+
+}
+
+
+/* ===============================================================
+   FEATURED
+   =============================================================== */
+
+.business-branding-featured {
+
+    position: relative;
+
+    width: min(1200px, calc(100% - 40px));
+
+    min-height: 430px;
+
+    margin: 0 auto 90px;
+
+    overflow: hidden;
+
+    border:
+        1px solid rgba(216,166,60,.70);
+
+    border-radius: 22px;
+
+    background: #15120f;
+
+    box-shadow:
+        0 25px 65px rgba(0,0,0,.48);
+
+}
+
+
+.business-branding-featured__visual {
+
+    position: absolute;
+
+    inset: 0;
+
+}
+
+
+.business-branding-featured__visual img {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+}
+
+
+.business-branding-featured__overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(7,6,5,.97) 0%,
+            rgba(9,8,7,.91) 31%,
+            rgba(10,9,8,.54) 57%,
+            rgba(10,9,8,.10) 100%
+        );
+
+}
+
+
+.business-branding-featured__content {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: 52%;
+
+    min-height: 430px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    padding: 45px;
+
+}
+
+
+.business-branding-featured__content > span {
+
+    color: #d8a63c;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+}
+
+
+.business-branding-featured__ornament {
+
+    width: 190px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 12px 0 18px;
+
+}
+
+
+.business-branding-featured__ornament span {
+
+    flex: 1;
+
+    height: 1px;
+
+    background: #d8a63c;
+
+}
+
+
+.business-branding-featured__ornament b {
+
+    color: #e9c36e;
+
+    font-size: 16px;
+
+}
+
+
+.business-branding-featured__content h2 {
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(42px, 5vw, 65px);
+
+    line-height: .92;
+
+    font-weight: 500;
+
+}
+
+
+.business-branding-featured__content h2 strong {
+
+    display: block;
+
+    color: #d8a63c;
+
+    font-weight: 500;
+
+}
+
+
+.business-branding-featured__content p {
+
+    max-width: 390px;
+
+    margin: 22px 0;
+
+    color: rgba(255,255,255,.70);
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+}
+
+
+.business-branding-featured__button {
+
+    align-self: flex-start;
+
+    min-height: 44px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0 24px;
+
+    border:
+        1px solid #d8a63c;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e8bd67,
+            #b97d26
+        );
+
+    color: #171008;
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.2px;
+
+    text-decoration: none;
+
+}
+
+
+/* ===============================================================
+   CTA
+   =============================================================== */
+
+.business-branding-cta {
+
+    position: relative;
+
+    width: min(1000px, calc(100% - 40px));
+
+    margin: 0 auto 100px;
+
+    overflow: hidden;
+
+    border:
+        1px solid rgba(216,166,60,.55);
+
+    border-radius: 24px;
+
+    background:
+
+        radial-gradient(
+            circle at 50% 35%,
+            rgba(216,166,60,.13),
+            transparent 55%
+        ),
+
+        linear-gradient(
+            145deg,
+            #1b1814,
+            #090909
+        );
+
+}
+
+
+.business-branding-cta__glow {
+
+    position: absolute;
+
+    width: 350px;
+    height: 350px;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(216,166,60,.14),
+            transparent 68%
+        );
+
+    filter: blur(15px);
+
+}
+
+
+.business-branding-cta__content {
+
+    position: relative;
+
+    z-index: 2;
+
+    padding: 75px 30px;
+
+    text-align: center;
+
+}
+
+
+.business-branding-cta__content > span {
+
+    color: #d8a63c;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+}
+
+
+.business-branding-cta__ornament {
+
+    width: 190px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin: 16px auto 22px;
+
+}
+
+
+.business-branding-cta__ornament span {
+
+    flex: 1;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #d8a63c
+        );
+
+}
+
+
+.business-branding-cta__ornament span:last-child {
+
+    background:
+        linear-gradient(
+            90deg,
+            #d8a63c,
+            transparent
+        );
+
+}
+
+
+.business-branding-cta__ornament b {
+
+    color: #e9c36e;
+
+    font-size: 18px;
+
+}
+
+
+.business-branding-cta__content h2 {
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(42px, 5vw, 66px);
+
+    line-height: .9;
+
+    font-weight: 500;
+
+}
+
+
+.business-branding-cta__content h2 strong {
+
+    display: block;
+
+    color: #d8a63c;
+
+    font-weight: 500;
+
+}
+
+
+.business-branding-cta__content p {
+
+    max-width: 560px;
+
+    margin: 25px auto;
+
+    color: rgba(255,255,255,.68);
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+}
+
+
+.business-branding-cta__button {
+
+    min-height: 48px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0 28px;
+
+    border:
+        1px solid #e0b85d;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f1ca73,
+            #c38a2c
+        );
+
+    color: #171108;
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.5px;
+
+    text-decoration: none;
+
+}
+
+
+/* ===============================================================
+   LIGHTBOX
+   =============================================================== */
+
+.business-branding-lightbox {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 30px;
+
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            rgba(216,166,60,.08),
+            transparent 45%
+        ),
+        rgba(0,0,0,.94);
+
+    backdrop-filter: blur(18px);
+
+    -webkit-backdrop-filter: blur(18px);
+
+}
+
+
+.business-branding-lightbox__content {
+
+    position: relative;
+
+    width: min(1180px, 100%);
+
+    max-height: calc(100vh - 60px);
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.55fr)
+        minmax(330px, .85fr);
+
+    overflow: hidden;
+
+    border:
+        1px solid rgba(216,166,60,.65);
+
+    border-radius: 24px;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            #1b1814 0%,
+            #0d0c0b 48%,
+            #070707 100%
+        );
+
+    box-shadow:
+        0 40px 100px rgba(0,0,0,.75);
+
+}
+
+
+.business-branding-lightbox__visual {
+
+    min-width: 0;
+
+}
+
+
+.business-branding-lightbox__image {
+
+    width: 100%;
+
+    height: 100%;
+
+    min-height: 580px;
+
+    display: block;
+
+    object-fit: cover;
+
+    background: #111;
+
+}
+
+
+.business-branding-lightbox__close {
+
+    position: fixed;
+
+    z-index: 10000;
+
+    top: 20px;
+    right: 20px;
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(216,166,60,.75);
+
+    border-radius: 50%;
+
+    background:
+        rgba(8,8,8,.72);
+
+    color: #f0c96d;
+
+    font-size: 28px;
+
+    cursor: pointer;
+
+}
+
+
+.business-branding-lightbox__details {
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    padding: 55px 45px;
+
+    border-left:
+        1px solid rgba(216,166,60,.14);
+
+}
+
+
+.business-branding-lightbox__eyebrow {
+
+    margin-bottom: 14px;
+
+    color: #d8a63c;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+}
+
+
+.business-branding-lightbox__details h2 {
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(34px, 4vw, 52px);
+
+    line-height: .95;
+
+    font-weight: 500;
+
+}
+
+
+.business-branding-lightbox__rating {
+
+    display: flex;
+
+    gap: 4px;
+
+    margin-top: 18px;
+
+}
+
+
+.business-branding-lightbox__rating span {
+
+    color: rgba(255,255,255,.20);
+
+    font-size: 17px;
+
+}
+
+
+.business-branding-lightbox__rating span.is-active {
+
+    color: #e9c36e;
+
+}
+
+
+.business-branding-lightbox__ornament {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    width: 180px;
+
+    margin: 22px 0;
+
+}
+
+
+.business-branding-lightbox__ornament span {
+
+    flex: 1;
+
+    height: 1px;
+
+    background: #d8a63c;
+
+}
+
+
+.business-branding-lightbox__ornament b {
+
+    color: #e9c36e;
+
+}
+
+
+.business-branding-lightbox__details p {
+
+    margin: 0;
+
+    color: rgba(255,255,255,.68);
+
+    font-size: 14px;
+
+    line-height: 1.8;
+
+}
+
+
+.business-branding-lightbox__price {
+
+    margin-top: 25px;
+
+    color: #ffffff;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 27px;
+
+}
+
+
+.business-branding-lightbox__price span {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #d8a63c;
+
+    font-family: Arial, sans-serif;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+}
+
+
+.business-branding-lightbox__cart-button {
+
+    width: 100%;
+
+    min-height: 52px;
+
+    margin-top: 25px;
+
+    border:
+        1px solid #e2b85c;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f3d078 0%,
+            #c38a2c 100%
+        );
+
+    color: #171108;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.5px;
+
+    cursor: pointer;
+
+}
+
+
+/* ===============================================================
+   TABLET
+   =============================================================== */
+
+@media (max-width: 1024px) {
+
+    .business-branding-hero {
+
+        min-height: 600px;
+
+    }
+
+    .business-branding-products__grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+    .business-branding-featured__content {
+
+        width: 62%;
+
+    }
+
+}
+
+
+/* ===============================================================
+   MOBILE
+   =============================================================== */
+
+@media (max-width: 767px) {
+
+    .business-branding-hero {
+
+        min-height: 570px;
+
+    }
+
+    .business-branding-hero__visual img {
+
+        object-position: 63% center;
+
+    }
+
+    .business-branding-hero__content {
+
+        width: calc(100% - 34px);
+
+        padding: 60px 0;
+
+    }
+
+    .business-branding-hero__content h1 {
+
+        font-size: 55px;
+
+        letter-spacing: -2.5px;
+
+    }
+
+    .business-branding-hero__content p {
+
+        max-width: 300px;
+
+        font-size: 12px;
+
+        line-height: 1.65;
+
+    }
+
+    .business-branding-hero__button {
+
+        min-height: 44px;
+
+        padding: 0 21px;
+
+        font-size: 8px;
+
+    }
+
+    .business-branding-products {
+
+        width: calc(100% - 20px);
+
+        padding-bottom: 65px;
+
+    }
+
+    .business-branding-products__grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+
+    }
+
+    .business-branding-product {
+
+        border-radius: 12px;
+
+    }
+
+    .business-branding-product__body {
+
+        min-height: 58px;
+
+        padding: 8px 9px;
+
+        gap: 7px;
+
+    }
+
+    .business-branding-product__price {
+
+        font-size: 15px;
+
+    }
+
+    .business-branding-product__quantity {
+
+        gap: 4px;
+
+    }
+
+    .business-branding-product__quantity button {
+
+        width: 22px;
+        height: 22px;
+
+        min-width: 22px;
+
+        font-size: 13px;
+
+    }
+
+    .business-branding-product__button {
+
+        width: 40px;
+        height: 40px;
+
+        min-width: 40px;
+
+    }
+
+    .business-branding-featured {
+
+        width: calc(100% - 20px);
+
+        min-height: 430px;
+
+        margin-bottom: 65px;
+
+        border-radius: 15px;
+
+    }
+
+    .business-branding-featured__content {
+
+        width: 76%;
+
+        min-height: 430px;
+
+        padding: 30px 22px;
+
+    }
+
+    .business-branding-featured__content h2 {
+
+        font-size: 39px;
+
+    }
+
+    .business-branding-featured__content p {
+
+        max-width: 230px;
+
+        font-size: 11px;
+
+    }
+
+    .business-branding-cta {
+
+        width: calc(100% - 20px);
+
+        margin-bottom: 65px;
+
+        border-radius: 15px;
+
+    }
+
+    .business-branding-cta__content {
+
+        padding: 60px 18px;
+
+    }
+
+    .business-branding-cta__content h2 {
+
+        font-size: 39px;
+
+    }
+
+    .business-branding-cta__content p {
+
+        font-size: 11px;
+
+    }
+
+    .business-branding-lightbox {
+
+        align-items: flex-start;
+
+        padding: 18px 12px;
+
+        overflow-y: auto;
+
+    }
+
+    .business-branding-lightbox__content {
+
+        width: 100%;
+
+        max-height: none;
+
+        display: flex;
+
+        flex-direction: column;
+
+        margin-bottom: 20px;
+
+    }
+
+    .business-branding-lightbox__image {
+
+        height: auto;
+
+        min-height: 0;
+
+        max-height: 58vh;
+
+        object-fit: contain;
+
+    }
+
+    .business-branding-lightbox__details {
+
+        width: 100%;
+
+        padding: 28px 22px 30px;
+
+        border-left: none;
+
+        border-top:
+            1px solid rgba(216,166,60,.18);
+
+    }
+
+    .business-branding-lightbox__details h2 {
+
+        font-size: 31px;
+
+    }
+
+    .business-branding-lightbox__close {
+
+        top: 20px;
+
+        right: 18px;
+
+        width: 43px;
+
+        height: 43px;
+
+        font-size: 25px;
+
+    }
+
+}
+
+
+/* ===============================================================
+   SMALL MOBILE
+   =============================================================== */
+
+@media (max-width: 420px) {
+
+    .business-branding-hero {
+
+        min-height: 520px;
+
+    }
+
+    .business-branding-hero__content h1 {
+
+        font-size: 48px;
+
+    }
+
+    .business-branding-products__grid {
+
+        gap: 8px;
+
+    }
+
+    .business-branding-product__body {
+
+        padding: 7px 8px;
+
+        gap: 5px;
+
+    }
+
+    .business-branding-product__price {
+
+        font-size: 14px;
+
+    }
+
+    .business-branding-product__button {
+
+        width: 38px;
+        height: 38px;
+
+        min-width: 38px;
+
+    }
+
+    .business-branding-featured {
+
+        min-height: 390px;
+
+    }
+
+    .business-branding-featured__content {
+
+        min-height: 390px;
+
+        width: 80%;
+
+    }
+
+    .business-branding-featured__content h2 {
+
+        font-size: 34px;
+
+    }
+
+    .business-branding-cta__content h2 {
+
+        font-size: 34px;
+
+    }
+
+    .business-branding-lightbox__details {
+
+        padding: 24px 18px 25px;
+
+    }
+
+    .business-branding-lightbox__details h2 {
+
+        font-size: 27px;
+
+    }
+
+}
+
+
+/* ===============================================================
+   VERY SMALL MOBILE
+   =============================================================== */
+
+@media (max-width: 360px) {
+
+    .business-branding-hero {
+
+        min-height: 500px;
+
+    }
+
+    .business-branding-hero__content h1 {
+
+        font-size: 43px;
+
+    }
+
+    .business-branding-section-heading h2 {
+
+        font-size: 31px;
+
+    }
+
+    .business-branding-product__body {
+
+        padding: 6px 7px;
+
+        gap: 4px;
+
+    }
+
+    .business-branding-product__price {
+
+        font-size: 13px;
+
+    }
+
+    .business-branding-product__button {
+
+        width: 36px;
+        height: 36px;
+
+        min-width: 36px;
+
+    }
+
+    .business-branding-featured__content h2 {
+
+        font-size: 30px;
+
+    }
+
+    .business-branding-cta__content h2 {
+
+        font-size: 30px;
+
+    }
+
+}
+
+
+/* ===============================================================
+   REDUCED MOTION
+   =============================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .business-branding-page *,
+    .business-branding-page *::before,
+    .business-branding-page *::after {
+
+        scroll-behavior: auto !important;
+
+        transition: none !important;
+
+        animation: none !important;
+
+    }
+
+}
