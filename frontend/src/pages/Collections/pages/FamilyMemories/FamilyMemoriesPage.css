@@ -353,6 +353,10 @@
 
 
 .family-memories-hero__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 
     min-height: 48px;
 
@@ -1450,6 +1454,10 @@
 
 
 .family-memories-featured__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 
     align-self: flex-start;
 
@@ -1695,7 +1703,11 @@
 
 
 .family-memories-cta__button {
-
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    
     min-height: 48px;
 
     padding: 0 28px;
