@@ -335,42 +335,7 @@ function LoveRomancePage() {
                     INTRO
                    ================================================== */}
 
-                <section className="love-romance-intro">
-
-                    <div className="love-romance-intro__ornament">
-
-                        <span></span>
-
-                        <div>
-
-                            <b>♥</b>
-
-                            <small>
-                                {t.intro.eyebrow}
-                            </small>
-
-                        </div>
-
-                        <span></span>
-
-                    </div>
-
-                    <h2>
-
-                        {t.intro.title}
-
-                        <span>
-                            {t.intro.titleAccent}
-                        </span>
-
-                    </h2>
-
-                    <p>
-                        {t.intro.description}
-                    </p>
-
-                </section>
-
+                
 
                 {/* ==================================================
                     COLLECTION PRODUCTS
