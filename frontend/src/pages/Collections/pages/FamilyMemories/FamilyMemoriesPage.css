@@ -1170,19 +1170,19 @@
 
 
 .family-memories-product__button::before {
-    content: "🛒";
+
+    content: "";
 
     display: block;
 
-    font-family:
-        "Apple Color Emoji",
-        "Segoe UI Emoji",
-        "Noto Color Emoji",
-        sans-serif;
+    width: 21px;
+    height: 21px;
 
-    font-size: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h2l2.2 11.2c.2 1 1.1 1.8 2.1 1.8h9.2c.9 0 1.7-.6 2-1.5L22 9H6' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='9' cy='21' r='1.5' fill='white'/%3E%3Ccircle cx='18' cy='21' r='1.5' fill='white'/%3E%3C/svg%3E");
 
-    line-height: 1;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
 
     transform:
         translateY(-1px)
@@ -1194,11 +1194,9 @@
         );
 
     opacity: 1;
-
     visibility: visible;
 
 }
-
 
 .family-memories-product__button::after {
 
