@@ -502,6 +502,97 @@ export const es = {
             button: "COMENZAR A PERSONALIZAR",
         },
     },
+    
+        familyMemories: {
+        hero: {
+            eyebrow: "COLECCIÓN FAMILIA Y RECUERDOS",
+
+            title: "FAMILIA",
+            titleAccent: "Y RECUERDOS",
+
+            description:
+                "Diseños creados para celebrar la familia, los momentos especiales y esos recuerdos que nos unen.",
+
+            button: "EXPLORAR DISEÑOS",
+        },
+
+        intro: {
+            eyebrow: "HECHO PARA MOMENTOS INOLVIDABLES",
+
+            title: "RECUERDOS QUE",
+            titleAccent: "DURAN PARA SIEMPRE",
+
+            description:
+                "Descubre diseños personalizados creados para familias, celebraciones especiales, momentos significativos y regalos hechos a partir de recuerdos.",
+        },
+
+        products: {
+            eyebrow: "FAMILIA Y RECUERDOS",
+
+            title: "DISEÑOS PARA",
+            titleAccent: "LOS QUE AMAS",
+
+            viewProduct: "VER PRODUCTO",
+            customize: "PERSONALIZAR",
+            addToCart: "AGREGAR AL CARRITO",
+        },
+
+        featured: {
+            eyebrow: "DESTACADO",
+
+            title: "RECUERDOS",
+            titleAccent: "PARA GUARDAR",
+
+            description:
+                "Convierte un momento especial en familia en un recuerdo personalizado que puedas conservar durante muchos años.",
+
+            button: "CREAR MI DISEÑO",
+        },
+
+        occasions: {
+            eyebrow: "CELEBREMOS JUNTOS",
+
+            title: "HECHO PARA",
+            titleAccent: "MOMENTOS ESPECIALES",
+
+            birthday: {
+                title: "CUMPLEAÑOS",
+                description:
+                    "Celebra a alguien especial con un regalo familiar personalizado.",
+            },
+
+            anniversary: {
+                title: "MOMENTOS IMPORTANTES",
+                description:
+                    "Conserva los recuerdos de los momentos importantes que tu familia comparte.",
+            },
+
+            wedding: {
+                title: "CELEBRACIONES FAMILIARES",
+                description:
+                    "Crea recuerdos personalizados para celebraciones que reúnen a toda la familia.",
+            },
+
+            justBecause: {
+                title: "PORQUE SÍ",
+                description:
+                    "A veces el mejor regalo es simplemente recordarles cuánto significa la familia.",
+            },
+        },
+
+        cta: {
+            eyebrow: "HAZ EL RECUERDO PERSONAL",
+
+            title: "TU FAMILIA.",
+            titleAccent: "TU RECUERDO.",
+
+            description:
+                "Convierte una foto, nombre, fecha o mensaje especial de tu familia en un recuerdo único.",
+
+            button: "COMENZAR A PERSONALIZAR",
+        },
+    },
+    
 
     contact: {
         eyebrow: "CONTÁCTANOS",

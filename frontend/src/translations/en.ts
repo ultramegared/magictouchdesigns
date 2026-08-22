@@ -489,6 +489,97 @@ export const en = {
       button: "START CUSTOMIZING",
     },
   },
+  
+    familyMemories: {
+    hero: {
+      eyebrow: "FAMILY & MEMORIES COLLECTION",
+
+      title: "FAMILY",
+      titleAccent: "MEMORIES",
+
+      description:
+        "Designs created to celebrate family, meaningful moments, and the memories that bring us together.",
+
+      button: "EXPLORE DESIGNS",
+    },
+
+    intro: {
+      eyebrow: "MADE FOR MEMORABLE MOMENTS",
+
+      title: "MEMORIES THAT",
+      titleAccent: "LAST FOREVER",
+
+      description:
+        "Discover personalized designs created for families, special celebrations, meaningful moments, and gifts made from memories.",
+    },
+
+    products: {
+      eyebrow: "FAMILY & MEMORIES",
+
+      title: "DESIGNS FOR",
+      titleAccent: "THE ONES YOU LOVE",
+
+      viewProduct: "VIEW PRODUCT",
+      customize: "CUSTOMIZE",
+      addToCart: "ADD TO CART",
+    },
+
+    featured: {
+      eyebrow: "FEATURED",
+
+      title: "MEMORIES",
+      titleAccent: "TO KEEP",
+
+      description:
+        "Turn a special family moment into a personalized keepsake that can be remembered for years to come.",
+
+      button: "CREATE MY DESIGN",
+    },
+
+    occasions: {
+      eyebrow: "CELEBRATE TOGETHER",
+
+      title: "MADE FOR",
+      titleAccent: "SPECIAL MOMENTS",
+
+      birthday: {
+        title: "BIRTHDAYS",
+        description:
+          "Celebrate someone special with a personalized family gift.",
+      },
+
+      anniversary: {
+        title: "FAMILY MILESTONES",
+        description:
+          "Keep the memories of important moments your family shares together.",
+      },
+
+      wedding: {
+        title: "FAMILY CELEBRATIONS",
+        description:
+          "Create personalized memories for celebrations that bring everyone together.",
+      },
+
+      justBecause: {
+        title: "JUST BECAUSE",
+        description:
+          "Sometimes the best gift is simply a reminder of how much family means.",
+      },
+    },
+
+    cta: {
+      eyebrow: "MAKE THE MEMORY PERSONAL",
+
+      title: "YOUR FAMILY.",
+      titleAccent: "YOUR MEMORY.",
+
+      description:
+        "Turn a photo, name, date, or special family message into a unique keepsake.",
+
+      button: "START CUSTOMIZING",
+    },
+  },
+  
 
   contact: {
     eyebrow: "GET IN TOUCH",
