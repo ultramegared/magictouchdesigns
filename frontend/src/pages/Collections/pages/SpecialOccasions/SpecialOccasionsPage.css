@@ -1,0 +1,1344 @@
+/**
+ * ===============================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: SpecialOccasionsPage.css
+ * Module: Collections / Special Occasions
+ * Language: CSS
+ * Description:
+ * Premium Special Occasions collection page styles.
+ * ===============================================================
+ */
+
+
+/* ===============================================================
+   BASE
+   =============================================================== */
+
+.special-occasions-page {
+    --so-cream: #f4eee3;
+    --so-cream-light: #faf7f1;
+    --so-cream-dark: #e8dece;
+    --so-black: #171513;
+    --so-black-soft: #27231f;
+    --so-gold: #b99a62;
+    --so-gold-light: #d7bd8a;
+    --so-text: #27231f;
+    --so-muted: #756d62;
+
+    width: 100%;
+    overflow: hidden;
+    background: var(--so-cream);
+    color: var(--so-text);
+}
+
+
+/* ===============================================================
+   HERO
+   =============================================================== */
+
+.special-occasions-hero {
+    position: relative;
+    min-height: 720px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--so-cream);
+}
+
+.special-occasions-hero__visual {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.special-occasions-hero__visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.special-occasions-hero__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(18, 16, 14, 0.78) 0%,
+            rgba(24, 21, 18, 0.58) 32%,
+            rgba(31, 27, 23, 0.20) 58%,
+            rgba(31, 27, 23, 0.04) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(244, 238, 227, 0.04) 0%,
+            rgba(23, 21, 18, 0.10) 65%,
+            rgba(23, 21, 18, 0.36) 100%
+        );
+}
+
+.special-occasions-hero__glow {
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    left: -180px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+
+    background: radial-gradient(
+        circle,
+        rgba(215, 189, 138, 0.16) 0%,
+        rgba(215, 189, 138, 0.05) 40%,
+        transparent 72%
+    );
+
+    pointer-events: none;
+}
+
+.special-occasions-hero__content {
+    position: relative;
+    z-index: 4;
+
+    width: min(620px, 90%);
+    margin-left: clamp(40px, 9vw, 150px);
+    padding: 100px 0;
+    color: #fff;
+}
+
+.special-occasions-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 28px;
+
+    color: rgba(255, 255, 255, 0.82);
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+
+    transition:
+        color 0.25s ease,
+        transform 0.25s ease;
+}
+
+.special-occasions-back-link:hover {
+    color: var(--so-gold-light);
+    transform: translateX(-3px);
+}
+
+.special-occasions-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+
+    margin-bottom: 20px;
+
+    color: var(--so-gold-light);
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+}
+
+.special-occasions-hero__content h1 {
+    margin: 0;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(58px, 7vw, 104px);
+    line-height: 0.91;
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
+}
+
+.special-occasions-hero__content h1 span {
+    display: block;
+
+    margin-top: 8px;
+
+    color: var(--so-gold-light);
+}
+
+.special-occasions-hero__ornament {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    width: min(340px, 80%);
+    margin: 30px 0;
+}
+
+.special-occasions-hero__ornament span {
+    flex: 1;
+    height: 1px;
+    background: rgba(215, 189, 138, 0.65);
+}
+
+.special-occasions-hero__ornament b {
+    color: var(--so-gold-light);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.special-occasions-hero__content p {
+    max-width: 570px;
+    margin: 0 0 32px;
+
+    color: rgba(255, 255, 255, 0.84);
+
+    font-size: 16px;
+    line-height: 1.85;
+    font-weight: 400;
+}
+
+.special-occasions-hero__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 52px;
+    padding: 0 30px;
+
+    border: 1px solid var(--so-gold-light);
+
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+
+    backdrop-filter: blur(8px);
+
+    transition:
+        background 0.3s ease,
+        color 0.3s ease,
+        transform 0.3s ease;
+}
+
+.special-occasions-hero__button:hover {
+    background: var(--so-gold-light);
+    color: var(--so-black);
+    transform: translateY(-2px);
+}
+
+.special-occasions-hero__bottom-glow {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    z-index: 3;
+
+    height: 150px;
+
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(23, 21, 18, 0.08) 30%,
+        rgba(23, 21, 18, 0.42) 100%
+    );
+
+    pointer-events: none;
+}
+
+
+/* ===============================================================
+   PRODUCTS
+   =============================================================== */
+
+.special-occasions-products {
+    padding: 110px clamp(24px, 6vw, 100px) 120px;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(255, 255, 255, 0.85),
+            transparent 42%
+        ),
+        var(--so-cream);
+}
+
+.special-occasions-section-heading {
+    max-width: 800px;
+    margin: 0 auto 65px;
+    text-align: center;
+}
+
+.special-occasions-section-heading > span {
+    display: block;
+    margin-bottom: 15px;
+
+    color: var(--so-gold);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+}
+
+.special-occasions-section-heading h2 {
+    margin: 0;
+
+    color: var(--so-black);
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(38px, 5vw, 64px);
+    line-height: 1;
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+}
+
+.special-occasions-section-heading h2 strong {
+    display: block;
+
+    margin-top: 7px;
+
+    color: var(--so-gold);
+
+    font-weight: 400;
+}
+
+.special-occasions-products__grid {
+    width: min(1320px, 100%);
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 28px;
+}
+
+.special-occasions-product {
+    min-width: 0;
+
+    background: rgba(250, 247, 241, 0.82);
+
+    border: 1px solid rgba(185, 154, 98, 0.22);
+
+    box-shadow:
+        0 14px 45px rgba(38, 31, 24, 0.07);
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.special-occasions-product:hover {
+    transform: translateY(-6px);
+
+    box-shadow:
+        0 22px 55px rgba(38, 31, 24, 0.13);
+}
+
+
+/* Product image */
+
+.special-occasions-product__image {
+    position: relative;
+
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    cursor: zoom-in;
+
+    background: #ddd4c6;
+}
+
+.special-occasions-product__image img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition:
+        transform 0.55s ease,
+        filter 0.35s ease;
+}
+
+.special-occasions-product:hover
+.special-occasions-product__image img {
+    transform: scale(1.045);
+}
+
+.special-occasions-product__zoom {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+
+    background: rgba(20, 18, 16, 0.38);
+
+    color: #fff;
+
+    opacity: 0;
+
+    backdrop-filter: blur(7px);
+
+    transition: opacity 0.3s ease;
+}
+
+.special-occasions-product:hover
+.special-occasions-product__zoom {
+    opacity: 1;
+}
+
+.special-occasions-product__zoom svg {
+    width: 18px;
+    height: 18px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+.special-occasions-product__number {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+
+    color: rgba(255, 255, 255, 0.92);
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.special-occasions-product__shine {
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            115deg,
+            transparent 0%,
+            transparent 42%,
+            rgba(255, 255, 255, 0.13) 50%,
+            transparent 58%,
+            transparent 100%
+        );
+
+    transform: translateX(-110%);
+
+    transition: transform 0.7s ease;
+
+    pointer-events: none;
+}
+
+.special-occasions-product:hover
+.special-occasions-product__shine {
+    transform: translateX(110%);
+}
+
+
+/* Product body */
+
+.special-occasions-product__body {
+    padding: 22px 20px 20px;
+}
+
+.special-occasions-product__info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 18px;
+}
+
+.special-occasions-product__price {
+    color: var(--so-black);
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+
+/* Quantity */
+
+.special-occasions-product__quantity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 42px;
+
+    margin-bottom: 12px;
+
+    border: 1px solid rgba(39, 35, 31, 0.16);
+
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.special-occasions-product__quantity button {
+    width: 42px;
+    height: 100%;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--so-black);
+
+    font-size: 20px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.special-occasions-product__quantity button:hover {
+    background: var(--so-black);
+    color: #fff;
+}
+
+.special-occasions-product__quantity span {
+    flex: 1;
+
+    text-align: center;
+
+    color: var(--so-black);
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* Add to cart */
+
+.special-occasions-product__button {
+    width: 100%;
+    min-height: 46px;
+
+    border: 1px solid var(--so-black);
+
+    background: var(--so-black);
+
+    color: #fff;
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.special-occasions-product__button:hover {
+    background: var(--so-gold);
+    border-color: var(--so-gold);
+
+    color: #fff;
+}
+
+
+/* ===============================================================
+   FEATURED
+   =============================================================== */
+
+.special-occasions-featured {
+    position: relative;
+
+    min-height: 620px;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    background: var(--so-black);
+}
+
+.special-occasions-featured__visual {
+    position: absolute;
+    inset: 0;
+}
+
+.special-occasions-featured__visual img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+    object-position: center;
+}
+
+.special-occasions-featured__overlay {
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(20, 18, 16, 0.88) 0%,
+            rgba(20, 18, 16, 0.68) 35%,
+            rgba(20, 18, 16, 0.27) 62%,
+            rgba(20, 18, 16, 0.12) 100%
+        );
+}
+
+.special-occasions-featured__content {
+    position: relative;
+    z-index: 2;
+
+    width: min(620px, 90%);
+
+    margin-left: clamp(30px, 10vw, 150px);
+
+    padding: 90px 0;
+
+    color: #fff;
+}
+
+.special-occasions-featured__content > span {
+    display: block;
+    margin-bottom: 18px;
+
+    color: var(--so-gold-light);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.23em;
+    text-transform: uppercase;
+}
+
+.special-occasions-featured__ornament {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    width: 230px;
+
+    margin-bottom: 25px;
+}
+
+.special-occasions-featured__ornament span {
+    flex: 1;
+
+    height: 1px;
+
+    background: rgba(215, 189, 138, 0.62);
+}
+
+.special-occasions-featured__ornament b {
+    color: var(--so-gold-light);
+
+    font-size: 11px;
+}
+
+.special-occasions-featured__content h2 {
+    margin: 0;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: clamp(45px, 5.5vw, 76px);
+    line-height: 0.95;
+    font-weight: 400;
+
+    text-transform: uppercase;
+}
+
+.special-occasions-featured__content h2 strong {
+    display: block;
+
+    margin-top: 8px;
+
+    color: var(--so-gold-light);
+
+    font-weight: 400;
+}
+
+.special-occasions-featured__content p {
+    max-width: 540px;
+
+    margin: 28px 0 32px;
+
+    color: rgba(255, 255, 255, 0.78);
+
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.special-occasions-featured__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 50px;
+    padding: 0 28px;
+
+    border: 1px solid var(--so-gold-light);
+
+    color: #fff;
+
+    text-decoration: none;
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+
+    transition:
+        background 0.3s ease,
+        color 0.3s ease,
+        transform 0.3s ease;
+}
+
+.special-occasions-featured__button:hover {
+    background: var(--so-gold-light);
+
+    color: var(--so-black);
+
+    transform: translateY(-2px);
+}
+
+
+/* ===============================================================
+   FINAL CTA
+   =============================================================== */
+
+.special-occasions-cta {
+    position: relative;
+
+    padding: 115px 24px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(215, 189, 138, 0.11),
+            transparent 40%
+        ),
+        var(--so-black);
+}
+
+.special-occasions-cta__glow {
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(215, 189, 138, 0.04),
+            transparent
+        );
+
+    pointer-events: none;
+}
+
+.special-occasions-cta__content {
+    position: relative;
+    z-index: 2;
+
+    width: min(760px, 100%);
+
+    margin: 0 auto;
+
+    text-align: center;
+
+    color: #fff;
+}
+
+.special-occasions-cta__content > span {
+    display: block;
+
+    margin-bottom: 20px;
+
+    color: var(--so-gold-light);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+}
+
+.special-occasions-cta__ornament {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    width: min(330px, 75%);
+
+    margin: 0 auto 30px;
+}
+
+.special-occasions-cta__ornament span {
+    flex: 1;
+
+    height: 1px;
+
+    background: rgba(215, 189, 138, 0.48);
+}
+
+.special-occasions-cta__ornament b {
+    color: var(--so-gold-light);
+
+    font-size: 11px;
+}
+
+.special-occasions-cta__content h2 {
+    margin: 0;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: clamp(48px, 6vw, 82px);
+    line-height: 0.94;
+    font-weight: 400;
+
+    text-transform: uppercase;
+}
+
+.special-occasions-cta__content h2 strong {
+    display: block;
+
+    margin-top: 8px;
+
+    color: var(--so-gold-light);
+
+    font-weight: 400;
+}
+
+.special-occasions-cta__content p {
+    max-width: 600px;
+
+    margin: 28px auto 32px;
+
+    color: rgba(255, 255, 255, 0.72);
+
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.special-occasions-cta__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 52px;
+
+    padding: 0 32px;
+
+    border: 1px solid var(--so-gold-light);
+
+    background: var(--so-gold-light);
+
+    color: var(--so-black);
+
+    text-decoration: none;
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+
+    transition:
+        background 0.3s ease,
+        color 0.3s ease,
+        transform 0.3s ease;
+}
+
+.special-occasions-cta__button:hover {
+    background: transparent;
+
+    color: var(--so-gold-light);
+
+    transform: translateY(-2px);
+}
+
+
+/* ===============================================================
+   LIGHTBOX
+   =============================================================== */
+
+.special-occasions-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px;
+
+    background: rgba(15, 13, 11, 0.86);
+
+    backdrop-filter: blur(10px);
+
+    animation: specialOccasionsFadeIn 0.25s ease;
+}
+
+.special-occasions-lightbox__close {
+    position: fixed;
+    top: 22px;
+    right: 25px;
+
+    z-index: 3;
+
+    width: 46px;
+    height: 46px;
+
+    border: 1px solid rgba(255, 255, 255, 0.28);
+
+    background: rgba(255, 255, 255, 0.06);
+
+    color: #fff;
+
+    font-size: 30px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    backdrop-filter: blur(7px);
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease;
+}
+
+.special-occasions-lightbox__close:hover {
+    background: var(--so-gold-light);
+
+    color: var(--so-black);
+}
+
+.special-occasions-lightbox__content {
+    width: min(1100px, 94vw);
+    max-height: 90vh;
+
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+
+    overflow: hidden;
+
+    background: var(--so-cream);
+
+    box-shadow:
+        0 35px 100px rgba(0, 0, 0, 0.45);
+
+    animation: specialOccasionsLightboxUp 0.3s ease;
+}
+
+.special-occasions-lightbox__visual {
+    min-height: 500px;
+
+    background: #ddd4c6;
+}
+
+.special-occasions-lightbox__image {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+.special-occasions-lightbox__details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: clamp(30px, 5vw, 65px);
+
+    overflow-y: auto;
+}
+
+.special-occasions-lightbox__eyebrow {
+    display: block;
+
+    margin-bottom: 15px;
+
+    color: var(--so-gold);
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.special-occasions-lightbox__details h2 {
+    margin: 0;
+
+    color: var(--so-black);
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: clamp(30px, 3vw, 46px);
+    line-height: 1.05;
+    font-weight: 400;
+}
+
+.special-occasions-lightbox__rating {
+    display: flex;
+    gap: 4px;
+
+    margin-top: 18px;
+
+    color: #c9b89b;
+
+    font-size: 16px;
+}
+
+.special-occasions-lightbox__rating .is-active {
+    color: var(--so-gold);
+}
+
+.special-occasions-lightbox__ornament {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    width: 190px;
+
+    margin: 24px 0;
+}
+
+.special-occasions-lightbox__ornament span {
+    flex: 1;
+
+    height: 1px;
+
+    background: rgba(185, 154, 98, 0.45);
+}
+
+.special-occasions-lightbox__ornament b {
+    color: var(--so-gold);
+
+    font-size: 10px;
+}
+
+.special-occasions-lightbox__details p {
+    margin: 0;
+
+    color: var(--so-muted);
+
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.special-occasions-lightbox__price {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 28px;
+    padding: 18px 0;
+
+    border-top: 1px solid rgba(39, 35, 31, 0.12);
+    border-bottom: 1px solid rgba(39, 35, 31, 0.12);
+}
+
+.special-occasions-lightbox__price span {
+    color: var(--so-muted);
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.special-occasions-lightbox__price strong {
+    color: var(--so-black);
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 28px;
+    font-weight: 400;
+}
+
+.special-occasions-lightbox__cart-button {
+    width: 100%;
+
+    min-height: 52px;
+
+    margin-top: 22px;
+
+    border: 1px solid var(--so-black);
+
+    background: var(--so-black);
+
+    color: #fff;
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.special-occasions-lightbox__cart-button:hover {
+    background: var(--so-gold);
+
+    border-color: var(--so-gold);
+}
+
+
+/* ===============================================================
+   ANIMATIONS
+   =============================================================== */
+
+@keyframes specialOccasionsFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes specialOccasionsLightboxUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* ===============================================================
+   TABLET
+   =============================================================== */
+
+@media (max-width: 1050px) {
+
+    .special-occasions-products__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .special-occasions-hero {
+        min-height: 650px;
+    }
+
+    .special-occasions-hero__content {
+        margin-left: 7vw;
+    }
+
+    .special-occasions-lightbox__content {
+        grid-template-columns: 1fr 1fr;
+    }
+
+}
+
+
+/* ===============================================================
+   MOBILE
+   =============================================================== */
+
+@media (max-width: 700px) {
+
+    .special-occasions-hero {
+        min-height: 680px;
+
+        align-items: flex-end;
+    }
+
+    .special-occasions-hero__visual img {
+        object-position: center;
+    }
+
+    .special-occasions-hero__overlay {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(23, 21, 18, 0.10) 0%,
+                rgba(23, 21, 18, 0.28) 35%,
+                rgba(23, 21, 18, 0.88) 100%
+            );
+    }
+
+    .special-occasions-hero__content {
+        width: calc(100% - 40px);
+
+        margin: 0 20px;
+
+        padding: 55px 0 70px;
+    }
+
+    .special-occasions-hero__content h1 {
+        font-size: clamp(48px, 15vw, 72px);
+    }
+
+    .special-occasions-hero__content p {
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .special-occasions-products {
+        padding: 75px 18px 85px;
+    }
+
+    .special-occasions-section-heading {
+        margin-bottom: 42px;
+    }
+
+    .special-occasions-products__grid {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .special-occasions-product__zoom {
+        opacity: 1;
+    }
+
+    .special-occasions-featured {
+        min-height: 620px;
+        align-items: flex-end;
+    }
+
+    .special-occasions-featured__overlay {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(20, 18, 16, 0.12) 0%,
+                rgba(20, 18, 16, 0.40) 38%,
+                rgba(20, 18, 16, 0.92) 100%
+            );
+    }
+
+    .special-occasions-featured__content {
+        width: calc(100% - 40px);
+
+        margin: 0 20px;
+
+        padding: 70px 0 65px;
+    }
+
+    .special-occasions-featured__content h2 {
+        font-size: clamp(40px, 12vw, 62px);
+    }
+
+    .special-occasions-cta {
+        padding: 85px 20px;
+    }
+
+    .special-occasions-cta__content h2 {
+        font-size: clamp(42px, 13vw, 62px);
+    }
+
+    .special-occasions-lightbox {
+        padding: 15px;
+        align-items: center;
+    }
+
+    .special-occasions-lightbox__content {
+        width: 100%;
+        max-height: 92vh;
+
+        display: flex;
+        flex-direction: column;
+
+        overflow-y: auto;
+    }
+
+    .special-occasions-lightbox__visual {
+        min-height: 300px;
+        height: 45vh;
+        max-height: 420px;
+        flex-shrink: 0;
+    }
+
+    .special-occasions-lightbox__details {
+        padding: 30px 24px 28px;
+    }
+
+    .special-occasions-lightbox__details h2 {
+        font-size: 32px;
+    }
+
+    .special-occasions-lightbox__close {
+        top: 10px;
+        right: 10px;
+
+        width: 42px;
+        height: 42px;
+    }
+
+}
+
+
+/* ===============================================================
+   SMALL MOBILE
+   =============================================================== */
+
+@media (max-width: 420px) {
+
+    .special-occasions-hero {
+        min-height: 650px;
+    }
+
+    .special-occasions-hero__content {
+        padding-bottom: 55px;
+    }
+
+    .special-occasions-hero__eyebrow {
+        font-size: 9px;
+        letter-spacing: 0.17em;
+    }
+
+    .special-occasions-hero__content h1 {
+        font-size: 45px;
+    }
+
+    .special-occasions-hero__button {
+        width: 100%;
+    }
+
+    .special-occasions-featured__button {
+        width: 100%;
+    }
+
+    .special-occasions-cta__button {
+        width: 100%;
+    }
+
+    .special-occasions-product__body {
+        padding: 18px 16px 17px;
+    }
+
+}
