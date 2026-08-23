@@ -21,7 +21,7 @@
 
     width: 100%;
 
-    padding: 72px 0 78px;
+    padding: 82px 0 86px;
 
     overflow: hidden;
 
@@ -31,19 +31,25 @@
         radial-gradient(
             ellipse at 50% 0%,
             rgba(216, 166, 60, 0.13),
-            transparent 40%
+            transparent 38%
         ),
 
         radial-gradient(
-            ellipse at 8% 55%,
-            rgba(216, 166, 60, 0.04),
-            transparent 35%
+            ellipse at 12% 48%,
+            rgba(216, 166, 60, 0.045),
+            transparent 32%
+        ),
+
+        radial-gradient(
+            ellipse at 88% 70%,
+            rgba(216, 166, 60, 0.035),
+            transparent 34%
         ),
 
         linear-gradient(
             180deg,
             #080808 0%,
-            #0d0d0d 50%,
+            #0d0d0d 48%,
             #080808 100%
         );
 
@@ -51,7 +57,7 @@
 
 
 /* ================================================================
-   TOP DECORATION
+   TOP GOLD LINE
 ================================================================ */
 
 .collections-preview::before {
@@ -63,7 +69,7 @@
     top: 0;
     left: 50%;
 
-    width: min(500px, 70%);
+    width: min(520px, 72%);
 
     height: 1px;
 
@@ -73,9 +79,11 @@
     background:
         linear-gradient(
             90deg,
-            transparent,
-            rgba(216,166,60,.8),
-            transparent
+            transparent 0%,
+            rgba(216, 166, 60, 0.15) 15%,
+            rgba(216, 166, 60, 0.85) 50%,
+            rgba(216, 166, 60, 0.15) 85%,
+            transparent 100%
         );
 
 }
@@ -88,7 +96,7 @@
 .collections-preview__container {
 
     width:
-        min(1280px, 92%);
+        min(1260px, calc(100% - 48px));
 
     margin:
         0 auto;
@@ -102,17 +110,22 @@
 
 .collections-preview__header {
 
-    max-width:
-        850px;
+    width: 100%;
+
+    max-width: 850px;
 
     margin:
-        0 auto 36px;
+        0 auto 40px;
 
     text-align:
         center;
 
 }
 
+
+/* ---------------------------------------------------------------
+   EYEBROW
+---------------------------------------------------------------- */
 
 .collections-preview__eyebrow {
 
@@ -126,22 +139,28 @@
         center;
 
     gap:
-        12px;
+        13px;
 
     color:
         #d8a63c;
 
     font-size:
-        .72rem;
+        0.72rem;
 
     font-weight:
         800;
 
     letter-spacing:
-        .24em;
+        0.24em;
+
+    line-height:
+        1;
 
     text-transform:
         uppercase;
+
+    text-shadow:
+        0 0 16px rgba(216, 166, 60, 0.18);
 
 }
 
@@ -150,10 +169,13 @@
 .collections-preview__eyebrow span:last-child {
 
     width:
-        42px;
+        44px;
 
     height:
         1px;
+
+    flex:
+        0 0 44px;
 
     background:
         linear-gradient(
@@ -177,10 +199,14 @@
 }
 
 
+/* ---------------------------------------------------------------
+   MAIN TITLE
+---------------------------------------------------------------- */
+
 .collections-preview__header h2 {
 
     margin:
-        12px 0 13px;
+        13px 0 15px;
 
     color:
         #ffffff;
@@ -191,24 +217,31 @@
         serif;
 
     font-size:
-        clamp(2.25rem, 4vw, 3.5rem);
+        clamp(2.25rem, 4vw, 3.45rem);
 
     line-height:
-        1;
+        0.98;
 
     font-weight:
         500;
 
     letter-spacing:
-        -.035em;
+        -0.035em;
+
+    text-wrap:
+        balance;
 
 }
 
 
+/* ---------------------------------------------------------------
+   ORNAMENT
+---------------------------------------------------------------- */
+
 .collections-preview__ornament {
 
     width:
-        180px;
+        185px;
 
     margin:
         0 auto;
@@ -237,7 +270,7 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(216,166,60,.8)
+            rgba(216, 166, 60, 0.82)
         );
 
 }
@@ -248,7 +281,7 @@
     background:
         linear-gradient(
             90deg,
-            rgba(216,166,60,.8),
+            rgba(216, 166, 60, 0.82),
             transparent
         );
 
@@ -261,7 +294,13 @@
         #d8a63c;
 
     font-size:
-        .65rem;
+        0.65rem;
+
+    line-height:
+        1;
+
+    text-shadow:
+        0 0 12px rgba(216, 166, 60, 0.4);
 
 }
 
@@ -276,13 +315,13 @@
         grid;
 
     grid-template-columns:
-        repeat(4, minmax(0,1fr));
+        repeat(4, minmax(0, 1fr));
 
     gap:
-        15px;
+        16px;
 
     align-items:
-        start;
+        stretch;
 
 }
 
@@ -309,7 +348,7 @@
         hidden;
 
     border:
-        1px solid rgba(216,166,60,.65);
+        1px solid rgba(216, 166, 60, 0.62);
 
     border-radius:
         15px;
@@ -317,22 +356,19 @@
     background:
         linear-gradient(
             145deg,
-            #191919 0%,
-            #111111 55%,
+            #1a1a1a 0%,
+            #111111 52%,
             #090909 100%
         );
 
     box-shadow:
-
-        0 12px 30px rgba(0,0,0,.42),
-
-        inset 0 1px 0
-        rgba(255,255,255,.045);
+        0 14px 34px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.045);
 
     transition:
-        transform .3s ease,
-        border-color .3s ease,
-        box-shadow .3s ease;
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
 
 }
 
@@ -343,13 +379,12 @@
         translateY(-5px);
 
     border-color:
-        rgba(239,194,89,.95);
+        rgba(239, 194, 89, 0.96);
 
     box-shadow:
-
-        0 20px 40px rgba(0,0,0,.52),
-
-        0 0 25px rgba(216,166,60,.12);
+        0 22px 42px rgba(0, 0, 0, 0.52),
+        0 0 26px rgba(216, 166, 60, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
 }
 
@@ -366,13 +401,11 @@
     width:
         100%;
 
-    /*
-     * Compacto para Home.
-     * No queremos la proporción alta de CollectionsPage.
-     */
-
     aspect-ratio:
-        1.35 / 1;
+        1.30 / 1;
+
+    flex:
+        0 0 auto;
 
     overflow:
         hidden;
@@ -395,7 +428,7 @@
         cover;
 
     transition:
-        transform .55s cubic-bezier(.22,1,.36,1);
+        transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 
 }
 
@@ -427,9 +460,10 @@
     background:
         linear-gradient(
             180deg,
-            transparent 38%,
-            rgba(8,8,8,.08) 55%,
-            rgba(8,8,8,.94) 100%
+            rgba(8, 8, 8, 0) 34%,
+            rgba(8, 8, 8, 0.08) 48%,
+            rgba(8, 8, 8, 0.45) 68%,
+            rgba(8, 8, 8, 0.94) 100%
         );
 
 }
@@ -451,13 +485,13 @@
         50%;
 
     bottom:
-        -22px;
+        -23px;
 
     width:
-        50px;
+        51px;
 
     height:
-        50px;
+        51px;
 
     transform:
         translateX(-50%);
@@ -483,24 +517,25 @@
     background:
         radial-gradient(
             circle at 35% 28%,
-            #2a210f 0%,
+            #2b220f 0%,
             #15110a 45%,
             #090909 100%
         );
 
     font-size:
-        24px;
+        25px;
 
     line-height:
         1;
 
     box-shadow:
+        0 0 0 4px rgba(8, 8, 8, 0.84),
+        0 0 22px rgba(216, 166, 60, 0.25),
+        0 8px 20px rgba(0, 0, 0, 0.55);
 
-        0 0 0 4px rgba(8,8,8,.84),
-
-        0 0 20px rgba(216,166,60,.25),
-
-        0 7px 18px rgba(0,0,0,.55);
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 
 }
 
@@ -512,6 +547,11 @@
         translateX(-50%)
         translateY(-3px);
 
+    box-shadow:
+        0 0 0 4px rgba(8, 8, 8, 0.84),
+        0 0 30px rgba(216, 166, 60, 0.36),
+        0 10px 24px rgba(0, 0, 0, 0.62);
+
 }
 
 
@@ -521,17 +561,11 @@
 
 .collections-preview__body {
 
-    /*
-     * IMPORTANTE:
-     * No usamos flex: 1 ni min-height grande.
-     * Esto evita que el navegador estire las tarjetas.
-     */
-
-    height:
-        142px;
+    min-height:
+        158px;
 
     padding:
-        31px 14px 10px;
+        34px 15px 13px;
 
     display:
         flex;
@@ -557,11 +591,11 @@
     width:
         100%;
 
-    height:
-        24px;
+    min-height:
+        22px;
 
     margin:
-        0 0 4px;
+        0 0 6px;
 
     display:
         flex;
@@ -576,16 +610,16 @@
         #ffffff;
 
     font-size:
-        .88rem;
+        0.86rem;
 
     line-height:
-        1.15;
+        1.2;
 
     font-weight:
         800;
 
     letter-spacing:
-        .035em;
+        0.035em;
 
     text-transform:
         uppercase;
@@ -605,20 +639,20 @@
     max-width:
         215px;
 
-    height:
-        34px;
+    min-height:
+        36px;
 
     margin:
-        0 auto 8px;
+        0 auto 11px;
 
     color:
-        rgba(255,255,255,.67);
+        rgba(255, 255, 255, 0.68);
 
     font-size:
-        .73rem;
+        0.72rem;
 
     line-height:
-        1.35;
+        1.42;
 
 }
 
@@ -636,16 +670,16 @@
         205px;
 
     height:
-        34px;
+        35px;
 
     min-height:
-        34px;
+        35px;
 
     margin:
         auto 0 0;
 
     padding:
-        0 12px;
+        0 13px;
 
     display:
         flex;
@@ -668,8 +702,8 @@
     background:
         linear-gradient(
             180deg,
-            #f5ce75 0%,
-            #d59a34 52%,
+            #f6d078 0%,
+            #d59a34 53%,
             #ad741b 100%
         );
 
@@ -677,27 +711,25 @@
         #171109;
 
     font-size:
-        .59rem;
+        0.58rem;
 
     font-weight:
         900;
 
     letter-spacing:
-        .085em;
+        0.085em;
 
     cursor:
         pointer;
 
     box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.72),
+        inset 0 -2px 0 rgba(94, 59, 8, 0.28),
+        0 6px 14px rgba(0, 0, 0, 0.38);
 
-        inset 0 1px 0
-        rgba(255,255,255,.72),
-
-        inset 0 -2px 0
-        rgba(94,59,8,.28),
-
-        0 6px 14px
-        rgba(0,0,0,.38);
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
 
 }
 
@@ -707,16 +739,33 @@
     transform:
         translateY(-2px);
 
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.78),
+        0 9px 20px rgba(0, 0, 0, 0.48),
+        0 0 20px rgba(216, 166, 60, 0.18);
+
 }
 
 
 .collections-preview__arrow {
 
     font-size:
-        .92rem;
+        0.9rem;
 
     line-height:
         1;
+
+    transition:
+        transform 0.25s ease;
+
+}
+
+
+.collections-preview__button:hover
+.collections-preview__arrow {
+
+    transform:
+        translateX(3px);
 
 }
 
@@ -725,19 +774,26 @@
    TABLET
 ================================================================ */
 
-@media (max-width:1050px) {
+@media (max-width: 1050px) {
 
     .collections-preview {
 
         padding:
-            65px 0 72px;
+            70px 0 76px;
+
+    }
+
+    .collections-preview__container {
+
+        width:
+            calc(100% - 40px);
 
     }
 
     .collections-preview__grid {
 
         grid-template-columns:
-            repeat(2,minmax(0,1fr));
+            repeat(2, minmax(0, 1fr));
 
         gap:
             15px;
@@ -747,14 +803,14 @@
     .collections-preview__visual {
 
         aspect-ratio:
-            1.55 / 1;
+            1.48 / 1;
 
     }
 
     .collections-preview__body {
 
-        height:
-            145px;
+        min-height:
+            150px;
 
     }
 
@@ -765,39 +821,49 @@
    MOBILE
 ================================================================ */
 
-@media (max-width:700px) {
+@media (max-width: 700px) {
 
     .collections-preview {
 
+        /*
+         * Espacio superior suficiente para que el título
+         * no quede escondido detrás del Header fijo.
+         */
+
         padding:
-            48px 0 55px;
+            104px 0 58px;
 
     }
 
     .collections-preview__container {
 
         width:
-            calc(100% - 22px);
+            calc(100% - 24px);
 
     }
 
 
-    /* HEADER */
+    /* ------------------------------------------------------------
+       HEADER
+    ------------------------------------------------------------ */
 
     .collections-preview__header {
 
-        margin-bottom:
-            22px;
+        max-width:
+            520px;
+
+        margin:
+            0 auto 27px;
 
     }
 
     .collections-preview__eyebrow {
 
         font-size:
-            .55rem;
+            0.56rem;
 
         letter-spacing:
-            .14em;
+            0.15em;
 
         gap:
             7px;
@@ -808,201 +874,211 @@
     .collections-preview__eyebrow span:last-child {
 
         width:
-            20px;
+            22px;
+
+        flex-basis:
+            22px;
 
     }
 
     .collections-preview__header h2 {
 
         margin:
-            9px 0 10px;
+            11px auto 12px;
+
+        max-width:
+            340px;
 
         font-size:
             clamp(
-                1.7rem,
-                8vw,
-                2.2rem
+                2rem,
+                9.2vw,
+                2.5rem
             );
+
+        line-height:
+            0.94;
+
+        letter-spacing:
+            -0.025em;
 
     }
 
     .collections-preview__ornament {
 
         width:
-            120px;
+            135px;
 
     }
 
 
-    /* GRID */
+    /* ------------------------------------------------------------
+       GRID
+    ------------------------------------------------------------ */
 
     .collections-preview__grid {
 
         grid-template-columns:
-            repeat(2,minmax(0,1fr));
+            repeat(2, minmax(0, 1fr));
 
         gap:
-            8px;
+            9px;
 
     }
 
 
-    /* CARD */
+    /* ------------------------------------------------------------
+       CARD
+    ------------------------------------------------------------ */
 
     .collections-preview__card {
 
         border-radius:
-            10px;
-
-        /*
-         * Evita que el contenido de una tarjeta
-         * fuerce la altura de las demás.
-         */
-
-        align-self:
-            start;
+            11px;
 
     }
 
 
-    /* IMAGE */
+    /* ------------------------------------------------------------
+       IMAGE
+    ------------------------------------------------------------ */
 
     .collections-preview__visual {
 
         /*
-         * Mucho más compacta que antes.
+         * Las imágenes conservan presencia visual.
+         * No las hacemos demasiado altas porque este es
+         * el Home, no la página completa de Collections.
          */
 
         aspect-ratio:
-            1.48 / 1;
+            1.18 / 1;
 
     }
 
 
-    /* ICON */
+    /* ------------------------------------------------------------
+       ICON
+    ------------------------------------------------------------ */
 
     .collections-preview__icon {
 
         width:
-            40px;
+            43px;
 
         height:
-            40px;
+            43px;
 
         bottom:
-            -17px;
+            -19px;
 
         font-size:
-            20px;
+            21px;
 
         box-shadow:
-
-            0 0 0 3px rgba(8,8,8,.86),
-
-            0 0 16px rgba(216,166,60,.22),
-
-            0 5px 13px rgba(0,0,0,.52);
+            0 0 0 3px rgba(8, 8, 8, 0.86),
+            0 0 18px rgba(216, 166, 60, 0.23),
+            0 6px 15px rgba(0, 0, 0, 0.52);
 
     }
 
 
-    /* BODY */
+    /* ------------------------------------------------------------
+       BODY
+    ------------------------------------------------------------ */
 
     .collections-preview__body {
 
-        height:
-            112px;
-
         min-height:
-            112px;
+            145px;
 
         padding:
-            25px 6px 7px;
+            30px 7px 9px;
 
     }
 
 
-    /* TITLE */
+    /* ------------------------------------------------------------
+       TITLE
+    ------------------------------------------------------------ */
 
     .collections-preview__body h3 {
 
-        height:
-            23px;
-
         min-height:
-            23px;
+            27px;
 
         margin:
-            0 0 3px;
+            0 0 4px;
 
         font-size:
-            .58rem;
+            0.64rem;
 
         line-height:
             1.15;
 
         letter-spacing:
-            .015em;
+            0.015em;
 
     }
 
 
-    /* DESCRIPTION */
+    /* ------------------------------------------------------------
+       DESCRIPTION
+    ------------------------------------------------------------ */
 
     .collections-preview__body p {
 
-        height:
-            29px;
+        max-width:
+            150px;
 
         min-height:
-            29px;
-
-        max-width:
-            145px;
+            35px;
 
         margin:
-            0 auto 5px;
+            0 auto 8px;
 
         font-size:
-            .52rem;
+            0.55rem;
 
         line-height:
-            1.3;
+            1.38;
 
     }
 
 
-    /* BUTTON */
+    /* ------------------------------------------------------------
+       BUTTON
+    ------------------------------------------------------------ */
 
     .collections-preview__button {
 
         height:
-            28px;
+            31px;
 
         min-height:
-            28px;
+            31px;
 
         max-width:
             none;
 
         padding:
-            0 5px;
+            0 6px;
 
         gap:
-            4px;
+            5px;
 
         font-size:
-            .40rem;
+            0.43rem;
 
         letter-spacing:
-            .04em;
+            0.055em;
 
     }
 
     .collections-preview__arrow {
 
         font-size:
-            .70rem;
+            0.75rem;
 
     }
 
@@ -1013,116 +1089,138 @@
    SMALL MOBILE
 ================================================================ */
 
-@media (max-width:420px) {
+@media (max-width: 420px) {
 
     .collections-preview {
 
         padding:
-            44px 0 50px;
+            96px 0 52px;
 
     }
 
     .collections-preview__container {
 
         width:
-            calc(100% - 18px);
+            calc(100% - 20px);
+
+    }
+
+    .collections-preview__header {
+
+        margin-bottom:
+            24px;
+
+    }
+
+    .collections-preview__header h2 {
+
+        max-width:
+            315px;
+
+        font-size:
+            clamp(
+                1.85rem,
+                9vw,
+                2.25rem
+            );
 
     }
 
     .collections-preview__grid {
 
         gap:
-            7px;
+            8px;
+
+    }
+
+    .collections-preview__card {
+
+        border-radius:
+            10px;
 
     }
 
 
-    /* IMAGE */
+    /* ------------------------------------------------------------
+       IMAGE
+    ------------------------------------------------------------ */
 
     .collections-preview__visual {
 
         aspect-ratio:
-            1.42 / 1;
+            1.16 / 1;
 
     }
 
 
-    /* ICON */
+    /* ------------------------------------------------------------
+       ICON
+    ------------------------------------------------------------ */
 
     .collections-preview__icon {
 
         width:
-            38px;
+            40px;
 
         height:
-            38px;
+            40px;
 
         bottom:
-            -16px;
+            -18px;
 
         font-size:
-            19px;
+            20px;
 
     }
 
 
-    /* BODY */
+    /* ------------------------------------------------------------
+       BODY
+    ------------------------------------------------------------ */
 
     .collections-preview__body {
 
-        height:
-            108px;
-
         min-height:
-            108px;
+            139px;
 
         padding:
-            24px 5px 6px;
+            29px 6px 8px;
 
     }
-
 
     .collections-preview__body h3 {
 
-        height:
-            22px;
-
         min-height:
-            22px;
+            26px;
 
         font-size:
-            .55rem;
+            0.60rem;
 
     }
-
 
     .collections-preview__body p {
 
-        height:
-            28px;
+        max-width:
+            140px;
 
         min-height:
-            28px;
-
-        max-width:
-            137px;
+            34px;
 
         font-size:
-            .49rem;
+            0.52rem;
 
     }
-
 
     .collections-preview__button {
 
         height:
-            27px;
+            30px;
 
         min-height:
-            27px;
+            30px;
 
         font-size:
-            .38rem;
+            0.41rem;
 
     }
 
@@ -1133,12 +1231,12 @@
    VERY SMALL MOBILE
 ================================================================ */
 
-@media (max-width:360px) {
+@media (max-width: 360px) {
 
     .collections-preview {
 
         padding:
-            40px 0 46px;
+            90px 0 48px;
 
     }
 
@@ -1149,91 +1247,86 @@
 
     }
 
-    .collections-preview__grid {
+    .collections-preview__header h2 {
 
-        gap:
-            6px;
+        font-size:
+            1.78rem;
 
     }
 
+    .collections-preview__grid {
+
+        gap:
+            7px;
+
+    }
 
     .collections-preview__visual {
 
         aspect-ratio:
-            1.38 / 1;
+            1.13 / 1;
 
     }
-
 
     .collections-preview__icon {
 
         width:
-            36px;
+            37px;
 
         height:
-            36px;
+            37px;
 
         bottom:
-            -15px;
+            -17px;
 
         font-size:
             18px;
 
     }
 
-
     .collections-preview__body {
 
-        height:
-            104px;
-
         min-height:
-            104px;
+            134px;
 
         padding:
-            23px 4px 5px;
+            28px 5px 7px;
 
     }
-
 
     .collections-preview__body h3 {
 
-        height:
-            21px;
-
         min-height:
-            21px;
+            25px;
 
         font-size:
-            .52rem;
+            0.56rem;
 
     }
-
 
     .collections-preview__body p {
 
-        height:
-            27px;
+        max-width:
+            130px;
 
         min-height:
-            27px;
+            32px;
 
         font-size:
-            .46rem;
+            0.49rem;
 
     }
-
 
     .collections-preview__button {
 
         height:
-            26px;
+            29px;
 
         min-height:
-            26px;
+            29px;
 
         font-size:
-            .36rem;
+            0.39rem;
 
     }
 
@@ -1241,7 +1334,7 @@
 
 
 /* ================================================================
-   REDUCED MOTION
+   ACCESSIBILITY
 ================================================================ */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1249,7 +1342,8 @@
     .collections-preview__card,
     .collections-preview__visual img,
     .collections-preview__icon,
-    .collections-preview__button {
+    .collections-preview__button,
+    .collections-preview__arrow {
 
         transition:
             none;
