@@ -629,6 +629,53 @@ export const es = {
     },
 },
 
+
+    specialOccasions: {
+        hero: {
+            eyebrow: "COLECCIÓN OCASIONES ESPECIALES",
+
+            title: "OCASIONES",
+            titleAccent: "ESPECIALES",
+
+            description:
+                "Diseños personalizados creados para celebrar cumpleaños, momentos importantes, fechas especiales y cada ocasión que merece ser recordada.",
+
+            button: "EXPLORAR DISEÑOS",
+        },
+
+        products: {
+            eyebrow: "OCASIONES ESPECIALES",
+
+            title: "DISEÑOS PARA",
+            titleAccent: "CADA MOMENTO",
+        },
+
+        featured: {
+            eyebrow: "DESTACADO",
+
+            title: "HAZLO",
+            titleAccent: "MEMORABLE",
+
+            description:
+                "Crea un diseño personalizado para esos momentos que merecen celebrarse, recordarse y compartirse.",
+
+            button: "PERSONALIZAR AHORA",
+        },
+
+        cta: {
+            eyebrow: "HAZ ESPECIAL CADA MOMENTO",
+
+            title: "TU MOMENTO.",
+            titleAccent: "TU DISEÑO.",
+
+            description:
+                "Convierte una foto, nombre, fecha o mensaje especial en un regalo personalizado creado para la ocasión.",
+
+            button: "EMPEZAR A CREAR",
+        },
+    },
+    
+    
     contact: {
         eyebrow: "CONTÁCTANOS",
         title: "Contáctanos",
