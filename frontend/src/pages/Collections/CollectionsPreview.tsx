@@ -14,28 +14,19 @@
 
 import "./CollectionsPreview.css";
 
-import {
-    useLanguage,
-} from "../../contexts/LanguageContext";
-
-import {
-    translations,
-} from "../../translations";
-
-import {
-    useNavigate,
-} from "react-router-dom";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { translations } from "../../translations";
+import { useNavigate } from "react-router-dom";
 
 
 function CollectionsPreview() {
 
-    const {
-        language,
-    } = useLanguage();
+    const { language } = useLanguage();
 
     const navigate = useNavigate();
 
     const t = translations[language].collections;
+
 
     const collections = [
         {
@@ -78,8 +69,9 @@ function CollectionsPreview() {
 
             <div className="collections-preview__container">
 
+
                 {/* ==================================================
-                    HEADER
+                    PREMIUM SECTION HEADER
                    ================================================== */}
 
                 <div className="collections-preview__header">
@@ -96,9 +88,6 @@ function CollectionsPreview() {
 
                     </div>
 
-                    <h2 id="collections-preview-title">
-                        {t.browse.title}
-                    </h2>
 
                     <div className="collections-preview__ornament">
 
@@ -114,7 +103,7 @@ function CollectionsPreview() {
 
 
                 {/* ==================================================
-                    COLLECTIONS
+                    COLLECTIONS GRID
                    ================================================== */}
 
                 <div className="collections-preview__grid">
@@ -131,7 +120,10 @@ function CollectionsPreview() {
                                 key={collection.id}
                             >
 
-                                {/* IMAGE */}
+
+                                {/* ------------------------------------------------
+                                   IMAGE
+                                ------------------------------------------------ */}
 
                                 <div className="collections-preview__visual">
 
@@ -141,7 +133,10 @@ function CollectionsPreview() {
                                         loading="lazy"
                                     />
 
-                                    <div className="collections-preview__fade" />
+                                    <div
+                                        className="collections-preview__fade"
+                                        aria-hidden="true"
+                                    />
 
                                     <div
                                         className="collections-preview__icon"
@@ -153,7 +148,9 @@ function CollectionsPreview() {
                                 </div>
 
 
-                                {/* CONTENT */}
+                                {/* ------------------------------------------------
+                                   CONTENT
+                                ------------------------------------------------ */}
 
                                 <div className="collections-preview__body">
 
@@ -161,9 +158,11 @@ function CollectionsPreview() {
                                         {content.title}
                                     </h3>
 
+
                                     <p>
                                         {content.description}
                                     </p>
+
 
                                     <button
                                         type="button"
@@ -203,5 +202,6 @@ function CollectionsPreview() {
     );
 
 }
+
 
 export default CollectionsPreview;
