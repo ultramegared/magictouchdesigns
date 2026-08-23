@@ -74,22 +74,45 @@ function CollectionsPreview() {
                     PREMIUM SECTION HEADER
                    ================================================== */}
 
-                <div className="collections-preview__header">
+                <header className="collections-preview__header">
+
+                    {/* SMALL EYEBROW */}
 
                     <div className="collections-preview__eyebrow">
 
-                        <span />
+                        <span aria-hidden="true" />
 
                         <span>
                             {t.browse.title}
                         </span>
 
-                        <span />
+                        <span aria-hidden="true" />
 
                     </div>
 
 
-                    <div className="collections-preview__ornament">
+                    {/* MAIN TITLE */}
+
+                    <h2
+                        id="collections-preview-title"
+                        className="collections-preview__title"
+                    >
+
+                        {t.hero.title}
+
+                        <span>
+                            {t.hero.titleAccent}
+                        </span>
+
+                    </h2>
+
+
+                    {/* ORNAMENT */}
+
+                    <div
+                        className="collections-preview__ornament"
+                        aria-hidden="true"
+                    >
 
                         <span />
 
@@ -99,7 +122,7 @@ function CollectionsPreview() {
 
                     </div>
 
-                </div>
+                </header>
 
 
                 {/* ==================================================
@@ -137,6 +160,7 @@ function CollectionsPreview() {
                                         className="collections-preview__fade"
                                         aria-hidden="true"
                                     />
+
 
                                     <div
                                         className="collections-preview__icon"
