@@ -317,12 +317,12 @@ function LoveRomancePage() {
                             {t.hero.description}
                         </p>
 
-                        <button
-                            type="button"
-                            className="love-romance-hero__button"
-                        >
-                            {t.hero.button}
-                        </button>
+                        <Link
+    to="/collections"
+    className="love-romance-hero__button"
+>
+    {t.hero.button}
+</Link>
 
                     </div>
 
@@ -578,12 +578,12 @@ function LoveRomancePage() {
                             {t.featured.description}
                         </p>
 
-                        <button
-                            type="button"
-                            className="love-romance-featured__button"
-                        >
-                            {t.featured.button}
-                        </button>
+                       <Link
+    to="/customize"
+    className="love-romance-featured__button"
+>
+    {t.featured.button}
+</Link>
 
                     </div>
 
@@ -628,12 +628,12 @@ function LoveRomancePage() {
                             {t.cta.description}
                         </p>
 
-                        <button
-                            type="button"
-                            className="love-romance-cta__button"
-                        >
-                            {t.cta.button}
-                        </button>
+                        <Link
+    to="/customize"
+    className="love-romance-cta__button"
+>
+    {t.cta.button}
+</Link>
 
                     </div>
 
