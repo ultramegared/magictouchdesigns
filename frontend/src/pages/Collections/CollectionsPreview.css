@@ -6,7 +6,7 @@
  * Module: Home
  * Language: CSS
  * Description:
- * Premium collections preview for the Home page.
+ * Premium compact collections preview for the Home page.
  * ================================================================
  */
 
@@ -21,14 +21,13 @@
 
     width: 100%;
 
-    padding: 76px 0 82px;
+    padding: 72px 0 78px;
 
     overflow: hidden;
 
     color: #ffffff;
 
     background:
-
         radial-gradient(
             ellipse at 50% 0%,
             rgba(216, 166, 60, 0.13),
@@ -38,19 +37,13 @@
         radial-gradient(
             ellipse at 8% 55%,
             rgba(216, 166, 60, 0.04),
-            transparent 34%
-        ),
-
-        radial-gradient(
-            ellipse at 92% 75%,
-            rgba(216, 166, 60, 0.035),
-            transparent 34%
+            transparent 35%
         ),
 
         linear-gradient(
             180deg,
             #080808 0%,
-            #0d0d0d 48%,
+            #0d0d0d 50%,
             #080808 100%
         );
 
@@ -58,7 +51,7 @@
 
 
 /* ================================================================
-   PREMIUM TOP LINE
+   TOP DECORATION
 ================================================================ */
 
 .collections-preview::before {
@@ -70,7 +63,7 @@
     top: 0;
     left: 50%;
 
-    width: min(520px, 72%);
+    width: min(500px, 70%);
 
     height: 1px;
 
@@ -81,12 +74,9 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(216, 166, 60, 0.78),
+            rgba(216,166,60,.8),
             transparent
         );
-
-    box-shadow:
-        0 0 22px rgba(216, 166, 60, 0.16);
 
 }
 
@@ -98,7 +88,7 @@
 .collections-preview__container {
 
     width:
-        min(1320px, 92%);
+        min(1280px, 92%);
 
     margin:
         0 auto;
@@ -113,10 +103,10 @@
 .collections-preview__header {
 
     max-width:
-        900px;
+        850px;
 
     margin:
-        0 auto 38px;
+        0 auto 36px;
 
     text-align:
         center;
@@ -152,9 +142,6 @@
 
     text-transform:
         uppercase;
-
-    text-shadow:
-        0 0 15px rgba(216,166,60,.20);
 
 }
 
@@ -204,11 +191,7 @@
         serif;
 
     font-size:
-        clamp(
-            2.25rem,
-            4vw,
-            3.55rem
-        );
+        clamp(2.25rem, 4vw, 3.5rem);
 
     line-height:
         1;
@@ -219,16 +202,13 @@
     letter-spacing:
         -.035em;
 
-    text-shadow:
-        0 5px 22px rgba(0,0,0,.48);
-
 }
 
 
 .collections-preview__ornament {
 
     width:
-        185px;
+        180px;
 
     margin:
         0 auto;
@@ -257,7 +237,7 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(216,166,60,.78)
+            rgba(216,166,60,.8)
         );
 
 }
@@ -268,7 +248,7 @@
     background:
         linear-gradient(
             90deg,
-            rgba(216,166,60,.78),
+            rgba(216,166,60,.8),
             transparent
         );
 
@@ -281,10 +261,7 @@
         #d8a63c;
 
     font-size:
-        .64rem;
-
-    text-shadow:
-        0 0 12px rgba(216,166,60,.35);
+        .65rem;
 
 }
 
@@ -299,13 +276,13 @@
         grid;
 
     grid-template-columns:
-        repeat(4, minmax(0, 1fr));
+        repeat(4, minmax(0,1fr));
 
     gap:
-        16px;
+        15px;
 
     align-items:
-        stretch;
+        start;
 
 }
 
@@ -322,9 +299,6 @@
     min-width:
         0;
 
-    height:
-        100%;
-
     display:
         flex;
 
@@ -335,7 +309,7 @@
         hidden;
 
     border:
-        1px solid rgba(216,166,60,.62);
+        1px solid rgba(216,166,60,.65);
 
     border-radius:
         15px;
@@ -350,15 +324,15 @@
 
     box-shadow:
 
-        0 14px 34px rgba(0,0,0,.40),
+        0 12px 30px rgba(0,0,0,.42),
 
         inset 0 1px 0
         rgba(255,255,255,.045);
 
     transition:
-        transform .35s ease,
-        border-color .35s ease,
-        box-shadow .35s ease;
+        transform .3s ease,
+        border-color .3s ease,
+        box-shadow .3s ease;
 
 }
 
@@ -366,25 +340,22 @@
 .collections-preview__card:hover {
 
     transform:
-        translateY(-6px);
+        translateY(-5px);
 
     border-color:
-        rgba(239,194,89,.96);
+        rgba(239,194,89,.95);
 
     box-shadow:
 
-        0 24px 48px rgba(0,0,0,.52),
+        0 20px 40px rgba(0,0,0,.52),
 
-        0 0 28px rgba(216,166,60,.11),
-
-        inset 0 1px 0
-        rgba(255,255,255,.06);
+        0 0 25px rgba(216,166,60,.12);
 
 }
 
 
 /* ================================================================
-   VISUAL
+   IMAGE
 ================================================================ */
 
 .collections-preview__visual {
@@ -396,15 +367,12 @@
         100%;
 
     /*
-     * Desktop:
-     * compacta la imagen sin perder protagonismo.
+     * Compacto para Home.
+     * No queremos la proporción alta de CollectionsPage.
      */
 
     aspect-ratio:
-        1.10 / 1;
-
-    flex:
-        0 0 auto;
+        1.35 / 1;
 
     overflow:
         hidden;
@@ -427,7 +395,7 @@
         cover;
 
     transition:
-        transform .65s cubic-bezier(.22,1,.36,1);
+        transform .55s cubic-bezier(.22,1,.36,1);
 
 }
 
@@ -436,7 +404,7 @@
 .collections-preview__visual img {
 
     transform:
-        scale(1.055);
+        scale(1.045);
 
 }
 
@@ -457,11 +425,10 @@
         none;
 
     background:
-
         linear-gradient(
             180deg,
-            transparent 34%,
-            rgba(8,8,8,.08) 50%,
+            transparent 38%,
+            rgba(8,8,8,.08) 55%,
             rgba(8,8,8,.94) 100%
         );
 
@@ -484,13 +451,13 @@
         50%;
 
     bottom:
-        -24px;
+        -22px;
 
     width:
-        54px;
+        50px;
 
     height:
-        54px;
+        50px;
 
     transform:
         translateX(-50%);
@@ -514,7 +481,6 @@
         #edc66e;
 
     background:
-
         radial-gradient(
             circle at 35% 28%,
             #2a210f 0%,
@@ -523,22 +489,18 @@
         );
 
     font-size:
-        26px;
+        24px;
 
     line-height:
         1;
 
     box-shadow:
 
-        0 0 0 4px rgba(8,8,8,.82),
+        0 0 0 4px rgba(8,8,8,.84),
 
-        0 0 22px rgba(216,166,60,.24),
+        0 0 20px rgba(216,166,60,.25),
 
-        0 8px 20px rgba(0,0,0,.55);
-
-    transition:
-        transform .35s ease,
-        box-shadow .35s ease;
+        0 7px 18px rgba(0,0,0,.55);
 
 }
 
@@ -550,14 +512,6 @@
         translateX(-50%)
         translateY(-3px);
 
-    box-shadow:
-
-        0 0 0 4px rgba(8,8,8,.82),
-
-        0 0 30px rgba(216,166,60,.36),
-
-        0 10px 24px rgba(0,0,0,.62);
-
 }
 
 
@@ -567,14 +521,17 @@
 
 .collections-preview__body {
 
-    min-height:
-        170px;
+    /*
+     * IMPORTANTE:
+     * No usamos flex: 1 ni min-height grande.
+     * Esto evita que el navegador estire las tarjetas.
+     */
 
-    flex:
-        1;
+    height:
+        142px;
 
     padding:
-        37px 17px 17px;
+        31px 14px 10px;
 
     display:
         flex;
@@ -600,20 +557,29 @@
     width:
         100%;
 
-    min-height:
-        20px;
+    height:
+        24px;
 
     margin:
-        0 0 7px;
+        0 0 4px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
 
     color:
         #ffffff;
 
     font-size:
-        .94rem;
+        .88rem;
 
     line-height:
-        1.24;
+        1.15;
 
     font-weight:
         800;
@@ -637,22 +603,22 @@
         100%;
 
     max-width:
-        220px;
+        215px;
 
-    min-height:
-        40px;
+    height:
+        34px;
 
     margin:
-        0 auto 14px;
+        0 auto 8px;
 
     color:
-        rgba(255,255,255,.68);
+        rgba(255,255,255,.67);
 
     font-size:
-        .77rem;
+        .73rem;
 
     line-height:
-        1.46;
+        1.35;
 
 }
 
@@ -667,16 +633,19 @@
         100%;
 
     max-width:
-        215px;
+        205px;
+
+    height:
+        34px;
 
     min-height:
-        40px;
+        34px;
 
-    margin-top:
-        auto;
+    margin:
+        auto 0 0;
 
     padding:
-        0 15px;
+        0 12px;
 
     display:
         flex;
@@ -688,7 +657,7 @@
         center;
 
     gap:
-        9px;
+        8px;
 
     border:
         1px solid #d8a63c;
@@ -697,7 +666,6 @@
         999px;
 
     background:
-
         linear-gradient(
             180deg,
             #f5ce75 0%,
@@ -709,13 +677,13 @@
         #171109;
 
     font-size:
-        .62rem;
+        .59rem;
 
     font-weight:
         900;
 
     letter-spacing:
-        .10em;
+        .085em;
 
     cursor:
         pointer;
@@ -723,17 +691,13 @@
     box-shadow:
 
         inset 0 1px 0
-        rgba(255,255,255,.70),
+        rgba(255,255,255,.72),
 
         inset 0 -2px 0
         rgba(94,59,8,.28),
 
-        0 7px 16px
+        0 6px 14px
         rgba(0,0,0,.38);
-
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease;
 
 }
 
@@ -743,39 +707,16 @@
     transform:
         translateY(-2px);
 
-    box-shadow:
-
-        inset 0 1px 0
-        rgba(255,255,255,.78),
-
-        0 10px 22px
-        rgba(0,0,0,.48),
-
-        0 0 22px
-        rgba(216,166,60,.18);
-
 }
 
 
 .collections-preview__arrow {
 
     font-size:
-        .98rem;
+        .92rem;
 
     line-height:
         1;
-
-    transition:
-        transform .25s ease;
-
-}
-
-
-.collections-preview__button:hover
-.collections-preview__arrow {
-
-    transform:
-        translateX(3px);
 
 }
 
@@ -784,19 +725,19 @@
    TABLET
 ================================================================ */
 
-@media (max-width: 1050px) {
+@media (max-width:1050px) {
 
     .collections-preview {
 
         padding:
-            70px 0 78px;
+            65px 0 72px;
 
     }
 
     .collections-preview__grid {
 
         grid-template-columns:
-            repeat(2, minmax(0,1fr));
+            repeat(2,minmax(0,1fr));
 
         gap:
             15px;
@@ -806,7 +747,14 @@
     .collections-preview__visual {
 
         aspect-ratio:
-            1.18 / 1;
+            1.55 / 1;
+
+    }
+
+    .collections-preview__body {
+
+        height:
+            145px;
 
     }
 
@@ -817,261 +765,7 @@
    MOBILE
 ================================================================ */
 
-@media (max-width: 700px) {
-
-    .collections-preview {
-
-        padding:
-            54px 0 62px;
-
-    }
-
-    .collections-preview__container {
-
-        width:
-            calc(100% - 26px);
-
-    }
-
-    .collections-preview__header {
-
-        margin-bottom:
-            26px;
-
-    }
-
-    .collections-preview__eyebrow {
-
-        font-size:
-            .58rem;
-
-        letter-spacing:
-            .16em;
-
-        gap:
-            8px;
-
-    }
-
-    .collections-preview__eyebrow span:first-child,
-    .collections-preview__eyebrow span:last-child {
-
-        width:
-            22px;
-
-    }
-
-    .collections-preview__header h2 {
-
-        margin:
-            10px 0 11px;
-
-        font-size:
-            clamp(
-                1.75rem,
-                8.5vw,
-                2.35rem
-            );
-
-    }
-
-    .collections-preview__ornament {
-
-        width:
-            132px;
-
-    }
-
-
-    /* ============================================================
-       GRID
-    ============================================================ */
-
-    .collections-preview__grid {
-
-        grid-template-columns:
-            repeat(2, minmax(0,1fr));
-
-        gap:
-            9px;
-
-    }
-
-
-    /* ============================================================
-       CARD
-    ============================================================ */
-
-    .collections-preview__card {
-
-        border-radius:
-            11px;
-
-    }
-
-
-    /* ============================================================
-       IMAGE
-    ============================================================ */
-
-    .collections-preview__visual {
-
-        /*
-         * AQUI ESTA A PRINCIPAL CORREÇÃO.
-         *
-         * A imagem fica mais larga e menos alta,
-         * reduzindo bastante a altura total das quatro
-         * coleções no Home.
-         */
-
-        aspect-ratio:
-            1.24 / 1;
-
-    }
-
-
-    /* ============================================================
-       ICON
-    ============================================================ */
-
-    .collections-preview__icon {
-
-        width:
-            43px;
-
-        height:
-            43px;
-
-        bottom:
-            -19px;
-
-        font-size:
-            21px;
-
-        box-shadow:
-
-            0 0 0 3px rgba(8,8,8,.84),
-
-            0 0 18px rgba(216,166,60,.22),
-
-            0 6px 15px rgba(0,0,0,.52);
-
-    }
-
-
-    /* ============================================================
-       BODY
-    ============================================================ */
-
-    .collections-preview__body {
-
-        min-height:
-            130px;
-
-        padding:
-            28px 7px 9px;
-
-    }
-
-
-    /* ============================================================
-       TITLE
-    ============================================================ */
-
-    .collections-preview__body h3 {
-
-        min-height:
-            27px;
-
-        margin:
-            0 0 4px;
-
-        display:
-            flex;
-
-        align-items:
-            center;
-
-        justify-content:
-            center;
-
-        font-size:
-            .64rem;
-
-        line-height:
-            1.17;
-
-        letter-spacing:
-            .018em;
-
-    }
-
-
-    /* ============================================================
-       DESCRIPTION
-    ============================================================ */
-
-    .collections-preview__body p {
-
-        max-width:
-            150px;
-
-        min-height:
-            33px;
-
-        margin:
-            0 auto 8px;
-
-        font-size:
-            .57rem;
-
-        line-height:
-            1.34;
-
-    }
-
-
-    /* ============================================================
-       BUTTON
-    ============================================================ */
-
-    .collections-preview__button {
-
-        min-height:
-            31px;
-
-        max-width:
-            none;
-
-        padding:
-            0 6px;
-
-        gap:
-            5px;
-
-        font-size:
-            .45rem;
-
-        letter-spacing:
-            .052em;
-
-    }
-
-    .collections-preview__arrow {
-
-        font-size:
-            .74rem;
-
-    }
-
-}
-
-
-/* ================================================================
-   SMALL MOBILE
-================================================================ */
-
-@media (max-width: 420px) {
+@media (max-width:700px) {
 
     .collections-preview {
 
@@ -1083,28 +777,90 @@
     .collections-preview__container {
 
         width:
-            calc(100% - 20px);
+            calc(100% - 22px);
 
     }
+
+
+    /* HEADER */
 
     .collections-preview__header {
 
         margin-bottom:
-            23px;
+            22px;
 
     }
 
+    .collections-preview__eyebrow {
+
+        font-size:
+            .55rem;
+
+        letter-spacing:
+            .14em;
+
+        gap:
+            7px;
+
+    }
+
+    .collections-preview__eyebrow span:first-child,
+    .collections-preview__eyebrow span:last-child {
+
+        width:
+            20px;
+
+    }
+
+    .collections-preview__header h2 {
+
+        margin:
+            9px 0 10px;
+
+        font-size:
+            clamp(
+                1.7rem,
+                8vw,
+                2.2rem
+            );
+
+    }
+
+    .collections-preview__ornament {
+
+        width:
+            120px;
+
+    }
+
+
+    /* GRID */
+
     .collections-preview__grid {
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
 
         gap:
             8px;
 
     }
 
+
+    /* CARD */
+
     .collections-preview__card {
 
         border-radius:
             10px;
+
+        /*
+         * Evita que el contenido de una tarjeta
+         * fuerce la altura de las demás.
+         */
+
+        align-self:
+            start;
 
     }
 
@@ -1113,8 +869,12 @@
 
     .collections-preview__visual {
 
+        /*
+         * Mucho más compacta que antes.
+         */
+
         aspect-ratio:
-            1.20 / 1;
+            1.48 / 1;
 
     }
 
@@ -1124,16 +884,24 @@
     .collections-preview__icon {
 
         width:
-            41px;
+            40px;
 
         height:
-            41px;
+            40px;
 
         bottom:
-            -18px;
+            -17px;
 
         font-size:
             20px;
+
+        box-shadow:
+
+            0 0 0 3px rgba(8,8,8,.86),
+
+            0 0 16px rgba(216,166,60,.22),
+
+            0 5px 13px rgba(0,0,0,.52);
 
     }
 
@@ -1142,50 +910,99 @@
 
     .collections-preview__body {
 
+        height:
+            112px;
+
         min-height:
-            126px;
+            112px;
 
         padding:
-            27px 6px 8px;
+            25px 6px 7px;
 
     }
+
+
+    /* TITLE */
 
     .collections-preview__body h3 {
 
+        height:
+            23px;
+
         min-height:
-            27px;
+            23px;
+
+        margin:
+            0 0 3px;
 
         font-size:
-            .60rem;
+            .58rem;
+
+        line-height:
+            1.15;
+
+        letter-spacing:
+            .015em;
 
     }
+
+
+    /* DESCRIPTION */
 
     .collections-preview__body p {
 
-        max-width:
-            140px;
+        height:
+            29px;
 
         min-height:
-            32px;
+            29px;
+
+        max-width:
+            145px;
+
+        margin:
+            0 auto 5px;
 
         font-size:
-            .54rem;
+            .52rem;
 
         line-height:
-            1.32;
+            1.3;
 
     }
 
+
+    /* BUTTON */
+
     .collections-preview__button {
 
+        height:
+            28px;
+
         min-height:
-            30px;
+            28px;
+
+        max-width:
+            none;
+
+        padding:
+            0 5px;
+
+        gap:
+            4px;
 
         font-size:
-            .42rem;
+            .40rem;
 
         letter-spacing:
-            .045em;
+            .04em;
+
+    }
+
+    .collections-preview__arrow {
+
+        font-size:
+            .70rem;
 
     }
 
@@ -1193,15 +1010,15 @@
 
 
 /* ================================================================
-   VERY SMALL MOBILE
+   SMALL MOBILE
 ================================================================ */
 
-@media (max-width: 360px) {
+@media (max-width:420px) {
 
     .collections-preview {
 
         padding:
-            44px 0 51px;
+            44px 0 50px;
 
     }
 
@@ -1220,24 +1037,28 @@
     }
 
 
+    /* IMAGE */
+
     .collections-preview__visual {
 
         aspect-ratio:
-            1.17 / 1;
+            1.42 / 1;
 
     }
 
 
+    /* ICON */
+
     .collections-preview__icon {
 
         width:
-            39px;
+            38px;
 
         height:
-            39px;
+            38px;
 
         bottom:
-            -17px;
+            -16px;
 
         font-size:
             19px;
@@ -1245,21 +1066,29 @@
     }
 
 
+    /* BODY */
+
     .collections-preview__body {
 
+        height:
+            108px;
+
         min-height:
-            122px;
+            108px;
 
         padding:
-            26px 5px 7px;
+            24px 5px 6px;
 
     }
 
 
     .collections-preview__body h3 {
 
+        height:
+            22px;
+
         min-height:
-            26px;
+            22px;
 
         font-size:
             .55rem;
@@ -1269,25 +1098,142 @@
 
     .collections-preview__body p {
 
-        max-width:
-            132px;
+        height:
+            28px;
 
         min-height:
-            31px;
+            28px;
+
+        max-width:
+            137px;
 
         font-size:
-            .51rem;
+            .49rem;
 
     }
 
 
     .collections-preview__button {
 
+        height:
+            27px;
+
         min-height:
-            29px;
+            27px;
 
         font-size:
-            .39rem;
+            .38rem;
+
+    }
+
+}
+
+
+/* ================================================================
+   VERY SMALL MOBILE
+================================================================ */
+
+@media (max-width:360px) {
+
+    .collections-preview {
+
+        padding:
+            40px 0 46px;
+
+    }
+
+    .collections-preview__container {
+
+        width:
+            calc(100% - 16px);
+
+    }
+
+    .collections-preview__grid {
+
+        gap:
+            6px;
+
+    }
+
+
+    .collections-preview__visual {
+
+        aspect-ratio:
+            1.38 / 1;
+
+    }
+
+
+    .collections-preview__icon {
+
+        width:
+            36px;
+
+        height:
+            36px;
+
+        bottom:
+            -15px;
+
+        font-size:
+            18px;
+
+    }
+
+
+    .collections-preview__body {
+
+        height:
+            104px;
+
+        min-height:
+            104px;
+
+        padding:
+            23px 4px 5px;
+
+    }
+
+
+    .collections-preview__body h3 {
+
+        height:
+            21px;
+
+        min-height:
+            21px;
+
+        font-size:
+            .52rem;
+
+    }
+
+
+    .collections-preview__body p {
+
+        height:
+            27px;
+
+        min-height:
+            27px;
+
+        font-size:
+            .46rem;
+
+    }
+
+
+    .collections-preview__button {
+
+        height:
+            26px;
+
+        min-height:
+            26px;
+
+        font-size:
+            .36rem;
 
     }
 
@@ -1303,8 +1249,7 @@
     .collections-preview__card,
     .collections-preview__visual img,
     .collections-preview__icon,
-    .collections-preview__button,
-    .collections-preview__arrow {
+    .collections-preview__button {
 
         transition:
             none;
