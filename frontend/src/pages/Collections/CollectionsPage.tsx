@@ -305,18 +305,22 @@ function CollectionsPage() {
     type="button"
     className="collection-card__button"
     onClick={() => {
-        if (collection.translationKey === "loveRomance") {
-            navigate("/collections/love-romance");
-        }
+    if (collection.translationKey === "loveRomance") {
+        navigate("/collections/love-romance");
+    }
 
-        if (collection.translationKey === "familyMemories") {
-            navigate("/collections/family-memories");
-        }
-        
-        if (collection.translationKey === "businessBranding") {
-    navigate("/collections/business-branding");
-        } 
-    }}
+    if (collection.translationKey === "familyMemories") {
+        navigate("/collections/family-memories");
+    }
+
+    if (collection.translationKey === "businessBranding") {
+        navigate("/collections/business-branding");
+    }
+
+    if (collection.translationKey === "specialOccasions") {
+        navigate("/collections/special-occasions");
+    }
+}}
 >
     {t.browse.viewCollection}
 </button>
