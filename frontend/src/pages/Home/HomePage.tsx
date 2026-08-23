@@ -15,13 +15,12 @@ import Footer from "../../components/home/Footer";
 
 import HeroSlider from "../../components/home/HeroSlider";
 import Benefits from "../../components/home/Benefits";
-import BestSellers from "../../components/home/BestSellers";
+
+import CollectionsPreview from "../Collections/CollectionsPreview";
+
 import WhyChooseUs from "../../components/home/WhyChooseUs";
-import HowItWorks from "../../components/home/HowItWorks/HowItWorks";
 import CustomerGallery from "../../components/home/CustomerGallery";
 import Newsletter from "../../components/home/Newsletter";
-
-// import FeaturedModels from "../../components/home/FeaturedModels";
 
 function HomePage() {
 
@@ -33,24 +32,45 @@ function HomePage() {
 
             <main>
 
+                {/* ==================================================
+                    HERO
+                   ================================================== */}
+
                 <HeroSlider />
+
+
+                {/* ==================================================
+                    BENEFITS
+                   ================================================== */}
 
                 <Benefits />
 
-                <BestSellers />
 
-                {/*
-                    FeaturedModels se deshabilita temporalmente
-                    hasta terminar su diseño e imágenes.
-                */}
+                {/* ==================================================
+                    COLLECTIONS PREVIEW
+                    Four main collections displayed on Home.
+                   ================================================== */}
 
-                {/* <FeaturedModels /> */}
+                <CollectionsPreview />
+
+
+                {/* ==================================================
+                    WHY CHOOSE US
+                   ================================================== */}
 
                 <WhyChooseUs />
 
-                <HowItWorks />
+
+                {/* ==================================================
+                    CUSTOMER REVIEWS / GALLERY
+                   ================================================== */}
 
                 <CustomerGallery />
+
+
+                {/* ==================================================
+                    NEWSLETTER / COMMUNITY
+                   ================================================== */}
 
                 <Newsletter />
 
