@@ -327,12 +327,12 @@ function SpecialOccasionsPage() {
                             {t.hero.description}
                         </p>
 
-                        <Link
-                            to="/customize"
-                            className="special-occasions-hero__button"
-                        >
-                            {t.hero.button}
-                        </Link>
+                       <Link
+    to="/collections"
+    className="special-occasions-hero__button"
+>
+    {t.hero.button}
+</Link>
 
                     </div>
 
