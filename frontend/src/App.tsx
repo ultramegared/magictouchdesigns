@@ -18,6 +18,8 @@ import CollectionsPage from "./pages/Collections";
 import LoveRomancePage from "./pages/Collections/pages/LoveRomance/LoveRomancePage";
 import FamilyMemoriesPage from "./pages/Collections/pages/FamilyMemories/FamilyMemoriesPage";
 import BusinessBrandingPage from "./pages/Collections/pages/BusinessBranding/BusinessBrandingPage";
+import SpecialOccasionsPage from "./pages/Collections/pages/SpecialOccasions/SpecialOccasionsPage";
+
 
 import LoginPage from "./pages/Login/Login";
 import RegisterPage from "./pages/Register/Register";
@@ -82,6 +84,11 @@ function App() {
 <Route
     path="/collections/business-branding"
     element={<BusinessBrandingPage />}
+/>
+
+<Route
+    path="/collections/special-occasions"
+    element={<SpecialOccasionsPage />}
 />
 
                 <Route

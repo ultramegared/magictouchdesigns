@@ -615,6 +615,50 @@ businessBranding: {
     },
 },
 
+    specialOccasions: {
+        hero: {
+            eyebrow: "SPECIAL OCCASIONS COLLECTION",
+
+            title: "SPECIAL",
+            titleAccent: "OCCASIONS",
+
+            description:
+                "Personalized designs created to celebrate birthdays, milestones, meaningful moments, and every occasion worth remembering.",
+
+            button: "EXPLORE DESIGNS",
+        },
+
+        products: {
+            eyebrow: "SPECIAL OCCASIONS",
+
+            title: "DESIGNS FOR",
+            titleAccent: "EVERY MOMENT",
+        },
+
+        featured: {
+            eyebrow: "FEATURED",
+
+            title: "MAKE IT",
+            titleAccent: "MEMORABLE",
+
+            description:
+                "Create a personalized design for the moments that deserve to be celebrated, remembered, and shared.",
+
+            button: "CUSTOMIZE NOW",
+        },
+
+        cta: {
+            eyebrow: "MAKE EVERY MOMENT SPECIAL",
+
+            title: "YOUR MOMENT.",
+            titleAccent: "YOUR DESIGN.",
+
+            description:
+                "Turn a photo, name, date, or special message into a personalized gift made for the occasion.",
+
+            button: "START CREATING",
+        },
+    },
 
   contact: {
     eyebrow: "GET IN TOUCH",
