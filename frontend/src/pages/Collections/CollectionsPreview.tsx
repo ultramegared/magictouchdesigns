@@ -33,28 +33,28 @@ function CollectionsPreview() {
             id: 1,
             translationKey: "loveRomance",
             image: "/images/collections/love-romance.jpg",
-            icon: "♡",
+            
             path: "/collections/love-romance",
         },
         {
             id: 2,
             translationKey: "familyMemories",
             image: "/images/collections/family-memories.jpg",
-            icon: "♧",
+            
             path: "/collections/family-memories",
         },
         {
             id: 3,
             translationKey: "businessBranding",
             image: "/images/collections/business-branding.jpg",
-            icon: "▱",
+            
             path: "/collections/business-branding",
         },
         {
             id: 4,
             translationKey: "specialOccasions",
             image: "/images/collections/special-occasions.jpg",
-            icon: "✦",
+            
             path: "/collections/special-occasions",
         },
     ] as const;
