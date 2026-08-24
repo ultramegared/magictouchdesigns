@@ -83,7 +83,7 @@ export const footerContent: FooterContent = {
         },
         {
             name: "Facebook",
-            href: "#",
+            href: "https://www.facebook.com/share/1ciBB3BuE3/?mibextid=wwXIfr",
         },
         {
             name: "TikTok",
@@ -101,6 +101,6 @@ export const footerContent: FooterContent = {
         "© 2026 Magic Touch Designs. All rights reserved.",
 
     designer:
-        "Designed by ultramegared",
+        "Designed by J.Q - webmaster",
 
 };
