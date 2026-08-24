@@ -5,9 +5,9 @@
  * File: CustomerGallery.css
  * Module: Home
  * Description:
- * Premium Customer Gallery Section.
+ * Ultra Premium Customer Gallery Section.
  * Displays the four latest customer purchases/reviews.
- * Includes a fullscreen premium image viewer.
+ * Includes a cinematic fullscreen image viewer.
  * ================================================================
  */
 
@@ -22,23 +22,65 @@
 
     width: 100%;
 
-    padding: 80px 0;
+    padding: 88px 0 96px;
 
     overflow: hidden;
 
+    color: #ffffff;
+
     background:
+
         radial-gradient(
             ellipse at 50% 0%,
-            rgba(200,155,60,.08),
+            rgba(200,155,60,.085),
+            transparent 40%
+        ),
+
+        radial-gradient(
+            ellipse at 50% 100%,
+            rgba(200,155,60,.035),
             transparent 42%
         ),
 
         linear-gradient(
             180deg,
-            #0b0b0c 0%,
+            #09090a 0%,
             #0f0f10 50%,
-            #0b0b0c 100%
+            #09090a 100%
         );
+
+}
+
+
+/* ================================================================
+   TOP DECORATIVE LINE
+================================================================ */
+
+.customer-gallery::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 50%;
+
+    width: min(600px, 72%);
+
+    height: 1px;
+
+    transform: translateX(-50%);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(200,155,60,.78),
+            transparent
+        );
+
+    box-shadow:
+        0 0 15px rgba(200,155,60,.16);
 
 }
 
@@ -65,7 +107,7 @@
 .customer-gallery__header {
 
     margin:
-        0 auto 45px;
+        0 auto 48px;
 
     text-align:
         center;
@@ -76,28 +118,71 @@
 .customer-gallery__eyebrow {
 
     display:
-        block;
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
 
     margin:
-        0 0 12px;
+        0 0 14px;
 
     color:
         #c89b3c;
 
     font-size:
-        .85rem;
+        .78rem;
 
     font-weight:
         800;
 
     letter-spacing:
-        .22em;
+        .24em;
+
+    line-height:
+        1;
 
     text-transform:
         uppercase;
 
     text-shadow:
-        0 0 14px rgba(200,155,60,.18);
+        0 0 15px rgba(200,155,60,.2);
+
+}
+
+
+.customer-gallery__eyebrow::before,
+.customer-gallery__eyebrow::after {
+
+    content:
+        "";
+
+    width:
+        38px;
+
+    height:
+        1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #c89b3c
+        );
+
+}
+
+
+.customer-gallery__eyebrow::after {
+
+    background:
+        linear-gradient(
+            90deg,
+            #c89b3c,
+            transparent
+        );
 
 }
 
@@ -105,19 +190,30 @@
 .customer-gallery__header h2 {
 
     margin:
-        0 0 12px;
+        0 0 13px;
 
     color:
         #ffffff;
 
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
     font-size:
-        2rem;
+        clamp(34px, 4vw, 48px);
 
     line-height:
-        1.15;
+        1;
 
     font-weight:
-        700;
+        500;
+
+    letter-spacing:
+        -1.2px;
+
+    text-shadow:
+        0 4px 22px rgba(0,0,0,.48);
 
 }
 
@@ -125,19 +221,19 @@
 .customer-gallery__header p {
 
     max-width:
-        600px;
+        610px;
 
     margin:
         0 auto;
 
     color:
-        #afafaf;
+        rgba(255,255,255,.58);
 
     font-size:
-        .95rem;
+        .9rem;
 
     line-height:
-        1.6;
+        1.65;
 
 }
 
@@ -155,7 +251,7 @@
         repeat(4, minmax(0, 1fr));
 
     gap:
-        24px;
+        22px;
 
 }
 
@@ -166,6 +262,9 @@
 
 .customer-gallery__card {
 
+    position:
+        relative;
+
     min-width:
         0;
 
@@ -173,26 +272,27 @@
         hidden;
 
     border:
-        1px solid rgba(200,155,60,.45);
+        1px solid rgba(200,155,60,.42);
 
     border-radius:
-        14px;
+        15px;
 
     background:
         linear-gradient(
             145deg,
-            #19191b 0%,
-            #131315 55%,
-            #0d0d0e 100%
+            #1a1a1c 0%,
+            #131315 50%,
+            #0b0b0c 100%
         );
 
     box-shadow:
-        0 12px 30px rgba(0,0,0,.28);
+        0 14px 34px rgba(0,0,0,.34),
+        inset 0 1px 0 rgba(255,255,255,.035);
 
     transition:
-        transform .28s ease,
-        border-color .28s ease,
-        box-shadow .28s ease;
+        transform .35s cubic-bezier(.22,1,.36,1),
+        border-color .35s ease,
+        box-shadow .35s ease;
 
 }
 
@@ -200,14 +300,15 @@
 .customer-gallery__card:hover {
 
     transform:
-        translateY(-4px);
+        translateY(-5px);
 
     border-color:
-        rgba(200,155,60,.78);
+        rgba(200,155,60,.76);
 
     box-shadow:
-        0 20px 40px rgba(0,0,0,.42),
-        0 0 25px rgba(200,155,60,.08);
+        0 24px 48px rgba(0,0,0,.48),
+        0 0 26px rgba(200,155,60,.08),
+        inset 0 1px 0 rgba(255,255,255,.055);
 
 }
 
@@ -236,6 +337,30 @@
 }
 
 
+.customer-gallery__image-wrapper::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    pointer-events:
+        none;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent 65%,
+            rgba(0,0,0,.18) 100%
+        );
+
+}
+
+
 .customer-gallery__image-wrapper img {
 
     display:
@@ -251,7 +376,7 @@
         cover;
 
     transition:
-        transform .55s cubic-bezier(.22,1,.36,1);
+        transform .65s cubic-bezier(.22,1,.36,1);
 
 }
 
@@ -260,13 +385,13 @@
 .customer-gallery__image-wrapper img {
 
     transform:
-        scale(1.035);
+        scale(1.045);
 
 }
 
 
 /* ================================================================
-   IMAGE ZOOM BUTTON
+   ZOOM BUTTON
 ================================================================ */
 
 .customer-gallery__zoom {
@@ -275,19 +400,19 @@
         absolute;
 
     right:
-        12px;
+        13px;
 
     bottom:
-        12px;
+        13px;
 
     z-index:
-        3;
+        4;
 
     width:
-        42px;
+        43px;
 
     height:
-        42px;
+        43px;
 
     display:
         flex;
@@ -299,16 +424,16 @@
         center;
 
     border:
-        1px solid #c89b3c;
+        1px solid rgba(200,155,60,.92);
 
     border-radius:
         50%;
 
     background:
-        rgba(15,15,16,.88);
+        rgba(8,8,8,.78);
 
     color:
-        #c89b3c;
+        #e2bd62;
 
     font-size:
         24px;
@@ -320,18 +445,19 @@
         pointer;
 
     box-shadow:
-        0 7px 18px rgba(0,0,0,.42);
+        0 8px 20px rgba(0,0,0,.45),
+        0 0 16px rgba(200,155,60,.10);
 
     backdrop-filter:
-        blur(7px);
+        blur(9px);
 
     -webkit-backdrop-filter:
-        blur(7px);
+        blur(9px);
 
     transition:
+        transform .25s ease,
         background .25s ease,
         color .25s ease,
-        transform .25s ease,
         box-shadow .25s ease;
 
 }
@@ -339,23 +465,24 @@
 
 .customer-gallery__zoom:hover {
 
+    transform:
+        scale(1.1);
+
     background:
         #c89b3c;
 
     color:
-        #0f0f10;
-
-    transform:
-        scale(1.08);
+        #0b0b0c;
 
     box-shadow:
-        0 0 20px rgba(200,155,60,.28);
+        0 0 25px rgba(200,155,60,.32),
+        0 9px 22px rgba(0,0,0,.5);
 
 }
 
 
 /* ================================================================
-   CONTENT
+   CARD CONTENT
 ================================================================ */
 
 .customer-gallery__content {
@@ -364,7 +491,7 @@
         125px;
 
     padding:
-        16px 18px;
+        17px 18px 16px;
 
     display:
         flex;
@@ -384,10 +511,13 @@
         #c89b3c;
 
     font-size:
-        .85rem;
+        .82rem;
 
     font-weight:
         800;
+
+    letter-spacing:
+        .02em;
 
 }
 
@@ -398,10 +528,10 @@
         0;
 
     color:
-        #d0d0d0;
+        rgba(255,255,255,.68);
 
     font-size:
-        .82rem;
+        .8rem;
 
     line-height:
         1.55;
@@ -446,7 +576,7 @@
         10px;
 
     border:
-        1px solid #c89b3c;
+        1px solid rgba(200,155,60,.78);
 
     border-radius:
         50%;
@@ -477,26 +607,14 @@
         #0f0f10;
 
     transform:
-        scale(1.05);
+        scale(1.07);
 
 }
 
 
 /* ================================================================
-   PREMIUM FULLSCREEN LIGHTBOX
+   ULTRA PREMIUM LIGHTBOX
 ================================================================ */
-
-/*
- * IMPORTANT:
- *
- * position: fixed makes the viewer completely independent
- * from the document flow.
- *
- * Therefore:
- * - It does NOT push the gallery down.
- * - It does NOT increase page height.
- * - It stays centered over the entire screen.
- */
 
 .customer-gallery__lightbox {
 
@@ -530,23 +648,28 @@
     justify-content:
         center;
 
+    overflow:
+        hidden;
+
     background:
-        rgba(0,0,0,.94);
+        rgba(2,2,2,.965);
 
     backdrop-filter:
-        blur(16px);
+        blur(19px);
 
     -webkit-backdrop-filter:
-        blur(16px);
+        blur(19px);
 
     animation:
-        customerGalleryLightboxIn .25s ease both;
+        customerGalleryLightboxIn .3s
+        cubic-bezier(.22,1,.36,1)
+        both;
 
 }
 
 
 /* ================================================================
-   LIGHTBOX AMBIENT GLOW
+   LIGHTBOX ATMOSPHERE
 ================================================================ */
 
 .customer-gallery__lightbox::before {
@@ -564,10 +687,10 @@
         50%;
 
     width:
-        min(850px, 85vw);
+        min(900px, 92vw);
 
     height:
-        min(850px, 85vw);
+        min(900px, 92vw);
 
     transform:
         translate(-50%, -50%);
@@ -578,12 +701,55 @@
     background:
         radial-gradient(
             circle,
-            rgba(200,155,60,.075),
-            transparent 68%
+            rgba(200,155,60,.075) 0%,
+            rgba(200,155,60,.025) 35%,
+            transparent 69%
         );
 
     filter:
-        blur(20px);
+        blur(22px);
+
+    pointer-events:
+        none;
+
+}
+
+
+/* ================================================================
+   LIGHTBOX SECONDARY GLOW
+================================================================ */
+
+.customer-gallery__lightbox::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        50%;
+
+    width:
+        min(700px, 80vw);
+
+    height:
+        min(700px, 80vw);
+
+    transform:
+        translate(-50%, -50%);
+
+    border:
+        1px solid rgba(200,155,60,.035);
+
+    border-radius:
+        50%;
+
+    box-shadow:
+        0 0 100px rgba(200,155,60,.045);
 
     pointer-events:
         none;
@@ -604,7 +770,7 @@
         2;
 
     max-width:
-        min(92vw, 1050px);
+        min(92vw, 1100px);
 
     max-height:
         88vh;
@@ -613,10 +779,10 @@
         88dvh;
 
     padding:
-        10px;
+        11px;
 
     border:
-        1px solid rgba(200,155,60,.88);
+        1px solid rgba(216,166,60,.92);
 
     border-radius:
         18px;
@@ -624,31 +790,40 @@
     background:
         linear-gradient(
             145deg,
-            #2b210e 0%,
-            #111111 30%,
-            #080808 70%,
-            #241b09 100%
+            #30240d 0%,
+            #17130a 18%,
+            #090909 45%,
+            #111111 78%,
+            #261d0b 100%
         );
 
     box-shadow:
 
         0 0 0 1px
-        rgba(200,155,60,.12),
+        rgba(255,255,255,.025),
+
+        0 0 0 5px
+        rgba(200,155,60,.035),
 
         0 0 45px
-        rgba(200,155,60,.16),
+        rgba(200,155,60,.15),
 
-        0 35px 100px
-        rgba(0,0,0,.85);
+        0 40px 110px
+        rgba(0,0,0,.88);
 
     overflow:
         hidden;
+
+    animation:
+        customerGalleryImageIn .42s
+        cubic-bezier(.22,1,.36,1)
+        both;
 
 }
 
 
 /* ================================================================
-   INNER GOLD FRAME
+   INNER FRAME
 ================================================================ */
 
 .customer-gallery__lightbox-frame {
@@ -660,16 +835,16 @@
         100%;
 
     max-height:
-        calc(88vh - 20px);
+        calc(88vh - 22px);
 
     max-height:
-        calc(88dvh - 20px);
+        calc(88dvh - 22px);
 
     padding:
         5px;
 
     border:
-        1px solid rgba(200,155,60,.28);
+        1px solid rgba(216,166,60,.24);
 
     border-radius:
         10px;
@@ -677,26 +852,35 @@
     overflow:
         hidden;
 
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.025);
+
 }
 
 
 /* ================================================================
-   LIGHTBOX IMAGE
+   IMAGE
 ================================================================ */
 
 .customer-gallery__lightbox-frame img {
+
+    position:
+        relative;
+
+    z-index:
+        2;
 
     display:
         block;
 
     max-width:
-        calc(92vw - 40px);
+        calc(92vw - 44px);
 
     max-height:
-        calc(88vh - 40px);
+        calc(88vh - 44px);
 
     max-height:
-        calc(88dvh - 40px);
+        calc(88dvh - 44px);
 
     width:
         auto;
@@ -710,11 +894,55 @@
     border-radius:
         6px;
 
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.55);
+
 }
 
 
 /* ================================================================
-   LIGHTBOX CLOSE
+   IMAGE LIGHT REFLECTION
+================================================================ */
+
+.customer-gallery__lightbox-frame::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    z-index:
+        3;
+
+    inset:
+        0;
+
+    pointer-events:
+        none;
+
+    background:
+        linear-gradient(
+            118deg,
+            transparent 24%,
+            rgba(255,255,255,.075) 47%,
+            transparent 57%
+        );
+
+    transform:
+        translateX(-125%);
+
+    animation:
+        customerGalleryReflection 1.15s
+        .18s
+        cubic-bezier(.22,1,.36,1)
+        both;
+
+}
+
+
+/* ================================================================
+   CLOSE BUTTON
 ================================================================ */
 
 .customer-gallery__lightbox-close {
@@ -732,10 +960,10 @@
         100000;
 
     width:
-        46px;
+        47px;
 
     height:
-        46px;
+        47px;
 
     display:
         flex;
@@ -747,16 +975,16 @@
         center;
 
     border:
-        1px solid rgba(200,155,60,.88);
+        1px solid rgba(216,166,60,.9);
 
     border-radius:
         50%;
 
     background:
-        rgba(10,10,10,.88);
+        rgba(8,8,8,.86);
 
     color:
-        #c89b3c;
+        #e2bd62;
 
     font-size:
         28px;
@@ -771,24 +999,29 @@
         pointer;
 
     box-shadow:
-        0 8px 25px rgba(0,0,0,.55),
-        0 0 18px rgba(200,155,60,.14);
+        0 8px 28px rgba(0,0,0,.62),
+        0 0 20px rgba(200,155,60,.12);
 
     backdrop-filter:
-        blur(8px);
+        blur(10px);
 
     -webkit-backdrop-filter:
-        blur(8px);
+        blur(10px);
 
     transition:
-        background .25s ease,
-        color .25s ease,
-        transform .25s ease;
+        transform .28s ease,
+        background .28s ease,
+        color .28s ease,
+        box-shadow .28s ease;
 
 }
 
 
 .customer-gallery__lightbox-close:hover {
+
+    transform:
+        rotate(90deg)
+        scale(1.08);
 
     background:
         #c89b3c;
@@ -796,15 +1029,15 @@
     color:
         #0f0f10;
 
-    transform:
-        rotate(90deg)
-        scale(1.06);
+    box-shadow:
+        0 0 28px rgba(200,155,60,.3),
+        0 10px 28px rgba(0,0,0,.65);
 
 }
 
 
 /* ================================================================
-   LIGHTBOX ANIMATION
+   ANIMATIONS
 ================================================================ */
 
 @keyframes customerGalleryLightboxIn {
@@ -820,6 +1053,52 @@
 
         opacity:
             1;
+
+    }
+
+}
+
+
+@keyframes customerGalleryImageIn {
+
+    from {
+
+        opacity:
+            0;
+
+        transform:
+            translateY(18px)
+            scale(.94);
+
+    }
+
+    to {
+
+        opacity:
+            1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+    }
+
+}
+
+
+@keyframes customerGalleryReflection {
+
+    from {
+
+        transform:
+            translateX(-125%);
+
+    }
+
+    to {
+
+        transform:
+            translateX(125%);
 
     }
 
@@ -862,7 +1141,7 @@
     .customer-gallery__header h2 {
 
         font-size:
-            1.75rem;
+            1.8rem;
 
     }
 
@@ -878,7 +1157,7 @@
     .customer-gallery {
 
         padding:
-            60px 0;
+            62px 0 70px;
 
     }
 
@@ -894,18 +1173,30 @@
     .customer-gallery__header {
 
         margin-bottom:
-            30px;
+            31px;
 
     }
 
 
     .customer-gallery__eyebrow {
 
+        gap:
+            8px;
+
         font-size:
-            .72rem;
+            .68rem;
 
         letter-spacing:
-            .17em;
+            .18em;
+
+    }
+
+
+    .customer-gallery__eyebrow::before,
+    .customer-gallery__eyebrow::after {
+
+        width:
+            23px;
 
     }
 
@@ -921,7 +1212,10 @@
     .customer-gallery__header p {
 
         font-size:
-            .85rem;
+            .83rem;
+
+        line-height:
+            1.55;
 
     }
 
@@ -932,7 +1226,7 @@
             repeat(2, minmax(0, 1fr));
 
         gap:
-            16px;
+            14px;
 
     }
 
@@ -948,10 +1242,10 @@
     .customer-gallery__content {
 
         min-height:
-            105px;
+            103px;
 
         padding:
-            12px;
+            11px;
 
     }
 
@@ -962,7 +1256,7 @@
             6px;
 
         font-size:
-            .78rem;
+            .75rem;
 
     }
 
@@ -970,13 +1264,10 @@
     .customer-gallery__content p {
 
         font-size:
-            .74rem;
+            .71rem;
 
         line-height:
             1.45;
-
-        -webkit-line-clamp:
-            3;
 
     }
 
@@ -990,10 +1281,10 @@
             9px;
 
         width:
-            38px;
+            37px;
 
         height:
-            38px;
+            37px;
 
         font-size:
             21px;
@@ -1008,7 +1299,7 @@
     .customer-gallery__lightbox {
 
         padding:
-            14px;
+            12px;
 
     }
 
@@ -1016,7 +1307,7 @@
     .customer-gallery__lightbox-content {
 
         max-width:
-            94vw;
+            95vw;
 
         max-height:
             86vh;
@@ -1053,13 +1344,13 @@
     .customer-gallery__lightbox-frame img {
 
         max-width:
-            calc(94vw - 22px);
+            calc(95vw - 24px);
 
         max-height:
-            calc(86vh - 22px);
+            calc(86vh - 24px);
 
         max-height:
-            calc(86dvh - 22px);
+            calc(86dvh - 24px);
 
         border-radius:
             5px;
@@ -1070,10 +1361,10 @@
     .customer-gallery__lightbox-close {
 
         top:
-            10px;
+            9px;
 
         right:
-            10px;
+            9px;
 
         width:
             38px;
@@ -1106,7 +1397,7 @@
     .customer-gallery__grid {
 
         gap:
-            12px;
+            11px;
 
     }
 
@@ -1114,7 +1405,7 @@
     .customer-gallery__content {
 
         min-height:
-            100px;
+            98px;
 
         padding:
             10px;
@@ -1125,7 +1416,7 @@
     .customer-gallery__content p {
 
         font-size:
-            .70rem;
+            .68rem;
 
     }
 
@@ -1133,7 +1424,15 @@
     .customer-gallery__lightbox {
 
         padding:
-            10px;
+            8px;
+
+    }
+
+
+    .customer-gallery__lightbox-content {
+
+        max-width:
+            96vw;
 
     }
 
@@ -1158,7 +1457,9 @@
     }
 
 
-    .customer-gallery__lightbox {
+    .customer-gallery__lightbox,
+    .customer-gallery__lightbox-content,
+    .customer-gallery__lightbox-frame::after {
 
         animation:
             none;
