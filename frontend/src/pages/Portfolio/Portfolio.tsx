@@ -6,8 +6,8 @@
  * Module: Frontend
  * Language: TypeScript React
  * Description:
- * Premium portfolio of previously completed and sold designs.
- * Displays completed work dynamically from the portfolio folder.
+ * Premium latest creations editorial gallery.
+ * Displays previously completed and sold designs.
  * ================================================================
  */
 
@@ -49,6 +49,18 @@ function Portfolio() {
         useState<string | null>(null);
 
 
+    /*
+     * First image becomes the editorial hero.
+     * Remaining images become supporting creations.
+     */
+
+    const heroImage =
+        portfolioImages[0];
+
+    const supportingImages =
+        portfolioImages.slice(1, 8);
+
+
     return (
 
         <section
@@ -66,11 +78,11 @@ function Portfolio() {
                 <header className="portfolio__header">
 
                     <span className="portfolio__eyebrow">
-                        Our Work
+                        Our Latest Work
                     </span>
 
                     <h2 id="portfolio-title">
-                        Portfolio
+                        Latest Creations
                     </h2>
 
                     <div
@@ -90,31 +102,40 @@ function Portfolio() {
 
 
                 {/* ==================================================
-                    WORK GRID
+                    EDITORIAL GALLERY
                    ================================================== */}
 
-                <div className="portfolio__grid">
+                {heroImage && (
 
-                    {portfolioImages.map((image, index) => (
+                    <div className="portfolio__gallery">
+
+
+                        {/* ==================================================
+                            HERO IMAGE
+                           ================================================== */}
 
                         <article
-                            className="portfolio__item"
-                            key={image}
+                            className="portfolio__hero"
                         >
 
                             <button
                                 type="button"
                                 className="portfolio__image-button"
                                 onClick={() =>
-                                    setSelectedImage(image)
+                                    setSelectedImage(heroImage)
                                 }
-                                aria-label={`View completed design ${index + 1}`}
+                                aria-label="View latest creation"
                             >
 
                                 <img
-                                    src={image}
-                                    alt={`Magic Touch Designs completed work ${index + 1}`}
+                                    src={heroImage}
+                                    alt="Magic Touch Designs latest creation"
                                     loading="lazy"
+                                />
+
+                                <span
+                                    className="portfolio__image-overlay"
+                                    aria-hidden="true"
                                 />
 
                                 <span
@@ -133,29 +154,95 @@ function Portfolio() {
                                             r="6.5"
                                         />
 
-                                        <path
-                                            d="M16 16L21 21"
-                                        />
+                                        <path d="M16 16L21 21" />
 
-                                        <path
-                                            d="M10.5 7.5V13.5"
-                                        />
+                                        <path d="M10.5 7.5V13.5" />
 
-                                        <path
-                                            d="M7.5 10.5H13.5"
-                                        />
+                                        <path d="M7.5 10.5H13.5" />
 
                                     </svg>
 
+                                </span>
+
+                                <span
+                                    className="portfolio__hero-label"
+                                >
+                                    Latest Creation
                                 </span>
 
                             </button>
 
                         </article>
 
-                    ))}
 
-                </div>
+                        {/* ==================================================
+                            SUPPORTING CREATIONS
+                           ================================================== */}
+
+                        {supportingImages.map(
+                            (image, index) => (
+
+                                <article
+                                    className="portfolio__item"
+                                    key={image}
+                                >
+
+                                    <button
+                                        type="button"
+                                        className="portfolio__image-button"
+                                        onClick={() =>
+                                            setSelectedImage(image)
+                                        }
+                                        aria-label={`View completed design ${index + 2}`}
+                                    >
+
+                                        <img
+                                            src={image}
+                                            alt={`Magic Touch Designs completed work ${index + 2}`}
+                                            loading="lazy"
+                                        />
+
+                                        <span
+                                            className="portfolio__image-overlay"
+                                            aria-hidden="true"
+                                        />
+
+                                        <span
+                                            className="portfolio__zoom"
+                                            aria-hidden="true"
+                                        >
+
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+
+                                                <circle
+                                                    cx="10.5"
+                                                    cy="10.5"
+                                                    r="6.5"
+                                                />
+
+                                                <path d="M16 16L21 21" />
+
+                                                <path d="M10.5 7.5V13.5" />
+
+                                                <path d="M7.5 10.5H13.5" />
+
+                                            </svg>
+
+                                        </span>
+
+                                    </button>
+
+                                </article>
+
+                            )
+                        )}
+
+                    </div>
+
+                )}
 
 
                 {/* ==================================================
@@ -167,9 +254,9 @@ function Portfolio() {
                     <div className="portfolio__cta">
 
                         <p>
-                            If you like one of our designs,
-                            contact us and we can create
-                            something personalized for you.
+                            If you love one of our designs,
+                            let us create something uniquely
+                            yours.
                         </p>
 
                         <a
@@ -187,7 +274,7 @@ function Portfolio() {
 
 
             {/* ======================================================
-                IMAGE LIGHTBOX
+                LIGHTBOX
                ====================================================== */}
 
             {selectedImage && (
@@ -196,14 +283,18 @@ function Portfolio() {
                     className="portfolio__lightbox"
                     role="dialog"
                     aria-modal="true"
-                    aria-label="Portfolio image preview"
-                    onClick={() => setSelectedImage(null)}
+                    aria-label="Image preview"
+                    onClick={() =>
+                        setSelectedImage(null)
+                    }
                 >
 
                     <button
                         type="button"
                         className="portfolio__lightbox-close"
-                        onClick={() => setSelectedImage(null)}
+                        onClick={() =>
+                            setSelectedImage(null)
+                        }
                         aria-label="Close image"
                     >
                         ×
