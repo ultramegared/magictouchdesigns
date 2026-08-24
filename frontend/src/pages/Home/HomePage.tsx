@@ -17,10 +17,11 @@ import HeroSlider from "../../components/home/HeroSlider";
 import Benefits from "../../components/home/Benefits";
 
 import CollectionsPreview from "../Collections/CollectionsPreview";
+import Portfolio from "../Portfolio/Portfolio";
 
-import WhyChooseUs from "../../components/home/WhyChooseUs";
 import CustomerGallery from "../../components/home/CustomerGallery";
 import Newsletter from "../../components/home/Newsletter";
+
 
 function HomePage() {
 
@@ -55,14 +56,16 @@ function HomePage() {
 
 
                 {/* ==================================================
-                    WHY CHOOSE US
+                    PORTFOLIO
+                    Previously completed and sold designs.
                    ================================================== */}
 
-                <WhyChooseUs />
+                <Portfolio />
 
 
                 {/* ==================================================
                     CUSTOMER REVIEWS / GALLERY
+                    Latest four customer purchases.
                    ================================================== */}
 
                 <CustomerGallery />
@@ -83,5 +86,6 @@ function HomePage() {
     );
 
 }
+
 
 export default HomePage;
