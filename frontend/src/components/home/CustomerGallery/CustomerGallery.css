@@ -5,239 +5,460 @@
  * File: CustomerGallery.css
  * Module: Home
  * Description:
- * Customer Gallery Section Styles.
+ * Premium Customer Gallery Section.
+ * Displays the four latest customer purchases/reviews.
+ * Includes a fullscreen premium image viewer.
  * ================================================================
  */
 
-.customer-gallery{
 
-    background:#0F0F10;
+/* ================================================================
+   SECTION
+================================================================ */
 
-    padding:80px 0;
+.customer-gallery {
+
+    position: relative;
+
+    width: 100%;
+
+    padding: 80px 0;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 0%,
+            rgba(200,155,60,.08),
+            transparent 42%
+        ),
+
+        linear-gradient(
+            180deg,
+            #0b0b0c 0%,
+            #0f0f10 50%,
+            #0b0b0c 100%
+        );
 
 }
 
 
-.customer-gallery__container{
+/* ================================================================
+   CONTAINER
+================================================================ */
 
-    max-width:1400px;
+.customer-gallery__container {
 
-    margin:0 auto;
+    width:
+        min(1400px, calc(100% - 100px));
 
-    padding:0 50px;
+    margin:
+        0 auto;
 
 }
 
 
 /* ================================================================
    HEADER
-   ================================================================ */
+================================================================ */
 
-.customer-gallery__header{
+.customer-gallery__header {
 
-    text-align:center;
+    margin:
+        0 auto 45px;
 
-    margin-bottom:45px;
-
-}
-
-
-.customer-gallery__eyebrow{
-
-    display:block;
-
-    margin-bottom:12px;
-
-    color:#C89B3C;
-
-    font-size:.85rem;
-
-    font-weight:700;
-
-    letter-spacing:.22em;
+    text-align:
+        center;
 
 }
 
 
-.customer-gallery__header h2{
+.customer-gallery__eyebrow {
 
-    margin:0 0 12px;
+    display:
+        block;
 
-    color:#FFFFFF;
+    margin:
+        0 0 12px;
 
-    font-size:2rem;
+    color:
+        #c89b3c;
 
-    font-weight:700;
+    font-size:
+        .85rem;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .22em;
+
+    text-transform:
+        uppercase;
+
+    text-shadow:
+        0 0 14px rgba(200,155,60,.18);
 
 }
 
 
-.customer-gallery__header p{
+.customer-gallery__header h2 {
 
-    max-width:600px;
+    margin:
+        0 0 12px;
 
-    margin:0 auto;
+    color:
+        #ffffff;
 
-    color:#AFAFAF;
+    font-size:
+        2rem;
 
-    font-size:.95rem;
+    line-height:
+        1.15;
 
-    line-height:1.6;
+    font-weight:
+        700;
+
+}
+
+
+.customer-gallery__header p {
+
+    max-width:
+        600px;
+
+    margin:
+        0 auto;
+
+    color:
+        #afafaf;
+
+    font-size:
+        .95rem;
+
+    line-height:
+        1.6;
 
 }
 
 
 /* ================================================================
    GALLERY GRID
-   ================================================================ */
+================================================================ */
 
-.customer-gallery__grid{
+.customer-gallery__grid {
 
-    display:grid;
+    display:
+        grid;
 
-    grid-template-columns:repeat(4, 1fr);
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
 
-    gap:24px;
+    gap:
+        24px;
 
 }
 
 
 /* ================================================================
    CARD
-   ================================================================ */
+================================================================ */
 
-.customer-gallery__card{
+.customer-gallery__card {
 
-    min-width:0;
+    min-width:
+        0;
 
-    overflow:hidden;
+    overflow:
+        hidden;
 
-    border:1px solid rgba(200,155,60,.45);
+    border:
+        1px solid rgba(200,155,60,.45);
 
-    border-radius:14px;
+    border-radius:
+        14px;
 
-    background:#151517;
+    background:
+        linear-gradient(
+            145deg,
+            #19191b 0%,
+            #131315 55%,
+            #0d0d0e 100%
+        );
 
-}
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.28);
 
-
-.customer-gallery__image-wrapper{
-    
-    position:relative;
-
-    width:100%;
-
-    aspect-ratio:1 / 1;
-
-    overflow:hidden;
-
-}
-
-
-.customer-gallery__image-wrapper img{
-
-    display:block;
-
-    width:100%;
-
-    height:100%;
-
-    object-fit:cover;
-
-}
-.customer-gallery__image-wrapper img{
-
-    display:block;
-
-    width:100%;
-
-    height:100%;
-
-    object-fit:cover;
+    transition:
+        transform .28s ease,
+        border-color .28s ease,
+        box-shadow .28s ease;
 
 }
 
 
-/* ===============================================================
+.customer-gallery__card:hover {
+
+    transform:
+        translateY(-4px);
+
+    border-color:
+        rgba(200,155,60,.78);
+
+    box-shadow:
+        0 20px 40px rgba(0,0,0,.42),
+        0 0 25px rgba(200,155,60,.08);
+
+}
+
+
+/* ================================================================
+   IMAGE
+================================================================ */
+
+.customer-gallery__image-wrapper {
+
+    position:
+        relative;
+
+    width:
+        100%;
+
+    aspect-ratio:
+        1 / 1;
+
+    overflow:
+        hidden;
+
+    background:
+        #ffffff;
+
+}
+
+
+.customer-gallery__image-wrapper img {
+
+    display:
+        block;
+
+    width:
+        100%;
+
+    height:
+        100%;
+
+    object-fit:
+        cover;
+
+    transition:
+        transform .55s cubic-bezier(.22,1,.36,1);
+
+}
+
+
+.customer-gallery__card:hover
+.customer-gallery__image-wrapper img {
+
+    transform:
+        scale(1.035);
+
+}
+
+
+/* ================================================================
    IMAGE ZOOM BUTTON
-   =============================================================== */
+================================================================ */
 
 .customer-gallery__zoom {
 
-    position:absolute;
+    position:
+        absolute;
 
-    right:12px;
-    bottom:12px;
+    right:
+        12px;
 
-    width:42px;
-    height:42px;
+    bottom:
+        12px;
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    z-index:
+        3;
 
-    border:1px solid #C89B3C;
-    border-radius:50%;
+    width:
+        42px;
 
-    background:rgba(15,15,16,.85);
-    color:#C89B3C;
+    height:
+        42px;
 
-    font-size:24px;
-    line-height:1;
+    display:
+        flex;
 
-    cursor:pointer;
+    align-items:
+        center;
 
-    z-index:2;
+    justify-content:
+        center;
+
+    border:
+        1px solid #c89b3c;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(15,15,16,.88);
+
+    color:
+        #c89b3c;
+
+    font-size:
+        24px;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 7px 18px rgba(0,0,0,.42);
+
+    backdrop-filter:
+        blur(7px);
+
+    -webkit-backdrop-filter:
+        blur(7px);
 
     transition:
         background .25s ease,
         color .25s ease,
-        transform .25s ease;
+        transform .25s ease,
+        box-shadow .25s ease;
+
 }
+
 
 .customer-gallery__zoom:hover {
 
-    background:#C89B3C;
-    color:#0F0F10;
+    background:
+        #c89b3c;
 
-    transform:scale(1.08);
-}
+    color:
+        #0f0f10;
 
-.customer-gallery__content{
+    transform:
+        scale(1.08);
 
-    height:125px;
-
-    padding:16px 18px;
-
-    display:flex;
-
-    flex-direction:column;
+    box-shadow:
+        0 0 20px rgba(200,155,60,.28);
 
 }
 
-.customer-gallery__social{
 
-    display:flex;
+/* ================================================================
+   CONTENT
+================================================================ */
 
-    align-items:center;
+.customer-gallery__content {
 
-    justify-content:center;
+    min-height:
+        125px;
 
-    width:34px;
+    padding:
+        16px 18px;
 
-    height:34px;
+    display:
+        flex;
 
-    margin-top:10px;
+    flex-direction:
+        column;
 
-    border:1px solid #C89B3C;
+}
 
-    border-radius:50%;
 
-    color:#C89B3C;
+.customer-gallery__name {
 
-    text-decoration:none;
+    margin:
+        0 0 8px;
 
-    cursor:pointer;
+    color:
+        #c89b3c;
+
+    font-size:
+        .85rem;
+
+    font-weight:
+        800;
+
+}
+
+
+.customer-gallery__content p {
+
+    margin:
+        0;
+
+    color:
+        #d0d0d0;
+
+    font-size:
+        .82rem;
+
+    line-height:
+        1.55;
+
+    display:
+        -webkit-box;
+
+    -webkit-line-clamp:
+        3;
+
+    -webkit-box-orient:
+        vertical;
+
+    overflow:
+        hidden;
+
+}
+
+
+/* ================================================================
+   SOCIAL
+================================================================ */
+
+.customer-gallery__social {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        34px;
+
+    height:
+        34px;
+
+    margin-top:
+        10px;
+
+    border:
+        1px solid #c89b3c;
+
+    border-radius:
+        50%;
+
+    color:
+        #c89b3c;
+
+    text-decoration:
+        none;
+
+    cursor:
+        pointer;
 
     transition:
         background .25s ease,
@@ -246,83 +467,402 @@
 
 }
 
-.customer-gallery__social:hover{
 
-    background:#C89B3C;
+.customer-gallery__social:hover {
 
-    color:#0F0F10;
+    background:
+        #c89b3c;
 
-    transform:scale(1.05);
+    color:
+        #0f0f10;
 
-}
-
-.customer-gallery__name{
-
-    margin-bottom:8px;
-
-    color:#C89B3C;
-
-    font-size:.85rem;
-
-    font-weight:700;
+    transform:
+        scale(1.05);
 
 }
 
 
-.customer-gallery__content p{
+/* ================================================================
+   PREMIUM FULLSCREEN LIGHTBOX
+================================================================ */
 
-    margin:0;
+/*
+ * IMPORTANT:
+ *
+ * position: fixed makes the viewer completely independent
+ * from the document flow.
+ *
+ * Therefore:
+ * - It does NOT push the gallery down.
+ * - It does NOT increase page height.
+ * - It stays centered over the entire screen.
+ */
 
-    color:#D0D0D0;
+.customer-gallery__lightbox {
 
-    font-size:.82rem;
+    position:
+        fixed;
 
-    line-height:1.55;
+    inset:
+        0;
 
-    display:-webkit-box;
+    z-index:
+        99999;
 
-    -webkit-line-clamp:3;
+    width:
+        100vw;
 
-    -webkit-box-orient:vertical;
+    height:
+        100vh;
 
-    overflow:hidden;
+    height:
+        100dvh;
+
+    padding:
+        30px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        rgba(0,0,0,.94);
+
+    backdrop-filter:
+        blur(16px);
+
+    -webkit-backdrop-filter:
+        blur(16px);
+
+    animation:
+        customerGalleryLightboxIn .25s ease both;
 
 }
 
+
+/* ================================================================
+   LIGHTBOX AMBIENT GLOW
+================================================================ */
+
+.customer-gallery__lightbox::before {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        50%;
+
+    width:
+        min(850px, 85vw);
+
+    height:
+        min(850px, 85vw);
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(200,155,60,.075),
+            transparent 68%
+        );
+
+    filter:
+        blur(20px);
+
+    pointer-events:
+        none;
+
+}
+
+
+/* ================================================================
+   LIGHTBOX CONTENT
+================================================================ */
+
+.customer-gallery__lightbox-content {
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    max-width:
+        min(92vw, 1050px);
+
+    max-height:
+        88vh;
+
+    max-height:
+        88dvh;
+
+    padding:
+        10px;
+
+    border:
+        1px solid rgba(200,155,60,.88);
+
+    border-radius:
+        18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #2b210e 0%,
+            #111111 30%,
+            #080808 70%,
+            #241b09 100%
+        );
+
+    box-shadow:
+
+        0 0 0 1px
+        rgba(200,155,60,.12),
+
+        0 0 45px
+        rgba(200,155,60,.16),
+
+        0 35px 100px
+        rgba(0,0,0,.85);
+
+    overflow:
+        hidden;
+
+}
+
+
+/* ================================================================
+   INNER GOLD FRAME
+================================================================ */
+
+.customer-gallery__lightbox-frame {
+
+    position:
+        relative;
+
+    max-width:
+        100%;
+
+    max-height:
+        calc(88vh - 20px);
+
+    max-height:
+        calc(88dvh - 20px);
+
+    padding:
+        5px;
+
+    border:
+        1px solid rgba(200,155,60,.28);
+
+    border-radius:
+        10px;
+
+    overflow:
+        hidden;
+
+}
+
+
+/* ================================================================
+   LIGHTBOX IMAGE
+================================================================ */
+
+.customer-gallery__lightbox-frame img {
+
+    display:
+        block;
+
+    max-width:
+        calc(92vw - 40px);
+
+    max-height:
+        calc(88vh - 40px);
+
+    max-height:
+        calc(88dvh - 40px);
+
+    width:
+        auto;
+
+    height:
+        auto;
+
+    object-fit:
+        contain;
+
+    border-radius:
+        6px;
+
+}
+
+
+/* ================================================================
+   LIGHTBOX CLOSE
+================================================================ */
+
+.customer-gallery__lightbox-close {
+
+    position:
+        fixed;
+
+    top:
+        22px;
+
+    right:
+        24px;
+
+    z-index:
+        100000;
+
+    width:
+        46px;
+
+    height:
+        46px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid rgba(200,155,60,.88);
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(10,10,10,.88);
+
+    color:
+        #c89b3c;
+
+    font-size:
+        28px;
+
+    font-weight:
+        300;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.55),
+        0 0 18px rgba(200,155,60,.14);
+
+    backdrop-filter:
+        blur(8px);
+
+    -webkit-backdrop-filter:
+        blur(8px);
+
+    transition:
+        background .25s ease,
+        color .25s ease,
+        transform .25s ease;
+
+}
+
+
+.customer-gallery__lightbox-close:hover {
+
+    background:
+        #c89b3c;
+
+    color:
+        #0f0f10;
+
+    transform:
+        rotate(90deg)
+        scale(1.06);
+
+}
+
+
+/* ================================================================
+   LIGHTBOX ANIMATION
+================================================================ */
+
+@keyframes customerGalleryLightboxIn {
+
+    from {
+
+        opacity:
+            0;
+
+    }
+
+    to {
+
+        opacity:
+            1;
+
+    }
+
+}
 
 
 /* ================================================================
    TABLET
-   ================================================================ */
+================================================================ */
 
-@media(max-width:992px){
+@media (max-width: 992px) {
 
-    .customer-gallery__container{
+    .customer-gallery__container {
 
-        padding:0 30px;
-
-    }
-
-
-    .customer-gallery__grid{
-
-        gap:18px;
+        width:
+            calc(100% - 60px);
 
     }
 
 
-    .customer-gallery__content{
+    .customer-gallery__grid {
 
-        height:120px;
-
-        padding:14px;
+        gap:
+            18px;
 
     }
 
 
-    .customer-gallery__header h2{
+    .customer-gallery__content {
 
-        font-size:1.75rem;
+        min-height:
+            120px;
+
+        padding:
+            14px;
+
+    }
+
+
+    .customer-gallery__header h2 {
+
+        font-size:
+            1.75rem;
 
     }
 
@@ -331,211 +871,298 @@
 
 /* ================================================================
    MOBILE
-   ================================================================ */
+================================================================ */
 
-@media(max-width:576px){
+@media (max-width: 576px) {
 
-    .customer-gallery{
+    .customer-gallery {
 
-        padding:60px 0;
-
-    }
-
-
-    .customer-gallery__container{
-
-        padding:0 18px;
+        padding:
+            60px 0;
 
     }
 
 
-    .customer-gallery__header{
+    .customer-gallery__container {
 
-        margin-bottom:30px;
-
-    }
-
-
-    .customer-gallery__header h2{
-
-        font-size:1.55rem;
+        width:
+            calc(100% - 36px);
 
     }
 
 
-    .customer-gallery__header p{
+    .customer-gallery__header {
 
-        font-size:.85rem;
-
-    }
-
-
-    .customer-gallery__grid{
-
-        grid-template-columns:repeat(2, minmax(0, 1fr));
-
-        gap:16px;
+        margin-bottom:
+            30px;
 
     }
 
 
-    .customer-gallery__card{
+    .customer-gallery__eyebrow {
 
-        border-radius:12px;
+        font-size:
+            .72rem;
 
-    }
-
-
-    .customer-gallery__content{
-
-        height:105px;
-
-        padding:12px;
+        letter-spacing:
+            .17em;
 
     }
 
 
-    .customer-gallery__name{
+    .customer-gallery__header h2 {
 
-        margin-bottom:6px;
-
-        font-size:.78rem;
-
-    }
-
-
-    .customer-gallery__content p{
-
-        font-size:.74rem;
-
-        line-height:1.45;
-
-        -webkit-line-clamp:3;
+        font-size:
+            1.55rem;
 
     }
 
 
-    .customer-gallery__action{
+    .customer-gallery__header p {
 
-        margin-top:30px;
+        font-size:
+            .85rem;
 
     }
 
-}
 
-/* ================================================================
-   CUSTOMER GALLERY -- PREMIUM IMAGE LIGHTBOX
-   ================================================================ */
+    .customer-gallery__grid {
 
-.customer-gallery__lightbox {
-    background: rgba(0, 0, 0, 0.92);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
 
-    padding: 24px;
+        gap:
+            16px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    }
 
-.customer-gallery__lightbox-content {
-    position: relative;
 
-    max-width: min(92vw, 900px);
-    max-height: 90vh;
+    .customer-gallery__card {
 
-    padding: 10px;
+        border-radius:
+            12px;
 
-    border: 1px solid rgba(200, 155, 60, 0.8);
-    border-radius: 18px;
+    }
 
-    background: #111;
 
-    box-shadow:
-        0 0 0 1px rgba(200, 155, 60, 0.18),
-        0 0 30px rgba(200, 155, 60, 0.18),
-        0 20px 60px rgba(0, 0, 0, 0.65);
+    .customer-gallery__content {
 
-    overflow: hidden;
-}
+        min-height:
+            105px;
 
-.customer-gallery__lightbox-content img {
-    display: block;
+        padding:
+            12px;
 
-    max-width: 100%;
-    max-height: calc(90vh - 20px);
+    }
 
-    width: auto;
-    height: auto;
 
-    object-fit: contain;
+    .customer-gallery__name {
 
-    border-radius: 10px;
-}
+        margin-bottom:
+            6px;
 
-/* Close button */
+        font-size:
+            .78rem;
 
-.customer-gallery__lightbox-close {
-    position: absolute;
+    }
 
-    top: 12px;
-    right: 12px;
 
-    width: 42px;
-    height: 42px;
+    .customer-gallery__content p {
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+        font-size:
+            .74rem;
 
-    border: 1px solid #C89B3C;
-    border-radius: 50%;
+        line-height:
+            1.45;
 
-    background: rgba(15, 15, 15, 0.92);
-    color: #C89B3C;
+        -webkit-line-clamp:
+            3;
 
-    cursor: pointer;
+    }
 
-    box-shadow: 0 0 15px rgba(200, 155, 60, 0.2);
 
-    z-index: 5;
-}
+    .customer-gallery__zoom {
 
-.customer-gallery__lightbox-close:hover {
-    background: #C89B3C;
-    color: #0F0F10;
+        right:
+            9px;
 
-    transform: scale(1.05);
-}
+        bottom:
+            9px;
 
-/* Mobile */
+        width:
+            38px;
 
-@media (max-width: 768px) {
+        height:
+            38px;
+
+        font-size:
+            21px;
+
+    }
+
+
+    /* ============================================================
+       MOBILE LIGHTBOX
+    ============================================================ */
 
     .customer-gallery__lightbox {
-        padding: 14px;
+
+        padding:
+            14px;
+
     }
+
 
     .customer-gallery__lightbox-content {
-        max-width: 94vw;
-        max-height: 86vh;
 
-        padding: 7px;
+        max-width:
+            94vw;
 
-        border-radius: 14px;
+        max-height:
+            86vh;
+
+        max-height:
+            86dvh;
+
+        padding:
+            7px;
+
+        border-radius:
+            14px;
+
     }
 
-    .customer-gallery__lightbox-content img {
-        max-height: calc(86vh - 14px);
-        border-radius: 8px;
+
+    .customer-gallery__lightbox-frame {
+
+        max-height:
+            calc(86vh - 14px);
+
+        max-height:
+            calc(86dvh - 14px);
+
+        padding:
+            4px;
+
+        border-radius:
+            8px;
+
     }
+
+
+    .customer-gallery__lightbox-frame img {
+
+        max-width:
+            calc(94vw - 22px);
+
+        max-height:
+            calc(86vh - 22px);
+
+        max-height:
+            calc(86dvh - 22px);
+
+        border-radius:
+            5px;
+
+    }
+
 
     .customer-gallery__lightbox-close {
-        width: 38px;
-        height: 38px;
 
-        top: 8px;
-        right: 8px;
+        top:
+            10px;
+
+        right:
+            10px;
+
+        width:
+            38px;
+
+        height:
+            38px;
+
+        font-size:
+            23px;
+
     }
+
+}
+
+
+/* ================================================================
+   SMALL MOBILE
+================================================================ */
+
+@media (max-width: 380px) {
+
+    .customer-gallery__container {
+
+        width:
+            calc(100% - 28px);
+
+    }
+
+
+    .customer-gallery__grid {
+
+        gap:
+            12px;
+
+    }
+
+
+    .customer-gallery__content {
+
+        min-height:
+            100px;
+
+        padding:
+            10px;
+
+    }
+
+
+    .customer-gallery__content p {
+
+        font-size:
+            .70rem;
+
+    }
+
+
+    .customer-gallery__lightbox {
+
+        padding:
+            10px;
+
+    }
+
+}
+
+
+/* ================================================================
+   REDUCED MOTION
+================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .customer-gallery__card,
+    .customer-gallery__image-wrapper img,
+    .customer-gallery__zoom,
+    .customer-gallery__social,
+    .customer-gallery__lightbox-close {
+
+        transition:
+            none;
+
+    }
+
+
+    .customer-gallery__lightbox {
+
+        animation:
+            none;
+
+    }
+
 }
