@@ -1353,6 +1353,10 @@
 
 /* ================================================================
    MOBILE
+   ---------------------------------------------------------------
+   IMPORTANT:
+   The support image stays behind the content.
+   The text floats over the image.
 ================================================================ */
 
 @media (max-width: 767px) {
@@ -1533,76 +1537,168 @@
 
 
     /* ============================================================
-       SUPPORT MOBILE
+       SUPPORT -- MOBILE PREMIUM OVERLAY
     ============================================================ */
 
     .contact-support {
 
+        position:
+            relative;
+
         display:
             block;
+
+        overflow:
+            hidden;
 
         border-radius:
             13px;
 
+        isolation:
+            isolate;
+
     }
 
+
+    /* ------------------------------------------------------------
+       IMAGE BECOMES THE BACKGROUND
+    ------------------------------------------------------------ */
 
     .contact-support__image {
 
         position:
-            relative;
+            absolute;
+
+        top:
+            0;
+
+        left:
+            0;
 
         width:
             100%;
 
         height:
-            315px;
+            430px;
+
+        z-index:
+            0;
+
+        overflow:
+            hidden;
+
+        background:
+            #101010;
 
     }
 
 
+    .contact-support__image img {
+
+        width:
+            100%;
+
+        height:
+            100%;
+
+        display:
+            block;
+
+        object-fit:
+            cover;
+
+        object-position:
+            center;
+
+    }
+
+
+    /* ------------------------------------------------------------
+       DARK PREMIUM OVERLAY
+    ------------------------------------------------------------ */
+
     .contact-support__image::after {
+
+        content:
+            "";
+
+        position:
+            absolute;
+
+        inset:
+            0;
 
         background:
 
             linear-gradient(
                 180deg,
-                rgba(10,10,10,.20) 0%,
-                rgba(10,10,10,.52) 48%,
-                rgba(12,12,12,.98) 100%
+                rgba(8,8,8,.30) 0%,
+                rgba(8,8,8,.46) 25%,
+                rgba(8,8,8,.64) 52%,
+                rgba(8,8,8,.86) 76%,
+                rgba(8,8,8,.98) 100%
+            ),
+
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(222,174,77,.08),
+                transparent 58%
             );
 
     }
 
 
+    /* ------------------------------------------------------------
+       CONTENT FLOATS OVER IMAGE
+    ------------------------------------------------------------ */
+
     .contact-support__content {
+
+        position:
+            relative;
+
+        z-index:
+            2;
 
         width:
             100%;
 
         min-height:
-            auto;
+            430px;
 
-        margin-top:
-            -1px;
+        margin:
+            0;
 
         padding:
-            32px 19px 28px;
+            38px 19px 30px;
 
         background:
-            linear-gradient(
-                180deg,
-                #141415,
-                #101011
-            );
+            transparent;
+
+        border:
+            none;
 
     }
 
 
-    .contact-support__form {
+    .contact-support__content > p {
 
-        padding:
-            25px 17px 30px;
+        max-width:
+            100%;
+
+        color:
+            rgba(255,247,232,.76);
+
+        text-shadow:
+            0 2px 12px rgba(0,0,0,.55);
+
+    }
+
+
+    .contact-support__content h2 {
+
+        text-shadow:
+            0 3px 18px rgba(0,0,0,.72);
 
     }
 
@@ -1610,10 +1706,30 @@
     .contact-info {
 
         margin-top:
-            24px;
+            26px;
+
+        display:
+            flex;
+
+        flex-direction:
+            column;
 
         gap:
             17px;
+
+    }
+
+
+    .contact-info__item {
+
+        display:
+            flex;
+
+        align-items:
+            flex-start;
+
+        gap:
+            12px;
 
     }
 
@@ -1626,8 +1742,109 @@
         height:
             37px;
 
-        flex-basis:
-            37px;
+        flex:
+            0 0 37px;
+
+        border:
+            1px solid rgba(218,171,77,.72);
+
+        border-radius:
+            9px;
+
+        background:
+            rgba(10,10,10,.68);
+
+        backdrop-filter:
+            blur(9px);
+
+        -webkit-backdrop-filter:
+            blur(9px);
+
+        color:
+            #e0b656;
+
+        box-shadow:
+
+            0 8px 22px
+            rgba(0,0,0,.34),
+
+            inset 0 1px 0
+            rgba(255,255,255,.08),
+
+            0 0 18px
+            rgba(210,161,59,.08);
+
+    }
+
+
+    .contact-info__item strong {
+
+        color:
+            #ffffff;
+
+        font-size:
+            12px;
+
+        text-shadow:
+            0 2px 10px rgba(0,0,0,.72);
+
+    }
+
+
+    .contact-info__item div span {
+
+        color:
+            rgba(255,247,232,.62);
+
+        font-size:
+            10px;
+
+        text-shadow:
+            0 2px 8px rgba(0,0,0,.65);
+
+    }
+
+
+    /* ------------------------------------------------------------
+       FORM RETURNS BELOW THE IMAGE COMPOSITION
+    ------------------------------------------------------------ */
+
+    .contact-support__form {
+
+        position:
+            relative;
+
+        z-index:
+            3;
+
+        width:
+            100%;
+
+        padding:
+            27px 17px 31px;
+
+        display:
+            flex;
+
+        flex-direction:
+            column;
+
+        gap:
+            20px;
+
+        border-top:
+            1px solid rgba(210,161,59,.18);
+
+        background:
+
+            linear-gradient(
+                180deg,
+                #151516 0%,
+                #0d0d0e 100%
+            );
+
+        box-shadow:
+            0 -12px 35px rgba(0,0,0,.22);
 
     }
 
@@ -1699,18 +1916,25 @@
     }
 
 
+    /* ============================================================
+       SUPPORT -- SMALL MOBILE
+    ============================================================ */
+
     .contact-support__image {
 
         height:
-            285px;
+            415px;
 
     }
 
 
     .contact-support__content {
 
+        min-height:
+            415px;
+
         padding:
-            30px 17px 27px;
+            34px 17px 30px;
 
     }
 
@@ -1718,7 +1942,7 @@
     .contact-support__form {
 
         padding:
-            24px 15px 28px;
+            24px 15px 29px;
 
     }
 
