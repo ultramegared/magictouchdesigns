@@ -7,65 +7,36 @@
  * Language: TypeScript React
  * Description:
  * Premium portfolio of previously completed and sold designs.
- * Displays a responsive selection of completed work.
+ * Displays completed work dynamically from the portfolio folder.
  * ================================================================
  */
 
 import { useState } from "react";
-import { useLanguage } from "../../contexts/LanguageContext";
-import { translations } from "../../translations";
 
 import "./Portfolio.css";
 
 
 /* ================================================================
-   PORTFOLIO ITEM
+   PORTFOLIO IMAGES
 ================================================================ */
 
-interface PortfolioItem {
-    id: number;
-    image: string;
-}
-
-
-/* ================================================================
-   PORTFOLIO DATA
-================================================================ */
-
-const portfolioItems: PortfolioItem[] = [
-    {
-        id: 1,
-        image: "/images/portfolio/portfolio-01.jpg",
-    },
-    {
-        id: 2,
-        image: "/images/portfolio/portfolio-02.jpg",
-    },
-    {
-        id: 3,
-        image: "/images/portfolio/portfolio-03.jpg",
-    },
-    {
-        id: 4,
-        image: "/images/portfolio/portfolio-04.jpg",
-    },
-    {
-        id: 5,
-        image: "/images/portfolio/portfolio-05.jpg",
-    },
-    {
-        id: 6,
-        image: "/images/portfolio/portfolio-06.jpg",
-    },
-    {
-        id: 7,
-        image: "/images/portfolio/portfolio-07.jpg",
-    },
-    {
-        id: 8,
-        image: "/images/portfolio/portfolio-08.jpg",
-    },
-];
+const portfolioImages = Object.entries(
+    import.meta.glob(
+        "/public/images/portfolio/portfolio-*.{jpg,jpeg,png,webp}",
+        {
+            eager: true,
+            query: "?url",
+            import: "default",
+        }
+    )
+)
+    .sort(([pathA], [pathB]) =>
+        pathA.localeCompare(pathB, undefined, {
+            numeric: true,
+            sensitivity: "base",
+        })
+    )
+    .map(([, image]) => image as string);
 
 
 /* ================================================================
@@ -74,21 +45,9 @@ const portfolioItems: PortfolioItem[] = [
 
 function Portfolio() {
 
-    const { language } = useLanguage();
-
-    const t = translations[language].collections;
-
     const [selectedImage, setSelectedImage] =
         useState<string | null>(null);
 
-
-    /* ============================================================
-       RESPONSIVE DISPLAY
-       ------------------------------------------------------------
-       CSS controls the visible amount:
-       - Desktop: up to 8
-       - Mobile: up to 6
-       ============================================================ */
 
     return (
 
@@ -136,25 +95,25 @@ function Portfolio() {
 
                 <div className="portfolio__grid">
 
-                    {portfolioItems.map((item) => (
+                    {portfolioImages.map((image, index) => (
 
                         <article
                             className="portfolio__item"
-                            key={item.id}
+                            key={image}
                         >
 
                             <button
                                 type="button"
                                 className="portfolio__image-button"
                                 onClick={() =>
-                                    setSelectedImage(item.image)
+                                    setSelectedImage(image)
                                 }
-                                aria-label="View design"
+                                aria-label={`View completed design ${index + 1}`}
                             >
 
                                 <img
-                                    src={item.image}
-                                    alt={`Magic Touch Designs -- completed work ${item.id}`}
+                                    src={image}
+                                    alt={`Magic Touch Designs completed work ${index + 1}`}
                                     loading="lazy"
                                 />
 
@@ -203,22 +162,26 @@ function Portfolio() {
                     CALL TO ACTION
                    ================================================== */}
 
-                <div className="portfolio__cta">
+                {portfolioImages.length > 0 && (
 
-                    <p>
-                        If you like one of our designs,
-                        contact us and we can create
-                        something personalized for you.
-                    </p>
+                    <div className="portfolio__cta">
 
-                    <a
-                        href="/contact"
-                        className="portfolio__cta-button"
-                    >
-                        Contact Us
-                    </a>
+                        <p>
+                            If you like one of our designs,
+                            contact us and we can create
+                            something personalized for you.
+                        </p>
 
-                </div>
+                        <a
+                            href="/contact"
+                            className="portfolio__cta-button"
+                        >
+                            Contact Us
+                        </a>
+
+                    </div>
+
+                )}
 
             </div>
 
@@ -261,6 +224,7 @@ function Portfolio() {
         </section>
 
     );
+
 }
 
 
