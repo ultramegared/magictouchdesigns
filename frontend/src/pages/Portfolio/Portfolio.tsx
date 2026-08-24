@@ -73,9 +73,6 @@ function Portfolio() {
     const lastTime =
         useRef<number | null>(null);
 
-    const pointerStartX =
-        useRef<number>(0);
-
     const pointerLastX =
         useRef<number>(0);
 
@@ -85,6 +82,8 @@ function Portfolio() {
 
     /* ============================================================
        RESPONSIVE LIMIT
+       Desktop: maximum 8
+       Mobile: maximum 6
     ============================================================ */
 
     const visibleImages =
@@ -105,7 +104,7 @@ function Portfolio() {
 
 
     /* ============================================================
-       ROTATION
+       AUTOMATIC ROTATION
     ============================================================ */
 
     useEffect(() => {
@@ -210,9 +209,6 @@ function Portfolio() {
         pointerActive.current =
             true;
 
-        pointerStartX.current =
-            event.clientX;
-
         pointerLastX.current =
             event.clientX;
 
@@ -260,8 +256,11 @@ function Portfolio() {
 
 
         /*
-         * Dragging right rotates right.
-         * Dragging left rotates left.
+         * Dragging right:
+         * rotate right.
+         *
+         * Dragging left:
+         * rotate left.
          */
 
         setRotation(
@@ -273,8 +272,8 @@ function Portfolio() {
 
 
         /*
-         * Change autoplay direction
-         * according to the customer's gesture.
+         * The customer's gesture
+         * changes the automatic direction.
          */
 
         if (
@@ -339,7 +338,7 @@ function Portfolio() {
 
 
     /* ============================================================
-       CALCULATE ITEM POSITION
+       ITEM 3D POSITION
     ============================================================ */
 
     const getItemStyle = (
@@ -356,6 +355,7 @@ function Portfolio() {
             rotation +
             index *
             angleStep;
+
 
         return {
 
@@ -387,7 +387,9 @@ function Portfolio() {
             aria-labelledby="portfolio-title"
         >
 
-            <div className="portfolio__container">
+            <div
+                className="portfolio__container"
+            >
 
 
                 {/* ==================================================
@@ -429,7 +431,7 @@ function Portfolio() {
 
 
                 {/* ==================================================
-                    CIRCULAR GALLERY
+                    3D CIRCULAR GALLERY
                 ================================================== */}
 
                 <div
@@ -502,10 +504,12 @@ function Portfolio() {
                                                     draggable="false"
                                                 />
 
+
                                                 <span
                                                     className="portfolio__shine"
                                                     aria-hidden="true"
                                                 />
+
 
                                                 <span
                                                     className="portfolio__zoom"

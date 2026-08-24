@@ -6,7 +6,7 @@
  * Module: Frontend
  * Language: CSS
  * Description:
- * Premium interactive circular gallery.
+ * Premium 3D interactive circular gallery.
  * ================================================================
  */
 
@@ -17,51 +17,43 @@
 
 .portfolio {
 
-    --portfolio-gold:
-        #d8a63c;
+    --portfolio-gold: #d8a63c;
+    --portfolio-gold-light: #f1cc76;
 
-    --portfolio-gold-light:
-        #f0ca70;
+    /*
+     * Distancia del círculo.
+     * Más profundidad = efecto 3D más evidente.
+     */
+    --portfolio-radius: 455px;
 
-    --portfolio-bg:
-        #080808;
+    position: relative;
 
-    --portfolio-radius:
-        390px;
+    width: 100%;
 
-    position:
-        relative;
+    padding: 92px 0 100px;
 
-    width:
-        100%;
+    overflow: hidden;
 
-    padding:
-        92px 0 100px;
-
-    overflow:
-        hidden;
-
-    color:
-        #ffffff;
+    color: #ffffff;
 
     background:
 
         radial-gradient(
-            ellipse at 50% 25%,
-            rgba(216,166,60,.105),
-            transparent 38%
+            ellipse at 50% 24%,
+            rgba(216,166,60,.115),
+            transparent 40%
         ),
 
         radial-gradient(
-            ellipse at 50% 90%,
+            ellipse at 50% 88%,
             rgba(216,166,60,.045),
-            transparent 38%
+            transparent 40%
         ),
 
         linear-gradient(
             180deg,
             #080808 0%,
-            #0c0c0c 50%,
+            #0d0d0d 50%,
             #070707 100%
         );
 
@@ -74,23 +66,16 @@
 
 .portfolio::before {
 
-    content:
-        "";
+    content: "";
 
-    position:
-        absolute;
+    position: absolute;
 
-    top:
-        0;
+    top: 0;
+    left: 50%;
 
-    left:
-        50%;
+    width: min(620px, 72%);
 
-    width:
-        min(600px, 72%);
-
-    height:
-        1px;
+    height: 1px;
 
     transform:
         translateX(-50%);
@@ -99,12 +84,12 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(216,166,60,.82),
+            rgba(216,166,60,.86),
             transparent
         );
 
     box-shadow:
-        0 0 15px rgba(216,166,60,.16);
+        0 0 16px rgba(216,166,60,.18);
 
 }
 
@@ -116,7 +101,7 @@
 .portfolio__container {
 
     width:
-        min(1240px, calc(100% - 50px));
+        min(1260px, calc(100% - 44px));
 
     margin:
         0 auto;
@@ -130,14 +115,12 @@
 
 .portfolio__header {
 
-    position:
-        relative;
+    position: relative;
 
-    z-index:
-        5;
+    z-index: 10;
 
     margin:
-        0 auto 20px;
+        0 auto 12px;
 
     text-align:
         center;
@@ -175,7 +158,7 @@
         uppercase;
 
     text-shadow:
-        0 0 15px rgba(216,166,60,.2);
+        0 0 16px rgba(216,166,60,.22);
 
 }
 
@@ -187,7 +170,7 @@
         "";
 
     width:
-        42px;
+        43px;
 
     height:
         1px;
@@ -217,7 +200,7 @@
 .portfolio__header h2 {
 
     margin:
-        15px 0 13px;
+        16px 0 14px;
 
     color:
         #ffffff;
@@ -228,7 +211,7 @@
         serif;
 
     font-size:
-        clamp(44px, 5vw, 68px);
+        clamp(46px, 5vw, 70px);
 
     line-height:
         .92;
@@ -237,10 +220,10 @@
         500;
 
     letter-spacing:
-        -2px;
+        -2.3px;
 
     text-shadow:
-        0 4px 24px rgba(0,0,0,.45);
+        0 4px 26px rgba(0,0,0,.48);
 
 }
 
@@ -248,7 +231,7 @@
 .portfolio__ornament {
 
     width:
-        200px;
+        205px;
 
     height:
         14px;
@@ -263,7 +246,7 @@
         center;
 
     gap:
-        10px;
+        11px;
 
 }
 
@@ -280,7 +263,7 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(216,166,60,.78)
+            rgba(216,166,60,.82)
         );
 
 }
@@ -291,7 +274,7 @@
     background:
         linear-gradient(
             90deg,
-            rgba(216,166,60,.78),
+            rgba(216,166,60,.82),
             transparent
         );
 
@@ -307,13 +290,13 @@
         9px;
 
     text-shadow:
-        0 0 12px rgba(216,166,60,.35);
+        0 0 14px rgba(216,166,60,.4);
 
 }
 
 
 /* ================================================================
-   STAGE
+   3D STAGE
 ================================================================ */
 
 .portfolio__stage {
@@ -325,16 +308,62 @@
         100%;
 
     height:
-        555px;
+        610px;
 
     perspective:
-        1500px;
+        1150px;
 
     perspective-origin:
-        50% 46%;
+        50% 44%;
 
     touch-action:
         pan-y;
+
+}
+
+
+/*
+ * Subtle atmospheric glow behind the carousel.
+ */
+
+.portfolio__stage::before {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        49%;
+
+    width:
+        min(760px, 82%);
+
+    height:
+        390px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(216,166,60,.055),
+            transparent 67%
+        );
+
+    filter:
+        blur(15px);
+
+    pointer-events:
+        none;
 
 }
 
@@ -368,6 +397,9 @@
 
     -webkit-user-select:
         none;
+
+    transform-style:
+        preserve-3d;
 
 }
 
@@ -412,25 +444,25 @@
         absolute;
 
     top:
-        -125px;
+        -155px;
 
     left:
-        -150px;
+        -185px;
 
     width:
-        300px;
+        370px;
 
     height:
-        250px;
+        310px;
 
     transform-style:
         preserve-3d;
 
     transform-origin:
-        center;
+        center center;
 
-    transition:
-        filter .35s ease;
+    backface-visibility:
+        visible;
 
 }
 
@@ -449,6 +481,9 @@
 
     padding:
         0;
+
+    display:
+        block;
 
     border:
         0;
@@ -484,7 +519,7 @@
         100%;
 
     padding:
-        8px;
+        9px;
 
     display:
         block;
@@ -493,36 +528,36 @@
         hidden;
 
     border:
-        1px solid rgba(216,166,60,.78);
+        1px solid rgba(216,166,60,.84);
 
     border-radius:
-        10px;
+        11px;
 
     background:
 
         linear-gradient(
             145deg,
-            #29200e,
-            #0e0e0e 38%,
-            #191919 65%,
-            #080808
+            #30240e 0%,
+            #111111 27%,
+            #080808 62%,
+            #21190a 100%
         );
 
     box-shadow:
 
-        0 20px 42px rgba(0,0,0,.58),
+        0 30px 65px
+        rgba(0,0,0,.66),
 
         0 0 0 1px
         rgba(255,255,255,.035),
 
         inset 0 1px 0
-        rgba(255,255,255,.10),
+        rgba(255,255,255,.12),
 
-        inset 0 0 24px
-        rgba(216,166,60,.055);
+        inset 0 0 30px
+        rgba(216,166,60,.06);
 
     transition:
-        transform .35s ease,
         border-color .35s ease,
         box-shadow .35s ease;
 
@@ -538,16 +573,16 @@
         absolute;
 
     z-index:
-        2;
+        4;
 
     inset:
-        4px;
+        5px;
 
     border:
-        1px solid rgba(216,166,60,.18);
+        1px solid rgba(216,166,60,.20);
 
     border-radius:
-        6px;
+        7px;
 
     pointer-events:
         none;
@@ -555,20 +590,44 @@
 }
 
 
-.portfolio__image-button:hover
-.portfolio__frame {
+.portfolio__frame::after {
 
-    border-color:
-        var(--portfolio-gold-light);
+    content:
+        "";
 
-    box-shadow:
+    position:
+        absolute;
 
-        0 25px 50px rgba(0,0,0,.64),
+    z-index:
+        1;
 
-        0 0 28px rgba(216,166,60,.15),
+    left:
+        50%;
 
-        inset 0 1px 0
-        rgba(255,255,255,.12);
+    bottom:
+        -55px;
+
+    width:
+        70%;
+
+    height:
+        100px;
+
+    transform:
+        translateX(-50%);
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(216,166,60,.12),
+            transparent 70%
+        );
+
+    filter:
+        blur(12px);
+
+    pointer-events:
+        none;
 
 }
 
@@ -578,6 +637,12 @@
 ================================================================ */
 
 .portfolio__frame img {
+
+    position:
+        relative;
+
+    z-index:
+        2;
 
     width:
         100%;
@@ -592,16 +657,37 @@
         cover;
 
     border-radius:
-        4px;
-
-    -webkit-user-drag:
-        none;
+        5px;
 
     user-select:
         none;
 
+    -webkit-user-drag:
+        none;
+
     transition:
-        transform .55s cubic-bezier(.22,1,.36,1);
+        transform .6s cubic-bezier(.22,1,.36,1),
+        filter .4s ease;
+
+}
+
+
+.portfolio__image-button:hover
+.portfolio__frame {
+
+    border-color:
+        var(--portfolio-gold-light);
+
+    box-shadow:
+
+        0 34px 72px
+        rgba(0,0,0,.72),
+
+        0 0 35px
+        rgba(216,166,60,.17),
+
+        inset 0 1px 0
+        rgba(255,255,255,.15);
 
 }
 
@@ -625,7 +711,7 @@
         absolute;
 
     z-index:
-        3;
+        5;
 
     inset:
         0;
@@ -635,17 +721,17 @@
 
     background:
         linear-gradient(
-            120deg,
+            115deg,
             transparent 25%,
-            rgba(255,255,255,.10) 48%,
+            rgba(255,255,255,.13) 48%,
             transparent 62%
         );
 
     transform:
-        translateX(-120%);
+        translateX(-130%);
 
     transition:
-        transform .8s ease;
+        transform .85s ease;
 
 }
 
@@ -654,7 +740,7 @@
 .portfolio__shine {
 
     transform:
-        translateX(120%);
+        translateX(130%);
 
 }
 
@@ -669,7 +755,7 @@
         absolute;
 
     z-index:
-        5;
+        7;
 
     right:
         18px;
@@ -678,10 +764,10 @@
         18px;
 
     width:
-        42px;
+        45px;
 
     height:
-        42px;
+        45px;
 
     display:
         flex;
@@ -693,13 +779,13 @@
         center;
 
     border:
-        1px solid rgba(216,166,60,.78);
+        1px solid rgba(216,166,60,.86);
 
     border-radius:
         50%;
 
     background:
-        rgba(5,5,5,.72);
+        rgba(5,5,5,.74);
 
     color:
         var(--portfolio-gold-light);
@@ -711,10 +797,15 @@
         scale(.86);
 
     backdrop-filter:
-        blur(8px);
+        blur(9px);
 
     -webkit-backdrop-filter:
-        blur(8px);
+        blur(9px);
+
+    box-shadow:
+        0 8px 22px rgba(0,0,0,.5),
+
+        0 0 18px rgba(216,166,60,.12);
 
     transition:
         opacity .25s ease,
@@ -738,10 +829,10 @@
 .portfolio__zoom svg {
 
     width:
-        19px;
+        20px;
 
     height:
-        19px;
+        20px;
 
     fill:
         none;
@@ -762,7 +853,7 @@
 
 
 /* ================================================================
-   FLOOR
+   FLOOR / DEPTH SHADOW
 ================================================================ */
 
 .portfolio__floor {
@@ -774,13 +865,13 @@
         50%;
 
     bottom:
-        36px;
+        35px;
 
     width:
-        min(620px, 70%);
+        min(760px, 82%);
 
     height:
-        100px;
+        130px;
 
     transform:
         translateX(-50%);
@@ -791,13 +882,13 @@
     background:
         radial-gradient(
             ellipse,
-            rgba(216,166,60,.15),
-            rgba(216,166,60,.035) 38%,
-            transparent 72%
+            rgba(0,0,0,.72) 0%,
+            rgba(216,166,60,.07) 25%,
+            transparent 68%
         );
 
     filter:
-        blur(10px);
+        blur(12px);
 
 }
 
@@ -812,10 +903,10 @@
         relative;
 
     z-index:
-        4;
+        20;
 
     margin:
-        -20px auto 0;
+        -15px auto 0;
 
     display:
         flex;
@@ -839,7 +930,7 @@
         700;
 
     letter-spacing:
-        1.5px;
+        1.6px;
 
     text-transform:
         uppercase;
@@ -854,7 +945,7 @@
         var(--portfolio-gold);
 
     font-size:
-        15px;
+        16px;
 
 }
 
@@ -869,10 +960,10 @@
         relative;
 
     z-index:
-        5;
+        20;
 
     max-width:
-        600px;
+        620px;
 
     margin:
         34px auto 0;
@@ -886,7 +977,7 @@
 .portfolio__cta p {
 
     max-width:
-        500px;
+        520px;
 
     margin:
         0 auto 21px;
@@ -906,13 +997,13 @@
 .portfolio__cta-button {
 
     min-width:
-        175px;
+        180px;
 
     min-height:
-        43px;
+        44px;
 
     padding:
-        0 25px;
+        0 26px;
 
     display:
         inline-flex;
@@ -958,10 +1049,10 @@
     box-shadow:
 
         inset 0 1px 0
-        rgba(255,255,255,.72),
+        rgba(255,255,255,.74),
 
-        0 8px 20px
-        rgba(0,0,0,.38);
+        0 9px 22px
+        rgba(0,0,0,.40);
 
     transition:
         transform .25s ease,
@@ -980,11 +1071,11 @@
         inset 0 1px 0
         rgba(255,255,255,.82),
 
-        0 12px 25px
-        rgba(0,0,0,.48),
+        0 13px 28px
+        rgba(0,0,0,.50),
 
-        0 0 22px
-        rgba(216,166,60,.16);
+        0 0 24px
+        rgba(216,166,60,.17);
 
 }
 
@@ -1017,13 +1108,13 @@
         center;
 
     background:
-        rgba(0,0,0,.94);
+        rgba(0,0,0,.95);
 
     backdrop-filter:
-        blur(14px);
+        blur(15px);
 
     -webkit-backdrop-filter:
-        blur(14px);
+        blur(15px);
 
     animation:
         portfolioLightboxIn .22s ease both;
@@ -1037,16 +1128,16 @@
         relative;
 
     max-width:
-        min(92vw, 1200px);
+        min(93vw, 1250px);
 
     max-height:
-        88vh;
+        89vh;
 
     padding:
         10px;
 
     border:
-        1px solid rgba(216,166,60,.82);
+        1px solid rgba(216,166,60,.84);
 
     border-radius:
         10px;
@@ -1054,16 +1145,18 @@
     background:
         linear-gradient(
             145deg,
-            #241c0d,
-            #0a0a0a 42%,
-            #19130a
+            #2b210e,
+            #080808 45%,
+            #1d1609
         );
 
     box-shadow:
 
-        0 35px 90px rgba(0,0,0,.78),
+        0 40px 100px
+        rgba(0,0,0,.82),
 
-        0 0 40px rgba(216,166,60,.12);
+        0 0 45px
+        rgba(216,166,60,.13);
 
 }
 
@@ -1071,10 +1164,10 @@
 .portfolio__lightbox-frame img {
 
     max-width:
-        calc(92vw - 20px);
+        calc(93vw - 20px);
 
     max-height:
-        calc(88vh - 20px);
+        calc(89vh - 20px);
 
     width:
         auto;
@@ -1106,7 +1199,7 @@
         5px;
 
     border:
-        1px solid rgba(216,166,60,.18);
+        1px solid rgba(216,166,60,.20);
 
     border-radius:
         6px;
@@ -1132,10 +1225,10 @@
         24px;
 
     width:
-        44px;
+        45px;
 
     height:
-        44px;
+        45px;
 
     display:
         flex;
@@ -1147,19 +1240,19 @@
         center;
 
     border:
-        1px solid rgba(216,166,60,.75);
+        1px solid rgba(216,166,60,.76);
 
     border-radius:
         50%;
 
     background:
-        rgba(7,7,7,.80);
+        rgba(7,7,7,.82);
 
     color:
         var(--portfolio-gold-light);
 
     font-size:
-        27px;
+        28px;
 
     line-height:
         1;
@@ -1186,7 +1279,7 @@
 
 
 /* ================================================================
-   LIGHTBOX ANIMATION
+   ANIMATION
 ================================================================ */
 
 @keyframes portfolioLightboxIn {
@@ -1217,40 +1310,43 @@
     .portfolio {
 
         --portfolio-radius:
-            300px;
+            355px;
 
         padding:
-            78px 0 86px;
+            80px 0 88px;
 
     }
 
     .portfolio__container {
 
         width:
-            calc(100% - 36px);
+            calc(100% - 34px);
 
     }
 
     .portfolio__stage {
 
         height:
-            490px;
+            560px;
+
+        perspective:
+            1050px;
 
     }
 
     .portfolio__card {
 
-        width:
-            250px;
-
-        height:
-            210px;
-
         top:
-            -105px;
+            -140px;
 
         left:
-            -125px;
+            -165px;
+
+        width:
+            330px;
+
+        height:
+            280px;
 
     }
 
@@ -1266,7 +1362,7 @@
     .portfolio {
 
         --portfolio-radius:
-            205px;
+            245px;
 
         padding:
             62px 0 70px;
@@ -1276,7 +1372,7 @@
     .portfolio__container {
 
         width:
-            calc(100% - 22px);
+            calc(100% - 20px);
 
     }
 
@@ -1286,7 +1382,7 @@
     .portfolio__header {
 
         margin-bottom:
-            4px;
+            0;
 
     }
 
@@ -1317,17 +1413,17 @@
             12px 0 12px;
 
         font-size:
-            clamp(36px, 10vw, 47px);
+            clamp(37px, 10vw, 48px);
 
         letter-spacing:
-            -1.3px;
+            -1.4px;
 
     }
 
     .portfolio__ornament {
 
         width:
-            140px;
+            145px;
 
     }
 
@@ -1337,10 +1433,13 @@
     .portfolio__stage {
 
         height:
-            395px;
+            445px;
 
         perspective:
-            1050px;
+            850px;
+
+        perspective-origin:
+            50% 43%;
 
     }
 
@@ -1349,17 +1448,17 @@
 
     .portfolio__card {
 
-        width:
-            205px;
-
-        height:
-            165px;
-
         top:
-            -82px;
+            -105px;
 
         left:
-            -102px;
+            -130px;
+
+        width:
+            260px;
+
+        height:
+            210px;
 
     }
 
@@ -1369,20 +1468,17 @@
     .portfolio__frame {
 
         padding:
-            6px;
+            7px;
 
         border-radius:
-            8px;
+            9px;
 
     }
 
     .portfolio__frame::before {
 
         inset:
-            3px;
-
-        border-radius:
-            5px;
+            4px;
 
     }
 
@@ -1398,10 +1494,10 @@
             10px;
 
         width:
-            34px;
+            35px;
 
         height:
-            34px;
+            35px;
 
         opacity:
             1;
@@ -1410,7 +1506,7 @@
             scale(1);
 
         background:
-            rgba(5,5,5,.64);
+            rgba(5,5,5,.65);
 
     }
 
@@ -1430,10 +1526,13 @@
     .portfolio__floor {
 
         bottom:
-            24px;
+            28px;
 
         width:
-            80%;
+            86%;
+
+        height:
+            110px;
 
     }
 
@@ -1442,8 +1541,8 @@
 
     .portfolio__hint {
 
-        margin-top:
-            -7px;
+        margin:
+            -8px auto 0;
 
         gap:
             10px;
@@ -1455,6 +1554,7 @@
             1px;
 
     }
+
 
     .portfolio__hint span:first-child,
     .portfolio__hint span:last-child {
@@ -1470,7 +1570,7 @@
     .portfolio__cta {
 
         margin-top:
-            29px;
+            30px;
 
     }
 
@@ -1498,9 +1598,6 @@
         min-height:
             38px;
 
-        padding:
-            0 19px;
-
         font-size:
             7px;
 
@@ -1515,43 +1612,40 @@
     .portfolio__lightbox {
 
         padding:
-            18px;
+            15px;
 
     }
 
     .portfolio__lightbox-frame {
 
         max-width:
-            95vw;
+            96vw;
 
         max-height:
-            82vh;
+            84vh;
 
         padding:
             7px;
-
-        border-radius:
-            8px;
 
     }
 
     .portfolio__lightbox-frame img {
 
         max-width:
-            calc(95vw - 14px);
+            calc(96vw - 14px);
 
         max-height:
-            calc(82vh - 14px);
+            calc(84vh - 14px);
 
     }
 
     .portfolio__lightbox-close {
 
         top:
-            12px;
+            11px;
 
         right:
-            12px;
+            11px;
 
         width:
             38px;
@@ -1576,7 +1670,7 @@
     .portfolio {
 
         --portfolio-radius:
-            182px;
+            220px;
 
         padding:
             54px 0 62px;
@@ -1586,7 +1680,7 @@
     .portfolio__container {
 
         width:
-            calc(100% - 18px);
+            calc(100% - 16px);
 
     }
 
@@ -1600,30 +1694,26 @@
     .portfolio__stage {
 
         height:
-            360px;
+            410px;
+
+        perspective:
+            760px;
 
     }
 
     .portfolio__card {
 
-        width:
-            184px;
-
-        height:
-            148px;
-
         top:
-            -74px;
+            -96px;
 
         left:
-            -92px;
+            -118px;
 
-    }
+        width:
+            236px;
 
-    .portfolio__hint {
-
-        margin-top:
-            -5px;
+        height:
+            192px;
 
     }
 
@@ -1639,7 +1729,7 @@
     .portfolio {
 
         --portfolio-radius:
-            160px;
+            195px;
 
         padding:
             48px 0 56px;
@@ -1649,7 +1739,7 @@
     .portfolio__container {
 
         width:
-            calc(100% - 16px);
+            calc(100% - 14px);
 
     }
 
@@ -1663,40 +1753,43 @@
     .portfolio__stage {
 
         height:
-            325px;
+            375px;
+
+        perspective:
+            700px;
 
     }
 
     .portfolio__card {
 
-        width:
-            164px;
-
-        height:
-            132px;
-
         top:
-            -66px;
+            -88px;
 
         left:
-            -82px;
+            -108px;
+
+        width:
+            216px;
+
+        height:
+            176px;
 
     }
 
     .portfolio__frame {
 
         padding:
-            5px;
+            6px;
 
     }
 
     .portfolio__zoom {
 
         width:
-            30px;
+            31px;
 
         height:
-            30px;
+            31px;
 
         right:
             8px;
@@ -1720,7 +1813,7 @@
 
 
 /* ================================================================
-   ACCESSIBILITY / REDUCED MOTION
+   REDUCED MOTION
 ================================================================ */
 
 @media (prefers-reduced-motion: reduce) {
