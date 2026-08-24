@@ -1,0 +1,1326 @@
+/**
+ * ================================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: Portfolio.css
+ * Module: Frontend
+ * Language: CSS
+ * Description:
+ * Premium portfolio of previously completed and sold designs.
+ * Responsive layout with image preview and lightbox.
+ * ================================================================
+ */
+
+
+/* ================================================================
+   SECTION
+================================================================ */
+
+.portfolio {
+
+    position: relative;
+
+    width: 100%;
+
+    padding: 82px 0 88px;
+
+    overflow: hidden;
+
+    color: #ffffff;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 0%,
+            rgba(216, 166, 60, 0.12),
+            transparent 42%
+        ),
+
+        radial-gradient(
+            ellipse at 50% 100%,
+            rgba(216, 166, 60, 0.035),
+            transparent 40%
+        ),
+
+        linear-gradient(
+            180deg,
+            #080808 0%,
+            #0d0d0d 50%,
+            #080808 100%
+        );
+
+}
+
+
+/* ================================================================
+   TOP DECORATION
+================================================================ */
+
+.portfolio::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 50%;
+
+    width: min(560px, 72%);
+
+    height: 1px;
+
+    transform:
+        translateX(-50%);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(216, 166, 60, 0.85),
+            transparent
+        );
+
+    box-shadow:
+        0 0 14px rgba(216, 166, 60, 0.18);
+
+}
+
+
+/* ================================================================
+   CONTAINER
+================================================================ */
+
+.portfolio__container {
+
+    width:
+        min(1180px, calc(100% - 40px));
+
+    margin:
+        0 auto;
+
+}
+
+
+/* ================================================================
+   HEADER
+================================================================ */
+
+.portfolio__header {
+
+    margin:
+        0 auto 38px;
+
+    text-align:
+        center;
+
+}
+
+
+/* ================================================================
+   EYEBROW
+================================================================ */
+
+.portfolio__eyebrow {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    color:
+        #d8a63c;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    line-height:
+        1;
+
+    letter-spacing:
+        3px;
+
+    text-transform:
+        uppercase;
+
+    text-shadow:
+        0 0 15px rgba(216,166,60,.18);
+
+}
+
+
+/* ================================================================
+   TITLE
+================================================================ */
+
+.portfolio__header h2 {
+
+    margin:
+        13px 0 14px;
+
+    color:
+        #ffffff;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(42px, 5vw, 66px);
+
+    line-height:
+        .95;
+
+    font-weight:
+        500;
+
+    letter-spacing:
+        -2px;
+
+    text-shadow:
+        0 3px 18px rgba(0,0,0,.45);
+
+}
+
+
+/* ================================================================
+   ORNAMENT
+================================================================ */
+
+.portfolio__ornament {
+
+    width:
+        210px;
+
+    height:
+        14px;
+
+    margin:
+        0 auto;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        11px;
+
+}
+
+
+.portfolio__ornament span {
+
+    height:
+        1px;
+
+    flex:
+        1;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(216,166,60,.85)
+        );
+
+}
+
+
+.portfolio__ornament span:last-child {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(216,166,60,.85),
+            transparent
+        );
+
+}
+
+
+.portfolio__ornament b {
+
+    color:
+        #d8a63c;
+
+    font-size:
+        10px;
+
+    line-height:
+        1;
+
+    text-shadow:
+        0 0 12px rgba(216,166,60,.35);
+
+}
+
+
+/* ================================================================
+   GRID
+================================================================ */
+
+.portfolio__grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap:
+        16px;
+
+    align-items:
+        stretch;
+
+}
+
+
+/* ================================================================
+   ITEM
+================================================================ */
+
+.portfolio__item {
+
+    position:
+        relative;
+
+    min-width:
+        0;
+
+    overflow:
+        hidden;
+
+    border:
+        1px solid rgba(216,166,60,.62);
+
+    border-radius:
+        14px;
+
+    background:
+        #111111;
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.42),
+        inset 0 1px 0 rgba(255,255,255,.045);
+
+    transition:
+        transform .3s ease,
+        border-color .3s ease,
+        box-shadow .3s ease;
+
+}
+
+
+/* ================================================================
+   HOVER CARD
+================================================================ */
+
+.portfolio__item:hover {
+
+    transform:
+        translateY(-5px);
+
+    border-color:
+        rgba(239,194,89,.98);
+
+    box-shadow:
+        0 20px 42px rgba(0,0,0,.52),
+        0 0 25px rgba(216,166,60,.12);
+
+}
+
+
+/* ================================================================
+   IMAGE BUTTON
+================================================================ */
+
+.portfolio__image-button {
+
+    position:
+        relative;
+
+    display:
+        block;
+
+    width:
+        100%;
+
+    aspect-ratio:
+        1 / 1;
+
+    padding:
+        0;
+
+    margin:
+        0;
+
+    overflow:
+        hidden;
+
+    border:
+        0;
+
+    border-radius:
+        0;
+
+    background:
+        #111111;
+
+    cursor:
+        zoom-in;
+
+}
+
+
+/* ================================================================
+   IMAGE
+================================================================ */
+
+.portfolio__image-button img {
+
+    width:
+        100%;
+
+    height:
+        100%;
+
+    display:
+        block;
+
+    object-fit:
+        cover;
+
+    object-position:
+        center;
+
+    transition:
+        transform .55s cubic-bezier(.22,1,.36,1),
+        filter .35s ease;
+
+}
+
+
+/* ================================================================
+   IMAGE HOVER
+================================================================ */
+
+.portfolio__image-button::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    pointer-events:
+        none;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(0,0,0,0) 48%,
+            rgba(0,0,0,.18) 100%
+        );
+
+    opacity:
+        0;
+
+    transition:
+        opacity .3s ease;
+
+}
+
+
+.portfolio__item:hover
+.portfolio__image-button img {
+
+    transform:
+        scale(1.045);
+
+}
+
+
+.portfolio__item:hover
+.portfolio__image-button::after {
+
+    opacity:
+        1;
+
+}
+
+
+/* ================================================================
+   ZOOM ICON
+================================================================ */
+
+.portfolio__zoom {
+
+    position:
+        absolute;
+
+    z-index:
+        3;
+
+    top:
+        14px;
+
+    right:
+        14px;
+
+    width:
+        42px;
+
+    height:
+        42px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid rgba(216,166,60,.95);
+
+    border-radius:
+        50%;
+
+    color:
+        #e8c36e;
+
+    background:
+        rgba(8,8,8,.82);
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,.45),
+        0 0 16px rgba(216,166,60,.16);
+
+    opacity:
+        .92;
+
+    backdrop-filter:
+        blur(5px);
+
+    transition:
+        transform .25s ease,
+        background .25s ease,
+        box-shadow .25s ease;
+
+}
+
+
+.portfolio__zoom svg {
+
+    width:
+        19px;
+
+    height:
+        19px;
+
+    fill:
+        none;
+
+    stroke:
+        currentColor;
+
+    stroke-width:
+        1.8;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+
+}
+
+
+.portfolio__item:hover
+.portfolio__zoom {
+
+    transform:
+        scale(1.07);
+
+    background:
+        rgba(30,23,10,.92);
+
+    box-shadow:
+        0 7px 18px rgba(0,0,0,.52),
+        0 0 22px rgba(216,166,60,.28);
+
+}
+
+
+/* ================================================================
+   CTA
+================================================================ */
+
+.portfolio__cta {
+
+    max-width:
+        760px;
+
+    margin:
+        42px auto 0;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    text-align:
+        center;
+
+}
+
+
+.portfolio__cta p {
+
+    max-width:
+        610px;
+
+    margin:
+        0 0 22px;
+
+    color:
+        rgba(255,255,255,.76);
+
+    font-size:
+        15px;
+
+    line-height:
+        1.6;
+
+}
+
+
+/* ================================================================
+   CTA BUTTON
+================================================================ */
+
+.portfolio__cta-button {
+
+    min-width:
+        245px;
+
+    min-height:
+        44px;
+
+    padding:
+        0 24px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid #d8a63c;
+
+    border-radius:
+        999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f5ce75 0%,
+            #d59a34 52%,
+            #ad741b 100%
+        );
+
+    color:
+        #171109;
+
+    font-size:
+        10px;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        1.1px;
+
+    text-decoration:
+        none;
+
+    text-transform:
+        uppercase;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.72),
+        inset 0 -2px 0 rgba(94,59,8,.28),
+        0 7px 17px rgba(0,0,0,.4);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+
+}
+
+
+.portfolio__cta-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.8),
+        0 10px 22px rgba(0,0,0,.48),
+        0 0 22px rgba(216,166,60,.2);
+
+}
+
+
+/* ================================================================
+   LIGHTBOX
+================================================================ */
+
+.portfolio__lightbox {
+
+    position:
+        fixed;
+
+    z-index:
+        9999;
+
+    inset:
+        0;
+
+    padding:
+        40px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        rgba(0,0,0,.91);
+
+    backdrop-filter:
+        blur(8px);
+
+    cursor:
+        zoom-out;
+
+}
+
+
+.portfolio__lightbox img {
+
+    max-width:
+        min(1100px, 92vw);
+
+    max-height:
+        88vh;
+
+    width:
+        auto;
+
+    height:
+        auto;
+
+    display:
+        block;
+
+    object-fit:
+        contain;
+
+    border:
+        1px solid rgba(216,166,60,.8);
+
+    border-radius:
+        10px;
+
+    box-shadow:
+        0 25px 80px rgba(0,0,0,.7),
+        0 0 35px rgba(216,166,60,.12);
+
+    cursor:
+        default;
+
+}
+
+
+/* ================================================================
+   LIGHTBOX CLOSE
+================================================================ */
+
+.portfolio__lightbox-close {
+
+    position:
+        absolute;
+
+    top:
+        22px;
+
+    right:
+        25px;
+
+    width:
+        44px;
+
+    height:
+        44px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid rgba(216,166,60,.85);
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(10,10,10,.9);
+
+    color:
+        #e6bd64;
+
+    font-size:
+        28px;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 6px 20px rgba(0,0,0,.5);
+
+    transition:
+        transform .2s ease,
+        background .2s ease;
+
+}
+
+
+.portfolio__lightbox-close:hover {
+
+    transform:
+        rotate(90deg);
+
+    background:
+        rgba(35,28,13,.95);
+
+}
+
+
+/* ================================================================
+   TABLET
+================================================================ */
+
+@media (max-width: 1050px) {
+
+    .portfolio {
+
+        padding:
+            68px 0 74px;
+
+    }
+
+    .portfolio__container {
+
+        width:
+            calc(100% - 34px);
+
+    }
+
+    .portfolio__grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
+
+        gap:
+            14px;
+
+    }
+
+}
+
+
+/* ================================================================
+   MOBILE
+================================================================ */
+
+@media (max-width: 700px) {
+
+    .portfolio {
+
+        padding:
+            54px 0 62px;
+
+    }
+
+    .portfolio__container {
+
+        width:
+            calc(100% - 24px);
+
+    }
+
+
+    /* ------------------------------------------------------------
+       HEADER
+    ------------------------------------------------------------ */
+
+    .portfolio__header {
+
+        margin-bottom:
+            27px;
+
+    }
+
+    .portfolio__eyebrow {
+
+        font-size:
+            8px;
+
+        letter-spacing:
+            1.8px;
+
+    }
+
+    .portfolio__header h2 {
+
+        margin:
+            10px 0 11px;
+
+        font-size:
+            clamp(34px, 9vw, 44px);
+
+        letter-spacing:
+            -1px;
+
+    }
+
+    .portfolio__ornament {
+
+        width:
+            145px;
+
+    }
+
+
+    /* ------------------------------------------------------------
+       GRID
+       Maximum 6 items on mobile.
+    ------------------------------------------------------------ */
+
+    .portfolio__grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
+
+        gap:
+            9px;
+
+    }
+
+    .portfolio__item {
+
+        border-radius:
+            10px;
+
+    }
+
+    .portfolio__item:nth-child(n + 7) {
+
+        display:
+            none;
+
+    }
+
+
+    /* ------------------------------------------------------------
+       IMAGE
+    ------------------------------------------------------------ */
+
+    .portfolio__image-button {
+
+        aspect-ratio:
+            1 / 1;
+
+    }
+
+
+    /* ------------------------------------------------------------
+       ZOOM
+    ------------------------------------------------------------ */
+
+    .portfolio__zoom {
+
+        top:
+            8px;
+
+        right:
+            8px;
+
+        width:
+            34px;
+
+        height:
+            34px;
+
+    }
+
+    .portfolio__zoom svg {
+
+        width:
+            16px;
+
+        height:
+            16px;
+
+    }
+
+
+    /* ------------------------------------------------------------
+       CTA
+    ------------------------------------------------------------ */
+
+    .portfolio__cta {
+
+        margin-top:
+            30px;
+
+    }
+
+    .portfolio__cta p {
+
+        max-width:
+            330px;
+
+        margin-bottom:
+            17px;
+
+        font-size:
+            11px;
+
+        line-height:
+            1.5;
+
+    }
+
+    .portfolio__cta-button {
+
+        min-width:
+            205px;
+
+        min-height:
+            38px;
+
+        padding:
+            0 18px;
+
+        font-size:
+            8px;
+
+        letter-spacing:
+            .8px;
+
+    }
+
+
+    /* ------------------------------------------------------------
+       LIGHTBOX
+    ------------------------------------------------------------ */
+
+    .portfolio__lightbox {
+
+        padding:
+            22px;
+
+    }
+
+    .portfolio__lightbox img {
+
+        max-width:
+            94vw;
+
+        max-height:
+            82vh;
+
+        border-radius:
+            8px;
+
+    }
+
+    .portfolio__lightbox-close {
+
+        top:
+            12px;
+
+        right:
+            12px;
+
+        width:
+            38px;
+
+        height:
+            38px;
+
+        font-size:
+            24px;
+
+    }
+
+}
+
+
+/* ================================================================
+   SMALL MOBILE
+================================================================ */
+
+@media (max-width: 420px) {
+
+    .portfolio {
+
+        padding:
+            48px 0 55px;
+
+    }
+
+    .portfolio__container {
+
+        width:
+            calc(100% - 18px);
+
+    }
+
+    .portfolio__header {
+
+        margin-bottom:
+            23px;
+
+    }
+
+    .portfolio__eyebrow {
+
+        font-size:
+            7px;
+
+        letter-spacing:
+            1.5px;
+
+    }
+
+    .portfolio__header h2 {
+
+        font-size:
+            34px;
+
+    }
+
+    .portfolio__ornament {
+
+        width:
+            125px;
+
+    }
+
+    .portfolio__grid {
+
+        gap:
+            7px;
+
+    }
+
+    .portfolio__item {
+
+        border-radius:
+            9px;
+
+    }
+
+    .portfolio__zoom {
+
+        width:
+            31px;
+
+        height:
+            31px;
+
+        top:
+            7px;
+
+        right:
+            7px;
+
+    }
+
+    .portfolio__zoom svg {
+
+        width:
+            14px;
+
+        height:
+            14px;
+
+    }
+
+    .portfolio__cta {
+
+        margin-top:
+            27px;
+
+    }
+
+    .portfolio__cta p {
+
+        max-width:
+            300px;
+
+        font-size:
+            10px;
+
+    }
+
+    .portfolio__cta-button {
+
+        min-width:
+            195px;
+
+        min-height:
+            36px;
+
+        font-size:
+            7.5px;
+
+    }
+
+}
+
+
+/* ================================================================
+   VERY SMALL MOBILE
+================================================================ */
+
+@media (max-width: 360px) {
+
+    .portfolio {
+
+        padding:
+            44px 0 50px;
+
+    }
+
+    .portfolio__container {
+
+        width:
+            calc(100% - 16px);
+
+    }
+
+    .portfolio__grid {
+
+        gap:
+            6px;
+
+    }
+
+    .portfolio__zoom {
+
+        width:
+            29px;
+
+        height:
+            29px;
+
+        top:
+            6px;
+
+        right:
+            6px;
+
+    }
+
+    .portfolio__zoom svg {
+
+        width:
+            13px;
+
+        height:
+            13px;
+
+    }
+
+    .portfolio__cta p {
+
+        max-width:
+            275px;
+
+        font-size:
+            9.5px;
+
+    }
+
+    .portfolio__cta-button {
+
+        min-width:
+            185px;
+
+        min-height:
+            34px;
+
+        font-size:
+            7px;
+
+    }
+
+}
+
+
+/* ================================================================
+   REDUCED MOTION
+================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .portfolio__item,
+    .portfolio__image-button img,
+    .portfolio__zoom,
+    .portfolio__cta-button,
+    .portfolio__lightbox-close {
+
+        transition:
+            none;
+
+    }
+
+}
