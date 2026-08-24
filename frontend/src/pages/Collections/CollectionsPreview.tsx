@@ -161,14 +161,6 @@ function CollectionsPreview() {
                                         aria-hidden="true"
                                     />
 
-
-                                    <div
-                                        className="collections-preview__icon"
-                                        aria-hidden="true"
-                                    >
-                                        {collection.icon}
-                                    </div>
-
                                 </div>
 
 
