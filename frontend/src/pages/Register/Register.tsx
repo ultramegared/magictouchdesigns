@@ -14,7 +14,10 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 
+
+
 import "../Login/Login.css";
+import { apiRequest } from "../../services/api";
 
 import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
@@ -177,8 +180,7 @@ function Register() {
 
                             <User
                                 size={19}
-                                aria-hidden="true"
-                            />
+                                aria-hidden="true"/>
 
                             <input
                                 id="register-last-name"
