@@ -16,6 +16,8 @@ import { Eye, EyeOff, Lock, User } from "lucide-react";
 
 import "./Login.css";
 
+import { apiRequest } from "../../services/api";
+
 import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
 
@@ -27,10 +29,106 @@ function Login() {
 
     const [showPassword, setShowPassword] = useState(false);
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (
+        event: FormEvent<HTMLFormElement>
+    ) => {
         event.preventDefault();
 
-        // Authentication will be connected here later.
+        const formData = new FormData(
+            event.currentTarget
+        );
+
+        const username = String(
+            formData.get("username") || ""
+        ).trim();
+
+        const password = String(
+            formData.get("password") || ""
+        );
+
+        if (!username || !password) {
+            alert("Username and password are required.");
+            return;
+        }
+
+        try {
+
+            setIsLoading(true);
+
+            const result = await apiRequest<{
+                status: string;
+                message: string;
+                token: string;
+                user: {
+                    id: string;
+                    username: string;
+                    first_name: string;
+                    last_name: string;
+                    email: string;
+                    is_active: boolean;
+                    created_at: string;
+                    updated_at: string;
+                };
+            }>("/api/auth/login", {
+                method: "POST",
+
+                body: JSON.stringify({
+                    username,
+                    password,
+                }),
+            });
+
+            console.log(
+                "Login successful:",
+                result
+            );
+
+            /*
+             * Store authentication token.
+             * The token will be used by protected API requests.
+             */
+            localStorage.setItem(
+                "auth_token",
+                result.token
+            );
+
+            /*
+             * Store basic authenticated user information.
+             */
+            localStorage.setItem(
+                "auth_user",
+                JSON.stringify(result.user)
+            );
+
+            alert(result.message);
+
+            /*
+             * Authentication succeeded.
+             * Dashboard/home navigation will be connected
+             * when that page is ready.
+             */
+            window.location.href = "/";
+
+        } catch (error) {
+
+            console.error(
+                "Login error:",
+                error
+            );
+
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to sign in."
+            );
+
+        } finally {
+
+            setIsLoading(false);
+
+        }
     };
 
     return (
@@ -109,31 +207,34 @@ function Login() {
 
                     {/* USERNAME */}
 
-<div className="login__field">
+                    <div className="login__field">
 
-    <label htmlFor="login-username">
-        {t.username}
-    </label>
+                        <label htmlFor="login-username">
+                            {t.username}
+                        </label>
 
-    <div className="login__input">
+                        <div className="login__input">
 
-        <User
-            size={19}
-            aria-hidden="true"
-        />
+                            <User
+                                size={19}
+                                aria-hidden="true"
+                            />
 
-        <input
-            id="login-username"
-            name="username"
-            type="text"
-            placeholder={t.usernamePlaceholder}
-            autoComplete="username"
-            required
-        />
+                            <input
+                                id="login-username"
+                                name="username"
+                                type="text"
+                                placeholder={
+                                    t.usernamePlaceholder
+                                }
+                                autoComplete="username"
+                                required
+                                disabled={isLoading}
+                            />
 
-    </div>
+                        </div>
 
-</div>
+                    </div>
 
                     {/* PASSWORD */}
 
@@ -152,6 +253,7 @@ function Login() {
                                     window.location.href =
                                         "/forgot-password";
                                 }}
+                                disabled={isLoading}
                             >
                                 {t.forgotPassword}
                             </button>
@@ -173,9 +275,12 @@ function Login() {
                                         ? "text"
                                         : "password"
                                 }
-                                placeholder={t.passwordPlaceholder}
+                                placeholder={
+                                    t.passwordPlaceholder
+                                }
                                 autoComplete="current-password"
                                 required
+                                disabled={isLoading}
                             />
 
                             <button
@@ -183,7 +288,8 @@ function Login() {
                                 className="login__password-toggle"
                                 onClick={() =>
                                     setShowPassword(
-                                        previous => !previous
+                                        previous =>
+                                            !previous
                                     )
                                 }
                                 aria-label={
@@ -191,6 +297,7 @@ function Login() {
                                         ? t.hidePassword
                                         : t.showPassword
                                 }
+                                disabled={isLoading}
                             >
                                 {showPassword ? (
                                     <EyeOff size={18} />
@@ -208,10 +315,13 @@ function Login() {
                     <button
                         type="submit"
                         className="login__submit"
+                        disabled={isLoading}
                     >
 
                         <span>
-                            {t.signIn}
+                            {isLoading
+                                ? "Signing in..."
+                                : t.signIn}
                         </span>
 
                         <span
@@ -237,6 +347,7 @@ function Login() {
                             window.location.href =
                                 "/register";
                         }}
+                        disabled={isLoading}
                     >
                         {t.createAccount}
                     </button>
