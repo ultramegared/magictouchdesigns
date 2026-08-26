@@ -20,6 +20,8 @@ import FamilyMemoriesPage from "./pages/Collections/pages/FamilyMemories/FamilyM
 import BusinessBrandingPage from "./pages/Collections/pages/BusinessBranding/BusinessBrandingPage";
 import SpecialOccasionsPage from "./pages/Collections/pages/SpecialOccasions/SpecialOccasionsPage";
 
+import AccountPage from "./pages/Account/Account";
+
 
 import LoginPage from "./pages/Login/Login";
 import RegisterPage from "./pages/Register/Register";
@@ -50,6 +52,11 @@ function App() {
                     path="/login"
                     element={<LoginPage />}
                 />
+
+<Route
+    path="/account"
+    element={<AccountPage />}
+/>
 
                 <Route
                     path="/forgot-password"
