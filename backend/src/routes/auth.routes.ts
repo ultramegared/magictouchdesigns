@@ -11,7 +11,10 @@
  */
 
 import { Router } from "express";
-import { register } from "../controllers/auth.controller";
+import {
+    register,
+    login,
+} from "../controllers/auth.controller";
 
 const router = Router();
 
@@ -21,5 +24,12 @@ const router = Router();
  * Creates a new user account.
  */
 router.post("/register", register);
+
+/**
+ * POST /api/auth/login
+ *
+ * Authenticates an existing user.
+ */
+router.post("/login", login);
 
 export default router;
