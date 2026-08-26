@@ -6,7 +6,7 @@
  * Module: Layout
  * Language: TypeScript React
  * Description:
- * Main website header.
+ * Main website header with authenticated user menu.
  * ================================================================
  */
 
@@ -19,7 +19,12 @@ import {
     User,
     ShoppingCart,
     Menu,
-    X
+    X,
+    Heart,
+    ShoppingBag,
+    Star,
+    LogOut,
+    ChevronDown
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -27,6 +32,7 @@ import { getCartItems } from "../../../utils/cart";
 
 import { APP_CONFIG } from "../../../constants/config";
 import { navigation } from "../../../constants/navigation";
+
 import {
     useLanguage,
 } from "../../../contexts/LanguageContext";
@@ -47,13 +53,23 @@ interface AuthenticatedUser {
 
 function Header() {
 
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [cartCount, setCartCount] = useState(0);
-    const [searchOpen, setSearchOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [menuOpen, setMenuOpen] =
+        useState(false);
+
+    const [cartCount, setCartCount] =
+        useState(0);
+
+    const [searchOpen, setSearchOpen] =
+        useState(false);
+
+    const [searchQuery, setSearchQuery] =
+        useState("");
 
     const [currentUser, setCurrentUser] =
         useState<AuthenticatedUser | null>(null);
+
+    const [accountMenuOpen, setAccountMenuOpen] =
+        useState(false);
 
     const navigate = useNavigate();
 
@@ -64,6 +80,12 @@ function Header() {
 
     const t = translations[language];
 
+    /**
+     * ============================================================
+     * CART
+     * ============================================================
+     */
+
     useEffect(() => {
 
         const updateCartCount = () => {
@@ -71,7 +93,8 @@ function Header() {
             const items = getCartItems();
 
             const total = items.reduce(
-                (sum, item) => sum + item.quantity,
+                (sum, item) =>
+                    sum + item.quantity,
                 0
             );
 
@@ -97,17 +120,24 @@ function Header() {
     }, []);
 
     /**
-     * Load authenticated user.
+     * ============================================================
+     * AUTHENTICATED USER
+     * ============================================================
      */
+
     useEffect(() => {
 
         const loadCurrentUser = async () => {
 
             const token =
-                localStorage.getItem("auth_token");
+                localStorage.getItem(
+                    "auth_token"
+                );
 
             if (!token) {
+
                 setCurrentUser(null);
+
                 return;
             }
 
@@ -119,12 +149,15 @@ function Header() {
                         user: AuthenticatedUser;
                     }>("/api/user/me");
 
-                setCurrentUser(result.user);
+                setCurrentUser(
+                    result.user
+                );
 
-                // Keep local user information synchronized.
                 localStorage.setItem(
                     "auth_user",
-                    JSON.stringify(result.user)
+                    JSON.stringify(
+                        result.user
+                    )
                 );
 
             } catch (error) {
@@ -134,10 +167,6 @@ function Header() {
                     error
                 );
 
-                /*
-                 * If the token is invalid or expired,
-                 * clear the local authentication data.
-                 */
                 localStorage.removeItem(
                     "auth_token"
                 );
@@ -147,12 +176,97 @@ function Header() {
                 );
 
                 setCurrentUser(null);
+
             }
+
         };
 
         loadCurrentUser();
 
     }, []);
+
+    /**
+     * ============================================================
+     * ACCOUNT MENU
+     * ============================================================
+     */
+
+    const toggleAccountMenu = () => {
+
+        if (!currentUser) {
+
+            navigate("/login");
+
+            return;
+        }
+
+        setAccountMenuOpen(
+            previous => !previous
+        );
+
+    };
+
+    /**
+     * ============================================================
+     * ACCOUNT NAVIGATION
+     * ============================================================
+     */
+
+    const openAccountPage = () => {
+
+        setAccountMenuOpen(false);
+
+        navigate("/account");
+
+    };
+
+    const openFavorites = () => {
+
+        setAccountMenuOpen(false);
+
+        navigate("/account/favorites");
+
+    };
+
+    const openOrders = () => {
+
+        setAccountMenuOpen(false);
+
+        navigate("/account/orders");
+
+    };
+
+    const openReviews = () => {
+
+        setAccountMenuOpen(false);
+
+        navigate("/account/reviews");
+
+    };
+
+    /**
+     * ============================================================
+     * LOGOUT
+     * ============================================================
+     */
+
+    const handleLogout = () => {
+
+        localStorage.removeItem(
+            "auth_token"
+        );
+
+        localStorage.removeItem(
+            "auth_user"
+        );
+
+        setCurrentUser(null);
+
+        setAccountMenuOpen(false);
+
+        navigate("/login");
+
+    };
 
     return (
 
@@ -160,10 +274,19 @@ function Header() {
 
             <div className="header__container">
 
+                {/* ==================================================
+                    BRAND
+                   ================================================== */}
+
                 <NavLink
                     to="/"
                     className="header__brand"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={() => {
+
+                        setMenuOpen(false);
+                        setAccountMenuOpen(false);
+
+                    }}
                 >
 
                     <img
@@ -190,46 +313,85 @@ function Header() {
 
                 </NavLink>
 
+                {/* ==================================================
+                    DESKTOP NAVIGATION
+                   ================================================== */}
+
                 <nav className="header__nav">
 
                     {
 
-                        navigation.map((item) => (
+                        navigation.map(
+                            (item) => (
 
-                            <NavLink
-                                key={item.id}
-                                to={item.path}
-                                className={({ isActive }) =>
-                                    item.label === "Customize"
-                                        ? `header__link header__link--cta ${isActive ? "header__link--active" : ""}`
-                                        : `header__link ${isActive ? "header__link--active" : ""}`
-                                }
-                            >
+                                <NavLink
+                                    key={item.id}
+                                    to={item.path}
+                                    className={({
+                                        isActive
+                                    }) =>
+                                        item.label ===
+                                        "Customize"
 
-                                {item.label === "Shop"
-                                    ? t.navigation.shop
-                                    : item.label === "Company"
-                                        ? t.navigation.company
-                                        : item.label === "Support"
-                                            ? t.navigation.support
-                                            : item.label}
+                                            ? `header__link header__link--cta ${
+                                                isActive
+                                                    ? "header__link--active"
+                                                    : ""
+                                            }`
 
-                            </NavLink>
+                                            : `header__link ${
+                                                isActive
+                                                    ? "header__link--active"
+                                                    : ""
+                                            }`
+                                    }
+                                >
 
-                        ))
+                                    {
+                                        item.label ===
+                                        "Shop"
+
+                                            ? t.navigation.shop
+
+                                            : item.label ===
+                                              "Company"
+
+                                                ? t.navigation.company
+
+                                                : item.label ===
+                                                  "Support"
+
+                                                    ? t.navigation.support
+
+                                                    : item.label
+                                    }
+
+                                </NavLink>
+
+                            )
+                        )
 
                     }
 
                 </nav>
 
+                {/* ==================================================
+                    HEADER ACTIONS
+                   ================================================== */}
+
                 <div className="header__actions">
+
+                    {/* SEARCH */}
 
                     <button
                         type="button"
                         className="header__icon"
                         aria-label="Search"
                         onClick={() =>
-                            setSearchOpen(!searchOpen)
+                            setSearchOpen(
+                                previous =>
+                                    !previous
+                            )
                         }
                     >
 
@@ -244,15 +406,16 @@ function Header() {
                             <input
                                 type="text"
                                 value={searchQuery}
-                                onChange={(event) =>
+                                onChange={event =>
                                     setSearchQuery(
                                         event.target.value
                                     )
                                 }
-                                onKeyDown={(event) => {
+                                onKeyDown={event => {
 
                                     if (
-                                        event.key === "Enter"
+                                        event.key ===
+                                        "Enter"
                                     ) {
 
                                         navigate(
@@ -261,7 +424,10 @@ function Header() {
                                             )}`
                                         );
 
-                                        setSearchOpen(false);
+                                        setSearchOpen(
+                                            false
+                                        );
+
                                     }
 
                                 }}
@@ -274,28 +440,221 @@ function Header() {
 
                     )}
 
-                    <button
-                        type="button"
-                        className="header__icon"
-                        aria-label={
-                            currentUser
-                                ? `Account: ${currentUser.username}`
-                                : "Account"
-                        }
-                        onClick={() => {
+                    {/* ==================================================
+                        ACCOUNT
+                       ================================================== */}
 
-                            if (currentUser) {
-                                navigate("/account");
-                            } else {
-                                navigate("/login");
+                    <div className="header__account">
+
+                        <button
+                            type="button"
+                            className={`header__account-trigger ${
+                                currentUser
+                                    ? "header__account-trigger--authenticated"
+                                    : ""
+                            }`}
+                            aria-label={
+                                currentUser
+                                    ? `Account: ${currentUser.username}`
+                                    : "Account"
                             }
+                            aria-expanded={
+                                accountMenuOpen
+                            }
+                            onClick={
+                                toggleAccountMenu
+                            }
+                        >
 
-                        }}
-                    >
+                            <span className="header__account-icon">
 
-                        <User size={20} />
+                                <User size={20} />
 
-                    </button>
+                            </span>
+
+                            {currentUser && (
+
+                                <span className="header__username">
+
+                                    {currentUser.username}
+
+                                </span>
+
+                            )}
+
+                            {currentUser && (
+
+                                <ChevronDown
+                                    size={15}
+                                    className={`header__account-chevron ${
+                                        accountMenuOpen
+                                            ? "header__account-chevron--open"
+                                            : ""
+                                    }`}
+                                />
+
+                            )}
+
+                        </button>
+
+                        {/* ==================================================
+                            ACCOUNT DROPDOWN
+                           ================================================== */}
+
+                        {currentUser &&
+                            accountMenuOpen && (
+
+                            <div className="header__account-menu">
+
+                                {/* USER */}
+
+                                <div className="header__account-user">
+
+                                    <div className="header__account-avatar">
+
+                                        <User
+                                            size={18}
+                                        />
+
+                                    </div>
+
+                                    <div className="header__account-user-info">
+
+                                        <strong>
+                                            {currentUser.username}
+                                        </strong>
+
+                                        <span>
+                                            {currentUser.email}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <div className="header__account-divider" />
+
+                                {/* ACCOUNT */}
+
+                                <button
+                                    type="button"
+                                    className="header__account-item"
+                                    onClick={
+                                        openAccountPage
+                                    }
+                                >
+
+                                    <User
+                                        size={17}
+                                    />
+
+                                    <span>
+                                        {language === "es"
+                                            ? "Mi cuenta"
+                                            : "My account"}
+                                    </span>
+
+                                </button>
+
+                                {/* FAVORITES */}
+
+                                <button
+                                    type="button"
+                                    className="header__account-item"
+                                    onClick={
+                                        openFavorites
+                                    }
+                                >
+
+                                    <Heart
+                                        size={17}
+                                    />
+
+                                    <span>
+                                        {language === "es"
+                                            ? "Favoritos"
+                                            : "Favorites"}
+                                    </span>
+
+                                </button>
+
+                                {/* ORDERS */}
+
+                                <button
+                                    type="button"
+                                    className="header__account-item"
+                                    onClick={
+                                        openOrders
+                                    }
+                                >
+
+                                    <ShoppingBag
+                                        size={17}
+                                    />
+
+                                    <span>
+                                        {language === "es"
+                                            ? "Últimas compras"
+                                            : "Recent purchases"}
+                                    </span>
+
+                                </button>
+
+                                {/* REVIEWS */}
+
+                                <button
+                                    type="button"
+                                    className="header__account-item"
+                                    onClick={
+                                        openReviews
+                                    }
+                                >
+
+                                    <Star
+                                        size={17}
+                                    />
+
+                                    <span>
+                                        {language === "es"
+                                            ? "Mis reviews"
+                                            : "My reviews"}
+                                    </span>
+
+                                </button>
+
+                                <div className="header__account-divider" />
+
+                                {/* LOGOUT */}
+
+                                <button
+                                    type="button"
+                                    className="header__account-item header__account-item--logout"
+                                    onClick={
+                                        handleLogout
+                                    }
+                                >
+
+                                    <LogOut
+                                        size={17}
+                                    />
+
+                                    <span>
+                                        {language === "es"
+                                            ? "Cerrar sesión"
+                                            : "Sign out"}
+                                    </span>
+
+                                </button>
+
+                            </div>
+
+                        )}
+
+                    </div>
+
+                    {/* ==================================================
+                        CART
+                       ================================================== */}
 
                     <button
                         type="button"
@@ -306,13 +665,17 @@ function Header() {
                         }
                     >
 
-                        <ShoppingCart size={20} />
+                        <ShoppingCart
+                            size={20}
+                        />
 
                         <span>
                             {cartCount}
                         </span>
 
                     </button>
+
+                    {/* LANGUAGE */}
 
                     <div className="header__language">
 
@@ -354,11 +717,16 @@ function Header() {
 
                     </div>
 
+                    {/* MOBILE MENU */}
+
                     <button
                         className="header__menu"
                         aria-label="Menu"
                         onClick={() =>
-                            setMenuOpen(!menuOpen)
+                            setMenuOpen(
+                                previous =>
+                                    !previous
+                            )
                         }
                     >
 
@@ -374,6 +742,10 @@ function Header() {
 
             </div>
 
+            {/* ==========================================================
+                MOBILE NAVIGATION
+               ========================================================== */}
+
             <nav
                 className={`header__mobile ${
                     menuOpen
@@ -384,34 +756,168 @@ function Header() {
 
                 {
 
-                    navigation.map((item) => (
+                    navigation.map(
+                        item => (
 
-                        <NavLink
-                            key={item.id}
-                            to={item.path}
-                            className="header__mobile-link"
+                            <NavLink
+                                key={item.id}
+                                to={item.path}
+                                className="header__mobile-link"
+                                onClick={() =>
+                                    setMenuOpen(false)
+                                }
+                            >
+
+                                {
+                                    item.label ===
+                                    "Home"
+
+                                        ? t.navigation.home
+
+                                        : item.label ===
+                                          "Products"
+
+                                            ? t.navigation.products
+
+                                            : item.label ===
+                                              "Collections"
+
+                                                ? t.navigation.collections
+
+                                                : item.label ===
+                                                  "Customize"
+
+                                                    ? t.navigation.customize
+
+                                                    : item.label ===
+                                                      "Contact"
+
+                                                        ? t.navigation.contact
+
+                                                        : item.label
+                                }
+
+                            </NavLink>
+
+                        )
+                    )
+
+                }
+
+                {/* MOBILE ACCOUNT */}
+
+                {currentUser && (
+
+                    <div className="header__mobile-account">
+
+                        <button
+                            type="button"
+                            className="header__mobile-account-user"
                             onClick={() =>
-                                setMenuOpen(false)
+                                setAccountMenuOpen(
+                                    previous =>
+                                        !previous
+                                )
                             }
                         >
 
-                            {item.label === "Home"
-                                ? t.navigation.home
-                                : item.label === "Products"
-                                    ? t.navigation.products
-                                    : item.label === "Collections"
-                                        ? t.navigation.collections
-                                        : item.label === "Customize"
-                                            ? t.navigation.customize
-                                            : item.label === "Contact"
-                                                ? t.navigation.contact
-                                                : item.label}
+                            <User
+                                size={18}
+                            />
 
-                        </NavLink>
+                            <span>
+                                {currentUser.username}
+                            </span>
 
-                    ))
+                            <ChevronDown
+                                size={15}
+                                className={
+                                    accountMenuOpen
+                                        ? "header__account-chevron--open"
+                                        : ""
+                                }
+                            />
 
-                }
+                        </button>
+
+                        {accountMenuOpen && (
+
+                            <div className="header__mobile-account-menu">
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        openAccountPage
+                                    }
+                                >
+                                    <User size={16} />
+                                    {language === "es"
+                                        ? "Mi cuenta"
+                                        : "My account"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        openFavorites
+                                    }
+                                >
+                                    <Heart size={16} />
+                                    {language === "es"
+                                        ? "Favoritos"
+                                        : "Favorites"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        openOrders
+                                    }
+                                >
+                                    <ShoppingBag
+                                        size={16}
+                                    />
+                                    {language === "es"
+                                        ? "Últimas compras"
+                                        : "Recent purchases"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        openReviews
+                                    }
+                                >
+                                    <Star size={16} />
+                                    {language === "es"
+                                        ? "Mis reviews"
+                                        : "My reviews"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="header__mobile-account-logout"
+                                    onClick={
+                                        handleLogout
+                                    }
+                                >
+                                    <LogOut
+                                        size={16}
+                                    />
+                                    {language === "es"
+                                        ? "Cerrar sesión"
+                                        : "Sign out"}
+                                </button>
+
+                            </div>
+
+                        )}
+
+                    </div>
+
+                )}
+
+                {/* MOBILE LANGUAGE */}
 
                 <div className="header__mobile-language">
 
@@ -458,7 +964,6 @@ function Header() {
         </header>
 
     );
-
 }
 
 export default Header;

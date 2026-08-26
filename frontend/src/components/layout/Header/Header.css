@@ -4,6 +4,8 @@
  * Project: Magic Touch Designs
  * File: Header.css
  * Module: Layout
+ * Description:
+ * Premium responsive header with authenticated user menu.
  * ===============================================================
  */
 
@@ -245,30 +247,6 @@
 
 }
 
-.header__search {
-    position: absolute;
-    top: 96px;
-    right: 50px;
-    width: 320px;
-    z-index: 1100;
-}
-
-.header__search input {
-    width: 100%;
-    padding: 14px 18px;
-    border: 1px solid #C89B3C;
-    border-radius: 10px;
-    background: #111111;
-    color: #FFFFFF;
-    font-size: 1rem;
-    outline: none;
-    box-sizing: border-box;
-}
-
-.header__search input::placeholder {
-    color: #777777;
-}
-
 .header__icon:hover{
 
     background:#C89B3C;
@@ -276,6 +254,451 @@
     color:#111111;
 
 }
+
+
+/**
+ * ===============================================================
+ * SEARCH
+ * ===============================================================
+ */
+
+.header__search{
+
+    position:absolute;
+
+    top:96px;
+
+    right:50px;
+
+    width:320px;
+
+    z-index:1100;
+
+}
+
+.header__search input{
+
+    width:100%;
+
+    padding:14px 18px;
+
+    border:1px solid #C89B3C;
+
+    border-radius:10px;
+
+    background:#111111;
+
+    color:#FFFFFF;
+
+    font-size:1rem;
+
+    outline:none;
+
+    box-sizing:border-box;
+
+}
+
+.header__search input::placeholder{
+
+    color:#777777;
+
+}
+
+
+/**
+ * ===============================================================
+ * ACCOUNT
+ * ===============================================================
+ */
+
+.header__account{
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+}
+
+
+/**
+ * Account trigger
+ */
+
+.header__account-trigger{
+
+    min-height:46px;
+
+    border:none;
+
+    border-radius:999px;
+
+    padding:0 12px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:7px;
+
+    background:#1D1D1D;
+
+    color:#FFFFFF;
+
+    cursor:pointer;
+
+    transition:.3s ease;
+
+}
+
+.header__account-trigger:hover{
+
+    background:#C89B3C;
+
+    color:#111111;
+
+}
+
+.header__account-trigger--authenticated{
+
+    padding-left:6px;
+
+    padding-right:10px;
+
+}
+
+.header__account-icon{
+
+    width:34px;
+
+    height:34px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:rgba(200,155,60,.12);
+
+    color:#C89B3C;
+
+    transition:.3s ease;
+
+}
+
+.header__account-trigger:hover
+.header__account-icon{
+
+    background:#111111;
+
+    color:#C89B3C;
+
+}
+
+.header__username{
+
+    max-width:130px;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    font-size:.86rem;
+
+    font-weight:700;
+
+    letter-spacing:.2px;
+
+}
+
+.header__account-chevron{
+
+    transition:transform .25s ease;
+
+    flex-shrink:0;
+
+}
+
+.header__account-chevron--open{
+
+    transform:rotate(180deg);
+
+}
+
+
+/**
+ * ===============================================================
+ * ACCOUNT DROPDOWN
+ * ===============================================================
+ */
+
+.header__account-menu{
+
+    position:absolute;
+
+    top:calc(100% + 12px);
+
+    right:0;
+
+    width:255px;
+
+    padding:10px;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            rgba(35,35,37,.98),
+            rgba(15,15,16,.98)
+        );
+
+    border:1px solid rgba(200,155,60,.28);
+
+    border-radius:16px;
+
+    box-shadow:
+
+        0 22px 50px rgba(0,0,0,.55),
+
+        0 0 30px rgba(200,155,60,.08);
+
+    backdrop-filter:blur(20px);
+
+    animation:headerAccountMenuIn .2s ease-out;
+
+    overflow:hidden;
+
+}
+
+@keyframes headerAccountMenuIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(-7px) scale(.98);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0) scale(1);
+
+    }
+
+}
+
+
+/**
+ * User identity
+ */
+
+.header__account-user{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:10px 9px 12px;
+
+}
+
+.header__account-avatar{
+
+    width:38px;
+
+    height:38px;
+
+    min-width:38px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            #C89B3C,
+            #8F6924
+        );
+
+    color:#111111;
+
+    box-shadow:
+
+        0 5px 15px rgba(200,155,60,.18);
+
+}
+
+.header__account-user-info{
+
+    min-width:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+
+}
+
+.header__account-user-info strong{
+
+    color:#FFFFFF;
+
+    font-size:.88rem;
+
+    font-weight:800;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+.header__account-user-info span{
+
+    color:#8B8B8B;
+
+    font-size:.70rem;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+/**
+ * Divider
+ */
+
+.header__account-divider{
+
+    width:100%;
+
+    height:1px;
+
+    margin:5px 0;
+
+    background:rgba(255,255,255,.08);
+
+}
+
+
+/**
+ * Menu items
+ */
+
+.header__account-item{
+
+    width:100%;
+
+    min-height:42px;
+
+    padding:9px 10px;
+
+    border:none;
+
+    border-radius:9px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:11px;
+
+    background:transparent;
+
+    color:#E8E8E8;
+
+    text-align:left;
+
+    font-family:inherit;
+
+    font-size:.82rem;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.25s ease;
+
+}
+
+.header__account-item svg{
+
+    color:#C89B3C;
+
+    flex-shrink:0;
+
+    transition:.25s ease;
+
+}
+
+.header__account-item:hover{
+
+    background:rgba(200,155,60,.11);
+
+    color:#FFFFFF;
+
+    transform:translateX(2px);
+
+}
+
+.header__account-item:hover svg{
+
+    color:#FFFFFF;
+
+}
+
+.header__account-item--logout{
+
+    color:#BDBDBD;
+
+}
+
+.header__account-item--logout svg{
+
+    color:#A5A5A5;
+
+}
+
+.header__account-item--logout:hover{
+
+    background:rgba(255,255,255,.06);
+
+    color:#FFFFFF;
+
+}
+
+
+/**
+ * ===============================================================
+ * CART
+ * ===============================================================
+ */
 
 .header__cart{
 
@@ -312,6 +735,13 @@
     font-weight:700;
 
 }
+
+
+/**
+ * ===============================================================
+ * LANGUAGE
+ * ===============================================================
+ */
 
 .header__language{
 
@@ -353,6 +783,13 @@
 
 }
 
+
+/**
+ * ===============================================================
+ * MOBILE MENU BUTTON
+ * ===============================================================
+ */
+
 .header__menu{
 
     display:none;
@@ -366,6 +803,279 @@
     cursor:pointer;
 
 }
+
+
+/**
+ * ===============================================================
+ * MOBILE MENU
+ * ===============================================================
+ */
+
+.header__mobile{
+
+    position:absolute;
+
+    top:86px;
+
+    left:0;
+
+    width:100%;
+
+    background:#111111;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+    display:flex;
+
+    flex-direction:column;
+
+    opacity:0;
+
+    visibility:hidden;
+
+    transform:translateY(-10px);
+
+    transition:.30s ease;
+
+    pointer-events:none;
+
+    max-height:calc(100vh - 86px);
+
+    overflow-y:auto;
+
+}
+
+.header__mobile--open{
+
+    opacity:1;
+
+    visibility:visible;
+
+    transform:translateY(0);
+
+    pointer-events:auto;
+
+}
+
+.header__mobile-link{
+
+    padding:18px 24px;
+
+    color:#FFFFFF;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+    transition:.30s;
+
+}
+
+.header__mobile-link:hover{
+
+    background:#1D1D1D;
+
+    color:#C89B3C;
+
+}
+
+
+/**
+ * ===============================================================
+ * MOBILE ACCOUNT
+ * ===============================================================
+ */
+
+.header__mobile-account{
+
+    margin:10px 16px 0;
+
+    border:1px solid rgba(200,155,60,.20);
+
+    border-radius:14px;
+
+    overflow:hidden;
+
+    background:rgba(255,255,255,.025);
+
+}
+
+.header__mobile-account-user{
+
+    width:100%;
+
+    min-height:50px;
+
+    padding:10px 14px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    border:none;
+
+    background:transparent;
+
+    color:#FFFFFF;
+
+    font-family:inherit;
+
+    font-size:.9rem;
+
+    font-weight:700;
+
+    text-align:left;
+
+    cursor:pointer;
+
+}
+
+.header__mobile-account-user svg:first-child{
+
+    color:#C89B3C;
+
+}
+
+.header__mobile-account-user svg:last-child{
+
+    margin-left:auto;
+
+}
+
+.header__mobile-account-menu{
+
+    padding:4px 8px 8px;
+
+    border-top:1px solid rgba(255,255,255,.07);
+
+}
+
+.header__mobile-account-menu button{
+
+    width:100%;
+
+    min-height:44px;
+
+    padding:9px 10px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:transparent;
+
+    color:#DADADA;
+
+    font-family:inherit;
+
+    font-size:.84rem;
+
+    font-weight:600;
+
+    text-align:left;
+
+    cursor:pointer;
+
+}
+
+.header__mobile-account-menu button svg{
+
+    color:#C89B3C;
+
+}
+
+.header__mobile-account-menu button:hover{
+
+    background:rgba(200,155,60,.10);
+
+    color:#FFFFFF;
+
+}
+
+.header__mobile-account-menu
+.header__mobile-account-logout{
+
+    margin-top:4px;
+
+    border-top:1px solid rgba(255,255,255,.07);
+
+    border-radius:0;
+
+    color:#AFAFAF;
+
+}
+
+
+/**
+ * ===============================================================
+ * MOBILE LANGUAGE
+ * ===============================================================
+ */
+
+.header__mobile-language{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:10px;
+
+    margin-top:20px;
+
+    padding:20px 24px;
+
+    border-top:1px solid rgba(255,255,255,.10);
+
+}
+
+.header__mobile-language span{
+
+    color:#666666;
+
+}
+
+.header__mobile-language button{
+
+    border:none;
+
+    background:none;
+
+    color:#FFFFFF;
+
+    font-size:.90rem;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.30s;
+
+}
+
+.header__mobile-language button:hover{
+
+    color:#C89B3C;
+
+}
+
+
+/**
+ * ===============================================================
+ * TABLET / MOBILE
+ * ===============================================================
+ */
 
 @media(max-width:1100px){
 
@@ -415,89 +1125,14 @@
 
     }
 
-    .header__mobile{
-
-        display:flex;
-
-        flex-direction:column;
-
-        gap:18px;
-
-        padding:24px;
-
-        background:#111111;
-
-        border-top:1px solid rgba(255,255,255,.08);
-
-    }
-
-    .header__mobile-link{
-
-        color:#FFFFFF;
-
-        font-size:1rem;
-
-        font-weight:600;
-
-        text-decoration:none;
-
-    }
-
-    .header__mobile-link:hover{
-
-        color:#C89B3C;
-
-    }
-
-    .header__mobile-language{
-
-        display:flex;
-
-        justify-content:center;
-
-        align-items:center;
-
-        gap:10px;
-
-        margin-top:20px;
-
-        padding-top:20px;
-
-        border-top:1px solid rgba(255,255,255,.10);
-
-    }
-
-    .header__mobile-language span{
-
-        color:#666666;
-
-    }
-
-    .header__mobile-language button{
-
-        border:none;
-
-        background:none;
-
-        color:#FFFFFF;
-
-        font-size:.90rem;
-
-        font-weight:700;
-
-        cursor:pointer;
-
-        transition:.30s;
-
-    }
-
-    .header__mobile-language button:hover{
-
-        color:#C89B3C;
-
-    }
-
 }
+
+
+/**
+ * ===============================================================
+ * TABLET
+ * ===============================================================
+ */
 
 @media(max-width:768px){
 
@@ -519,7 +1154,22 @@
 
     }
 
+    .header__search{
+
+        right:24px;
+
+        width:300px;
+
+    }
+
 }
+
+
+/**
+ * ===============================================================
+ * MOBILE
+ * ===============================================================
+ */
 
 @media(max-width:576px){
 
@@ -571,133 +1221,104 @@
 
     }
 
-}
+    .header__account-trigger{
 
-/**
- * ===============================================================
- * Mobile Menu
- * ===============================================================
- */
+        min-height:40px;
 
-.header__mobile{
+        padding:0 7px 0 5px;
 
-    position:absolute;
+        gap:5px;
 
-    top:86px;
+    }
 
-    left:0;
+    .header__account-trigger--authenticated{
 
-    width:100%;
+        padding-left:4px;
 
-    background:#111111;
+        padding-right:7px;
 
-    border-top:1px solid rgba(255,255,255,.08);
+    }
 
-    display:flex;
+    .header__account-icon{
 
-    flex-direction:column;
+        width:30px;
 
-    opacity:0;
+        height:30px;
 
-    visibility:hidden;
+    }
 
-    transform:translateY(-10px);
+    .header__username{
 
-    transition:.30s ease;
+        max-width:82px;
 
-    pointer-events:none;
+        font-size:.74rem;
 
-}
+    }
 
-.header__mobile--open{
+    .header__account-chevron{
 
-    opacity:1;
+        display:none;
 
-    visibility:visible;
+    }
 
-    transform:translateY(0);
+    .header__account-menu{
 
-    pointer-events:auto;
+        position:fixed;
 
-}
+        top:82px;
 
-.header__mobile-language{
+        right:12px;
 
-    display:flex;
+        width:calc(100vw - 24px);
 
-    align-items:center;
+        max-width:320px;
 
-    justify-content:center;
+    }
 
-    gap:10px;
+    .header__search{
 
-    margin-top:20px;
+        top:82px;
 
-    padding-top:20px;
+        right:12px;
 
-    border-top:1px solid rgba(255,255,255,.10);
+        width:calc(100vw - 24px);
 
-}
-
-.header__mobile-language span{
-
-    color:#666666;
-
-}
-
-.header__mobile-language button{
-
-    border:none;
-
-    background:none;
-
-    color:#FFFFFF;
-
-    font-size:.90rem;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-    transition:.30s;
-
-}
-
-.header__mobile-language button:hover{
-
-    color:#C89B3C;
-
-}
-
-.header__mobile-link{
-
-    padding:18px 24px;
-
-    color:#FFFFFF;
-
-    text-decoration:none;
-
-    font-weight:600;
-
-    border-bottom:1px solid rgba(255,255,255,.08);
-
-    transition:.30s;
-
-}
-
-.header__mobile-link:hover{
-
-    background:#1D1D1D;
-
-    color:#C89B3C;
-
-}
-
-@media(min-width:1101px){
+    }
 
     .header__mobile{
 
+        top:74px;
+
+        max-height:calc(100vh - 74px);
+
+    }
+
+}
+
+
+/**
+ * ===============================================================
+ * VERY SMALL DEVICES
+ * ===============================================================
+ */
+
+@media(max-width:390px){
+
+    .header__brand-text{
+
         display:none;
+
+    }
+
+    .header__actions{
+
+        margin-left:auto;
+
+    }
+
+    .header__username{
+
+        max-width:65px;
 
     }
 
