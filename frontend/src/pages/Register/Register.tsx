@@ -10,8 +10,10 @@
  * ================================================================
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+
 import type { FormEvent } from "react";
+
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 
 import "../Login/Login.css";
@@ -26,7 +28,10 @@ function Register() {
 
     const t = translations[language].register;
 
+    const formRef = useRef<HTMLFormElement>(null);
+
     const [showPassword, setShowPassword] = useState(false);
+
     const [showConfirmPassword, setShowConfirmPassword] =
         useState(false);
 
@@ -76,6 +81,7 @@ function Register() {
         }
 
         try {
+
             const result = await apiRequest<{
                 status: string;
                 message: string;
@@ -108,8 +114,10 @@ function Register() {
 
             alert(result.message);
 
-            // Clear form after successful registration
-            event.currentTarget.reset();
+            // Clear form after successful registration.
+            // We use the ref because the submit event's
+            // currentTarget is no longer reliable after await.
+            formRef.current?.reset();
 
         } catch (error) {
 
@@ -196,6 +204,7 @@ function Register() {
                 {/* FORM */}
 
                 <form
+                    ref={formRef}
                     className="login__form"
                     onSubmit={handleSubmit}
                 >
