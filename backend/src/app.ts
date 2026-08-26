@@ -13,12 +13,16 @@
 import express from "express";
 import cors from "cors";
 import { pool } from "./config/database";
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Authentication routes
+app.use("/api/auth", authRoutes);
 
 // Health check
 app.get("/api/health", async (_req, res) => {
@@ -32,7 +36,10 @@ app.get("/api/health", async (_req, res) => {
             database: "connected",
         });
     } catch (error) {
-        console.error("Database connection error:", error);
+        console.error(
+            "Database connection error:",
+            error
+        );
 
         res.status(503).json({
             status: "error",
