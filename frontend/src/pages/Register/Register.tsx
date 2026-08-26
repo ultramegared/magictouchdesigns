@@ -14,8 +14,6 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 
-
-
 import "../Login/Login.css";
 import { apiRequest } from "../../services/api";
 
@@ -32,10 +30,100 @@ function Register() {
     const [showConfirmPassword, setShowConfirmPassword] =
         useState(false);
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (
+        event: FormEvent<HTMLFormElement>
+    ) => {
         event.preventDefault();
 
-        // Registration will be connected to the API later.
+        const formData = new FormData(event.currentTarget);
+
+        const username = String(
+            formData.get("username") || ""
+        ).trim();
+
+        const firstName = String(
+            formData.get("firstName") || ""
+        ).trim();
+
+        const lastName = String(
+            formData.get("lastName") || ""
+        ).trim();
+
+        const email = String(
+            formData.get("email") || ""
+        ).trim();
+
+        const password = String(
+            formData.get("password") || ""
+        );
+
+        const confirmPassword = String(
+            formData.get("confirmPassword") || ""
+        );
+
+        // Confirm password
+        if (password !== confirmPassword) {
+            alert("Passwords do not match.");
+            return;
+        }
+
+        // Password length
+        if (password.length < 8) {
+            alert(
+                "Password must contain at least 8 characters."
+            );
+            return;
+        }
+
+        try {
+            const result = await apiRequest<{
+                status: string;
+                message: string;
+                user: {
+                    id: string;
+                    username: string;
+                    first_name: string;
+                    last_name: string;
+                    email: string;
+                    is_active: boolean;
+                    created_at: string;
+                    updated_at: string;
+                };
+            }>("/api/auth/register", {
+                method: "POST",
+
+                body: JSON.stringify({
+                    username,
+                    firstName,
+                    lastName,
+                    email,
+                    password,
+                }),
+            });
+
+            console.log(
+                "Registration successful:",
+                result
+            );
+
+            alert(result.message);
+
+            // Clear form after successful registration
+            event.currentTarget.reset();
+
+        } catch (error) {
+
+            console.error(
+                "Registration error:",
+                error
+            );
+
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to register user."
+            );
+        }
     };
 
     return (
@@ -111,34 +199,34 @@ function Register() {
                     className="login__form"
                     onSubmit={handleSubmit}
                 >
-                
-                {/* USERNAME */}
 
-<div className="login__field">
+                    {/* USERNAME */}
 
-    <label htmlFor="register-username">
-        {t.username}
-    </label>
+                    <div className="login__field">
 
-    <div className="login__input">
+                        <label htmlFor="register-username">
+                            {t.username}
+                        </label>
 
-        <User
-            size={19}
-            aria-hidden="true"
-        />
+                        <div className="login__input">
 
-        <input
-            id="register-username"
-            name="username"
-            type="text"
-            placeholder={t.usernamePlaceholder}
-            autoComplete="username"
-            required
-        />
+                            <User
+                                size={19}
+                                aria-hidden="true"
+                            />
 
-    </div>
+                            <input
+                                id="register-username"
+                                name="username"
+                                type="text"
+                                placeholder={t.usernamePlaceholder}
+                                autoComplete="username"
+                                required
+                            />
 
-</div>
+                        </div>
+
+                    </div>
 
                     {/* FIRST NAME */}
 
@@ -180,7 +268,8 @@ function Register() {
 
                             <User
                                 size={19}
-                                aria-hidden="true"/>
+                                aria-hidden="true"
+                            />
 
                             <input
                                 id="register-last-name"
