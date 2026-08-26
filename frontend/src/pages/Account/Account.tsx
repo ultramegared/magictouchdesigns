@@ -6,15 +6,24 @@
  * Module: Pages / Account
  * Language: TypeScript React
  * Description:
- * Authenticated user account page.
+ * Premium authenticated user account page.
  * ================================================================
  */
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Mail, User } from "lucide-react";
 
-import "../Login/Login.css";
+import {
+    Heart,
+    LogOut,
+    Mail,
+    Package,
+    Star,
+    User,
+    Calendar,
+} from "lucide-react";
+
+import "./Account.css";
 
 import { apiRequest } from "../../services/api";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -33,6 +42,7 @@ interface AuthenticatedUser {
 function Account() {
 
     const navigate = useNavigate();
+
     const { language } = useLanguage();
 
     const [user, setUser] =
@@ -49,7 +59,9 @@ function Account() {
                 localStorage.getItem("auth_token");
 
             if (!token) {
+
                 navigate("/login");
+
                 return;
             }
 
@@ -59,7 +71,12 @@ function Account() {
                     await apiRequest<{
                         status: string;
                         user: AuthenticatedUser;
-                    }>("/api/user/me");
+                    }>("/api/user/me", {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
+                        },
+                    });
 
                 setUser(result.user);
 
@@ -96,6 +113,7 @@ function Account() {
 
     }, [navigate]);
 
+
     const handleLogout = () => {
 
         localStorage.removeItem(
@@ -110,290 +128,530 @@ function Account() {
 
     };
 
+
+    const handleFavorites = () => {
+
+        /*
+         * Favorites page will be connected next.
+         */
+        navigate("/account/favorites");
+
+    };
+
+
+    const handlePurchases = () => {
+
+        /*
+         * Purchase history page will be connected next.
+         */
+        navigate("/account/orders");
+
+    };
+
+
+    const handleReviews = () => {
+
+        /*
+         * Reviews page will be connected next.
+         */
+        navigate("/account/reviews");
+
+    };
+
+
     if (isLoading) {
 
         return (
-            <main className="login">
 
-                <section className="login__card">
+            <main className="account">
 
-                    <div className="login__header">
+                <div
+                    className="account__glow account__glow--one"
+                    aria-hidden="true"
+                />
 
-                        <span className="login__eyebrow">
-                            {language === "es"
-                                ? "CUENTA"
-                                : "ACCOUNT"}
-                        </span>
+                <div
+                    className="account__glow account__glow--two"
+                    aria-hidden="true"
+                />
 
-                        <h1>
-                            {language === "es"
-                                ? "Cargando..."
-                                : "Loading..."}
-                        </h1>
+                <section className="account__loading">
 
-                    </div>
+                    <p className="account__loading-title">
+
+                        {language === "es"
+                            ? "Cargando cuenta..."
+                            : "Loading account..."}
+
+                    </p>
+
+                    <p className="account__loading-text">
+
+                        {language === "es"
+                            ? "Estamos preparando tu espacio."
+                            : "Preparing your personal space."}
+
+                    </p>
 
                 </section>
 
             </main>
+
         );
     }
 
+
     if (!user) {
+
         return null;
+
     }
+
+
+    const registrationDate =
+        new Date(
+            user.created_at
+        ).toLocaleDateString(
+            language === "es"
+                ? "es-US"
+                : "en-US",
+            {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            }
+        );
+
 
     return (
 
-        <main className="login">
+        <main className="account">
+
+            {/* ==================================================
+                BACKGROUND
+               ================================================== */}
 
             <div
-                className="login__glow login__glow--one"
+                className="account__glow account__glow--one"
                 aria-hidden="true"
             />
 
             <div
-                className="login__glow login__glow--two"
+                className="account__glow account__glow--two"
                 aria-hidden="true"
             />
 
             <div
-                className="login__spark login__spark--one"
+                className="account__spark account__spark--one"
                 aria-hidden="true"
             >
                 ✦
             </div>
 
             <div
-                className="login__spark login__spark--two"
+                className="account__spark account__spark--two"
                 aria-hidden="true"
             >
                 ✧
             </div>
 
-            <section className="login__card">
 
-                <div
-                    className="login__card-shine"
-                    aria-hidden="true"
-                />
+            {/* ==================================================
+                MAIN CARD
+               ================================================== */}
 
-                {/* BRAND */}
+            <section className="account__container">
 
-                <div className="login__brand">
+                <div className="account__card">
 
-                    <div className="login__brand-mark">
-                        MTD
-                    </div>
+                    <div className="account__content">
 
-                    <div className="login__brand-name">
-                        MAGIC TOUCH
-                        <span>DESIGNS</span>
-                    </div>
 
-                </div>
+                        {/* ==================================================
+                            BRAND
+                           ================================================== */}
 
-                {/* HEADER */}
+                        <div className="account__brand">
 
-                <div className="login__header">
+                            <div className="account__brand-mark">
+                                MTD
+                            </div>
 
-                    <span className="login__eyebrow">
-                        {language === "es"
-                            ? "MI CUENTA"
-                            : "MY ACCOUNT"}
-                    </span>
+                            <div className="account__brand-name">
 
-                    <h1>
-                        {language === "es"
-                            ? `Hola, ${user.first_name}`
-                            : `Hello, ${user.first_name}`}
-                    </h1>
+                                MAGIC TOUCH
 
-                    <p>
-                        {language === "es"
-                            ? "Bienvenido a tu cuenta de Magic Touch Designs."
-                            : "Welcome to your Magic Touch Designs account."}
-                    </p>
+                                <span>
+                                    DESIGNS
+                                </span>
 
-                </div>
-
-                {/* USER INFORMATION */}
-
-                <div className="login__form">
-
-                    <div className="login__field">
-
-                        <label>
-                            {language === "es"
-                                ? "Usuario"
-                                : "Username"}
-                        </label>
-
-                        <div className="login__input">
-
-                            <User
-                                size={19}
-                                aria-hidden="true"
-                            />
-
-                            <input
-                                type="text"
-                                value={user.username}
-                                readOnly
-                            />
+                            </div>
 
                         </div>
 
-                    </div>
 
-                    <div className="login__field">
+                        {/* ==================================================
+                            HEADER
+                           ================================================== */}
 
-                        <label>
-                            {language === "es"
-                                ? "Nombre"
-                                : "First name"}
-                        </label>
+                        <header className="account__header">
 
-                        <div className="login__input">
+                            <span className="account__eyebrow">
 
-                            <User
-                                size={19}
-                                aria-hidden="true"
-                            />
+                                {language === "es"
+                                    ? "MI CUENTA"
+                                    : "MY ACCOUNT"}
 
-                            <input
-                                type="text"
-                                value={user.first_name}
-                                readOnly
-                            />
+                            </span>
 
-                        </div>
+                            <h1>
 
-                    </div>
+                                {language === "es"
+                                    ? `Hola, ${user.first_name}`
+                                    : `Hello, ${user.first_name}`}
 
-                    <div className="login__field">
+                            </h1>
 
-                        <label>
-                            {language === "es"
-                                ? "Apellido"
-                                : "Last name"}
-                        </label>
+                            <p>
 
-                        <div className="login__input">
+                                {language === "es"
+                                    ? "Tu espacio personal en Magic Touch Designs."
+                                    : "Your personal space at Magic Touch Designs."}
 
-                            <User
-                                size={19}
-                                aria-hidden="true"
-                            />
+                            </p>
 
-                            <input
-                                type="text"
-                                value={user.last_name}
-                                readOnly
-                            />
+                        </header>
 
-                        </div>
 
-                    </div>
+                        {/* ==================================================
+                            PROFILE
+                           ================================================== */}
 
-                    <div className="login__field">
+                        <section className="account__profile">
 
-                        <label>
-                            {language === "es"
-                                ? "Correo electrónico"
-                                : "Email"}
-                        </label>
+                            <div className="account__avatar">
 
-                        <div className="login__input">
+                                <User
+                                    size={28}
+                                    strokeWidth={2}
+                                    aria-hidden="true"
+                                />
 
-                            <Mail
-                                size={19}
-                                aria-hidden="true"
-                            />
+                            </div>
 
-                            <input
-                                type="email"
-                                value={user.email}
-                                readOnly
-                            />
+                            <div className="account__profile-info">
 
-                        </div>
+                                <h2 className="account__profile-username">
 
-                    </div>
+                                    @{user.username}
 
-                    {/* ACCOUNT STATUS */}
+                                </h2>
 
-                    <div className="login__field">
+                                <p className="account__profile-email">
 
-                        <label>
-                            {language === "es"
-                                ? "Estado de cuenta"
-                                : "Account status"}
-                        </label>
+                                    {user.email}
 
-                        <div className="login__input">
+                                </p>
 
-                            <User
-                                size={19}
-                                aria-hidden="true"
-                            />
+                            </div>
 
-                            <input
-                                type="text"
-                                value={
-                                    user.is_active
+                        </section>
+
+
+                        {/* ==================================================
+                            QUICK ACTIONS
+                           ================================================== */}
+
+                        <section className="account__actions">
+
+
+                            {/* FAVORITES */}
+
+                            <button
+                                type="button"
+                                className="account__action"
+                                onClick={handleFavorites}
+                            >
+
+                                <span className="account__action-icon">
+
+                                    <Heart
+                                        size={20}
+                                        aria-hidden="true"
+                                    />
+
+                                </span>
+
+                                <span className="account__action-title">
+
+                                    {language === "es"
+                                        ? "Favoritos"
+                                        : "Favorites"}
+
+                                </span>
+
+                                <span className="account__action-description">
+
+                                    {language === "es"
+                                        ? "Tus diseños favoritos."
+                                        : "Your favorite designs."}
+
+                                </span>
+
+                            </button>
+
+
+                            {/* PURCHASES */}
+
+                            <button
+                                type="button"
+                                className="account__action"
+                                onClick={handlePurchases}
+                            >
+
+                                <span className="account__action-icon">
+
+                                    <Package
+                                        size={20}
+                                        aria-hidden="true"
+                                    />
+
+                                </span>
+
+                                <span className="account__action-title">
+
+                                    {language === "es"
+                                        ? "Últimas compras"
+                                        : "Recent purchases"}
+
+                                </span>
+
+                                <span className="account__action-description">
+
+                                    {language === "es"
+                                        ? "Revisa tus pedidos."
+                                        : "Review your orders."}
+
+                                </span>
+
+                            </button>
+
+
+                            {/* REVIEWS */}
+
+                            <button
+                                type="button"
+                                className="account__action"
+                                onClick={handleReviews}
+                            >
+
+                                <span className="account__action-icon">
+
+                                    <Star
+                                        size={20}
+                                        aria-hidden="true"
+                                    />
+
+                                </span>
+
+                                <span className="account__action-title">
+
+                                    {language === "es"
+                                        ? "Mis reviews"
+                                        : "My reviews"}
+
+                                </span>
+
+                                <span className="account__action-description">
+
+                                    {language === "es"
+                                        ? "Comparte tu experiencia."
+                                        : "Share your experience."}
+
+                                </span>
+
+                            </button>
+
+
+                        </section>
+
+
+                        {/* ==================================================
+                            USER INFORMATION
+                           ================================================== */}
+
+                        <section className="account__info">
+
+
+                            {/* USERNAME */}
+
+                            <div className="account__info-item">
+
+                                <span className="account__info-label">
+
+                                    {language === "es"
+                                        ? "Usuario"
+                                        : "Username"}
+
+                                </span>
+
+                                <span className="account__info-value">
+
+                                    @{user.username}
+
+                                </span>
+
+                            </div>
+
+
+                            {/* EMAIL */}
+
+                            <div className="account__info-item">
+
+                                <span className="account__info-label">
+
+                                    {language === "es"
+                                        ? "Correo"
+                                        : "Email"}
+
+                                </span>
+
+                                <span className="account__info-value">
+
+                                    {user.email}
+
+                                </span>
+
+                            </div>
+
+
+                            {/* NAME */}
+
+                            <div className="account__info-item">
+
+                                <span className="account__info-label">
+
+                                    {language === "es"
+                                        ? "Nombre completo"
+                                        : "Full name"}
+
+                                </span>
+
+                                <span className="account__info-value">
+
+                                    {user.first_name}{" "}
+                                    {user.last_name}
+
+                                </span>
+
+                            </div>
+
+
+                            {/* REGISTRATION */}
+
+                            <div className="account__info-item">
+
+                                <span className="account__info-label">
+
+                                    {language === "es"
+                                        ? "Miembro desde"
+                                        : "Member since"}
+
+                                </span>
+
+                                <span className="account__info-value">
+
+                                    {registrationDate}
+
+                                </span>
+
+                            </div>
+
+
+                            {/* STATUS */}
+
+                            <div className="account__info-item">
+
+                                <span className="account__info-label">
+
+                                    {language === "es"
+                                        ? "Estado"
+                                        : "Status"}
+
+                                </span>
+
+                                <span className="account__info-value">
+
+                                    {user.is_active
                                         ? (
                                             language === "es"
-                                                ? "Activa"
-                                                : "Active"
+                                                ? "Cuenta activa"
+                                                : "Active account"
                                         )
                                         : (
                                             language === "es"
-                                                ? "Inactiva"
-                                                : "Inactive"
-                                        )
-                                }
-                                readOnly
-                            />
+                                                ? "Cuenta inactiva"
+                                                : "Inactive account"
+                                        )}
 
-                        </div>
+                                </span>
 
-                    </div>
+                            </div>
 
-                    {/* LOGOUT */}
 
-                    <button
-                        type="button"
-                        className="login__submit"
-                        onClick={handleLogout}
-                    >
+                            {/* ACCOUNT TYPE */}
 
-                        <span>
+                            <div className="account__info-item">
+
+                                <span className="account__info-label">
+
+                                    {language === "es"
+                                        ? "Cuenta"
+                                        : "Account"}
+
+                                </span>
+
+                                <span className="account__info-value">
+
+                                    {language === "es"
+                                        ? "Cliente"
+                                        : "Customer"}
+
+                                </span>
+
+                            </div>
+
+
+                        </section>
+
+
+                        {/* ==================================================
+                            LOGOUT
+                           ================================================== */}
+
+                        <button
+                            type="button"
+                            className="account__logout"
+                            onClick={handleLogout}
+                        >
 
                             {language === "es"
                                 ? "CERRAR SESIÓN"
                                 : "SIGN OUT"}
 
-                        </span>
+                        </button>
 
-                        <LogOut
-                            size={18}
-                            aria-hidden="true"
-                        />
 
-                        <span
-                            className="login__submit-shine"
-                            aria-hidden="true"
-                        />
-
-                    </button>
+                    </div>
 
                 </div>
 
             </section>
 
         </main>
+
     );
+
 }
 
 export default Account;
