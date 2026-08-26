@@ -14,6 +14,7 @@ import express from "express";
 import cors from "cors";
 import { pool } from "./config/database";
 import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
 
 const app = express();
 
@@ -23,6 +24,9 @@ app.use(express.json());
 
 // Authentication routes
 app.use("/api/auth", authRoutes);
+
+// User routes
+app.use("/api/user", userRoutes);
 
 // Health check
 app.get("/api/health", async (_req, res) => {
