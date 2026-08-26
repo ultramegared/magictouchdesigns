@@ -25,7 +25,6 @@ import {
 import { NavLink, useNavigate } from "react-router-dom";
 import { getCartItems } from "../../../utils/cart";
 
-
 import { APP_CONFIG } from "../../../constants/config";
 import { navigation } from "../../../constants/navigation";
 import {
@@ -33,54 +32,128 @@ import {
 } from "../../../contexts/LanguageContext";
 
 import { translations } from "../../../translations";
+import { apiRequest } from "../../../services/api";
+
+interface AuthenticatedUser {
+    id: string;
+    username: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
 
 function Header() {
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [cartCount, setCartCount] = useState(0);
     const [searchOpen, setSearchOpen] = useState(false);
-const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const [currentUser, setCurrentUser] =
+        useState<AuthenticatedUser | null>(null);
 
     const navigate = useNavigate();
+
     const {
-    language,
-    setLanguage,
-} = useLanguage();
-const t = translations[language];
-    
+        language,
+        setLanguage,
+    } = useLanguage();
+
+    const t = translations[language];
 
     useEffect(() => {
 
-    const updateCartCount = () => {
+        const updateCartCount = () => {
 
-        const items = getCartItems();
+            const items = getCartItems();
 
-        const total = items.reduce(
-            (sum, item) => sum + item.quantity,
-            0
-        );
+            const total = items.reduce(
+                (sum, item) => sum + item.quantity,
+                0
+            );
 
-        setCartCount(total);
+            setCartCount(total);
+        };
 
-    };
+        updateCartCount();
 
-    updateCartCount();
-
-    window.addEventListener(
-        "magic-touch-cart-updated",
-        updateCartCount
-    );
-
-    return () => {
-
-        window.removeEventListener(
+        window.addEventListener(
             "magic-touch-cart-updated",
             updateCartCount
         );
 
-    };
+        return () => {
 
-}, []);
+            window.removeEventListener(
+                "magic-touch-cart-updated",
+                updateCartCount
+            );
+
+        };
+
+    }, []);
+
+    /**
+     * Load authenticated user.
+     */
+    useEffect(() => {
+
+        const loadCurrentUser = async () => {
+
+            const token =
+                localStorage.getItem("auth_token");
+
+            if (!token) {
+                setCurrentUser(null);
+                return;
+            }
+
+            try {
+
+                const result =
+                    await apiRequest<{
+                        status: string;
+                        user: AuthenticatedUser;
+                    }>("/api/user/me");
+
+                setCurrentUser(result.user);
+
+                // Keep local user information synchronized.
+                localStorage.setItem(
+                    "auth_user",
+                    JSON.stringify(result.user)
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to load authenticated user:",
+                    error
+                );
+
+                /*
+                 * If the token is invalid or expired,
+                 * clear the local authentication data.
+                 */
+                localStorage.removeItem(
+                    "auth_token"
+                );
+
+                localStorage.removeItem(
+                    "auth_user"
+                );
+
+                setCurrentUser(null);
+            }
+        };
+
+        loadCurrentUser();
+
+    }, []);
+
     return (
 
         <header className="header">
@@ -134,12 +207,12 @@ const t = translations[language];
                             >
 
                                 {item.label === "Shop"
-    ? t.navigation.shop
-    : item.label === "Company"
-        ? t.navigation.company
-        : item.label === "Support"
-            ? t.navigation.support
-            : item.label}
+                                    ? t.navigation.shop
+                                    : item.label === "Company"
+                                        ? t.navigation.company
+                                        : item.label === "Support"
+                                            ? t.navigation.support
+                                            : item.label}
 
                             </NavLink>
 
@@ -152,107 +225,147 @@ const t = translations[language];
                 <div className="header__actions">
 
                     <button
-    type="button"
-    className="header__icon"
-    aria-label="Search"
-    onClick={() => setSearchOpen(!searchOpen)}
->
+                        type="button"
+                        className="header__icon"
+                        aria-label="Search"
+                        onClick={() =>
+                            setSearchOpen(!searchOpen)
+                        }
+                    >
 
-    <Search size={20} />
+                        <Search size={20} />
 
-</button>
- 
- {searchOpen && (
-    <div className="header__search">
-        <input
-            type="text"
-            value={searchQuery}
-            onChange={(event) =>
-                setSearchQuery(event.target.value)
-            }
-            onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                    navigate(
-                        `/products?search=${encodeURIComponent(
-                            searchQuery
-                        )}`
-                    );
-                    setSearchOpen(false);
-                }
-            }}
-            placeholder="Search products..."
-            aria-label="Search products"
-            autoFocus
-        />
-    </div>
-)}
+                    </button>
+
+                    {searchOpen && (
+
+                        <div className="header__search">
+
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(event) =>
+                                    setSearchQuery(
+                                        event.target.value
+                                    )
+                                }
+                                onKeyDown={(event) => {
+
+                                    if (
+                                        event.key === "Enter"
+                                    ) {
+
+                                        navigate(
+                                            `/products?search=${encodeURIComponent(
+                                                searchQuery
+                                            )}`
+                                        );
+
+                                        setSearchOpen(false);
+                                    }
+
+                                }}
+                                placeholder="Search products..."
+                                aria-label="Search products"
+                                autoFocus
+                            />
+
+                        </div>
+
+                    )}
 
                     <button
-    type="button"
-    className="header__icon"
-    aria-label="Account"
-    onClick={() => navigate("/login")}
->
-    <User size={20} />
-</button>
+                        type="button"
+                        className="header__icon"
+                        aria-label={
+                            currentUser
+                                ? `Account: ${currentUser.username}`
+                                : "Account"
+                        }
+                        onClick={() => {
+
+                            if (currentUser) {
+                                navigate("/account");
+                            } else {
+                                navigate("/login");
+                            }
+
+                        }}
+                    >
+
+                        <User size={20} />
+
+                    </button>
 
                     <button
-    type="button"
-    className="header__icon header__cart"
-    aria-label="Shopping Cart"
-    onClick={() => navigate("/cart")}
->
+                        type="button"
+                        className="header__icon header__cart"
+                        aria-label="Shopping Cart"
+                        onClick={() =>
+                            navigate("/cart")
+                        }
+                    >
 
-    <ShoppingCart size={20} />
+                        <ShoppingCart size={20} />
 
-    <span>{cartCount}</span>
+                        <span>
+                            {cartCount}
+                        </span>
 
-</button>
+                    </button>
 
-<div className="header__language">
+                    <div className="header__language">
 
-    <button
-        type="button"
-        className={
-            language === "en"
-                ? "header__language--active"
-                : ""
-        }
-        onClick={() => setLanguage("en")}
-        aria-pressed={language === "en"}
-    >
-        EN
-    </button>
+                        <button
+                            type="button"
+                            className={
+                                language === "en"
+                                    ? "header__language--active"
+                                    : ""
+                            }
+                            onClick={() =>
+                                setLanguage("en")
+                            }
+                            aria-pressed={
+                                language === "en"
+                            }
+                        >
+                            EN
+                        </button>
 
-    <span>|</span>
+                        <span>|</span>
 
-    <button
-        type="button"
-        className={
-            language === "es"
-                ? "header__language--active"
-                : ""
-        }
-        onClick={() => setLanguage("es")}
-        aria-pressed={language === "es"}
-    >
-        ES
-    </button>
+                        <button
+                            type="button"
+                            className={
+                                language === "es"
+                                    ? "header__language--active"
+                                    : ""
+                            }
+                            onClick={() =>
+                                setLanguage("es")
+                            }
+                            aria-pressed={
+                                language === "es"
+                            }
+                        >
+                            ES
+                        </button>
 
-</div>
+                    </div>
 
                     <button
                         className="header__menu"
                         aria-label="Menu"
-                        onClick={() => setMenuOpen(!menuOpen)}
+                        onClick={() =>
+                            setMenuOpen(!menuOpen)
+                        }
                     >
+
                         {
                             menuOpen
-
                                 ? <X size={24} />
-
                                 : <Menu size={24} />
-
                         }
 
                     </button>
@@ -261,8 +374,12 @@ const t = translations[language];
 
             </div>
 
-                        <nav
-                className={`header__mobile ${menuOpen ? "header__mobile--open" : ""}`}
+            <nav
+                className={`header__mobile ${
+                    menuOpen
+                        ? "header__mobile--open"
+                        : ""
+                }`}
             >
 
                 {
@@ -273,58 +390,68 @@ const t = translations[language];
                             key={item.id}
                             to={item.path}
                             className="header__mobile-link"
-                            onClick={() => setMenuOpen(false)}
+                            onClick={() =>
+                                setMenuOpen(false)
+                            }
                         >
 
                             {item.label === "Home"
-    ? t.navigation.home
-    : item.label === "Products"
-        ? t.navigation.products
-        : item.label === "Collections"
-            ? t.navigation.collections
-            : item.label === "Customize"
-                ? t.navigation.customize
-                : item.label === "Contact"
-                    ? t.navigation.contact
-                    : item.label}
-                    
+                                ? t.navigation.home
+                                : item.label === "Products"
+                                    ? t.navigation.products
+                                    : item.label === "Collections"
+                                        ? t.navigation.collections
+                                        : item.label === "Customize"
+                                            ? t.navigation.customize
+                                            : item.label === "Contact"
+                                                ? t.navigation.contact
+                                                : item.label}
+
                         </NavLink>
 
                     ))
 
                 }
 
-               <div className="header__mobile-language">
+                <div className="header__mobile-language">
 
-    <button
-        type="button"
-        className={
-            language === "en"
-                ? "header__language--active"
-                : ""
-        }
-        onClick={() => setLanguage("en")}
-        aria-pressed={language === "en"}
-    >
-        EN
-    </button>
+                    <button
+                        type="button"
+                        className={
+                            language === "en"
+                                ? "header__language--active"
+                                : ""
+                        }
+                        onClick={() =>
+                            setLanguage("en")
+                        }
+                        aria-pressed={
+                            language === "en"
+                        }
+                    >
+                        EN
+                    </button>
 
-    <span>|</span>
+                    <span>|</span>
 
-    <button
-        type="button"
-        className={
-            language === "es"
-                ? "header__language--active"
-                : ""
-        }
-        onClick={() => setLanguage("es")}
-        aria-pressed={language === "es"}
-    >
-        ES
-    </button>
+                    <button
+                        type="button"
+                        className={
+                            language === "es"
+                                ? "header__language--active"
+                                : ""
+                        }
+                        onClick={() =>
+                            setLanguage("es")
+                        }
+                        aria-pressed={
+                            language === "es"
+                        }
+                    >
+                        ES
+                    </button>
 
-</div>
+                </div>
 
             </nav>
 
