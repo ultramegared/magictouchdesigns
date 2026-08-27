@@ -270,6 +270,63 @@
 
 /*
 |--------------------------------------------------------------------------
+| Social Fields
+|--------------------------------------------------------------------------
+*/
+
+.create-review-field input,
+.create-review-field select {
+    width: 100%;
+
+    padding: 16px 18px;
+
+    border:
+        1px solid
+        rgba(212, 175, 55, 0.35);
+
+    border-radius: 16px;
+
+    outline: none;
+
+    color: #ffffff;
+
+    font: inherit;
+
+    background:
+        rgba(255, 255, 255, 0.04);
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.create-review-field input:focus,
+.create-review-field select:focus {
+    border-color:
+        rgba(212, 175, 55, 0.8);
+
+    background:
+        rgba(255, 255, 255, 0.06);
+}
+
+.create-review-field input::placeholder {
+    color:
+        rgba(255, 255, 255, 0.4);
+}
+
+.create-review-field select {
+    cursor: pointer;
+}
+
+.create-review-field select option {
+    color: #ffffff;
+
+    background: #1a1a1a;
+}
+
+
+/*
+|--------------------------------------------------------------------------
 | Submit Button
 |--------------------------------------------------------------------------
 */
