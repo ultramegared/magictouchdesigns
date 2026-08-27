@@ -18,7 +18,9 @@ import {
 
 
 import HomePage from "./pages/Home";
+
 import ProductsPage from "./pages/Products";
+
 import CollectionsPage from "./pages/Collections";
 
 
@@ -36,8 +38,6 @@ import LoginPage from "./pages/Login/Login";
 import RegisterPage from "./pages/Register/Register";
 
 import AccountPage from "./pages/Account/Account";
-
-import FavoritesPage from "./pages/Account/Favorites";
 
 import ReviewsPage from "./pages/Account/Reviews";
 
@@ -124,12 +124,6 @@ function App() {
                 <Route
                     path="/account"
                     element={<AccountPage />}
-                />
-
-
-                <Route
-                    path="/account/favorites"
-                    element={<FavoritesPage />}
                 />
 
 
