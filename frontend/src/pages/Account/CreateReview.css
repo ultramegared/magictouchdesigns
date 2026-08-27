@@ -1,0 +1,339 @@
+/**
+ * ================================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: CreateReview.css
+ * Module: Create Review Styles
+ * Language: CSS
+ * Description:
+ * Styles for the create review page.
+ * ================================================================
+ */
+
+.create-review-page {
+    min-height: 100vh;
+    padding: 120px 20px 80px;
+}
+
+.create-review-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.create-review-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 40px;
+
+    color: #d4af37;
+    text-decoration: none;
+
+    transition: opacity 0.2s ease;
+}
+
+.create-review-back:hover {
+    opacity: 0.8;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Header
+|--------------------------------------------------------------------------
+*/
+
+.create-review-header {
+    margin-bottom: 40px;
+}
+
+.create-review-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 70px;
+    height: 70px;
+
+    margin-bottom: 25px;
+
+    border:
+        1px solid
+        rgba(212, 175, 55, 0.4);
+
+    border-radius: 18px;
+
+    color: #d4af37;
+
+    background:
+        rgba(212, 175, 55, 0.08);
+}
+
+.create-review-eyebrow {
+    margin-bottom: 12px;
+
+    color: #d4af37;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    letter-spacing: 4px;
+}
+
+.create-review-header h1 {
+    margin: 0 0 15px;
+
+    color: #ffffff;
+
+    font-size: clamp(
+        36px,
+        6vw,
+        56px
+    );
+}
+
+.create-review-header p {
+    max-width: 600px;
+
+    color:
+        rgba(255, 255, 255, 0.65);
+
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Form
+|--------------------------------------------------------------------------
+*/
+
+.create-review-form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+
+    padding: 40px;
+
+    border:
+        1px solid
+        rgba(212, 175, 55, 0.35);
+
+    border-radius: 24px;
+
+    background:
+        rgba(255, 255, 255, 0.03);
+}
+
+.create-review-field {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.create-review-field > label:first-child {
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 600;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Image Upload
+|--------------------------------------------------------------------------
+*/
+
+.create-review-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 260px;
+
+    overflow: hidden;
+
+    border:
+        1px dashed
+        rgba(212, 175, 55, 0.5);
+
+    border-radius: 18px;
+
+    color: #d4af37;
+
+    background:
+        rgba(212, 175, 55, 0.04);
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.create-review-upload:hover {
+    border-color:
+        rgba(212, 175, 55, 0.8);
+
+    background:
+        rgba(212, 175, 55, 0.08);
+}
+
+.create-review-upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    text-align: center;
+}
+
+.create-review-upload-content span {
+    color: #ffffff;
+
+    font-weight: 600;
+}
+
+.create-review-upload-content small {
+    color:
+        rgba(255, 255, 255, 0.55);
+}
+
+.create-review-preview {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    min-height: 260px;
+
+    object-fit: cover;
+}
+
+.create-review-file {
+    display: none;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Review Text
+|--------------------------------------------------------------------------
+*/
+
+.create-review-field textarea {
+    width: 100%;
+    min-height: 160px;
+
+    padding: 18px;
+
+    resize: vertical;
+
+    border:
+        1px solid
+        rgba(212, 175, 55, 0.35);
+
+    border-radius: 16px;
+
+    outline: none;
+
+    color: #ffffff;
+
+    font: inherit;
+
+    background:
+        rgba(255, 255, 255, 0.04);
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.create-review-field textarea:focus {
+    border-color:
+        rgba(212, 175, 55, 0.8);
+
+    background:
+        rgba(255, 255, 255, 0.06);
+}
+
+.create-review-field textarea::placeholder {
+    color:
+        rgba(255, 255, 255, 0.4);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Submit Button
+|--------------------------------------------------------------------------
+*/
+
+.create-review-submit {
+    width: 100%;
+
+    padding: 17px 24px;
+
+    border: none;
+    border-radius: 14px;
+
+    color: #111111;
+
+    font: inherit;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    background: linear-gradient(
+        135deg,
+        #f5d36b,
+        #d4af37
+    );
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.create-review-submit:hover {
+    transform:
+        translateY(-2px);
+
+    opacity: 0.95;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Mobile
+|--------------------------------------------------------------------------
+*/
+
+@media (
+    max-width: 600px
+) {
+
+    .create-review-page {
+        padding:
+            100px 16px
+            60px;
+    }
+
+    .create-review-form {
+        padding: 25px 20px;
+    }
+
+    .create-review-upload {
+        min-height: 220px;
+    }
+
+    .create-review-preview {
+        min-height: 220px;
+    }
+
+}
