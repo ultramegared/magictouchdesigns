@@ -17,7 +17,7 @@ import {
   remove,
 } from '../controllers/review.controller';
 
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
 
