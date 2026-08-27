@@ -48,15 +48,6 @@ router.get(
 );
 
 
-/**
- * Get one review.
- */
-router.get(
-    "/:id",
-    getById
-);
-
-
 /*
 |--------------------------------------------------------------------------
 | Protected routes
@@ -103,6 +94,25 @@ router.delete(
     "/:id",
     authenticateToken,
     remove
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| Dynamic routes
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Get one review by ID.
+ *
+ * IMPORTANT:
+ * This route must remain after
+ * all specific GET routes.
+ */
+router.get(
+    "/:id",
+    getById
 );
 
 
