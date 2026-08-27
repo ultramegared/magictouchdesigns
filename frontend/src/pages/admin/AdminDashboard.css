@@ -1,0 +1,695 @@
+/**
+ * ================================================================
+ * Project: Magic Touch Designs
+ * Author: ultramegared
+ * File: AdminDashboard.css
+ * Module: Administrator Panel
+ * Description:
+ * Styles for the main administrative dashboard.
+ * ================================================================
+ */
+
+
+/* ================================================================
+   ADMIN LAYOUT
+   ================================================================ */
+
+.admin-layout {
+
+    min-height:
+        100vh;
+
+    background:
+        #f7f7f7;
+
+}
+
+
+/* ================================================================
+   ADMIN DASHBOARD
+   ================================================================ */
+
+.admin-dashboard {
+
+    min-height:
+        100vh;
+
+    margin-left:
+        280px;
+
+    background:
+        #f7f7f7;
+
+}
+
+
+/* ================================================================
+   HERO
+   ================================================================ */
+
+.admin-dashboard__hero {
+
+    padding:
+        48px 24px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #171717,
+            #303030
+        );
+
+    color:
+        #ffffff;
+
+}
+
+
+.admin-dashboard__hero-content {
+
+    width:
+        min(1200px, 100%);
+
+    margin:
+        0 auto;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        24px;
+
+}
+
+
+.admin-dashboard__eyebrow {
+
+    display:
+        block;
+
+    margin-bottom:
+        10px;
+
+    font-size:
+        0.72rem;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        0.16em;
+
+    color:
+        #c7a76c;
+
+}
+
+
+.admin-dashboard__hero h1 {
+
+    margin:
+        0;
+
+    font-size:
+        clamp(
+            2rem,
+            5vw,
+            3.4rem
+        );
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        -0.03em;
+
+}
+
+
+.admin-dashboard__hero p {
+
+    margin:
+        12px 0 0;
+
+    max-width:
+        520px;
+
+    font-size:
+        1rem;
+
+    line-height:
+        1.6;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.72
+        );
+
+}
+
+
+.admin-dashboard__hero-icon {
+
+    width:
+        82px;
+
+    height:
+        82px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    flex-shrink:
+        0;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.15
+        );
+
+    border-radius:
+        20px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.06
+        );
+
+    color:
+        #c7a76c;
+
+}
+
+
+/* ================================================================
+   MAIN CONTAINER
+   ================================================================ */
+
+.admin-dashboard__container {
+
+    width:
+        min(1200px, 100%);
+
+    margin:
+        0 auto;
+
+    padding:
+        48px 24px 80px;
+
+}
+
+
+/* ================================================================
+   SECTION
+   ================================================================ */
+
+.admin-dashboard__section {
+
+    margin-bottom:
+        52px;
+
+}
+
+
+.admin-dashboard__section-header {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    margin-bottom:
+        20px;
+
+}
+
+
+.admin-dashboard__section-header span {
+
+    display:
+        block;
+
+    margin-bottom:
+        6px;
+
+    font-size:
+        0.7rem;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        0.14em;
+
+    color:
+        #a07d3f;
+
+}
+
+
+.admin-dashboard__section-header h2 {
+
+    margin:
+        0;
+
+    font-size:
+        1.55rem;
+
+    font-weight:
+        700;
+
+    color:
+        #1b1b1b;
+
+}
+
+
+/* ================================================================
+   GRID
+   ================================================================ */
+
+.admin-dashboard__grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap:
+        18px;
+
+}
+
+
+/* ================================================================
+   CARD
+   ================================================================ */
+
+.admin-dashboard__card {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        18px;
+
+    padding:
+        24px;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid
+        #e9e9e9;
+
+    border-radius:
+        16px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(
+            0,
+            0,
+            0,
+            0.04
+        );
+
+    transition:
+        transform
+        0.2s ease,
+        box-shadow
+        0.2s ease;
+
+}
+
+
+.admin-dashboard__card:hover {
+
+    transform:
+        translateY(
+            -3px
+        );
+
+    box-shadow:
+        0 14px 35px
+        rgba(
+            0,
+            0,
+            0,
+            0.08
+        );
+
+}
+
+
+.admin-dashboard__card-icon {
+
+    width:
+        52px;
+
+    height:
+        52px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    flex-shrink:
+        0;
+
+    border-radius:
+        14px;
+
+    background:
+        #f5efe3;
+
+    color:
+        #9a7134;
+
+}
+
+
+.admin-dashboard__card div:last-child {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        5px;
+
+}
+
+
+.admin-dashboard__card span {
+
+    font-size:
+        0.82rem;
+
+    font-weight:
+        600;
+
+    color:
+        #777777;
+
+}
+
+
+.admin-dashboard__card strong {
+
+    font-size:
+        1.8rem;
+
+    font-weight:
+        700;
+
+    color:
+        #1a1a1a;
+
+}
+
+
+/* ================================================================
+   LOADING AND ERROR
+   ================================================================ */
+
+.admin-dashboard__message {
+
+    padding:
+        28px;
+
+    text-align:
+        center;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid
+        #e9e9e9;
+
+    border-radius:
+        14px;
+
+    color:
+        #555555;
+
+}
+
+
+.admin-dashboard__message--error {
+
+    border-color:
+        #f1caca;
+
+    background:
+        #fff7f7;
+
+    color:
+        #a33a3a;
+
+}
+
+
+/* ================================================================
+   TABLET
+   ================================================================ */
+
+@media (
+    max-width:
+    1100px
+) {
+
+    .admin-dashboard {
+
+        margin-left:
+            240px;
+
+    }
+
+
+    .admin-dashboard__grid {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+
+    }
+
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (
+    max-width:
+    768px
+) {
+
+    .admin-dashboard {
+
+        margin-left:
+            0;
+
+        padding-top:
+            64px;
+
+    }
+
+
+    .admin-dashboard__hero {
+
+        padding:
+            36px 18px;
+
+    }
+
+
+    .admin-dashboard__hero-content {
+
+        align-items:
+            flex-start;
+
+    }
+
+
+    .admin-dashboard__hero-icon {
+
+        width:
+            58px;
+
+        height:
+            58px;
+
+        border-radius:
+            15px;
+
+    }
+
+
+    .admin-dashboard__hero-icon svg {
+
+        width:
+            30px;
+
+        height:
+            30px;
+
+    }
+
+
+    .admin-dashboard__container {
+
+        padding:
+            32px 18px 60px;
+
+    }
+
+}
+
+
+/* ================================================================
+   SMALL MOBILE
+   ================================================================ */
+
+@media (
+    max-width:
+    640px
+) {
+
+    .admin-dashboard__section {
+
+        margin-bottom:
+            40px;
+
+    }
+
+
+    .admin-dashboard__section-header h2 {
+
+        font-size:
+            1.35rem;
+
+    }
+
+
+    .admin-dashboard__grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            14px;
+
+    }
+
+
+    .admin-dashboard__card {
+
+        padding:
+            20px;
+
+    }
+
+
+    .admin-dashboard__card strong {
+
+        font-size:
+            1.55rem;
+
+    }
+
+}
+
+
+@media (
+    max-width:
+    380px
+) {
+
+    .admin-dashboard__hero-content {
+
+        gap:
+            14px;
+
+    }
+
+
+    .admin-dashboard__hero h1 {
+
+        font-size:
+            1.8rem;
+
+    }
+
+
+    .admin-dashboard__hero-icon {
+
+        width:
+            50px;
+
+        height:
+            50px;
+
+    }
+
+
+    .admin-dashboard__hero p {
+
+        font-size:
+            0.9rem;
+
+    }
+
+}

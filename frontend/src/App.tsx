@@ -40,9 +40,9 @@ import RegisterPage from "./pages/Register/Register";
 import AccountPage from "./pages/Account/Account";
 
 import ReviewsPage from "./pages/Account/Reviews";
-
 import CreateReviewPage from "./pages/Account/CreateReview";
 
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 
 import CustomizePage from "./pages/Customize";
 
@@ -139,6 +139,16 @@ function App() {
                         <CreateReviewPage />
                     }
                 />
+
+{/* ==================================================
+    ADMINISTRATION
+   ================================================== */}
+
+<Route
+    path="/admin"
+    element={<AdminDashboard />}
+/>
+
 
 
                 {/* ==================================================
