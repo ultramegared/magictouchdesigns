@@ -70,6 +70,8 @@ interface AuthenticatedUser {
     last_name: string;
 
     email: string;
+    
+    role: string;
 
     is_active: boolean;
 
@@ -373,16 +375,30 @@ function Header() {
 
     const openAccountPage = () => {
 
-        setAccountMenuOpen(
-            false
-        );
+    setAccountMenuOpen(
+        false
+    );
 
+
+    if (
+        currentUser?.role ===
+        "ADMIN"
+    ) {
 
         navigate(
-            "/account"
+            "/admin"
         );
 
-    };
+        return;
+
+    }
+
+
+    navigate(
+        "/account"
+    );
+
+};
 
 
     const openOrders = () => {
