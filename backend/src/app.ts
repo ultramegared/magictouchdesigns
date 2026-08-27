@@ -15,6 +15,7 @@ import cors from "cors";
 import { pool } from "./config/database";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
+import reviewRoutes from "./routes/review.routes";
 
 const app = express();
 
@@ -24,6 +25,9 @@ app.use(express.json());
 
 // Authentication routes
 app.use("/api/auth", authRoutes);
+
+// Review routes
+app.use("/api/reviews", reviewRoutes);
 
 // User routes
 app.use("/api/user", userRoutes);
