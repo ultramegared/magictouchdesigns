@@ -17,7 +17,7 @@ import {
 
 import "./AdminDashboard.css";
 
-import AdminSidebar from "../../components/admin/AdminSidebar";
+import AdminSidebar from "./AdminSidebar";
 
 import {
     Users,

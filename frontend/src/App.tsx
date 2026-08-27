@@ -42,7 +42,7 @@ import AccountPage from "./pages/Account/Account";
 import ReviewsPage from "./pages/Account/Reviews";
 import CreateReviewPage from "./pages/Account/CreateReview";
 
-import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 import CustomizePage from "./pages/Customize";
 
