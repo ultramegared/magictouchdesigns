@@ -32,8 +32,9 @@ import "./Reviews.css";
 
 interface Review {
     id: string;
-    comment: string;
+    review: string;
     image_url?: string | null;
+    is_approved: boolean;
     created_at: string;
 }
 
@@ -249,9 +250,18 @@ const Reviews = () => {
 
                                             <p className="review-card-text">
 
-                                                {review.comment}
+                                                {review.review}
 
                                             </p>
+
+
+                                            <div className="review-card-status">
+
+                                                {review.is_approved
+                                                    ? "Approved"
+                                                    : "Pending approval"}
+
+                                            </div>
 
 
                                         </article>
