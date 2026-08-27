@@ -64,16 +64,130 @@ interface FavoritesResponse {
 
     status: string;
 
-    favorites?: Favorite[];
+    favorites: Favorite[];
+
+}
+
+
+interface Product {
+
+    id: number;
+
+    name: string;
+
+    category: string;
+
+    style: string;
+
+    color: string;
+
+    size: string;
+
+    price: number;
+
+    image: string;
 
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| Component
+| Demo Products
 |--------------------------------------------------------------------------
 */
+
+const demoProducts: Product[] = [
+
+    {
+        id: 1,
+        name: "Model One",
+        category: "Mug",
+        style: "Classic",
+        color: "Black",
+        size: "11 oz",
+        price: 24.99,
+        image: "/images/products/model-one.jpg",
+    },
+
+    {
+        id: 2,
+        name: "Model Two",
+        category: "Mug",
+        style: "Marble",
+        color: "White",
+        size: "11 oz",
+        price: 24.99,
+        image: "/images/products/model-two.jpg",
+    },
+
+    {
+        id: 3,
+        name: "Model Three",
+        category: "Tumbler",
+        style: "Classic",
+        color: "Black",
+        size: "20 oz",
+        price: 24.99,
+        image: "/images/products/model-three.jpg",
+    },
+
+    {
+        id: 4,
+        name: "Model Four",
+        category: "Tumbler",
+        style: "Classic",
+        color: "Pink",
+        size: "20 oz",
+        price: 29.99,
+        image: "/images/products/model-four.jpg",
+    },
+
+    {
+        id: 5,
+        name: "Model Five",
+        category: "Mug",
+        style: "Premium",
+        color: "Gold",
+        size: "15 oz",
+        price: 27.99,
+        image: "/images/products/model-five.jpg",
+    },
+
+    {
+        id: 6,
+        name: "Model Six",
+        category: "Mug",
+        style: "Classic",
+        color: "Black",
+        size: "15 oz",
+        price: 25.99,
+        image: "/images/products/model-six.jpg",
+    },
+
+    {
+        id: 7,
+        name: "Model Seven",
+        category: "Tumbler",
+        style: "Premium",
+        color: "White",
+        size: "20 oz",
+        price: 31.99,
+        image: "/images/products/model-seven.jpg",
+    },
+
+    {
+        id: 8,
+        name: "Model Eight",
+        category: "Mug",
+        style: "Marble",
+        color: "Pink",
+        size: "11 oz",
+        price: 26.99,
+        image: "/images/products/model-eight.jpg",
+    },
+
+];
+
 
 function Favorites() {
 
@@ -89,17 +203,13 @@ function Favorites() {
     const [
         favorites,
         setFavorites,
-    ] = useState<Favorite[]>(
-        []
-    );
+    ] = useState<Favorite[]>([]);
 
 
     const [
         isLoading,
         setIsLoading,
-    ] = useState(
-        true
-    );
+    ] = useState(true);
 
 
     const [
@@ -126,136 +236,7 @@ function Favorites() {
 
     useEffect(() => {
 
-        const loadFavorites =
-            async () => {
-
-                const token =
-                    localStorage.getItem(
-                        "auth_token"
-                    );
-
-
-                if (!token) {
-
-                    navigate(
-                        "/login",
-                        {
-                            replace: true,
-                        }
-                    );
-
-                    return;
-
-                }
-
-
-                try {
-
-                    setIsLoading(
-                        true
-                    );
-
-
-                    setErrorMessage(
-                        null
-                    );
-
-
-                    const result =
-                        await apiRequest(
-                            "/api/favorites/my-favorites",
-                            {
-                                method: "GET",
-
-                                headers: {
-
-                                    Authorization:
-                                        `Bearer ${token}`,
-
-                                },
-
-                            }
-                        ) as FavoritesResponse;
-
-
-                    /*
-                     * Defensive validation.
-                     *
-                     * Prevents the page from crashing if
-                     * the API response does not contain
-                     * a valid favorites array.
-                     */
-                    if (
-                        Array.isArray(
-                            result?.favorites
-                        )
-                    ) {
-
-                        setFavorites(
-                            result.favorites
-                        );
-
-                    } else {
-
-                        setFavorites(
-                            []
-                        );
-
-                    }
-
-                } catch (error) {
-
-                    console.error(
-                        "Unable to load favorites:",
-                        error
-                    );
-
-
-                    setFavorites(
-                        []
-                    );
-
-
-                    setErrorMessage(
-
-                        language === "es"
-                            ? (
-                                "No fue posible cargar tus favoritos. Inténtalo nuevamente."
-                            )
-                            : (
-                                "Unable to load your favorites. Please try again."
-                            )
-
-                    );
-
-                } finally {
-
-                    setIsLoading(
-                        false
-                    );
-
-                }
-
-            };
-
-
-        loadFavorites();
-
-    }, [
-        navigate,
-    ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Remove Favorite
-    |--------------------------------------------------------------------------
-    */
-
-    const handleRemoveFavorite =
-        async (
-            favoriteId: string
-        ) => {
+        const loadFavorites = async () => {
 
             const token =
                 localStorage.getItem(
@@ -276,74 +257,56 @@ function Favorites() {
 
             try {
 
-                setRemovingId(
-                    favoriteId
+                setIsLoading(
+                    true
                 );
-
 
                 setErrorMessage(
                     null
                 );
 
 
-                await apiRequest(
+                const result =
+                    await apiRequest<FavoritesResponse>(
 
-                    `/api/favorites/${favoriteId}`,
+                        "/api/favorites/my-favorites",
 
-                    {
+                        {
+                            method:
+                                "GET",
+                        }
 
-                        method:
-                            "DELETE",
-
-                        headers: {
-
-                            Authorization:
-                                `Bearer ${token}`,
-
-                        },
-
-                    }
-
-                );
+                    );
 
 
                 setFavorites(
-                    (
-                        currentFavorites
-                    ) =>
-                        currentFavorites.filter(
-                            (
-                                favorite
-                            ) =>
-                                favorite.id !==
-                                favoriteId
-                        )
+                    result.favorites || []
                 );
 
             } catch (error) {
 
                 console.error(
-                    "Unable to remove favorite:",
+                    "Unable to load favorites:",
                     error
                 );
 
 
                 setErrorMessage(
 
-                    language === "es"
-                        ? (
-                            "No fue posible eliminar el favorito."
-                        )
+                    error instanceof Error
+                        ? error.message
                         : (
-                            "Unable to remove the favorite."
+                            language === "es"
+                                ? "No fue posible cargar tus favoritos."
+                                : "Unable to load your favorites."
                         )
 
                 );
 
             } finally {
 
-                setRemovingId(
-                    null
+                setIsLoading(
+                    false
                 );
 
             }
@@ -351,11 +314,94 @@ function Favorites() {
         };
 
 
+        loadFavorites();
+
+    }, [
+        language,
+        navigate,
+    ]);
+
+
     /*
     |--------------------------------------------------------------------------
-    | Render
+    | Remove Favorite
     |--------------------------------------------------------------------------
     */
+
+    const handleRemoveFavorite = async (
+        favoriteId: string
+    ) => {
+
+        try {
+
+            setRemovingId(
+                favoriteId
+            );
+
+
+            setErrorMessage(
+                null
+            );
+
+
+            await apiRequest(
+
+                `/api/favorites/${favoriteId}`,
+
+                {
+                    method:
+                        "DELETE",
+                }
+
+            );
+
+
+            setFavorites(
+                (
+                    currentFavorites
+                ) =>
+
+                    currentFavorites.filter(
+                        (
+                            favorite
+                        ) =>
+
+                            favorite.id !==
+                            favoriteId
+                    )
+
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Unable to remove favorite:",
+                error
+            );
+
+
+            setErrorMessage(
+
+                error instanceof Error
+                    ? error.message
+                    : (
+                        language === "es"
+                            ? "No fue posible eliminar el favorito."
+                            : "Unable to remove the favorite."
+                    )
+
+            );
+
+        } finally {
+
+            setRemovingId(
+                null
+            );
+
+        }
+
+    };
+
 
     return (
 
@@ -373,8 +419,6 @@ function Favorites() {
                 >
 
 
-                    {/* BACK */}
-
                     <Link
                         to="/account"
                         className="favorites-back"
@@ -384,21 +428,16 @@ function Favorites() {
                             size={20}
                         />
 
-
                         <span>
 
-                            {
-                                language === "es"
-                                    ? "Volver a mi cuenta"
-                                    : "Back to my account"
-                            }
+                            {language === "es"
+                                ? "Volver a mi cuenta"
+                                : "Back to my account"}
 
                         </span>
 
                     </Link>
 
-
-                    {/* HEADER */}
 
                     <section
                         className="favorites-header"
@@ -419,105 +458,77 @@ function Favorites() {
                             className="favorites-eyebrow"
                         >
 
-                            {
-                                language === "es"
-                                    ? "MIS FAVORITOS"
-                                    : "MY FAVORITES"
-                            }
+                            {language === "es"
+                                ? "MIS FAVORITOS"
+                                : "MY FAVORITES"}
 
                         </p>
 
 
                         <h1>
 
-                            {
-                                language === "es"
-                                    ? "Tus diseños favoritos"
-                                    : "Your favorite designs"
-                            }
+                            {language === "es"
+                                ? "Tus diseños favoritos"
+                                : "Your favorite designs"}
 
                         </h1>
 
 
                         <p>
 
-                            {
-                                language === "es"
-                                    ? (
-                                        "Guarda los diseños que más te gustan y encuéntralos fácilmente aquí."
-                                    )
-                                    : (
-                                        "Save the designs you love and find them easily here."
-                                    )
-                            }
+                            {language === "es"
+                                ? "Guarda los diseños que más te gustan y encuéntralos fácilmente aquí."
+                                : "Save the designs you love and find them easily here."}
 
                         </p>
 
                     </section>
 
 
-                    {/* CONTENT */}
-
                     <section
                         className="favorites-content"
                     >
 
 
-                        {/* LOADING */}
+                        {isLoading && (
 
-                        {
-                            isLoading && (
+                            <div
+                                className="favorites-loading"
+                            >
 
                                 <div
-                                    className="favorites-loading"
-                                >
-
-                                    <div
-                                        className="favorites-loading-spinner"
-                                        aria-hidden="true"
-                                    />
+                                    className="favorites-loading-spinner"
+                                />
 
 
-                                    <p>
+                                <p>
 
-                                        {
-                                            language === "es"
-                                                ? "Cargando favoritos..."
-                                                : "Loading favorites..."
-                                        }
+                                    {language === "es"
+                                        ? "Cargando favoritos..."
+                                        : "Loading favorites..."}
 
-                                    </p>
+                                </p>
 
-                                </div>
+                            </div>
 
-                            )
-                        }
+                        )}
 
 
-                        {/* ERROR */}
-
-                        {
-                            !isLoading &&
+                        {!isLoading &&
                             errorMessage && (
 
                                 <div
                                     className="favorites-error"
                                 >
 
-                                    {
-                                        errorMessage
-                                    }
+                                    {errorMessage}
 
                                 </div>
 
-                            )
-                        }
+                            )}
 
 
-                        {/* EMPTY */}
-
-                        {
-                            !isLoading &&
+                        {!isLoading &&
                             !errorMessage &&
                             favorites.length === 0 && (
 
@@ -538,26 +549,18 @@ function Favorites() {
 
                                     <h2>
 
-                                        {
-                                            language === "es"
-                                                ? "Aún no tienes favoritos"
-                                                : "You don't have favorites yet"
-                                        }
+                                        {language === "es"
+                                            ? "Aún no tienes favoritos"
+                                            : "You don't have favorites yet"}
 
                                     </h2>
 
 
                                     <p>
 
-                                        {
-                                            language === "es"
-                                                ? (
-                                                    "Cuando encuentres un diseño que te guste, podrás guardarlo aquí."
-                                                )
-                                                : (
-                                                    "When you find a design you like, you can save it here."
-                                                )
-                                        }
+                                        {language === "es"
+                                            ? "Cuando encuentres un diseño que te guste, podrás guardarlo aquí."
+                                            : "When you find a design you like, you can save it here."}
 
                                     </p>
 
@@ -567,24 +570,18 @@ function Favorites() {
                                         className="favorites-explore"
                                     >
 
-                                        {
-                                            language === "es"
-                                                ? "Explorar diseños"
-                                                : "Explore designs"
-                                        }
+                                        {language === "es"
+                                            ? "Explorar diseños"
+                                            : "Explore designs"}
 
                                     </Link>
 
                                 </div>
 
-                            )
-                        }
+                            )}
 
 
-                        {/* FAVORITES LIST */}
-
-                        {
-                            !isLoading &&
+                        {!isLoading &&
                             !errorMessage &&
                             favorites.length > 0 && (
 
@@ -592,11 +589,34 @@ function Favorites() {
                                     className="favorites-list"
                                 >
 
-                                    {
-                                        favorites.map(
-                                            (
-                                                favorite
-                                            ) => (
+                                    {favorites.map(
+                                        (
+                                            favorite
+                                        ) => {
+
+                                            const product =
+                                                demoProducts.find(
+                                                    (
+                                                        item
+                                                    ) =>
+
+                                                        String(
+                                                            item.id
+                                                        ) ===
+                                                        String(
+                                                            favorite.design_id
+                                                        )
+                                                );
+
+
+                                            if (!product) {
+
+                                                return null;
+
+                                            }
+
+
+                                            return (
 
                                                 <article
                                                     key={
@@ -605,32 +625,40 @@ function Favorites() {
                                                     className="favorite-card"
                                                 >
 
+                                                    <img
+                                                        src={
+                                                            product.image
+                                                        }
+                                                        alt={
+                                                            product.name
+                                                        }
+                                                        className="favorite-card-image"
+                                                    />
+
+
                                                     <div
                                                         className="favorite-card-content"
                                                     >
 
                                                         <div
-                                                            className="favorite-card-icon"
-                                                        >
-
-                                                            <Heart
-                                                                size={24}
-                                                                fill="currentColor"
-                                                            />
-
-                                                        </div>
-
-
-                                                        <div
                                                             className="favorite-card-info"
                                                         >
+
+                                                            <span
+                                                                className="favorite-card-category"
+                                                            >
+
+                                                                {
+                                                                    product.category
+                                                                }
+
+                                                            </span>
+
 
                                                             <h2>
 
                                                                 {
-                                                                    language === "es"
-                                                                        ? "Diseño guardado"
-                                                                        : "Saved design"
+                                                                    product.name
                                                                 }
 
                                                             </h2>
@@ -639,74 +667,78 @@ function Favorites() {
                                                             <p>
 
                                                                 {
-                                                                    language === "es"
-                                                                        ? "Guardado en tus favoritos."
-                                                                        : "Saved to your favorites."
+                                                                    product.style
                                                                 }
 
                                                             </p>
 
+
+                                                            <strong>
+
+                                                                $
+                                                                {
+                                                                    product.price.toFixed(
+                                                                        2
+                                                                    )
+                                                                }
+
+                                                            </strong>
+
                                                         </div>
 
-                                                    </div>
 
-
-                                                    <button
-                                                        type="button"
-                                                        className="favorite-remove"
-                                                        onClick={() =>
-                                                            handleRemoveFavorite(
-                                                                favorite.id
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            removingId ===
-                                                            favorite.id
-                                                        }
-                                                        aria-label={
-                                                            language === "es"
-                                                                ? "Eliminar favorito"
-                                                                : "Remove favorite"
-                                                        }
-                                                    >
-
-                                                        <Trash2
-                                                            size={19}
-                                                        />
-
-
-                                                        <span>
-
-                                                            {
+                                                        <button
+                                                            type="button"
+                                                            className="favorite-remove"
+                                                            onClick={() =>
+                                                                handleRemoveFavorite(
+                                                                    favorite.id
+                                                                )
+                                                            }
+                                                            disabled={
                                                                 removingId ===
                                                                 favorite.id
+                                                            }
+                                                        >
+
+                                                            <Trash2
+                                                                size={19}
+                                                            />
+
+                                                            <span>
+
+                                                                {removingId ===
+                                                                favorite.id
                                                                     ? (
-                                                                        language === "es"
+                                                                        language ===
+                                                                        "es"
                                                                             ? "Eliminando..."
                                                                             : "Removing..."
                                                                     )
                                                                     : (
-                                                                        language === "es"
+                                                                        language ===
+                                                                        "es"
                                                                             ? "Eliminar"
                                                                             : "Remove"
-                                                                    )
-                                                            }
+                                                                    )}
 
-                                                        </span>
+                                                            </span>
 
-                                                    </button>
+                                                        </button>
+
+                                                    </div>
 
                                                 </article>
 
-                                            )
-                                        )
-                                    }
+                                            );
+
+                                        }
+
+                                    )}
 
                                 </div>
 
-                            )
-                        }
-
+                            )}
 
                     </section>
 
