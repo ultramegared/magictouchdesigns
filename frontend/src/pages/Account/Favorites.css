@@ -1,0 +1,1020 @@
+/**
+ * ================================================================
+ * Project: Magic Touch Designs
+ * Author: ultramegared
+ * File: Favorites.css
+ * Module: Account Favorites Styles
+ * Language: CSS
+ * Description:
+ * Premium responsive styles for the user favorites page.
+ * ================================================================
+ */
+
+
+/* ================================================================
+   PAGE
+   ================================================================ */
+
+.favorites-page {
+
+    position: relative;
+
+    min-height: 100vh;
+
+    min-height: 100dvh;
+
+    padding: 120px 20px 80px;
+
+    overflow: hidden;
+
+    background:
+
+        radial-gradient(
+            ellipse at 50% 5%,
+            rgba(242, 207, 132, 0.12),
+            transparent 38%
+        ),
+
+        radial-gradient(
+            ellipse at 10% 80%,
+            rgba(30, 76, 111, 0.20),
+            transparent 45%
+        ),
+
+        radial-gradient(
+            ellipse at 90% 70%,
+            rgba(222, 183, 95, 0.08),
+            transparent 42%
+        ),
+
+        linear-gradient(
+            145deg,
+            #020304 0%,
+            #07111a 48%,
+            #030405 100%
+        );
+
+}
+
+
+.favorites-page::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 520px;
+
+    height: 520px;
+
+    top: -280px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    background:
+
+        radial-gradient(
+            circle,
+            rgba(255, 222, 147, 0.15),
+            transparent 68%
+        );
+
+    filter:
+        blur(25px);
+
+}
+
+
+.favorites-page::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 450px;
+
+    height: 450px;
+
+    right: -200px;
+
+    bottom: -230px;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    background:
+
+        radial-gradient(
+            circle,
+            rgba(35, 84, 121, 0.22),
+            transparent 68%
+        );
+
+    filter:
+        blur(25px);
+
+}
+
+
+/* ================================================================
+   CONTAINER
+   ================================================================ */
+
+.favorites-container {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: min(
+        100%,
+        900px
+    );
+
+    margin: 0 auto;
+
+}
+
+
+/* ================================================================
+   BACK
+   ================================================================ */
+
+.favorites-back {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 36px;
+
+    color:
+        #dfbb70;
+
+    font-size:
+        0.88rem;
+
+    font-weight:
+        700;
+
+    text-decoration:
+        none;
+
+    transition:
+
+        transform 0.25s ease,
+
+        color 0.25s ease;
+
+}
+
+
+.favorites-back:hover {
+
+    transform:
+        translateX(-4px);
+
+    color:
+        #ffe0a0;
+
+}
+
+
+/* ================================================================
+   HEADER
+   ================================================================ */
+
+.favorites-header {
+
+    margin-bottom:
+        34px;
+
+}
+
+
+.favorites-icon {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width:
+        68px;
+
+    height:
+        68px;
+
+    margin-bottom:
+        24px;
+
+    border:
+        1px solid
+        rgba(229, 193, 111, 0.55);
+
+    border-radius:
+        18px;
+
+    color:
+        #dfbb70;
+
+    background:
+
+        radial-gradient(
+            circle at 30% 20%,
+            rgba(255, 245, 215, 0.10),
+            transparent 35%
+        ),
+
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.06),
+            rgba(0, 0, 0, 0.35)
+        );
+
+    box-shadow:
+
+        0 0 25px
+        rgba(222, 181, 92, 0.10),
+
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.08);
+
+}
+
+
+.favorites-eyebrow {
+
+    margin:
+        0 0 10px;
+
+    color:
+        #e2bc6c;
+
+    font-size:
+        0.68rem;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        0.24em;
+
+}
+
+
+.favorites-header h1 {
+
+    margin:
+        0 0 12px;
+
+    color:
+        #fffdf8;
+
+    font-size:
+        clamp(
+            2rem,
+            5vw,
+            3.2rem
+        );
+
+    font-weight:
+        800;
+
+    line-height:
+        1.05;
+
+    letter-spacing:
+        -0.025em;
+
+}
+
+
+.favorites-header p {
+
+    max-width:
+        600px;
+
+    margin:
+        0;
+
+    color:
+        #aeb7bf;
+
+    font-size:
+        0.95rem;
+
+    line-height:
+        1.6;
+
+}
+
+
+/* ================================================================
+   CONTENT
+   ================================================================ */
+
+.favorites-content {
+
+    position:
+        relative;
+
+    min-height:
+        280px;
+
+    padding:
+        42px;
+
+    overflow:
+        hidden;
+
+    border:
+        1px solid
+        rgba(229, 193, 111, 0.50);
+
+    border-radius:
+        28px;
+
+    background:
+
+        radial-gradient(
+            ellipse at 50% 0%,
+            rgba(255, 232, 177, 0.10),
+            transparent 42%
+        ),
+
+        radial-gradient(
+            ellipse at 0% 100%,
+            rgba(36, 81, 116, 0.14),
+            transparent 45%
+        ),
+
+        linear-gradient(
+            145deg,
+            #090b0e 0%,
+            #101b24 50%,
+            #07090b 100%
+        );
+
+    box-shadow:
+
+        0 30px 70px
+        rgba(0, 0, 0, 0.55),
+
+        0 0 35px
+        rgba(222, 181, 92, 0.07),
+
+        inset 0 1px 0
+        rgba(255, 246, 219, 0.12);
+
+}
+
+
+/* ================================================================
+   LOADING
+   ================================================================ */
+
+.favorites-loading {
+
+    display: flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        18px;
+
+    min-height:
+        220px;
+
+    color:
+        #aeb7bf;
+
+    text-align:
+        center;
+
+}
+
+
+.favorites-loading-spinner {
+
+    width:
+        42px;
+
+    height:
+        42px;
+
+    border:
+        3px solid
+        rgba(223, 187, 112, 0.18);
+
+    border-top-color:
+        #dfbb70;
+
+    border-radius:
+        50%;
+
+    animation:
+        favorites-spin
+        0.8s
+        linear
+        infinite;
+
+}
+
+
+@keyframes favorites-spin {
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* ================================================================
+   ERROR
+   ================================================================ */
+
+.favorites-error {
+
+    padding:
+        16px;
+
+    border:
+        1px solid
+        rgba(255, 107, 107, 0.35);
+
+    border-radius:
+        14px;
+
+    color:
+        #ffb4b4;
+
+    background:
+        rgba(255, 70, 70, 0.08);
+
+}
+
+
+/* ================================================================
+   EMPTY
+   ================================================================ */
+
+.favorites-empty {
+
+    display: flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    min-height:
+        280px;
+
+    text-align:
+        center;
+
+}
+
+
+.favorites-empty-icon {
+
+    display: flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        82px;
+
+    height:
+        82px;
+
+    margin-bottom:
+        22px;
+
+    border:
+        1px solid
+        rgba(229, 193, 111, 0.45);
+
+    border-radius:
+        50%;
+
+    color:
+        #dfbb70;
+
+    background:
+        rgba(222, 181, 92, 0.08);
+
+}
+
+
+.favorites-empty h2 {
+
+    margin:
+        0 0 12px;
+
+    color:
+        #fffdf8;
+
+    font-size:
+        1.35rem;
+
+}
+
+
+.favorites-empty p {
+
+    max-width:
+        430px;
+
+    margin:
+        0;
+
+    color:
+        #aeb7bf;
+
+    line-height:
+        1.6;
+
+}
+
+
+.favorites-explore {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    min-height:
+        48px;
+
+    margin-top:
+        26px;
+
+    padding:
+        0 24px;
+
+    border:
+        1px solid
+        #f7dc9d;
+
+    border-radius:
+        12px;
+
+    color:
+        #101010;
+
+    font-size:
+        0.82rem;
+
+    font-weight:
+        800;
+
+    text-decoration:
+        none;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #fff0bd,
+            #f0ce81,
+            #d4a44b,
+            #fff0ba
+        );
+
+    box-shadow:
+
+        0 10px 26px
+        rgba(205, 159, 61, 0.22);
+
+    transition:
+
+        transform 0.25s ease,
+
+        filter 0.25s ease;
+
+}
+
+
+.favorites-explore:hover {
+
+    transform:
+        translateY(-2px);
+
+    filter:
+        brightness(1.06);
+
+}
+
+
+/* ================================================================
+   FAVORITES LIST
+   ================================================================ */
+
+.favorites-list {
+
+    display:
+        grid;
+
+    gap:
+        16px;
+
+}
+
+
+.favorite-card {
+
+    display: flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+    padding:
+        22px;
+
+    border:
+        1px solid
+        rgba(218, 181, 99, 0.22);
+
+    border-radius:
+        18px;
+
+    background:
+        rgba(255, 255, 255, 0.025);
+
+    transition:
+
+        transform 0.25s ease,
+
+        border-color 0.25s ease,
+
+        background 0.25s ease;
+
+}
+
+
+.favorite-card:hover {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(229, 193, 111, 0.45);
+
+    background:
+        rgba(255, 255, 255, 0.04);
+
+}
+
+
+.favorite-card-content {
+
+    display: flex;
+
+    align-items:
+        center;
+
+    gap:
+        16px;
+
+    min-width:
+        0;
+
+}
+
+
+.favorite-card-icon {
+
+    display: flex;
+
+    flex-shrink:
+        0;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        52px;
+
+    height:
+        52px;
+
+    border-radius:
+        14px;
+
+    color:
+        #dfbb70;
+
+    background:
+        rgba(222, 181, 92, 0.10);
+
+}
+
+
+.favorite-card-info {
+
+    min-width:
+        0;
+
+}
+
+
+.favorite-card-info h2 {
+
+    margin:
+        0 0 6px;
+
+    color:
+        #f5f2ea;
+
+    font-size:
+        1rem;
+
+}
+
+
+.favorite-card-info p {
+
+    margin:
+        0;
+
+    color:
+        #89939d;
+
+    font-size:
+        0.85rem;
+
+}
+
+
+/* ================================================================
+   REMOVE BUTTON
+   ================================================================ */
+
+.favorite-remove {
+
+    display: inline-flex;
+
+    flex-shrink:
+        0;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    min-height:
+        44px;
+
+    padding:
+        0 16px;
+
+    border:
+        1px solid
+        rgba(255, 107, 107, 0.30);
+
+    border-radius:
+        11px;
+
+    color:
+        #ffb4b4;
+
+    font:
+        inherit;
+
+    font-size:
+        0.8rem;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    background:
+        rgba(255, 70, 70, 0.06);
+
+    transition:
+
+        transform 0.2s ease,
+
+        background 0.2s ease;
+
+}
+
+
+.favorite-remove:hover:not(:disabled) {
+
+    transform:
+        translateY(-1px);
+
+    background:
+        rgba(255, 70, 70, 0.12);
+
+}
+
+
+.favorite-remove:disabled {
+
+    cursor:
+        not-allowed;
+
+    opacity:
+        0.6;
+
+}
+
+
+/* ================================================================
+   TABLET
+   ================================================================ */
+
+@media (
+    max-width: 768px
+) {
+
+    .favorites-page {
+
+        padding:
+            105px
+            16px
+            60px;
+
+    }
+
+
+    .favorites-content {
+
+        padding:
+            32px
+            24px;
+
+    }
+
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (
+    max-width: 576px
+) {
+
+    .favorites-page {
+
+        padding:
+            94px
+            12px
+            50px;
+
+    }
+
+
+    .favorites-back {
+
+        margin-bottom:
+            30px;
+
+        font-size:
+            0.82rem;
+
+    }
+
+
+    .favorites-header {
+
+        margin-bottom:
+            28px;
+
+    }
+
+
+    .favorites-icon {
+
+        width:
+            58px;
+
+        height:
+            58px;
+
+        margin-bottom:
+            20px;
+
+        border-radius:
+            16px;
+
+    }
+
+
+    .favorites-header h1 {
+
+        font-size:
+            2rem;
+
+    }
+
+
+    .favorites-header p {
+
+        font-size:
+            0.84rem;
+
+    }
+
+
+    .favorites-content {
+
+        padding:
+            26px
+            18px;
+
+        border-radius:
+            22px;
+
+    }
+
+
+    .favorite-card {
+
+        flex-direction:
+            column;
+
+        align-items:
+            stretch;
+
+        gap:
+            18px;
+
+        padding:
+            18px;
+
+    }
+
+
+    .favorite-remove {
+
+        width:
+            100%;
+
+    }
+
+
+    .favorites-empty {
+
+        min-height:
+            260px;
+
+    }
+
+}
