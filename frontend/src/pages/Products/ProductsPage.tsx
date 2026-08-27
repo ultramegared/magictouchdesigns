@@ -8,8 +8,6 @@
  * Description:
  * Products / All Models page.
  * Frontend structure prepared for dynamic products and categories.
- * Favorites are synchronized with the backend and persisted locally
- * to provide a stable user experience.
  * ================================================================
  */
 
@@ -51,12 +49,6 @@ import {
     translations,
 } from "../../translations";
 
-
-/*
-|--------------------------------------------------------------------------
-| Types
-|--------------------------------------------------------------------------
-*/
 
 type Product = {
 
@@ -117,95 +109,6 @@ type CreateFavoriteResponse = {
 
 };
 
-
-/*
-|--------------------------------------------------------------------------
-| Local Storage
-|--------------------------------------------------------------------------
-*/
-
-const FAVORITES_STORAGE_KEY =
-    "magic_touch_favorites";
-
-
-const getStoredFavorites = ():
-    Record<string, string> => {
-
-    try {
-
-        const stored =
-            localStorage.getItem(
-                FAVORITES_STORAGE_KEY
-            );
-
-
-        if (!stored) {
-
-            return {};
-
-        }
-
-
-        const parsed =
-            JSON.parse(
-                stored
-            );
-
-
-        if (
-            typeof parsed !==
-            "object"
-        ) {
-
-            return {};
-
-        }
-
-
-        return parsed;
-
-    } catch {
-
-        return {};
-
-    }
-
-};
-
-
-const saveStoredFavorites = (
-    favorites: Record<string, string>
-) => {
-
-    try {
-
-        localStorage.setItem(
-
-            FAVORITES_STORAGE_KEY,
-
-            JSON.stringify(
-                favorites
-            )
-
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Unable to save favorites locally:",
-            error
-        );
-
-    }
-
-};
-
-
-/*
-|--------------------------------------------------------------------------
-| Demo Products
-|--------------------------------------------------------------------------
-*/
 
 const demoProducts: Product[] = [
 
@@ -426,8 +329,7 @@ function ProductsPage() {
     ] = useState<
         Record<string, string>
     >(
-        () =>
-            getStoredFavorites()
+        {}
     );
 
 
@@ -471,24 +373,7 @@ function ProductsPage() {
 
     /*
     |--------------------------------------------------------------------------
-    | Persist Favorites
-    |--------------------------------------------------------------------------
-    */
-
-    useEffect(() => {
-
-        saveStoredFavorites(
-            favorites
-        );
-
-    }, [
-        favorites,
-    ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Load Favorites From API
+    | Load Favorites
     |--------------------------------------------------------------------------
     */
 
@@ -518,14 +403,10 @@ function ProductsPage() {
 
                     const response =
                         await apiRequest<FavoritesResponse>(
-
                             "/api/favorites/my-favorites",
-
                             {
-                                method:
-                                    "GET",
+                                method: "GET",
                             }
-
                         );
 
 
@@ -536,35 +417,23 @@ function ProductsPage() {
                         > = {};
 
 
-                    if (
-                        Array.isArray(
-                            response.favorites
-                        )
-                    ) {
+                    (
+                        response.favorites ||
+                        []
+                    ).forEach(
+                        (
+                            favorite
+                        ) => {
 
-                        response.favorites.forEach(
-                            (
-                                favorite
-                            ) => {
+                            favoritesMap[
+                                String(
+                                    favorite.design_id
+                                )
+                            ] =
+                                favorite.id;
 
-                                if (
-                                    favorite.design_id &&
-                                    favorite.id
-                                ) {
-
-                                    favoritesMap[
-                                        String(
-                                            favorite.design_id
-                                        )
-                                    ] =
-                                        favorite.id;
-
-                                }
-
-                            }
-                        );
-
-                    }
+                        }
+                    );
 
 
                     setFavorites(
@@ -577,12 +446,6 @@ function ProductsPage() {
                         "Unable to load favorites:",
                         error
                     );
-
-
-                    /*
-                     * Keep locally stored favorites
-                     * if the API is temporarily unavailable.
-                     */
 
                 }
 
@@ -741,9 +604,7 @@ function ProductsPage() {
             ) {
 
                 return [
-
                     ...filtered,
-
                 ].sort(
                     (a, b) =>
                         a.price -
@@ -758,9 +619,7 @@ function ProductsPage() {
             ) {
 
                 return [
-
                     ...filtered,
-
                 ].sort(
                     (a, b) =>
                         b.price -
@@ -775,9 +634,7 @@ function ProductsPage() {
             ) {
 
                 return [
-
                     ...filtered,
-
                 ].sort(
                     (a, b) =>
                         b.rating -
@@ -882,32 +739,38 @@ function ProductsPage() {
         }
 
 
-        const existingFavoriteId =
-            favorites[
+        try {
+
+            setSavingFavoriteId(
                 productId
-            ];
+            );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Remove Favorite
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            existingFavoriteId
-        ) {
-
-            try {
-
-                setSavingFavoriteId(
+            const favoriteId =
+                favorites[
                     productId
+                ];
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remove Favorite
+            |--------------------------------------------------------------------------
+            */
+
+            if (favoriteId) {
+
+                await apiRequest(
+
+                    `/api/favorites/${favoriteId}`,
+
+                    {
+                        method:
+                            "DELETE",
+                    }
+
                 );
 
-
-                /*
-                 * Remove immediately from UI.
-                 */
 
                 setFavorites(
                     (
@@ -915,9 +778,7 @@ function ProductsPage() {
                     ) => {
 
                         const updatedFavorites = {
-
                             ...currentFavorites,
-
                         };
 
 
@@ -932,101 +793,21 @@ function ProductsPage() {
                 );
 
 
-                await apiRequest(
-
-                    `/api/favorites/${existingFavoriteId}`,
-
-                    {
-
-                        method:
-                            "DELETE",
-
-                    }
-
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "Unable to remove favorite:",
-                    error
-                );
-
-
-                /*
-                 * Restore favorite if removal fails.
-                 */
-
-                setFavorites(
-                    (
-                        currentFavorites
-                    ) => ({
-
-                        ...currentFavorites,
-
-                        [
-                            productId
-                        ]:
-                            existingFavoriteId,
-
-                    })
-                );
-
-            } finally {
-
-                setSavingFavoriteId(
-                    null
-                );
+                return;
 
             }
 
 
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Create Favorite
-        |--------------------------------------------------------------------------
-        */
-
-        const temporaryFavoriteId =
-            `pending-${productId}`;
-
-
-        try {
-
-            setSavingFavoriteId(
-                productId
-            );
-
-
             /*
-             * Add immediately to UI.
-             * This prevents other selected hearts
-             * from disappearing while the API responds.
-             */
-
-            setFavorites(
-                (
-                    currentFavorites
-                ) => ({
-
-                    ...currentFavorites,
-
-                    [
-                        productId
-                    ]:
-                        temporaryFavoriteId,
-
-                })
-            );
-
+            |--------------------------------------------------------------------------
+            | Add Favorite
+            |--------------------------------------------------------------------------
+            */
 
             const response =
-                await apiRequest<CreateFavoriteResponse>(
+                await apiRequest<
+                    CreateFavoriteResponse
+                >(
 
                     "/api/favorites",
 
@@ -1048,14 +829,8 @@ function ProductsPage() {
                 );
 
 
-            /*
-             * Replace temporary ID with
-             * the real database favorite ID.
-             */
-
             if (
-                response.favorite &&
-                response.favorite.id
+                response.favorite
             ) {
 
                 setFavorites(
@@ -1078,36 +853,8 @@ function ProductsPage() {
         } catch (error) {
 
             console.error(
-                "Unable to add favorite:",
+                "Unable to update favorite:",
                 error
-            );
-
-
-            /*
-             * Remove temporary favorite
-             * if the server rejects the request.
-             */
-
-            setFavorites(
-                (
-                    currentFavorites
-                ) => {
-
-                    const updatedFavorites = {
-
-                        ...currentFavorites,
-
-                    };
-
-
-                    delete updatedFavorites[
-                        productId
-                    ];
-
-
-                    return updatedFavorites;
-
-                }
             );
 
         } finally {
@@ -1684,9 +1431,7 @@ function ProductsPage() {
                     >
 
                         {visibleProducts.map(
-                            (
-                                product
-                            ) => {
+                            (product) => {
 
                                 const productId =
                                     String(
@@ -1711,9 +1456,7 @@ function ProductsPage() {
 
                                     <article
                                         className="product-card"
-                                        key={
-                                            product.id
-                                        }
+                                        key={product.id}
                                     >
 
                                         <div
@@ -1852,9 +1595,7 @@ function ProductsPage() {
 
                                             <h2>
 
-                                                {
-                                                    product.name
-                                                }
+                                                {product.name}
 
                                             </h2>
 
@@ -1862,7 +1603,6 @@ function ProductsPage() {
                                             <strong>
 
                                                 $
-
                                                 {
                                                     product.price.toFixed(
                                                         2
@@ -1886,11 +1626,9 @@ function ProductsPage() {
                                                 <small>
 
                                                     (
-
                                                     {
                                                         product.reviews
                                                     }
-
                                                     )
 
                                                 </small>
@@ -2037,7 +1775,6 @@ function ProductsPage() {
                                     <strong>
 
                                         $
-
                                         {
                                             selectedProduct.price.toFixed(
                                                 2
@@ -2069,10 +1806,7 @@ function ProductsPage() {
                             }
                             onClick={() =>
                                 setCurrentPage(
-                                    (
-                                        page
-                                    ) =>
-
+                                    (page) =>
                                         Math.max(
                                             1,
                                             page - 1
@@ -2089,10 +1823,8 @@ function ProductsPage() {
                         {Array.from(
 
                             {
-
                                 length:
                                     totalPages,
-
                             },
 
                             (
@@ -2102,9 +1834,7 @@ function ProductsPage() {
                                 index + 1
 
                         ).map(
-                            (
-                                page
-                            ) => (
+                            (page) => (
 
                                 <button
                                     type="button"
@@ -2138,10 +1868,7 @@ function ProductsPage() {
                             }
                             onClick={() =>
                                 setCurrentPage(
-                                    (
-                                        page
-                                    ) =>
-
+                                    (page) =>
                                         Math.min(
                                             totalPages,
                                             page + 1
