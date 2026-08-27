@@ -10,40 +10,69 @@
  * ================================================================
  */
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+    BrowserRouter,
+    Routes,
+    Route,
+} from "react-router-dom";
+
 
 import HomePage from "./pages/Home";
 import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
 
+
 import LoveRomancePage from "./pages/Collections/pages/LoveRomance/LoveRomancePage";
+
 import FamilyMemoriesPage from "./pages/Collections/pages/FamilyMemories/FamilyMemoriesPage";
+
 import BusinessBrandingPage from "./pages/Collections/pages/BusinessBranding/BusinessBrandingPage";
+
 import SpecialOccasionsPage from "./pages/Collections/pages/SpecialOccasions/SpecialOccasionsPage";
 
+
 import LoginPage from "./pages/Login/Login";
+
 import RegisterPage from "./pages/Register/Register";
+
 import AccountPage from "./pages/Account/Account";
+
+import FavoritesPage from "./pages/Account/Favorites";
+
 import ReviewsPage from "./pages/Account/Reviews";
+
 import CreateReviewPage from "./pages/Account/CreateReview";
 
+
 import CustomizePage from "./pages/Customize";
+
 import ContactPage from "./pages/Contact";
+
 import AboutPage from "./pages/About";
+
 
 import HowItWorksPage from "./components/home/HowItWorks/HowItWorksPage";
 
+
 import CartPage from "./pages/Cart";
+
 import CheckoutPage from "./pages/Checkout";
 
+
 import ShippingReturnsPage from "./pages/ShippingReturns";
+
 import FAQPage from "./pages/FAQ";
+
 import TrackOrderPage from "./pages/TrackOrder";
 
+
 import PrivacyPage from "./pages/Privacy";
+
 import TermsOfServicePage from "./pages/TermsOfService";
 
+
 import ForgotPasswordPage from "./pages/ForgotPassword/ForgotPassword";
+
 
 function App() {
 
@@ -52,6 +81,7 @@ function App() {
         <BrowserRouter>
 
             <Routes>
+
 
                 {/* ==================================================
                     HOME
@@ -62,6 +92,7 @@ function App() {
                     element={<HomePage />}
                 />
 
+
                 {/* ==================================================
                     AUTHENTICATION
                    ================================================== */}
@@ -71,17 +102,20 @@ function App() {
                     element={<LoginPage />}
                 />
 
+
                 <Route
                     path="/register"
                     element={<RegisterPage />}
                 />
 
+
                 <Route
                     path="/forgot-password"
-                    element={<ForgotPasswordPage />}
+                    element={
+                        <ForgotPasswordPage />
+                    }
                 />
-                
-                
+
 
                 {/* ==================================================
                     ACCOUNT
@@ -91,16 +125,27 @@ function App() {
                     path="/account"
                     element={<AccountPage />}
                 />
-                
-                <Route
-    path="/account/reviews"
-    element={<ReviewsPage />}
-/>
 
-<Route
-    path="/account/reviews/create"
-    element={<CreateReviewPage />}
-/>
+
+                <Route
+                    path="/account/favorites"
+                    element={<FavoritesPage />}
+                />
+
+
+                <Route
+                    path="/account/reviews"
+                    element={<ReviewsPage />}
+                />
+
+
+                <Route
+                    path="/account/reviews/create"
+                    element={
+                        <CreateReviewPage />
+                    }
+                />
+
 
                 {/* ==================================================
                     PRODUCTS
@@ -111,6 +156,7 @@ function App() {
                     element={<ProductsPage />}
                 />
 
+
                 {/* ==================================================
                     COLLECTIONS
                    ================================================== */}
@@ -120,25 +166,36 @@ function App() {
                     element={<CollectionsPage />}
                 />
 
+
                 <Route
                     path="/collections/love-romance"
                     element={<LoveRomancePage />}
                 />
 
+
                 <Route
                     path="/collections/family-memories"
-                    element={<FamilyMemoriesPage />}
+                    element={
+                        <FamilyMemoriesPage />
+                    }
                 />
+
 
                 <Route
                     path="/collections/business-branding"
-                    element={<BusinessBrandingPage />}
+                    element={
+                        <BusinessBrandingPage />
+                    }
                 />
+
 
                 <Route
                     path="/collections/special-occasions"
-                    element={<SpecialOccasionsPage />}
+                    element={
+                        <SpecialOccasionsPage />
+                    }
                 />
+
 
                 {/* ==================================================
                     CUSTOMIZE
@@ -149,24 +206,30 @@ function App() {
                     element={<CustomizePage />}
                 />
 
+
                 {/* ==================================================
                     INFORMATION
                    ================================================== */}
 
                 <Route
                     path="/how-it-works"
-                    element={<HowItWorksPage />}
+                    element={
+                        <HowItWorksPage />
+                    }
                 />
+
 
                 <Route
                     path="/contact"
                     element={<ContactPage />}
                 />
 
+
                 <Route
                     path="/about"
                     element={<AboutPage />}
                 />
+
 
                 {/* ==================================================
                     SHOPPING
@@ -177,10 +240,12 @@ function App() {
                     element={<CartPage />}
                 />
 
+
                 <Route
                     path="/checkout"
                     element={<CheckoutPage />}
                 />
+
 
                 {/* ==================================================
                     SUPPORT
@@ -188,18 +253,23 @@ function App() {
 
                 <Route
                     path="/shipping-returns"
-                    element={<ShippingReturnsPage />}
+                    element={
+                        <ShippingReturnsPage />
+                    }
                 />
+
 
                 <Route
                     path="/faqs"
                     element={<FAQPage />}
                 />
 
+
                 <Route
                     path="/track-order"
                     element={<TrackOrderPage />}
                 />
+
 
                 {/* ==================================================
                     LEGAL
@@ -210,15 +280,22 @@ function App() {
                     element={<PrivacyPage />}
                 />
 
+
                 <Route
                     path="/terms-of-service"
-                    element={<TermsOfServicePage />}
+                    element={
+                        <TermsOfServicePage />
+                    }
                 />
+
 
             </Routes>
 
         </BrowserRouter>
+
     );
+
 }
+
 
 export default App;
