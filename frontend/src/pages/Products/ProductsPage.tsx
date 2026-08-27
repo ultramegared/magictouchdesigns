@@ -335,18 +335,6 @@ function ProductsPage() {
     |--------------------------------------------------------------------------
     */
 
-    /*
-     * Stores:
-     *
-     * design_id -> favorite.id
-     *
-     * Example:
-     *
-     * {
-     *     "1": "favorite-uuid",
-     *     "2": "another-favorite-uuid"
-     * }
-     */
     const [
         favorites,
         setFavorites,
@@ -412,10 +400,6 @@ function ProductsPage() {
                     );
 
 
-                /*
-                 * User is not logged in.
-                 * Favorites remain empty.
-                 */
                 if (!token) {
 
                     setFavorites(
@@ -752,9 +736,6 @@ function ProductsPage() {
             );
 
 
-        /*
-         * User must be logged in.
-         */
         if (!token) {
 
             navigate(
@@ -772,10 +753,6 @@ function ProductsPage() {
             );
 
 
-        /*
-         * Prevent multiple requests
-         * for the same product.
-         */
         if (
             savingFavoriteId ===
             productId
@@ -895,12 +872,6 @@ function ProductsPage() {
                 ) as CreateFavoriteResponse;
 
 
-            /*
-             * Save the database favorite ID.
-             *
-             * This is necessary because DELETE
-             * requires favorite.id.
-             */
             if (
                 response.favorite
             ) {
@@ -951,10 +922,7 @@ function ProductsPage() {
                 className="products-page"
             >
 
-
-                {/* ==================================================
-                    HERO
-                   ================================================== */}
+                {/* HERO */}
 
                 <section
                     className="products-hero"
@@ -996,14 +964,11 @@ function ProductsPage() {
                 </section>
 
 
-                {/* ==================================================
-                    CATALOG
-                   ================================================== */}
+                {/* CATALOG */}
 
                 <section
                     className="products-catalog"
                 >
-
 
                     {/* SEARCH */}
 
@@ -1026,7 +991,6 @@ function ProductsPage() {
                                 setSearchTerm(
                                     event.target.value
                                 );
-
 
                                 setCurrentPage(
                                     1
@@ -1067,7 +1031,6 @@ function ProductsPage() {
                                     "All"
                                 );
 
-
                                 setCurrentPage(
                                     1
                                 );
@@ -1092,7 +1055,6 @@ function ProductsPage() {
                                 setCategory(
                                     "Mug"
                                 );
-
 
                                 setCurrentPage(
                                     1
@@ -1123,7 +1085,6 @@ function ProductsPage() {
                                     "Tumbler"
                                 );
 
-
                                 setCurrentPage(
                                     1
                                 );
@@ -1149,22 +1110,20 @@ function ProductsPage() {
                     >
 
                         <button
+                            type="button"
                             className={
                                 category === "All"
                                     ? (
                                         "products-filter " +
                                         "products-filter--active"
                                     )
-                                    : (
-                                        "products-filter"
-                                    )
+                                    : "products-filter"
                             }
                             onClick={() => {
 
                                 setCategory(
                                     "All"
                                 );
-
 
                                 setCurrentPage(
                                     1
@@ -1188,7 +1147,6 @@ function ProductsPage() {
                                     event.target.value
                                 );
 
-
                                 setCurrentPage(
                                     1
                                 );
@@ -1202,7 +1160,6 @@ function ProductsPage() {
 
                             </option>
 
-
                             <option value="Mug">
 
                                 {
@@ -1212,7 +1169,6 @@ function ProductsPage() {
                                 }
 
                             </option>
-
 
                             <option value="Tumbler">
 
@@ -1237,7 +1193,6 @@ function ProductsPage() {
                                     event.target.value
                                 );
 
-
                                 setCurrentPage(
                                     1
                                 );
@@ -1251,7 +1206,6 @@ function ProductsPage() {
 
                             </option>
 
-
                             <option value="Classic">
 
                                 {
@@ -1262,7 +1216,6 @@ function ProductsPage() {
 
                             </option>
 
-
                             <option value="Marble">
 
                                 {
@@ -1272,7 +1225,6 @@ function ProductsPage() {
                                 }
 
                             </option>
-
 
                             <option value="Premium">
 
@@ -1297,7 +1249,6 @@ function ProductsPage() {
                                     event.target.value
                                 );
 
-
                                 setCurrentPage(
                                     1
                                 );
@@ -1311,7 +1262,6 @@ function ProductsPage() {
 
                             </option>
 
-
                             <option value="Black">
 
                                 {
@@ -1321,7 +1271,6 @@ function ProductsPage() {
                                 }
 
                             </option>
-
 
                             <option value="White">
 
@@ -1333,7 +1282,6 @@ function ProductsPage() {
 
                             </option>
 
-
                             <option value="Pink">
 
                                 {
@@ -1343,7 +1291,6 @@ function ProductsPage() {
                                 }
 
                             </option>
-
 
                             <option value="Gold">
 
@@ -1368,7 +1315,6 @@ function ProductsPage() {
                                     event.target.value
                                 );
 
-
                                 setCurrentPage(
                                     1
                                 );
@@ -1382,20 +1328,17 @@ function ProductsPage() {
 
                             </option>
 
-
                             <option value="11 oz">
 
                                 11 oz
 
                             </option>
 
-
                             <option value="15 oz">
 
                                 15 oz
 
                             </option>
-
 
                             <option value="20 oz">
 
@@ -1430,7 +1373,6 @@ function ProductsPage() {
                                         event.target.value
                                     );
 
-
                                     setCurrentPage(
                                         1
                                     );
@@ -1444,20 +1386,17 @@ function ProductsPage() {
 
                                 </option>
 
-
                                 <option value="Price Low">
 
                                     {t.sort.priceLow}
 
                                 </option>
 
-
                                 <option value="Price High">
 
                                     {t.sort.priceHigh}
 
                                 </option>
-
 
                                 <option value="Rating">
 
@@ -1903,6 +1842,7 @@ function ProductsPage() {
                     >
 
                         <button
+                            type="button"
                             disabled={
                                 currentPage ===
                                 1
@@ -1940,6 +1880,7 @@ function ProductsPage() {
                             (page) => (
 
                                 <button
+                                    type="button"
                                     key={page}
                                     className={
                                         currentPage ===
@@ -1963,6 +1904,7 @@ function ProductsPage() {
 
 
                         <button
+                            type="button"
                             disabled={
                                 currentPage ===
                                 totalPages
@@ -2090,7 +2032,7 @@ function ProductsPage() {
                                         .description
                                 }
 
-                            </strong>
+                            </span>
 
                         </div>
 
