@@ -4,7 +4,7 @@
  * Project: Magic Touch Designs
  * File: CreateReview.tsx
  * Module: Account Reviews Page
- * Language: TypeScript
+ * Language: TypeScript React
  * Description:
  * Allows an authenticated user to create a new review.
  * ================================================================
@@ -30,6 +30,9 @@ import {
     Star,
 } from "lucide-react";
 
+import Header from "../../components/layout/Header";
+import Footer from "../../components/home/Footer";
+
 import {
     apiRequest,
 } from "../../services/api";
@@ -37,7 +40,7 @@ import {
 import "./CreateReview.css";
 
 
-const CreateReview = () => {
+function CreateReview() {
 
     const navigate =
         useNavigate();
@@ -76,7 +79,9 @@ const CreateReview = () => {
 
 
         if (!file) {
+
             return;
+
         }
 
 
@@ -98,9 +103,7 @@ const CreateReview = () => {
         event.preventDefault();
 
 
-        if (
-            !review.trim()
-        ) {
+        if (!review.trim()) {
 
             setErrorMessage(
                 "Please write your review."
@@ -172,272 +175,300 @@ const CreateReview = () => {
 
     return (
 
-        <main className="create-review-page">
+        <>
 
-            <div className="create-review-container">
+            <Header />
 
 
-                <Link
-                    to="/account/reviews"
-                    className="create-review-back"
-                >
+            <main className="create-review-page">
 
-                    <ArrowLeft size={22} />
+                <div className="create-review-container">
 
-                    <span>
-                        Back to reviews
-                    </span>
 
-                </Link>
+                    <Link
+                        to="/account/reviews"
+                        className="create-review-back"
+                    >
 
+                        <ArrowLeft size={22} />
 
-                <section className="create-review-header">
+                        <span>
+                            Back to reviews
+                        </span>
 
-                    <div className="create-review-icon">
+                    </Link>
 
-                        <Star size={30} />
 
-                    </div>
+                    <section className="create-review-header">
 
+                        <div className="create-review-icon">
 
-                    <p className="create-review-eyebrow">
+                            <Star size={30} />
 
-                        WRITE A REVIEW
+                        </div>
 
-                    </p>
 
+                        <p className="create-review-eyebrow">
 
-                    <h1>
-
-                        Share your experience
-
-                    </h1>
-
-
-                    <p>
-
-                        Tell us about your experience
-                        with Magic Touch Designs.
-
-                    </p>
-
-                </section>
-
-
-                <form
-                    className="create-review-form"
-                    onSubmit={handleSubmit}
-                >
-
-
-                    <div className="create-review-field">
-
-                        <label htmlFor="review-image">
-
-                            Your photo
-
-                        </label>
-
-
-                        <label
-                            htmlFor="review-image"
-                            className="create-review-upload"
-                        >
-
-                            {imagePreview ? (
-
-                                <img
-                                    src={imagePreview}
-                                    alt="Review preview"
-                                    className="create-review-preview"
-                                />
-
-                            ) : (
-
-                                <div className="create-review-upload-content">
-
-                                    <Camera size={32} />
-
-                                    <span>
-                                        Upload a photo
-                                    </span>
-
-                                    <small>
-                                        Photo upload coming soon
-                                    </small>
-
-                                </div>
-
-                            )}
-
-                        </label>
-
-
-                        <input
-                            id="review-image"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="create-review-file"
-                        />
-
-                    </div>
-
-
-                    <div className="create-review-field">
-
-                        <label htmlFor="review">
-
-                            Your review
-
-                        </label>
-
-
-                        <textarea
-                            id="review"
-                            value={review}
-                            onChange={(event) =>
-                                setReview(
-                                    event.target.value
-                                )
-                            }
-                            placeholder={
-                                "Tell us about your experience..."
-                            }
-                            rows={6}
-                            required
-                        />
-
-                    </div>
-
-
-                    <div className="create-review-field">
-
-                        <label htmlFor="social-platform">
-
-                            Social platform
-
-                        </label>
-
-
-                        <select
-                            id="social-platform"
-                            value={socialPlatform}
-                            onChange={(event) =>
-                                setSocialPlatform(
-                                    event.target.value
-                                )
-                            }
-                        >
-
-                            <option value="">
-
-                                Select a platform
-
-                            </option>
-
-                            <option value="instagram">
-
-                                Instagram
-
-                            </option>
-
-                            <option value="facebook">
-
-                                Facebook
-
-                            </option>
-
-                            <option value="tiktok">
-
-                                TikTok
-
-                            </option>
-
-                            <option value="youtube">
-
-                                YouTube
-
-                            </option>
-
-                            <option value="x">
-
-                                X
-
-                            </option>
-
-                            <option value="other">
-
-                                Other
-
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div className="create-review-field">
-
-                        <label htmlFor="social-url">
-
-                            Social profile link
-
-                        </label>
-
-
-                        <input
-                            id="social-url"
-                            type="url"
-                            value={socialUrl}
-                            onChange={(event) =>
-                                setSocialUrl(
-                                    event.target.value
-                                )
-                            }
-                            placeholder={
-                                "https://..."
-                            }
-                        />
-
-                    </div>
-
-
-                    {errorMessage && (
-
-                        <p
-                            className="create-review-error"
-                        >
-
-                            {errorMessage}
+                            WRITE A REVIEW
 
                         </p>
 
-                    )}
+
+                        <h1>
+
+                            Share your experience
+
+                        </h1>
 
 
-                    <button
-                        type="submit"
-                        className="create-review-submit"
-                        disabled={isSubmitting}
+                        <p>
+
+                            Tell us about your experience
+                            with Magic Touch Designs.
+
+                        </p>
+
+                    </section>
+
+
+                    <form
+                        className="create-review-form"
+                        onSubmit={handleSubmit}
                     >
 
-                        {isSubmitting
-                            ? "Submitting..."
-                            : "Submit review"}
 
-                    </button>
+                        {/* ==================================================
+                            PHOTO
+                           ================================================== */}
+
+                        <div className="create-review-field">
+
+                            <label htmlFor="review-image">
+
+                                Your photo
+
+                            </label>
 
 
-                </form>
+                            <label
+                                htmlFor="review-image"
+                                className="create-review-upload"
+                            >
 
-            </div>
+                                {imagePreview ? (
 
-        </main>
+                                    <img
+                                        src={imagePreview}
+                                        alt="Review preview"
+                                        className="create-review-preview"
+                                    />
+
+                                ) : (
+
+                                    <div className="create-review-upload-content">
+
+                                        <Camera size={32} />
+
+                                        <span>
+                                            Upload a photo
+                                        </span>
+
+                                        <small>
+                                            Photo upload coming soon
+                                        </small>
+
+                                    </div>
+
+                                )}
+
+                            </label>
+
+
+                            <input
+                                id="review-image"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="create-review-file"
+                            />
+
+                        </div>
+
+
+                        {/* ==================================================
+                            REVIEW
+                           ================================================== */}
+
+                        <div className="create-review-field">
+
+                            <label htmlFor="review">
+
+                                Your review
+
+                            </label>
+
+
+                            <textarea
+                                id="review"
+                                value={review}
+                                onChange={(event) =>
+                                    setReview(
+                                        event.target.value
+                                    )
+                                }
+                                placeholder={
+                                    "Tell us about your experience..."
+                                }
+                                rows={6}
+                                required
+                            />
+
+                        </div>
+
+
+                        {/* ==================================================
+                            SOCIAL PLATFORM
+                           ================================================== */}
+
+                        <div className="create-review-field">
+
+                            <label htmlFor="social-platform">
+
+                                Social platform
+
+                            </label>
+
+
+                            <select
+                                id="social-platform"
+                                value={socialPlatform}
+                                onChange={(event) =>
+                                    setSocialPlatform(
+                                        event.target.value
+                                    )
+                                }
+                            >
+
+                                <option value="">
+
+                                    Select a platform
+
+                                </option>
+
+                                <option value="instagram">
+
+                                    Instagram
+
+                                </option>
+
+                                <option value="facebook">
+
+                                    Facebook
+
+                                </option>
+
+                                <option value="tiktok">
+
+                                    TikTok
+
+                                </option>
+
+                                <option value="youtube">
+
+                                    YouTube
+
+                                </option>
+
+                                <option value="x">
+
+                                    X
+
+                                </option>
+
+                                <option value="other">
+
+                                    Other
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        {/* ==================================================
+                            SOCIAL URL
+                           ================================================== */}
+
+                        <div className="create-review-field">
+
+                            <label htmlFor="social-url">
+
+                                Social profile link
+
+                            </label>
+
+
+                            <input
+                                id="social-url"
+                                type="url"
+                                value={socialUrl}
+                                onChange={(event) =>
+                                    setSocialUrl(
+                                        event.target.value
+                                    )
+                                }
+                                placeholder="https://..."
+                            />
+
+                        </div>
+
+
+                        {errorMessage && (
+
+                            <p
+                                className="create-review-error"
+                            >
+
+                                {errorMessage}
+
+                            </p>
+
+                        )}
+
+
+                        {/* ==================================================
+                            SUBMIT
+                           ================================================== */}
+
+                        <button
+                            type="submit"
+                            className="create-review-submit"
+                            disabled={isSubmitting}
+                        >
+
+                            {isSubmitting
+                                ? "Submitting..."
+                                : "Submit review"}
+
+                        </button>
+
+
+                    </form>
+
+                </div>
+
+            </main>
+
+
+            <Footer />
+
+        </>
 
     );
 
-};
+}
 
 
 export default CreateReview;

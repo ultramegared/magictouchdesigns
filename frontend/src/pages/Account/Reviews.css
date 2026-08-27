@@ -6,236 +6,711 @@
  * Module: Account Reviews Styles
  * Language: CSS
  * Description:
- * Styles for the user reviews page.
+ * Premium styles for the authenticated user's reviews page.
  * ================================================================
  */
 
+
+/* ================================================================
+   PAGE
+   ================================================================ */
+
 .reviews-page {
+
+    position: relative;
+
     min-height: 100vh;
+
+    min-height: 100dvh;
+
     padding: 120px 20px 80px;
-}
 
-.reviews-container {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.reviews-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-
-    margin-bottom: 40px;
-
-    color: #d4af37;
-    text-decoration: none;
-
-    transition: opacity 0.2s ease;
-}
-
-.reviews-back:hover {
-    opacity: 0.8;
-}
-
-.reviews-header {
-    margin-bottom: 40px;
-}
-
-.reviews-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 70px;
-    height: 70px;
-
-    margin-bottom: 25px;
-
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    border-radius: 18px;
-
-    color: #d4af37;
+    overflow: hidden;
 
     background:
-        rgba(212, 175, 55, 0.08);
-}
+        radial-gradient(
+            ellipse at 50% 5%,
+            rgba(242, 207, 132, 0.12),
+            transparent 38%
+        ),
+        radial-gradient(
+            ellipse at 10% 80%,
+            rgba(30, 76, 111, 0.20),
+            transparent 45%
+        ),
+        radial-gradient(
+            ellipse at 90% 70%,
+            rgba(222, 183, 95, 0.08),
+            transparent 42%
+        ),
+        linear-gradient(
+            145deg,
+            #020304 0%,
+            #07111a 48%,
+            #030405 100%
+        );
 
-.reviews-eyebrow {
-    margin-bottom: 12px;
-
-    color: #d4af37;
-
-    font-size: 13px;
-    font-weight: 700;
-
-    letter-spacing: 4px;
-}
-
-.reviews-header h1 {
-    margin: 0 0 15px;
-
-    color: #ffffff;
-
-    font-size: clamp(
-        36px,
-        6vw,
-        56px
-    );
-}
-
-.reviews-header p {
-    max-width: 600px;
-
-    color: rgba(255, 255, 255, 0.65);
-
-    font-size: 17px;
-    line-height: 1.6;
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| Create Review Button
-|--------------------------------------------------------------------------
-*/
+/* ================================================================
+   CONTAINER
+   ================================================================ */
 
-.reviews-create-button {
+.reviews-container {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: min(100%, 980px);
+
+    margin: 0 auto;
+
+}
+
+
+/* ================================================================
+   BACK BUTTON
+   ================================================================ */
+
+.reviews-back {
+
     display: inline-flex;
+
     align-items: center;
-    justify-content: center;
+
     gap: 10px;
 
-    margin-top: 25px;
-    padding: 14px 22px;
+    margin-bottom: 30px;
 
-    border: 1px solid #d4af37;
-    border-radius: 12px;
+    padding: 10px 0;
 
-    color: #111111;
-    background: #d4af37;
+    color: #dfbb70;
 
-    font-size: 15px;
+    font-size: 0.9rem;
+
     font-weight: 700;
 
     text-decoration: none;
 
     transition:
-        transform 0.2s ease,
-        opacity 0.2s ease;
-}
+        color 0.25s ease,
+        transform 0.25s ease;
 
-.reviews-create-button:hover {
-    transform: translateY(-2px);
-    opacity: 0.9;
 }
 
 
-.reviews-content {
-    padding: 40px;
+.reviews-back:hover {
+
+    color: #ffe0a0;
+
+    transform:
+        translateX(-3px);
+
+}
+
+
+/* ================================================================
+   MAIN CARD
+   ================================================================ */
+
+.reviews-container {
+
+    padding: 42px;
 
     border:
         1px solid
-        rgba(212, 175, 55, 0.35);
+        rgba(229, 193, 111, 0.60);
 
-    border-radius: 24px;
+    border-radius: 28px;
 
     background:
-        rgba(255, 255, 255, 0.03);
+
+        radial-gradient(
+            ellipse at 50% 0%,
+            rgba(255, 232, 177, 0.10),
+            transparent 42%
+        ),
+
+        radial-gradient(
+            ellipse at 0% 100%,
+            rgba(36, 81, 116, 0.16),
+            transparent 45%
+        ),
+
+        linear-gradient(
+            145deg,
+            #090b0e 0%,
+            #101b24 50%,
+            #07090b 100%
+        );
+
+    box-shadow:
+
+        0 35px 85px
+        rgba(0, 0, 0, 0.72),
+
+        0 0 35px
+        rgba(222, 181, 92, 0.10),
+
+        inset 0 1px 0
+        rgba(255, 246, 219, 0.14);
+
 }
 
-.reviews-empty {
+
+/* ================================================================
+   HEADER
+   ================================================================ */
+
+.reviews-header {
+
+    margin-bottom: 34px;
+
+}
+
+
+.reviews-icon {
+
     display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 64px;
+
+    height: 64px;
+
+    margin-bottom: 22px;
+
+    border:
+        1px solid
+        rgba(229, 193, 111, 0.60);
+
+    border-radius: 18px;
+
+    color: #dfbb70;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.08),
+            rgba(0, 0, 0, 0.30)
+        );
+
+    box-shadow:
+
+        0 0 22px
+        rgba(222, 181, 92, 0.08),
+
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.08);
+
+}
+
+
+.reviews-eyebrow {
+
+    margin: 0 0 10px;
+
+    color: #e2bc6c;
+
+    font-size: 0.68rem;
+
+    font-weight: 800;
+
+    letter-spacing: 0.24em;
+
+}
+
+
+.reviews-header h1 {
+
+    margin: 0 0 12px;
+
+    color: #fffdf8;
+
+    font-size:
+        clamp(
+            2rem,
+            5vw,
+            3rem
+        );
+
+    font-weight: 800;
+
+    line-height: 1.05;
+
+    letter-spacing: -0.025em;
+
+}
+
+
+.reviews-header p {
+
+    max-width: 600px;
+
+    margin: 0;
+
+    color: #aeb7bf;
+
+    font-size: 0.92rem;
+
+    line-height: 1.6;
+
+}
+
+
+/* ================================================================
+   CREATE REVIEW BUTTON
+   ================================================================ */
+
+.reviews-create-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-top: 25px;
+
+    padding: 15px 24px;
+
+    border:
+        1px solid
+        #f7dc9d;
+
+    border-radius: 12px;
+
+    color: #101010;
+
+    font-size: 0.82rem;
+
+    font-weight: 800;
+
+    letter-spacing: 0.04em;
+
+    text-decoration: none;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #fff0bd 0%,
+            #f0ce81 26%,
+            #d4a44b 52%,
+            #f1d087 78%,
+            #fff0ba 100%
+        );
+
+    box-shadow:
+
+        0 10px 26px
+        rgba(205, 159, 61, 0.24),
+
+        inset 0 2px 0
+        rgba(255, 255, 255, 0.70);
+
+    transition:
+
+        transform 0.25s ease,
+
+        box-shadow 0.25s ease,
+
+        filter 0.25s ease;
+
+}
+
+
+.reviews-create-button:hover {
+
+    transform:
+        translateY(-3px);
+
+    filter:
+        brightness(1.06);
+
+    box-shadow:
+
+        0 15px 30px
+        rgba(215, 170, 74, 0.32),
+
+        0 0 28px
+        rgba(242, 207, 132, 0.18);
+
+}
+
+
+/* ================================================================
+   CONTENT
+   ================================================================ */
+
+.reviews-content {
+
+    padding: 30px;
+
+    border:
+        1px solid
+        rgba(218, 181, 99, 0.25);
+
+    border-radius: 20px;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(0, 0, 0, 0.26)
+        );
+
+    box-shadow:
+
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.04);
+
+}
+
+
+/* ================================================================
+   EMPTY / LOADING / ERROR
+   ================================================================ */
+
+.reviews-empty {
+
+    display: flex;
+
     flex-direction: column;
+
     align-items: center;
 
     padding: 60px 20px;
 
     text-align: center;
+
 }
+
 
 .reviews-empty-icon {
-    margin-bottom: 20px;
 
-    color: #d4af37;
+    margin-bottom: 18px;
+
+    color: #dfbb70;
+
+    filter:
+
+        drop-shadow(
+            0 0 10px
+            rgba(223, 187, 112, 0.30)
+        );
+
 }
+
 
 .reviews-empty h2 {
-    margin-bottom: 12px;
 
-    color: #ffffff;
+    margin: 0 0 10px;
+
+    color: #fffdf8;
+
+    font-size: 1.2rem;
+
+    font-weight: 800;
+
 }
+
 
 .reviews-empty p {
+
+    max-width: 480px;
+
     margin: 0;
 
-    color:
-        rgba(255, 255, 255, 0.6);
+    color: #9da7af;
+
+    font-size: 0.88rem;
+
+    line-height: 1.6;
+
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| Reviews List
-|--------------------------------------------------------------------------
-*/
+/* ================================================================
+   REVIEWS LIST
+   ================================================================ */
 
 .reviews-list {
+
     display: grid;
-    gap: 20px;
+
+    gap: 16px;
+
 }
 
+
+/* ================================================================
+   REVIEW CARD
+   ================================================================ */
+
 .review-card {
-    padding: 25px;
+
+    padding: 24px;
 
     border:
         1px solid
-        rgba(212, 175, 55, 0.2);
+        rgba(218, 181, 99, 0.22);
 
     border-radius: 18px;
 
     background:
-        rgba(255, 255, 255, 0.02);
+
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(0, 0, 0, 0.30)
+        );
+
+    box-shadow:
+
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.04);
+
+    transition:
+
+        transform 0.25s ease,
+
+        border-color 0.25s ease,
+
+        box-shadow 0.25s ease;
+
 }
+
+
+.review-card:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        rgba(229, 193, 111, 0.55);
+
+    box-shadow:
+
+        0 14px 30px
+        rgba(0, 0, 0, 0.25),
+
+        0 0 20px
+        rgba(222, 181, 92, 0.06);
+
+}
+
+
+/* ================================================================
+   REVIEW CARD HEADER
+   ================================================================ */
 
 .review-card-header {
+
     display: flex;
+
     align-items: center;
+
     gap: 10px;
 
-    margin-bottom: 15px;
+    margin-bottom: 14px;
 
-    color: #d4af37;
+    color: #dfbb70;
 
-    font-weight: 700;
+    font-size: 0.88rem;
+
+    font-weight: 800;
+
 }
+
+
+/* ================================================================
+   REVIEW TEXT
+   ================================================================ */
 
 .review-card-text {
+
     margin: 0;
 
-    color:
-        rgba(255, 255, 255, 0.75);
+    color: #c4cbd1;
 
-    line-height: 1.6;
+    font-size: 0.9rem;
+
+    line-height: 1.7;
+
 }
 
 
-@media (
-    max-width: 600px
-) {
+/* ================================================================
+   REVIEW STATUS
+   ================================================================ */
+
+.review-card-status {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    margin-top: 18px;
+
+    padding: 7px 12px;
+
+    border:
+        1px solid
+        rgba(223, 187, 112, 0.28);
+
+    border-radius: 999px;
+
+    color: #dfbb70;
+
+    font-size: 0.72rem;
+
+    font-weight: 800;
+
+    background:
+        rgba(216, 173, 82, 0.08);
+
+}
+
+
+/* ================================================================
+   TABLET
+   ================================================================ */
+
+@media (max-width: 768px) {
 
     .reviews-page {
+
         padding:
-            100px 16px
+            105px
+            16px
             60px;
+
     }
+
+
+    .reviews-container {
+
+        padding: 30px 22px;
+
+    }
+
 
     .reviews-content {
-        padding: 25px 20px;
+
+        padding: 24px;
+
     }
 
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 576px) {
+
+    .reviews-page {
+
+        padding:
+            94px
+            12px
+            40px;
+
+    }
+
+
+    .reviews-container {
+
+        padding: 28px 18px;
+
+        border-radius: 23px;
+
+    }
+
+
+    .reviews-back {
+
+        margin-bottom: 24px;
+
+        font-size: 0.82rem;
+
+    }
+
+
+    .reviews-header {
+
+        margin-bottom: 28px;
+
+    }
+
+
+    .reviews-icon {
+
+        width: 58px;
+
+        height: 58px;
+
+        margin-bottom: 18px;
+
+    }
+
+
+    .reviews-header h1 {
+
+        font-size: 2rem;
+
+    }
+
+
+    .reviews-header p {
+
+        font-size: 0.84rem;
+
+    }
+
+
     .reviews-create-button {
+
         width: 100%;
+
+        min-height: 52px;
+
+    }
+
+
+    .reviews-content {
+
+        padding: 20px 16px;
+
+        border-radius: 17px;
+
+    }
+
+
+    .reviews-empty {
+
+        padding: 45px 12px;
+
+    }
+
+
+    .review-card {
+
+        padding: 20px 17px;
+
+        border-radius: 16px;
+
     }
 
 }
