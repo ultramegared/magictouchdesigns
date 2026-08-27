@@ -11,7 +11,11 @@
  */
 
 import { Link } from "react-router-dom";
-import { ArrowLeft, Star } from "lucide-react";
+import {
+    ArrowLeft,
+    Star,
+    Plus,
+} from "lucide-react";
 
 import "./Reviews.css";
 
@@ -50,6 +54,17 @@ const Reviews = () => {
                         Share and manage your experiences
                         with Magic Touch Designs.
                     </p>
+
+                    <Link
+                        to="/account/reviews/create"
+                        className="reviews-create-button"
+                    >
+                        <Plus size={20} />
+
+                        <span>
+                            Write a review
+                        </span>
+                    </Link>
 
                 </section>
 

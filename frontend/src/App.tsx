@@ -25,6 +25,7 @@ import LoginPage from "./pages/Login/Login";
 import RegisterPage from "./pages/Register/Register";
 import AccountPage from "./pages/Account/Account";
 import ReviewsPage from "./pages/Account/Reviews";
+import CreateReviewPage from "./pages/Account/CreateReview";
 
 import CustomizePage from "./pages/Customize";
 import ContactPage from "./pages/Contact";
@@ -79,6 +80,8 @@ function App() {
                     path="/forgot-password"
                     element={<ForgotPasswordPage />}
                 />
+                
+                
 
                 {/* ==================================================
                     ACCOUNT
@@ -92,6 +95,11 @@ function App() {
                 <Route
     path="/account/reviews"
     element={<ReviewsPage />}
+/>
+
+<Route
+    path="/account/reviews/create"
+    element={<CreateReviewPage />}
 />
 
                 {/* ==================================================
