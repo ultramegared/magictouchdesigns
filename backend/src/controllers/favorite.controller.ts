@@ -23,6 +23,12 @@ import {
 } from "../services/favorite.service";
 
 
+/*
+|--------------------------------------------------------------------------
+| Types
+|--------------------------------------------------------------------------
+*/
+
 interface AuthenticatedRequest
     extends Request {
 
@@ -30,6 +36,13 @@ interface AuthenticatedRequest
         userId: string;
         username: string;
     };
+
+}
+
+
+interface CreateFavoriteBody {
+
+    design_id?: string | number;
 
 }
 
@@ -43,11 +56,13 @@ interface AuthenticatedRequest
 /**
  * Add a design to the
  * authenticated user's favorites.
+ *
+ * POST /api/favorites
  */
 export const create = async (
     req: AuthenticatedRequest,
     res: Response
-) => {
+): Promise<void> => {
 
     try {
 
@@ -57,12 +72,18 @@ export const create = async (
 
         const {
             design_id,
-        } = req.body;
+        } = req.body as CreateFavoriteBody;
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Authentication
+        |--------------------------------------------------------------------------
+        */
 
         if (!userId) {
 
-            return res.status(401).json({
+            res.status(401).json({
 
                 status: "error",
 
@@ -71,12 +92,24 @@ export const create = async (
 
             });
 
+            return;
+
         }
 
 
-        if (!design_id) {
+        /*
+        |--------------------------------------------------------------------------
+        | Validation
+        |--------------------------------------------------------------------------
+        */
 
-            return res.status(400).json({
+        if (
+            design_id === undefined ||
+            design_id === null ||
+            String(design_id).trim() === ""
+        ) {
+
+            res.status(400).json({
 
                 status: "error",
 
@@ -85,17 +118,40 @@ export const create = async (
 
             });
 
+            return;
+
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Normalize Design ID
+        |--------------------------------------------------------------------------
+        */
+
+        const normalizedDesignId =
+            String(
+                design_id
+            ).trim();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create Favorite
+        |--------------------------------------------------------------------------
+        */
+
         const favorite =
             await createFavorite(
+
                 userId,
-                design_id
+
+                normalizedDesignId
+
             );
 
 
-        return res.status(201).json({
+        res.status(201).json({
 
             status: "success",
 
@@ -111,7 +167,7 @@ export const create = async (
         );
 
 
-        return res.status(500).json({
+        res.status(500).json({
 
             status: "error",
 
@@ -134,11 +190,13 @@ export const create = async (
 /**
  * Get all favorites created by
  * the authenticated user.
+ *
+ * GET /api/favorites/my-favorites
  */
 export const getMine = async (
     req: AuthenticatedRequest,
     res: Response
-) => {
+): Promise<void> => {
 
     try {
 
@@ -146,9 +204,15 @@ export const getMine = async (
             req.user?.userId;
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Authentication
+        |--------------------------------------------------------------------------
+        */
+
         if (!userId) {
 
-            return res.status(401).json({
+            res.status(401).json({
 
                 status: "error",
 
@@ -157,8 +221,16 @@ export const getMine = async (
 
             });
 
+            return;
+
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get Favorites
+        |--------------------------------------------------------------------------
+        */
 
         const favorites =
             await getUserFavorites(
@@ -166,11 +238,12 @@ export const getMine = async (
             );
 
 
-        return res.status(200).json({
+        res.status(200).json({
 
             status: "success",
 
-            favorites,
+            favorites:
+                favorites || [],
 
         });
 
@@ -182,7 +255,7 @@ export const getMine = async (
         );
 
 
-        return res.status(500).json({
+        res.status(500).json({
 
             status: "error",
 
@@ -205,11 +278,13 @@ export const getMine = async (
 /**
  * Remove a favorite owned by
  * the authenticated user.
+ *
+ * DELETE /api/favorites/:id
  */
 export const remove = async (
     req: AuthenticatedRequest,
     res: Response
-) => {
+): Promise<void> => {
 
     try {
 
@@ -222,9 +297,15 @@ export const remove = async (
         } = req.params;
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Authentication
+        |--------------------------------------------------------------------------
+        */
+
         if (!userId) {
 
-            return res.status(401).json({
+            res.status(401).json({
 
                 status: "error",
 
@@ -233,19 +314,55 @@ export const remove = async (
 
             });
 
+            return;
+
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Validation
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !id ||
+            id.trim() === ""
+        ) {
+
+            res.status(400).json({
+
+                status: "error",
+
+                message:
+                    "Favorite ID is required.",
+
+            });
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Remove Favorite
+        |--------------------------------------------------------------------------
+        */
+
         const deletedFavorite =
             await removeFavorite(
+
                 id,
+
                 userId
+
             );
 
 
         if (!deletedFavorite) {
 
-            return res.status(404).json({
+            res.status(404).json({
 
                 status: "error",
 
@@ -254,15 +371,20 @@ export const remove = async (
 
             });
 
+            return;
+
         }
 
 
-        return res.status(200).json({
+        res.status(200).json({
 
             status: "success",
 
             message:
                 "Favorite removed successfully.",
+
+            favorite:
+                deletedFavorite,
 
         });
 
@@ -274,7 +396,7 @@ export const remove = async (
         );
 
 
-        return res.status(500).json({
+        res.status(500).json({
 
             status: "error",
 
