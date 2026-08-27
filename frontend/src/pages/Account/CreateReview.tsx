@@ -11,9 +11,12 @@
  */
 
 import {
+    useState,
+} from "react";
+
+import type {
     ChangeEvent,
     FormEvent,
-    useState,
 } from "react";
 
 import {
