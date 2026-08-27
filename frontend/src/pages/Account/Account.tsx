@@ -20,7 +20,6 @@ import {
 } from "react-router-dom";
 
 import {
-    Heart,
     Package,
     Star,
     User,
@@ -186,15 +185,6 @@ function Account() {
 
         navigate(
             "/login"
-        );
-
-    };
-
-
-    const handleFavorites = () => {
-
-        navigate(
-            "/account/favorites"
         );
 
     };
@@ -446,44 +436,6 @@ function Account() {
                                ================================================== */}
 
                             <section className="account__actions">
-
-
-                                {/* FAVORITES */}
-
-                                <button
-                                    type="button"
-                                    className="account__action"
-                                    onClick={handleFavorites}
-                                >
-
-                                    <span className="account__action-icon">
-
-                                        <Heart
-                                            size={20}
-                                            aria-hidden="true"
-                                        />
-
-                                    </span>
-
-
-                                    <span className="account__action-title">
-
-                                        {language === "es"
-                                            ? "Favoritos"
-                                            : "Favorites"}
-
-                                    </span>
-
-
-                                    <span className="account__action-description">
-
-                                        {language === "es"
-                                            ? "Tus diseños favoritos."
-                                            : "Your favorite designs."}
-
-                                    </span>
-
-                                </button>
 
 
                                 {/* PURCHASES */}

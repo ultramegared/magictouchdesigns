@@ -18,13 +18,11 @@ import {
 } from "react";
 
 import {
-    Heart,
     Search,
     X,
 } from "lucide-react";
 
 import {
-    useNavigate,
     useSearchParams,
 } from "react-router-dom";
 
@@ -36,10 +34,6 @@ import Footer from "../../components/home/Footer";
 import {
     addToCart,
 } from "../../utils/cart";
-
-import {
-    apiRequest,
-} from "../../services/api";
 
 import {
     useLanguage,
@@ -75,37 +69,6 @@ type Product = {
     badge?:
         | "NEW"
         | "BEST SELLER";
-
-};
-
-
-type Favorite = {
-
-    id: string;
-
-    user_id: string;
-
-    design_id: string;
-
-    created_at: string;
-
-};
-
-
-type FavoritesResponse = {
-
-    status: string;
-
-    favorites: Favorite[];
-
-};
-
-
-type CreateFavoriteResponse = {
-
-    status: string;
-
-    favorite: Favorite;
 
 };
 
@@ -232,10 +195,6 @@ function ProductsPage() {
         translations[language].products;
 
 
-    const navigate =
-        useNavigate();
-
-
     const [
         searchParams,
     ] = useSearchParams();
@@ -319,32 +278,6 @@ function ProductsPage() {
 
     /*
     |--------------------------------------------------------------------------
-    | Favorites
-    |--------------------------------------------------------------------------
-    */
-
-    const [
-        favorites,
-        setFavorites,
-    ] = useState<
-        Record<string, string>
-    >(
-        {}
-    );
-
-
-    const [
-        savingFavoriteId,
-        setSavingFavoriteId,
-    ] = useState<
-        string | null
-    >(
-        null
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
     | Search Params
     |--------------------------------------------------------------------------
     */
@@ -369,92 +302,6 @@ function ProductsPage() {
     }, [
         searchParams,
     ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Load Favorites
-    |--------------------------------------------------------------------------
-    */
-
-    useEffect(() => {
-
-        const loadFavorites =
-            async () => {
-
-                const token =
-                    localStorage.getItem(
-                        "auth_token"
-                    );
-
-
-                if (!token) {
-
-                    setFavorites(
-                        {}
-                    );
-
-                    return;
-
-                }
-
-
-                try {
-
-                    const response =
-                        await apiRequest<FavoritesResponse>(
-                            "/api/favorites/my-favorites",
-                            {
-                                method: "GET",
-                            }
-                        );
-
-
-                    const favoritesMap:
-                        Record<
-                            string,
-                            string
-                        > = {};
-
-
-                    (
-                        response.favorites ||
-                        []
-                    ).forEach(
-                        (
-                            favorite
-                        ) => {
-
-                            favoritesMap[
-                                String(
-                                    favorite.design_id
-                                )
-                            ] =
-                                favorite.id;
-
-                        }
-                    );
-
-
-                    setFavorites(
-                        favoritesMap
-                    );
-
-                } catch (error) {
-
-                    console.error(
-                        "Unable to load favorites:",
-                        error
-                    );
-
-                }
-
-            };
-
-
-        loadFavorites();
-
-    }, []);
 
 
     /*
@@ -694,178 +541,6 @@ function ProductsPage() {
             productsPerPage
 
         );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Toggle Favorite
-    |--------------------------------------------------------------------------
-    */
-
-    const handleFavorite = async (
-        product: Product
-    ) => {
-
-        const token =
-            localStorage.getItem(
-                "auth_token"
-            );
-
-
-        if (!token) {
-
-            navigate(
-                "/login"
-            );
-
-            return;
-
-        }
-
-
-        const productId =
-            String(
-                product.id
-            );
-
-
-        if (
-            savingFavoriteId ===
-            productId
-        ) {
-
-            return;
-
-        }
-
-
-        try {
-
-            setSavingFavoriteId(
-                productId
-            );
-
-
-            const favoriteId =
-                favorites[
-                    productId
-                ];
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Remove Favorite
-            |--------------------------------------------------------------------------
-            */
-
-            if (favoriteId) {
-
-                await apiRequest(
-
-                    `/api/favorites/${favoriteId}`,
-
-                    {
-                        method:
-                            "DELETE",
-                    }
-
-                );
-
-
-                setFavorites(
-                    (
-                        currentFavorites
-                    ) => {
-
-                        const updatedFavorites = {
-                            ...currentFavorites,
-                        };
-
-
-                        delete updatedFavorites[
-                            productId
-                        ];
-
-
-                        return updatedFavorites;
-
-                    }
-                );
-
-
-                return;
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Add Favorite
-            |--------------------------------------------------------------------------
-            */
-
-            const response =
-                await apiRequest<
-                    CreateFavoriteResponse
-                >(
-
-                    "/api/favorites",
-
-                    {
-
-                        method:
-                            "POST",
-
-                        body:
-                            JSON.stringify({
-
-                                design_id:
-                                    productId,
-
-                            }),
-
-                    }
-
-                );
-
-
-            if (
-                response.favorite
-            ) {
-
-                setFavorites(
-                    (
-                        currentFavorites
-                    ) => ({
-
-                        ...currentFavorites,
-
-                        [
-                            productId
-                        ]:
-                            response.favorite.id,
-
-                    })
-                );
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Unable to update favorite:",
-                error
-            );
-
-        } finally {
-
-            setSavingFavoriteId(
-                null
-            );
-
-        }
-
-    };
 
 
     return (
@@ -1431,264 +1106,198 @@ function ProductsPage() {
                     >
 
                         {visibleProducts.map(
-                            (product) => {
+                            (product) => (
 
-                                const productId =
-                                    String(
-                                        product.id
-                                    );
+                                <article
+                                    className="product-card"
+                                    key={product.id}
+                                >
 
-
-                                const isFavorite =
-                                    Boolean(
-                                        favorites[
-                                            productId
-                                        ]
-                                    );
-
-
-                                const isSaving =
-                                    savingFavoriteId ===
-                                    productId;
-
-
-                                return (
-
-                                    <article
-                                        className="product-card"
-                                        key={product.id}
+                                    <div
+                                        className="product-card__image"
                                     >
 
-                                        <div
-                                            className="product-card__image"
-                                        >
-
-                                            {product.badge && (
-
-                                                <span
-                                                    className={
-                                                        `product-card__badge ${
-                                                            product.badge ===
-                                                            "NEW"
-                                                                ? "product-card__badge--new"
-                                                                : "product-card__badge--best"
-                                                        }`
-                                                    }
-                                                >
-
-                                                    {
-                                                        product.badge
-                                                    }
-
-                                                </span>
-
-                                            )}
-
-
-                                            <img
-                                                src={
-                                                    product.image
-                                                }
-                                                alt={
-                                                    product.name
-                                                }
-                                            />
-
-
-                                            <div
-                                                className="product-card__actions"
-                                            >
-
-                                                <button
-                                                    type="button"
-                                                    className="product-card__action"
-                                                    aria-label={
-                                                        `View ${product.name} image`
-                                                    }
-                                                    onClick={() =>
-                                                        setSelectedProduct(
-                                                            product
-                                                        )
-                                                    }
-                                                >
-
-                                                    <Search
-                                                        size={17}
-                                                        strokeWidth={2}
-                                                    />
-
-                                                </button>
-
-
-                                                <button
-                                                    type="button"
-                                                    className={
-                                                        isFavorite
-                                                            ? (
-                                                                "product-card__action " +
-                                                                "product-card__favorite " +
-                                                                "product-card__favorite--active"
-                                                            )
-                                                            : (
-                                                                "product-card__action " +
-                                                                "product-card__favorite"
-                                                            )
-                                                    }
-                                                    aria-label={
-                                                        `${t.actions.addFavorite} ${product.name}`
-                                                    }
-                                                    aria-pressed={
-                                                        isFavorite
-                                                    }
-                                                    disabled={
-                                                        isSaving
-                                                    }
-                                                    onClick={() =>
-                                                        handleFavorite(
-                                                            product
-                                                        )
-                                                    }
-                                                >
-
-                                                    <Heart
-                                                        size={17}
-                                                        strokeWidth={2}
-                                                        fill={
-                                                            isFavorite
-                                                                ? "currentColor"
-                                                                : "none"
-                                                        }
-                                                    />
-
-                                                </button>
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div
-                                            className="product-card__content"
-                                        >
+                                        {product.badge && (
 
                                             <span
-                                                className="product-card__category"
+                                                className={
+                                                    `product-card__badge ${
+                                                        product.badge ===
+                                                        "NEW"
+                                                            ? "product-card__badge--new"
+                                                            : "product-card__badge--best"
+                                                    }`
+                                                }
                                             >
 
                                                 {
-                                                    product.category ===
-                                                    "Mug"
-                                                        ? (
-                                                            t.options
-                                                                .categories
-                                                                .mug
-                                                        )
-                                                        : (
-                                                            t.options
-                                                                .categories
-                                                                .tumbler
-                                                        )
+                                                    product.badge
                                                 }
 
                                             </span>
 
-
-                                            <h2>
-
-                                                {product.name}
-
-                                            </h2>
+                                        )}
 
 
-                                            <strong>
-
-                                                $
-                                                {
-                                                    product.price.toFixed(
-                                                        2
-                                                    )
-                                                }
-
-                                            </strong>
+                                        <img
+                                            src={
+                                                product.image
+                                            }
+                                            alt={
+                                                product.name
+                                            }
+                                        />
 
 
-                                            <div
-                                                className="product-card__rating"
-                                            >
-
-                                                <span>
-
-                                                    ★★★★★
-
-                                                </span>
-
-
-                                                <small>
-
-                                                    (
-                                                    {
-                                                        product.reviews
-                                                    }
-                                                    )
-
-                                                </small>
-
-                                            </div>
-
+                                        <div
+                                            className="product-card__actions"
+                                        >
 
                                             <button
-                                                className="product-card__button"
                                                 type="button"
-                                                onClick={() => {
-
-                                                    addToCart({
-
-                                                        id:
-                                                            product.id,
-
-                                                        name:
-                                                            product.name,
-
-                                                        model:
-                                                            product.style,
-
-                                                        size:
-                                                            product.size,
-
-                                                        color:
-                                                            product.color,
-
-                                                        price:
-                                                            product.price,
-
-                                                        image:
-                                                            product.image,
-
-                                                    });
-
-                                                }}
+                                                className="product-card__action"
+                                                aria-label={
+                                                    `View ${product.name} image`
+                                                }
+                                                onClick={() =>
+                                                    setSelectedProduct(
+                                                        product
+                                                    )
+                                                }
                                             >
 
-                                                {
-                                                    t.actions
-                                                        .addToCart
-                                                }
-
-                                                <span>
-
-                                                    →
-
-                                                </span>
+                                                <Search
+                                                    size={17}
+                                                    strokeWidth={2}
+                                                />
 
                                             </button>
 
                                         </div>
 
-                                    </article>
+                                    </div>
 
-                                );
 
-                            }
+                                    <div
+                                        className="product-card__content"
+                                    >
+
+                                        <span
+                                            className="product-card__category"
+                                        >
+
+                                            {
+                                                product.category ===
+                                                "Mug"
+                                                    ? (
+                                                        t.options
+                                                            .categories
+                                                            .mug
+                                                    )
+                                                    : (
+                                                        t.options
+                                                            .categories
+                                                            .tumbler
+                                                    )
+                                            }
+
+                                        </span>
+
+
+                                        <h2>
+
+                                            {product.name}
+
+                                        </h2>
+
+
+                                        <strong>
+
+                                            $
+                                            {
+                                                product.price.toFixed(
+                                                    2
+                                                )
+                                            }
+
+                                        </strong>
+
+
+                                        <div
+                                            className="product-card__rating"
+                                        >
+
+                                            <span>
+
+                                                ★★★★★
+
+                                            </span>
+
+
+                                            <small>
+
+                                                (
+                                                {
+                                                    product.reviews
+                                                }
+                                                )
+
+                                            </small>
+
+                                        </div>
+
+
+                                        <button
+                                            className="product-card__button"
+                                            type="button"
+                                            onClick={() => {
+
+                                                addToCart({
+
+                                                    id:
+                                                        product.id,
+
+                                                    name:
+                                                        product.name,
+
+                                                    model:
+                                                        product.style,
+
+                                                    size:
+                                                        product.size,
+
+                                                    color:
+                                                        product.color,
+
+                                                    price:
+                                                        product.price,
+
+                                                    image:
+                                                        product.image,
+
+                                                });
+
+                                            }}
+                                        >
+
+                                            {
+                                                t.actions
+                                                    .addToCart
+                                            }
+
+                                            <span>
+
+                                                →
+
+                                            </span>
+
+                                        </button>
+
+                                    </div>
+
+                                </article>
+
+                            )
                         )}
 
                     </div>
