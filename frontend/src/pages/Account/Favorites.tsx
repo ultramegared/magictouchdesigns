@@ -64,7 +64,7 @@ interface FavoritesResponse {
 
     status: string;
 
-    favorites: Favorite[];
+    favorites?: Favorite[];
 
 }
 
@@ -261,6 +261,7 @@ function Favorites() {
                     true
                 );
 
+
                 setErrorMessage(
                     null
                 );
@@ -280,7 +281,11 @@ function Favorites() {
 
 
                 setFavorites(
-                    result.favorites || []
+                    Array.isArray(
+                        result.favorites
+                    )
+                        ? result.favorites
+                        : []
                 );
 
             } catch (error) {
@@ -317,8 +322,8 @@ function Favorites() {
         loadFavorites();
 
     }, [
-        language,
         navigate,
+        language,
     ]);
 
 
@@ -403,6 +408,12 @@ function Favorites() {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <>
@@ -477,8 +488,12 @@ function Favorites() {
                         <p>
 
                             {language === "es"
-                                ? "Guarda los diseños que más te gustan y encuéntralos fácilmente aquí."
-                                : "Save the designs you love and find them easily here."}
+                                ? (
+                                    "Guarda los diseños que más te gustan y encuéntralos fácilmente aquí."
+                                )
+                                : (
+                                    "Save the designs you love and find them easily here."
+                                )}
 
                         </p>
 
@@ -489,6 +504,8 @@ function Favorites() {
                         className="favorites-content"
                     >
 
+
+                        {/* LOADING */}
 
                         {isLoading && (
 
@@ -514,6 +531,8 @@ function Favorites() {
                         )}
 
 
+                        {/* ERROR */}
+
                         {!isLoading &&
                             errorMessage && (
 
@@ -527,6 +546,8 @@ function Favorites() {
 
                             )}
 
+
+                        {/* EMPTY */}
 
                         {!isLoading &&
                             !errorMessage &&
@@ -559,8 +580,12 @@ function Favorites() {
                                     <p>
 
                                         {language === "es"
-                                            ? "Cuando encuentres un diseño que te guste, podrás guardarlo aquí."
-                                            : "When you find a design you like, you can save it here."}
+                                            ? (
+                                                "Cuando encuentres un diseño que te guste, podrás guardarlo aquí."
+                                            )
+                                            : (
+                                                "When you find a design you like, you can save it here."
+                                            )}
 
                                     </p>
 
@@ -580,6 +605,8 @@ function Favorites() {
 
                             )}
 
+
+                        {/* FAVORITES */}
 
                         {!isLoading &&
                             !errorMessage &&
@@ -609,9 +636,106 @@ function Favorites() {
                                                 );
 
 
+                                            /*
+                                             * If a favorite exists in the
+                                             * database but the corresponding
+                                             * demo product is unavailable,
+                                             * do not break the entire page.
+                                             */
                                             if (!product) {
 
-                                                return null;
+                                                return (
+
+                                                    <article
+                                                        key={
+                                                            favorite.id
+                                                        }
+                                                        className="favorite-card"
+                                                    >
+
+                                                        <div
+                                                            className="favorite-card-content"
+                                                        >
+
+                                                            <div
+                                                                className="favorite-card-info"
+                                                            >
+
+                                                                <span
+                                                                    className="favorite-card-category"
+                                                                >
+
+                                                                    {language === "es"
+                                                                        ? "Diseño"
+                                                                        : "Design"}
+
+                                                                </span>
+
+
+                                                                <h2>
+
+                                                                    {language === "es"
+                                                                        ? "Diseño guardado"
+                                                                        : "Saved design"}
+
+                                                                </h2>
+
+
+                                                                <p>
+
+                                                                    ID:
+                                                                    {" "}
+                                                                    {
+                                                                        favorite.design_id
+                                                                    }
+
+                                                                </p>
+
+                                                            </div>
+
+
+                                                            <button
+                                                                type="button"
+                                                                className="favorite-remove"
+                                                                onClick={() =>
+                                                                    handleRemoveFavorite(
+                                                                        favorite.id
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    removingId ===
+                                                                    favorite.id
+                                                                }
+                                                            >
+
+                                                                <Trash2
+                                                                    size={19}
+                                                                />
+
+                                                                <span>
+
+                                                                    {removingId ===
+                                                                    favorite.id
+                                                                        ? (
+                                                                            language === "es"
+                                                                                ? "Eliminando..."
+                                                                                : "Removing..."
+                                                                        )
+                                                                        : (
+                                                                            language === "es"
+                                                                                ? "Eliminar"
+                                                                                : "Remove"
+                                                                        )}
+
+                                                                </span>
+
+                                                            </button>
+
+                                                        </div>
+
+                                                    </article>
+
+                                                );
 
                                             }
 
