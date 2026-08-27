@@ -93,6 +93,44 @@
     line-height: 1.6;
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Create Review Button
+|--------------------------------------------------------------------------
+*/
+
+.reviews-create-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    margin-top: 25px;
+    padding: 14px 22px;
+
+    border: 1px solid #d4af37;
+    border-radius: 12px;
+
+    color: #111111;
+    background: #d4af37;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.reviews-create-button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+
 .reviews-content {
     padding: 40px;
 
@@ -135,6 +173,53 @@
         rgba(255, 255, 255, 0.6);
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Reviews List
+|--------------------------------------------------------------------------
+*/
+
+.reviews-list {
+    display: grid;
+    gap: 20px;
+}
+
+.review-card {
+    padding: 25px;
+
+    border:
+        1px solid
+        rgba(212, 175, 55, 0.2);
+
+    border-radius: 18px;
+
+    background:
+        rgba(255, 255, 255, 0.02);
+}
+
+.review-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 15px;
+
+    color: #d4af37;
+
+    font-weight: 700;
+}
+
+.review-card-text {
+    margin: 0;
+
+    color:
+        rgba(255, 255, 255, 0.75);
+
+    line-height: 1.6;
+}
+
+
 @media (
     max-width: 600px
 ) {
@@ -147,6 +232,10 @@
 
     .reviews-content {
         padding: 25px 20px;
+    }
+
+    .reviews-create-button {
+        width: 100%;
     }
 
 }
