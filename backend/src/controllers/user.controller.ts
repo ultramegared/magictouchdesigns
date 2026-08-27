@@ -44,6 +44,7 @@ export const getCurrentUser = async (
                 first_name,
                 last_name,
                 email,
+                role,
                 is_active,
                 created_at,
                 updated_at

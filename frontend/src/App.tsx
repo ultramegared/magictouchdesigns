@@ -43,6 +43,7 @@ import ReviewsPage from "./pages/Account/Reviews";
 import CreateReviewPage from "./pages/Account/CreateReview";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminRoute from "./components/admin/AdminRoute";
 
 import CustomizePage from "./pages/Customize";
 
@@ -146,7 +147,13 @@ function App() {
 
 <Route
     path="/admin"
-    element={<AdminDashboard />}
+    element={
+        <AdminRoute>
+
+            <AdminDashboard />
+
+        </AdminRoute>
+    }
 />
 
 
