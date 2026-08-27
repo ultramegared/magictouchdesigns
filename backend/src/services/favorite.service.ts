@@ -112,7 +112,20 @@ export const createFavorite = async (
             );
 
 
-        return existingResult.rows[0];
+        const existingFavorite =
+            existingResult.rows[0];
+
+
+        if (!existingFavorite) {
+
+            throw new Error(
+                "Unable to retrieve existing favorite."
+            );
+
+        }
+
+
+        return existingFavorite;
 
     }
 

@@ -24,61 +24,134 @@ import {
 } from "lucide-react";
 
 import {
-    useSearchParams
+    useNavigate,
+    useSearchParams,
 } from "react-router-dom";
 
 import "./ProductsPage.css";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
-import { addToCart } from "../../utils/cart";
 
-import { useLanguage } from "../../contexts/LanguageContext";
-import { translations } from "../../translations";
+import {
+    addToCart,
+} from "../../utils/cart";
 
+import {
+    apiRequest,
+} from "../../services/api";
+
+import {
+    useLanguage,
+} from "../../contexts/LanguageContext";
+
+import {
+    translations,
+} from "../../translations";
+
+
+/*
+|--------------------------------------------------------------------------
+| Types
+|--------------------------------------------------------------------------
+*/
 
 type Product = {
+
     id: number;
+
     name: string;
+
     category: string;
+
     style: string;
+
     color: string;
+
     size: string;
+
     price: number;
+
     rating: number;
+
     reviews: number;
+
     image: string;
-    badge?: "NEW" | "BEST SELLER";
+
+    badge?:
+        | "NEW"
+        | "BEST SELLER";
+
 };
 
 
+type Favorite = {
+
+    id: string;
+
+    user_id: string;
+
+    design_id: string;
+
+    created_at: string;
+
+};
+
+
+type FavoritesResponse = {
+
+    status: string;
+
+    favorites: Favorite[];
+
+};
+
+
+type CreateFavoriteResponse = {
+
+    status: string;
+
+    favorite: Favorite;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| Demo Products
+|--------------------------------------------------------------------------
+*/
+
 const demoProducts: Product[] = [
+
     {
-    id: 1,
-    name: "Model One",
-    category: "Mug",
-    style: "Classic",
-    color: "Black",
-    size: "11 oz",
-    price: 24.99,
-    rating: 5,
-    reviews: 128,
-    image: "/images/products/model-one.jpg",
-    badge: "BEST SELLER",
-},
-{
-    id: 2,
-    name: "Model Two",
-    category: "Mug",
-    style: "Marble",
-    color: "White",
-    size: "11 oz",
-    price: 24.99,
-    rating: 5,
-    reviews: 96,
-    image: "/images/products/model-two.jpg",
-    badge: "NEW",
-},
+        id: 1,
+        name: "Model One",
+        category: "Mug",
+        style: "Classic",
+        color: "Black",
+        size: "11 oz",
+        price: 24.99,
+        rating: 5,
+        reviews: 128,
+        image: "/images/products/model-one.jpg",
+        badge: "BEST SELLER",
+    },
+
+    {
+        id: 2,
+        name: "Model Two",
+        category: "Mug",
+        style: "Marble",
+        color: "White",
+        size: "11 oz",
+        price: 24.99,
+        rating: 5,
+        reviews: 96,
+        image: "/images/products/model-two.jpg",
+        badge: "NEW",
+    },
+
     {
         id: 3,
         name: "Model Three",
@@ -89,8 +162,9 @@ const demoProducts: Product[] = [
         price: 24.99,
         rating: 5,
         reviews: 74,
-        image: "/images/products/model-three.jpg"
+        image: "/images/products/model-three.jpg",
     },
+
     {
         id: 4,
         name: "Model Four",
@@ -101,8 +175,9 @@ const demoProducts: Product[] = [
         price: 29.99,
         rating: 5,
         reviews: 58,
-        image: "/images/products/model-four.jpg"
+        image: "/images/products/model-four.jpg",
     },
+
     {
         id: 5,
         name: "Model Five",
@@ -113,8 +188,9 @@ const demoProducts: Product[] = [
         price: 27.99,
         rating: 5,
         reviews: 82,
-        image: "/images/products/model-five.jpg"
+        image: "/images/products/model-five.jpg",
     },
+
     {
         id: 6,
         name: "Model Six",
@@ -125,8 +201,9 @@ const demoProducts: Product[] = [
         price: 25.99,
         rating: 5,
         reviews: 64,
-        image: "/images/products/model-six.jpg"
+        image: "/images/products/model-six.jpg",
     },
+
     {
         id: 7,
         name: "Model Seven",
@@ -137,8 +214,9 @@ const demoProducts: Product[] = [
         price: 31.99,
         rating: 5,
         reviews: 47,
-        image: "/images/products/model-seven.jpg"
+        image: "/images/products/model-seven.jpg",
     },
+
     {
         id: 8,
         name: "Model Eight",
@@ -149,126 +227,717 @@ const demoProducts: Product[] = [
         price: 26.99,
         rating: 5,
         reviews: 39,
-        image: "/images/products/model-eight.jpg"
-    }
+        image: "/images/products/model-eight.jpg",
+    },
+
 ];
 
 
 function ProductsPage() {
 
-    const { language } = useLanguage();
+    const {
+        language,
+    } = useLanguage();
 
-    const t = translations[language].products;
 
-    const [searchParams] = useSearchParams();
+    const t =
+        translations[language].products;
 
-    const [category, setCategory] = useState("All");
-    const [style, setStyle] = useState("All");
-    const [color, setColor] = useState("All");
-    const [size, setSize] = useState("All");
-    const [sort, setSort] = useState("Newest");
-    const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-    const [selectedProduct, setSelectedProduct] =
-    useState<Product | null>(null);
-    
+
+    const navigate =
+        useNavigate();
+
+
+    const [
+        searchParams,
+    ] = useSearchParams();
+
+
+    const [
+        category,
+        setCategory,
+    ] = useState(
+        "All"
+    );
+
+
+    const [
+        style,
+        setStyle,
+    ] = useState(
+        "All"
+    );
+
+
+    const [
+        color,
+        setColor,
+    ] = useState(
+        "All"
+    );
+
+
+    const [
+        size,
+        setSize,
+    ] = useState(
+        "All"
+    );
+
+
+    const [
+        sort,
+        setSort,
+    ] = useState(
+        "Newest"
+    );
+
+
+    const [
+        searchTerm,
+        setSearchTerm,
+    ] = useState(
+        ""
+    );
+
+
+    const [
+        currentPage,
+        setCurrentPage,
+    ] = useState(
+        1
+    );
+
+
+    const [
+        viewMode,
+        setViewMode,
+    ] = useState<
+        "grid" | "list"
+    >(
+        "grid"
+    );
+
+
+    const [
+        selectedProduct,
+        setSelectedProduct,
+    ] = useState<
+        Product | null
+    >(
+        null
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Favorites
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+     * Stores:
+     *
+     * design_id -> favorite.id
+     *
+     * Example:
+     *
+     * {
+     *     "1": "favorite-uuid",
+     *     "2": "another-favorite-uuid"
+     * }
+     */
+    const [
+        favorites,
+        setFavorites,
+    ] = useState<
+        Record<string, string>
+    >(
+        {}
+    );
+
+
+    const [
+        savingFavoriteId,
+        setSavingFavoriteId,
+    ] = useState<
+        string | null
+    >(
+        null
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Search Params
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
-        const search = searchParams.get("search") || "";
-
-        setSearchTerm(search);
-        setCurrentPage(1);
-
-    }, [searchParams]);
+        const search =
+            searchParams.get(
+                "search"
+            ) || "";
 
 
-    const productsPerPage =
-        window.innerWidth <= 700 ? 4 : 8;
+        setSearchTerm(
+            search
+        );
 
 
-    const filteredProducts = useMemo(() => {
-
-        const filtered = demoProducts.filter((product) => {
-
-            const searchMatch =
-                searchTerm.trim() === "" ||
-                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.style.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.size.toLowerCase().includes(searchTerm.toLowerCase());
-
-            const categoryMatch =
-                category === "All" || product.category === category;
-
-            const styleMatch =
-                style === "All" || product.style === style;
-
-            const colorMatch =
-                color === "All" || product.color === color;
-
-            const sizeMatch =
-                size === "All" || product.size === size;
-
-            return (
-                searchMatch &&
-                categoryMatch &&
-                styleMatch &&
-                colorMatch &&
-                sizeMatch
-            );
-
-        });
-
-
-        if (sort === "Price Low") {
-            return [...filtered].sort(
-                (a, b) => a.price - b.price
-            );
-        }
-
-
-        if (sort === "Price High") {
-            return [...filtered].sort(
-                (a, b) => b.price - a.price
-            );
-        }
-
-
-        if (sort === "Rating") {
-            return [...filtered].sort(
-                (a, b) => b.rating - a.rating
-            );
-        }
-
-
-        return filtered;
+        setCurrentPage(
+            1
+        );
 
     }, [
-        category,
-        style,
-        color,
-        size,
-        sort,
-        searchTerm
+        searchParams,
     ]);
 
 
-    const totalPages = Math.max(
-        1,
-        Math.ceil(
-            filteredProducts.length / productsPerPage
-        )
-    );
+    /*
+    |--------------------------------------------------------------------------
+    | Load Favorites
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+
+        const loadFavorites =
+            async () => {
+
+                const token =
+                    localStorage.getItem(
+                        "auth_token"
+                    );
+
+
+                /*
+                 * User is not logged in.
+                 * Favorites remain empty.
+                 */
+                if (!token) {
+
+                    setFavorites(
+                        {}
+                    );
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const response =
+                        await apiRequest(
+                            "/api/favorites/my-favorites",
+                            {
+                                method:
+                                    "GET",
+
+                                headers: {
+
+                                    Authorization:
+                                        `Bearer ${token}`,
+
+                                },
+
+                            }
+                        ) as FavoritesResponse;
+
+
+                    const favoritesMap:
+                        Record<
+                            string,
+                            string
+                        > = {};
+
+
+                    response.favorites.forEach(
+                        (
+                            favorite
+                        ) => {
+
+                            favoritesMap[
+                                String(
+                                    favorite.design_id
+                                )
+                            ] =
+                                favorite.id;
+
+                        }
+                    );
+
+
+                    setFavorites(
+                        favoritesMap
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Unable to load favorites:",
+                        error
+                    );
+
+                }
+
+            };
+
+
+        loadFavorites();
+
+    }, []);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Products Per Page
+    |--------------------------------------------------------------------------
+    */
+
+    const productsPerPage =
+        window.innerWidth <= 700
+            ? 4
+            : 8;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filtered Products
+    |--------------------------------------------------------------------------
+    */
+
+    const filteredProducts =
+        useMemo(() => {
+
+            const filtered =
+                demoProducts.filter(
+                    (product) => {
+
+                        const normalizedSearch =
+                            searchTerm
+                                .trim()
+                                .toLowerCase();
+
+
+                        const searchMatch =
+
+                            normalizedSearch === ""
+
+                            ||
+
+                            product.name
+                                .toLowerCase()
+                                .includes(
+                                    normalizedSearch
+                                )
+
+                            ||
+
+                            product.category
+                                .toLowerCase()
+                                .includes(
+                                    normalizedSearch
+                                )
+
+                            ||
+
+                            product.style
+                                .toLowerCase()
+                                .includes(
+                                    normalizedSearch
+                                )
+
+                            ||
+
+                            product.color
+                                .toLowerCase()
+                                .includes(
+                                    normalizedSearch
+                                )
+
+                            ||
+
+                            product.size
+                                .toLowerCase()
+                                .includes(
+                                    normalizedSearch
+                                );
+
+
+                        const categoryMatch =
+
+                            category === "All"
+
+                            ||
+
+                            product.category ===
+                            category;
+
+
+                        const styleMatch =
+
+                            style === "All"
+
+                            ||
+
+                            product.style ===
+                            style;
+
+
+                        const colorMatch =
+
+                            color === "All"
+
+                            ||
+
+                            product.color ===
+                            color;
+
+
+                        const sizeMatch =
+
+                            size === "All"
+
+                            ||
+
+                            product.size ===
+                            size;
+
+
+                        return (
+
+                            searchMatch
+
+                            &&
+
+                            categoryMatch
+
+                            &&
+
+                            styleMatch
+
+                            &&
+
+                            colorMatch
+
+                            &&
+
+                            sizeMatch
+
+                        );
+
+                    }
+                );
+
+
+            if (
+                sort === "Price Low"
+            ) {
+
+                return [
+
+                    ...filtered,
+
+                ].sort(
+                    (a, b) =>
+                        a.price -
+                        b.price
+                );
+
+            }
+
+
+            if (
+                sort === "Price High"
+            ) {
+
+                return [
+
+                    ...filtered,
+
+                ].sort(
+                    (a, b) =>
+                        b.price -
+                        a.price
+                );
+
+            }
+
+
+            if (
+                sort === "Rating"
+            ) {
+
+                return [
+
+                    ...filtered,
+
+                ].sort(
+                    (a, b) =>
+                        b.rating -
+                        a.rating
+                );
+
+            }
+
+
+            return filtered;
+
+        }, [
+
+            category,
+
+            style,
+
+            color,
+
+            size,
+
+            sort,
+
+            searchTerm,
+
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    const totalPages =
+        Math.max(
+
+            1,
+
+            Math.ceil(
+                filteredProducts.length /
+                productsPerPage
+            )
+
+        );
 
 
     const visibleProducts =
         filteredProducts.slice(
-            (currentPage - 1) * productsPerPage,
-            currentPage * productsPerPage
+
+            (
+                currentPage - 1
+            ) *
+            productsPerPage,
+
+            currentPage *
+            productsPerPage
+
         );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Toggle Favorite
+    |--------------------------------------------------------------------------
+    */
+
+    const handleFavorite = async (
+        product: Product
+    ) => {
+
+        const token =
+            localStorage.getItem(
+                "auth_token"
+            );
+
+
+        /*
+         * User must be logged in.
+         */
+        if (!token) {
+
+            navigate(
+                "/login"
+            );
+
+            return;
+
+        }
+
+
+        const productId =
+            String(
+                product.id
+            );
+
+
+        /*
+         * Prevent multiple requests
+         * for the same product.
+         */
+        if (
+            savingFavoriteId ===
+            productId
+        ) {
+
+            return;
+
+        }
+
+
+        try {
+
+            setSavingFavoriteId(
+                productId
+            );
+
+
+            const favoriteId =
+                favorites[
+                    productId
+                ];
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remove Existing Favorite
+            |--------------------------------------------------------------------------
+            */
+
+            if (favoriteId) {
+
+                await apiRequest(
+
+                    `/api/favorites/${favoriteId}`,
+
+                    {
+
+                        method:
+                            "DELETE",
+
+                        headers: {
+
+                            Authorization:
+                                `Bearer ${token}`,
+
+                        },
+
+                    }
+
+                );
+
+
+                setFavorites(
+                    (
+                        currentFavorites
+                    ) => {
+
+                        const updatedFavorites = {
+
+                            ...currentFavorites,
+
+                        };
+
+
+                        delete updatedFavorites[
+                            productId
+                        ];
+
+
+                        return updatedFavorites;
+
+                    }
+                );
+
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Create Favorite
+            |--------------------------------------------------------------------------
+            */
+
+            const response =
+                await apiRequest(
+
+                    "/api/favorites",
+
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            Authorization:
+                                `Bearer ${token}`,
+
+                            "Content-Type":
+                                "application/json",
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                design_id:
+                                    productId,
+
+                            }),
+
+                    }
+
+                ) as CreateFavoriteResponse;
+
+
+            /*
+             * Save the database favorite ID.
+             *
+             * This is necessary because DELETE
+             * requires favorite.id.
+             */
+            if (
+                response.favorite
+            ) {
+
+                setFavorites(
+                    (
+                        currentFavorites
+                    ) => ({
+
+                        ...currentFavorites,
+
+                        [
+                            productId
+                        ]:
+                            response.favorite.id,
+
+                    })
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Unable to update favorite:",
+                error
+            );
+
+        } finally {
+
+            setSavingFavoriteId(
+                null
+            );
+
+        }
+
+    };
 
 
     return (
@@ -277,126 +946,282 @@ function ProductsPage() {
 
             <Header />
 
-            <main className="products-page">
 
-                <section className="products-hero">
+            <main
+                className="products-page"
+            >
 
-                    <div className="products-hero__crown">
+
+                {/* ==================================================
+                    HERO
+                   ================================================== */}
+
+                <section
+                    className="products-hero"
+                >
+
+                    <div
+                        className="products-hero__crown"
+                    >
+
                         ✦
+
                     </div>
 
-                    <p className="products-hero__eyebrow">
+
+                    <p
+                        className="products-hero__eyebrow"
+                    >
+
                         MAGIC TOUCH DESIGNS
+
                     </p>
 
+
                     <h1>
+
                         {t.hero.title}
+
                     </h1>
 
-                    <p className="products-hero__description">
+
+                    <p
+                        className="products-hero__description"
+                    >
+
                         {t.hero.description}
+
                     </p>
 
                 </section>
 
 
-                <section className="products-catalog">
+                {/* ==================================================
+                    CATALOG
+                   ================================================== */}
+
+                <section
+                    className="products-catalog"
+                >
 
 
-    <div className="products-search">
-        <Search size={19} />
+                    {/* SEARCH */}
 
-        <input
-            type="search"
-            value={searchTerm}
-            onChange={(event) => {
-                setSearchTerm(event.target.value);
-                setCurrentPage(1);
-            }}
-            placeholder={
-                language === "es"
-                    ? "Buscar productos..."
-                    : "Search products..."
-            }
-            aria-label={
-                language === "es"
-                    ? "Buscar productos"
-                    : "Search products"
-            }
-        />
-    </div>
+                    <div
+                        className="products-search"
+                    >
 
-    <div className="products-category-chips">
+                        <Search
+                            size={19}
+                        />
 
-        <button
-            type="button"
-            className={category === "All" ? "active" : ""}
-            onClick={() => {
-                setCategory("All");
-                setCurrentPage(1);
-            }}
-        >
-            {t.filters.all}
-        </button>
 
-        <button
-            type="button"
-            className={category === "Mug" ? "active" : ""}
-            onClick={() => {
-                setCategory("Mug");
-                setCurrentPage(1);
-            }}
-        >
-            {t.options.categories.mug}
-        </button>
+                        <input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(
+                                event
+                            ) => {
 
-        <button
-            type="button"
-            className={category === "Tumbler" ? "active" : ""}
-            onClick={() => {
-                setCategory("Tumbler");
-                setCurrentPage(1);
-            }}
-        >
-            {t.options.categories.tumbler}
-        </button>
+                                setSearchTerm(
+                                    event.target.value
+                                );
 
-    </div>
 
-    <div className="products-filters">
+                                setCurrentPage(
+                                    1
+                                );
+
+                            }}
+                            placeholder={
+                                language === "es"
+                                    ? "Buscar productos..."
+                                    : "Search products..."
+                            }
+                            aria-label={
+                                language === "es"
+                                    ? "Buscar productos"
+                                    : "Search products"
+                            }
+                        />
+
+                    </div>
+
+
+                    {/* CATEGORY CHIPS */}
+
+                    <div
+                        className="products-category-chips"
+                    >
+
+                        <button
+                            type="button"
+                            className={
+                                category === "All"
+                                    ? "active"
+                                    : ""
+                            }
+                            onClick={() => {
+
+                                setCategory(
+                                    "All"
+                                );
+
+
+                                setCurrentPage(
+                                    1
+                                );
+
+                            }}
+                        >
+
+                            {t.filters.all}
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            className={
+                                category === "Mug"
+                                    ? "active"
+                                    : ""
+                            }
+                            onClick={() => {
+
+                                setCategory(
+                                    "Mug"
+                                );
+
+
+                                setCurrentPage(
+                                    1
+                                );
+
+                            }}
+                        >
+
+                            {
+                                t.options
+                                    .categories
+                                    .mug
+                            }
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            className={
+                                category === "Tumbler"
+                                    ? "active"
+                                    : ""
+                            }
+                            onClick={() => {
+
+                                setCategory(
+                                    "Tumbler"
+                                );
+
+
+                                setCurrentPage(
+                                    1
+                                );
+
+                            }}
+                        >
+
+                            {
+                                t.options
+                                    .categories
+                                    .tumbler
+                            }
+
+                        </button>
+
+                    </div>
+
+
+                    {/* FILTERS */}
+
+                    <div
+                        className="products-filters"
+                    >
 
                         <button
                             className={
                                 category === "All"
-                                    ? "products-filter products-filter--active"
-                                    : "products-filter"
+                                    ? (
+                                        "products-filter " +
+                                        "products-filter--active"
+                                    )
+                                    : (
+                                        "products-filter"
+                                    )
                             }
                             onClick={() => {
-                                setCategory("All");
-                                setCurrentPage(1);
+
+                                setCategory(
+                                    "All"
+                                );
+
+
+                                setCurrentPage(
+                                    1
+                                );
+
                             }}
                         >
+
                             {t.filters.all}
+
                         </button>
 
 
                         <select
                             value={category}
-                            onChange={(event) => {
-                                setCategory(event.target.value);
-                                setCurrentPage(1);
+                            onChange={(
+                                event
+                            ) => {
+
+                                setCategory(
+                                    event.target.value
+                                );
+
+
+                                setCurrentPage(
+                                    1
+                                );
+
                             }}
                         >
+
                             <option value="All">
+
                                 {t.filters.category}
+
                             </option>
+
 
                             <option value="Mug">
-                                {t.options.categories.mug}
+
+                                {
+                                    t.options
+                                        .categories
+                                        .mug
+                                }
+
                             </option>
 
+
                             <option value="Tumbler">
-                                {t.options.categories.tumbler}
+
+                                {
+                                    t.options
+                                        .categories
+                                        .tumbler
+                                }
+
                             </option>
 
                         </select>
@@ -404,25 +1229,59 @@ function ProductsPage() {
 
                         <select
                             value={style}
-                            onChange={(event) => {
-                                setStyle(event.target.value);
-                                setCurrentPage(1);
+                            onChange={(
+                                event
+                            ) => {
+
+                                setStyle(
+                                    event.target.value
+                                );
+
+
+                                setCurrentPage(
+                                    1
+                                );
+
                             }}
                         >
+
                             <option value="All">
+
                                 {t.filters.style}
+
                             </option>
+
 
                             <option value="Classic">
-                                {t.options.styles.classic}
+
+                                {
+                                    t.options
+                                        .styles
+                                        .classic
+                                }
+
                             </option>
+
 
                             <option value="Marble">
-                                {t.options.styles.marble}
+
+                                {
+                                    t.options
+                                        .styles
+                                        .marble
+                                }
+
                             </option>
 
+
                             <option value="Premium">
-                                {t.options.styles.premium}
+
+                                {
+                                    t.options
+                                        .styles
+                                        .premium
+                                }
+
                             </option>
 
                         </select>
@@ -430,29 +1289,70 @@ function ProductsPage() {
 
                         <select
                             value={color}
-                            onChange={(event) => {
-                                setColor(event.target.value);
-                                setCurrentPage(1);
+                            onChange={(
+                                event
+                            ) => {
+
+                                setColor(
+                                    event.target.value
+                                );
+
+
+                                setCurrentPage(
+                                    1
+                                );
+
                             }}
                         >
+
                             <option value="All">
+
                                 {t.filters.color}
+
                             </option>
+
 
                             <option value="Black">
-                                {t.options.colors.black}
+
+                                {
+                                    t.options
+                                        .colors
+                                        .black
+                                }
+
                             </option>
+
 
                             <option value="White">
-                                {t.options.colors.white}
+
+                                {
+                                    t.options
+                                        .colors
+                                        .white
+                                }
+
                             </option>
+
 
                             <option value="Pink">
-                                {t.options.colors.pink}
+
+                                {
+                                    t.options
+                                        .colors
+                                        .pink
+                                }
+
                             </option>
 
+
                             <option value="Gold">
-                                {t.options.colors.gold}
+
+                                {
+                                    t.options
+                                        .colors
+                                        .gold
+                                }
+
                             </option>
 
                         </select>
@@ -460,291 +1360,612 @@ function ProductsPage() {
 
                         <select
                             value={size}
-                            onChange={(event) => {
-                                setSize(event.target.value);
-                                setCurrentPage(1);
+                            onChange={(
+                                event
+                            ) => {
+
+                                setSize(
+                                    event.target.value
+                                );
+
+
+                                setCurrentPage(
+                                    1
+                                );
+
                             }}
                         >
+
                             <option value="All">
+
                                 {t.filters.size}
+
                             </option>
+
 
                             <option value="11 oz">
+
                                 11 oz
+
                             </option>
+
 
                             <option value="15 oz">
+
                                 15 oz
+
                             </option>
 
+
                             <option value="20 oz">
+
                                 20 oz
+
                             </option>
 
                         </select>
 
 
-                        <div className="products-sort">
+                        <div
+                            className="products-sort"
+                        >
 
                             <span>
-                                {t.filters.sortBy}
+
+                                {
+                                    t.filters
+                                        .sortBy
+                                }
+
                             </span>
+
 
                             <select
                                 value={sort}
-                                onChange={(event) => {
-                                    setSort(event.target.value);
-                                    setCurrentPage(1);
+                                onChange={(
+                                    event
+                                ) => {
+
+                                    setSort(
+                                        event.target.value
+                                    );
+
+
+                                    setCurrentPage(
+                                        1
+                                    );
+
                                 }}
                             >
 
                                 <option value="Newest">
+
                                     {t.sort.newest}
+
                                 </option>
+
 
                                 <option value="Price Low">
+
                                     {t.sort.priceLow}
+
                                 </option>
+
 
                                 <option value="Price High">
+
                                     {t.sort.priceHigh}
+
                                 </option>
 
+
                                 <option value="Rating">
+
                                     {t.sort.rating}
+
                                 </option>
 
                             </select>
 
-                       </div>
+                        </div>
 
-</div>
+                    </div>
 
-<div className="products-view-toggle">
 
-    <button
-        type="button"
-        className={viewMode === "grid" ? "active" : ""}
-        onClick={() => setViewMode("grid")}
-        aria-label="Grid view"
-        aria-pressed={viewMode === "grid"}
-    >
-        ▦
-    </button>
+                    {/* VIEW MODE */}
 
-    <button
-        type="button"
-        className={viewMode === "list" ? "active" : ""}
-        onClick={() => setViewMode("list")}
-        aria-label="List view"
-        aria-pressed={viewMode === "list"}
-    >
-        ☷
-    </button>
+                    <div
+                        className="products-view-toggle"
+                    >
 
-</div>
+                        <button
+                            type="button"
+                            className={
+                                viewMode === "grid"
+                                    ? "active"
+                                    : ""
+                            }
+                            onClick={() =>
+                                setViewMode(
+                                    "grid"
+                                )
+                            }
+                            aria-label="Grid view"
+                            aria-pressed={
+                                viewMode === "grid"
+                            }
+                        >
 
-                 <div className={`products-grid products-grid--${viewMode}`}>
-                        {visibleProducts.map((product) => (
+                            ▦
 
-                            <article
-                                className="product-card"
-                                key={product.id}
+                        </button>
+
+
+                        <button
+                            type="button"
+                            className={
+                                viewMode === "list"
+                                    ? "active"
+                                    : ""
+                            }
+                            onClick={() =>
+                                setViewMode(
+                                    "list"
+                                )
+                            }
+                            aria-label="List view"
+                            aria-pressed={
+                                viewMode === "list"
+                            }
+                        >
+
+                            ☷
+
+                        </button>
+
+                    </div>
+
+
+                    {/* PRODUCTS */}
+
+                    <div
+                        className={
+                            `products-grid products-grid--${viewMode}`
+                        }
+                    >
+
+                        {visibleProducts.map(
+                            (product) => {
+
+                                const productId =
+                                    String(
+                                        product.id
+                                    );
+
+
+                                const isFavorite =
+                                    Boolean(
+                                        favorites[
+                                            productId
+                                        ]
+                                    );
+
+
+                                const isSaving =
+                                    savingFavoriteId ===
+                                    productId;
+
+
+                                return (
+
+                                    <article
+                                        className="product-card"
+                                        key={product.id}
+                                    >
+
+                                        <div
+                                            className="product-card__image"
+                                        >
+
+                                            {product.badge && (
+
+                                                <span
+                                                    className={
+                                                        `product-card__badge ${
+                                                            product.badge ===
+                                                            "NEW"
+                                                                ? "product-card__badge--new"
+                                                                : "product-card__badge--best"
+                                                        }`
+                                                    }
+                                                >
+
+                                                    {
+                                                        product.badge
+                                                    }
+
+                                                </span>
+
+                                            )}
+
+
+                                            <img
+                                                src={
+                                                    product.image
+                                                }
+                                                alt={
+                                                    product.name
+                                                }
+                                            />
+
+
+                                            <div
+                                                className="product-card__actions"
+                                            >
+
+                                                <button
+                                                    type="button"
+                                                    className="product-card__action"
+                                                    aria-label={
+                                                        `View ${product.name} image`
+                                                    }
+                                                    onClick={() =>
+                                                        setSelectedProduct(
+                                                            product
+                                                        )
+                                                    }
+                                                >
+
+                                                    <Search
+                                                        size={17}
+                                                        strokeWidth={2}
+                                                    />
+
+                                                </button>
+
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        isFavorite
+                                                            ? (
+                                                                "product-card__action " +
+                                                                "product-card__favorite " +
+                                                                "product-card__favorite--active"
+                                                            )
+                                                            : (
+                                                                "product-card__action " +
+                                                                "product-card__favorite"
+                                                            )
+                                                    }
+                                                    aria-label={
+                                                        `${t.actions.addFavorite} ${product.name}`
+                                                    }
+                                                    aria-pressed={
+                                                        isFavorite
+                                                    }
+                                                    disabled={
+                                                        isSaving
+                                                    }
+                                                    onClick={() =>
+                                                        handleFavorite(
+                                                            product
+                                                        )
+                                                    }
+                                                >
+
+                                                    <Heart
+                                                        size={17}
+                                                        strokeWidth={2}
+                                                        fill={
+                                                            isFavorite
+                                                                ? "currentColor"
+                                                                : "none"
+                                                        }
+                                                    />
+
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div
+                                            className="product-card__content"
+                                        >
+
+                                            <span
+                                                className="product-card__category"
+                                            >
+
+                                                {
+                                                    product.category ===
+                                                    "Mug"
+                                                        ? (
+                                                            t.options
+                                                                .categories
+                                                                .mug
+                                                        )
+                                                        : (
+                                                            t.options
+                                                                .categories
+                                                                .tumbler
+                                                        )
+                                                }
+
+                                            </span>
+
+
+                                            <h2>
+
+                                                {product.name}
+
+                                            </h2>
+
+
+                                            <strong>
+
+                                                $
+                                                {
+                                                    product.price.toFixed(
+                                                        2
+                                                    )
+                                                }
+
+                                            </strong>
+
+
+                                            <div
+                                                className="product-card__rating"
+                                            >
+
+                                                <span>
+
+                                                    ★★★★★
+
+                                                </span>
+
+
+                                                <small>
+
+                                                    (
+                                                    {
+                                                        product.reviews
+                                                    }
+                                                    )
+
+                                                </small>
+
+                                            </div>
+
+
+                                            <button
+                                                className="product-card__button"
+                                                type="button"
+                                                onClick={() => {
+
+                                                    addToCart({
+
+                                                        id:
+                                                            product.id,
+
+                                                        name:
+                                                            product.name,
+
+                                                        model:
+                                                            product.style,
+
+                                                        size:
+                                                            product.size,
+
+                                                        color:
+                                                            product.color,
+
+                                                        price:
+                                                            product.price,
+
+                                                        image:
+                                                            product.image,
+
+                                                    });
+
+                                                }}
+                                            >
+
+                                                {
+                                                    t.actions
+                                                        .addToCart
+                                                }
+
+                                                <span>
+
+                                                    →
+
+                                                </span>
+
+                                            </button>
+
+                                        </div>
+
+                                    </article>
+
+                                );
+
+                            }
+                        )}
+
+                    </div>
+
+
+                    {/* LIGHTBOX */}
+
+                    {selectedProduct && (
+
+                        <div
+                            className="product-lightbox"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={
+                                selectedProduct.name
+                            }
+                            onClick={() =>
+                                setSelectedProduct(
+                                    null
+                                )
+                            }
+                        >
+
+                            <div
+                                className="product-lightbox__content"
+                                onClick={(
+                                    event
+                                ) =>
+                                    event.stopPropagation()
+                                }
                             >
 
-                                <div className="product-card__image">
+                                <button
+                                    type="button"
+                                    className="product-lightbox__close"
+                                    aria-label="Close image"
+                                    onClick={() =>
+                                        setSelectedProduct(
+                                            null
+                                        )
+                                    }
+                                >
 
-    {product.badge && (
-        <span
-            className={`product-card__badge ${
-                product.badge === "NEW"
-                    ? "product-card__badge--new"
-                    : "product-card__badge--best"
-            }`}
-        >
-            {product.badge}
-        </span>
-    )}
+                                    <X
+                                        size={24}
+                                    />
 
-    <img
-        src={product.image}
-        alt={product.name}
-    />
-
-    <div className="product-card__actions">
-
-        <button
-            type="button"
-            className="product-card__action"
-            aria-label={`View ${product.name} image`}
-            onClick={() => setSelectedProduct(product)}
-        >
-            <Search size={17} strokeWidth={2} />
-        </button>
-
-        <button
-            type="button"
-            className="product-card__action product-card__favorite"
-            aria-label={`${t.actions.addFavorite} ${product.name}`}
-        >
-            <Heart size={17} strokeWidth={2} />
-        </button>
-
-    </div>
-
-</div>
+                                </button>
 
 
-                                <div className="product-card__content">
+                                <img
+                                    src={
+                                        selectedProduct.image
+                                    }
+                                    alt={
+                                        selectedProduct.name
+                                    }
+                                    className="product-lightbox__image"
+                                />
 
-                                    <span className="product-card__category">
 
-                                        {product.category === "Mug"
-                                            ? t.options.categories.mug
-                                            : t.options.categories.tumbler
+                                <div
+                                    className="product-lightbox__info"
+                                >
+
+                                    <span>
+
+                                        {
+                                            selectedProduct.category
                                         }
 
                                     </span>
 
 
                                     <h2>
-                                        {product.name}
+
+                                        {
+                                            selectedProduct.name
+                                        }
+
                                     </h2>
 
 
                                     <strong>
-                                        ${product.price.toFixed(2)}
+
+                                        $
+                                        {
+                                            selectedProduct.price.toFixed(
+                                                2
+                                            )
+                                        }
+
                                     </strong>
-
-
-                                    <div className="product-card__rating">
-
-                                        <span>
-                                            ★★★★★
-                                        </span>
-
-                                        <small>
-                                            ({product.reviews})
-                                        </small>
-
-                                    </div>
-
-
-                                    <button
-    className="product-card__button"
-    type="button"
-                                        onClick={() => {
-
-                                            addToCart({
-                                                id: product.id,
-                                                name: product.name,
-                                                model: product.style,
-                                                size: product.size,
-                                                color: product.color,
-                                                price: product.price,
-                                                image: product.image,
-                                            });
-
-                                        }}
-                                    >
-
-                                        {t.actions.addToCart}
-
-                                        <span>
-                                            →
-                                        </span>
-
-                                    </button>
 
                                 </div>
 
-                            </article>
+                            </div>
 
-                        ))}
+                        </div>
 
-                    </div>
+                    )}
 
 
-                    <div className="products-pagination">
+                    {/* PAGINATION */}
 
-{selectedProduct && (
-    <div
-        className="product-lightbox"
-        role="dialog"
-        aria-modal="true"
-        aria-label={selectedProduct.name}
-        onClick={() => setSelectedProduct(null)}
-    >
-        <div
-            className="product-lightbox__content"
-            onClick={(event) => event.stopPropagation()}
-        >
-            <button
-                type="button"
-                className="product-lightbox__close"
-                aria-label="Close image"
-                onClick={() => setSelectedProduct(null)}
-            >
-                <X size={24} />
-            </button>
+                    <div
+                        className="products-pagination"
+                    >
 
-            <img
-                src={selectedProduct.image}
-                alt={selectedProduct.name}
-                className="product-lightbox__image"
-            />
-
-            <div className="product-lightbox__info">
-                <span>{selectedProduct.category}</span>
-                <h2>{selectedProduct.name}</h2>
-                <strong>
-                    ${selectedProduct.price.toFixed(2)}
-                </strong>
-            </div>
-        </div>
-    </div>
-)}
                         <button
-                            disabled={currentPage === 1}
+                            disabled={
+                                currentPage ===
+                                1
+                            }
                             onClick={() =>
                                 setCurrentPage(
                                     (page) =>
-                                        Math.max(1, page - 1)
+                                        Math.max(
+                                            1,
+                                            page - 1
+                                        )
                                 )
                             }
                         >
+
                             &lt;
+
                         </button>
 
 
                         {Array.from(
+
                             {
-                                length: totalPages
+                                length:
+                                    totalPages,
                             },
-                            (_, index) =>
+
+                            (
+                                _,
+                                index
+                            ) =>
                                 index + 1
-                        ).map((page) => (
 
-                            <button
-                                key={page}
-                                className={
-                                    currentPage === page
-                                        ? "products-pagination__active"
-                                        : ""
-                                }
-                                onClick={() =>
-                                    setCurrentPage(page)
-                                }
-                            >
-                                {page}
-                            </button>
+                        ).map(
+                            (page) => (
 
-                        ))}
+                                <button
+                                    key={page}
+                                    className={
+                                        currentPage ===
+                                        page
+                                            ? "products-pagination__active"
+                                            : ""
+                                    }
+                                    onClick={() =>
+                                        setCurrentPage(
+                                            page
+                                        )
+                                    }
+                                >
+
+                                    {page}
+
+                                </button>
+
+                            )
+                        )}
 
 
                         <button
                             disabled={
-                                currentPage === totalPages
+                                currentPage ===
+                                totalPages
                             }
                             onClick={() =>
                                 setCurrentPage(
@@ -756,22 +1977,41 @@ function ProductsPage() {
                                 )
                             }
                         >
+
                             ›
+
                         </button>
 
                     </div>
 
 
-                    <div className="products-benefits">
+                    {/* BENEFITS */}
+
+                    <div
+                        className="products-benefits"
+                    >
 
                         <div>
 
                             <strong>
-                                {t.benefits.fastShipping.title}
+
+                                {
+                                    t.benefits
+                                        .fastShipping
+                                        .title
+                                }
+
                             </strong>
 
+
                             <span>
-                                {t.benefits.fastShipping.description}
+
+                                {
+                                    t.benefits
+                                        .fastShipping
+                                        .description
+                                }
+
                             </span>
 
                         </div>
@@ -780,11 +2020,24 @@ function ProductsPage() {
                         <div>
 
                             <strong>
-                                {t.benefits.securePayment.title}
+
+                                {
+                                    t.benefits
+                                        .securePayment
+                                        .title
+                                }
+
                             </strong>
 
+
                             <span>
-                                {t.benefits.securePayment.description}
+
+                                {
+                                    t.benefits
+                                        .securePayment
+                                        .description
+                                }
+
                             </span>
 
                         </div>
@@ -793,11 +2046,24 @@ function ProductsPage() {
                         <div>
 
                             <strong>
-                                {t.benefits.premiumQuality.title}
+
+                                {
+                                    t.benefits
+                                        .premiumQuality
+                                        .title
+                                }
+
                             </strong>
 
+
                             <span>
-                                {t.benefits.premiumQuality.description}
+
+                                {
+                                    t.benefits
+                                        .premiumQuality
+                                        .description
+                                }
+
                             </span>
 
                         </div>
@@ -806,12 +2072,25 @@ function ProductsPage() {
                         <div>
 
                             <strong>
-                                {t.benefits.customerSupport.title}
+
+                                {
+                                    t.benefits
+                                        .customerSupport
+                                        .title
+                                }
+
                             </strong>
 
+
                             <span>
-                                {t.benefits.customerSupport.description}
-                            </span>
+
+                                {
+                                    t.benefits
+                                        .customerSupport
+                                        .description
+                                }
+
+                            </strong>
 
                         </div>
 
@@ -820,6 +2099,7 @@ function ProductsPage() {
                 </section>
 
             </main>
+
 
             <Footer />
 
