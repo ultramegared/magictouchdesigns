@@ -15,12 +15,9 @@ import { useNavigate } from "react-router-dom";
 
 import {
     Heart,
-    LogOut,
-    Mail,
     Package,
     Star,
     User,
-    Calendar,
 } from "lucide-react";
 
 import "./Account.css";
