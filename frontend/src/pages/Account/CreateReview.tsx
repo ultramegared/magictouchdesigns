@@ -47,6 +47,14 @@ const CreateReview = () => {
         useState("");
 
 
+    const [socialPlatform, setSocialPlatform] =
+        useState("");
+
+
+    const [socialUrl, setSocialUrl] =
+        useState("");
+
+
     const [imagePreview, setImagePreview] =
         useState<string | null>(null);
 
@@ -120,6 +128,12 @@ const CreateReview = () => {
 
                         review:
                             review.trim(),
+
+                        social_platform:
+                            socialPlatform || null,
+
+                        social_url:
+                            socialUrl.trim() || null,
 
                     }),
 
@@ -292,6 +306,98 @@ const CreateReview = () => {
                             }
                             rows={6}
                             required
+                        />
+
+                    </div>
+
+
+                    <div className="create-review-field">
+
+                        <label htmlFor="social-platform">
+
+                            Social platform
+
+                        </label>
+
+
+                        <select
+                            id="social-platform"
+                            value={socialPlatform}
+                            onChange={(event) =>
+                                setSocialPlatform(
+                                    event.target.value
+                                )
+                            }
+                        >
+
+                            <option value="">
+
+                                Select a platform
+
+                            </option>
+
+                            <option value="instagram">
+
+                                Instagram
+
+                            </option>
+
+                            <option value="facebook">
+
+                                Facebook
+
+                            </option>
+
+                            <option value="tiktok">
+
+                                TikTok
+
+                            </option>
+
+                            <option value="youtube">
+
+                                YouTube
+
+                            </option>
+
+                            <option value="x">
+
+                                X
+
+                            </option>
+
+                            <option value="other">
+
+                                Other
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div className="create-review-field">
+
+                        <label htmlFor="social-url">
+
+                            Social profile link
+
+                        </label>
+
+
+                        <input
+                            id="social-url"
+                            type="url"
+                            value={socialUrl}
+                            onChange={(event) =>
+                                setSocialUrl(
+                                    event.target.value
+                                )
+                            }
+                            placeholder={
+                                "https://..."
+                            }
                         />
 
                     </div>
