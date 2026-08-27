@@ -24,6 +24,7 @@ import SpecialOccasionsPage from "./pages/Collections/pages/SpecialOccasions/Spe
 import LoginPage from "./pages/Login/Login";
 import RegisterPage from "./pages/Register/Register";
 import AccountPage from "./pages/Account/Account";
+import ReviewsPage from "./pages/Account/Reviews";
 
 import CustomizePage from "./pages/Customize";
 import ContactPage from "./pages/Contact";
@@ -87,6 +88,11 @@ function App() {
                     path="/account"
                     element={<AccountPage />}
                 />
+                
+                <Route
+    path="/account/reviews"
+    element={<ReviewsPage />}
+/>
 
                 {/* ==================================================
                     PRODUCTS
