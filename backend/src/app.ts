@@ -18,8 +18,8 @@ import { pool } from "./config/database";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import reviewRoutes from "./routes/review.routes";
-import favoriteRoutes from "./routes/favorite.routes";
 
+import adminRoutes from "./routes/admin.routes";
 
 const app = express();
 
@@ -59,19 +59,17 @@ app.use(
 );
 
 
-// Favorite routes
-app.use(
-    "/api/favorites",
-    favoriteRoutes
-);
-
-
 // User routes
 app.use(
     "/api/user",
     userRoutes
 );
 
+// Administrator routes
+app.use(
+    "/api/admin",
+    adminRoutes
+);
 
 /*
 |--------------------------------------------------------------------------
