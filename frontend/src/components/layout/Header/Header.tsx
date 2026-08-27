@@ -12,7 +12,10 @@
 
 import "./Header.css";
 
-import { useEffect, useState } from "react";
+import {
+    useEffect,
+    useState,
+} from "react";
 
 import {
     Search,
@@ -20,65 +23,188 @@ import {
     ShoppingCart,
     Menu,
     X,
-    Heart,
     ShoppingBag,
     Star,
     LogOut,
-    ChevronDown
+    ChevronDown,
 } from "lucide-react";
 
-import { NavLink, useNavigate } from "react-router-dom";
-import { getCartItems } from "../../../utils/cart";
+import {
+    NavLink,
+    useNavigate,
+} from "react-router-dom";
 
-import { APP_CONFIG } from "../../../constants/config";
-import { navigation } from "../../../constants/navigation";
+import {
+    getCartItems,
+} from "../../../utils/cart";
+
+import {
+    APP_CONFIG,
+} from "../../../constants/config";
+
+import {
+    navigation,
+} from "../../../constants/navigation";
 
 import {
     useLanguage,
 } from "../../../contexts/LanguageContext";
 
-import { translations } from "../../../translations";
-import { apiRequest } from "../../../services/api";
+import {
+    translations,
+} from "../../../translations";
+
+import {
+    apiRequest,
+} from "../../../services/api";
+
 
 interface AuthenticatedUser {
+
     id: string;
+
     username: string;
+
     first_name: string;
+
     last_name: string;
+
     email: string;
+
     is_active: boolean;
+
     created_at: string;
+
     updated_at: string;
+
 }
+
 
 function Header() {
 
     const [menuOpen, setMenuOpen] =
         useState(false);
 
+
     const [cartCount, setCartCount] =
         useState(0);
+
 
     const [searchOpen, setSearchOpen] =
         useState(false);
 
+
     const [searchQuery, setSearchQuery] =
         useState("");
+
 
     const [currentUser, setCurrentUser] =
         useState<AuthenticatedUser | null>(null);
 
+
     const [accountMenuOpen, setAccountMenuOpen] =
         useState(false);
 
-    const navigate = useNavigate();
+
+    const [isMobileView, setIsMobileView] =
+        useState(
+            window.innerWidth <= 768
+        );
+
+
+    const navigate =
+        useNavigate();
+
 
     const {
         language,
         setLanguage,
     } = useLanguage();
 
-    const t = translations[language];
+
+    const t =
+        translations[language];
+
+
+    /**
+     * ============================================================
+     * USER INITIALS
+     * ============================================================
+     */
+
+    const getUserInitials = (
+        user: AuthenticatedUser
+    ) => {
+
+        const firstInitial =
+            user.first_name
+                ?.trim()
+                .charAt(0)
+                .toUpperCase();
+
+
+        const lastInitial =
+            user.last_name
+                ?.trim()
+                .charAt(0)
+                .toUpperCase();
+
+
+        const initials =
+            `${firstInitial || ""}${lastInitial || ""}`;
+
+
+        if (initials) {
+
+            return initials;
+
+        }
+
+
+        return user.username
+            .slice(0, 2)
+            .toUpperCase();
+
+    };
+
+
+    /**
+     * ============================================================
+     * MOBILE VIEW
+     * ============================================================
+     */
+
+    useEffect(() => {
+
+        const updateMobileView = () => {
+
+            setIsMobileView(
+                window.innerWidth <= 768
+            );
+
+        };
+
+
+        updateMobileView();
+
+
+        window.addEventListener(
+            "resize",
+            updateMobileView
+        );
+
+
+        return () => {
+
+            window.removeEventListener(
+                "resize",
+                updateMobileView
+            );
+
+        };
+
+    }, []);
+
 
     /**
      * ============================================================
@@ -90,23 +216,33 @@ function Header() {
 
         const updateCartCount = () => {
 
-            const items = getCartItems();
+            const items =
+                getCartItems();
 
-            const total = items.reduce(
-                (sum, item) =>
-                    sum + item.quantity,
-                0
+
+            const total =
+                items.reduce(
+                    (sum, item) =>
+                        sum + item.quantity,
+                    0
+                );
+
+
+            setCartCount(
+                total
             );
 
-            setCartCount(total);
         };
 
+
         updateCartCount();
+
 
         window.addEventListener(
             "magic-touch-cart-updated",
             updateCartCount
         );
+
 
         return () => {
 
@@ -119,6 +255,7 @@ function Header() {
 
     }, []);
 
+
     /**
      * ============================================================
      * AUTHENTICATED USER
@@ -127,63 +264,80 @@ function Header() {
 
     useEffect(() => {
 
-        const loadCurrentUser = async () => {
+        const loadCurrentUser =
+            async () => {
 
-            const token =
-                localStorage.getItem(
-                    "auth_token"
-                );
+                const token =
+                    localStorage.getItem(
+                        "auth_token"
+                    );
 
-            if (!token) {
 
-                setCurrentUser(null);
+                if (!token) {
 
-                return;
-            }
+                    setCurrentUser(
+                        null
+                    );
 
-            try {
+                    return;
 
-                const result =
-                    await apiRequest<{
-                        status: string;
-                        user: AuthenticatedUser;
-                    }>("/api/user/me");
+                }
 
-                setCurrentUser(
-                    result.user
-                );
 
-                localStorage.setItem(
-                    "auth_user",
-                    JSON.stringify(
+                try {
+
+                    const result =
+                        await apiRequest<{
+                            status: string;
+                            user: AuthenticatedUser;
+                        }>(
+                            "/api/user/me"
+                        );
+
+
+                    setCurrentUser(
                         result.user
-                    )
-                );
+                    );
 
-            } catch (error) {
 
-                console.error(
-                    "Unable to load authenticated user:",
-                    error
-                );
+                    localStorage.setItem(
+                        "auth_user",
+                        JSON.stringify(
+                            result.user
+                        )
+                    );
 
-                localStorage.removeItem(
-                    "auth_token"
-                );
+                } catch (error) {
 
-                localStorage.removeItem(
-                    "auth_user"
-                );
+                    console.error(
+                        "Unable to load authenticated user:",
+                        error
+                    );
 
-                setCurrentUser(null);
 
-            }
+                    localStorage.removeItem(
+                        "auth_token"
+                    );
 
-        };
+
+                    localStorage.removeItem(
+                        "auth_user"
+                    );
+
+
+                    setCurrentUser(
+                        null
+                    );
+
+                }
+
+            };
+
 
         loadCurrentUser();
 
     }, []);
+
 
     /**
      * ============================================================
@@ -195,16 +349,21 @@ function Header() {
 
         if (!currentUser) {
 
-            navigate("/login");
+            navigate(
+                "/login"
+            );
 
             return;
+
         }
+
 
         setAccountMenuOpen(
             previous => !previous
         );
 
     };
+
 
     /**
      * ============================================================
@@ -214,35 +373,45 @@ function Header() {
 
     const openAccountPage = () => {
 
-        setAccountMenuOpen(false);
+        setAccountMenuOpen(
+            false
+        );
 
-        navigate("/account");
 
-    };
-
-    const openFavorites = () => {
-
-        setAccountMenuOpen(false);
-
-        navigate("/account/favorites");
+        navigate(
+            "/account"
+        );
 
     };
+
 
     const openOrders = () => {
 
-        setAccountMenuOpen(false);
+        setAccountMenuOpen(
+            false
+        );
 
-        navigate("/account/orders");
+
+        navigate(
+            "/account/orders"
+        );
 
     };
+
 
     const openReviews = () => {
 
-        setAccountMenuOpen(false);
+        setAccountMenuOpen(
+            false
+        );
 
-        navigate("/account/reviews");
+
+        navigate(
+            "/account/reviews"
+        );
 
     };
+
 
     /**
      * ============================================================
@@ -256,23 +425,35 @@ function Header() {
             "auth_token"
         );
 
+
         localStorage.removeItem(
             "auth_user"
         );
 
-        setCurrentUser(null);
 
-        setAccountMenuOpen(false);
+        setCurrentUser(
+            null
+        );
 
-        navigate("/login");
+
+        setAccountMenuOpen(
+            false
+        );
+
+
+        navigate(
+            "/login"
+        );
 
     };
+
 
     return (
 
         <header className="header">
 
             <div className="header__container">
+
 
                 {/* ==================================================
                     BRAND
@@ -283,8 +464,14 @@ function Header() {
                     className="header__brand"
                     onClick={() => {
 
-                        setMenuOpen(false);
-                        setAccountMenuOpen(false);
+                        setMenuOpen(
+                            false
+                        );
+
+
+                        setAccountMenuOpen(
+                            false
+                        );
 
                     }}
                 >
@@ -295,6 +482,7 @@ function Header() {
                         className="header__logo"
                     />
 
+
                     <div className="header__brand-text">
 
                         <span className="header__brand-title">
@@ -302,6 +490,7 @@ function Header() {
                             MAGIC TOUCH
 
                         </span>
+
 
                         <span className="header__brand-subtitle">
 
@@ -312,6 +501,7 @@ function Header() {
                     </div>
 
                 </NavLink>
+
 
                 {/* ==================================================
                     DESKTOP NAVIGATION
@@ -375,11 +565,13 @@ function Header() {
 
                 </nav>
 
+
                 {/* ==================================================
                     HEADER ACTIONS
                    ================================================== */}
 
                 <div className="header__actions">
+
 
                     {/* SEARCH */}
 
@@ -398,6 +590,7 @@ function Header() {
                         <Search size={20} />
 
                     </button>
+
 
                     {searchOpen && (
 
@@ -424,6 +617,7 @@ function Header() {
                                             )}`
                                         );
 
+
                                         setSearchOpen(
                                             false
                                         );
@@ -439,6 +633,7 @@ function Header() {
                         </div>
 
                     )}
+
 
                     {/* ==================================================
                         ACCOUNT
@@ -472,15 +667,21 @@ function Header() {
 
                             </span>
 
+
                             {currentUser && (
 
                                 <span className="header__username">
 
-                                    {currentUser.username}
+                                    {isMobileView
+                                        ? getUserInitials(
+                                            currentUser
+                                        )
+                                        : currentUser.username}
 
                                 </span>
 
                             )}
+
 
                             {currentUser && (
 
@@ -497,6 +698,7 @@ function Header() {
 
                         </button>
 
+
                         {/* ==================================================
                             ACCOUNT DROPDOWN
                            ================================================== */}
@@ -505,6 +707,7 @@ function Header() {
                             accountMenuOpen && (
 
                             <div className="header__account-menu">
+
 
                                 {/* USER */}
 
@@ -518,21 +721,29 @@ function Header() {
 
                                     </div>
 
+
                                     <div className="header__account-user-info">
 
                                         <strong>
+
                                             {currentUser.username}
+
                                         </strong>
 
+
                                         <span>
+
                                             {currentUser.email}
+
                                         </span>
 
                                     </div>
 
                                 </div>
 
+
                                 <div className="header__account-divider" />
+
 
                                 {/* ACCOUNT */}
 
@@ -548,35 +759,17 @@ function Header() {
                                         size={17}
                                     />
 
+
                                     <span>
+
                                         {language === "es"
                                             ? "Mi cuenta"
                                             : "My account"}
+
                                     </span>
 
                                 </button>
 
-                                {/* FAVORITES */}
-
-                                <button
-                                    type="button"
-                                    className="header__account-item"
-                                    onClick={
-                                        openFavorites
-                                    }
-                                >
-
-                                    <Heart
-                                        size={17}
-                                    />
-
-                                    <span>
-                                        {language === "es"
-                                            ? "Favoritos"
-                                            : "Favorites"}
-                                    </span>
-
-                                </button>
 
                                 {/* ORDERS */}
 
@@ -592,13 +785,17 @@ function Header() {
                                         size={17}
                                     />
 
+
                                     <span>
+
                                         {language === "es"
                                             ? "Últimas compras"
                                             : "Recent purchases"}
+
                                     </span>
 
                                 </button>
+
 
                                 {/* REVIEWS */}
 
@@ -614,15 +811,20 @@ function Header() {
                                         size={17}
                                     />
 
+
                                     <span>
+
                                         {language === "es"
                                             ? "Mis reviews"
                                             : "My reviews"}
+
                                     </span>
 
                                 </button>
 
+
                                 <div className="header__account-divider" />
+
 
                                 {/* LOGOUT */}
 
@@ -638,10 +840,13 @@ function Header() {
                                         size={17}
                                     />
 
+
                                     <span>
+
                                         {language === "es"
                                             ? "Cerrar sesión"
                                             : "Sign out"}
+
                                     </span>
 
                                 </button>
@@ -652,6 +857,7 @@ function Header() {
 
                     </div>
 
+
                     {/* ==================================================
                         CART
                        ================================================== */}
@@ -661,7 +867,9 @@ function Header() {
                         className="header__icon header__cart"
                         aria-label="Shopping Cart"
                         onClick={() =>
-                            navigate("/cart")
+                            navigate(
+                                "/cart"
+                            )
                         }
                     >
 
@@ -669,11 +877,15 @@ function Header() {
                             size={20}
                         />
 
+
                         <span>
+
                             {cartCount}
+
                         </span>
 
                     </button>
+
 
                     {/* LANGUAGE */}
 
@@ -687,16 +899,22 @@ function Header() {
                                     : ""
                             }
                             onClick={() =>
-                                setLanguage("en")
+                                setLanguage(
+                                    "en"
+                                )
                             }
                             aria-pressed={
                                 language === "en"
                             }
                         >
+
                             EN
+
                         </button>
 
+
                         <span>|</span>
+
 
                         <button
                             type="button"
@@ -706,16 +924,21 @@ function Header() {
                                     : ""
                             }
                             onClick={() =>
-                                setLanguage("es")
+                                setLanguage(
+                                    "es"
+                                )
                             }
                             aria-pressed={
                                 language === "es"
                             }
                         >
+
                             ES
+
                         </button>
 
                     </div>
+
 
                     {/* MOBILE MENU */}
 
@@ -742,6 +965,7 @@ function Header() {
 
             </div>
 
+
             {/* ==========================================================
                 MOBILE NAVIGATION
                ========================================================== */}
@@ -764,7 +988,9 @@ function Header() {
                                 to={item.path}
                                 className="header__mobile-link"
                                 onClick={() =>
-                                    setMenuOpen(false)
+                                    setMenuOpen(
+                                        false
+                                    )
                                 }
                             >
 
@@ -804,6 +1030,7 @@ function Header() {
 
                 }
 
+
                 {/* MOBILE ACCOUNT */}
 
                 {currentUser && (
@@ -825,9 +1052,13 @@ function Header() {
                                 size={18}
                             />
 
+
                             <span>
+
                                 {currentUser.username}
+
                             </span>
+
 
                             <ChevronDown
                                 size={15}
@@ -840,9 +1071,11 @@ function Header() {
 
                         </button>
 
+
                         {accountMenuOpen && (
 
                             <div className="header__mobile-account-menu">
+
 
                                 <button
                                     type="button"
@@ -850,23 +1083,15 @@ function Header() {
                                         openAccountPage
                                     }
                                 >
+
                                     <User size={16} />
+
                                     {language === "es"
                                         ? "Mi cuenta"
                                         : "My account"}
+
                                 </button>
 
-                                <button
-                                    type="button"
-                                    onClick={
-                                        openFavorites
-                                    }
-                                >
-                                    <Heart size={16} />
-                                    {language === "es"
-                                        ? "Favoritos"
-                                        : "Favorites"}
-                                </button>
 
                                 <button
                                     type="button"
@@ -874,13 +1099,17 @@ function Header() {
                                         openOrders
                                     }
                                 >
+
                                     <ShoppingBag
                                         size={16}
                                     />
+
                                     {language === "es"
                                         ? "Últimas compras"
                                         : "Recent purchases"}
+
                                 </button>
+
 
                                 <button
                                     type="button"
@@ -888,11 +1117,17 @@ function Header() {
                                         openReviews
                                     }
                                 >
-                                    <Star size={16} />
+
+                                    <Star
+                                        size={16}
+                                    />
+
                                     {language === "es"
                                         ? "Mis reviews"
                                         : "My reviews"}
+
                                 </button>
+
 
                                 <button
                                     type="button"
@@ -901,12 +1136,15 @@ function Header() {
                                         handleLogout
                                     }
                                 >
+
                                     <LogOut
                                         size={16}
                                     />
+
                                     {language === "es"
                                         ? "Cerrar sesión"
                                         : "Sign out"}
+
                                 </button>
 
                             </div>
@@ -916,6 +1154,7 @@ function Header() {
                     </div>
 
                 )}
+
 
                 {/* MOBILE LANGUAGE */}
 
@@ -929,16 +1168,22 @@ function Header() {
                                 : ""
                         }
                         onClick={() =>
-                            setLanguage("en")
+                            setLanguage(
+                                "en"
+                            )
                         }
                         aria-pressed={
                             language === "en"
                         }
                     >
+
                         EN
+
                     </button>
 
+
                     <span>|</span>
+
 
                     <button
                         type="button"
@@ -948,13 +1193,17 @@ function Header() {
                                 : ""
                         }
                         onClick={() =>
-                            setLanguage("es")
+                            setLanguage(
+                                "es"
+                            )
                         }
                         aria-pressed={
                             language === "es"
                         }
                     >
+
                         ES
+
                     </button>
 
                 </div>
@@ -964,6 +1213,8 @@ function Header() {
         </header>
 
     );
+
 }
+
 
 export default Header;
