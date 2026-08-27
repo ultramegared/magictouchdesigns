@@ -27,7 +27,8 @@ interface AuthenticatedRequest
     extends Request {
 
     user?: {
-        id: string;
+        userId: string;
+        username: string;
     };
 
 }
@@ -51,7 +52,7 @@ export const create = async (
     try {
 
         const userId =
-            req.user?.id;
+            req.user?.userId;
 
 
         const {
@@ -142,7 +143,7 @@ export const getMine = async (
     try {
 
         const userId =
-            req.user?.id;
+            req.user?.userId;
 
 
         if (!userId) {
@@ -213,7 +214,7 @@ export const remove = async (
     try {
 
         const userId =
-            req.user?.id;
+            req.user?.userId;
 
 
         const {
