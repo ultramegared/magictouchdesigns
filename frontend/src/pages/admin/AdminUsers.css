@@ -17,7 +17,21 @@
 .admin-users {
     flex: 1;
 
+    min-width: 0;
+
     min-height: 100vh;
+
+    margin-left:
+        270px;
+
+    width:
+        calc(
+            100% -
+            270px
+        );
+
+    box-sizing:
+        border-box;
 
     background:
         #f7f7f5;
@@ -49,6 +63,9 @@
 
 
 .admin-users__hero-content {
+    width:
+        100%;
+
     max-width:
         1200px;
 
@@ -186,6 +203,9 @@
 
     margin:
         0 auto;
+
+    box-sizing:
+        border-box;
 
     padding:
         36px
@@ -784,13 +804,51 @@
 
 
 /* ===============================================================
-   RESPONSIVE
+   TABLET
 ================================================================ */
 
 @media (
     max-width:
-    900px
+    1100px
 ) {
+
+    .admin-users__hero {
+        padding:
+            42px
+            32px;
+    }
+
+
+    .admin-users__container {
+        padding:
+            32px
+            32px
+            54px;
+    }
+
+}
+
+
+/* ===============================================================
+   MOBILE
+================================================================ */
+
+@media (
+    max-width:
+    768px
+) {
+
+    .admin-users {
+        width:
+            100%;
+
+        margin-left:
+            0;
+
+        padding-top:
+            64px;
+    }
+
 
     .admin-users__hero {
         padding:
@@ -808,6 +866,10 @@
 
 }
 
+
+/* ===============================================================
+   SMALL MOBILE
+================================================================ */
 
 @media (
     max-width:
