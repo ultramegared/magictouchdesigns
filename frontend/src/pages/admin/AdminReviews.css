@@ -10,29 +10,38 @@
  */
 
 
-/* ================================================================
+/* ===============================================================
    MAIN LAYOUT
-   ================================================================ */
+================================================================ */
 
 .admin-reviews {
 
-    width:
-        calc(
-            100% -
-            280px
-        );
+    flex:
+        1;
+
+    min-width:
+        0;
 
     min-height:
         100vh;
 
     margin-left:
-        280px;
+        270px;
 
-    background:
-        #f7f7f7;
+    width:
+        calc(
+            100% -
+            270px
+        );
 
     box-sizing:
         border-box;
+
+    background:
+        #f7f7f5;
+
+    color:
+        #1f1f1f;
 
 }
 
@@ -43,11 +52,9 @@
 
 .admin-reviews__hero {
 
-    width:
-        100%;
-
     padding:
-        48px 24px;
+        48px
+        40px;
 
     background:
         linear-gradient(
@@ -59,19 +66,16 @@
     color:
         #ffffff;
 
-    box-sizing:
-        border-box;
-
 }
 
 
 .admin-reviews__hero-content {
 
     width:
-        min(
-            1200px,
-            100%
-        );
+        100%;
+
+    max-width:
+        1200px;
 
     margin:
         0 auto;
@@ -86,7 +90,7 @@
         space-between;
 
     gap:
-        24px;
+        32px;
 
 }
 
@@ -160,10 +164,6 @@
 }
 
 
-/* ================================================================
-   HERO ICON
-   ================================================================ */
-
 .admin-reviews__hero-icon {
 
     width:
@@ -217,19 +217,21 @@
 .admin-reviews__container {
 
     width:
-        min(
-            1200px,
-            100%
-        );
+        100%;
+
+    max-width:
+        1200px;
 
     margin:
         0 auto;
 
-    padding:
-        42px 24px 80px;
-
     box-sizing:
         border-box;
+
+    padding:
+        36px
+        40px
+        60px;
 
 }
 
@@ -1056,16 +1058,21 @@
     1100px
 ) {
 
-    .admin-reviews {
+    .admin-reviews__hero {
 
-        width:
-            calc(
-                100% -
-                240px
-            );
+        padding:
+            42px
+            32px;
 
-        margin-left:
-            240px;
+    }
+
+
+    .admin-reviews__container {
+
+        padding:
+            32px
+            32px
+            54px;
 
     }
 
@@ -1110,40 +1117,8 @@
     .admin-reviews__hero {
 
         padding:
-            36px 18px;
-
-    }
-
-
-    .admin-reviews__hero-content {
-
-        align-items:
-            flex-start;
-
-    }
-
-
-    .admin-reviews__hero-icon {
-
-        width:
-            58px;
-
-        height:
-            58px;
-
-        border-radius:
-            15px;
-
-    }
-
-
-    .admin-reviews__hero-icon svg {
-
-        width:
-            30px;
-
-        height:
-            30px;
+            40px
+            28px;
 
     }
 
@@ -1151,7 +1126,9 @@
     .admin-reviews__container {
 
         padding:
-            28px 18px 60px;
+            28px
+            28px
+            50px;
 
     }
 
@@ -1234,8 +1211,63 @@
 
 @media (
     max-width:
-    540px
+    640px
 ) {
+
+    .admin-reviews__hero {
+
+        padding:
+            32px
+            20px;
+
+    }
+
+
+    .admin-reviews__hero-content {
+
+        align-items:
+            flex-start;
+
+        gap:
+            20px;
+
+    }
+
+
+    .admin-reviews__hero-icon {
+
+        width:
+            64px;
+
+        height:
+            64px;
+
+        border-radius:
+            16px;
+
+    }
+
+
+    .admin-reviews__container {
+
+        padding:
+            24px
+            16px
+            40px;
+
+    }
+
+
+    .admin-reviews__toolbar {
+
+        align-items:
+            stretch;
+
+        flex-direction:
+            column;
+
+    }
+
 
     .admin-reviews__hero h1 {
 
