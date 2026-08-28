@@ -18,8 +18,10 @@ import { pool } from "./config/database";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import reviewRoutes from "./routes/review.routes";
+import uploadRoutes from "./routes/upload.routes";
 
 import adminRoutes from "./routes/admin.routes";
+
 
 const app = express();
 
@@ -33,6 +35,7 @@ const app = express();
 app.use(
     cors()
 );
+
 
 app.use(
     express.json()
@@ -59,17 +62,26 @@ app.use(
 );
 
 
+// Upload routes
+app.use(
+    "/api/upload",
+    uploadRoutes
+);
+
+
 // User routes
 app.use(
     "/api/user",
     userRoutes
 );
 
+
 // Administrator routes
 app.use(
     "/api/admin",
     adminRoutes
 );
+
 
 /*
 |--------------------------------------------------------------------------
