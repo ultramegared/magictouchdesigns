@@ -26,6 +26,8 @@ const API_BASE_URL =
  *
  * The authentication token is automatically included
  * when it exists in localStorage.
+ *
+ * Supports both JSON and FormData requests.
  */
 export async function apiRequest<T = unknown>(
     endpoint: string,
@@ -50,7 +52,25 @@ export async function apiRequest<T = unknown>(
         );
 
 
+    const isFormData =
+        options.body instanceof FormData;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CONTENT TYPE
+    |--------------------------------------------------------------------------
+    |
+    | FormData must NOT have Content-Type
+    | manually configured.
+    |
+    | The browser automatically adds the correct
+    | multipart boundary.
+    |
+    */
+
     if (
+        !isFormData &&
         !headers.has(
             "Content-Type"
         ) &&
@@ -64,6 +84,12 @@ export async function apiRequest<T = unknown>(
 
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTHORIZATION
+    |--------------------------------------------------------------------------
+    */
 
     if (
         token &&
@@ -82,7 +108,7 @@ export async function apiRequest<T = unknown>(
 
     /*
     |--------------------------------------------------------------------------
-    | Request
+    | REQUEST
     |--------------------------------------------------------------------------
     */
 
@@ -123,7 +149,7 @@ export async function apiRequest<T = unknown>(
 
     /*
     |--------------------------------------------------------------------------
-    | Response Body
+    | RESPONSE BODY
     |--------------------------------------------------------------------------
     */
 
@@ -147,7 +173,7 @@ export async function apiRequest<T = unknown>(
 
     /*
     |--------------------------------------------------------------------------
-    | Error Response
+    | ERROR RESPONSE
     |--------------------------------------------------------------------------
     */
 
@@ -175,6 +201,10 @@ export async function apiRequest<T = unknown>(
                 "auth_token"
             );
 
+            localStorage.removeItem(
+                "auth_user"
+            );
+
         }
 
 
@@ -187,7 +217,7 @@ export async function apiRequest<T = unknown>(
 
     /*
     |--------------------------------------------------------------------------
-    | Successful Response
+    | SUCCESSFUL RESPONSE
     |--------------------------------------------------------------------------
     */
 
@@ -198,7 +228,7 @@ export async function apiRequest<T = unknown>(
 
 /*
 |--------------------------------------------------------------------------
-| Health Check
+| HEALTH CHECK
 |--------------------------------------------------------------------------
 */
 
