@@ -629,4 +629,4 @@ function AdminSettings() {
 }
 
 
-export default AdminSettings;ñ
+export default AdminSettings;
