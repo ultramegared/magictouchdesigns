@@ -46,6 +46,29 @@ interface CurrentUser {
 }
 
 
+interface SettingsData {
+
+    websiteName:
+        string;
+
+    browserTitle:
+        string;
+
+    slogan:
+        string;
+
+    logoUrl:
+        string | null;
+
+    supportEmail:
+        string;
+
+    notificationsEnabled:
+        boolean;
+
+}
+
+
 /* ===============================================================
    COMPONENT
 ================================================================ */
@@ -187,6 +210,88 @@ function AdminSettings() {
 
 
     /* ============================================================
+       LOAD SETTINGS
+    ============================================================ */
+
+    useEffect(() => {
+
+        const loadSettings =
+            async () => {
+
+                try {
+
+                    const result =
+                        await apiRequest<{
+                            status: string;
+
+                            settings:
+                                SettingsData;
+                        }>(
+                            "/api/settings"
+                        );
+
+
+                    const settings =
+                        result.settings;
+
+
+                    /*
+                     * The current backend uses websiteName
+                     * as the main business and website name.
+                     */
+
+                    setStoreName(
+                        settings.websiteName
+                    );
+
+
+                    setWebsiteName(
+                        settings.websiteName
+                    );
+
+
+                    setBrowserTitle(
+                        settings.browserTitle
+                    );
+
+
+                    setLogoUrl(
+                        settings.logoUrl
+                        ?? ""
+                    );
+
+
+                    setSupportEmail(
+                        settings.supportEmail
+                    );
+
+
+                    setNotificationsEnabled(
+                        settings.notificationsEnabled
+                    );
+
+
+                    document.title =
+                        settings.browserTitle;
+
+                } catch (error) {
+
+                    console.error(
+                        "Unable to load settings:",
+                        error
+                    );
+
+                }
+
+            };
+
+
+        loadSettings();
+
+    }, []);
+
+
+    /* ============================================================
        SAVE SETTINGS
     ============================================================ */
 
@@ -205,39 +310,88 @@ function AdminSettings() {
                 );
 
 
+                const result =
+                    await apiRequest<{
+                        status: string;
+
+                        message:
+                            string;
+
+                        settings:
+                            SettingsData;
+                    }>(
+                        "/api/settings",
+                        {
+                            method:
+                                "PUT",
+
+                            body:
+                                JSON.stringify({
+
+                                    websiteName,
+
+                                    browserTitle,
+
+                                    logoUrl:
+                                        logoUrl
+                                        || null,
+
+                                    supportEmail,
+
+                                    notificationsEnabled,
+
+                                }),
+                        }
+                    );
+
+
+                const settings =
+                    result.settings;
+
+
                 /*
-                 * Settings API will be connected
-                 * when the backend configuration
-                 * endpoint is created.
+                 * Synchronize the returned values
+                 * from the backend.
                  */
 
-
-                await new Promise(
-                    (
-                        resolve
-                    ) => {
-
-                        setTimeout(
-                            resolve,
-                            500
-                        );
-
-                    }
+                setStoreName(
+                    settings.websiteName
                 );
 
 
-                /*
-                 * Temporary browser title preview.
-                 * The permanent value will later
-                 * come from the backend settings.
-                 */
+                setWebsiteName(
+                    settings.websiteName
+                );
+
+
+                setBrowserTitle(
+                    settings.browserTitle
+                );
+
+
+                setLogoUrl(
+                    settings.logoUrl
+                    ?? ""
+                );
+
+
+                setSupportEmail(
+                    settings.supportEmail
+                );
+
+
+                setNotificationsEnabled(
+                    settings.notificationsEnabled
+                );
+
 
                 document.title =
-                    browserTitle;
+                    settings.browserTitle;
 
 
                 setMessage(
-                    "Settings saved successfully."
+                    result.message
+                    || "Settings saved successfully."
                 );
 
             } catch (error) {
@@ -443,11 +597,22 @@ function AdminSettings() {
                                         onChange={
                                             (
                                                 event
-                                            ) =>
+                                            ) => {
+
+                                                const value =
+                                                    event.target.value;
+
 
                                                 setStoreName(
-                                                    event.target.value
-                                                )
+                                                    value
+                                                );
+
+
+                                                setWebsiteName(
+                                                    value
+                                                );
+
+                                            }
                                         }
                                     />
 
@@ -594,11 +759,22 @@ function AdminSettings() {
                                         onChange={
                                             (
                                                 event
-                                            ) =>
+                                            ) => {
+
+                                                const value =
+                                                    event.target.value;
+
 
                                                 setWebsiteName(
-                                                    event.target.value
-                                                )
+                                                    value
+                                                );
+
+
+                                                setStoreName(
+                                                    value
+                                                );
+
+                                            }
                                         }
                                     />
 
