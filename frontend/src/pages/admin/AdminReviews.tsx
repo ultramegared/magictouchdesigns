@@ -7,8 +7,8 @@
  * Language: TypeScript React
  * Description:
  * Administrative review management page.
- * Allows administrators to review, filter, and approve
- * customer reviews with images.
+ * Allows administrators to review, approve,
+ * and permanently delete customer reviews with images.
  * ================================================================
  */
 
@@ -23,6 +23,7 @@ import {
     Image,
     RefreshCw,
     Star,
+    Trash2,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar";
@@ -91,6 +92,15 @@ interface ApproveReviewResponse {
     message: string;
 
     review: AdminReview;
+
+}
+
+
+interface DeleteReviewResponse {
+
+    status: string;
+
+    message: string;
 
 }
 
@@ -189,6 +199,14 @@ function AdminReviews() {
     const [
         approvingId,
         setApprovingId,
+    ] = useState<string | null>(
+        null
+    );
+
+
+    const [
+        deletingId,
+        setDeletingId,
     ] = useState<string | null>(
         null
     );
@@ -377,6 +395,89 @@ function AdminReviews() {
         };
 
 
+    /* ============================================================
+       DELETE REVIEW
+    ============================================================ */
+
+    const handleDelete =
+        async (
+            reviewId: string
+        ) => {
+
+            const confirmed =
+                window.confirm(
+                    "Are you sure you want to permanently delete this review?"
+                );
+
+
+            if (!confirmed) {
+
+                return;
+
+            }
+
+
+            try {
+
+                setDeletingId(
+                    reviewId
+                );
+
+
+                setError(
+                    null
+                );
+
+
+                await apiRequest<DeleteReviewResponse>(
+                    `/api/admin/reviews/${reviewId}`,
+                    {
+
+                        method:
+                            "DELETE",
+
+                    }
+                );
+
+
+                setReviews(
+                    (
+                        currentReviews
+                    ) =>
+
+                        currentReviews.filter(
+                            (
+                                review
+                            ) =>
+
+                                review.id !==
+                                reviewId
+                        )
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to delete review:",
+                    error
+                );
+
+
+                setError(
+                    "Unable to delete review."
+                );
+
+            } finally {
+
+                setDeletingId(
+                    null
+                );
+
+            }
+
+        };
+
+
     return (
 
         <div
@@ -553,7 +654,6 @@ function AdminReviews() {
                             <RefreshCw
                                 size={18}
                             />
-
 
                             Refresh
 
@@ -773,11 +873,11 @@ function AdminReviews() {
 
                                                     {/* ACTIONS */}
 
-                                                    {!review.is_approved && (
+                                                    <div
+                                                        className="admin-reviews__actions"
+                                                    >
 
-                                                        <div
-                                                            className="admin-reviews__actions"
-                                                        >
+                                                        {!review.is_approved && (
 
                                                             <button
                                                                 type="button"
@@ -789,7 +889,9 @@ function AdminReviews() {
                                                                 }
                                                                 disabled={
                                                                     approvingId ===
-                                                                    review.id
+                                                                        review.id ||
+                                                                    deletingId ===
+                                                                        review.id
                                                                 }
                                                             >
 
@@ -811,9 +913,44 @@ function AdminReviews() {
 
                                                             </button>
 
-                                                        </div>
+                                                        )}
 
-                                                    )}
+
+                                                        <button
+                                                            type="button"
+                                                            className="admin-reviews__delete"
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    review.id
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                deletingId ===
+                                                                    review.id ||
+                                                                approvingId ===
+                                                                    review.id
+                                                            }
+                                                        >
+
+                                                            <Trash2
+                                                                size={
+                                                                    18
+                                                                }
+                                                            />
+
+
+                                                            {
+                                                                deletingId ===
+                                                                review.id
+
+                                                                    ? "Deleting..."
+
+                                                                    : "Delete Review"
+                                                            }
+
+                                                        </button>
+
+                                                    </div>
 
                                                 </div>
 
