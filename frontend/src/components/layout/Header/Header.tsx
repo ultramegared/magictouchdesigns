@@ -111,13 +111,10 @@ const formatBrandName =
     } => {
 
         const normalizedName =
-            websiteName
-                .trim();
+            websiteName.trim();
 
 
-        if (
-            !normalizedName
-        ) {
+        if (!normalizedName) {
 
             return {
 
@@ -133,21 +130,17 @@ const formatBrandName =
 
 
         const words =
-            normalizedName
-                .split(
-                    /\s+/
-                );
+            normalizedName.split(
+                /\s+/
+            );
 
 
-        if (
-            words.length === 1
-        ) {
+        if (words.length === 1) {
 
             return {
 
                 title:
-                    words[0]
-                        .toUpperCase(),
+                    words[0].toUpperCase(),
 
                 subtitle:
                     "",
@@ -194,7 +187,7 @@ const formatBrandName =
 function Header() {
 
     /* ============================================================
-       MENU
+       STATE
     ============================================================ */
 
     const [
@@ -205,10 +198,6 @@ function Header() {
     );
 
 
-    /* ============================================================
-       CART
-    ============================================================ */
-
     const [
         cartCount,
         setCartCount,
@@ -216,10 +205,6 @@ function Header() {
         0
     );
 
-
-    /* ============================================================
-       SEARCH
-    ============================================================ */
 
     const [
         searchOpen,
@@ -237,10 +222,6 @@ function Header() {
     );
 
 
-    /* ============================================================
-       AUTHENTICATED USER
-    ============================================================ */
-
     const [
         currentUser,
         setCurrentUser,
@@ -257,10 +238,6 @@ function Header() {
     );
 
 
-    /* ============================================================
-       WEBSITE SETTINGS
-    ============================================================ */
-
     const [
         websiteName,
         setWebsiteName,
@@ -268,10 +245,6 @@ function Header() {
         APP_CONFIG.companyName
     );
 
-
-    /* ============================================================
-       MOBILE VIEW
-    ============================================================ */
 
     const [
         isMobileView,
@@ -315,11 +288,9 @@ function Header() {
         );
 
 
-    /**
-     * ============================================================
-     * USER INITIALS
-     * ============================================================
-     */
+    /* ============================================================
+       USER INITIALS
+    ============================================================ */
 
     const getUserInitials =
         (
@@ -349,9 +320,7 @@ function Header() {
                 `${firstInitial || ""}${lastInitial || ""}`;
 
 
-            if (
-                initials
-            ) {
+            if (initials) {
 
                 return initials;
 
@@ -368,11 +337,9 @@ function Header() {
         };
 
 
-    /**
-     * ============================================================
-     * MOBILE VIEW
-     * ============================================================
-     */
+    /* ============================================================
+       MOBILE VIEW
+    ============================================================ */
 
     useEffect(() => {
 
@@ -407,11 +374,9 @@ function Header() {
     }, []);
 
 
-    /**
-     * ============================================================
-     * LOAD WEBSITE SETTINGS
-     * ============================================================
-     */
+    /* ============================================================
+       LOAD WEBSITE SETTINGS
+    ============================================================ */
 
     useEffect(() => {
 
@@ -433,26 +398,22 @@ function Header() {
 
 
                     if (
-                        result.settings
-                            ?.websiteName
+                        result.settings?.websiteName
                     ) {
 
                         setWebsiteName(
-                            result.settings
-                                .websiteName
+                            result.settings.websiteName
                         );
 
                     }
 
 
                     if (
-                        result.settings
-                            ?.browserTitle
+                        result.settings?.browserTitle
                     ) {
 
                         document.title =
-                            result.settings
-                                .browserTitle;
+                            result.settings.browserTitle;
 
                     }
 
@@ -475,11 +436,9 @@ function Header() {
     }, []);
 
 
-    /**
-     * ============================================================
-     * CART
-     * ============================================================
-     */
+    /* ============================================================
+       CART
+    ============================================================ */
 
     useEffect(() => {
 
@@ -532,11 +491,9 @@ function Header() {
     }, []);
 
 
-    /**
-     * ============================================================
-     * AUTHENTICATED USER
-     * ============================================================
-     */
+    /* ============================================================
+       AUTHENTICATED USER
+    ============================================================ */
 
     useEffect(() => {
 
@@ -549,9 +506,7 @@ function Header() {
                     );
 
 
-                if (
-                    !token
-                ) {
+                if (!token) {
 
                     setCurrentUser(
                         null
@@ -583,7 +538,6 @@ function Header() {
 
                     localStorage.setItem(
                         "auth_user",
-
                         JSON.stringify(
                             result.user
                         )
@@ -623,18 +577,14 @@ function Header() {
     }, []);
 
 
-    /**
-     * ============================================================
-     * ACCOUNT MENU
-     * ============================================================
-     */
+    /* ============================================================
+       ACCOUNT MENU
+    ============================================================ */
 
     const toggleAccountMenu =
         () => {
 
-            if (
-                !currentUser
-            ) {
+            if (!currentUser) {
 
                 navigate(
                     "/login"
@@ -653,11 +603,9 @@ function Header() {
         };
 
 
-    /**
-     * ============================================================
-     * ACCOUNT NAVIGATION
-     * ============================================================
-     */
+    /* ============================================================
+       ACCOUNT NAVIGATION
+    ============================================================ */
 
     const openAccountPage =
         () => {
@@ -718,11 +666,9 @@ function Header() {
         };
 
 
-    /**
-     * ============================================================
-     * LOGOUT
-     * ============================================================
-     */
+    /* ============================================================
+       LOGOUT
+    ============================================================ */
 
     const handleLogout =
         () => {
@@ -765,9 +711,7 @@ function Header() {
             >
 
 
-                {/* ==================================================
-                    BRAND
-                   ================================================== */}
+                {/* BRAND */}
 
                 <NavLink
                     to="/"
@@ -835,9 +779,7 @@ function Header() {
                 </NavLink>
 
 
-                {/* ==================================================
-                    DESKTOP NAVIGATION
-                   ================================================== */}
+                {/* DESKTOP NAVIGATION */}
 
                 <nav
                     className="header__nav"
@@ -846,9 +788,7 @@ function Header() {
                     {
 
                         navigation.map(
-                            (
-                                item
-                            ) => (
+                            item => (
 
                                 <NavLink
                                     key={
@@ -878,6 +818,7 @@ function Header() {
                                 >
 
                                     {
+
                                         item.label ===
                                         "Shop"
 
@@ -894,6 +835,7 @@ function Header() {
                                                     ? t.navigation.support
 
                                                     : item.label
+
                                     }
 
                                 </NavLink>
@@ -906,9 +848,7 @@ function Header() {
                 </nav>
 
 
-                {/* ==================================================
-                    HEADER ACTIONS
-                   ================================================== */}
+                {/* HEADER ACTIONS */}
 
                 <div
                     className="header__actions"
@@ -990,9 +930,7 @@ function Header() {
                     }
 
 
-                    {/* ==================================================
-                        ACCOUNT
-                       ================================================== */}
+                    {/* ACCOUNT */}
 
                     <div
                         className="header__account"
@@ -1038,6 +976,7 @@ function Header() {
                                     >
 
                                         {
+
                                             isMobileView
 
                                                 ? getUserInitials(
@@ -1045,6 +984,7 @@ function Header() {
                                                 )
 
                                                 : currentUser.username
+
                                         }
 
                                     </span>
@@ -1074,9 +1014,7 @@ function Header() {
                         </button>
 
 
-                        {/* ==================================================
-                            ACCOUNT DROPDOWN
-                           ================================================== */}
+                        {/* ACCOUNT DROPDOWN */}
 
                         {
 
@@ -1086,7 +1024,6 @@ function Header() {
                                 <div
                                     className="header__account-menu"
                                 >
-
 
                                     <div
                                         className="header__account-user"
@@ -1150,12 +1087,13 @@ function Header() {
                                         <span>
 
                                             {
-                                                language ===
-                                                "es"
+
+                                                language === "es"
 
                                                     ? "Mi cuenta"
 
                                                     : "My account"
+
                                             }
 
                                         </span>
@@ -1179,12 +1117,13 @@ function Header() {
                                         <span>
 
                                             {
-                                                language ===
-                                                "es"
+
+                                                language === "es"
 
                                                     ? "Últimas compras"
 
                                                     : "Recent purchases"
+
                                             }
 
                                         </span>
@@ -1208,12 +1147,13 @@ function Header() {
                                         <span>
 
                                             {
-                                                language ===
-                                                "es"
+
+                                                language === "es"
 
                                                     ? "Mis reviews"
 
                                                     : "My reviews"
+
                                             }
 
                                         </span>
@@ -1242,12 +1182,13 @@ function Header() {
                                         <span>
 
                                             {
-                                                language ===
-                                                "es"
+
+                                                language === "es"
 
                                                     ? "Cerrar sesión"
 
                                                     : "Sign out"
+
                                             }
 
                                         </span>
@@ -1263,9 +1204,7 @@ function Header() {
                     </div>
 
 
-                    {/* ==================================================
-                        CART
-                       ================================================== */}
+                    {/* CART */}
 
                     <button
                         type="button"
@@ -1303,8 +1242,7 @@ function Header() {
                         <button
                             type="button"
                             className={
-                                language ===
-                                "en"
+                                language === "en"
 
                                     ? "header__language--active"
 
@@ -1316,8 +1254,7 @@ function Header() {
                                 )
                             }
                             aria-pressed={
-                                language ===
-                                "en"
+                                language === "en"
                             }
                         >
 
@@ -1336,8 +1273,7 @@ function Header() {
                         <button
                             type="button"
                             className={
-                                language ===
-                                "es"
+                                language === "es"
 
                                     ? "header__language--active"
 
@@ -1349,8 +1285,7 @@ function Header() {
                                 )
                             }
                             aria-pressed={
-                                language ===
-                                "es"
+                                language === "es"
                             }
                         >
 
@@ -1364,6 +1299,7 @@ function Header() {
                     {/* MOBILE MENU */}
 
                     <button
+                        type="button"
                         className="header__menu"
                         aria-label="Menu"
                         onClick={() =>
@@ -1378,9 +1314,17 @@ function Header() {
 
                             menuOpen
 
-                                ? <X size={24} />
+                                ? (
+                                    <X
+                                        size={24}
+                                    />
+                                )
 
-                                : <Menu size={24} />
+                                : (
+                                    <Menu
+                                        size={24}
+                                    />
+                                )
 
                         }
 
@@ -1391,9 +1335,7 @@ function Header() {
             </div>
 
 
-            {/* ==========================================================
-                MOBILE NAVIGATION
-               ========================================================== */}
+            {/* MOBILE NAVIGATION */}
 
             <nav
                 className={`header__mobile ${
@@ -1425,8 +1367,7 @@ function Header() {
 
                                 {
 
-                                    item.label ===
-                                    "Home"
+                                    item.label === "Home"
 
                                         ? t.navigation.home
 
@@ -1459,7 +1400,7 @@ function Header() {
                         )
                     )
 
-                )
+                }
 
 
                 {/* MOBILE ACCOUNT */}
@@ -1532,12 +1473,13 @@ function Header() {
 
 
                                             {
-                                                language ===
-                                                "es"
+
+                                                language === "es"
 
                                                     ? "Mi cuenta"
 
                                                     : "My account"
+
                                             }
 
                                         </button>
@@ -1556,12 +1498,13 @@ function Header() {
 
 
                                             {
-                                                language ===
-                                                "es"
+
+                                                language === "es"
 
                                                     ? "Últimas compras"
 
                                                     : "Recent purchases"
+
                                             }
 
                                         </button>
@@ -1580,12 +1523,13 @@ function Header() {
 
 
                                             {
-                                                language ===
-                                                "es"
+
+                                                language === "es"
 
                                                     ? "Mis reviews"
 
                                                     : "My reviews"
+
                                             }
 
                                         </button>
@@ -1605,12 +1549,13 @@ function Header() {
 
 
                                             {
-                                                language ===
-                                                "es"
+
+                                                language === "es"
 
                                                     ? "Cerrar sesión"
 
                                                     : "Sign out"
+
                                             }
 
                                         </button>
@@ -1637,8 +1582,7 @@ function Header() {
                     <button
                         type="button"
                         className={
-                            language ===
-                            "en"
+                            language === "en"
 
                                 ? "header__language--active"
 
@@ -1650,8 +1594,7 @@ function Header() {
                             )
                         }
                         aria-pressed={
-                            language ===
-                            "en"
+                            language === "en"
                         }
                     >
 
@@ -1670,8 +1613,7 @@ function Header() {
                     <button
                         type="button"
                         className={
-                            language ===
-                            "es"
+                            language === "es"
 
                                 ? "header__language--active"
 
@@ -1683,8 +1625,7 @@ function Header() {
                             )
                         }
                         aria-pressed={
-                            language ===
-                            "es"
+                            language === "es"
                         }
                     >
 
