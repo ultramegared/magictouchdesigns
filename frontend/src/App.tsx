@@ -45,6 +45,7 @@ import CreateReviewPage from "./pages/Account/CreateReview";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminSettings from "./pages/admin/AdminSettings";
 import AdminRoute from "./pages/admin/AdminRoute";
 
 import CustomizePage from "./pages/Customize";
@@ -182,6 +183,16 @@ function App() {
     }
 />
 
+<Route
+    path="/admin/settings"
+    element={
+        <AdminRoute>
+
+            <AdminSettings />
+
+        </AdminRoute>
+    }
+/>
 
 
                 {/* ==================================================
