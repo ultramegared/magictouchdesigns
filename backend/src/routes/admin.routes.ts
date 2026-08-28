@@ -25,6 +25,7 @@ import {
 import {
     getAdminDashboard,
     getAdminUsers,
+    deleteAdminUser,
     getAdminReviews,
     approveReview,
     deleteReview,
@@ -76,6 +77,16 @@ router.get(
 router.get(
     "/users",
     getAdminUsers
+);
+
+
+/**
+ * DELETE ADMIN USER
+ */
+
+router.delete(
+    "/users/:id",
+    deleteAdminUser
 );
 
 

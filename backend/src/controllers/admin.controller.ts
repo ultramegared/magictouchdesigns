@@ -11,9 +11,12 @@
  */
 
 import type {
-    Request,
     Response,
 } from "express";
+
+import type {
+    AuthenticatedRequest,
+} from "../middleware/auth.middleware";
 
 import {
     pool,
@@ -28,7 +31,7 @@ import {
  * Returns general administrative statistics.
  */
 export const getAdminDashboard = async (
-    _req: Request,
+    _req: AuthenticatedRequest,
     res: Response
 ): Promise<void> => {
 
@@ -175,7 +178,7 @@ export const getAdminDashboard = async (
  * Returns all registered users for administrative management.
  */
 export const getAdminUsers = async (
-    _req: Request,
+    _req: AuthenticatedRequest,
     res: Response
 ): Promise<void> => {
 
@@ -191,6 +194,7 @@ export const getAdminUsers = async (
                     last_name,
                     email,
                     role,
+                    is_active,
                     created_at,
                     updated_at
 
@@ -237,13 +241,185 @@ export const getAdminUsers = async (
 
 /**
  * ================================================================
+ * DELETE ADMIN USER
+ * ================================================================
+ *
+ * Permanently deletes a user account.
+ *
+ * Security rules:
+ *
+ * - An administrator cannot delete their own account.
+ * - Only administrators can access this route.
+ */
+export const deleteAdminUser = async (
+    req: AuthenticatedRequest,
+    res: Response
+): Promise<void> => {
+
+    try {
+
+        const {
+            id,
+        } = req.params;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTHENTICATED USER
+        |--------------------------------------------------------------------------
+        */
+
+        const currentUserId =
+            req.user?.userId;
+
+
+        if (!currentUserId) {
+
+            res.status(401).json({
+
+                status:
+                    "error",
+
+                message:
+                    "Authentication required.",
+
+            });
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PREVENT SELF DELETION
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            id === currentUserId
+        ) {
+
+            res.status(400).json({
+
+                status:
+                    "error",
+
+                message:
+                    "You cannot delete your own administrator account.",
+
+            });
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FIND USER
+        |--------------------------------------------------------------------------
+        */
+
+        const userResult =
+            await pool.query(
+                `
+                SELECT
+                    id,
+                    username,
+                    role
+
+                FROM users
+
+                WHERE id = $1
+
+                LIMIT 1
+                `,
+                [id]
+            );
+
+
+        if (
+            userResult.rowCount === 0
+        ) {
+
+            res.status(404).json({
+
+                status:
+                    "error",
+
+                message:
+                    "User not found.",
+
+            });
+
+            return;
+
+        }
+
+
+        const user =
+            userResult.rows[0];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DELETE USER
+        |--------------------------------------------------------------------------
+        */
+
+        await pool.query(
+            `
+            DELETE FROM users
+
+            WHERE id = $1
+            `,
+            [user.id]
+        );
+
+
+        res.status(200).json({
+
+            status:
+                "ok",
+
+            message:
+                "User deleted successfully.",
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Delete administrator user error:",
+            error
+        );
+
+
+        res.status(500).json({
+
+            status:
+                "error",
+
+            message:
+                "Unable to delete user.",
+
+        });
+
+    }
+
+};
+
+
+/**
+ * ================================================================
  * GET ADMIN REVIEWS
  * ================================================================
  *
  * Returns all reviews for administrative management.
  */
 export const getAdminReviews = async (
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response
 ): Promise<void> => {
 
@@ -349,7 +525,7 @@ export const getAdminReviews = async (
  * Approves a user review.
  */
 export const approveReview = async (
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response
 ): Promise<void> => {
 
@@ -439,10 +615,9 @@ export const approveReview = async (
  * ================================================================
  *
  * Permanently deletes a user review.
- * Administrators can delete pending or approved reviews.
  */
 export const deleteReview = async (
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response
 ): Promise<void> => {
 

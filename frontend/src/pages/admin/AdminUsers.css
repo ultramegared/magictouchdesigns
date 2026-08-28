@@ -678,6 +678,112 @@
 
 
 /* ===============================================================
+   USER ACTIONS
+================================================================ */
+
+.admin-users__actions {
+    display:
+        flex;
+
+    justify-content:
+        flex-end;
+
+    margin-top:
+        18px;
+}
+
+
+.admin-users__delete {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    padding:
+        9px
+        14px;
+
+    border:
+        1px solid
+        #e3baba;
+
+    border-radius:
+        9px;
+
+    background:
+        #fff7f7;
+
+    color:
+        #b23b3b;
+
+    font-size:
+        0.85rem;
+
+    font-weight:
+        600;
+
+    cursor:
+        pointer;
+
+    transition:
+        background
+        0.2s
+        ease,
+
+        border-color
+        0.2s
+        ease,
+
+        transform
+        0.2s
+        ease,
+
+        opacity
+        0.2s
+        ease;
+}
+
+
+.admin-users__delete:hover:not(
+    :disabled
+) {
+
+    background:
+        #b23b3b;
+
+    border-color:
+        #b23b3b;
+
+    color:
+        #ffffff;
+
+    transform:
+        translateY(
+            -1px
+        );
+
+}
+
+
+.admin-users__delete:disabled {
+
+    opacity:
+        0.5;
+
+    cursor:
+        not-allowed;
+
+}
+
+
+/* ===============================================================
    RESPONSIVE
 ================================================================ */
 
@@ -795,6 +901,18 @@
 
         gap:
             10px;
+    }
+
+
+    .admin-users__actions {
+        justify-content:
+            stretch;
+    }
+
+
+    .admin-users__delete {
+        width:
+            100%;
     }
 
 }

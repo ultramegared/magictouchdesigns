@@ -7,7 +7,7 @@
  * Language: TypeScript React
  * Description:
  * Administrative user management page.
- * Displays registered users and their account information.
+ * Displays and manages registered user accounts.
  * ================================================================
  */
 
@@ -22,6 +22,7 @@ import {
     Mail,
     RefreshCw,
     Shield,
+    Trash2,
     User,
     Users,
 } from "lucide-react";
@@ -74,6 +75,8 @@ interface CurrentUserResponse {
     status?: string;
 
     user?: {
+
+        id?: string;
 
         username?: string | null;
 
@@ -186,11 +189,13 @@ const formatDate = (
 
 
 const getErrorMessage = (
-    error: unknown
+    error: unknown,
+    fallback = "Unable to load users."
 ): string => {
 
     if (
-        error instanceof Error
+        error instanceof Error &&
+        error.message
     ) {
 
         return error.message;
@@ -198,7 +203,7 @@ const getErrorMessage = (
     }
 
 
-    return "Unable to load users.";
+    return fallback;
 
 };
 
@@ -226,6 +231,7 @@ function AdminUsers() {
         currentUser,
         setCurrentUser,
     ] = useState<{
+        id: string;
         username: string;
     } | null>(
         null
@@ -237,6 +243,14 @@ function AdminUsers() {
         setLoading,
     ] = useState(
         true
+    );
+
+
+    const [
+        deletingUserId,
+        setDeletingUserId,
+    ] = useState<string | null>(
+        null
     );
 
 
@@ -268,23 +282,11 @@ function AdminUsers() {
                     );
 
 
-                    /*
-                    ==================================================
-                    LOAD USERS
-                    ==================================================
-                    */
-
                     const usersResult =
                         await apiRequest<AdminUsersResponse>(
                             "/api/admin/users"
                         );
 
-
-                    /*
-                    ==================================================
-                    VALIDATE USERS RESPONSE
-                    ==================================================
-                    */
 
                     const receivedUsers =
                         Array.isArray(
@@ -305,10 +307,6 @@ function AdminUsers() {
                     ==================================================
                     LOAD CURRENT USER
                     ==================================================
-                    |
-                    | This request is separated from the users request
-                    | so a failure here does not destroy the entire page.
-                    |
                     */
 
                     try {
@@ -319,16 +317,22 @@ function AdminUsers() {
                             );
 
 
+                        const id =
+                            userResult?.user?.id;
+
+
                         const username =
                             userResult?.user?.username;
 
 
                         if (
+                            id &&
                             username
                         ) {
 
                             setCurrentUser(
                                 {
+                                    id,
                                     username,
                                 }
                             );
@@ -389,6 +393,134 @@ function AdminUsers() {
             },
             []
         );
+
+
+    /* ===========================================================
+       DELETE USER
+    ============================================================ */
+
+    const handleDeleteUser =
+        async (
+            user: AdminUser
+        ) => {
+
+            /*
+            =======================================================
+            PREVENT SELF DELETION
+            =======================================================
+            */
+
+            if (
+                currentUser?.id ===
+                user.id
+            ) {
+
+                window.alert(
+                    "You cannot delete your own administrator account."
+                );
+
+                return;
+
+            }
+
+
+            const userName =
+                getUserName(
+                    user
+                );
+
+
+            /*
+            =======================================================
+            CONFIRMATION
+            =======================================================
+            */
+
+            const confirmed =
+                window.confirm(
+                    `Are you sure you want to permanently delete ${userName}? This action cannot be undone.`
+                );
+
+
+            if (
+                !confirmed
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+                setDeletingUserId(
+                    user.id
+                );
+
+
+                setError(
+                    null
+                );
+
+
+                await apiRequest(
+                    `/api/admin/users/${user.id}`,
+                    {
+
+                        method:
+                            "DELETE",
+
+                    }
+                );
+
+
+                /*
+                ===================================================
+                UPDATE LIST
+                ===================================================
+                */
+
+                setUsers(
+                    (
+                        previousUsers
+                    ) =>
+                        previousUsers.filter(
+                            (
+                                existingUser
+                            ) =>
+                                existingUser.id
+                                !==
+                                user.id
+                        )
+                );
+
+
+            } catch (
+                deleteError
+            ) {
+
+                console.error(
+                    "Unable to delete user:",
+                    deleteError
+                );
+
+
+                window.alert(
+                    getErrorMessage(
+                        deleteError,
+                        "Unable to delete user."
+                    )
+                );
+
+            } finally {
+
+                setDeletingUserId(
+                    null
+                );
+
+            }
+
+        };
 
 
     /* ===========================================================
@@ -640,6 +772,18 @@ function AdminUsers() {
                                             "ADMIN";
 
 
+                                        const isCurrentUser =
+                                            currentUser?.id
+                                            ===
+                                            user.id;
+
+
+                                        const isDeleting =
+                                            deletingUserId
+                                            ===
+                                            user.id;
+
+
                                         return (
 
                                             <article
@@ -780,6 +924,53 @@ function AdminUsers() {
                                                             </span>
 
                                                         </div>
+
+                                                    </div>
+
+
+                                                    {/* DELETE ACTION */}
+
+                                                    <div
+                                                        className="admin-users__actions"
+                                                    >
+
+                                                        <button
+                                                            type="button"
+                                                            className="admin-users__delete"
+                                                            onClick={
+                                                                () => {
+                                                                    void handleDeleteUser(
+                                                                        user
+                                                                    );
+                                                                }
+                                                            }
+                                                            disabled={
+                                                                isDeleting ||
+                                                                isCurrentUser
+                                                            }
+                                                            title={
+                                                                isCurrentUser
+
+                                                                    ? "You cannot delete your own account."
+
+                                                                    : "Delete user"
+                                                            }
+                                                        >
+
+                                                            <Trash2
+                                                                size={17}
+                                                            />
+
+
+                                                            {
+                                                                isDeleting
+
+                                                                    ? "Deleting..."
+
+                                                                    : "Delete"
+                                                            }
+
+                                                        </button>
 
                                                     </div>
 
