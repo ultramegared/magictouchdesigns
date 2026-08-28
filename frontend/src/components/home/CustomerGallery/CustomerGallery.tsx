@@ -519,8 +519,12 @@ function CustomerGallery() {
                                                 >
 
                                                     {getSocialIcon(
-                                                        item.social_platform
-                                                    )}
+    item.social_platform as
+        | "instagram"
+        | "facebook"
+        | "youtube"
+        | "tiktok"
+)}
 
                                                 </a>
 
