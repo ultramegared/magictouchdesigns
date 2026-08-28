@@ -7,9 +7,8 @@
  * Language: TypeScript React
  * Description:
  * Customer Gallery Section.
- * Displays the four latest customer purchases/reviews.
+ * Displays the four latest approved customer reviews with images.
  * Includes a premium fullscreen image preview.
- *
  * ===============================================================
  */
 
@@ -25,16 +24,52 @@ import {
 import "./CustomerGallery.css";
 
 import {
-    customerGalleryItems,
-} from "./CustomerGallery.data";
-
-import {
     useLanguage,
 } from "../../../contexts/LanguageContext";
 
 import {
     translations,
 } from "../../../translations";
+
+import {
+    apiRequest,
+} from "../../../services/api";
+
+
+/* ===============================================================
+   TYPES
+================================================================ */
+
+interface PublicReview {
+
+    id: string;
+
+    user_id: string;
+
+    review: string;
+
+    image_url: string;
+
+    social_platform?: string | null;
+
+    social_url?: string | null;
+
+    created_at: string;
+
+    username: string;
+
+    first_name?: string | null;
+
+    last_name?: string | null;
+
+}
+
+
+interface PublicReviewsResponse {
+
+    reviews: PublicReview[];
+
+}
 
 
 /* ===============================================================
@@ -120,7 +155,7 @@ const getSocialIcon = (
                     aria-hidden="true"
                 >
 
-                    <path d="M23 12s0-4-1-5-2.2-1-3-1C16.5 5.8 12 5.8 12 5.8s-4.5 0-7 .2c-.8 0-2 .1-3 1s-1 5-1 5 0 4 1 5 2.2 1 3 1c2.5.2 7 .2 7 .2s4.5 0 7-.2c.8 0 2-.1 3-1s1-5 1-5z" />
+                    <path d="M23 12s0-4-1-5-2.2-1-3-1C16.5 5.8 12 5.8 12 5.8s-4.5 0-7 .2c-.8 0-2 .1-3 1s-1 5-1 5 0 4 1 5 2.2 1 3 1c2.5.2 7 .2 7 .2s4.5 0 7-.2c.8 0 2-.1 3-1s-1 5-1 5z" />
 
                     <path
                         d="M10 9l5 3-5 3V9z"
@@ -148,6 +183,57 @@ const getSocialIcon = (
 
 
 /* ===============================================================
+   HELPERS
+================================================================ */
+
+const getCustomerName = (
+    review: PublicReview
+) => {
+
+    const fullName = [
+
+        review.first_name,
+
+        review.last_name,
+
+    ]
+        .filter(Boolean)
+        .join(
+            " "
+        )
+        .trim();
+
+
+    return (
+        fullName ||
+        review.username
+    );
+
+};
+
+
+const isSupportedSocialPlatform = (
+    platform:
+        | string
+        | null
+        | undefined
+): platform is
+    | "instagram"
+    | "facebook"
+    | "youtube"
+    | "tiktok" => {
+
+    return (
+        platform === "instagram" ||
+        platform === "facebook" ||
+        platform === "youtube" ||
+        platform === "tiktok"
+    );
+
+};
+
+
+/* ===============================================================
    COMPONENT
 ================================================================ */
 
@@ -163,12 +249,63 @@ function CustomerGallery() {
 
 
     const [
+        reviews,
+        setReviews,
+    ] = useState<PublicReview[]>(
+        []
+    );
+
+
+    const [
         selectedImage,
         setSelectedImage,
     ] = useState<{
         image: string;
         customerName: string;
     } | null>(null);
+
+
+    /* ============================================================
+       LOAD PUBLIC REVIEWS
+    ============================================================ */
+
+    useEffect(() => {
+
+        const loadReviews =
+            async () => {
+
+                try {
+
+                    const result =
+                        await apiRequest<PublicReviewsResponse>(
+                            "/api/reviews/public?limit=4"
+                        );
+
+
+                    setReviews(
+                        result.reviews
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Unable to load customer gallery:",
+                        error
+                    );
+
+
+                    setReviews(
+                        []
+                    );
+
+                }
+
+            };
+
+
+        loadReviews();
+
+    }, []);
 
 
     /* ============================================================
@@ -274,105 +411,133 @@ function CustomerGallery() {
 
                 {/* ==================================================
                     GALLERY
-                    Four latest customer purchases/reviews only.
+                    Four latest approved customer reviews
+                    with images.
                 ================================================== */}
 
-                <div
-                    className="customer-gallery__grid"
-                >
+                {reviews.length > 0 && (
 
-                    {customerGalleryItems
-                        .slice(0, 4)
-                        .map((item) => (
+                    <div
+                        className="customer-gallery__grid"
+                    >
 
-                            <article
-                                key={item.id}
-                                className="customer-gallery__card"
-                            >
+                        {reviews.map(
+                            (item) => {
 
-
-                                {/* IMAGE */}
-
-                                <div
-                                    className="customer-gallery__image-wrapper"
-                                >
-
-                                    <img
-                                        src={item.image}
-                                        alt={`${item.customerName}'s personalized mug`}
-                                        loading="lazy"
-                                    />
+                                const customerName =
+                                    getCustomerName(
+                                        item
+                                    );
 
 
-                                    {/* ZOOM */}
+                                const hasSocial =
+                                    Boolean(
+                                        item.social_url
+                                    ) &&
+                                    isSupportedSocialPlatform(
+                                        item.social_platform
+                                    );
 
-                                    <button
-                                        type="button"
-                                        className="customer-gallery__zoom"
-                                        aria-label={`View ${item.customerName}'s photo`}
-                                        onClick={() =>
-                                            setSelectedImage({
-                                                image: item.image,
-                                                customerName:
-                                                    item.customerName,
-                                            })
-                                        }
+
+                                return (
+
+                                    <article
+                                        key={item.id}
+                                        className="customer-gallery__card"
                                     >
 
-                                        <span
-                                            aria-hidden="true"
-                                        >
-                                            ⌕
-                                        </span>
 
-                                    </button>
+                                        {/* IMAGE */}
 
-                                </div>
-
-
-                                {/* CUSTOMER CONTENT */}
-
-                                <div
-                                    className="customer-gallery__content"
-                                >
-
-                                    <span
-                                        className="customer-gallery__name"
-                                    >
-                                        {item.customerName}
-                                    </span>
-
-
-                                    <p>
-                                        {item.comment}
-                                    </p>
-
-
-                                    {item.social && (
-
-                                        <a
-                                            href={item.social.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="customer-gallery__social"
-                                            aria-label={`View ${item.customerName}'s ${item.social.platform}`}
+                                        <div
+                                            className="customer-gallery__image-wrapper"
                                         >
 
-                                            {getSocialIcon(
-                                                item.social.platform
+                                            <img
+                                                src={
+                                                    item.image_url
+                                                }
+                                                alt={`${customerName}'s personalized mug`}
+                                                loading="lazy"
+                                            />
+
+
+                                            {/* ZOOM */}
+
+                                            <button
+                                                type="button"
+                                                className="customer-gallery__zoom"
+                                                aria-label={`View ${customerName}'s photo`}
+                                                onClick={() =>
+                                                    setSelectedImage({
+                                                        image:
+                                                            item.image_url,
+                                                        customerName,
+                                                    })
+                                                }
+                                            >
+
+                                                <span
+                                                    aria-hidden="true"
+                                                >
+                                                    ⌕
+                                                </span>
+
+                                            </button>
+
+                                        </div>
+
+
+                                        {/* CUSTOMER CONTENT */}
+
+                                        <div
+                                            className="customer-gallery__content"
+                                        >
+
+                                            <span
+                                                className="customer-gallery__name"
+                                            >
+                                                {customerName}
+                                            </span>
+
+
+                                            <p>
+                                                {item.review}
+                                            </p>
+
+
+                                            {hasSocial && (
+
+                                                <a
+                                                    href={
+                                                        item.social_url!
+                                                    }
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="customer-gallery__social"
+                                                    aria-label={`View ${customerName}'s ${item.social_platform}`}
+                                                >
+
+                                                    {getSocialIcon(
+                                                        item.social_platform
+                                                    )}
+
+                                                </a>
+
                                             )}
 
-                                        </a>
+                                        </div>
 
-                                    )}
+                                    </article>
 
-                                </div>
+                                );
 
-                            </article>
+                            }
+                        )}
 
-                        ))}
+                    </div>
 
-                </div>
+                )}
 
             </div>
 

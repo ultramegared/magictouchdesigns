@@ -109,7 +109,14 @@ export const getMyReviews = async (
 
 
 /**
- * Get public approved reviews.
+ * Get public approved reviews with images.
+ *
+ * Only reviews that:
+ *
+ * 1. Have been approved by an administrator.
+ * 2. Have a valid image URL.
+ *
+ * are returned for public display.
  */
 export const getPublicReviews = async (
     limit: number = 8
@@ -126,7 +133,12 @@ export const getPublicReviews = async (
         INNER JOIN users u
             ON u.id = r.user_id
 
-        WHERE r.is_approved = TRUE
+        WHERE
+            r.is_approved = TRUE
+
+            AND r.image_url IS NOT NULL
+
+            AND TRIM(r.image_url) <> ''
 
         ORDER BY r.created_at DESC
 
