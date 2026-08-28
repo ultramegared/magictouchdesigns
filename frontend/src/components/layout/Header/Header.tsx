@@ -59,6 +59,10 @@ import {
 } from "../../../services/api";
 
 
+/* ===============================================================
+   TYPES
+================================================================ */
+
 interface AuthenticatedUser {
 
     id: string;
@@ -70,7 +74,7 @@ interface AuthenticatedUser {
     last_name: string;
 
     email: string;
-    
+
     role: string;
 
     is_active: boolean;
@@ -82,41 +86,212 @@ interface AuthenticatedUser {
 }
 
 
+interface SettingsData {
+
+    websiteName:
+        string;
+
+    browserTitle:
+        string;
+
+}
+
+
+/* ===============================================================
+   HELPERS
+================================================================ */
+
+const formatBrandName =
+    (
+        websiteName:
+            string
+    ): {
+        title: string;
+        subtitle: string;
+    } => {
+
+        const normalizedName =
+            websiteName
+                .trim();
+
+
+        if (
+            !normalizedName
+        ) {
+
+            return {
+
+                title:
+                    "MAGIC TOUCH",
+
+                subtitle:
+                    "DESIGNS",
+
+            };
+
+        }
+
+
+        const words =
+            normalizedName
+                .split(
+                    /\s+/
+                );
+
+
+        if (
+            words.length === 1
+        ) {
+
+            return {
+
+                title:
+                    words[0]
+                        .toUpperCase(),
+
+                subtitle:
+                    "",
+
+            };
+
+        }
+
+
+        const subtitle =
+            words[
+                words.length - 1
+            ];
+
+
+        const title =
+            words
+                .slice(
+                    0,
+                    -1
+                )
+                .join(
+                    " "
+                );
+
+
+        return {
+
+            title:
+                title.toUpperCase(),
+
+            subtitle:
+                subtitle.toUpperCase(),
+
+        };
+
+    };
+
+
+/* ===============================================================
+   COMPONENT
+================================================================ */
+
 function Header() {
 
-    const [menuOpen, setMenuOpen] =
-        useState(false);
+    /* ============================================================
+       MENU
+    ============================================================ */
+
+    const [
+        menuOpen,
+        setMenuOpen,
+    ] = useState(
+        false
+    );
 
 
-    const [cartCount, setCartCount] =
-        useState(0);
+    /* ============================================================
+       CART
+    ============================================================ */
+
+    const [
+        cartCount,
+        setCartCount,
+    ] = useState(
+        0
+    );
 
 
-    const [searchOpen, setSearchOpen] =
-        useState(false);
+    /* ============================================================
+       SEARCH
+    ============================================================ */
+
+    const [
+        searchOpen,
+        setSearchOpen,
+    ] = useState(
+        false
+    );
 
 
-    const [searchQuery, setSearchQuery] =
-        useState("");
+    const [
+        searchQuery,
+        setSearchQuery,
+    ] = useState(
+        ""
+    );
 
 
-    const [currentUser, setCurrentUser] =
-        useState<AuthenticatedUser | null>(null);
+    /* ============================================================
+       AUTHENTICATED USER
+    ============================================================ */
+
+    const [
+        currentUser,
+        setCurrentUser,
+    ] = useState<AuthenticatedUser | null>(
+        null
+    );
 
 
-    const [accountMenuOpen, setAccountMenuOpen] =
-        useState(false);
+    const [
+        accountMenuOpen,
+        setAccountMenuOpen,
+    ] = useState(
+        false
+    );
 
 
-    const [isMobileView, setIsMobileView] =
-        useState(
-            window.innerWidth <= 768
-        );
+    /* ============================================================
+       WEBSITE SETTINGS
+    ============================================================ */
 
+    const [
+        websiteName,
+        setWebsiteName,
+    ] = useState(
+        APP_CONFIG.companyName
+    );
+
+
+    /* ============================================================
+       MOBILE VIEW
+    ============================================================ */
+
+    const [
+        isMobileView,
+        setIsMobileView,
+    ] = useState(
+        window.innerWidth <= 768
+    );
+
+
+    /* ============================================================
+       NAVIGATION
+    ============================================================ */
 
     const navigate =
         useNavigate();
 
+
+    /* ============================================================
+       LANGUAGE
+    ============================================================ */
 
     const {
         language,
@@ -125,7 +300,19 @@ function Header() {
 
 
     const t =
-        translations[language];
+        translations[
+            language
+        ];
+
+
+    /* ============================================================
+       BRAND
+    ============================================================ */
+
+    const brand =
+        formatBrandName(
+            websiteName
+        );
 
 
     /**
@@ -134,40 +321,51 @@ function Header() {
      * ============================================================
      */
 
-    const getUserInitials = (
-        user: AuthenticatedUser
-    ) => {
+    const getUserInitials =
+        (
+            user:
+                AuthenticatedUser
+        ) => {
 
-        const firstInitial =
-            user.first_name
-                ?.trim()
-                .charAt(0)
+            const firstInitial =
+                user.first_name
+                    ?.trim()
+                    .charAt(
+                        0
+                    )
+                    .toUpperCase();
+
+
+            const lastInitial =
+                user.last_name
+                    ?.trim()
+                    .charAt(
+                        0
+                    )
+                    .toUpperCase();
+
+
+            const initials =
+                `${firstInitial || ""}${lastInitial || ""}`;
+
+
+            if (
+                initials
+            ) {
+
+                return initials;
+
+            }
+
+
+            return user.username
+                .slice(
+                    0,
+                    2
+                )
                 .toUpperCase();
 
-
-        const lastInitial =
-            user.last_name
-                ?.trim()
-                .charAt(0)
-                .toUpperCase();
-
-
-        const initials =
-            `${firstInitial || ""}${lastInitial || ""}`;
-
-
-        if (initials) {
-
-            return initials;
-
-        }
-
-
-        return user.username
-            .slice(0, 2)
-            .toUpperCase();
-
-    };
+        };
 
 
     /**
@@ -178,13 +376,14 @@ function Header() {
 
     useEffect(() => {
 
-        const updateMobileView = () => {
+        const updateMobileView =
+            () => {
 
-            setIsMobileView(
-                window.innerWidth <= 768
-            );
+                setIsMobileView(
+                    window.innerWidth <= 768
+                );
 
-        };
+            };
 
 
         updateMobileView();
@@ -210,31 +409,106 @@ function Header() {
 
     /**
      * ============================================================
+     * LOAD WEBSITE SETTINGS
+     * ============================================================
+     */
+
+    useEffect(() => {
+
+        const loadSettings =
+            async () => {
+
+                try {
+
+                    const result =
+                        await apiRequest<{
+                            status:
+                                string;
+
+                            settings:
+                                SettingsData;
+                        }>(
+                            "/api/settings"
+                        );
+
+
+                    if (
+                        result.settings
+                            ?.websiteName
+                    ) {
+
+                        setWebsiteName(
+                            result.settings
+                                .websiteName
+                        );
+
+                    }
+
+
+                    if (
+                        result.settings
+                            ?.browserTitle
+                    ) {
+
+                        document.title =
+                            result.settings
+                                .browserTitle;
+
+                    }
+
+                } catch (
+                    error
+                ) {
+
+                    console.error(
+                        "Unable to load website settings:",
+                        error
+                    );
+
+                }
+
+            };
+
+
+        loadSettings();
+
+    }, []);
+
+
+    /**
+     * ============================================================
      * CART
      * ============================================================
      */
 
     useEffect(() => {
 
-        const updateCartCount = () => {
+        const updateCartCount =
+            () => {
 
-            const items =
-                getCartItems();
+                const items =
+                    getCartItems();
 
 
-            const total =
-                items.reduce(
-                    (sum, item) =>
-                        sum + item.quantity,
-                    0
+                const total =
+                    items.reduce(
+                        (
+                            sum,
+                            item
+                        ) =>
+
+                            sum +
+                            item.quantity,
+
+                        0
+                    );
+
+
+                setCartCount(
+                    total
                 );
 
-
-            setCartCount(
-                total
-            );
-
-        };
+            };
 
 
         updateCartCount();
@@ -275,7 +549,9 @@ function Header() {
                     );
 
 
-                if (!token) {
+                if (
+                    !token
+                ) {
 
                     setCurrentUser(
                         null
@@ -290,8 +566,11 @@ function Header() {
 
                     const result =
                         await apiRequest<{
-                            status: string;
-                            user: AuthenticatedUser;
+                            status:
+                                string;
+
+                            user:
+                                AuthenticatedUser;
                         }>(
                             "/api/user/me"
                         );
@@ -304,12 +583,15 @@ function Header() {
 
                     localStorage.setItem(
                         "auth_user",
+
                         JSON.stringify(
                             result.user
                         )
                     );
 
-                } catch (error) {
+                } catch (
+                    error
+                ) {
 
                     console.error(
                         "Unable to load authenticated user:",
@@ -347,24 +629,28 @@ function Header() {
      * ============================================================
      */
 
-    const toggleAccountMenu = () => {
+    const toggleAccountMenu =
+        () => {
 
-        if (!currentUser) {
+            if (
+                !currentUser
+            ) {
 
-            navigate(
-                "/login"
+                navigate(
+                    "/login"
+                );
+
+                return;
+
+            }
+
+
+            setAccountMenuOpen(
+                previous =>
+                    !previous
             );
 
-            return;
-
-        }
-
-
-        setAccountMenuOpen(
-            previous => !previous
-        );
-
-    };
+        };
 
 
     /**
@@ -373,60 +659,63 @@ function Header() {
      * ============================================================
      */
 
-    const openAccountPage = () => {
+    const openAccountPage =
+        () => {
 
-    setAccountMenuOpen(
-        false
-    );
-
-
-    if (
-        currentUser?.role ===
-        "ADMIN"
-    ) {
-
-        navigate(
-            "/admin"
-        );
-
-        return;
-
-    }
+            setAccountMenuOpen(
+                false
+            );
 
 
-    navigate(
-        "/account"
-    );
+            if (
+                currentUser?.role ===
+                "ADMIN"
+            ) {
 
-};
+                navigate(
+                    "/admin"
+                );
 
+                return;
 
-    const openOrders = () => {
-
-        setAccountMenuOpen(
-            false
-        );
-
-
-        navigate(
-            "/account/orders"
-        );
-
-    };
+            }
 
 
-    const openReviews = () => {
+            navigate(
+                "/account"
+            );
 
-        setAccountMenuOpen(
-            false
-        );
+        };
 
 
-        navigate(
-            "/account/reviews"
-        );
+    const openOrders =
+        () => {
 
-    };
+            setAccountMenuOpen(
+                false
+            );
+
+
+            navigate(
+                "/account/orders"
+            );
+
+        };
+
+
+    const openReviews =
+        () => {
+
+            setAccountMenuOpen(
+                false
+            );
+
+
+            navigate(
+                "/account/reviews"
+            );
+
+        };
 
 
     /**
@@ -435,40 +724,45 @@ function Header() {
      * ============================================================
      */
 
-    const handleLogout = () => {
+    const handleLogout =
+        () => {
 
-        localStorage.removeItem(
-            "auth_token"
-        );
-
-
-        localStorage.removeItem(
-            "auth_user"
-        );
+            localStorage.removeItem(
+                "auth_token"
+            );
 
 
-        setCurrentUser(
-            null
-        );
+            localStorage.removeItem(
+                "auth_user"
+            );
 
 
-        setAccountMenuOpen(
-            false
-        );
+            setCurrentUser(
+                null
+            );
 
 
-        navigate(
-            "/login"
-        );
+            setAccountMenuOpen(
+                false
+            );
 
-    };
+
+            navigate(
+                "/login"
+            );
+
+        };
 
 
     return (
 
-        <header className="header">
+        <header
+            className="header"
+        >
 
-            <div className="header__container">
+            <div
+                className="header__container"
+            >
 
 
                 {/* ==================================================
@@ -493,26 +787,48 @@ function Header() {
                 >
 
                     <img
-                        src={APP_CONFIG.logo}
-                        alt={APP_CONFIG.companyName}
+                        src={
+                            APP_CONFIG.logo
+                        }
+                        alt={
+                            websiteName
+                        }
                         className="header__logo"
                     />
 
 
-                    <div className="header__brand-text">
+                    <div
+                        className="header__brand-text"
+                    >
 
-                        <span className="header__brand-title">
+                        <span
+                            className="header__brand-title"
+                        >
 
-                            MAGIC TOUCH
+                            {
+                                brand.title
+                            }
 
                         </span>
 
 
-                        <span className="header__brand-subtitle">
+                        {
 
-                            DESIGNS
+                            brand.subtitle && (
 
-                        </span>
+                                <span
+                                    className="header__brand-subtitle"
+                                >
+
+                                    {
+                                        brand.subtitle
+                                    }
+
+                                </span>
+
+                            )
+
+                        }
 
                     </div>
 
@@ -523,16 +839,24 @@ function Header() {
                     DESKTOP NAVIGATION
                    ================================================== */}
 
-                <nav className="header__nav">
+                <nav
+                    className="header__nav"
+                >
 
                     {
 
                         navigation.map(
-                            (item) => (
+                            (
+                                item
+                            ) => (
 
                                 <NavLink
-                                    key={item.id}
-                                    to={item.path}
+                                    key={
+                                        item.id
+                                    }
+                                    to={
+                                        item.path
+                                    }
                                     className={({
                                         isActive
                                     }) =>
@@ -586,7 +910,9 @@ function Header() {
                     HEADER ACTIONS
                    ================================================== */}
 
-                <div className="header__actions">
+                <div
+                    className="header__actions"
+                >
 
 
                     {/* SEARCH */}
@@ -603,59 +929,74 @@ function Header() {
                         }
                     >
 
-                        <Search size={20} />
+                        <Search
+                            size={20}
+                        />
 
                     </button>
 
 
-                    {searchOpen && (
+                    {
 
-                        <div className="header__search">
+                        searchOpen && (
 
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={event =>
-                                    setSearchQuery(
-                                        event.target.value
-                                    )
-                                }
-                                onKeyDown={event => {
+                            <div
+                                className="header__search"
+                            >
 
-                                    if (
-                                        event.key ===
-                                        "Enter"
-                                    ) {
-
-                                        navigate(
-                                            `/products?search=${encodeURIComponent(
-                                                searchQuery
-                                            )}`
-                                        );
-
-
-                                        setSearchOpen(
-                                            false
-                                        );
-
+                                <input
+                                    type="text"
+                                    value={
+                                        searchQuery
                                     }
+                                    onChange={
+                                        event =>
+                                            setSearchQuery(
+                                                event.target.value
+                                            )
+                                    }
+                                    onKeyDown={
+                                        event => {
 
-                                }}
-                                placeholder="Search products..."
-                                aria-label="Search products"
-                                autoFocus
-                            />
+                                            if (
+                                                event.key ===
+                                                "Enter"
+                                            ) {
 
-                        </div>
+                                                navigate(
+                                                    `/products?search=${encodeURIComponent(
+                                                        searchQuery
+                                                    )}`
+                                                );
 
-                    )}
+
+                                                setSearchOpen(
+                                                    false
+                                                );
+
+                                            }
+
+                                        }
+                                    }
+                                    placeholder="Search products..."
+                                    aria-label="Search products"
+                                    autoFocus
+                                />
+
+                            </div>
+
+                        )
+
+                    }
 
 
                     {/* ==================================================
                         ACCOUNT
                        ================================================== */}
 
-                    <div className="header__account">
+                    <div
+                        className="header__account"
+                    >
 
                         <button
                             type="button"
@@ -677,40 +1018,58 @@ function Header() {
                             }
                         >
 
-                            <span className="header__account-icon">
+                            <span
+                                className="header__account-icon"
+                            >
 
-                                <User size={20} />
+                                <User
+                                    size={20}
+                                />
 
                             </span>
 
 
-                            {currentUser && (
+                            {
 
-                                <span className="header__username">
+                                currentUser && (
 
-                                    {isMobileView
-                                        ? getUserInitials(
-                                            currentUser
-                                        )
-                                        : currentUser.username}
+                                    <span
+                                        className="header__username"
+                                    >
 
-                                </span>
+                                        {
+                                            isMobileView
 
-                            )}
+                                                ? getUserInitials(
+                                                    currentUser
+                                                )
+
+                                                : currentUser.username
+                                        }
+
+                                    </span>
+
+                                )
+
+                            }
 
 
-                            {currentUser && (
+                            {
 
-                                <ChevronDown
-                                    size={15}
-                                    className={`header__account-chevron ${
-                                        accountMenuOpen
-                                            ? "header__account-chevron--open"
-                                            : ""
-                                    }`}
-                                />
+                                currentUser && (
 
-                            )}
+                                    <ChevronDown
+                                        size={15}
+                                        className={`header__account-chevron ${
+                                            accountMenuOpen
+                                                ? "header__account-chevron--open"
+                                                : ""
+                                        }`}
+                                    />
+
+                                )
+
+                            }
 
                         </button>
 
@@ -719,157 +1078,187 @@ function Header() {
                             ACCOUNT DROPDOWN
                            ================================================== */}
 
-                        {currentUser &&
+                        {
+
+                            currentUser &&
                             accountMenuOpen && (
 
-                            <div className="header__account-menu">
+                                <div
+                                    className="header__account-menu"
+                                >
 
 
-                                {/* USER */}
+                                    <div
+                                        className="header__account-user"
+                                    >
 
-                                <div className="header__account-user">
+                                        <div
+                                            className="header__account-avatar"
+                                        >
 
-                                    <div className="header__account-avatar">
+                                            <User
+                                                size={18}
+                                            />
 
-                                        <User
-                                            size={18}
-                                        />
+                                        </div>
+
+
+                                        <div
+                                            className="header__account-user-info"
+                                        >
+
+                                            <strong>
+
+                                                {
+                                                    currentUser.username
+                                                }
+
+                                            </strong>
+
+
+                                            <span>
+
+                                                {
+                                                    currentUser.email
+                                                }
+
+                                            </span>
+
+                                        </div>
 
                                     </div>
 
 
-                                    <div className="header__account-user-info">
+                                    <div
+                                        className="header__account-divider"
+                                    />
 
-                                        <strong>
 
-                                            {currentUser.username}
+                                    <button
+                                        type="button"
+                                        className="header__account-item"
+                                        onClick={
+                                            openAccountPage
+                                        }
+                                    >
 
-                                        </strong>
+                                        <User
+                                            size={17}
+                                        />
 
 
                                         <span>
 
-                                            {currentUser.email}
+                                            {
+                                                language ===
+                                                "es"
+
+                                                    ? "Mi cuenta"
+
+                                                    : "My account"
+                                            }
 
                                         </span>
 
-                                    </div>
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        className="header__account-item"
+                                        onClick={
+                                            openOrders
+                                        }
+                                    >
+
+                                        <ShoppingBag
+                                            size={17}
+                                        />
+
+
+                                        <span>
+
+                                            {
+                                                language ===
+                                                "es"
+
+                                                    ? "Últimas compras"
+
+                                                    : "Recent purchases"
+                                            }
+
+                                        </span>
+
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        className="header__account-item"
+                                        onClick={
+                                            openReviews
+                                        }
+                                    >
+
+                                        <Star
+                                            size={17}
+                                        />
+
+
+                                        <span>
+
+                                            {
+                                                language ===
+                                                "es"
+
+                                                    ? "Mis reviews"
+
+                                                    : "My reviews"
+                                            }
+
+                                        </span>
+
+                                    </button>
+
+
+                                    <div
+                                        className="header__account-divider"
+                                    />
+
+
+                                    <button
+                                        type="button"
+                                        className="header__account-item header__account-item--logout"
+                                        onClick={
+                                            handleLogout
+                                        }
+                                    >
+
+                                        <LogOut
+                                            size={17}
+                                        />
+
+
+                                        <span>
+
+                                            {
+                                                language ===
+                                                "es"
+
+                                                    ? "Cerrar sesión"
+
+                                                    : "Sign out"
+                                            }
+
+                                        </span>
+
+                                    </button>
 
                                 </div>
 
+                            )
 
-                                <div className="header__account-divider" />
-
-
-                                {/* ACCOUNT */}
-
-                                <button
-                                    type="button"
-                                    className="header__account-item"
-                                    onClick={
-                                        openAccountPage
-                                    }
-                                >
-
-                                    <User
-                                        size={17}
-                                    />
-
-
-                                    <span>
-
-                                        {language === "es"
-                                            ? "Mi cuenta"
-                                            : "My account"}
-
-                                    </span>
-
-                                </button>
-
-
-                                {/* ORDERS */}
-
-                                <button
-                                    type="button"
-                                    className="header__account-item"
-                                    onClick={
-                                        openOrders
-                                    }
-                                >
-
-                                    <ShoppingBag
-                                        size={17}
-                                    />
-
-
-                                    <span>
-
-                                        {language === "es"
-                                            ? "Últimas compras"
-                                            : "Recent purchases"}
-
-                                    </span>
-
-                                </button>
-
-
-                                {/* REVIEWS */}
-
-                                <button
-                                    type="button"
-                                    className="header__account-item"
-                                    onClick={
-                                        openReviews
-                                    }
-                                >
-
-                                    <Star
-                                        size={17}
-                                    />
-
-
-                                    <span>
-
-                                        {language === "es"
-                                            ? "Mis reviews"
-                                            : "My reviews"}
-
-                                    </span>
-
-                                </button>
-
-
-                                <div className="header__account-divider" />
-
-
-                                {/* LOGOUT */}
-
-                                <button
-                                    type="button"
-                                    className="header__account-item header__account-item--logout"
-                                    onClick={
-                                        handleLogout
-                                    }
-                                >
-
-                                    <LogOut
-                                        size={17}
-                                    />
-
-
-                                    <span>
-
-                                        {language === "es"
-                                            ? "Cerrar sesión"
-                                            : "Sign out"}
-
-                                    </span>
-
-                                </button>
-
-                            </div>
-
-                        )}
+                        }
 
                     </div>
 
@@ -896,7 +1285,9 @@ function Header() {
 
                         <span>
 
-                            {cartCount}
+                            {
+                                cartCount
+                            }
 
                         </span>
 
@@ -905,13 +1296,18 @@ function Header() {
 
                     {/* LANGUAGE */}
 
-                    <div className="header__language">
+                    <div
+                        className="header__language"
+                    >
 
                         <button
                             type="button"
                             className={
-                                language === "en"
+                                language ===
+                                "en"
+
                                     ? "header__language--active"
+
                                     : ""
                             }
                             onClick={() =>
@@ -920,7 +1316,8 @@ function Header() {
                                 )
                             }
                             aria-pressed={
-                                language === "en"
+                                language ===
+                                "en"
                             }
                         >
 
@@ -929,14 +1326,21 @@ function Header() {
                         </button>
 
 
-                        <span>|</span>
+                        <span>
+
+                            |
+
+                        </span>
 
 
                         <button
                             type="button"
                             className={
-                                language === "es"
+                                language ===
+                                "es"
+
                                     ? "header__language--active"
+
                                     : ""
                             }
                             onClick={() =>
@@ -945,7 +1349,8 @@ function Header() {
                                 )
                             }
                             aria-pressed={
-                                language === "es"
+                                language ===
+                                "es"
                             }
                         >
 
@@ -970,9 +1375,13 @@ function Header() {
                     >
 
                         {
+
                             menuOpen
+
                                 ? <X size={24} />
+
                                 : <Menu size={24} />
+
                         }
 
                     </button>
@@ -1000,8 +1409,12 @@ function Header() {
                         item => (
 
                             <NavLink
-                                key={item.id}
-                                to={item.path}
+                                key={
+                                    item.id
+                                }
+                                to={
+                                    item.path
+                                }
                                 className="header__mobile-link"
                                 onClick={() =>
                                     setMenuOpen(
@@ -1011,6 +1424,7 @@ function Header() {
                             >
 
                                 {
+
                                     item.label ===
                                     "Home"
 
@@ -1037,6 +1451,7 @@ function Header() {
                                                         ? t.navigation.contact
 
                                                         : item.label
+
                                 }
 
                             </NavLink>
@@ -1044,143 +1459,189 @@ function Header() {
                         )
                     )
 
-                }
+                )
 
 
                 {/* MOBILE ACCOUNT */}
 
-                {currentUser && (
+                {
 
-                    <div className="header__mobile-account">
+                    currentUser && (
 
-                        <button
-                            type="button"
-                            className="header__mobile-account-user"
-                            onClick={() =>
-                                setAccountMenuOpen(
-                                    previous =>
-                                        !previous
-                                )
-                            }
+                        <div
+                            className="header__mobile-account"
                         >
 
-                            <User
-                                size={18}
-                            />
-
-
-                            <span>
-
-                                {currentUser.username}
-
-                            </span>
-
-
-                            <ChevronDown
-                                size={15}
-                                className={
-                                    accountMenuOpen
-                                        ? "header__account-chevron--open"
-                                        : ""
+                            <button
+                                type="button"
+                                className="header__mobile-account-user"
+                                onClick={() =>
+                                    setAccountMenuOpen(
+                                        previous =>
+                                            !previous
+                                    )
                                 }
-                            />
+                            >
 
-                        </button>
-
-
-                        {accountMenuOpen && (
-
-                            <div className="header__mobile-account-menu">
+                                <User
+                                    size={18}
+                                />
 
 
-                                <button
-                                    type="button"
-                                    onClick={
-                                        openAccountPage
+                                <span>
+
+                                    {
+                                        currentUser.username
                                     }
-                                >
 
-                                    <User size={16} />
-
-                                    {language === "es"
-                                        ? "Mi cuenta"
-                                        : "My account"}
-
-                                </button>
+                                </span>
 
 
-                                <button
-                                    type="button"
-                                    onClick={
-                                        openOrders
+                                <ChevronDown
+                                    size={15}
+                                    className={
+                                        accountMenuOpen
+
+                                            ? "header__account-chevron--open"
+
+                                            : ""
                                     }
-                                >
+                                />
 
-                                    <ShoppingBag
-                                        size={16}
-                                    />
-
-                                    {language === "es"
-                                        ? "Últimas compras"
-                                        : "Recent purchases"}
-
-                                </button>
+                            </button>
 
 
-                                <button
-                                    type="button"
-                                    onClick={
-                                        openReviews
-                                    }
-                                >
+                            {
 
-                                    <Star
-                                        size={16}
-                                    />
+                                accountMenuOpen && (
 
-                                    {language === "es"
-                                        ? "Mis reviews"
-                                        : "My reviews"}
+                                    <div
+                                        className="header__mobile-account-menu"
+                                    >
 
-                                </button>
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                openAccountPage
+                                            }
+                                        >
+
+                                            <User
+                                                size={16}
+                                            />
 
 
-                                <button
-                                    type="button"
-                                    className="header__mobile-account-logout"
-                                    onClick={
-                                        handleLogout
-                                    }
-                                >
+                                            {
+                                                language ===
+                                                "es"
 
-                                    <LogOut
-                                        size={16}
-                                    />
+                                                    ? "Mi cuenta"
 
-                                    {language === "es"
-                                        ? "Cerrar sesión"
-                                        : "Sign out"}
+                                                    : "My account"
+                                            }
 
-                                </button>
+                                        </button>
 
-                            </div>
 
-                        )}
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                openOrders
+                                            }
+                                        >
 
-                    </div>
+                                            <ShoppingBag
+                                                size={16}
+                                            />
 
-                )}
+
+                                            {
+                                                language ===
+                                                "es"
+
+                                                    ? "Últimas compras"
+
+                                                    : "Recent purchases"
+                                            }
+
+                                        </button>
+
+
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                openReviews
+                                            }
+                                        >
+
+                                            <Star
+                                                size={16}
+                                            />
+
+
+                                            {
+                                                language ===
+                                                "es"
+
+                                                    ? "Mis reviews"
+
+                                                    : "My reviews"
+                                            }
+
+                                        </button>
+
+
+                                        <button
+                                            type="button"
+                                            className="header__mobile-account-logout"
+                                            onClick={
+                                                handleLogout
+                                            }
+                                        >
+
+                                            <LogOut
+                                                size={16}
+                                            />
+
+
+                                            {
+                                                language ===
+                                                "es"
+
+                                                    ? "Cerrar sesión"
+
+                                                    : "Sign out"
+                                            }
+
+                                        </button>
+
+                                    </div>
+
+                                )
+
+                            }
+
+                        </div>
+
+                    )
+
+                }
 
 
                 {/* MOBILE LANGUAGE */}
 
-                <div className="header__mobile-language">
+                <div
+                    className="header__mobile-language"
+                >
 
                     <button
                         type="button"
                         className={
-                            language === "en"
+                            language ===
+                            "en"
+
                                 ? "header__language--active"
+
                                 : ""
                         }
                         onClick={() =>
@@ -1189,7 +1650,8 @@ function Header() {
                             )
                         }
                         aria-pressed={
-                            language === "en"
+                            language ===
+                            "en"
                         }
                     >
 
@@ -1198,14 +1660,21 @@ function Header() {
                     </button>
 
 
-                    <span>|</span>
+                    <span>
+
+                        |
+
+                    </span>
 
 
                     <button
                         type="button"
                         className={
-                            language === "es"
+                            language ===
+                            "es"
+
                                 ? "header__language--active"
+
                                 : ""
                         }
                         onClick={() =>
@@ -1214,7 +1683,8 @@ function Header() {
                             )
                         }
                         aria-pressed={
-                            language === "es"
+                            language ===
+                            "es"
                         }
                     >
 
