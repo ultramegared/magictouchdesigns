@@ -12,6 +12,7 @@
  */
 
 import {
+    useCallback,
     useEffect,
     useState,
 } from "react";
@@ -42,28 +43,41 @@ interface AdminUser {
 
     id: string;
 
-    username: string;
+    username?: string | null;
 
-    first_name: string | null;
+    first_name?: string | null;
 
-    last_name: string | null;
+    last_name?: string | null;
 
-    email: string;
+    email?: string | null;
 
-    role: string;
+    role?: string | null;
 
-    created_at: string;
+    created_at?: string | null;
 
-    updated_at: string;
+    updated_at?: string | null;
 
 }
 
 
 interface AdminUsersResponse {
 
-    status: string;
+    status?: string;
 
-    users: AdminUser[];
+    users?: AdminUser[];
+
+}
+
+
+interface CurrentUserResponse {
+
+    status?: string;
+
+    user?: {
+
+        username?: string | null;
+
+    };
 
 }
 
@@ -74,39 +88,117 @@ interface AdminUsersResponse {
 
 const getUserName = (
     user: AdminUser
-) => {
+): string => {
 
     const fullName = [
         user.first_name,
         user.last_name,
     ]
-        .filter(Boolean)
-        .join(" ")
+        .filter(
+            Boolean
+        )
+        .join(
+            " "
+        )
         .trim();
 
 
-    return (
-        fullName ||
+    if (
+        fullName
+    ) {
+
+        return fullName;
+
+    }
+
+
+    if (
         user.username
-    );
+    ) {
+
+        return user.username;
+
+    }
+
+
+    return "Unknown User";
 
 };
 
 
 const formatDate = (
-    date: string
-) => {
+    date?: string | null
+): string => {
 
-    return new Intl.DateTimeFormat(
-        "en-US",
-        {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        }
-    ).format(
-        new Date(date)
-    );
+    if (
+        !date
+    ) {
+
+        return "Unknown";
+
+    }
+
+
+    const parsedDate =
+        new Date(
+            date
+        );
+
+
+    if (
+        Number.isNaN(
+            parsedDate.getTime()
+        )
+    ) {
+
+        return "Unknown";
+
+    }
+
+
+    try {
+
+        return new Intl.DateTimeFormat(
+            "en-US",
+            {
+
+                year:
+                    "numeric",
+
+                month:
+                    "short",
+
+                day:
+                    "numeric",
+
+            }
+        ).format(
+            parsedDate
+        );
+
+    } catch {
+
+        return "Unknown";
+
+    }
+
+};
+
+
+const getErrorMessage = (
+    error: unknown
+): string => {
+
+    if (
+        error instanceof Error
+    ) {
+
+        return error.message;
+
+    }
+
+
+    return "Unable to load users.";
 
 };
 
@@ -116,6 +208,11 @@ const formatDate = (
 ================================================================ */
 
 function AdminUsers() {
+
+
+    /* ===========================================================
+       STATE
+    ============================================================ */
 
     const [
         users,
@@ -138,7 +235,9 @@ function AdminUsers() {
     const [
         loading,
         setLoading,
-    ] = useState(true);
+    ] = useState(
+        true
+    );
 
 
     const [
@@ -149,85 +248,168 @@ function AdminUsers() {
     );
 
 
-    /* ============================================================
+    /* ===========================================================
        LOAD USERS
     ============================================================ */
 
     const loadUsers =
-        async () => {
+        useCallback(
+            async () => {
 
-            try {
+                try {
 
-                setLoading(
-                    true
-                );
-
-
-                setError(
-                    null
-                );
+                    setLoading(
+                        true
+                    );
 
 
-                const [
-                    usersResult,
-                    userResult,
-                ] = await Promise.all([
-
-                    apiRequest<AdminUsersResponse>(
-                        "/api/admin/users"
-                    ),
-
-                    apiRequest<{
-                        status: string;
-
-                        user: {
-                            username: string;
-                        };
-                    }>(
-                        "/api/user/me"
-                    ),
-
-                ]);
+                    setError(
+                        null
+                    );
 
 
-                setUsers(
-                    usersResult.users
-                );
+                    /*
+                    ==================================================
+                    LOAD USERS
+                    ==================================================
+                    */
+
+                    const usersResult =
+                        await apiRequest<AdminUsersResponse>(
+                            "/api/admin/users"
+                        );
 
 
-                setCurrentUser(
-                    userResult.user
-                );
+                    /*
+                    ==================================================
+                    VALIDATE USERS RESPONSE
+                    ==================================================
+                    */
 
-            } catch (error) {
+                    const receivedUsers =
+                        Array.isArray(
+                            usersResult?.users
+                        )
 
-                console.error(
-                    "Unable to load administrator users:",
-                    error
-                );
+                            ? usersResult.users
 
-
-                setError(
-                    "Unable to load users."
-                );
-
-            } finally {
-
-                setLoading(
-                    false
-                );
-
-            }
-
-        };
+                            : [];
 
 
-    useEffect(() => {
+                    setUsers(
+                        receivedUsers
+                    );
 
-        loadUsers();
 
-    }, []);
+                    /*
+                    ==================================================
+                    LOAD CURRENT USER
+                    ==================================================
+                    |
+                    | This request is separated from the users request
+                    | so a failure here does not destroy the entire page.
+                    |
+                    */
 
+                    try {
+
+                        const userResult =
+                            await apiRequest<CurrentUserResponse>(
+                                "/api/user/me"
+                            );
+
+
+                        const username =
+                            userResult?.user?.username;
+
+
+                        if (
+                            username
+                        ) {
+
+                            setCurrentUser(
+                                {
+                                    username,
+                                }
+                            );
+
+                        } else {
+
+                            setCurrentUser(
+                                null
+                            );
+
+                        }
+
+                    } catch (
+                        currentUserError
+                    ) {
+
+                        console.error(
+                            "Unable to load current user:",
+                            currentUserError
+                        );
+
+
+                        setCurrentUser(
+                            null
+                        );
+
+                    }
+
+                } catch (
+                    loadError
+                ) {
+
+                    console.error(
+                        "Unable to load administrator users:",
+                        loadError
+                    );
+
+
+                    setUsers(
+                        []
+                    );
+
+
+                    setError(
+                        getErrorMessage(
+                            loadError
+                        )
+                    );
+
+                } finally {
+
+                    setLoading(
+                        false
+                    );
+
+                }
+
+            },
+            []
+        );
+
+
+    /* ===========================================================
+       INITIAL LOAD
+    ============================================================ */
+
+    useEffect(
+        () => {
+
+            void loadUsers();
+
+        },
+        [
+            loadUsers,
+        ]
+    );
+
+
+    /* ===========================================================
+       RENDER
+    ============================================================ */
 
     return (
 
@@ -254,6 +436,7 @@ function AdminUsers() {
             <main
                 className="admin-users"
             >
+
 
                 {/* ==================================================
                     HERO
@@ -318,9 +501,10 @@ function AdminUsers() {
                     className="admin-users__container"
                 >
 
-                    {/* ==================================================
+
+                    {/* ==============================================
                         TOOLBAR
-                       ================================================== */}
+                       ============================================== */}
 
                     <div
                         className="admin-users__toolbar"
@@ -352,7 +536,9 @@ function AdminUsers() {
                             type="button"
                             className="admin-users__refresh"
                             onClick={
-                                loadUsers
+                                () => {
+                                    void loadUsers();
+                                }
                             }
                             disabled={
                                 loading
@@ -371,9 +557,9 @@ function AdminUsers() {
                     </div>
 
 
-                    {/* ==================================================
+                    {/* ==============================================
                         LOADING
-                       ================================================== */}
+                       ============================================== */}
 
                     {loading && (
 
@@ -388,26 +574,27 @@ function AdminUsers() {
                     )}
 
 
-                    {/* ==================================================
+                    {/* ==============================================
                         ERROR
-                       ================================================== */}
+                       ============================================== */}
 
-                    {error && (
+                    {!loading &&
+                        error && (
 
-                        <div
-                            className="admin-users__message admin-users__message--error"
-                        >
+                            <div
+                                className="admin-users__message admin-users__message--error"
+                            >
 
-                            {error}
+                                {error}
 
-                        </div>
+                            </div>
 
-                    )}
+                        )}
 
 
-                    {/* ==================================================
+                    {/* ==============================================
                         EMPTY
-                       ================================================== */}
+                       ============================================== */}
 
                     {!loading &&
                         !error &&
@@ -424,9 +611,9 @@ function AdminUsers() {
                         )}
 
 
-                    {/* ==================================================
+                    {/* ==============================================
                         USER LIST
-                       ================================================== */}
+                       ============================================== */}
 
                     {!loading &&
                         !error &&
@@ -447,6 +634,12 @@ function AdminUsers() {
                                             );
 
 
+                                        const isAdmin =
+                                            user.role?.toUpperCase()
+                                            ===
+                                            "ADMIN";
+
+
                                         return (
 
                                             <article
@@ -456,7 +649,8 @@ function AdminUsers() {
                                                 className="admin-users__card"
                                             >
 
-                                                {/* USER ICON */}
+
+                                                {/* USER AVATAR */}
 
                                                 <div
                                                     className="admin-users__avatar"
@@ -495,6 +689,8 @@ function AdminUsers() {
                                                                 @
                                                                 {
                                                                     user.username
+                                                                    ||
+                                                                    "unknown"
                                                                 }
 
                                                             </span>
@@ -502,10 +698,11 @@ function AdminUsers() {
                                                         </div>
 
 
+                                                        {/* ROLE */}
+
                                                         <div
                                                             className={
-                                                                user.role ===
-                                                                "ADMIN"
+                                                                isAdmin
 
                                                                     ? "admin-users__role admin-users__role--admin"
 
@@ -519,8 +716,7 @@ function AdminUsers() {
 
 
                                                             {
-                                                                user.role ===
-                                                                "ADMIN"
+                                                                isAdmin
 
                                                                     ? "Administrator"
 
@@ -531,6 +727,8 @@ function AdminUsers() {
 
                                                     </div>
 
+
+                                                    {/* DETAILS */}
 
                                                     <div
                                                         className="admin-users__details"
@@ -549,6 +747,8 @@ function AdminUsers() {
 
                                                                 {
                                                                     user.email
+                                                                    ||
+                                                                    "No email available"
                                                                 }
 
                                                             </span>
