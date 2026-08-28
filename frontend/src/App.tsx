@@ -43,7 +43,7 @@ import ReviewsPage from "./pages/Account/Reviews";
 import CreateReviewPage from "./pages/Account/CreateReview";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminRoute from "./components/admin/AdminRoute";
+import AdminRoute from "./pages/admin/AdminRoute";
 
 import CustomizePage from "./pages/Customize";
 
