@@ -24,6 +24,7 @@ import {
 
 import {
     getAdminDashboard,
+    getAdminUsers,
     getAdminReviews,
     approveReview,
     deleteReview,
@@ -63,6 +64,18 @@ router.use(
 router.get(
     "/dashboard",
     getAdminDashboard
+);
+
+
+/**
+ * ================================================================
+ * ADMIN USERS
+ * ================================================================
+ */
+
+router.get(
+    "/users",
+    getAdminUsers
 );
 
 

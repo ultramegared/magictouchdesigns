@@ -169,6 +169,74 @@ export const getAdminDashboard = async (
 
 /**
  * ================================================================
+ * GET ADMIN USERS
+ * ================================================================
+ *
+ * Returns all registered users for administrative management.
+ */
+export const getAdminUsers = async (
+    _req: Request,
+    res: Response
+): Promise<void> => {
+
+    try {
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    id,
+                    username,
+                    first_name,
+                    last_name,
+                    email,
+                    role,
+                    created_at,
+                    updated_at
+
+                FROM users
+
+                ORDER BY
+                    created_at DESC
+                `
+            );
+
+
+        res.status(200).json({
+
+            status:
+                "ok",
+
+            users:
+                result.rows,
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Get administrator users error:",
+            error
+        );
+
+
+        res.status(500).json({
+
+            status:
+                "error",
+
+            message:
+                "Unable to retrieve users.",
+
+        });
+
+    }
+
+};
+
+
+/**
+ * ================================================================
  * GET ADMIN REVIEWS
  * ================================================================
  *
