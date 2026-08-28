@@ -19,9 +19,11 @@ import {
     Bell,
     Building2,
     Globe,
+    Image,
     Mail,
     Save,
     Settings,
+    Type,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar";
@@ -50,6 +52,10 @@ interface CurrentUser {
 
 function AdminSettings() {
 
+    /* ============================================================
+       CURRENT USER
+    ============================================================ */
+
     const [
         currentUser,
         setCurrentUser,
@@ -57,6 +63,10 @@ function AdminSettings() {
         null
     );
 
+
+    /* ============================================================
+       BUSINESS SETTINGS
+    ============================================================ */
 
     const [
         storeName,
@@ -74,6 +84,38 @@ function AdminSettings() {
     );
 
 
+    /* ============================================================
+       WEBSITE SETTINGS
+    ============================================================ */
+
+    const [
+        websiteName,
+        setWebsiteName,
+    ] = useState(
+        "Magic Touch Designs"
+    );
+
+
+    const [
+        browserTitle,
+        setBrowserTitle,
+    ] = useState(
+        "Magic Touch Designs | Personalized Gifts & Designs"
+    );
+
+
+    const [
+        logoUrl,
+        setLogoUrl,
+    ] = useState(
+        ""
+    );
+
+
+    /* ============================================================
+       NOTIFICATIONS
+    ============================================================ */
+
     const [
         notificationsEnabled,
         setNotificationsEnabled,
@@ -81,6 +123,10 @@ function AdminSettings() {
         true
     );
 
+
+    /* ============================================================
+       UI STATE
+    ============================================================ */
 
     const [
         saving,
@@ -180,6 +226,16 @@ function AdminSettings() {
                 );
 
 
+                /*
+                 * Temporary browser title preview.
+                 * The permanent value will later
+                 * come from the backend settings.
+                 */
+
+                document.title =
+                    browserTitle;
+
+
                 setMessage(
                     "Settings saved successfully."
                 );
@@ -267,8 +323,9 @@ function AdminSettings() {
 
                             <p>
 
-                                Manage your store preferences
-                                and administrative settings.
+                                Manage your store preferences,
+                                website identity and
+                                administrative settings.
 
                             </p>
 
@@ -353,6 +410,8 @@ function AdminSettings() {
                         >
 
 
+                            {/* STORE NAME */}
+
                             <div
                                 className="admin-settings__field"
                             >
@@ -396,6 +455,8 @@ function AdminSettings() {
 
                             </div>
 
+
+                            {/* SUPPORT EMAIL */}
 
                             <div
                                 className="admin-settings__field"
@@ -447,7 +508,7 @@ function AdminSettings() {
 
 
                     {/* ==============================================
-                        WEBSITE SETTINGS
+                        WEBSITE IDENTITY
                        ============================================== */}
 
                     <section
@@ -484,6 +545,232 @@ function AdminSettings() {
 
                                     <h2>
 
+                                        Website Identity
+
+                                    </h2>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            className="admin-settings__card"
+                        >
+
+
+                            {/* WEBSITE NAME */}
+
+                            <div
+                                className="admin-settings__field"
+                            >
+
+                                <label
+                                    htmlFor="website-name"
+                                >
+
+                                    Website Name
+
+                                </label>
+
+
+                                <div
+                                    className="admin-settings__input-wrapper"
+                                >
+
+                                    <Type
+                                        size={18}
+                                    />
+
+
+                                    <input
+                                        id="website-name"
+                                        type="text"
+                                        value={
+                                            websiteName
+                                        }
+                                        onChange={
+                                            (
+                                                event
+                                            ) =>
+
+                                                setWebsiteName(
+                                                    event.target.value
+                                                )
+                                        }
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            {/* BROWSER TITLE */}
+
+                            <div
+                                className="admin-settings__field"
+                            >
+
+                                <label
+                                    htmlFor="browser-title"
+                                >
+
+                                    Browser Title
+
+                                </label>
+
+
+                                <div
+                                    className="admin-settings__input-wrapper"
+                                >
+
+                                    <Globe
+                                        size={18}
+                                    />
+
+
+                                    <input
+                                        id="browser-title"
+                                        type="text"
+                                        value={
+                                            browserTitle
+                                        }
+                                        onChange={
+                                            (
+                                                event
+                                            ) =>
+
+                                                setBrowserTitle(
+                                                    event.target.value
+                                                )
+                                        }
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            {/* WEBSITE LOGO */}
+
+                            <div
+                                className="admin-settings__field"
+                            >
+
+                                <label
+                                    htmlFor="website-logo"
+                                >
+
+                                    Website Logo
+
+                                </label>
+
+
+                                <div
+                                    className="admin-settings__input-wrapper"
+                                >
+
+                                    <Image
+                                        size={18}
+                                    />
+
+
+                                    <input
+                                        id="website-logo"
+                                        type="url"
+                                        placeholder="https://example.com/logo.png"
+                                        value={
+                                            logoUrl
+                                        }
+                                        onChange={
+                                            (
+                                                event
+                                            ) =>
+
+                                                setLogoUrl(
+                                                    event.target.value
+                                                )
+                                        }
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            {/* LOGO PREVIEW */}
+
+                            {logoUrl && (
+
+                                <div
+                                    className="admin-settings__logo-preview"
+                                >
+
+                                    <span>
+
+                                        Logo Preview
+
+                                    </span>
+
+
+                                    <img
+                                        src={
+                                            logoUrl
+                                        }
+                                        alt={
+                                            websiteName
+                                        }
+                                    />
+
+                                </div>
+
+                            )}
+
+                        </div>
+
+                    </section>
+
+
+                    {/* ==============================================
+                        WEBSITE PREFERENCES
+                       ============================================== */}
+
+                    <section
+                        className="admin-settings__section"
+                    >
+
+                        <div
+                            className="admin-settings__section-header"
+                        >
+
+                            <div
+                                className="admin-settings__section-title"
+                            >
+
+                                <div
+                                    className="admin-settings__section-icon"
+                                >
+
+                                    <Bell
+                                        size={22}
+                                    />
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+
+                                        PREFERENCES
+
+                                    </span>
+
+
+                                    <h2>
+
                                         Website Preferences
 
                                     </h2>
@@ -514,9 +801,9 @@ function AdminSettings() {
 
                                     <p>
 
-                                        Enable notifications
-                                        for important customer
-                                        activity.
+                                        Enable administrative
+                                        notifications for important
+                                        customer activity.
 
                                     </p>
 
@@ -550,17 +837,6 @@ function AdminSettings() {
                                     <span />
 
                                 </button>
-
-                            </div>
-
-
-                            <div
-                                className="admin-settings__preference-icon"
-                            >
-
-                                <Bell
-                                    size={20}
-                                />
 
                             </div>
 
