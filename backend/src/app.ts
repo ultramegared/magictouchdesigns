@@ -13,17 +13,25 @@
 import express from "express";
 import cors from "cors";
 
-import { pool } from "./config/database";
+import {
+    pool,
+} from "./config/database";
 
 import authRoutes from "./routes/auth.routes";
+
 import userRoutes from "./routes/user.routes";
+
 import reviewRoutes from "./routes/review.routes";
+
 import uploadRoutes from "./routes/upload.routes";
 
 import adminRoutes from "./routes/admin.routes";
 
+import settingsRoutes from "./routes/settings.routes";
 
-const app = express();
+
+const app =
+    express();
 
 
 /*
@@ -48,7 +56,9 @@ app.use(
 |--------------------------------------------------------------------------
 */
 
+
 // Authentication routes
+
 app.use(
     "/api/auth",
     authRoutes
@@ -56,6 +66,7 @@ app.use(
 
 
 // Review routes
+
 app.use(
     "/api/reviews",
     reviewRoutes
@@ -63,6 +74,7 @@ app.use(
 
 
 // Upload routes
+
 app.use(
     "/api/upload",
     uploadRoutes
@@ -70,6 +82,7 @@ app.use(
 
 
 // User routes
+
 app.use(
     "/api/user",
     userRoutes
@@ -77,9 +90,18 @@ app.use(
 
 
 // Administrator routes
+
 app.use(
     "/api/admin",
     adminRoutes
+);
+
+
+// Settings routes
+
+app.use(
+    "/api/settings",
+    settingsRoutes
 );
 
 
@@ -119,7 +141,9 @@ app.get(
 
             });
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Database connection error:",
@@ -127,7 +151,9 @@ app.get(
             );
 
 
-            res.status(503).json({
+            res.status(
+                503
+            ).json({
 
                 status:
                     "error",
