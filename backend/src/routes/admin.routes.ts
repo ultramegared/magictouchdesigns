@@ -24,6 +24,8 @@ import {
 
 import {
     getAdminDashboard,
+    getAdminReviews,
+    approveReview,
 } from "../controllers/admin.controller";
 
 
@@ -63,4 +65,22 @@ router.get(
 );
 
 
+/**
+ * ================================================================
+ * ADMIN REVIEWS
+ * ================================================================
+ */
+
+router.get(
+    "/reviews",
+    getAdminReviews
+);
+
+
+router.patch(
+    "/reviews/:id/approve",
+    approveReview
+);
+
 export default router;
+
