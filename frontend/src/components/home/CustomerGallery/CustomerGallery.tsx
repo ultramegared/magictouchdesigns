@@ -58,10 +58,6 @@ interface PublicReview {
 
     username: string;
 
-    first_name?: string | null;
-
-    last_name?: string | null;
-
 }
 
 
@@ -179,38 +175,13 @@ const getSocialIcon = (
 
             return null;
     }
+
 };
 
 
 /* ===============================================================
-   HELPERS
+   SOCIAL PLATFORM VALIDATION
 ================================================================ */
-
-const getCustomerName = (
-    review: PublicReview
-) => {
-
-    const fullName = [
-
-        review.first_name,
-
-        review.last_name,
-
-    ]
-        .filter(Boolean)
-        .join(
-            " "
-        )
-        .trim();
-
-
-    return (
-        fullName ||
-        review.username
-    );
-
-};
-
 
 const isSupportedSocialPlatform = (
     platform:
@@ -329,7 +300,9 @@ function CustomerGallery() {
                 event.key === "Escape"
             ) {
 
-                setSelectedImage(null);
+                setSelectedImage(
+                    null
+                );
 
             }
 
@@ -363,12 +336,15 @@ function CustomerGallery() {
                 handleKeyDown
             );
 
+
             document.body.style.overflow =
                 previousOverflow;
 
         };
 
-    }, [selectedImage]);
+    }, [
+        selectedImage,
+    ]);
 
 
     return (
@@ -398,12 +374,16 @@ function CustomerGallery() {
 
 
                     <h2>
+
                         {t.customerGallery.title}
+
                     </h2>
 
 
                     <p>
+
                         {t.customerGallery.description}
+
                     </p>
 
                 </div>
@@ -424,10 +404,13 @@ function CustomerGallery() {
                         {reviews.map(
                             (item) => {
 
+                                /*
+                                 * Display only
+                                 * the user's username.
+                                 */
+
                                 const customerName =
-                                    getCustomerName(
-                                        item
-                                    );
+                                    item.username;
 
 
                                 const hasSocial =
@@ -472,6 +455,7 @@ function CustomerGallery() {
                                                     setSelectedImage({
                                                         image:
                                                             item.image_url,
+
                                                         customerName,
                                                     })
                                                 }
@@ -494,6 +478,8 @@ function CustomerGallery() {
                                             className="customer-gallery__content"
                                         >
 
+                                            {/* USERNAME ONLY */}
+
                                             <span
                                                 className="customer-gallery__name"
                                             >
@@ -502,7 +488,9 @@ function CustomerGallery() {
 
 
                                             <p>
+
                                                 {item.review}
+
                                             </p>
 
 
@@ -518,13 +506,15 @@ function CustomerGallery() {
                                                     aria-label={`View ${customerName}'s ${item.social_platform}`}
                                                 >
 
-                                                    {getSocialIcon(
-    item.social_platform as
-        | "instagram"
-        | "facebook"
-        | "youtube"
-        | "tiktok"
-)}
+                                                    {
+                                                        getSocialIcon(
+                                                            item.social_platform as
+                                                                | "instagram"
+                                                                | "facebook"
+                                                                | "youtube"
+                                                                | "tiktok"
+                                                        )
+                                                    }
 
                                                 </a>
 
@@ -558,7 +548,9 @@ function CustomerGallery() {
                     aria-modal="true"
                     aria-label={`${selectedImage.customerName}'s customer gallery photo`}
                     onClick={() =>
-                        setSelectedImage(null)
+                        setSelectedImage(
+                            null
+                        )
                     }
                 >
 
@@ -570,7 +562,9 @@ function CustomerGallery() {
                         className="customer-gallery__lightbox-close"
                         aria-label="Close image"
                         onClick={() =>
-                            setSelectedImage(null)
+                            setSelectedImage(
+                                null
+                            )
                         }
                     >
                         ×
@@ -591,7 +585,9 @@ function CustomerGallery() {
                         >
 
                             <img
-                                src={selectedImage.image}
+                                src={
+                                    selectedImage.image
+                                }
                                 alt={`${selectedImage.customerName}'s personalized mug`}
                             />
 
