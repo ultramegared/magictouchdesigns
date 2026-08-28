@@ -166,6 +166,7 @@ export const getAdminDashboard = async (
 
 };
 
+
 /**
  * ================================================================
  * GET ADMIN REVIEWS
@@ -363,3 +364,87 @@ export const approveReview = async (
 
 };
 
+
+/**
+ * ================================================================
+ * DELETE REVIEW
+ * ================================================================
+ *
+ * Permanently deletes a user review.
+ * Administrators can delete pending or approved reviews.
+ */
+export const deleteReview = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+
+    try {
+
+        const {
+            id,
+        } = req.params;
+
+
+        const result =
+            await pool.query(
+                `
+                DELETE FROM reviews
+
+                WHERE id = $1
+
+                RETURNING id;
+                `,
+                [id]
+            );
+
+
+        if (
+            result.rowCount === 0
+        ) {
+
+            res.status(404).json({
+
+                status:
+                    "error",
+
+                message:
+                    "Review not found.",
+
+            });
+
+            return;
+
+        }
+
+
+        res.status(200).json({
+
+            status:
+                "ok",
+
+            message:
+                "Review deleted successfully.",
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Delete review error:",
+            error
+        );
+
+
+        res.status(500).json({
+
+            status:
+                "error",
+
+            message:
+                "Unable to delete review.",
+
+        });
+
+    }
+
+};

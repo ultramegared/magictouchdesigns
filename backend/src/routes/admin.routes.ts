@@ -26,6 +26,7 @@ import {
     getAdminDashboard,
     getAdminReviews,
     approveReview,
+    deleteReview,
 } from "../controllers/admin.controller";
 
 
@@ -82,5 +83,11 @@ router.patch(
     approveReview
 );
 
-export default router;
 
+router.delete(
+    "/reviews/:id",
+    deleteReview
+);
+
+
+export default router;

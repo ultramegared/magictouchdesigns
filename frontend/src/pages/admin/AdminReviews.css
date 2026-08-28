@@ -819,6 +819,15 @@
 
 .admin-reviews__actions {
 
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
     margin-top:
         24px;
 
@@ -831,6 +840,10 @@
 
 }
 
+
+/* ================================================================
+   APPROVE BUTTON
+   ================================================================ */
 
 .admin-reviews__approve {
 
@@ -907,6 +920,95 @@
 
 
 .admin-reviews__approve:disabled {
+
+    opacity:
+        0.65;
+
+    cursor:
+        wait;
+
+}
+
+
+/* ================================================================
+   DELETE REVIEW BUTTON
+   ================================================================ */
+
+.admin-reviews__delete {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        9px;
+
+    min-height:
+        44px;
+
+    padding:
+        11px 18px;
+
+    border:
+        1px solid
+        #e3bcbc;
+
+    border-radius:
+        10px;
+
+    background:
+        #ffffff;
+
+    color:
+        #b13b3b;
+
+    font-size:
+        0.88rem;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        background
+        0.2s ease,
+        color
+        0.2s ease,
+        border-color
+        0.2s ease,
+        transform
+        0.2s ease;
+
+}
+
+
+.admin-reviews__delete:hover:not(:disabled) {
+
+    border-color:
+        #b13b3b;
+
+    background:
+        #fff4f4;
+
+    color:
+        #8f2f2f;
+
+    transform:
+        translateY(
+            -2px
+        );
+
+}
+
+
+.admin-reviews__delete:disabled {
 
     opacity:
         0.65;
@@ -1149,7 +1251,19 @@
     }
 
 
-    .admin-reviews__approve {
+    .admin-reviews__actions {
+
+        flex-direction:
+            column;
+
+        align-items:
+            stretch;
+
+    }
+
+
+    .admin-reviews__approve,
+    .admin-reviews__delete {
 
         width:
             100%;
