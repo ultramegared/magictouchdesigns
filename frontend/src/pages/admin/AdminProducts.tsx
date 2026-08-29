@@ -7,6 +7,7 @@
  * Language: TypeScript React
  * Description:
  * Administrative product management page.
+ * Supports image upload from desktop and mobile devices.
  * Languages: English (en) | Español (es)
  * ================================================================
  */
@@ -26,6 +27,7 @@ import {
     LoaderCircle,
     X,
     Save,
+    Upload,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar";
@@ -104,9 +106,6 @@ interface ProductFormData {
     price:
         string;
 
-    image_url:
-        string;
-
     is_active:
         boolean;
 
@@ -136,9 +135,6 @@ const createEmptyForm =
             "",
 
         price:
-            "",
-
-        image_url:
             "",
 
         is_active:
@@ -222,6 +218,26 @@ function AdminProducts() {
         setSaving,
     ] = useState(
         false
+    );
+
+
+    /* ============================================================
+       IMAGE
+    ============================================================ */
+
+    const [
+        selectedImage,
+        setSelectedImage,
+    ] = useState<File | null>(
+        null
+    );
+
+
+    const [
+        imagePreview,
+        setImagePreview,
+    ] = useState<string | null>(
+        null
     );
 
 
@@ -424,9 +440,7 @@ function AdminProducts() {
                     ...current,
 
                     [
-
                         name
-
                     ]:
 
                         type === "checkbox"
@@ -439,12 +453,6 @@ function AdminProducts() {
 
             );
 
-
-            /*
-            --------------------------------------------------------
-            AUTOMATIC SLUG
-            --------------------------------------------------------
-            */
 
             if (
                 name === "name" &&
@@ -475,6 +483,84 @@ function AdminProducts() {
 
 
     /* ============================================================
+       IMAGE CHANGE
+    ============================================================ */
+
+    const handleImageChange =
+        (
+            event:
+                React.ChangeEvent<
+                    HTMLInputElement
+                >
+        ) => {
+
+            const file =
+                event.target.files?.[0];
+
+
+            if (
+                !file
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+
+                setMessage(
+                    "Please select a valid image file."
+                );
+
+                return;
+
+            }
+
+
+            setSelectedImage(
+                file
+            );
+
+
+            const previewUrl =
+                URL.createObjectURL(
+                    file
+                );
+
+
+            setImagePreview(
+                previewUrl
+            );
+
+        };
+
+
+    /* ============================================================
+       REMOVE SELECTED IMAGE
+    ============================================================ */
+
+    const handleRemoveImage =
+        () => {
+
+            setSelectedImage(
+                null
+            );
+
+
+            setImagePreview(
+                editingProduct?.image_url
+                || null
+            );
+
+        };
+
+
+    /* ============================================================
        OPEN CREATE FORM
     ============================================================ */
 
@@ -488,6 +574,16 @@ function AdminProducts() {
 
             setFormData(
                 createEmptyForm()
+            );
+
+
+            setSelectedImage(
+                null
+            );
+
+
+            setImagePreview(
+                null
             );
 
 
@@ -538,10 +634,6 @@ function AdminProducts() {
                         product.price
                     ),
 
-                image_url:
-                    product.image_url
-                    ?? "",
-
                 is_active:
                     product.is_active,
 
@@ -551,6 +643,17 @@ function AdminProducts() {
                     ),
 
             });
+
+
+            setSelectedImage(
+                null
+            );
+
+
+            setImagePreview(
+                product.image_url
+                || null
+            );
 
 
             setShowForm(
@@ -586,6 +689,16 @@ function AdminProducts() {
                 createEmptyForm()
             );
 
+
+            setSelectedImage(
+                null
+            );
+
+
+            setImagePreview(
+                null
+            );
+
         };
 
 
@@ -614,41 +727,66 @@ function AdminProducts() {
                 );
 
 
-                const payload = {
+                const payload =
+                    new FormData();
 
-                    collection_id:
-                        formData.collection_id,
 
-                    name:
-                        formData.name.trim(),
+                payload.append(
+                    "collection_id",
+                    formData.collection_id
+                );
 
-                    slug:
-                        formData.slug
-                            .trim()
-                            .toLowerCase(),
 
-                    description:
-                        formData.description.trim()
-                        || null,
+                payload.append(
+                    "name",
+                    formData.name.trim()
+                );
 
-                    price:
-                        Number(
-                            formData.price
-                        ),
 
-                    image_url:
-                        formData.image_url.trim()
-                        || null,
+                payload.append(
+                    "slug",
+                    formData.slug
+                        .trim()
+                        .toLowerCase()
+                );
 
-                    is_active:
-                        formData.is_active,
 
-                    sort_order:
-                        Number(
-                            formData.sort_order
-                        ),
+                payload.append(
+                    "description",
+                    formData.description.trim()
+                );
 
-                };
+
+                payload.append(
+                    "price",
+                    formData.price
+                );
+
+
+                payload.append(
+                    "is_active",
+                    String(
+                        formData.is_active
+                    )
+                );
+
+
+                payload.append(
+                    "sort_order",
+                    formData.sort_order
+                );
+
+
+                if (
+                    selectedImage
+                ) {
+
+                    payload.append(
+                        "image",
+                        selectedImage
+                    );
+
+                }
 
 
                 if (
@@ -656,18 +794,19 @@ function AdminProducts() {
                 ) {
 
                     await apiRequest(
+
                         `/api/products/${editingProduct.id}`,
+
                         {
 
                             method:
                                 "PUT",
 
                             body:
-                                JSON.stringify(
-                                    payload
-                                ),
+                                payload,
 
                         }
+
                     );
 
 
@@ -678,18 +817,19 @@ function AdminProducts() {
                 } else {
 
                     await apiRequest(
+
                         "/api/products",
+
                         {
 
                             method:
                                 "POST",
 
                             body:
-                                JSON.stringify(
-                                    payload
-                                ),
+                                payload,
 
                         }
+
                     );
 
 
@@ -759,10 +899,8 @@ function AdminProducts() {
                 await apiRequest(
                     endpoint,
                     {
-
                         method:
                             "PUT",
-
                     }
                 );
 
@@ -839,10 +977,8 @@ function AdminProducts() {
                     `/api/products/${product.id}`,
 
                     {
-
                         method:
                             "DELETE",
-
                     }
 
                 );
@@ -905,10 +1041,6 @@ function AdminProducts() {
             >
 
 
-                {/* ==================================================
-                    HERO
-                   ================================================== */}
-
                 <section
                     className="admin-products__hero"
                 >
@@ -934,7 +1066,7 @@ function AdminProducts() {
                         <p>
 
                             Create, manage and organize
-                            your products from one place.
+                            all store products from one place.
 
                         </p>
 
@@ -965,10 +1097,6 @@ function AdminProducts() {
                 </section>
 
 
-                {/* ==================================================
-                    MESSAGE
-                   ================================================== */}
-
                 {
 
                     message && (
@@ -985,10 +1113,6 @@ function AdminProducts() {
 
                 }
 
-
-                {/* ==================================================
-                    PRODUCTS
-                   ================================================== */}
 
                 <section
                     className="admin-products__content"
@@ -1217,10 +1341,7 @@ function AdminProducts() {
                                                             <small>
 
                                                                 Order:
-
-                                                                {
-                                                                    " "
-                                                                }
+                                                                {" "}
 
                                                                 {
                                                                     product.sort_order
@@ -1328,10 +1449,6 @@ function AdminProducts() {
                 </section>
 
 
-                {/* ==================================================
-                    PRODUCT FORM MODAL
-                   ================================================== */}
-
                 {
 
                     showForm && (
@@ -1407,8 +1524,6 @@ function AdminProducts() {
                                     >
 
 
-                                        {/* COLLECTION ID */}
-
                                         <label>
 
                                             Collection ID
@@ -1433,8 +1548,6 @@ function AdminProducts() {
 
                                         </label>
 
-
-                                        {/* PRODUCT NAME */}
 
                                         <label>
 
@@ -1461,8 +1574,6 @@ function AdminProducts() {
                                         </label>
 
 
-                                        {/* SLUG */}
-
                                         <label>
 
                                             Product Slug
@@ -1487,8 +1598,6 @@ function AdminProducts() {
 
                                         </label>
 
-
-                                        {/* PRICE */}
 
                                         <label>
 
@@ -1519,36 +1628,93 @@ function AdminProducts() {
                                         </label>
 
 
-                                        {/* IMAGE URL */}
+                                        {/* ==================================================
+                                            IMAGE UPLOAD
+                                           ================================================== */}
 
                                         <label
                                             className="admin-products__form-full"
                                         >
 
-                                            Image URL
+                                            Product Image
 
-                                            <input
+                                            <div
+                                                className="admin-products__upload"
+                                            >
 
-                                                type="url"
+                                                <input
 
-                                                name="image_url"
+                                                    type="file"
 
-                                                value={
-                                                    formData.image_url
-                                                }
+                                                    accept="image/*"
 
-                                                onChange={
-                                                    handleChange
-                                                }
+                                                    onChange={
+                                                        handleImageChange
+                                                    }
 
-                                                placeholder="https://..."
+                                                />
 
-                                            />
+
+                                                <Upload
+                                                    size={20}
+                                                />
+
+
+                                                <span>
+
+                                                    Choose an image from
+                                                    your computer or phone
+
+                                                </span>
+
+                                            </div>
 
                                         </label>
 
 
-                                        {/* DESCRIPTION */}
+                                        {
+
+                                            imagePreview && (
+
+                                                <div
+                                                    className="admin-products__image-preview"
+                                                >
+
+                                                    <img
+
+                                                        src={
+                                                            imagePreview
+                                                        }
+
+                                                        alt="Product preview"
+
+                                                    />
+
+
+                                                    <button
+
+                                                        type="button"
+
+                                                        onClick={
+                                                            handleRemoveImage
+                                                        }
+
+                                                    >
+
+                                                        <X
+                                                            size={18}
+                                                        />
+
+                                                        Remove image
+
+                                                    </button>
+
+                                                </div>
+
+                                            )
+
+                                        }
+
 
                                         <label
                                             className="admin-products__form-full"
@@ -1575,8 +1741,6 @@ function AdminProducts() {
                                         </label>
 
 
-                                        {/* SORT ORDER */}
-
                                         <label>
 
                                             Display Order
@@ -1602,8 +1766,6 @@ function AdminProducts() {
                                         </label>
 
 
-                                        {/* ACTIVE */}
-
                                         <label
                                             className="admin-products__checkbox"
                                         >
@@ -1628,7 +1790,6 @@ function AdminProducts() {
                                             Active Product
 
                                         </label>
-
 
                                     </div>
 
@@ -1707,7 +1868,6 @@ function AdminProducts() {
 
                                     </div>
 
-
                                 </form>
 
                             </div>
@@ -1717,7 +1877,6 @@ function AdminProducts() {
                     )
 
                 }
-
 
             </main>
 
