@@ -12,6 +12,7 @@
 
 import {
     useEffect,
+    useRef,
     useState,
 } from "react";
 
@@ -24,6 +25,9 @@ import {
     Save,
     Settings,
     Type,
+    Upload,
+    Trash2,
+    LoaderCircle,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar";
@@ -69,11 +73,35 @@ interface SettingsData {
 }
 
 
+interface UploadResponse {
+
+    status:
+        string;
+
+    message:
+        string;
+
+    image_url:
+        string;
+
+}
+
+
 /* ===============================================================
    COMPONENT
 ================================================================ */
 
 function AdminSettings() {
+
+    /* ============================================================
+       REFERENCES
+    ============================================================ */
+
+    const fileInputRef =
+        useRef<HTMLInputElement>(
+            null
+        );
+
 
     /* ============================================================
        CURRENT USER
@@ -160,6 +188,14 @@ function AdminSettings() {
 
 
     const [
+        uploadingLogo,
+        setUploadingLogo,
+    ] = useState(
+        false
+    );
+
+
+    const [
         message,
         setMessage,
     ] = useState<string | null>(
@@ -235,11 +271,6 @@ function AdminSettings() {
                         result.settings;
 
 
-                    /*
-                     * The current backend uses websiteName
-                     * as the main business and website name.
-                     */
-
                     setStoreName(
                         settings.websiteName
                     );
@@ -292,6 +323,129 @@ function AdminSettings() {
 
 
     /* ============================================================
+       LOGO UPLOAD
+    ============================================================ */
+
+    const handleLogoUpload =
+        async (
+            event:
+                React.ChangeEvent<HTMLInputElement>
+        ) => {
+
+            const file =
+                event.target.files?.[0];
+
+
+            if (!file) {
+
+                return;
+
+            }
+
+
+            try {
+
+                setUploadingLogo(
+                    true
+                );
+
+
+                setMessage(
+                    null
+                );
+
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "image",
+                    file
+                );
+
+
+                const result =
+                    await apiRequest<UploadResponse>(
+                        "/api/upload",
+                        {
+
+                            method:
+                                "POST",
+
+                            body:
+                                formData,
+
+                        }
+                    );
+
+
+                setLogoUrl(
+                    result.image_url
+                );
+
+
+                setMessage(
+                    "Logo uploaded successfully. Click Save Settings to apply it."
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to upload logo:",
+                    error
+                );
+
+
+                setMessage(
+                    error instanceof Error
+
+                        ? error.message
+
+                        : "Unable to upload logo."
+                );
+
+            } finally {
+
+                setUploadingLogo(
+                    false
+                );
+
+
+                if (
+                    fileInputRef.current
+                ) {
+
+                    fileInputRef.current.value =
+                        "";
+
+                }
+
+            }
+
+        };
+
+
+    /* ============================================================
+       REMOVE LOGO
+    ============================================================ */
+
+    const handleRemoveLogo =
+        () => {
+
+            setLogoUrl(
+                ""
+            );
+
+
+            setMessage(
+                "Logo removed. Click Save Settings to apply the change."
+            );
+
+        };
+
+
+    /* ============================================================
        SAVE SETTINGS
     ============================================================ */
 
@@ -322,6 +476,7 @@ function AdminSettings() {
                     }>(
                         "/api/settings",
                         {
+
                             method:
                                 "PUT",
 
@@ -341,6 +496,7 @@ function AdminSettings() {
                                     notificationsEnabled,
 
                                 }),
+
                         }
                     );
 
@@ -348,11 +504,6 @@ function AdminSettings() {
                 const settings =
                     result.settings;
 
-
-                /*
-                 * Synchronize the returned values
-                 * from the backend.
-                 */
 
                 setStoreName(
                     settings.websiteName
@@ -403,7 +554,11 @@ function AdminSettings() {
 
 
                 setMessage(
-                    "Unable to save settings."
+                    error instanceof Error
+
+                        ? error.message
+
+                        : "Unable to save settings."
                 );
 
             } finally {
@@ -423,11 +578,6 @@ function AdminSettings() {
             className="admin-layout"
         >
 
-
-            {/* ======================================================
-                SIDEBAR
-               ====================================================== */}
-
             <AdminSidebar
                 username={
                     currentUser?.username
@@ -436,14 +586,9 @@ function AdminSettings() {
             />
 
 
-            {/* ======================================================
-                MAIN
-               ====================================================== */}
-
             <main
                 className="admin-settings"
             >
-
 
                 {/* ==================================================
                     HERO
@@ -501,14 +646,9 @@ function AdminSettings() {
                 </section>
 
 
-                {/* ==================================================
-                    CONTENT
-                   ================================================== */}
-
                 <section
                     className="admin-settings__container"
                 >
-
 
                     {/* ==============================================
                         STORE SETTINGS
@@ -563,9 +703,6 @@ function AdminSettings() {
                             className="admin-settings__card"
                         >
 
-
-                            {/* STORE NAME */}
-
                             <div
                                 className="admin-settings__field"
                             >
@@ -595,9 +732,7 @@ function AdminSettings() {
                                             storeName
                                         }
                                         onChange={
-                                            (
-                                                event
-                                            ) => {
+                                            event => {
 
                                                 const value =
                                                     event.target.value;
@@ -620,8 +755,6 @@ function AdminSettings() {
 
                             </div>
 
-
-                            {/* SUPPORT EMAIL */}
 
                             <div
                                 className="admin-settings__field"
@@ -653,9 +786,7 @@ function AdminSettings() {
                                             supportEmail
                                         }
                                         onChange={
-                                            (
-                                                event
-                                            ) =>
+                                            event =>
 
                                                 setSupportEmail(
                                                     event.target.value
@@ -725,7 +856,6 @@ function AdminSettings() {
                             className="admin-settings__card"
                         >
 
-
                             {/* WEBSITE NAME */}
 
                             <div
@@ -757,9 +887,7 @@ function AdminSettings() {
                                             websiteName
                                         }
                                         onChange={
-                                            (
-                                                event
-                                            ) => {
+                                            event => {
 
                                                 const value =
                                                     event.target.value;
@@ -814,9 +942,7 @@ function AdminSettings() {
                                             browserTitle
                                         }
                                         onChange={
-                                            (
-                                                event
-                                            ) =>
+                                            event =>
 
                                                 setBrowserTitle(
                                                     event.target.value
@@ -844,34 +970,79 @@ function AdminSettings() {
                                 </label>
 
 
-                                <div
-                                    className="admin-settings__input-wrapper"
+                                <input
+                                    ref={
+                                        fileInputRef
+                                    }
+                                    id="website-logo"
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/webp"
+                                    onChange={
+                                        handleLogoUpload
+                                    }
+                                    hidden
+                                />
+
+
+                                <button
+                                    type="button"
+                                    className="admin-settings__logo-upload"
+                                    onClick={() =>
+                                        fileInputRef.current?.click()
+                                    }
+                                    disabled={
+                                        uploadingLogo
+                                    }
                                 >
 
-                                    <Image
-                                        size={18}
-                                    />
+                                    {
+
+                                        uploadingLogo
+
+                                            ? (
+
+                                                <LoaderCircle
+                                                    size={19}
+                                                />
+
+                                            )
+
+                                            : (
+
+                                                <Upload
+                                                    size={19}
+                                                />
+
+                                            )
+
+                                    }
 
 
-                                    <input
-                                        id="website-logo"
-                                        type="url"
-                                        placeholder="https://example.com/logo.png"
-                                        value={
-                                            logoUrl
+                                    <span>
+
+                                        {
+
+                                            uploadingLogo
+
+                                                ? "Uploading logo..."
+
+                                                : "Choose Logo from Device"
+
                                         }
-                                        onChange={
-                                            (
-                                                event
-                                            ) =>
 
-                                                setLogoUrl(
-                                                    event.target.value
-                                                )
-                                        }
-                                    />
+                                    </span>
 
-                                </div>
+                                </button>
+
+
+                                <small
+                                    className="admin-settings__field-help"
+                                >
+
+                                    PNG, JPG or WEBP.
+                                    Maximum size: 5 MB.
+
+                                </small>
 
                             </div>
 
@@ -884,11 +1055,32 @@ function AdminSettings() {
                                     className="admin-settings__logo-preview"
                                 >
 
-                                    <span>
+                                    <div
+                                        className="admin-settings__logo-preview-header"
+                                    >
 
-                                        Logo Preview
+                                        <span>
 
-                                    </span>
+                                            Logo Preview
+
+                                        </span>
+
+
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                handleRemoveLogo
+                                            }
+                                            aria-label="Remove logo"
+                                        >
+
+                                            <Trash2
+                                                size={17}
+                                            />
+
+                                        </button>
+
+                                    </div>
 
 
                                     <img
@@ -998,9 +1190,7 @@ function AdminSettings() {
                                     onClick={() =>
 
                                         setNotificationsEnabled(
-                                            (
-                                                currentValue
-                                            ) =>
+                                            currentValue =>
 
                                                 !currentValue
                                         )
@@ -1050,6 +1240,7 @@ function AdminSettings() {
                             }
                             disabled={
                                 saving
+                                || uploadingLogo
                             }
                         >
 
@@ -1059,11 +1250,13 @@ function AdminSettings() {
 
 
                             {
+
                                 saving
 
                                     ? "Saving..."
 
                                     : "Save Settings"
+
                             }
 
                         </button>
