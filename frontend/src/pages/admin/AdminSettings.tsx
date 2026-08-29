@@ -366,7 +366,7 @@ function AdminSettings() {
 
                 const result =
                     await apiRequest<UploadResponse>(
-                        "/api/upload",
+                        "/api/upload/logo",
                         {
 
                             method:
@@ -377,6 +377,17 @@ function AdminSettings() {
 
                         }
                     );
+
+
+                if (
+                    !result.image_url
+                ) {
+
+                    throw new Error(
+                        "The server did not return the logo URL."
+                    );
+
+                }
 
 
                 setLogoUrl(
