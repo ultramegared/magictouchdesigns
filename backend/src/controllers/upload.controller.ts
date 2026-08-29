@@ -6,7 +6,7 @@
  * Module: Upload Controller
  * Language: TypeScript
  * Description:
- * Handles image upload requests.
+ * Handles authenticated image upload requests.
  * Languages: English (en) | Español (es)
  * ================================================================
  */
@@ -20,21 +20,43 @@ import {
     uploadImage,
 } from "../services/upload.service";
 
+import type {
+    UploadFolder,
+} from "../services/upload.service";
+
+
+/* ===============================================================
+   TYPES
+================================================================ */
+
+type UploadRequest =
+    Request & {
+
+        uploadFolder?:
+            UploadFolder;
+
+    };
+
+
+/* ===============================================================
+   UPLOAD IMAGE
+================================================================ */
 
 /**
- * ================================================================
- * UPLOAD IMAGE
- * ================================================================
+ * Uploads an authenticated image
+ * to the selected Cloudinary folder.
  *
- * Receives an image from the authenticated client
- * and uploads it to Cloudinary.
- *
+ * The folder is assigned by the route,
+ * never directly by the client.
  */
 
 export const upload =
     async (
-        req: Request,
-        res: Response
+        req:
+            UploadRequest,
+
+        res:
+            Response
     ): Promise<void> => {
 
         try {
@@ -43,15 +65,15 @@ export const upload =
                 req.file;
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | FILE VALIDATION
-            |--------------------------------------------------------------------------
-            */
+            /* =======================================================
+               FILE VALIDATION
+            ======================================================== */
 
             if (!file) {
 
-                res.status(400).json({
+                res.status(
+                    400
+                ).json({
 
                     status:
                         "error",
@@ -66,28 +88,36 @@ export const upload =
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | UPLOAD TO CLOUDINARY
-            |--------------------------------------------------------------------------
-            */
+            /* =======================================================
+               UPLOAD FOLDER
+            ======================================================== */
+
+            const folder =
+                req.uploadFolder
+                ?? "reviews";
+
+
+            /* =======================================================
+               UPLOAD TO CLOUDINARY
+            ======================================================== */
 
             const imageUrl =
                 await uploadImage(
-                    file.buffer
+                    file.buffer,
+                    folder
                 );
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | SUCCESS RESPONSE
-            |--------------------------------------------------------------------------
-            */
+            /* =======================================================
+               SUCCESS RESPONSE
+            ======================================================== */
 
-            res.status(200).json({
+            res.status(
+                200
+            ).json({
 
                 status:
-                    "ok",
+                    "success",
 
                 message:
                     "Image uploaded successfully.",
@@ -97,7 +127,9 @@ export const upload =
 
             });
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Error uploading image:",
@@ -105,13 +137,13 @@ export const upload =
             );
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | ERROR RESPONSE
-            |--------------------------------------------------------------------------
-            */
+            /* =======================================================
+               ERROR RESPONSE
+            ======================================================== */
 
-            res.status(500).json({
+            res.status(
+                500
+            ).json({
 
                 status:
                     "error",

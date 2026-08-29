@@ -32,19 +32,35 @@ import {
     upload,
 } from "../controllers/upload.controller";
 
+import type {
+    UploadFolder,
+} from "../services/upload.service";
 
-const router = Router();
+
+/* ===============================================================
+   ROUTER
+================================================================ */
+
+const router =
+    Router();
 
 
-/**
- * ================================================================
- * MULTER CONFIGURATION
- * ================================================================
- *
- * Images are temporarily stored in memory
- * before being uploaded to Cloudinary.
- *
- */
+/* ===============================================================
+   TYPES
+================================================================ */
+
+type UploadRequest =
+    Request & {
+
+        uploadFolder?:
+            UploadFolder;
+
+    };
+
+
+/* ===============================================================
+   MULTER CONFIGURATION
+================================================================ */
 
 const storage =
     multer.memoryStorage();
@@ -72,7 +88,9 @@ const uploadMiddleware =
                 const allowedMimeTypes = [
 
                     "image/jpeg",
+
                     "image/png",
+
                     "image/webp",
 
                 ];
@@ -105,24 +123,16 @@ const uploadMiddleware =
     });
 
 
+/* ===============================================================
+   UPLOAD MIDDLEWARE
+================================================================ */
+
 /**
- * ================================================================
- * IMAGE UPLOAD
- * ================================================================
- *
- * POST /api/upload
- *
- * Requires authentication.
- *
- * Maximum image size: 5 MB.
- *
+ * Processes the incoming image
+ * and handles Multer errors.
  */
 
-router.post(
-    "/",
-
-    authenticateToken,
-
+const processImageUpload =
     (
         req: Request,
         res: Response,
@@ -138,57 +148,208 @@ router.post(
                 error
             ) => {
 
-                if (error) {
+                if (!error) {
 
-                    if (
-                        error instanceof
-                        multer.MulterError
-                    ) {
-
-                        if (
-                            error.code ===
-                            "LIMIT_FILE_SIZE"
-                        ) {
-
-                            res.status(400).json({
-
-                                status:
-                                    "error",
-
-                                message:
-                                    "Image size cannot exceed 5 MB.",
-
-                            });
-
-                            return;
-
-                        }
-
-                    }
-
-
-                    res.status(400).json({
-
-                        status:
-                            "error",
-
-                        message:
-                            error.message ||
-                            "Invalid image upload.",
-
-                    });
+                    next();
 
                     return;
 
                 }
 
 
-                next();
+                if (
+                    error instanceof
+                    multer.MulterError
+                ) {
+
+                    if (
+                        error.code ===
+                        "LIMIT_FILE_SIZE"
+                    ) {
+
+                        res.status(
+                            400
+                        ).json({
+
+                            status:
+                                "error",
+
+                            message:
+                                "Image size cannot exceed 5 MB.",
+
+                        });
+
+                        return;
+
+                    }
+
+                }
+
+
+                res.status(
+                    400
+                ).json({
+
+                    status:
+                        "error",
+
+                    message:
+                        error.message ||
+                        "Invalid image upload.",
+
+                });
 
             }
         );
 
-    },
+    };
+
+
+/* ===============================================================
+   UPLOAD FOLDER MIDDLEWARE
+================================================================ */
+
+/**
+ * Assigns the Cloudinary destination folder
+ * internally on the server.
+ *
+ * The client cannot choose the destination.
+ */
+
+const assignUploadFolder =
+    (
+        folder:
+            UploadFolder
+    ) => {
+
+        return (
+            req: UploadRequest,
+            _res: Response,
+            next: NextFunction
+        ) => {
+
+            req.uploadFolder =
+                folder;
+
+
+            next();
+
+        };
+
+    };
+
+
+/* ===============================================================
+   LOGO UPLOAD
+================================================================ */
+
+/**
+ * POST
+ * /api/upload/logo
+ *
+ * Requires authentication.
+ *
+ * Cloudinary folder:
+ * magic-touch-designs/logos
+ */
+
+router.post(
+    "/logo",
+
+    authenticateToken,
+
+    processImageUpload,
+
+    assignUploadFolder(
+        "logos"
+    ),
+
+    upload
+);
+
+
+/* ===============================================================
+   REVIEW UPLOAD
+================================================================ */
+
+/**
+ * POST
+ * /api/upload/review
+ *
+ * Requires authentication.
+ *
+ * Cloudinary folder:
+ * magic-touch-designs/reviews
+ */
+
+router.post(
+    "/review",
+
+    authenticateToken,
+
+    processImageUpload,
+
+    assignUploadFolder(
+        "reviews"
+    ),
+
+    upload
+);
+
+
+/* ===============================================================
+   PRODUCT UPLOAD
+================================================================ */
+
+/**
+ * POST
+ * /api/upload/product
+ *
+ * Requires authentication.
+ *
+ * Cloudinary folder:
+ * magic-touch-designs/products
+ */
+
+router.post(
+    "/product",
+
+    authenticateToken,
+
+    processImageUpload,
+
+    assignUploadFolder(
+        "products"
+    ),
+
+    upload
+);
+
+
+/* ===============================================================
+   CUSTOMIZATION UPLOAD
+================================================================ */
+
+/**
+ * POST
+ * /api/upload/customization
+ *
+ * Requires authentication.
+ *
+ * Cloudinary folder:
+ * magic-touch-designs/customizations
+ */
+
+router.post(
+    "/customization",
+
+    authenticateToken,
+
+    processImageUpload,
+
+    assignUploadFolder(
+        "customizations"
+    ),
 
     upload
 );

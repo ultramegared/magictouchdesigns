@@ -19,20 +19,36 @@ import cloudinary from
     "../config/cloudinary";
 
 
+/* ===============================================================
+   TYPES
+================================================================ */
+
+export type UploadFolder =
+    | "logos"
+    | "reviews"
+    | "products"
+    | "customizations";
+
+
+/* ===============================================================
+   UPLOAD IMAGE
+================================================================ */
+
 /**
- * ================================================================
- * UPLOAD IMAGE
- * ================================================================
- *
  * Uploads an image buffer to Cloudinary.
  *
- * Returns the secure public image URL.
+ * The destination folder can be selected
+ * according to the type of image.
  *
+ * Returns the secure public image URL.
  */
 
 export const uploadImage =
     async (
-        fileBuffer: Buffer
+        fileBuffer: Buffer,
+
+        folder:
+            UploadFolder = "reviews"
     ): Promise<string> => {
 
         return new Promise(
@@ -45,17 +61,23 @@ export const uploadImage =
                     cloudinary.uploader.upload_stream(
 
                         {
+
                             folder:
-                                "magic-touch-designs/reviews",
+                                `magic-touch-designs/${folder}`,
 
                             resource_type:
                                 "image",
 
                             allowed_formats: [
+
                                 "jpg",
+
                                 "jpeg",
+
                                 "png",
+
                                 "webp",
+
                             ],
 
                         },
