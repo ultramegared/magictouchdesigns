@@ -7,6 +7,7 @@
  * Language: TypeScript React
  * Description:
  * Responsive navigation sidebar for the administrative panel.
+ * Languages: English (en) | Español (es)
  * ================================================================
  */
 
@@ -27,6 +28,8 @@ import {
     Menu,
     X,
     LogOut,
+    FolderKanban,
+    Mail,
 } from "lucide-react";
 
 import {
@@ -37,6 +40,10 @@ import {
 import "./AdminSidebar.css";
 
 
+/* ===============================================================
+   TYPES
+================================================================ */
+
 interface AdminSidebarProps {
 
     username?: string;
@@ -44,62 +51,75 @@ interface AdminSidebarProps {
 }
 
 
+/* ===============================================================
+   COMPONENT
+================================================================ */
+
 function AdminSidebar({
     username,
 }: AdminSidebarProps) {
 
+
+    /* ============================================================
+       MOBILE MENU
+    ============================================================ */
+
     const [
         mobileMenuOpen,
         setMobileMenuOpen,
-    ] = useState(false);
+    ] = useState(
+        false
+    );
 
 
     const navigate =
         useNavigate();
 
 
-    /**
-     * ============================================================
-     * CLOSE MOBILE MENU
-     * ============================================================
-     */
+    /* ============================================================
+       CLOSE MOBILE MENU
+    ============================================================ */
 
-    const closeMobileMenu = () => {
+    const closeMobileMenu =
+        () => {
 
-        setMobileMenuOpen(
-            false
-        );
+            setMobileMenuOpen(
+                false
+            );
 
-    };
-
-
-    /**
-     * ============================================================
-     * LOGOUT
-     * ============================================================
-     */
-
-    const handleLogout = () => {
-
-        localStorage.removeItem(
-            "auth_token"
-        );
+        };
 
 
-        localStorage.removeItem(
-            "auth_user"
-        );
+    /* ============================================================
+       LOGOUT
+    ============================================================ */
+
+    const handleLogout =
+        () => {
+
+            localStorage.removeItem(
+                "auth_token"
+            );
 
 
-        closeMobileMenu();
+            localStorage.removeItem(
+                "auth_user"
+            );
 
 
-        navigate(
-            "/login"
-        );
+            closeMobileMenu();
 
-    };
 
+            navigate(
+                "/login"
+            );
+
+        };
+
+
+    /* ============================================================
+       RENDER
+    ============================================================ */
 
     return (
 
@@ -110,17 +130,26 @@ function AdminSidebar({
                 MOBILE TOP BAR
                ====================================================== */}
 
-            <header className="admin-sidebar-mobile-header">
+            <header
+                className="admin-sidebar-mobile-header"
+            >
 
                 <button
+
                     type="button"
+
                     className="admin-sidebar-mobile-menu"
+
                     aria-label="Open administrator menu"
+
                     onClick={() =>
+
                         setMobileMenuOpen(
                             true
                         )
+
                     }
+
                 >
 
                     <Menu
@@ -130,7 +159,9 @@ function AdminSidebar({
                 </button>
 
 
-                <div className="admin-sidebar-mobile-brand">
+                <div
+                    className="admin-sidebar-mobile-brand"
+                >
 
                     <strong>
 
@@ -148,13 +179,24 @@ function AdminSidebar({
                 </div>
 
 
-                <div className="admin-sidebar-mobile-user">
+                <div
+                    className="admin-sidebar-mobile-user"
+                >
 
-                    {username
-                        ? username
-                            .slice(0, 2)
-                            .toUpperCase()
-                        : "AD"}
+                    {
+
+                        username
+
+                            ? username
+                                .slice(
+                                    0,
+                                    2
+                                )
+                                .toUpperCase()
+
+                            : "AD"
+
+                    }
 
                 </div>
 
@@ -165,18 +207,27 @@ function AdminSidebar({
                 MOBILE OVERLAY
                ====================================================== */}
 
-            {mobileMenuOpen && (
+            {
 
-                <button
-                    type="button"
-                    className="admin-sidebar-overlay"
-                    aria-label="Close administrator menu"
-                    onClick={
-                        closeMobileMenu
-                    }
-                />
+                mobileMenuOpen && (
 
-            )}
+                    <button
+
+                        type="button"
+
+                        className="admin-sidebar-overlay"
+
+                        aria-label="Close administrator menu"
+
+                        onClick={
+                            closeMobileMenu
+                        }
+
+                    />
+
+                )
+
+            }
 
 
             {/* ======================================================
@@ -184,11 +235,15 @@ function AdminSidebar({
                ====================================================== */}
 
             <aside
+
                 className={`admin-sidebar ${
                     mobileMenuOpen
+
                         ? "admin-sidebar--open"
+
                         : ""
                 }`}
+
             >
 
 
@@ -196,16 +251,22 @@ function AdminSidebar({
                     BRAND
                    ================================================== */}
 
-                <div className="admin-sidebar__brand">
+                <div
+                    className="admin-sidebar__brand"
+                >
 
-                    <div className="admin-sidebar__brand-mark">
+                    <div
+                        className="admin-sidebar__brand-mark"
+                    >
 
                         MTD
 
                     </div>
 
 
-                    <div className="admin-sidebar__brand-text">
+                    <div
+                        className="admin-sidebar__brand-text"
+                    >
 
                         <strong>
 
@@ -224,12 +285,17 @@ function AdminSidebar({
 
 
                     <button
+
                         type="button"
+
                         className="admin-sidebar__close"
+
                         aria-label="Close administrator menu"
+
                         onClick={
                             closeMobileMenu
                         }
+
                     >
 
                         <X
@@ -245,25 +311,42 @@ function AdminSidebar({
                     USER
                    ================================================== */}
 
-                <div className="admin-sidebar__user">
+                <div
+                    className="admin-sidebar__user"
+                >
 
-                    <div className="admin-sidebar__user-avatar">
+                    <div
+                        className="admin-sidebar__user-avatar"
+                    >
 
-                        {username
-                            ? username
-                                .slice(0, 2)
-                                .toUpperCase()
-                            : "AD"}
+                        {
+
+                            username
+
+                                ? username
+                                    .slice(
+                                        0,
+                                        2
+                                    )
+                                    .toUpperCase()
+
+                                : "AD"
+
+                        }
 
                     </div>
 
 
-                    <div className="admin-sidebar__user-info">
+                    <div
+                        className="admin-sidebar__user-info"
+                    >
 
                         <strong>
 
-                            {username ||
-                                "Administrator"}
+                            {
+                                username
+                                || "Administrator"
+                            }
 
                         </strong>
 
@@ -283,24 +366,38 @@ function AdminSidebar({
                     NAVIGATION
                    ================================================== */}
 
-                <nav className="admin-sidebar__nav">
+                <nav
+                    className="admin-sidebar__nav"
+                >
 
 
                     {/* DASHBOARD */}
 
                     <NavLink
+
                         to="/admin"
+
                         end
-                        className={({ isActive }) =>
-                            `admin-sidebar__link ${
-                                isActive
-                                    ? "admin-sidebar__link--active"
-                                    : ""
-                            }`
+
+                        className={
+                            ({
+                                isActive,
+                            }) =>
+
+                                `admin-sidebar__link ${
+                                    isActive
+
+                                        ? "admin-sidebar__link--active"
+
+                                        : ""
+                                }`
+
                         }
+
                         onClick={
                             closeMobileMenu
                         }
+
                     >
 
                         <LayoutDashboard
@@ -320,11 +417,15 @@ function AdminSidebar({
                     {/* SALES */}
 
                     <NavLink
+
                         to="/admin/sales"
+
                         className="admin-sidebar__link"
+
                         onClick={
                             closeMobileMenu
                         }
+
                     >
 
                         <BarChart3
@@ -344,11 +445,15 @@ function AdminSidebar({
                     {/* ORDERS */}
 
                     <NavLink
+
                         to="/admin/orders"
+
                         className="admin-sidebar__link"
+
                         onClick={
                             closeMobileMenu
                         }
+
                     >
 
                         <ShoppingBag
@@ -368,11 +473,15 @@ function AdminSidebar({
                     {/* PRODUCTS */}
 
                     <NavLink
+
                         to="/admin/products"
+
                         className="admin-sidebar__link"
+
                         onClick={
                             closeMobileMenu
                         }
+
                     >
 
                         <Package
@@ -389,14 +498,46 @@ function AdminSidebar({
                     </NavLink>
 
 
-                    {/* USERS */}
+                    {/* COLLECTIONS */}
 
                     <NavLink
-                        to="/admin/users"
+
+                        to="/admin/collections"
+
                         className="admin-sidebar__link"
+
                         onClick={
                             closeMobileMenu
                         }
+
+                    >
+
+                        <FolderKanban
+                            size={20}
+                        />
+
+
+                        <span>
+
+                            Collections
+
+                        </span>
+
+                    </NavLink>
+
+
+                    {/* USERS */}
+
+                    <NavLink
+
+                        to="/admin/users"
+
+                        className="admin-sidebar__link"
+
+                        onClick={
+                            closeMobileMenu
+                        }
+
                     >
 
                         <Users
@@ -413,14 +554,46 @@ function AdminSidebar({
                     </NavLink>
 
 
-                    {/* REVIEWS */}
+                    {/* SUBSCRIBERS */}
 
                     <NavLink
-                        to="/admin/reviews"
+
+                        to="/admin/subscribers"
+
                         className="admin-sidebar__link"
+
                         onClick={
                             closeMobileMenu
                         }
+
+                    >
+
+                        <Mail
+                            size={20}
+                        />
+
+
+                        <span>
+
+                            Subscribers
+
+                        </span>
+
+                    </NavLink>
+
+
+                    {/* REVIEWS */}
+
+                    <NavLink
+
+                        to="/admin/reviews"
+
+                        className="admin-sidebar__link"
+
+                        onClick={
+                            closeMobileMenu
+                        }
+
                     >
 
                         <Star
@@ -440,11 +613,15 @@ function AdminSidebar({
                     {/* CONTENT */}
 
                     <NavLink
+
                         to="/admin/content"
+
                         className="admin-sidebar__link"
+
                         onClick={
                             closeMobileMenu
                         }
+
                     >
 
                         <Image
@@ -464,11 +641,15 @@ function AdminSidebar({
                     {/* REPORTS */}
 
                     <NavLink
+
                         to="/admin/reports"
+
                         className="admin-sidebar__link"
+
                         onClick={
                             closeMobileMenu
                         }
+
                     >
 
                         <BarChart3
@@ -488,11 +669,15 @@ function AdminSidebar({
                     {/* SETTINGS */}
 
                     <NavLink
+
                         to="/admin/settings"
+
                         className="admin-sidebar__link"
+
                         onClick={
                             closeMobileMenu
                         }
+
                     >
 
                         <Settings
@@ -515,14 +700,19 @@ function AdminSidebar({
                     BOTTOM
                    ================================================== */}
 
-                <div className="admin-sidebar__bottom">
+                <div
+                    className="admin-sidebar__bottom"
+                >
 
 
                     {/* VIEW STORE */}
 
                     <button
+
                         type="button"
+
                         className="admin-sidebar__store"
+
                         onClick={() => {
 
                             closeMobileMenu();
@@ -533,6 +723,7 @@ function AdminSidebar({
                             );
 
                         }}
+
                     >
 
                         <Store
@@ -552,11 +743,15 @@ function AdminSidebar({
                     {/* LOGOUT */}
 
                     <button
+
                         type="button"
+
                         className="admin-sidebar__logout"
+
                         onClick={
                             handleLogout
                         }
+
                     >
 
                         <LogOut
