@@ -94,6 +94,9 @@ interface SettingsData {
     browserTitle:
         string;
 
+    logoUrl:
+        string | null;
+
 }
 
 
@@ -243,6 +246,14 @@ function Header() {
         setWebsiteName,
     ] = useState(
         APP_CONFIG.companyName
+    );
+
+
+    const [
+        logoUrl,
+        setLogoUrl,
+    ] = useState(
+        APP_CONFIG.logo
     );
 
 
@@ -403,6 +414,17 @@ function Header() {
 
                         setWebsiteName(
                             result.settings.websiteName
+                        );
+
+                    }
+
+
+                    if (
+                        result.settings?.logoUrl
+                    ) {
+
+                        setLogoUrl(
+                            result.settings.logoUrl
                         );
 
                     }
@@ -732,7 +754,7 @@ function Header() {
 
                     <img
                         src={
-                            APP_CONFIG.logo
+                            logoUrl
                         }
                         alt={
                             websiteName
