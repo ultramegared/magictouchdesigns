@@ -20,7 +20,6 @@ import {
     Bell,
     Building2,
     Globe,
-    Image,
     Mail,
     Save,
     Settings,
