@@ -22,6 +22,9 @@ import {
 
 export interface CreateProductData {
 
+    collection_id:
+        string;
+
     name:
         string;
 
@@ -43,10 +46,17 @@ export interface CreateProductData {
     sort_order?:
         number;
 
+    features?:
+        Record<string, unknown>
+        | unknown[];
+
 }
 
 
 export interface UpdateProductData {
+
+    collection_id?:
+        string;
 
     name?:
         string;
@@ -68,6 +78,10 @@ export interface UpdateProductData {
 
     sort_order?:
         number;
+
+    features?:
+        Record<string, unknown>
+        | unknown[];
 
 }
 
@@ -247,6 +261,8 @@ export const createProduct =
 
         const {
 
+            collection_id,
+
             name,
 
             slug,
@@ -261,11 +277,15 @@ export const createProduct =
 
             sort_order = 0,
 
+            features = {},
+
         } = data;
 
 
         const query = `
             INSERT INTO products (
+
+                collection_id,
 
                 name,
 
@@ -279,7 +299,9 @@ export const createProduct =
 
                 is_active,
 
-                sort_order
+                sort_order,
+
+                features
 
             )
 
@@ -297,7 +319,11 @@ export const createProduct =
 
                 $6,
 
-                $7
+                $7,
+
+                $8,
+
+                $9
 
             )
 
@@ -306,6 +332,8 @@ export const createProduct =
 
 
         const values = [
+
+            collection_id,
 
             name,
 
@@ -320,6 +348,8 @@ export const createProduct =
             is_active,
 
             sort_order,
+
+            features,
 
         ];
 
@@ -367,6 +397,31 @@ export const updateProduct =
 
         let parameterIndex =
             1;
+
+
+        /*
+        ------------------------------------------------------------
+        COLLECTION ID
+        ------------------------------------------------------------
+        */
+
+        if (
+            data.collection_id !== undefined
+        ) {
+
+            fields.push(
+                `collection_id = $${parameterIndex}`
+            );
+
+
+            values.push(
+                data.collection_id
+            );
+
+
+            parameterIndex++;
+
+        }
 
 
         /*
@@ -536,6 +591,31 @@ export const updateProduct =
 
             values.push(
                 data.sort_order
+            );
+
+
+            parameterIndex++;
+
+        }
+
+
+        /*
+        ------------------------------------------------------------
+        FEATURES
+        ------------------------------------------------------------
+        */
+
+        if (
+            data.features !== undefined
+        ) {
+
+            fields.push(
+                `features = $${parameterIndex}`
+            );
+
+
+            values.push(
+                data.features
             );
 
 

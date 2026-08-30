@@ -311,6 +311,8 @@ export const createProductController =
 
             const {
 
+                collection_id,
+
                 name,
 
                 slug,
@@ -325,6 +327,8 @@ export const createProductController =
 
                 sort_order,
 
+                features,
+
             } = req.body;
 
 
@@ -335,6 +339,7 @@ export const createProductController =
             */
 
             if (
+                !collection_id ||
                 !name ||
                 !slug ||
                 price === undefined
@@ -348,7 +353,7 @@ export const createProductController =
                         "error",
 
                     message:
-                        "Name, slug and price are required.",
+                        "Collection ID, name, slug and price are required.",
 
                 });
 
@@ -395,12 +400,48 @@ export const createProductController =
 
             /*
             --------------------------------------------------------
+            FEATURES VALIDATION
+            --------------------------------------------------------
+            */
+
+            if (
+                features !== undefined &&
+                features !== null &&
+                (
+                    typeof features !== "object"
+                )
+            ) {
+
+                res.status(
+                    400
+                ).json({
+
+                    status:
+                        "error",
+
+                    message:
+                        "Features must be a valid JSON object or array.",
+
+                });
+
+                return;
+
+            }
+
+
+            /*
+            --------------------------------------------------------
             CREATE PRODUCT
             --------------------------------------------------------
             */
 
             const product =
                 await createProduct({
+
+                    collection_id:
+                        String(
+                            collection_id
+                        ).trim(),
 
                     name:
                         String(
@@ -428,6 +469,10 @@ export const createProductController =
                     is_active,
 
                     sort_order,
+
+                    features:
+                        features
+                        ?? {},
 
                 });
 
@@ -517,6 +562,8 @@ export const updateProductController =
 
             const {
 
+                collection_id,
+
                 name,
 
                 slug,
@@ -531,7 +578,39 @@ export const updateProductController =
 
                 sort_order,
 
+                features,
+
             } = req.body;
+
+
+            /*
+            --------------------------------------------------------
+            COLLECTION ID VALIDATION
+            --------------------------------------------------------
+            */
+
+            if (
+                collection_id !== undefined &&
+                !String(
+                    collection_id
+                ).trim()
+            ) {
+
+                res.status(
+                    400
+                ).json({
+
+                    status:
+                        "error",
+
+                    message:
+                        "Collection ID cannot be empty.",
+
+                });
+
+                return;
+
+            }
 
 
             /*
@@ -578,6 +657,37 @@ export const updateProductController =
 
             /*
             --------------------------------------------------------
+            FEATURES VALIDATION
+            --------------------------------------------------------
+            */
+
+            if (
+                features !== undefined &&
+                features !== null &&
+                (
+                    typeof features !== "object"
+                )
+            ) {
+
+                res.status(
+                    400
+                ).json({
+
+                    status:
+                        "error",
+
+                    message:
+                        "Features must be a valid JSON object or array.",
+
+                });
+
+                return;
+
+            }
+
+
+            /*
+            --------------------------------------------------------
             UPDATE PRODUCT
             --------------------------------------------------------
             */
@@ -588,6 +698,15 @@ export const updateProductController =
                     id,
 
                     {
+
+                        collection_id:
+                            collection_id !== undefined
+
+                                ? String(
+                                    collection_id
+                                ).trim()
+
+                                : undefined,
 
                         name:
                             name !== undefined
@@ -625,6 +744,8 @@ export const updateProductController =
                         is_active,
 
                         sort_order,
+
+                        features,
 
                     }
 
