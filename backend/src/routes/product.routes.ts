@@ -20,6 +20,10 @@ import {
 } from "../middleware/auth.middleware";
 
 import {
+    requireAdmin,
+} from "../middleware/admin.middleware";
+
+import {
     activateProductController,
     createProductController,
     deactivateProductController,
@@ -73,7 +77,28 @@ router.get(
 
 
 /* ===============================================================
-   AUTHENTICATED ROUTES
+   ADMINISTRATOR PROTECTION
+================================================================ */
+
+/**
+ * Every route below requires:
+ *
+ * 1. Valid JWT authentication.
+ * 2. Active administrator account.
+ */
+
+router.use(
+    authenticateToken
+);
+
+
+router.use(
+    requireAdmin
+);
+
+
+/* ===============================================================
+   ADMINISTRATOR ROUTES
 ================================================================ */
 
 /**
@@ -85,8 +110,6 @@ router.get(
 
 router.get(
     "/",
-
-    authenticateToken,
 
     getProducts
 );
@@ -102,8 +125,6 @@ router.get(
 router.get(
     "/:id",
 
-    authenticateToken,
-
     getProduct
 );
 
@@ -117,8 +138,6 @@ router.get(
 
 router.post(
     "/",
-
-    authenticateToken,
 
     createProductController
 );
@@ -134,8 +153,6 @@ router.post(
 router.put(
     "/:id",
 
-    authenticateToken,
-
     updateProductController
 );
 
@@ -149,8 +166,6 @@ router.put(
 
 router.put(
     "/:id/activate",
-
-    authenticateToken,
 
     activateProductController
 );
@@ -166,8 +181,6 @@ router.put(
 router.put(
     "/:id/deactivate",
 
-    authenticateToken,
-
     deactivateProductController
 );
 
@@ -176,13 +189,11 @@ router.put(
  * DELETE
  * /api/products/:id
  *
- * Deletes a product.
+ * Deletes a product permanently.
  */
 
 router.delete(
     "/:id",
-
-    authenticateToken,
 
     deleteProductController
 );
