@@ -22,9 +22,6 @@ import {
 
 export interface CreateProductData {
 
-    collection_id:
-        string;
-
     name:
         string;
 
@@ -50,9 +47,6 @@ export interface CreateProductData {
 
 
 export interface UpdateProductData {
-
-    collection_id?:
-        string;
 
     name?:
         string;
@@ -123,8 +117,8 @@ export const getAllProducts =
 ================================================================ */
 
 /**
- * Returns products available
- * for public display.
+ * Returns all active products
+ * available for public display.
  */
 
 export const getActiveProducts =
@@ -253,8 +247,6 @@ export const createProduct =
 
         const {
 
-            collection_id,
-
             name,
 
             slug,
@@ -274,8 +266,6 @@ export const createProduct =
 
         const query = `
             INSERT INTO products (
-
-                collection_id,
 
                 name,
 
@@ -307,9 +297,7 @@ export const createProduct =
 
                 $6,
 
-                $7,
-
-                $8
+                $7
 
             )
 
@@ -318,8 +306,6 @@ export const createProduct =
 
 
         const values = [
-
-            collection_id,
 
             name,
 
@@ -358,9 +344,6 @@ export const createProduct =
  * Updates an existing product.
  *
  * Only provided fields are modified.
- *
- * Fields may intentionally be updated
- * to NULL when required.
  */
 
 export const updateProduct =
@@ -384,31 +367,6 @@ export const updateProduct =
 
         let parameterIndex =
             1;
-
-
-        /*
-        ------------------------------------------------------------
-        COLLECTION
-        ------------------------------------------------------------
-        */
-
-        if (
-            data.collection_id !== undefined
-        ) {
-
-            fields.push(
-                `collection_id = $${parameterIndex}`
-            );
-
-
-            values.push(
-                data.collection_id
-            );
-
-
-            parameterIndex++;
-
-        }
 
 
         /*
@@ -744,10 +702,6 @@ export const updateProductStatus =
    ACTIVATE PRODUCT
 ================================================================ */
 
-/**
- * Activates a product.
- */
-
 export const activateProduct =
     async (
         productId:
@@ -765,10 +719,6 @@ export const activateProduct =
 /* ===============================================================
    DEACTIVATE PRODUCT
 ================================================================ */
-
-/**
- * Deactivates a product.
- */
 
 export const deactivateProduct =
     async (
