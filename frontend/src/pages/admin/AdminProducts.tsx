@@ -7,7 +7,8 @@
  * Language: TypeScript React
  * Description:
  * Administrative product management page.
- * Supports image upload from desktop and mobile devices.
+ * Supports product creation, editing, image uploads,
+ * image replacement and image removal.
  * Languages: English (en) | Español (es)
  * ================================================================
  */
@@ -110,6 +111,20 @@ interface ProductFormData {
         boolean;
 
     sort_order:
+        string;
+
+}
+
+
+interface UploadResponse {
+
+    status:
+        string;
+
+    message:
+        string;
+
+    image_url:
         string;
 
 }
@@ -238,6 +253,20 @@ function AdminProducts() {
         setImagePreview,
     ] = useState<string | null>(
         null
+    );
+
+
+    /*
+    ---------------------------------------------------------------
+    Tracks whether an existing product image should be removed.
+    ---------------------------------------------------------------
+    */
+
+    const [
+        removeExistingImage,
+        setRemoveExistingImage,
+    ] = useState(
+        false
     );
 
 
@@ -454,6 +483,12 @@ function AdminProducts() {
             );
 
 
+            /*
+            --------------------------------------------------------
+            Automatically generate the slug only for new products.
+            --------------------------------------------------------
+            */
+
             if (
                 name === "name" &&
                 !editingProduct
@@ -522,10 +557,28 @@ function AdminProducts() {
             }
 
 
+            /*
+            --------------------------------------------------------
+            If the user selects a new image, it replaces the current
+            image during the next save operation.
+            --------------------------------------------------------
+            */
+
             setSelectedImage(
                 file
             );
 
+
+            setRemoveExistingImage(
+                false
+            );
+
+
+            /*
+            --------------------------------------------------------
+            Create local preview.
+            --------------------------------------------------------
+            */
 
             const previewUrl =
                 URL.createObjectURL(
@@ -541,20 +594,61 @@ function AdminProducts() {
 
 
     /* ============================================================
-       REMOVE SELECTED IMAGE
+       REMOVE IMAGE
     ============================================================ */
 
     const handleRemoveImage =
         () => {
 
-            setSelectedImage(
-                null
-            );
+            /*
+            --------------------------------------------------------
+            Remove newly selected image.
+            --------------------------------------------------------
+            */
+
+            if (
+                selectedImage
+            ) {
+
+                setSelectedImage(
+                    null
+                );
+
+
+                /*
+                If editing an existing product, restore its original
+                image unless the user explicitly removes it.
+                */
+
+                setImagePreview(
+                    editingProduct?.image_url
+                    || null
+                );
+
+                return;
+
+            }
+
+
+            /*
+            --------------------------------------------------------
+            Remove existing saved image.
+            --------------------------------------------------------
+            */
+
+            if (
+                editingProduct?.image_url
+            ) {
+
+                setRemoveExistingImage(
+                    true
+                );
+
+            }
 
 
             setImagePreview(
-                editingProduct?.image_url
-                || null
+                null
             );
 
         };
@@ -584,6 +678,11 @@ function AdminProducts() {
 
             setImagePreview(
                 null
+            );
+
+
+            setRemoveExistingImage(
+                false
             );
 
 
@@ -656,6 +755,11 @@ function AdminProducts() {
             );
 
 
+            setRemoveExistingImage(
+                false
+            );
+
+
             setShowForm(
                 true
             );
@@ -699,6 +803,11 @@ function AdminProducts() {
                 null
             );
 
+
+            setRemoveExistingImage(
+                false
+            );
+
         };
 
 
@@ -727,67 +836,131 @@ function AdminProducts() {
                 );
 
 
-                const payload =
-                    new FormData();
+                /*
+                ----------------------------------------------------
+                DETERMINE CURRENT IMAGE URL
+                ----------------------------------------------------
+                */
+
+                let imageUrl:
+                    string
+                    | null =
+                    editingProduct?.image_url
+                    || null;
 
 
-                payload.append(
-                    "collection_id",
-                    formData.collection_id
-                );
+                /*
+                ----------------------------------------------------
+                REMOVE EXISTING IMAGE
+                ----------------------------------------------------
+                */
+
+                if (
+                    removeExistingImage
+                ) {
+
+                    imageUrl =
+                        null;
+
+                }
 
 
-                payload.append(
-                    "name",
-                    formData.name.trim()
-                );
-
-
-                payload.append(
-                    "slug",
-                    formData.slug
-                        .trim()
-                        .toLowerCase()
-                );
-
-
-                payload.append(
-                    "description",
-                    formData.description.trim()
-                );
-
-
-                payload.append(
-                    "price",
-                    formData.price
-                );
-
-
-                payload.append(
-                    "is_active",
-                    String(
-                        formData.is_active
-                    )
-                );
-
-
-                payload.append(
-                    "sort_order",
-                    formData.sort_order
-                );
-
+                /*
+                ----------------------------------------------------
+                UPLOAD NEW IMAGE
+                ----------------------------------------------------
+                */
 
                 if (
                     selectedImage
                 ) {
 
-                    payload.append(
+                    const uploadFormData =
+                        new FormData();
+
+
+                    uploadFormData.append(
                         "image",
                         selectedImage
                     );
 
+
+                    const uploadResult =
+                        await apiRequest<
+                            UploadResponse
+                        >(
+
+                            "/api/upload/product",
+
+                            {
+
+                                method:
+                                    "POST",
+
+                                body:
+                                    uploadFormData,
+
+                            }
+
+                        );
+
+
+                    imageUrl =
+                        uploadResult.image_url;
+
                 }
 
+
+                /*
+                ----------------------------------------------------
+                PRODUCT DATA
+                ----------------------------------------------------
+                */
+
+                const payload = {
+
+                    collection_id:
+                        formData.collection_id
+                            .trim(),
+
+                    name:
+                        formData.name
+                            .trim(),
+
+                    slug:
+                        formData.slug
+                            .trim()
+                            .toLowerCase(),
+
+                    description:
+                        formData.description
+                            .trim()
+                        || null,
+
+                    price:
+                        Number(
+                            formData.price
+                        ),
+
+                    image_url:
+                        imageUrl,
+
+                    is_active:
+                        formData.is_active,
+
+                    sort_order:
+                        Number(
+                            formData.sort_order
+                        ),
+
+                };
+
+
+                /*
+                ----------------------------------------------------
+                UPDATE PRODUCT
+                ----------------------------------------------------
+                */
 
                 if (
                     editingProduct
@@ -803,7 +976,9 @@ function AdminProducts() {
                                 "PUT",
 
                             body:
-                                payload,
+                                JSON.stringify(
+                                    payload
+                                ),
 
                         }
 
@@ -814,7 +989,16 @@ function AdminProducts() {
                         "Product updated successfully."
                     );
 
-                } else {
+                }
+
+
+                /*
+                ----------------------------------------------------
+                CREATE PRODUCT
+                ----------------------------------------------------
+                */
+
+                else {
 
                     await apiRequest(
 
@@ -826,7 +1010,9 @@ function AdminProducts() {
                                 "POST",
 
                             body:
-                                payload,
+                                JSON.stringify(
+                                    payload
+                                ),
 
                         }
 
@@ -839,6 +1025,12 @@ function AdminProducts() {
 
                 }
 
+
+                /*
+                ----------------------------------------------------
+                CLOSE AND RELOAD
+                ----------------------------------------------------
+                */
 
                 handleCloseForm();
 
@@ -1041,6 +1233,10 @@ function AdminProducts() {
             >
 
 
+                {/* ==================================================
+                    HERO
+                   ================================================== */}
+
                 <section
                     className="admin-products__hero"
                 >
@@ -1113,6 +1309,10 @@ function AdminProducts() {
 
                 }
 
+
+                {/* ==================================================
+                    CONTENT
+                   ================================================== */}
 
                 <section
                     className="admin-products__content"
@@ -1448,6 +1648,10 @@ function AdminProducts() {
 
                 </section>
 
+
+                {/* ==================================================
+                    PRODUCT FORM
+                   ================================================== */}
 
                 {
 
