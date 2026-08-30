@@ -33,12 +33,6 @@ import {
    GET ALL PRODUCTS
 ================================================================ */
 
-/**
- * Returns all products.
- *
- * Intended for administrator access.
- */
-
 export const getProducts =
     async (
         _req: Request,
@@ -92,11 +86,6 @@ export const getProducts =
 /* ===============================================================
    GET ACTIVE PRODUCTS
 ================================================================ */
-
-/**
- * Returns active products
- * for public display.
- */
 
 export const getPublicProducts =
     async (
@@ -161,9 +150,7 @@ export const getProduct =
         try {
 
             const {
-
                 id,
-
             } = req.params;
 
 
@@ -243,9 +230,7 @@ export const getProductBySlugController =
         try {
 
             const {
-
                 slug,
-
             } = req.params;
 
 
@@ -326,8 +311,6 @@ export const createProductController =
 
             const {
 
-                collection_id,
-
                 name,
 
                 slug,
@@ -352,7 +335,6 @@ export const createProductController =
             */
 
             if (
-                !collection_id ||
                 !name ||
                 !slug ||
                 price === undefined
@@ -366,7 +348,7 @@ export const createProductController =
                         "error",
 
                     message:
-                        "Collection, name, slug and price are required.",
+                        "Name, slug and price are required.",
 
                 });
 
@@ -419,8 +401,6 @@ export const createProductController =
 
             const product =
                 await createProduct({
-
-                    collection_id,
 
                     name:
                         String(
@@ -506,9 +486,7 @@ export const updateProductController =
         try {
 
             const {
-
                 id,
-
             } = req.params;
 
 
@@ -538,8 +516,6 @@ export const updateProductController =
 
 
             const {
-
-                collection_id,
 
                 name,
 
@@ -612,8 +588,6 @@ export const updateProductController =
                     id,
 
                     {
-
-                        collection_id,
 
                         name:
                             name !== undefined
@@ -711,9 +685,7 @@ export const deleteProductController =
         try {
 
             const {
-
                 id,
-
             } = req.params;
 
 
@@ -794,9 +766,7 @@ export const activateProductController =
         try {
 
             const {
-
                 id,
-
             } = req.params;
 
 
@@ -879,9 +849,7 @@ export const deactivateProductController =
         try {
 
             const {
-
                 id,
-
             } = req.params;
 
 
