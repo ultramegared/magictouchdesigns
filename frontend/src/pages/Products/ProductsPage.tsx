@@ -7,7 +7,8 @@
  * Language: TypeScript React
  * Description:
  * Products / All Models page.
- * Frontend structure prepared for dynamic products and categories.
+ * Connected to the public products API.
+ * Languages: English (en) | Español (es)
  * ================================================================
  */
 
@@ -44,145 +45,73 @@ import {
 } from "../../translations";
 
 
+/* ===============================================================
+   TYPES
+================================================================ */
+
 type Product = {
 
-    id: number;
+    product_id:
+        string;
 
-    name: string;
+    name:
+        string;
 
-    category: string;
+    slug:
+        string;
 
-    style: string;
+    description:
+        string | null;
 
-    color: string;
+    price:
+        number;
 
-    size: string;
+    image_url:
+        string | null;
 
-    price: number;
+    is_active:
+        boolean;
 
-    rating: number;
+    sort_order:
+        number;
 
-    reviews: number;
+    features:
+        Record<string, unknown>
+        | unknown[];
 
-    image: string;
+    created_at?:
+        string;
 
-    badge?:
-        | "NEW"
-        | "BEST SELLER";
+    updated_at?:
+        string;
 
 };
 
 
-const demoProducts: Product[] = [
+type ProductsResponse = {
 
-    {
-        id: 1,
-        name: "Model One",
-        category: "Mug",
-        style: "Classic",
-        color: "Black",
-        size: "11 oz",
-        price: 24.99,
-        rating: 5,
-        reviews: 128,
-        image: "/images/products/model-one.jpg",
-        badge: "BEST SELLER",
-    },
+    status:
+        string;
 
-    {
-        id: 2,
-        name: "Model Two",
-        category: "Mug",
-        style: "Marble",
-        color: "White",
-        size: "11 oz",
-        price: 24.99,
-        rating: 5,
-        reviews: 96,
-        image: "/images/products/model-two.jpg",
-        badge: "NEW",
-    },
+    products:
+        Product[];
 
-    {
-        id: 3,
-        name: "Model Three",
-        category: "Tumbler",
-        style: "Classic",
-        color: "Black",
-        size: "20 oz",
-        price: 24.99,
-        rating: 5,
-        reviews: 74,
-        image: "/images/products/model-three.jpg",
-    },
+};
 
-    {
-        id: 4,
-        name: "Model Four",
-        category: "Tumbler",
-        style: "Classic",
-        color: "Pink",
-        size: "20 oz",
-        price: 29.99,
-        rating: 5,
-        reviews: 58,
-        image: "/images/products/model-four.jpg",
-    },
 
-    {
-        id: 5,
-        name: "Model Five",
-        category: "Mug",
-        style: "Premium",
-        color: "Gold",
-        size: "15 oz",
-        price: 27.99,
-        rating: 5,
-        reviews: 82,
-        image: "/images/products/model-five.jpg",
-    },
+/* ===============================================================
+   API URL
+================================================================ */
 
-    {
-        id: 6,
-        name: "Model Six",
-        category: "Mug",
-        style: "Classic",
-        color: "Black",
-        size: "15 oz",
-        price: 25.99,
-        rating: 5,
-        reviews: 64,
-        image: "/images/products/model-six.jpg",
-    },
+const API_URL =
+    import.meta.env
+        .VITE_API_URL
+    || "http://localhost:5000/api";
 
-    {
-        id: 7,
-        name: "Model Seven",
-        category: "Tumbler",
-        style: "Premium",
-        color: "White",
-        size: "20 oz",
-        price: 31.99,
-        rating: 5,
-        reviews: 47,
-        image: "/images/products/model-seven.jpg",
-    },
 
-    {
-        id: 8,
-        name: "Model Eight",
-        category: "Mug",
-        style: "Marble",
-        color: "Pink",
-        size: "11 oz",
-        price: 26.99,
-        rating: 5,
-        reviews: 39,
-        image: "/images/products/model-eight.jpg",
-    },
-
-];
-
+/* ===============================================================
+   PRODUCTS PAGE
+================================================================ */
 
 function ProductsPage() {
 
@@ -200,35 +129,47 @@ function ProductsPage() {
     ] = useSearchParams();
 
 
+    /* ===========================================================
+       PRODUCTS
+    =========================================================== */
+
     const [
-        category,
-        setCategory,
-    ] = useState(
-        "All"
+        products,
+        setProducts,
+    ] = useState<
+        Product[]
+    >(
+        []
     );
 
 
     const [
-        style,
-        setStyle,
+        isLoading,
+        setIsLoading,
     ] = useState(
-        "All"
+        true
     );
 
 
     const [
-        color,
-        setColor,
-    ] = useState(
-        "All"
+        error,
+        setError,
+    ] = useState<
+        string | null
+    >(
+        null
     );
 
 
+    /* ===========================================================
+       FILTERS
+    =========================================================== */
+
     const [
-        size,
-        setSize,
+        searchTerm,
+        setSearchTerm,
     ] = useState(
-        "All"
+        ""
     );
 
 
@@ -237,14 +178,6 @@ function ProductsPage() {
         setSort,
     ] = useState(
         "Newest"
-    );
-
-
-    const [
-        searchTerm,
-        setSearchTerm,
-    ] = useState(
-        ""
     );
 
 
@@ -306,6 +239,92 @@ function ProductsPage() {
 
     /*
     |--------------------------------------------------------------------------
+    | Load Products
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+
+        const loadProducts =
+            async () => {
+
+                try {
+
+                    setIsLoading(
+                        true
+                    );
+
+
+                    setError(
+                        null
+                    );
+
+
+                    const response =
+                        await fetch(
+                            `${API_URL}/products/public`
+                        );
+
+
+                    if (
+                        !response.ok
+                    ) {
+
+                        throw new Error(
+                            "Unable to load products."
+                        );
+
+                    }
+
+
+                    const data:
+                        ProductsResponse =
+                        await response.json();
+
+
+                    setProducts(
+                        data.products
+                        || []
+                    );
+
+                } catch (
+                    error
+                ) {
+
+                    console.error(
+                        "Unable to load products:",
+                        error
+                    );
+
+
+                    setError(
+                        language === "es"
+
+                            ? "No se pudieron cargar los productos."
+
+                            : "Unable to load products."
+                    );
+
+                } finally {
+
+                    setIsLoading(
+                        false
+                    );
+
+                }
+
+            };
+
+
+        loadProducts();
+
+    }, [
+        language,
+    ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Products Per Page
     |--------------------------------------------------------------------------
     */
@@ -325,21 +344,26 @@ function ProductsPage() {
     const filteredProducts =
         useMemo(() => {
 
+            const normalizedSearch =
+                searchTerm
+                    .trim()
+                    .toLowerCase();
+
+
             const filtered =
-                demoProducts.filter(
+                products.filter(
                     (product) => {
 
-                        const normalizedSearch =
-                            searchTerm
-                                .trim()
-                                .toLowerCase();
-
-
-                        const searchMatch =
-
+                        if (
                             normalizedSearch === ""
+                        ) {
 
-                            ||
+                            return true;
+
+                        }
+
+
+                        return (
 
                             product.name
                                 .toLowerCase()
@@ -349,7 +373,7 @@ function ProductsPage() {
 
                             ||
 
-                            product.category
+                            product.slug
                                 .toLowerCase()
                                 .includes(
                                     normalizedSearch
@@ -357,88 +381,11 @@ function ProductsPage() {
 
                             ||
 
-                            product.style
-                                .toLowerCase()
+                            product.description
+                                ?.toLowerCase()
                                 .includes(
                                     normalizedSearch
                                 )
-
-                            ||
-
-                            product.color
-                                .toLowerCase()
-                                .includes(
-                                    normalizedSearch
-                                )
-
-                            ||
-
-                            product.size
-                                .toLowerCase()
-                                .includes(
-                                    normalizedSearch
-                                );
-
-
-                        const categoryMatch =
-
-                            category === "All"
-
-                            ||
-
-                            product.category ===
-                            category;
-
-
-                        const styleMatch =
-
-                            style === "All"
-
-                            ||
-
-                            product.style ===
-                            style;
-
-
-                        const colorMatch =
-
-                            color === "All"
-
-                            ||
-
-                            product.color ===
-                            color;
-
-
-                        const sizeMatch =
-
-                            size === "All"
-
-                            ||
-
-                            product.size ===
-                            size;
-
-
-                        return (
-
-                            searchMatch
-
-                            &&
-
-                            categoryMatch
-
-                            &&
-
-                            styleMatch
-
-                            &&
-
-                            colorMatch
-
-                            &&
-
-                            sizeMatch
 
                         );
 
@@ -454,8 +401,13 @@ function ProductsPage() {
                     ...filtered,
                 ].sort(
                     (a, b) =>
-                        a.price -
-                        b.price
+                        Number(
+                            a.price
+                        )
+                        -
+                        Number(
+                            b.price
+                        )
                 );
 
             }
@@ -469,23 +421,47 @@ function ProductsPage() {
                     ...filtered,
                 ].sort(
                     (a, b) =>
-                        b.price -
-                        a.price
+                        Number(
+                            b.price
+                        )
+                        -
+                        Number(
+                            a.price
+                        )
                 );
 
             }
 
 
             if (
-                sort === "Rating"
+                sort === "Newest"
             ) {
 
                 return [
                     ...filtered,
                 ].sort(
-                    (a, b) =>
-                        b.rating -
-                        a.rating
+                    (a, b) => {
+
+                        const dateA =
+                            new Date(
+                                a.created_at
+                                || 0
+                            ).getTime();
+
+
+                        const dateB =
+                            new Date(
+                                b.created_at
+                                || 0
+                            ).getTime();
+
+
+                        return (
+                            dateB -
+                            dateA
+                        );
+
+                    }
                 );
 
             }
@@ -495,13 +471,7 @@ function ProductsPage() {
 
         }, [
 
-            category,
-
-            style,
-
-            color,
-
-            size,
+            products,
 
             sort,
 
@@ -541,6 +511,27 @@ function ProductsPage() {
             productsPerPage
 
         );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Image Fallback
+    |--------------------------------------------------------------------------
+    */
+
+    const getProductImage =
+        (
+            product:
+                Product
+        ) => {
+
+            return (
+                product.image_url
+                ||
+                "/images/products/placeholder.jpg"
+            );
+
+        };
 
 
     return (
@@ -624,6 +615,7 @@ function ProductsPage() {
                                     event.target.value
                                 );
 
+
                                 setCurrentPage(
                                     1
                                 );
@@ -644,342 +636,11 @@ function ProductsPage() {
                     </div>
 
 
-                    {/* CATEGORY CHIPS */}
-
-                    <div
-                        className="products-category-chips"
-                    >
-
-                        <button
-                            type="button"
-                            className={
-                                category === "All"
-                                    ? "active"
-                                    : ""
-                            }
-                            onClick={() => {
-
-                                setCategory(
-                                    "All"
-                                );
-
-                                setCurrentPage(
-                                    1
-                                );
-
-                            }}
-                        >
-
-                            {t.filters.all}
-
-                        </button>
-
-
-                        <button
-                            type="button"
-                            className={
-                                category === "Mug"
-                                    ? "active"
-                                    : ""
-                            }
-                            onClick={() => {
-
-                                setCategory(
-                                    "Mug"
-                                );
-
-                                setCurrentPage(
-                                    1
-                                );
-
-                            }}
-                        >
-
-                            {
-                                t.options
-                                    .categories
-                                    .mug
-                            }
-
-                        </button>
-
-
-                        <button
-                            type="button"
-                            className={
-                                category === "Tumbler"
-                                    ? "active"
-                                    : ""
-                            }
-                            onClick={() => {
-
-                                setCategory(
-                                    "Tumbler"
-                                );
-
-                                setCurrentPage(
-                                    1
-                                );
-
-                            }}
-                        >
-
-                            {
-                                t.options
-                                    .categories
-                                    .tumbler
-                            }
-
-                        </button>
-
-                    </div>
-
-
                     {/* FILTERS */}
 
                     <div
                         className="products-filters"
                     >
-
-                        <button
-                            type="button"
-                            className={
-                                category === "All"
-                                    ? (
-                                        "products-filter " +
-                                        "products-filter--active"
-                                    )
-                                    : "products-filter"
-                            }
-                            onClick={() => {
-
-                                setCategory(
-                                    "All"
-                                );
-
-                                setCurrentPage(
-                                    1
-                                );
-
-                            }}
-                        >
-
-                            {t.filters.all}
-
-                        </button>
-
-
-                        <select
-                            value={category}
-                            onChange={(
-                                event
-                            ) => {
-
-                                setCategory(
-                                    event.target.value
-                                );
-
-                                setCurrentPage(
-                                    1
-                                );
-
-                            }}
-                        >
-
-                            <option value="All">
-
-                                {t.filters.category}
-
-                            </option>
-
-                            <option value="Mug">
-
-                                {
-                                    t.options
-                                        .categories
-                                        .mug
-                                }
-
-                            </option>
-
-                            <option value="Tumbler">
-
-                                {
-                                    t.options
-                                        .categories
-                                        .tumbler
-                                }
-
-                            </option>
-
-                        </select>
-
-
-                        <select
-                            value={style}
-                            onChange={(
-                                event
-                            ) => {
-
-                                setStyle(
-                                    event.target.value
-                                );
-
-                                setCurrentPage(
-                                    1
-                                );
-
-                            }}
-                        >
-
-                            <option value="All">
-
-                                {t.filters.style}
-
-                            </option>
-
-                            <option value="Classic">
-
-                                {
-                                    t.options
-                                        .styles
-                                        .classic
-                                }
-
-                            </option>
-
-                            <option value="Marble">
-
-                                {
-                                    t.options
-                                        .styles
-                                        .marble
-                                }
-
-                            </option>
-
-                            <option value="Premium">
-
-                                {
-                                    t.options
-                                        .styles
-                                        .premium
-                                }
-
-                            </option>
-
-                        </select>
-
-
-                        <select
-                            value={color}
-                            onChange={(
-                                event
-                            ) => {
-
-                                setColor(
-                                    event.target.value
-                                );
-
-                                setCurrentPage(
-                                    1
-                                );
-
-                            }}
-                        >
-
-                            <option value="All">
-
-                                {t.filters.color}
-
-                            </option>
-
-                            <option value="Black">
-
-                                {
-                                    t.options
-                                        .colors
-                                        .black
-                                }
-
-                            </option>
-
-                            <option value="White">
-
-                                {
-                                    t.options
-                                        .colors
-                                        .white
-                                }
-
-                            </option>
-
-                            <option value="Pink">
-
-                                {
-                                    t.options
-                                        .colors
-                                        .pink
-                                }
-
-                            </option>
-
-                            <option value="Gold">
-
-                                {
-                                    t.options
-                                        .colors
-                                        .gold
-                                }
-
-                            </option>
-
-                        </select>
-
-
-                        <select
-                            value={size}
-                            onChange={(
-                                event
-                            ) => {
-
-                                setSize(
-                                    event.target.value
-                                );
-
-                                setCurrentPage(
-                                    1
-                                );
-
-                            }}
-                        >
-
-                            <option value="All">
-
-                                {t.filters.size}
-
-                            </option>
-
-                            <option value="11 oz">
-
-                                11 oz
-
-                            </option>
-
-                            <option value="15 oz">
-
-                                15 oz
-
-                            </option>
-
-                            <option value="20 oz">
-
-                                20 oz
-
-                            </option>
-
-                        </select>
-
 
                         <div
                             className="products-sort"
@@ -1005,6 +666,7 @@ function ProductsPage() {
                                         event.target.value
                                     );
 
+
                                     setCurrentPage(
                                         1
                                     );
@@ -1027,12 +689,6 @@ function ProductsPage() {
                                 <option value="Price High">
 
                                     {t.sort.priceHigh}
-
-                                </option>
-
-                                <option value="Rating">
-
-                                    {t.sort.rating}
 
                                 </option>
 
@@ -1097,210 +753,227 @@ function ProductsPage() {
                     </div>
 
 
+                    {/* LOADING */}
+
+                    {isLoading && (
+
+                        <div
+                            className="products-state"
+                        >
+
+                            {
+                                language === "es"
+
+                                    ? "Cargando productos..."
+
+                                    : "Loading products..."
+                            }
+
+                        </div>
+
+                    )}
+
+
+                    {/* ERROR */}
+
+                    {!isLoading && error && (
+
+                        <div
+                            className="products-state products-state--error"
+                        >
+
+                            {error}
+
+                        </div>
+
+                    )}
+
+
                     {/* PRODUCTS */}
 
-                    <div
-                        className={
-                            `products-grid products-grid--${viewMode}`
-                        }
-                    >
+                    {!isLoading && !error && (
 
-                        {visibleProducts.map(
-                            (product) => (
+                        <div
+                            className={
+                                `products-grid products-grid--${viewMode}`
+                            }
+                        >
 
-                                <article
-                                    className="product-card"
-                                    key={product.id}
-                                >
+                            {visibleProducts.map(
+                                (product) => (
 
-                                    <div
-                                        className="product-card__image"
+                                    <article
+                                        className="product-card"
+                                        key={
+                                            product.product_id
+                                        }
                                     >
 
-                                        {product.badge && (
-
-                                            <span
-                                                className={
-                                                    `product-card__badge ${
-                                                        product.badge ===
-                                                        "NEW"
-                                                            ? "product-card__badge--new"
-                                                            : "product-card__badge--best"
-                                                    }`
-                                                }
-                                            >
-
-                                                {
-                                                    product.badge
-                                                }
-
-                                            </span>
-
-                                        )}
-
-
-                                        <img
-                                            src={
-                                                product.image
-                                            }
-                                            alt={
-                                                product.name
-                                            }
-                                        />
-
-
                                         <div
-                                            className="product-card__actions"
+                                            className="product-card__image"
                                         >
 
-                                            <button
-                                                type="button"
-                                                className="product-card__action"
-                                                aria-label={
-                                                    `View ${product.name} image`
-                                                }
-                                                onClick={() =>
-                                                    setSelectedProduct(
+                                            <img
+                                                src={
+                                                    getProductImage(
                                                         product
                                                     )
                                                 }
+                                                alt={
+                                                    product.name
+                                                }
+                                            />
+
+
+                                            <div
+                                                className="product-card__actions"
                                             >
 
-                                                <Search
-                                                    size={17}
-                                                    strokeWidth={2}
-                                                />
+                                                <button
+                                                    type="button"
+                                                    className="product-card__action"
+                                                    aria-label={
+                                                        `View ${product.name} image`
+                                                    }
+                                                    onClick={() =>
+                                                        setSelectedProduct(
+                                                            product
+                                                        )
+                                                    }
+                                                >
+
+                                                    <Search
+                                                        size={17}
+                                                        strokeWidth={2}
+                                                    />
+
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div
+                                            className="product-card__content"
+                                        >
+
+                                            <h2>
+
+                                                {
+                                                    product.name
+                                                }
+
+                                            </h2>
+
+
+                                            {product.description && (
+
+                                                <p>
+
+                                                    {
+                                                        product.description
+                                                    }
+
+                                                </p>
+
+                                            )}
+
+
+                                            <strong>
+
+                                                $
+
+                                                {
+                                                    Number(
+                                                        product.price
+                                                    ).toFixed(
+                                                        2
+                                                    )
+                                                }
+
+                                            </strong>
+
+
+                                            <button
+                                                className="product-card__button"
+                                                type="button"
+                                                onClick={() => {
+
+                                                    addToCart({
+
+                                                        id:
+                                                            product.product_id,
+
+                                                        name:
+                                                            product.name,
+
+                                                        model:
+                                                            "",
+
+                                                        size:
+                                                            "",
+
+                                                        color:
+                                                            "",
+
+                                                        price:
+                                                            Number(
+                                                                product.price
+                                                            ),
+
+                                                        image:
+                                                            getProductImage(
+                                                                product
+                                                            ),
+
+                                                    });
+
+                                                }}
+                                            >
+
+                                                {
+                                                    t.actions
+                                                        .addToCart
+                                                }
+
+                                                <span>
+
+                                                    →
+
+                                                </span>
 
                                             </button>
 
                                         </div>
 
-                                    </div>
+                                    </article>
+
+                                )
+                            )}
 
 
-                                    <div
-                                        className="product-card__content"
-                                    >
+                            {visibleProducts.length === 0 && (
 
-                                        <span
-                                            className="product-card__category"
-                                        >
+                                <div
+                                    className="products-state"
+                                >
 
-                                            {
-                                                product.category ===
-                                                "Mug"
-                                                    ? (
-                                                        t.options
-                                                            .categories
-                                                            .mug
-                                                    )
-                                                    : (
-                                                        t.options
-                                                            .categories
-                                                            .tumbler
-                                                    )
-                                            }
+                                    {
+                                        language === "es"
 
-                                        </span>
+                                            ? "No se encontraron productos."
 
+                                            : "No products found."
+                                    }
 
-                                        <h2>
+                                </div>
 
-                                            {product.name}
+                            )}
 
-                                        </h2>
+                        </div>
 
-
-                                        <strong>
-
-                                            $
-                                            {
-                                                product.price.toFixed(
-                                                    2
-                                                )
-                                            }
-
-                                        </strong>
-
-
-                                        <div
-                                            className="product-card__rating"
-                                        >
-
-                                            <span>
-
-                                                ★★★★★
-
-                                            </span>
-
-
-                                            <small>
-
-                                                (
-                                                {
-                                                    product.reviews
-                                                }
-                                                )
-
-                                            </small>
-
-                                        </div>
-
-
-                                        <button
-                                            className="product-card__button"
-                                            type="button"
-                                            onClick={() => {
-
-                                                addToCart({
-
-                                                    id:
-                                                        product.id,
-
-                                                    name:
-                                                        product.name,
-
-                                                    model:
-                                                        product.style,
-
-                                                    size:
-                                                        product.size,
-
-                                                    color:
-                                                        product.color,
-
-                                                    price:
-                                                        product.price,
-
-                                                    image:
-                                                        product.image,
-
-                                                });
-
-                                            }}
-                                        >
-
-                                            {
-                                                t.actions
-                                                    .addToCart
-                                            }
-
-                                            <span>
-
-                                                →
-
-                                            </span>
-
-                                        </button>
-
-                                    </div>
-
-                                </article>
-
-                            )
-                        )}
-
-                    </div>
+                    )}
 
 
                     {/* LIGHTBOX */}
@@ -1350,7 +1023,9 @@ function ProductsPage() {
 
                                 <img
                                     src={
-                                        selectedProduct.image
+                                        getProductImage(
+                                            selectedProduct
+                                        )
                                     }
                                     alt={
                                         selectedProduct.name
@@ -1362,15 +1037,6 @@ function ProductsPage() {
                                 <div
                                     className="product-lightbox__info"
                                 >
-
-                                    <span>
-
-                                        {
-                                            selectedProduct.category
-                                        }
-
-                                    </span>
-
 
                                     <h2>
 
@@ -1384,8 +1050,11 @@ function ProductsPage() {
                                     <strong>
 
                                         $
+
                                         {
-                                            selectedProduct.price.toFixed(
+                                            Number(
+                                                selectedProduct.price
+                                            ).toFixed(
                                                 2
                                             )
                                         }
@@ -1403,94 +1072,100 @@ function ProductsPage() {
 
                     {/* PAGINATION */}
 
-                    <div
-                        className="products-pagination"
-                    >
+                    {!isLoading &&
+                    !error &&
+                    filteredProducts.length > 0 && (
 
-                        <button
-                            type="button"
-                            disabled={
-                                currentPage ===
-                                1
-                            }
-                            onClick={() =>
-                                setCurrentPage(
-                                    (page) =>
-                                        Math.max(
-                                            1,
-                                            page - 1
-                                        )
-                                )
-                            }
+                        <div
+                            className="products-pagination"
                         >
 
-                            &lt;
+                            <button
+                                type="button"
+                                disabled={
+                                    currentPage ===
+                                    1
+                                }
+                                onClick={() =>
+                                    setCurrentPage(
+                                        (page) =>
+                                            Math.max(
+                                                1,
+                                                page - 1
+                                            )
+                                    )
+                                }
+                            >
 
-                        </button>
+                                &lt;
+
+                            </button>
 
 
-                        {Array.from(
+                            {Array.from(
 
-                            {
-                                length:
-                                    totalPages,
-                            },
+                                {
+                                    length:
+                                        totalPages,
+                                },
 
-                            (
-                                _,
-                                index
-                            ) =>
-                                index + 1
+                                (
+                                    _,
+                                    index
+                                ) =>
+                                    index + 1
 
-                        ).map(
-                            (page) => (
+                            ).map(
+                                (page) => (
 
-                                <button
-                                    type="button"
-                                    key={page}
-                                    className={
-                                        currentPage ===
-                                        page
-                                            ? "products-pagination__active"
-                                            : ""
-                                    }
-                                    onClick={() =>
-                                        setCurrentPage(
+                                    <button
+                                        type="button"
+                                        key={page}
+                                        className={
+                                            currentPage ===
                                             page
-                                        )
-                                    }
-                                >
+                                                ? "products-pagination__active"
+                                                : ""
+                                        }
+                                        onClick={() =>
+                                            setCurrentPage(
+                                                page
+                                            )
+                                        }
+                                    >
 
-                                    {page}
+                                        {page}
 
-                                </button>
+                                    </button>
 
-                            )
-                        )}
-
-
-                        <button
-                            type="button"
-                            disabled={
-                                currentPage ===
-                                totalPages
-                            }
-                            onClick={() =>
-                                setCurrentPage(
-                                    (page) =>
-                                        Math.min(
-                                            totalPages,
-                                            page + 1
-                                        )
                                 )
-                            }
-                        >
+                            )}
 
-                            ›
 
-                        </button>
+                            <button
+                                type="button"
+                                disabled={
+                                    currentPage ===
+                                    totalPages
+                                }
+                                onClick={() =>
+                                    setCurrentPage(
+                                        (page) =>
+                                            Math.min(
+                                                totalPages,
+                                                page + 1
+                                            )
+                                    )
+                                }
+                            >
 
-                    </div>
+                                ›
+
+                            </button>
+
+                        </div>
+
+                    )}
 
 
                     {/* BENEFITS */}
