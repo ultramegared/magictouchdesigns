@@ -7,6 +7,9 @@
  * Language: TypeScript
  * Description:
  * Product business logic and database operations.
+ *
+ * Products are independent from Collections.
+ *
  * Languages: English (en) | Español (es)
  * ================================================================
  */
@@ -21,9 +24,6 @@ import {
 ================================================================ */
 
 export interface CreateProductData {
-
-    collection_id:
-        string;
 
     name:
         string;
@@ -54,9 +54,6 @@ export interface CreateProductData {
 
 
 export interface UpdateProductData {
-
-    collection_id?:
-        string;
 
     name?:
         string;
@@ -168,7 +165,7 @@ export const getActiveProducts =
 ================================================================ */
 
 /**
- * Returns one product by ID.
+ * Returns one product by product ID.
  */
 
 export const getProductById =
@@ -183,7 +180,7 @@ export const getProductById =
             FROM products
 
             WHERE
-                id = $1;
+                product_id = $1;
         `;
 
 
@@ -250,7 +247,7 @@ export const getProductBySlug =
 ================================================================ */
 
 /**
- * Creates a new product.
+ * Creates a new independent product.
  */
 
 export const createProduct =
@@ -260,8 +257,6 @@ export const createProduct =
     ) => {
 
         const {
-
-            collection_id,
 
             name,
 
@@ -284,8 +279,6 @@ export const createProduct =
 
         const query = `
             INSERT INTO products (
-
-                collection_id,
 
                 name,
 
@@ -321,9 +314,7 @@ export const createProduct =
 
                 $7,
 
-                $8,
-
-                $9
+                $8
 
             )
 
@@ -332,8 +323,6 @@ export const createProduct =
 
 
         const values = [
-
-            collection_id,
 
             name,
 
@@ -397,31 +386,6 @@ export const updateProduct =
 
         let parameterIndex =
             1;
-
-
-        /*
-        ------------------------------------------------------------
-        COLLECTION ID
-        ------------------------------------------------------------
-        */
-
-        if (
-            data.collection_id !== undefined
-        ) {
-
-            fields.push(
-                `collection_id = $${parameterIndex}`
-            );
-
-
-            values.push(
-                data.collection_id
-            );
-
-
-            parameterIndex++;
-
-        }
 
 
         /*
@@ -626,6 +590,23 @@ export const updateProduct =
 
         /*
         ------------------------------------------------------------
+        NO FIELDS TO UPDATE
+        ------------------------------------------------------------
+        */
+
+        if (
+            fields.length === 0
+        ) {
+
+            return getProductById(
+                productId
+            );
+
+        }
+
+
+        /*
+        ------------------------------------------------------------
         UPDATED AT
         ------------------------------------------------------------
         */
@@ -653,7 +634,7 @@ export const updateProduct =
                 ${fields.join(", ")}
 
             WHERE
-                id = $${parameterIndex}
+                product_id = $${parameterIndex}
 
             RETURNING *;
         `;
@@ -692,10 +673,10 @@ export const deleteProduct =
             DELETE FROM products
 
             WHERE
-                id = $1
+                product_id = $1
 
             RETURNING
-                id;
+                product_id;
         `;
 
 
@@ -748,7 +729,7 @@ export const updateProductStatus =
                     NOW()
 
             WHERE
-                id = $2
+                product_id = $2
 
             RETURNING *;
         `;

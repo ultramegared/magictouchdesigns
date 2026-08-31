@@ -150,13 +150,13 @@ export const getProduct =
         try {
 
             const {
-                id,
+                product_id,
             } = req.params;
 
 
             const product =
                 await getProductById(
-                    id
+                    product_id
                 );
 
 
@@ -287,8 +287,8 @@ export const getProductBySlugController =
                 status:
                     "error",
 
-                message:
-                    "Unable to get product.",
+                    message:
+                        "Unable to get product.",
 
             });
 
@@ -310,8 +310,6 @@ export const createProductController =
         try {
 
             const {
-
-                collection_id,
 
                 name,
 
@@ -339,7 +337,6 @@ export const createProductController =
             */
 
             if (
-                !collection_id ||
                 !name ||
                 !slug ||
                 price === undefined
@@ -353,7 +350,7 @@ export const createProductController =
                         "error",
 
                     message:
-                        "Collection ID, name, slug and price are required.",
+                        "Name, slug and price are required.",
 
                 });
 
@@ -407,9 +404,7 @@ export const createProductController =
             if (
                 features !== undefined &&
                 features !== null &&
-                (
-                    typeof features !== "object"
-                )
+                typeof features !== "object"
             ) {
 
                 res.status(
@@ -437,11 +432,6 @@ export const createProductController =
 
             const product =
                 await createProduct({
-
-                    collection_id:
-                        String(
-                            collection_id
-                        ).trim(),
 
                     name:
                         String(
@@ -531,13 +521,13 @@ export const updateProductController =
         try {
 
             const {
-                id,
+                product_id,
             } = req.params;
 
 
             const existingProduct =
                 await getProductById(
-                    id
+                    product_id
                 );
 
 
@@ -562,8 +552,6 @@ export const updateProductController =
 
             const {
 
-                collection_id,
-
                 name,
 
                 slug,
@@ -581,36 +569,6 @@ export const updateProductController =
                 features,
 
             } = req.body;
-
-
-            /*
-            --------------------------------------------------------
-            COLLECTION ID VALIDATION
-            --------------------------------------------------------
-            */
-
-            if (
-                collection_id !== undefined &&
-                !String(
-                    collection_id
-                ).trim()
-            ) {
-
-                res.status(
-                    400
-                ).json({
-
-                    status:
-                        "error",
-
-                    message:
-                        "Collection ID cannot be empty.",
-
-                });
-
-                return;
-
-            }
 
 
             /*
@@ -664,9 +622,7 @@ export const updateProductController =
             if (
                 features !== undefined &&
                 features !== null &&
-                (
-                    typeof features !== "object"
-                )
+                typeof features !== "object"
             ) {
 
                 res.status(
@@ -695,18 +651,9 @@ export const updateProductController =
             const product =
                 await updateProduct(
 
-                    id,
+                    product_id,
 
                     {
-
-                        collection_id:
-                            collection_id !== undefined
-
-                                ? String(
-                                    collection_id
-                                ).trim()
-
-                                : undefined,
 
                         name:
                             name !== undefined
@@ -806,13 +753,13 @@ export const deleteProductController =
         try {
 
             const {
-                id,
+                product_id,
             } = req.params;
 
 
             const product =
                 await deleteProduct(
-                    id
+                    product_id
                 );
 
 
@@ -864,8 +811,8 @@ export const deleteProductController =
                 status:
                     "error",
 
-                message:
-                    "Unable to delete product.",
+                    message:
+                        "Unable to delete product.",
 
             });
 
@@ -887,13 +834,13 @@ export const activateProductController =
         try {
 
             const {
-                id,
+                product_id,
             } = req.params;
 
 
             const product =
                 await activateProduct(
-                    id
+                    product_id
                 );
 
 
@@ -970,13 +917,13 @@ export const deactivateProductController =
         try {
 
             const {
-                id,
+                product_id,
             } = req.params;
 
 
             const product =
                 await deactivateProduct(
-                    id
+                    product_id
                 );
 
 

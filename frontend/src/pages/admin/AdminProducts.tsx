@@ -7,8 +7,11 @@
  * Language: TypeScript React
  * Description:
  * Administrative product management page.
- * Supports product creation, editing, image uploads,
- * image replacement and image removal.
+ * Supports independent product creation, editing, image uploads,
+ * image replacement, image removal and status management.
+ *
+ * Products are independent from Collections.
+ *
  * Languages: English (en) | Español (es)
  * ================================================================
  */
@@ -54,10 +57,7 @@ interface CurrentUser {
 
 interface Product {
 
-    id:
-        string;
-
-    collection_id:
+    product_id:
         string;
 
     name:
@@ -91,9 +91,6 @@ interface Product {
 
 
 interface ProductFormData {
-
-    collection_id:
-        string;
 
     name:
         string;
@@ -136,9 +133,6 @@ interface UploadResponse {
 
 const createEmptyForm =
     (): ProductFormData => ({
-
-        collection_id:
-            "",
 
         name:
             "",
@@ -255,12 +249,6 @@ function AdminProducts() {
         null
     );
 
-
-    /*
-    ---------------------------------------------------------------
-    Tracks whether an existing product image should be removed.
-    ---------------------------------------------------------------
-    */
 
     const [
         removeExistingImage,
@@ -557,13 +545,6 @@ function AdminProducts() {
             }
 
 
-            /*
-            --------------------------------------------------------
-            If the user selects a new image, it replaces the current
-            image during the next save operation.
-            --------------------------------------------------------
-            */
-
             setSelectedImage(
                 file
             );
@@ -573,12 +554,6 @@ function AdminProducts() {
                 false
             );
 
-
-            /*
-            --------------------------------------------------------
-            Create local preview.
-            --------------------------------------------------------
-            */
 
             const previewUrl =
                 URL.createObjectURL(
@@ -614,11 +589,6 @@ function AdminProducts() {
                     null
                 );
 
-
-                /*
-                If editing an existing product, restore its original
-                image unless the user explicitly removes it.
-                */
 
                 setImagePreview(
                     editingProduct?.image_url
@@ -714,9 +684,6 @@ function AdminProducts() {
 
 
             setFormData({
-
-                collection_id:
-                    product.collection_id,
 
                 name:
                     product.name,
@@ -919,10 +886,6 @@ function AdminProducts() {
 
                 const payload = {
 
-                    collection_id:
-                        formData.collection_id
-                            .trim(),
-
                     name:
                         formData.name
                             .trim(),
@@ -968,7 +931,7 @@ function AdminProducts() {
 
                     await apiRequest(
 
-                        `/api/products/${editingProduct.id}`,
+                        `/api/products/${editingProduct.product_id}`,
 
                         {
 
@@ -1026,12 +989,6 @@ function AdminProducts() {
                 }
 
 
-                /*
-                ----------------------------------------------------
-                CLOSE AND RELOAD
-                ----------------------------------------------------
-                */
-
                 handleCloseForm();
 
 
@@ -1083,9 +1040,9 @@ function AdminProducts() {
                 const endpoint =
                     product.is_active
 
-                        ? `/api/products/${product.id}/deactivate`
+                        ? `/api/products/${product.product_id}/deactivate`
 
-                        : `/api/products/${product.id}/activate`;
+                        : `/api/products/${product.product_id}/activate`;
 
 
                 await apiRequest(
@@ -1166,7 +1123,7 @@ function AdminProducts() {
 
                 await apiRequest(
 
-                    `/api/products/${product.id}`,
+                    `/api/products/${product.product_id}`,
 
                     {
                         method:
@@ -1231,7 +1188,6 @@ function AdminProducts() {
             <main
                 className="admin-products"
             >
-
 
                 {/* ==================================================
                     HERO
@@ -1409,7 +1365,7 @@ function AdminProducts() {
                                                     <article
 
                                                         key={
-                                                            product.id
+                                                            product.product_id
                                                         }
 
                                                         className="admin-products__card"
@@ -1722,35 +1678,9 @@ function AdminProducts() {
                                     }
                                 >
 
-
                                     <div
                                         className="admin-products__form-grid"
                                     >
-
-
-                                        <label>
-
-                                            Collection ID
-
-                                            <input
-
-                                                type="text"
-
-                                                name="collection_id"
-
-                                                value={
-                                                    formData.collection_id
-                                                }
-
-                                                onChange={
-                                                    handleChange
-                                                }
-
-                                                required
-
-                                            />
-
-                                        </label>
 
 
                                         <label>
