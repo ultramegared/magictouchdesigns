@@ -6,7 +6,7 @@
  * Module: Product Routes
  * Language: TypeScript
  * Description:
- * API routes for product management.
+ * API routes for independent product management.
  * Languages: English (en) | Español (es)
  * ================================================================
  */
@@ -80,13 +80,6 @@ router.get(
    ADMINISTRATOR PROTECTION
 ================================================================ */
 
-/**
- * Every route below requires:
- *
- * 1. Valid JWT authentication.
- * 2. Active administrator account.
- */
-
 router.use(
     authenticateToken
 );
@@ -117,13 +110,13 @@ router.get(
 
 /**
  * GET
- * /api/products/:id
+ * /api/products/:product_id
  *
- * Returns one product by ID.
+ * Returns one product by product_id.
  */
 
 router.get(
-    "/:id",
+    "/:product_id",
 
     getProduct
 );
@@ -133,7 +126,7 @@ router.get(
  * POST
  * /api/products
  *
- * Creates a new product.
+ * Creates a new independent product.
  */
 
 router.post(
@@ -145,13 +138,13 @@ router.post(
 
 /**
  * PUT
- * /api/products/:id
+ * /api/products/:product_id
  *
  * Updates a product.
  */
 
 router.put(
-    "/:id",
+    "/:product_id",
 
     updateProductController
 );
@@ -159,13 +152,13 @@ router.put(
 
 /**
  * PUT
- * /api/products/:id/activate
+ * /api/products/:product_id/activate
  *
  * Activates a product.
  */
 
 router.put(
-    "/:id/activate",
+    "/:product_id/activate",
 
     activateProductController
 );
@@ -173,13 +166,13 @@ router.put(
 
 /**
  * PUT
- * /api/products/:id/deactivate
+ * /api/products/:product_id/deactivate
  *
  * Deactivates a product.
  */
 
 router.put(
-    "/:id/deactivate",
+    "/:product_id/deactivate",
 
     deactivateProductController
 );
@@ -187,13 +180,13 @@ router.put(
 
 /**
  * DELETE
- * /api/products/:id
+ * /api/products/:product_id
  *
  * Deletes a product permanently.
  */
 
 router.delete(
-    "/:id",
+    "/:product_id",
 
     deleteProductController
 );
