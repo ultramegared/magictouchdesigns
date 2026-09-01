@@ -31,7 +31,9 @@
     left: 0;
 
     width: 270px;
+
     height: 100vh;
+    height: 100dvh;
 
     display: flex;
     flex-direction: column;
@@ -56,7 +58,7 @@
             0.08
         );
 
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 
@@ -74,6 +76,8 @@
         28px
         22px
         24px;
+
+    flex-shrink: 0;
 
     border-bottom:
         1px solid
@@ -181,6 +185,8 @@
 
     padding: 14px;
 
+    flex-shrink: 0;
+
     border-radius: 14px;
 
     background:
@@ -263,11 +269,19 @@
 
     gap: 4px;
 
+    flex: 1;
+
+    min-height: 0;
+
     padding:
         14px
         12px;
 
-    flex: 1;
+    overflow-y: auto;
+
+    overscroll-behavior: contain;
+
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -278,6 +292,8 @@
     gap: 13px;
 
     min-height: 48px;
+
+    flex-shrink: 0;
 
     padding:
         0
@@ -367,6 +383,8 @@
     flex-direction: column;
 
     gap: 6px;
+
+    flex-shrink: 0;
 
     padding:
         14px
@@ -591,7 +609,13 @@
        ============================================================ */
 
     .admin-sidebar {
-        width: 280px;
+        width: min(
+            280px,
+            88vw
+        );
+
+        height: 100vh;
+        height: 100dvh;
 
         transform:
             translateX(
@@ -601,6 +625,8 @@
         transition:
             transform
             0.28s ease;
+
+        overscroll-behavior: contain;
     }
 
 
@@ -616,6 +642,32 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+
+    /* ============================================================
+       NAVIGATION
+       ============================================================ */
+
+    .admin-sidebar__nav {
+        padding-bottom: 18px;
+
+        touch-action: pan-y;
+    }
+
+
+    /* ============================================================
+       BOTTOM
+       ============================================================ */
+
+    .admin-sidebar__bottom {
+        padding-bottom:
+            max(
+                20px,
+                env(
+                    safe-area-inset-bottom
+                )
+            );
     }
 
 
@@ -643,6 +695,8 @@
         z-index: 950;
 
         cursor: pointer;
+
+        touch-action: none;
     }
 
 }
