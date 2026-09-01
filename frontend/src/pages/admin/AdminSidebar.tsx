@@ -12,6 +12,7 @@
  */
 
 import {
+    useEffect,
     useState,
 } from "react";
 
@@ -77,6 +78,42 @@ function AdminSidebar({
 
 
     /* ============================================================
+       LOCK PAGE SCROLL ON MOBILE MENU
+    ============================================================ */
+
+    useEffect(
+        () => {
+
+            if (
+                mobileMenuOpen
+            ) {
+
+                document.body.style.overflow =
+                    "hidden";
+
+            } else {
+
+                document.body.style.overflow =
+                    "";
+
+            }
+
+
+            return () => {
+
+                document.body.style.overflow =
+                    "";
+
+            };
+
+        },
+        [
+            mobileMenuOpen,
+        ]
+    );
+
+
+    /* ============================================================
        CLOSE MOBILE MENU
     ============================================================ */
 
@@ -88,6 +125,26 @@ function AdminSidebar({
             );
 
         };
+
+
+    /* ============================================================
+       ACTIVE NAVIGATION CLASS
+    ============================================================ */
+
+    const getNavLinkClass =
+        ({
+            isActive,
+        }: {
+            isActive: boolean;
+        }) =>
+
+            `admin-sidebar__link ${
+                isActive
+
+                    ? "admin-sidebar__link--active"
+
+                    : ""
+            }`;
 
 
     /* ============================================================
@@ -380,18 +437,7 @@ function AdminSidebar({
                         end
 
                         className={
-                            ({
-                                isActive,
-                            }) =>
-
-                                `admin-sidebar__link ${
-                                    isActive
-
-                                        ? "admin-sidebar__link--active"
-
-                                        : ""
-                                }`
-
+                            getNavLinkClass
                         }
 
                         onClick={
@@ -420,7 +466,9 @@ function AdminSidebar({
 
                         to="/admin/sales"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
@@ -448,7 +496,9 @@ function AdminSidebar({
 
                         to="/admin/orders"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
@@ -476,7 +526,9 @@ function AdminSidebar({
 
                         to="/admin/products"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
@@ -504,7 +556,9 @@ function AdminSidebar({
 
                         to="/admin/collections"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
@@ -532,7 +586,9 @@ function AdminSidebar({
 
                         to="/admin/users"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
@@ -560,7 +616,9 @@ function AdminSidebar({
 
                         to="/admin/subscribers"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
@@ -588,7 +646,9 @@ function AdminSidebar({
 
                         to="/admin/reviews"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
@@ -616,7 +676,9 @@ function AdminSidebar({
 
                         to="/admin/content"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
@@ -644,7 +706,9 @@ function AdminSidebar({
 
                         to="/admin/reports"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
@@ -672,7 +736,9 @@ function AdminSidebar({
 
                         to="/admin/settings"
 
-                        className="admin-sidebar__link"
+                        className={
+                            getNavLinkClass
+                        }
 
                         onClick={
                             closeMobileMenu
