@@ -134,8 +134,8 @@ function SpecialOccasionsPage() {
     const [
         error,
         setError,
-    ] = useState<string | null>(
-        null
+    ] = useState(
+        false
     );
 
 
@@ -157,7 +157,7 @@ function SpecialOccasionsPage() {
 
 
                         setError(
-                            null
+                            false
                         );
 
 
@@ -197,9 +197,7 @@ function SpecialOccasionsPage() {
 
 
                         setError(
-                            language === "es"
-                                ? "No se pudieron cargar los productos."
-                                : "Unable to load products."
+                            true
                         );
 
                     } finally {
@@ -216,9 +214,7 @@ function SpecialOccasionsPage() {
             loadProducts();
 
         },
-        [
-            language,
-        ]
+        []
     );
 
 
@@ -549,7 +545,11 @@ function SpecialOccasionsPage() {
 
                             <p>
 
-                                {error}
+                                {
+                                    language === "es"
+                                        ? "No se pudieron cargar los productos."
+                                        : "Unable to load products."
+                                }
 
                             </p>
 
