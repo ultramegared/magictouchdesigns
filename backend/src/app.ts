@@ -31,6 +31,8 @@ import settingsRoutes from "./routes/settings.routes";
 
 import productRoutes from "./routes/product.routes";
 
+import collectionRoutes from "./routes/collection.routes";
+
 
 const app =
     express();
@@ -112,6 +114,14 @@ app.use(
 app.use(
     "/api/products",
     productRoutes
+);
+
+
+// Collection routes
+
+app.use(
+    "/api/collections",
+    collectionRoutes
 );
 
 
