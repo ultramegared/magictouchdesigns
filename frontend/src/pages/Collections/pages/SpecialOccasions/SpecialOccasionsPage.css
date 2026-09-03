@@ -675,7 +675,6 @@
 
 }
 
-
 .special-occasions-product__image img {
 
     width: 100%;
@@ -683,9 +682,7 @@
 
     display: block;
 
-    object-fit: contain;
-
-    object-position: center;
+    object-fit: cover;
 
     transition:
         transform .6s ease,
@@ -697,7 +694,11 @@
 .special-occasions-product:hover
 .special-occasions-product__image img {
 
-    transform: scale(1.03);
+    transform: scale(1.06);
+
+    filter:
+        brightness(1.06)
+        saturate(1.04);
 
 }
 
