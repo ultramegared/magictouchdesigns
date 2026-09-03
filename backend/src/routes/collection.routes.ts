@@ -164,15 +164,21 @@ router.get(
 
 
 /* ===============================================================
-   ADD PRODUCT TO COLLECTION
+   ADD OR CREATE PRODUCT IN COLLECTION
 ================================================================ */
 
 /**
  * POST
  * /api/collections/admin/:slug/products
  *
- * Adds an existing product
- * to the collection.
+ * Supports two modes:
+ *
+ * 1. Adds an existing product
+ *    to the collection.
+ *
+ * 2. Creates a new product
+ *    and adds it directly
+ *    to the collection.
  *
  * Administrator only.
  */
