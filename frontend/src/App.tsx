@@ -48,6 +48,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminRoute from "./pages/admin/AdminRoute";
 import AdminProducts from "./pages/admin/AdminProducts";
+import AdminCollections from "./pages/admin/AdminCollections";
 
 
 import CustomizePage from "./pages/Customize";
@@ -197,6 +198,14 @@ function App() {
     }
 />
 
+<Route
+    path="/admin/collections"
+    element={
+        <AdminRoute>
+            <AdminCollections />
+        </AdminRoute>
+    }
+/>
 
 
 <Route
