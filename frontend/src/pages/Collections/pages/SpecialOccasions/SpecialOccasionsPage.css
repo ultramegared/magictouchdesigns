@@ -2339,7 +2339,7 @@
     align-items: center;
     justify-content: center;
 
-    gap: 18px;
+    gap: 22px;
 
     margin-top: 45px;
 
@@ -2348,10 +2348,20 @@
 
 .special-occasions-pagination__button {
 
-    min-height: 42px;
+    min-width: 46px;
+
+    min-height: 46px;
 
     padding:
         0 20px;
+
+    display: inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
 
     border:
         1px solid rgba(216,166,60,.45);
@@ -2366,7 +2376,7 @@
         rgba(255,255,255,.78);
 
     font-size:
-        9px;
+        10px;
 
     font-weight:
         800;
@@ -2430,7 +2440,7 @@
         center;
 
     gap:
-        8px;
+        12px;
 
 }
 
@@ -2438,10 +2448,10 @@
 .special-occasions-pagination__page {
 
     width:
-        40px;
+        44px;
 
     height:
-        40px;
+        44px;
 
     display:
         flex;
@@ -2468,7 +2478,7 @@
         rgba(255,255,255,.65);
 
     font-size:
-        9px;
+        10px;
 
     font-weight:
         800;
@@ -2827,25 +2837,36 @@
 
     .special-occasions-pagination {
 
+        width: 100%;
+
         gap:
-            10px;
+            18px;
 
         flex-wrap:
-            wrap;
+            nowrap;
+
+        margin-top:
+            50px;
 
     }
 
 
     .special-occasions-pagination__button {
 
+        min-width:
+            48px;
+
         min-height:
-            38px;
+            48px;
 
         padding:
-            0 15px;
+            0 14px;
 
         font-size:
-            8px;
+            10px;
+
+        flex-shrink:
+            0;
 
     }
 
@@ -2853,13 +2874,19 @@
     .special-occasions-pagination__page {
 
         width:
-            36px;
+            48px;
 
         height:
-            36px;
+            48px;
+
+        min-width:
+            48px;
 
         font-size:
-            8px;
+            11px;
+
+        flex-shrink:
+            0;
 
     }
 
@@ -2867,7 +2894,10 @@
     .special-occasions-pagination__pages {
 
         gap:
-            6px;
+            14px;
+
+        flex-shrink:
+            0;
 
     }
 
@@ -2926,6 +2956,54 @@
 
     }
 
+
+    /* ===========================================================
+       PAGINATION SMALL MOBILE
+       =========================================================== */
+
+    .special-occasions-pagination {
+
+        gap:
+            14px;
+
+    }
+
+
+    .special-occasions-pagination__button {
+
+        min-width:
+            44px;
+
+        min-height:
+            44px;
+
+        padding:
+            0 12px;
+
+    }
+
+
+    .special-occasions-pagination__page {
+
+        width:
+            44px;
+
+        height:
+            44px;
+
+        min-width:
+            44px;
+
+    }
+
+
+    .special-occasions-pagination__pages {
+
+        gap:
+            12px;
+
+    }
+
 }
 
 
@@ -2949,6 +3027,50 @@
         height: 38px;
 
         font-size: 24px;
+
+    }
+
+
+    .special-occasions-pagination {
+
+        gap:
+            10px;
+
+    }
+
+
+    .special-occasions-pagination__button {
+
+        min-width:
+            40px;
+
+        min-height:
+            40px;
+
+        padding:
+            0 10px;
+
+    }
+
+
+    .special-occasions-pagination__page {
+
+        width:
+            40px;
+
+        height:
+            40px;
+
+        min-width:
+            40px;
+
+    }
+
+
+    .special-occasions-pagination__pages {
+
+        gap:
+            8px;
 
     }
 
