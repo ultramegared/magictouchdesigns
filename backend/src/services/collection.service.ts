@@ -380,6 +380,8 @@ export const getAvailableProductsForCollection =
           features,
           is_active
       }
+
+   New products are placed first in the collection.
 ================================================================ */
 
 export const addProductToCollection =
@@ -687,42 +689,32 @@ export const addProductToCollection =
 
 
             /* =====================================================
-               GET NEXT COLLECTION ORDER
+               MOVE EXISTING PRODUCTS DOWN
+
+               The new product will be placed in position 1.
             ===================================================== */
 
-            const orderResult =
-                await client.query(
-                    `
-                    SELECT
-                        COALESCE(
-                            MAX(
-                                sort_order
-                            ),
-                            0
-                        ) + 1
-                        AS next_sort_order
+            await client.query(
+                `
+                UPDATE collection_products
 
-                    FROM collection_products
+                SET
+                    sort_order =
+                        sort_order + 1
 
-                    WHERE
-                        collection_id = $1
-                    `,
-                    [
-                        collection.id,
-                    ]
-                );
-
-
-            const nextSortOrder =
-                Number(
-                    orderResult.rows[
-                        0
-                    ].next_sort_order
-                );
+                WHERE
+                    collection_id = $1
+                `,
+                [
+                    collection.id,
+                ]
+            );
 
 
             /* =====================================================
                ADD PRODUCT TO COLLECTION
+
+               New products are always placed first.
             ===================================================== */
 
             const collectionProductResult =
@@ -745,7 +737,7 @@ export const addProductToCollection =
 
                         $2,
 
-                        $3
+                        1
 
                     )
 
@@ -764,10 +756,13 @@ export const addProductToCollection =
                     [
                         collection.id,
                         productId,
-                        nextSortOrder,
                     ]
                 );
 
+
+            /* =====================================================
+               COMMIT TRANSACTION
+            ===================================================== */
 
             await client.query(
                 `
