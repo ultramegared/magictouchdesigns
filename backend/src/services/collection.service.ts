@@ -19,6 +19,27 @@ import {
    TYPES
 ================================================================ */
 
+interface CreateCollectionProductData {
+
+    product_id?: string;
+
+    name?: string;
+
+    slug?: string;
+
+    description?: string;
+
+    price?: number;
+
+    image_url?: string;
+
+    features?: string[];
+
+    is_active?: boolean;
+
+}
+
+
 interface UpdateCollectionProductData {
 
     name?: string;
@@ -32,6 +53,8 @@ interface UpdateCollectionProductData {
     image_url?: string;
 
     features?: string[];
+
+    is_active?: boolean;
 
 }
 
@@ -337,12 +360,32 @@ export const getAvailableProductsForCollection =
 
 /* ===============================================================
    ADD PRODUCT TO COLLECTION
+
+   IMPORTANT:
+
+   This function supports two modes:
+
+   1. Existing product:
+      {
+          product_id: "..."
+      }
+
+   2. New product:
+      {
+          name,
+          slug,
+          description,
+          price,
+          image_url,
+          features,
+          is_active
+      }
 ================================================================ */
 
 export const addProductToCollection =
     async (
         collectionSlug: string,
-        productId: string
+        data: CreateCollectionProductData
     ) => {
 
         const client =
@@ -357,6 +400,10 @@ export const addProductToCollection =
                 `
             );
 
+
+            /* =====================================================
+               FIND COLLECTION
+            ===================================================== */
 
             const collectionResult =
                 await client.query(
@@ -399,94 +446,249 @@ export const addProductToCollection =
             }
 
 
-            const productResult =
-                await client.query(
-                    `
-                    SELECT
-                        product_id
-
-                    FROM products
-
-                    WHERE
-                        product_id = $1
-
-                    LIMIT 1
-                    `,
-                    [
-                        productId,
-                    ]
-                );
+            let productId:
+                string;
 
 
-            const product =
-                productResult.rows[
-                    0
-                ];
+            let createdProduct:
+                unknown;
 
+
+            /* =====================================================
+               EXISTING PRODUCT MODE
+            ===================================================== */
 
             if (
-                !product
+                data.product_id
             ) {
 
-                await client.query(
-                    `
-                    ROLLBACK
-                    `
-                );
+                const productResult =
+                    await client.query(
+                        `
+                        SELECT
+                            product_id
+
+                        FROM products
+
+                        WHERE
+                            product_id = $1
+
+                        LIMIT 1
+                        `,
+                        [
+                            data.product_id,
+                        ]
+                    );
 
 
-                return null;
+                const existingProduct =
+                    productResult.rows[
+                        0
+                    ];
+
+
+                if (
+                    !existingProduct
+                ) {
+
+                    await client.query(
+                        `
+                        ROLLBACK
+                        `
+                    );
+
+
+                    return null;
+
+                }
+
+
+                productId =
+                    existingProduct.product_id;
+
+
+                const existingCollectionProductResult =
+                    await client.query(
+                        `
+                        SELECT
+                            collection_product_id,
+                            collection_id,
+                            product_id,
+                            sort_order,
+                            created_at
+
+                        FROM collection_products
+
+                        WHERE
+                            collection_id = $1
+
+                            AND product_id = $2
+
+                        LIMIT 1
+                        `,
+                        [
+                            collection.id,
+                            productId,
+                        ]
+                    );
+
+
+                const existingCollectionProduct =
+                    existingCollectionProductResult.rows[
+                        0
+                    ];
+
+
+                if (
+                    existingCollectionProduct
+                ) {
+
+                    await client.query(
+                        `
+                        COMMIT
+                        `
+                    );
+
+
+                    return existingCollectionProduct;
+
+                }
 
             }
 
 
-            const existingResult =
-                await client.query(
-                    `
-                    SELECT
-                        collection_product_id,
-                        collection_id,
-                        product_id,
-                        sort_order,
-                        created_at
+            /* =====================================================
+               CREATE NEW PRODUCT MODE
+            ===================================================== */
 
-                    FROM collection_products
+            else {
 
-                    WHERE
-                        collection_id = $1
+                const productResult =
+                    await client.query(
+                        `
+                        INSERT INTO
+                            products (
 
-                        AND product_id = $2
+                                name,
 
-                    LIMIT 1
-                    `,
-                    [
-                        collection.id,
-                        productId,
-                    ]
-                );
+                                slug,
+
+                                description,
+
+                                price,
+
+                                image_url,
+
+                                features,
+
+                                is_active,
+
+                                sort_order
+
+                            )
+
+                        VALUES (
+
+                            $1,
+
+                            $2,
+
+                            $3,
+
+                            $4,
+
+                            $5,
+
+                            $6,
+
+                            $7,
+
+                            0
+
+                        )
+
+                        RETURNING
+
+                            product_id,
+
+                            name,
+
+                            slug,
+
+                            description,
+
+                            price,
+
+                            image_url,
+
+                            is_active,
+
+                            sort_order,
+
+                            features,
+
+                            created_at,
+
+                            updated_at
+                        `,
+                        [
+                            data.name
+                            ?? "",
+
+                            data.slug
+                            ?? "",
+
+                            data.description
+                            ?? "",
+
+                            data.price
+                            ?? 0,
+
+                            data.image_url
+                            ?? "",
+
+                            data.features
+                            ?? [],
+
+                            data.is_active
+                            ?? true,
+                        ]
+                    );
 
 
-            const existingProduct =
-                existingResult.rows[
-                    0
-                ];
+                createdProduct =
+                    productResult.rows[
+                        0
+                    ];
 
 
-            if (
-                existingProduct
-            ) {
+                if (
+                    !createdProduct
+                ) {
 
-                await client.query(
-                    `
-                    COMMIT
-                    `
-                );
+                    await client.query(
+                        `
+                        ROLLBACK
+                        `
+                    );
 
 
-                return existingProduct;
+                    return null;
+
+                }
+
+
+                productId =
+                    productResult.rows[
+                        0
+                    ].product_id;
 
             }
 
+
+            /* =====================================================
+               GET NEXT COLLECTION ORDER
+            ===================================================== */
 
             const orderResult =
                 await client.query(
@@ -519,27 +721,44 @@ export const addProductToCollection =
                 );
 
 
-            const result =
+            /* =====================================================
+               ADD PRODUCT TO COLLECTION
+            ===================================================== */
+
+            const collectionProductResult =
                 await client.query(
                     `
                     INSERT INTO
                         collection_products (
+
                             collection_id,
+
                             product_id,
+
                             sort_order
+
                         )
 
                     VALUES (
+
                         $1,
+
                         $2,
+
                         $3
+
                     )
 
                     RETURNING
+
                         collection_product_id,
+
                         collection_id,
+
                         product_id,
+
                         sort_order,
+
                         created_at
                     `,
                     [
@@ -557,7 +776,20 @@ export const addProductToCollection =
             );
 
 
-            return result.rows[
+            /* =====================================================
+               RETURN NEW PRODUCT
+            ===================================================== */
+
+            if (
+                createdProduct
+            ) {
+
+                return createdProduct;
+
+            }
+
+
+            return collectionProductResult.rows[
                 0
             ]
             || null;
@@ -951,11 +1183,17 @@ export const updateCollectionProduct =
                             features
                         ),
 
+                    is_active =
+                        COALESCE(
+                            $7,
+                            is_active
+                        ),
+
                     updated_at =
                         NOW()
 
                 WHERE
-                    product_id = $7
+                    product_id = $8
 
                 RETURNING
                     product_id,
@@ -987,6 +1225,9 @@ export const updateCollectionProduct =
                     ?? null,
 
                     data.features
+                    ?? null,
+
+                    data.is_active
                     ?? null,
 
                     productId,
@@ -1068,13 +1309,6 @@ export const setCollectionProductStatus =
 /* ===============================================================
    UPDATE COLLECTION PRODUCT ORDER
 ================================================================ */
-
-/**
- * Moves one product to
- * a specific position and
- * automatically reorganizes
- * the remaining products.
- */
 
 export const updateCollectionProductOrder =
     async (

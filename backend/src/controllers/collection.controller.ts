@@ -57,15 +57,6 @@ import {
    GET COLLECTION FOR ADMIN
 ================================================================ */
 
-/**
- * GET
- * /api/collections/admin/:slug
- *
- * Returns collection information.
- *
- * Administrator only.
- */
-
 export const getCollectionForAdmin =
     async (
         request: Request,
@@ -144,15 +135,6 @@ export const getCollectionForAdmin =
 /* ===============================================================
    UPDATE COLLECTION
 ================================================================ */
-
-/**
- * PUT
- * /api/collections/admin/:slug
- *
- * Updates collection information.
- *
- * Administrator only.
- */
 
 export const updateCollection =
     async (
@@ -261,16 +243,6 @@ export const updateCollection =
    GET PRODUCTS BY COLLECTION
 ================================================================ */
 
-/**
- * GET
- * /api/collections/:slug/products
- *
- * Returns active products
- * from a collection.
- *
- * Public use.
- */
-
 export const getCollectionProducts =
     async (
         request: Request,
@@ -331,17 +303,6 @@ export const getCollectionProducts =
    GET COLLECTION PRODUCTS FOR ADMIN
 ================================================================ */
 
-/**
- * GET
- * /api/collections/admin/:slug/products
- *
- * Returns all products assigned
- * to a collection, including
- * inactive products.
- *
- * Administrator only.
- */
-
 export const getCollectionProductsForAdmin =
     async (
         request: Request,
@@ -401,17 +362,6 @@ export const getCollectionProductsForAdmin =
 /* ===============================================================
    GET AVAILABLE PRODUCTS FOR COLLECTION
 ================================================================ */
-
-/**
- * GET
- * /api/collections/admin/:slug/available-products
- *
- * Returns products that are
- * not currently assigned
- * to the collection.
- *
- * Administrator only.
- */
 
 export const getAvailableProductsForCollection =
     async (
@@ -489,17 +439,32 @@ export const getAvailableProductsForCollection =
 
 
 /* ===============================================================
-   ADD PRODUCT TO COLLECTION
+   ADD OR CREATE PRODUCT IN COLLECTION
 ================================================================ */
 
 /**
  * POST
  * /api/collections/admin/:slug/products
  *
- * Adds an existing product
- * to the collection.
+ * Supports:
  *
- * Administrator only.
+ * Existing product:
+ *
+ * {
+ *     product_id
+ * }
+ *
+ * New product:
+ *
+ * {
+ *     name,
+ *     slug,
+ *     description,
+ *     price,
+ *     image_url,
+ *     features,
+ *     is_active
+ * }
  */
 
 export const addProductToCollection =
@@ -518,12 +483,80 @@ export const addProductToCollection =
 
             const {
                 product_id,
+                name,
+                slug: productSlug,
+                description,
+                price,
+                image_url,
+                features,
+                is_active,
             } =
                 request.body;
 
 
+            /* ================================================
+               EXISTING PRODUCT
+            ================================================= */
+
             if (
-                !product_id
+                product_id
+            ) {
+
+                const product =
+                    await addProductToCollectionService(
+                        slug,
+                        {
+                            product_id,
+                        }
+                    );
+
+
+                if (
+                    !product
+                ) {
+
+                    return response.status(
+                        404
+                    ).json(
+                        {
+                            status:
+                                "error",
+
+                            message:
+                                "Collection or product was not found.",
+                        }
+                    );
+
+                }
+
+
+                return response.status(
+                    201
+                ).json(
+                    {
+                        status:
+                            "success",
+
+                        message:
+                            "Product added to collection successfully.",
+
+                        product,
+                    }
+                );
+
+            }
+
+
+            /* ================================================
+               NEW PRODUCT VALIDATION
+            ================================================= */
+
+            if (
+                !name
+                ||
+                !String(
+                    name
+                ).trim()
             ) {
 
                 return response.status(
@@ -534,17 +567,170 @@ export const addProductToCollection =
                             "error",
 
                         message:
-                            "product_id is required.",
+                            "Product name is required.",
                     }
                 );
 
             }
 
 
+            if (
+                !productSlug
+                ||
+                !String(
+                    productSlug
+                ).trim()
+            ) {
+
+                return response.status(
+                    400
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "Product slug is required.",
+                    }
+                );
+
+            }
+
+
+            if (
+                typeof price !==
+                "number"
+
+                ||
+
+                !Number.isFinite(
+                    price
+                )
+
+                ||
+
+                price < 0
+            ) {
+
+                return response.status(
+                    400
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "Please enter a valid product price.",
+                    }
+                );
+
+            }
+
+
+            if (
+                typeof is_active !==
+                "undefined"
+
+                &&
+
+                typeof is_active !==
+                "boolean"
+            ) {
+
+                return response.status(
+                    400
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "is_active must be a boolean value.",
+                    }
+                );
+
+            }
+
+
+            if (
+                typeof features !==
+                "undefined"
+
+                &&
+
+                !Array.isArray(
+                    features
+                )
+            ) {
+
+                return response.status(
+                    400
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "features must be an array.",
+                    }
+                );
+
+            }
+
+
+            /* ================================================
+               CREATE PRODUCT AND ADD TO COLLECTION
+            ================================================= */
+
             const product =
                 await addProductToCollectionService(
                     slug,
-                    product_id
+                    {
+                        name:
+                            String(
+                                name
+                            ).trim(),
+
+                        slug:
+                            String(
+                                productSlug
+                            ).trim(),
+
+                        description:
+                            typeof description ===
+                            "string"
+
+                                ? description.trim()
+
+                                : "",
+
+                        price,
+
+                        image_url:
+                            typeof image_url ===
+                            "string"
+
+                                ? image_url.trim()
+
+                                : "",
+
+                        features:
+                            Array.isArray(
+                                features
+                            )
+
+                                ? features
+
+                                : [],
+
+                        is_active:
+                            typeof is_active ===
+                            "boolean"
+
+                                ? is_active
+
+                                : true,
+                    }
                 );
 
 
@@ -560,7 +746,7 @@ export const addProductToCollection =
                             "error",
 
                         message:
-                            "Collection or product was not found.",
+                            "Collection was not found.",
                     }
                 );
 
@@ -575,7 +761,7 @@ export const addProductToCollection =
                         "success",
 
                     message:
-                        "Product added to collection successfully.",
+                        "Product created and added to collection successfully.",
 
                     product,
                 }
@@ -586,7 +772,7 @@ export const addProductToCollection =
         ) {
 
             console.error(
-                "Unable to add product to collection:",
+                "Unable to create or add product to collection:",
                 error
             );
 
@@ -599,7 +785,7 @@ export const addProductToCollection =
                         "error",
 
                     message:
-                        "Unable to add product to collection.",
+                        "Unable to create product.",
                 }
             );
 
@@ -611,19 +797,6 @@ export const addProductToCollection =
 /* ===============================================================
    REMOVE PRODUCT FROM COLLECTION
 ================================================================ */
-
-/**
- * DELETE
- * /api/collections/admin/:slug/products/:product_id
- *
- * Removes a product from
- * the collection.
- *
- * The original product
- * is not deleted.
- *
- * Administrator only.
- */
 
 export const removeProductFromCollection =
     async (
@@ -709,17 +882,6 @@ export const removeProductFromCollection =
    GET ONE COLLECTION PRODUCT FOR ADMIN
 ================================================================ */
 
-/**
- * GET
- * /api/collections/admin/:slug/products/:product_id
- *
- * Returns one product only if
- * it belongs to the requested
- * collection.
- *
- * Administrator only.
- */
-
 export const getCollectionProductForAdmin =
     async (
         request: Request,
@@ -801,15 +963,6 @@ export const getCollectionProductForAdmin =
    UPDATE COLLECTION PRODUCT
 ================================================================ */
 
-/**
- * PUT
- * /api/collections/admin/:slug/products/:product_id
- *
- * Updates product information.
- *
- * Administrator only.
- */
-
 export const updateCollectionProduct =
     async (
         request: Request,
@@ -832,6 +985,7 @@ export const updateCollectionProduct =
                 price,
                 image_url,
                 features,
+                is_active,
             } =
                 request.body;
 
@@ -853,6 +1007,8 @@ export const updateCollectionProduct =
                         image_url,
 
                         features,
+
+                        is_active,
                     }
                 );
 
@@ -918,16 +1074,6 @@ export const updateCollectionProduct =
 /* ===============================================================
    UPDATE COLLECTION PRODUCT STATUS
 ================================================================ */
-
-/**
- * PUT
- * /api/collections/admin/:slug/products/:product_id/status
- *
- * Activates or deactivates
- * a collection product.
- *
- * Administrator only.
- */
 
 export const updateCollectionProductStatus =
     async (
@@ -1044,16 +1190,6 @@ export const updateCollectionProductStatus =
 /* ===============================================================
    UPDATE COLLECTION PRODUCT ORDER
 ================================================================ */
-
-/**
- * PUT
- * /api/collections/admin/:slug/products/:product_id/order
- *
- * Moves one product
- * to a new position.
- *
- * Administrator only.
- */
 
 export const updateCollectionProductOrder =
     async (
@@ -1175,26 +1311,6 @@ export const updateCollectionProductOrder =
 /* ===============================================================
    REORDER COLLECTION PRODUCTS
 ================================================================ */
-
-/**
- * PUT
- * /api/collections/admin/:slug/products/reorder
- *
- * Reorders all products
- * inside a collection.
- *
- * Body:
- *
- * {
- *     "product_ids": [
- *         "uuid-1",
- *         "uuid-2",
- *         "uuid-3"
- *     ]
- * }
- *
- * Administrator only.
- */
 
 export const reorderCollectionProducts =
     async (
