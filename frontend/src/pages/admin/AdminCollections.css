@@ -185,6 +185,9 @@
     padding:
         34px 42px 50px;
 
+    box-sizing:
+        border-box;
+
     display:
         flex;
 
@@ -320,6 +323,9 @@
 
     font-weight:
         700;
+
+    white-space:
+        nowrap;
 
     cursor:
         pointer;
@@ -518,6 +524,9 @@
     align-items:
         center;
 
+    justify-content:
+        center;
+
     gap:
         7px;
 
@@ -535,6 +544,9 @@
 
     font-weight:
         700;
+
+    white-space:
+        nowrap;
 }
 
 
@@ -553,6 +565,100 @@
 
     color:
         #c24755;
+}
+
+
+/* ===============================================================
+   ADD PRODUCT BUTTON
+================================================================ */
+
+.admin-collections__add-product {
+    min-height:
+        42px;
+
+    padding:
+        0 16px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    border:
+        1px solid
+        #263653;
+
+    border-radius:
+        10px;
+
+    background:
+        #263653;
+
+    color:
+        #ffffff;
+
+    font-size:
+        0.88rem;
+
+    font-weight:
+        700;
+
+    white-space:
+        nowrap;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.admin-collections__add-product:hover:not(:disabled) {
+    background:
+        #1d2b43;
+
+    border-color:
+        #1d2b43;
+
+    transform:
+        translateY(
+            -1px
+        );
+
+    box-shadow:
+        0 8px 18px
+        rgba(
+            38,
+            54,
+            83,
+            0.18
+        );
+}
+
+
+.admin-collections__add-product:disabled {
+    opacity:
+        0.55;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+}
+
+
+.admin-collections__add-product svg {
+    flex:
+        0 0 auto;
 }
 
 
@@ -645,6 +751,9 @@
 
     font-weight:
         600;
+
+    line-height:
+        1.5;
 }
 
 
@@ -709,6 +818,12 @@
 }
 
 
+.admin-collections__empty .admin-collections__add-product {
+    margin-top:
+        20px;
+}
+
+
 /* ===============================================================
    PRODUCTS GRID
 ================================================================ */
@@ -736,6 +851,9 @@
 ================================================================ */
 
 .admin-collections__product {
+    min-width:
+        0;
+
     overflow:
         hidden;
 
@@ -1083,6 +1201,9 @@
     min-height:
         40px;
 
+    min-width:
+        0;
+
     display:
         inline-flex;
 
@@ -1174,6 +1295,24 @@
 .admin-collections__action--activate:hover:not(:disabled) {
     background:
         #d8f2e2;
+}
+
+
+.admin-collections__action--delete {
+    background:
+        #fff0f1;
+
+    color:
+        #bd3444;
+
+    grid-column:
+        1 / -1;
+}
+
+
+.admin-collections__action--delete:hover:not(:disabled) {
+    background:
+        #ffe1e4;
 }
 
 
@@ -1294,6 +1433,9 @@
 
     padding:
         24px;
+
+    box-sizing:
+        border-box;
 
     display:
         flex;
@@ -1570,7 +1712,8 @@
 
 
 .admin-collections__form-grid input,
-.admin-collections__form-grid textarea {
+.admin-collections__form-grid textarea,
+.admin-collections__form-grid select {
     width:
         100%;
 
@@ -1601,7 +1744,8 @@
 }
 
 
-.admin-collections__form-grid input {
+.admin-collections__form-grid input,
+.admin-collections__form-grid select {
     min-height:
         44px;
 
@@ -1626,7 +1770,8 @@
 
 
 .admin-collections__form-grid input:focus,
-.admin-collections__form-grid textarea:focus {
+.admin-collections__form-grid textarea:focus,
+.admin-collections__form-grid select:focus {
     border-color:
         #526d9b;
 
@@ -1638,6 +1783,15 @@
             155,
             0.12
         );
+}
+
+
+.admin-collections__form-grid input[type="file"] {
+    padding:
+        9px 13px;
+
+    cursor:
+        pointer;
 }
 
 
@@ -1949,6 +2103,9 @@
 
 
     .admin-collections__statistics {
+        width:
+            100%;
+
         justify-content:
             flex-start;
     }
@@ -2053,30 +2210,118 @@
     }
 
 
+    .admin-collections__section-header {
+        gap:
+            16px;
+
+        margin-bottom:
+            20px;
+    }
+
+
+    .admin-collections__section-header h2 {
+        font-size:
+            1.2rem;
+    }
+
+
+    .admin-collections__refresh {
+        width:
+            100%;
+    }
+
+
+    /* ===========================================================
+       MOBILE STATISTICS
+    ============================================================ */
+
+    .admin-collections__statistics {
+        width:
+            100%;
+
+        display:
+            grid;
+
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+
+        gap:
+            8px;
+    }
+
+
+    .admin-collections__count {
+        min-width:
+            0;
+
+        min-height:
+            54px;
+
+        padding:
+            6px;
+
+        flex-direction:
+            column;
+
+        gap:
+            3px;
+
+        font-size:
+            0.72rem;
+
+        text-align:
+            center;
+    }
+
+
+    .admin-collections__count svg {
+        width:
+            17px;
+
+        height:
+            17px;
+    }
+
+
+    .admin-collections__add-product {
+        grid-column:
+            1 / -1;
+
+        width:
+            100%;
+
+        min-height:
+            48px;
+    }
+
+
     .admin-collections__grid {
         grid-template-columns:
             1fr;
     }
 
 
-    .admin-collections__statistics {
-        width:
-            100%;
-    }
-
-
-    .admin-collections__count {
-        flex:
-            1;
-
-        justify-content:
-            center;
-    }
-
-
     .admin-collections__product-actions {
         grid-template-columns:
-            1fr;
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+    }
+
+
+    .admin-collections__action--delete {
+        grid-column:
+            1 / -1;
     }
 
 
@@ -2090,6 +2335,46 @@
     .admin-collections__modal-save {
         width:
             100%;
+    }
+
+
+    .admin-collections__empty {
+        min-height:
+            240px;
+
+        padding:
+            28px 16px;
+    }
+
+}
+
+
+@media (
+    max-width:
+    380px
+) {
+
+    .admin-collections__statistics {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .admin-collections__count {
+        min-height:
+            42px;
+
+        flex-direction:
+            row;
+
+        justify-content:
+            center;
+    }
+
+
+    .admin-collections__add-product {
+        grid-column:
+            auto;
     }
 
 }
