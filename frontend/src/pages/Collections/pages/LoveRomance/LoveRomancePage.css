@@ -4632,3 +4632,273 @@
     }
 
 }
+
+/* ===============================================================
+   PRODUCT OPTIONS -- FINAL FIX
+   =============================================================== */
+
+.love-romance-product-options {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 0 0 22px;
+}
+
+.love-romance-product-options__group {
+    width: 100%;
+}
+
+.love-romance-product-options__label {
+    display: block;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+
+/* ===============================================================
+   COLOR OPTIONS
+   =============================================================== */
+
+.love-romance-product-options__colors {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.love-romance-color-button {
+    width: 48px;
+    height: 48px;
+
+    min-width: 48px;
+    min-height: 48px;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    border-radius: 50%;
+
+    background: #121212;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.love-romance-color-button span {
+    width: 30px;
+    height: 30px;
+
+    display: block;
+
+    border-radius: 50%;
+}
+
+
+/* WHITE */
+
+.love-romance-color-button--white span {
+    background: #ffffff;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.25),
+        0 1px 4px rgba(0, 0, 0, 0.22);
+}
+
+
+/* BLACK */
+
+.love-romance-color-button--black span {
+    background: #050505;
+
+    border: 1px solid rgba(255, 255, 255, 0.28);
+
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.08);
+}
+
+
+/* SELECTED COLOR */
+
+.love-romance-color-button.is-selected {
+    border-color: #f2d17b;
+
+    box-shadow:
+        0 0 0 3px rgba(216, 166, 60, 0.18),
+        0 0 16px rgba(216, 166, 60, 0.16);
+
+    transform: scale(1.06);
+}
+
+.love-romance-color-button:hover {
+    transform: scale(1.05);
+
+    border-color: rgba(242, 209, 123, 0.75);
+}
+
+.love-romance-color-button:focus-visible {
+    outline: 2px solid #f2d17b;
+    outline-offset: 3px;
+}
+
+
+/* ===============================================================
+   SIZE OPTIONS
+   =============================================================== */
+
+.love-romance-product-options__sizes {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+}
+
+.love-romance-size-button {
+    min-width: 92px;
+    min-height: 48px;
+
+    padding: 0 18px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(216, 166, 60, 0.38);
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.04),
+            rgba(255, 255, 255, 0)
+        ),
+        #141414;
+
+    color: rgba(255, 255, 255, 0.78);
+
+    font-size: 14px;
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 4px 12px rgba(0, 0, 0, 0.22);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.love-romance-size-button:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(242, 209, 123, 0.72);
+
+    color: #f2d17b;
+}
+
+
+/* SELECTED SIZE */
+
+.love-romance-size-button.is-selected {
+    border-color: #f2d17b;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(244, 208, 120, 0.18),
+            rgba(216, 166, 60, 0.08)
+        ),
+        #1a1712;
+
+    color: #f8dd9b;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.10),
+        0 0 0 2px rgba(216, 166, 60, 0.12),
+        0 5px 14px rgba(0, 0, 0, 0.24);
+}
+
+.love-romance-size-button:focus-visible {
+    outline: 2px solid #f2d17b;
+    outline-offset: 3px;
+}
+
+
+/* ===============================================================
+   MOBILE
+   =============================================================== */
+
+@media (max-width: 600px) {
+
+    .love-romance-product-options {
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+
+    .love-romance-product-options__colors {
+        gap: 16px;
+    }
+
+
+    .love-romance-color-button {
+        width: 46px;
+        height: 46px;
+
+        min-width: 46px;
+        min-height: 46px;
+    }
+
+
+    .love-romance-color-button span {
+        width: 28px;
+        height: 28px;
+    }
+
+
+    .love-romance-product-options__sizes {
+        gap: 10px;
+
+        flex-wrap: nowrap;
+    }
+
+
+    .love-romance-size-button {
+        flex: 1 1 0;
+
+        min-width: 0;
+        min-height: 46px;
+
+        padding: 0 10px;
+
+        font-size: 13px;
+    }
+
+}
