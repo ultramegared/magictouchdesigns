@@ -509,6 +509,7 @@ function SpecialOccasionsPage() {
 
     /* ===========================================================
        ACTIVE PRODUCTS
+       NEWEST PRODUCT FIRST
     ============================================================ */
 
     const activeProducts =
@@ -524,8 +525,12 @@ function SpecialOccasionsPage() {
                     a,
                     b
                 ) =>
-                    a.collection_sort_order -
-                    b.collection_sort_order
+                    new Date(
+                        b.created_at
+                    ).getTime() -
+                    new Date(
+                        a.created_at
+                    ).getTime()
             );
 
 
@@ -729,7 +734,8 @@ function SpecialOccasionsPage() {
                                 {
                                     activeProducts.map(
                                         (
-                                            product
+                                            product,
+                                            index
                                         ) => {
 
                                             const quantity =
@@ -838,7 +844,7 @@ function SpecialOccasionsPage() {
 
                                                             {
                                                                 String(
-                                                                    product.collection_sort_order
+                                                                    index + 1
                                                                 ).padStart(
                                                                     2,
                                                                     "0"
