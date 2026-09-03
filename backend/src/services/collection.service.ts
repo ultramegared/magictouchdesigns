@@ -36,16 +36,70 @@ interface UpdateCollectionProductData {
 }
 
 
+interface UpdateCollectionData {
+
+    name?: string;
+
+    slug?: string;
+
+    description?: string;
+
+    image_url?: string;
+
+    is_active?: boolean;
+
+    sort_order?: number;
+
+}
+
+
+/* ===============================================================
+   GET COLLECTION BY SLUG
+================================================================ */
+
+export const getCollectionBySlug =
+    async (
+        slug: string
+    ) => {
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    id,
+                    name,
+                    slug,
+                    description,
+                    image_url,
+                    is_active,
+                    sort_order,
+                    created_at,
+                    updated_at
+
+                FROM collections
+
+                WHERE
+                    slug = $1
+
+                LIMIT 1
+                `,
+                [
+                    slug,
+                ]
+            );
+
+
+        return result.rows[
+            0
+        ]
+        || null;
+
+    };
+
+
 /* ===============================================================
    GET PRODUCTS BY COLLECTION SLUG
 ================================================================ */
-
-/**
- * Returns all active products
- * assigned to a specific collection.
- *
- * Public use.
- */
 
 export const getProductsByCollectionSlug =
     async (
@@ -102,15 +156,6 @@ export const getProductsByCollectionSlug =
    GET COLLECTION PRODUCTS FOR ADMIN
 ================================================================ */
 
-/**
- * Returns all products assigned
- * to a specific collection.
- *
- * Includes active and inactive products.
- *
- * Administrator use only.
- */
-
 export const getCollectionProductsForAdmin =
     async (
         slug: string
@@ -147,7 +192,7 @@ export const getCollectionProductsForAdmin =
 
                 ORDER BY
                     cp.sort_order ASC,
-                    p.created_at DESC
+                    p.created_at ASC
                 `,
                 [
                     slug,
@@ -163,14 +208,6 @@ export const getCollectionProductsForAdmin =
 /* ===============================================================
    GET COLLECTION PRODUCT FOR ADMIN
 ================================================================ */
-
-/**
- * Returns one specific product
- * only if it belongs to the
- * requested collection.
- *
- * Administrator use only.
- */
 
 export const getCollectionProductForAdmin =
     async (
@@ -230,18 +267,25 @@ export const getCollectionProductForAdmin =
    GET AVAILABLE PRODUCTS FOR COLLECTION
 ================================================================ */
 
-/**
- * Returns products that are
- * not currently assigned to
- * the requested collection.
- *
- * Administrator use only.
- */
-
 export const getAvailableProductsForCollection =
     async (
         collectionSlug: string
     ) => {
+
+        const collection =
+            await getCollectionBySlug(
+                collectionSlug
+            );
+
+
+        if (
+            !collection
+        ) {
+
+            return null;
+
+        }
+
 
         const result =
             await pool.query(
@@ -269,15 +313,11 @@ export const getAvailableProductsForCollection =
 
                         FROM collection_products cp
 
-                        INNER JOIN collections c
-                            ON c.id =
-                            cp.collection_id
-
                         WHERE
-                            c.slug = $1
+                            cp.collection_id = $1
 
                             AND cp.product_id =
-                            p.product_id
+                                p.product_id
 
                     )
 
@@ -285,7 +325,7 @@ export const getAvailableProductsForCollection =
                     p.created_at DESC
                 `,
                 [
-                    collectionSlug,
+                    collection.id,
                 ]
             );
 
@@ -299,45 +339,445 @@ export const getAvailableProductsForCollection =
    ADD PRODUCT TO COLLECTION
 ================================================================ */
 
-/**
- * Assigns an existing product
- * to a collection.
- *
- * The product receives the
- * next available display order.
- *
- * Administrator use only.
- */
-
 export const addProductToCollection =
     async (
         collectionSlug: string,
         productId: string
     ) => {
 
-        const collectionResult =
-            await pool.query(
-                `
-                SELECT
-                    id
+        const client =
+            await pool.connect();
 
-                FROM collections
+
+        try {
+
+            await client.query(
+                `
+                BEGIN
+                `
+            );
+
+
+            const collectionResult =
+                await client.query(
+                    `
+                    SELECT
+                        id
+
+                    FROM collections
+
+                    WHERE
+                        slug = $1
+
+                    LIMIT 1
+                    `,
+                    [
+                        collectionSlug,
+                    ]
+                );
+
+
+            const collection =
+                collectionResult.rows[
+                    0
+                ];
+
+
+            if (
+                !collection
+            ) {
+
+                await client.query(
+                    `
+                    ROLLBACK
+                    `
+                );
+
+
+                return null;
+
+            }
+
+
+            const productResult =
+                await client.query(
+                    `
+                    SELECT
+                        product_id
+
+                    FROM products
+
+                    WHERE
+                        product_id = $1
+
+                    LIMIT 1
+                    `,
+                    [
+                        productId,
+                    ]
+                );
+
+
+            const product =
+                productResult.rows[
+                    0
+                ];
+
+
+            if (
+                !product
+            ) {
+
+                await client.query(
+                    `
+                    ROLLBACK
+                    `
+                );
+
+
+                return null;
+
+            }
+
+
+            const existingResult =
+                await client.query(
+                    `
+                    SELECT
+                        collection_product_id,
+                        collection_id,
+                        product_id,
+                        sort_order,
+                        created_at
+
+                    FROM collection_products
+
+                    WHERE
+                        collection_id = $1
+
+                        AND product_id = $2
+
+                    LIMIT 1
+                    `,
+                    [
+                        collection.id,
+                        productId,
+                    ]
+                );
+
+
+            const existingProduct =
+                existingResult.rows[
+                    0
+                ];
+
+
+            if (
+                existingProduct
+            ) {
+
+                await client.query(
+                    `
+                    COMMIT
+                    `
+                );
+
+
+                return existingProduct;
+
+            }
+
+
+            const orderResult =
+                await client.query(
+                    `
+                    SELECT
+                        COALESCE(
+                            MAX(
+                                sort_order
+                            ),
+                            0
+                        ) + 1
+                        AS next_sort_order
+
+                    FROM collection_products
+
+                    WHERE
+                        collection_id = $1
+                    `,
+                    [
+                        collection.id,
+                    ]
+                );
+
+
+            const nextSortOrder =
+                Number(
+                    orderResult.rows[
+                        0
+                    ].next_sort_order
+                );
+
+
+            const result =
+                await client.query(
+                    `
+                    INSERT INTO
+                        collection_products (
+                            collection_id,
+                            product_id,
+                            sort_order
+                        )
+
+                    VALUES (
+                        $1,
+                        $2,
+                        $3
+                    )
+
+                    RETURNING
+                        collection_product_id,
+                        collection_id,
+                        product_id,
+                        sort_order,
+                        created_at
+                    `,
+                    [
+                        collection.id,
+                        productId,
+                        nextSortOrder,
+                    ]
+                );
+
+
+            await client.query(
+                `
+                COMMIT
+                `
+            );
+
+
+            return result.rows[
+                0
+            ]
+            || null;
+
+        } catch (
+            error
+        ) {
+
+            await client.query(
+                `
+                ROLLBACK
+                `
+            );
+
+
+            throw error;
+
+        } finally {
+
+            client.release();
+
+        }
+
+    };
+
+
+/* ===============================================================
+   REMOVE PRODUCT FROM COLLECTION
+================================================================ */
+
+export const removeProductFromCollection =
+    async (
+        collectionSlug: string,
+        productId: string
+    ) => {
+
+        const client =
+            await pool.connect();
+
+
+        try {
+
+            await client.query(
+                `
+                BEGIN
+                `
+            );
+
+
+            const collectionResult =
+                await client.query(
+                    `
+                    SELECT
+                        id
+
+                    FROM collections
+
+                    WHERE
+                        slug = $1
+
+                    LIMIT 1
+                    `,
+                    [
+                        collectionSlug,
+                    ]
+                );
+
+
+            const collection =
+                collectionResult.rows[
+                    0
+                ];
+
+
+            if (
+                !collection
+            ) {
+
+                await client.query(
+                    `
+                    ROLLBACK
+                    `
+                );
+
+
+                return null;
+
+            }
+
+
+            const result =
+                await client.query(
+                    `
+                    DELETE FROM
+                        collection_products
+
+                    WHERE
+                        collection_id = $1
+
+                        AND product_id = $2
+
+                    RETURNING
+                        collection_product_id,
+                        collection_id,
+                        product_id
+                    `,
+                    [
+                        collection.id,
+                        productId,
+                    ]
+                );
+
+
+            const removedProduct =
+                result.rows[
+                    0
+                ];
+
+
+            if (
+                !removedProduct
+            ) {
+
+                await client.query(
+                    `
+                    ROLLBACK
+                    `
+                );
+
+
+                return null;
+
+            }
+
+
+            await client.query(
+                `
+                WITH ordered_products AS (
+
+                    SELECT
+                        collection_product_id,
+
+                        ROW_NUMBER()
+                        OVER (
+                            ORDER BY
+                                sort_order ASC,
+                                created_at ASC
+                        )
+                        AS new_sort_order
+
+                    FROM collection_products
+
+                    WHERE
+                        collection_id = $1
+
+                )
+
+                UPDATE collection_products cp
+
+                SET
+                    sort_order =
+                        ordered_products.new_sort_order
+
+                FROM ordered_products
 
                 WHERE
-                    slug = $1
-
-                LIMIT 1
+                    cp.collection_product_id =
+                        ordered_products.collection_product_id
                 `,
                 [
-                    collectionSlug,
+                    collection.id,
                 ]
             );
 
 
+            await client.query(
+                `
+                COMMIT
+                `
+            );
+
+
+            return removedProduct;
+
+        } catch (
+            error
+        ) {
+
+            await client.query(
+                `
+                ROLLBACK
+                `
+            );
+
+
+            throw error;
+
+        } finally {
+
+            client.release();
+
+        }
+
+    };
+
+
+/* ===============================================================
+   UPDATE COLLECTION
+================================================================ */
+
+export const updateCollection =
+    async (
+        collectionSlug: string,
+        data: UpdateCollectionData
+    ) => {
+
         const collection =
-            collectionResult.rows[
-                0
-            ];
+            await getCollectionBySlug(
+                collectionSlug
+            );
 
 
         if (
@@ -349,156 +789,86 @@ export const addProductToCollection =
         }
 
 
-        const productResult =
+        const result =
             await pool.query(
                 `
-                SELECT
-                    product_id
+                UPDATE collections
 
-                FROM products
+                SET
 
-                WHERE
-                    product_id = $1
+                    name =
+                        COALESCE(
+                            $1,
+                            name
+                        ),
 
-                LIMIT 1
-                `,
-                [
-                    productId,
-                ]
-            );
+                    slug =
+                        COALESCE(
+                            $2,
+                            slug
+                        ),
 
+                    description =
+                        COALESCE(
+                            $3,
+                            description
+                        ),
 
-        const product =
-            productResult.rows[
-                0
-            ];
+                    image_url =
+                        COALESCE(
+                            $4,
+                            image_url
+                        ),
 
+                    is_active =
+                        COALESCE(
+                            $5,
+                            is_active
+                        ),
 
-        if (
-            !product
-        ) {
-
-            return null;
-
-        }
-
-
-        const orderResult =
-            await pool.query(
-                `
-                SELECT
-                    COALESCE(
-                        MAX(
+                    sort_order =
+                        COALESCE(
+                            $6,
                             sort_order
                         ),
-                        0
-                    ) + 1
-                    AS next_sort_order
 
-                FROM collection_products
+                    updated_at =
+                        NOW()
 
                 WHERE
-                    collection_id = $1
-                `,
-                [
-                    collection.id,
-                ]
-            );
-
-
-        const nextSortOrder =
-            orderResult.rows[
-                0
-            ].next_sort_order;
-
-
-        const result =
-            await pool.query(
-                `
-                INSERT INTO
-                    collection_products (
-                        collection_id,
-                        product_id,
-                        sort_order
-                    )
-
-                VALUES (
-                    $1,
-                    $2,
-                    $3
-                )
-
-                ON CONFLICT (
-                    collection_id,
-                    product_id
-                )
-
-                DO NOTHING
+                    id = $7
 
                 RETURNING
-                    collection_id,
-                    product_id,
-                    sort_order
+                    id,
+                    name,
+                    slug,
+                    description,
+                    image_url,
+                    is_active,
+                    sort_order,
+                    created_at,
+                    updated_at
                 `,
                 [
+                    data.name
+                    ?? null,
+
+                    data.slug
+                    ?? null,
+
+                    data.description
+                    ?? null,
+
+                    data.image_url
+                    ?? null,
+
+                    data.is_active
+                    ?? null,
+
+                    data.sort_order
+                    ?? null,
+
                     collection.id,
-                    productId,
-                    nextSortOrder,
-                ]
-            );
-
-
-        return result.rows[
-            0
-        ]
-        || null;
-
-    };
-
-
-/* ===============================================================
-   REMOVE PRODUCT FROM COLLECTION
-================================================================ */
-
-/**
- * Removes a product assignment
- * from a collection.
- *
- * The product itself is not
- * deleted from the database.
- *
- * Administrator use only.
- */
-
-export const removeProductFromCollection =
-    async (
-        collectionSlug: string,
-        productId: string
-    ) => {
-
-        const result =
-            await pool.query(
-                `
-                DELETE FROM
-                    collection_products cp
-
-                USING
-                    collections c
-
-                WHERE
-                    cp.collection_id = c.id
-
-                    AND c.slug = $1
-
-                    AND cp.product_id = $2
-
-                RETURNING
-                    cp.collection_id,
-                    cp.product_id
-                `,
-                [
-                    collectionSlug,
-                    productId,
                 ]
             );
 
@@ -514,17 +884,6 @@ export const removeProductFromCollection =
 /* ===============================================================
    UPDATE COLLECTION PRODUCT
 ================================================================ */
-
-/**
- * Updates product information
- * for a product belonging to
- * a specific collection.
- *
- * Product information is stored
- * in the products table.
- *
- * Administrator use only.
- */
 
 export const updateCollectionProduct =
     async (
@@ -637,7 +996,8 @@ export const updateCollectionProduct =
 
         return result.rows[
             0
-        ];
+        ]
+        || null;
 
     };
 
@@ -645,14 +1005,6 @@ export const updateCollectionProduct =
 /* ===============================================================
    SET COLLECTION PRODUCT STATUS
 ================================================================ */
-
-/**
- * Activates or deactivates
- * a product belonging to
- * a specific collection.
- *
- * Administrator use only.
- */
 
 export const setCollectionProductStatus =
     async (
@@ -707,7 +1059,8 @@ export const setCollectionProductStatus =
 
         return result.rows[
             0
-        ];
+        ]
+        || null;
 
     };
 
@@ -717,14 +1070,10 @@ export const setCollectionProductStatus =
 ================================================================ */
 
 /**
- * Updates the display order
- * of a product inside a
- * specific collection.
- *
- * The order belongs to the
- * collection_products table.
- *
- * Administrator use only.
+ * Moves one product to
+ * a specific position and
+ * automatically reorganizes
+ * the remaining products.
  */
 
 export const updateCollectionProductOrder =
@@ -734,41 +1083,422 @@ export const updateCollectionProductOrder =
         sortOrder: number
     ) => {
 
-        const result =
-            await pool.query(
+        const client =
+            await pool.connect();
+
+
+        try {
+
+            await client.query(
                 `
-                UPDATE collection_products cp
-
-                SET
-
-                    sort_order =
-                        $1
-
-                FROM collections c
-
-                WHERE
-                    cp.collection_id = c.id
-
-                    AND c.slug = $2
-
-                    AND cp.product_id = $3
-
-                RETURNING
-                    cp.collection_id,
-                    cp.product_id,
-                    cp.sort_order
-                `,
-                [
-                    sortOrder,
-                    collectionSlug,
-                    productId,
-                ]
+                BEGIN
+                `
             );
 
 
-        return result.rows[
-            0
-        ]
-        || null;
+            const collectionResult =
+                await client.query(
+                    `
+                    SELECT
+                        id
+
+                    FROM collections
+
+                    WHERE
+                        slug = $1
+
+                    LIMIT 1
+                    `,
+                    [
+                        collectionSlug,
+                    ]
+                );
+
+
+            const collection =
+                collectionResult.rows[
+                    0
+                ];
+
+
+            if (
+                !collection
+            ) {
+
+                await client.query(
+                    `
+                    ROLLBACK
+                    `
+                );
+
+
+                return null;
+
+            }
+
+
+            const productsResult =
+                await client.query(
+                    `
+                    SELECT
+                        product_id
+
+                    FROM collection_products
+
+                    WHERE
+                        collection_id = $1
+
+                    ORDER BY
+                        sort_order ASC,
+                        created_at ASC
+                    `,
+                    [
+                        collection.id,
+                    ]
+                );
+
+
+            const productIds =
+                productsResult.rows.map(
+                    (
+                        row
+                    ) =>
+                        row.product_id
+                );
+
+
+            const currentIndex =
+                productIds.indexOf(
+                    productId
+                );
+
+
+            if (
+                currentIndex === -1
+            ) {
+
+                await client.query(
+                    `
+                    ROLLBACK
+                    `
+                );
+
+
+                return null;
+
+            }
+
+
+            const requestedIndex =
+                Math.min(
+                    Math.max(
+                        sortOrder - 1,
+                        0
+                    ),
+                    productIds.length - 1
+                );
+
+
+            productIds.splice(
+                currentIndex,
+                1
+            );
+
+
+            productIds.splice(
+                requestedIndex,
+                0,
+                productId
+            );
+
+
+            for (
+                let index = 0;
+                index < productIds.length;
+                index++
+            ) {
+
+                await client.query(
+                    `
+                    UPDATE collection_products
+
+                    SET
+                        sort_order = $1
+
+                    WHERE
+                        collection_id = $2
+
+                        AND product_id = $3
+                    `,
+                    [
+                        index + 1,
+                        collection.id,
+                        productIds[
+                            index
+                        ],
+                    ]
+                );
+
+            }
+
+
+            await client.query(
+                `
+                COMMIT
+                `
+            );
+
+
+            return {
+                collection_id:
+                    collection.id,
+
+                product_id:
+                    productId,
+
+                sort_order:
+                    requestedIndex + 1,
+            };
+
+        } catch (
+            error
+        ) {
+
+            await client.query(
+                `
+                ROLLBACK
+                `
+            );
+
+
+            throw error;
+
+        } finally {
+
+            client.release();
+
+        }
+
+    };
+
+
+/* ===============================================================
+   REORDER COLLECTION PRODUCTS
+================================================================ */
+
+export const reorderCollectionProducts =
+    async (
+        collectionSlug: string,
+        productIds: string[]
+    ) => {
+
+        const client =
+            await pool.connect();
+
+
+        try {
+
+            await client.query(
+                `
+                BEGIN
+                `
+            );
+
+
+            const collectionResult =
+                await client.query(
+                    `
+                    SELECT
+                        id
+
+                    FROM collections
+
+                    WHERE
+                        slug = $1
+
+                    LIMIT 1
+                    `,
+                    [
+                        collectionSlug,
+                    ]
+                );
+
+
+            const collection =
+                collectionResult.rows[
+                    0
+                ];
+
+
+            if (
+                !collection
+            ) {
+
+                await client.query(
+                    `
+                    ROLLBACK
+                    `
+                );
+
+
+                return null;
+
+            }
+
+
+            const existingProductsResult =
+                await client.query(
+                    `
+                    SELECT
+                        product_id
+
+                    FROM collection_products
+
+                    WHERE
+                        collection_id = $1
+                    `,
+                    [
+                        collection.id,
+                    ]
+                );
+
+
+            const existingProductIds =
+                existingProductsResult.rows.map(
+                    (
+                        row
+                    ) =>
+                        row.product_id
+                );
+
+
+            const existingIdsSet =
+                new Set(
+                    existingProductIds
+                );
+
+
+            const requestedIdsSet =
+                new Set(
+                    productIds
+                );
+
+
+            if (
+                existingProductIds.length !==
+                productIds.length
+            ) {
+
+                await client.query(
+                    `
+                    ROLLBACK
+                    `
+                );
+
+
+                return null;
+
+            }
+
+
+            if (
+                existingIdsSet.size !==
+                requestedIdsSet.size
+            ) {
+
+                await client.query(
+                    `
+                    ROLLBACK
+                    `
+                );
+
+
+                return null;
+
+            }
+
+
+            for (
+                const productId
+                of productIds
+            ) {
+
+                if (
+                    !existingIdsSet.has(
+                        productId
+                    )
+                ) {
+
+                    await client.query(
+                        `
+                        ROLLBACK
+                        `
+                    );
+
+
+                    return null;
+
+                }
+
+            }
+
+
+            for (
+                let index = 0;
+                index < productIds.length;
+                index++
+            ) {
+
+                await client.query(
+                    `
+                    UPDATE collection_products
+
+                    SET
+                        sort_order = $1
+
+                    WHERE
+                        collection_id = $2
+
+                        AND product_id = $3
+                    `,
+                    [
+                        index + 1,
+                        collection.id,
+                        productIds[
+                            index
+                        ],
+                    ]
+                );
+
+            }
+
+
+            await client.query(
+                `
+                COMMIT
+                `
+            );
+
+
+            return true;
+
+        } catch (
+            error
+        ) {
+
+            await client.query(
+                `
+                ROLLBACK
+                `
+            );
+
+
+            throw error;
+
+        } finally {
+
+            client.release();
+
+        }
 
     };

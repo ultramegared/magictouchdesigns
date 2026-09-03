@@ -23,9 +23,19 @@ import {
 } from "../middleware/admin.middleware";
 
 import {
+    getCollectionForAdmin,
+
+    updateCollection,
+
     getCollectionProducts,
 
     getCollectionProductsForAdmin,
+
+    getAvailableProductsForCollection,
+
+    addProductToCollection,
+
+    removeProductFromCollection,
 
     getCollectionProductForAdmin,
 
@@ -34,6 +44,8 @@ import {
     updateCollectionProductStatus,
 
     updateCollectionProductOrder,
+
+    reorderCollectionProducts,
 
 } from "../controllers/collection.controller";
 
@@ -48,6 +60,59 @@ const router =
 
 /* ===============================================================
    ADMINISTRATOR ROUTES
+================================================================ */
+
+
+/* ===============================================================
+   GET COLLECTION INFORMATION
+================================================================ */
+
+/**
+ * GET
+ * /api/collections/admin/:slug
+ *
+ * Returns collection information.
+ *
+ * Administrator only.
+ */
+
+router.get(
+    "/admin/:slug",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    getCollectionForAdmin
+);
+
+
+/* ===============================================================
+   UPDATE COLLECTION
+================================================================ */
+
+/**
+ * PUT
+ * /api/collections/admin/:slug
+ *
+ * Updates collection information.
+ *
+ * Administrator only.
+ */
+
+router.put(
+    "/admin/:slug",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    updateCollection
+);
+
+
+/* ===============================================================
+   GET COLLECTION PRODUCTS
 ================================================================ */
 
 /**
@@ -72,6 +137,90 @@ router.get(
 );
 
 
+/* ===============================================================
+   GET AVAILABLE PRODUCTS
+================================================================ */
+
+/**
+ * GET
+ * /api/collections/admin/:slug/available-products
+ *
+ * Returns products that are
+ * not currently assigned
+ * to the collection.
+ *
+ * Administrator only.
+ */
+
+router.get(
+    "/admin/:slug/available-products",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    getAvailableProductsForCollection
+);
+
+
+/* ===============================================================
+   ADD PRODUCT TO COLLECTION
+================================================================ */
+
+/**
+ * POST
+ * /api/collections/admin/:slug/products
+ *
+ * Adds an existing product
+ * to the collection.
+ *
+ * Administrator only.
+ */
+
+router.post(
+    "/admin/:slug/products",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    addProductToCollection
+);
+
+
+/* ===============================================================
+   REORDER ALL COLLECTION PRODUCTS
+================================================================ */
+
+/**
+ * PUT
+ * /api/collections/admin/:slug/products/reorder
+ *
+ * Reorders all products
+ * inside a collection.
+ *
+ * Administrator only.
+ *
+ * IMPORTANT:
+ * This route must be before
+ * /products/:product_id.
+ */
+
+router.put(
+    "/admin/:slug/products/reorder",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    reorderCollectionProducts
+);
+
+
+/* ===============================================================
+   GET ONE COLLECTION PRODUCT
+================================================================ */
+
 /**
  * GET
  * /api/collections/admin/:slug/products/:product_id
@@ -92,6 +241,10 @@ router.get(
     getCollectionProductForAdmin
 );
 
+
+/* ===============================================================
+   UPDATE COLLECTION PRODUCT
+================================================================ */
 
 /**
  * PUT
@@ -115,13 +268,42 @@ router.put(
 );
 
 
+/* ===============================================================
+   REMOVE PRODUCT FROM COLLECTION
+================================================================ */
+
+/**
+ * DELETE
+ * /api/collections/admin/:slug/products/:product_id
+ *
+ * Removes the product from
+ * the collection without
+ * deleting the product itself.
+ *
+ * Administrator only.
+ */
+
+router.delete(
+    "/admin/:slug/products/:product_id",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    removeProductFromCollection
+);
+
+
+/* ===============================================================
+   UPDATE PRODUCT STATUS
+================================================================ */
+
 /**
  * PUT
  * /api/collections/admin/:slug/products/:product_id/status
  *
  * Activates or deactivates
- * a product from the
- * Collections administrator.
+ * a product.
  *
  * Administrator only.
  */
@@ -137,13 +319,18 @@ router.put(
 );
 
 
+/* ===============================================================
+   UPDATE ONE PRODUCT ORDER
+================================================================ */
+
 /**
  * PUT
  * /api/collections/admin/:slug/products/:product_id/order
  *
- * Changes the display order
- * of a product inside
- * a collection.
+ * Changes the display position
+ * of one product and
+ * automatically reorganizes
+ * the remaining products.
  *
  * Administrator only.
  */
