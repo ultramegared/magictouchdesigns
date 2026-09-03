@@ -173,6 +173,18 @@ function SpecialOccasionsPage() {
 
 
     /* ===========================================================
+       PAGINATION STATE
+    ============================================================ */
+
+    const [
+        currentPage,
+        setCurrentPage,
+    ] = useState(
+        1
+    );
+
+
+    /* ===========================================================
        LOAD COLLECTION PRODUCTS
     ============================================================ */
 
@@ -217,6 +229,11 @@ function SpecialOccasionsPage() {
 
                         setProducts(
                             data.products || []
+                        );
+
+
+                        setCurrentPage(
+                            1
                         );
 
                     } catch (
@@ -535,6 +552,36 @@ function SpecialOccasionsPage() {
 
 
     /* ===========================================================
+       PAGINATION
+    ============================================================ */
+
+    const productsPerPage =
+        8;
+
+
+    const totalPages =
+        Math.ceil(
+            activeProducts.length /
+            productsPerPage
+        );
+
+
+    const startIndex =
+        (
+            currentPage - 1
+        ) *
+        productsPerPage;
+
+
+    const visibleProducts =
+        activeProducts.slice(
+            startIndex,
+            startIndex +
+            productsPerPage
+        );
+
+
+    /* ===========================================================
        RENDER
     ============================================================ */
 
@@ -728,394 +775,425 @@ function SpecialOccasionsPage() {
                         !isLoading &&
                         !error && (
 
-                            <div className="special-occasions-products__grid">
+                            <>
+
+                                <div className="special-occasions-products__grid">
 
 
-                                {
-                                    activeProducts.map(
-                                        (
-                                            product,
-                                            index
-                                        ) => {
+                                    {
+                                        visibleProducts.map(
+                                            (
+                                                product,
+                                                index
+                                            ) => {
 
-                                            const quantity =
-                                                getQuantity(
-                                                    product.product_id
-                                                );
-
-
-                                            const options =
-                                                getProductOptions(
-                                                    product.product_id
-                                                );
-
-
-                                            return (
-
-                                                <article
-                                                    className="special-occasions-product"
-                                                    key={
+                                                const quantity =
+                                                    getQuantity(
                                                         product.product_id
-                                                    }
-                                                >
+                                                    );
 
 
-                                                    {/* IMAGE */}
-
-                                                    <div
-                                                        className="special-occasions-product__image"
-                                                        onClick={() =>
-                                                            setSelectedProduct(
-                                                                product
-                                                            )
-                                                        }
-                                                        role="button"
-                                                        tabIndex={0}
-                                                        onKeyDown={
-                                                            (
-                                                                event
-                                                            ) => {
-
-                                                                if (
-
-                                                                    event.key ===
-                                                                    "Enter" ||
-
-                                                                    event.key ===
-                                                                    " "
-
-                                                                ) {
-
-                                                                    event.preventDefault();
+                                                const options =
+                                                    getProductOptions(
+                                                        product.product_id
+                                                    );
 
 
-                                                                    setSelectedProduct(
-                                                                        product
-                                                                    );
+                                                return (
 
-                                                                }
-
-                                                            }
-                                                        }
-                                                        aria-label={
-                                                            language === "es"
-                                                                ? `Ver ${product.name} en grande`
-                                                                : `View ${product.name} enlarged`
+                                                    <article
+                                                        className="special-occasions-product"
+                                                        key={
+                                                            product.product_id
                                                         }
                                                     >
 
 
-                                                        <img
-                                                            src={
-                                                                product.image_url
+                                                        {/* IMAGE */}
+
+                                                        <div
+                                                            className="special-occasions-product__image"
+                                                            onClick={() =>
+                                                                setSelectedProduct(
+                                                                    product
+                                                                )
                                                             }
-                                                            alt={
-                                                                product.name
-                                                            }
-                                                        />
+                                                            role="button"
+                                                            tabIndex={0}
+                                                            onKeyDown={
+                                                                (
+                                                                    event
+                                                                ) => {
+
+                                                                    if (
+
+                                                                        event.key ===
+                                                                        "Enter" ||
+
+                                                                        event.key ===
+                                                                        " "
+
+                                                                    ) {
+
+                                                                        event.preventDefault();
 
 
-                                                        <span
-                                                            className="special-occasions-product__zoom"
-                                                            aria-hidden="true"
+                                                                        setSelectedProduct(
+                                                                            product
+                                                                        );
+
+                                                                    }
+
+                                                                }
+                                                            }
+                                                            aria-label={
+                                                                language === "es"
+                                                                    ? `Ver ${product.name} en grande`
+                                                                    : `View ${product.name} enlarged`
+                                                            }
                                                         >
 
-                                                            <svg
-                                                                viewBox="0 0 24 24"
+
+                                                            <img
+                                                                src={
+                                                                    product.image_url
+                                                                }
+                                                                alt={
+                                                                    product.name
+                                                                }
+                                                            />
+
+
+                                                            <span
+                                                                className="special-occasions-product__zoom"
                                                                 aria-hidden="true"
                                                             >
 
-                                                                <circle
-                                                                    cx="11"
-                                                                    cy="11"
-                                                                    r="6.5"
-                                                                />
-
-                                                                <path
-                                                                    d="M16 16L21 21"
-                                                                />
-
-                                                            </svg>
-
-                                                        </span>
-
-
-                                                        <span className="special-occasions-product__number">
-
-                                                            {
-                                                                String(
-                                                                    index + 1
-                                                                ).padStart(
-                                                                    2,
-                                                                    "0"
-                                                                )
-                                                            }
-
-                                                        </span>
-
-
-                                                        <div className="special-occasions-product__shine"></div>
-
-
-                                                    </div>
-
-
-
-                                                    {/* PRODUCT BODY */}
-
-                                                    <div className="special-occasions-product__body">
-
-
-                                                        <div className="special-occasions-product__info">
-
-
-                                                            <strong className="special-occasions-product__price">
-
-                                                                $
-
-                                                                {
-                                                                    Number(
-                                                                        product.price
-                                                                    ).toFixed(
-                                                                        2
-                                                                    )
-                                                                }
-
-                                                            </strong>
-
-
-                                                        </div>
-
-
-
-                                                        {/* PRODUCT OPTIONS */}
-
-                                                        <div className="special-occasions-product-options">
-
-
-                                                            {/* COLOR */}
-
-                                                            <div className="special-occasions-product-options__group">
-
-
-                                                                <span className="special-occasions-product-options__label">
-
-                                                                    {
-                                                                        language === "es"
-                                                                            ? "COLOR"
-                                                                            : "COLOR"
-                                                                    }
-
-                                                                </span>
-
-
-                                                                <div className="special-occasions-product-options__colors">
-
-
-                                                                    <button
-                                                                        type="button"
-                                                                        className={
-                                                                            `special-occasions-color-button special-occasions-color-button--white ${
-                                                                                options.color ===
-                                                                                "White"
-                                                                                    ? "is-selected"
-                                                                                    : ""
-                                                                            }`
-                                                                        }
-                                                                        onClick={() =>
-                                                                            changeProductColor(
-                                                                                product.product_id,
-                                                                                "White"
-                                                                            )
-                                                                        }
-                                                                        aria-label={
-                                                                            language === "es"
-                                                                                ? "Color blanco"
-                                                                                : "White color"
-                                                                        }
-                                                                        aria-pressed={
-                                                                            options.color ===
-                                                                            "White"
-                                                                        }
-                                                                    >
-
-                                                                        <span></span>
-
-                                                                    </button>
-
-
-                                                                    <button
-                                                                        type="button"
-                                                                        className={
-                                                                            `special-occasions-color-button special-occasions-color-button--black ${
-                                                                                options.color ===
-                                                                                "Black"
-                                                                                    ? "is-selected"
-                                                                                    : ""
-                                                                            }`
-                                                                        }
-                                                                        onClick={() =>
-                                                                            changeProductColor(
-                                                                                product.product_id,
-                                                                                "Black"
-                                                                            )
-                                                                        }
-                                                                        aria-label={
-                                                                            language === "es"
-                                                                                ? "Color negro"
-                                                                                : "Black color"
-                                                                        }
-                                                                        aria-pressed={
-                                                                            options.color ===
-                                                                            "Black"
-                                                                        }
-                                                                    >
-
-                                                                        <span></span>
-
-                                                                    </button>
-
-
-                                                                </div>
-
-
-                                                            </div>
-
-
-
-                                                            {/* SIZE */}
-
-                                                            <div className="special-occasions-product-options__group">
-
-
-                                                                <span className="special-occasions-product-options__label">
-
-                                                                    {
-                                                                        language === "es"
-                                                                            ? "TAMAÑO"
-                                                                            : "SIZE"
-                                                                    }
-
-                                                                </span>
-
-
-                                                                <div className="special-occasions-product-options__sizes">
-
-
-                                                                    <button
-                                                                        type="button"
-                                                                        className={
-                                                                            `special-occasions-size-button ${
-                                                                                options.size ===
-                                                                                "11 oz"
-                                                                                    ? "is-selected"
-                                                                                    : ""
-                                                                            }`
-                                                                        }
-                                                                        onClick={() =>
-                                                                            changeProductSize(
-                                                                                product.product_id,
-                                                                                "11 oz"
-                                                                            )
-                                                                        }
-                                                                        aria-pressed={
-                                                                            options.size ===
-                                                                            "11 oz"
-                                                                        }
-                                                                    >
-
-                                                                        11 oz
-
-                                                                    </button>
-
-
-                                                                    <button
-                                                                        type="button"
-                                                                        className={
-                                                                            `special-occasions-size-button ${
-                                                                                options.size ===
-                                                                                "15 oz"
-                                                                                    ? "is-selected"
-                                                                                    : ""
-                                                                            }`
-                                                                        }
-                                                                        onClick={() =>
-                                                                            changeProductSize(
-                                                                                product.product_id,
-                                                                                "15 oz"
-                                                                            )
-                                                                        }
-                                                                        aria-pressed={
-                                                                            options.size ===
-                                                                            "15 oz"
-                                                                        }
-                                                                    >
-
-                                                                        15 oz
-
-                                                                    </button>
-
-
-                                                                </div>
-
-
-                                                            </div>
-
-
-                                                        </div>
-
-
-
-                                                        {/* QUANTITY */}
-
-                                                        <div className="special-occasions-product__quantity">
-
-
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    changeQuantity(
-                                                                        product.product_id,
-                                                                        -1
-                                                                    )
-                                                                }
-                                                                aria-label={
-                                                                    language ===
-                                                                    "es"
-                                                                        ? "Disminuir cantidad"
-                                                                        : "Decrease quantity"
-                                                                }
-                                                            >
-
-                                                                −
-
-                                                            </button>
-
-
-                                                            <span>
-
-                                                                {quantity}
+                                                                <svg
+                                                                    viewBox="0 0 24 24"
+                                                                    aria-hidden="true"
+                                                                >
+
+                                                                    <circle
+                                                                        cx="11"
+                                                                        cy="11"
+                                                                        r="6.5"
+                                                                    />
+
+                                                                    <path
+                                                                        d="M16 16L21 21"
+                                                                    />
+
+                                                                </svg>
 
                                                             </span>
 
 
+                                                            <span className="special-occasions-product__number">
+
+                                                                {
+                                                                    String(
+                                                                        startIndex +
+                                                                        index +
+                                                                        1
+                                                                    ).padStart(
+                                                                        2,
+                                                                        "0"
+                                                                    )
+                                                                }
+
+                                                            </span>
+
+
+                                                            <div className="special-occasions-product__shine"></div>
+
+
+                                                        </div>
+
+
+
+                                                        {/* PRODUCT BODY */}
+
+                                                        <div className="special-occasions-product__body">
+
+
+                                                            <div className="special-occasions-product__info">
+
+
+                                                                <strong className="special-occasions-product__price">
+
+                                                                    $
+
+                                                                    {
+                                                                        Number(
+                                                                            product.price
+                                                                        ).toFixed(
+                                                                            2
+                                                                        )
+                                                                    }
+
+                                                                </strong>
+
+
+                                                            </div>
+
+
+
+                                                            {/* PRODUCT OPTIONS */}
+
+                                                            <div className="special-occasions-product-options">
+
+
+                                                                {/* COLOR */}
+
+                                                                <div className="special-occasions-product-options__group">
+
+
+                                                                    <span className="special-occasions-product-options__label">
+
+                                                                        COLOR
+
+                                                                    </span>
+
+
+                                                                    <div className="special-occasions-product-options__colors">
+
+
+                                                                        <button
+                                                                            type="button"
+                                                                            className={
+                                                                                `special-occasions-color-button special-occasions-color-button--white ${
+                                                                                    options.color ===
+                                                                                    "White"
+                                                                                        ? "is-selected"
+                                                                                        : ""
+                                                                                }`
+                                                                            }
+                                                                            onClick={() =>
+                                                                                changeProductColor(
+                                                                                    product.product_id,
+                                                                                    "White"
+                                                                                )
+                                                                            }
+                                                                            aria-label={
+                                                                                language === "es"
+                                                                                    ? "Color blanco"
+                                                                                    : "White color"
+                                                                            }
+                                                                            aria-pressed={
+                                                                                options.color ===
+                                                                                "White"
+                                                                            }
+                                                                        >
+
+                                                                            <span></span>
+
+                                                                        </button>
+
+
+                                                                        <button
+                                                                            type="button"
+                                                                            className={
+                                                                                `special-occasions-color-button special-occasions-color-button--black ${
+                                                                                    options.color ===
+                                                                                    "Black"
+                                                                                        ? "is-selected"
+                                                                                        : ""
+                                                                                }`
+                                                                            }
+                                                                            onClick={() =>
+                                                                                changeProductColor(
+                                                                                    product.product_id,
+                                                                                    "Black"
+                                                                                )
+                                                                            }
+                                                                            aria-label={
+                                                                                language === "es"
+                                                                                    ? "Color negro"
+                                                                                    : "Black color"
+                                                                            }
+                                                                            aria-pressed={
+                                                                                options.color ===
+                                                                                "Black"
+                                                                            }
+                                                                        >
+
+                                                                            <span></span>
+
+                                                                        </button>
+
+
+                                                                    </div>
+
+
+                                                                </div>
+
+
+
+                                                                {/* SIZE */}
+
+                                                                <div className="special-occasions-product-options__group">
+
+
+                                                                    <span className="special-occasions-product-options__label">
+
+                                                                        {
+                                                                            language === "es"
+                                                                                ? "TAMAÑO"
+                                                                                : "SIZE"
+                                                                        }
+
+                                                                    </span>
+
+
+                                                                    <div className="special-occasions-product-options__sizes">
+
+
+                                                                        <button
+                                                                            type="button"
+                                                                            className={
+                                                                                `special-occasions-size-button ${
+                                                                                    options.size ===
+                                                                                    "11 oz"
+                                                                                        ? "is-selected"
+                                                                                        : ""
+                                                                                }`
+                                                                            }
+                                                                            onClick={() =>
+                                                                                changeProductSize(
+                                                                                    product.product_id,
+                                                                                    "11 oz"
+                                                                                )
+                                                                            }
+                                                                            aria-pressed={
+                                                                                options.size ===
+                                                                                "11 oz"
+                                                                            }
+                                                                        >
+
+                                                                            11 oz
+
+                                                                        </button>
+
+
+                                                                        <button
+                                                                            type="button"
+                                                                            className={
+                                                                                `special-occasions-size-button ${
+                                                                                    options.size ===
+                                                                                    "15 oz"
+                                                                                        ? "is-selected"
+                                                                                        : ""
+                                                                                }`
+                                                                            }
+                                                                            onClick={() =>
+                                                                                changeProductSize(
+                                                                                    product.product_id,
+                                                                                    "15 oz"
+                                                                                )
+                                                                            }
+                                                                            aria-pressed={
+                                                                                options.size ===
+                                                                                "15 oz"
+                                                                            }
+                                                                        >
+
+                                                                            15 oz
+
+                                                                        </button>
+
+
+                                                                    </div>
+
+
+                                                                </div>
+
+
+                                                            </div>
+
+
+
+                                                            {/* QUANTITY */}
+
+                                                            <div className="special-occasions-product__quantity">
+
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        changeQuantity(
+                                                                            product.product_id,
+                                                                            -1
+                                                                        )
+                                                                    }
+                                                                    aria-label={
+                                                                        language ===
+                                                                        "es"
+                                                                            ? "Disminuir cantidad"
+                                                                            : "Decrease quantity"
+                                                                    }
+                                                                >
+
+                                                                    −
+
+                                                                </button>
+
+
+                                                                <span>
+
+                                                                    {quantity}
+
+                                                                </span>
+
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        changeQuantity(
+                                                                            product.product_id,
+                                                                            1
+                                                                        )
+                                                                    }
+                                                                    aria-label={
+                                                                        language ===
+                                                                        "es"
+                                                                            ? "Aumentar cantidad"
+                                                                            : "Increase quantity"
+                                                                    }
+                                                                >
+
+                                                                    +
+
+                                                                </button>
+
+
+                                                            </div>
+
+
+
+                                                            {/* ADD TO CART */}
+
                                                             <button
                                                                 type="button"
+                                                                className="special-occasions-product__button"
                                                                 onClick={() =>
-                                                                    changeQuantity(
-                                                                        product.product_id,
-                                                                        1
+                                                                    handleCardAddToCart(
+                                                                        product
                                                                     )
                                                                 }
                                                                 aria-label={
                                                                     language ===
                                                                     "es"
-                                                                        ? "Aumentar cantidad"
-                                                                        : "Increase quantity"
+                                                                        ? `Agregar ${product.name} al carrito`
+                                                                        : `Add ${product.name} to cart`
                                                                 }
                                                             >
 
-                                                                +
+                                                                {
+                                                                    language === "es"
+                                                                        ? "AGREGAR AL CARRITO"
+                                                                        : "ADD TO CART"
+                                                                }
 
                                                             </button>
 
@@ -1123,47 +1201,154 @@ function SpecialOccasionsPage() {
                                                         </div>
 
 
+                                                    </article>
 
-                                                        {/* ADD TO CART */}
+                                                );
 
-                                                        <button
-                                                            type="button"
-                                                            className="special-occasions-product__button"
-                                                            onClick={() =>
-                                                                handleCardAddToCart(
-                                                                    product
-                                                                )
-                                                            }
-                                                            aria-label={
-                                                                language ===
-                                                                "es"
-                                                                    ? `Agregar ${product.name} al carrito`
-                                                                    : `Add ${product.name} to cart`
-                                                            }
-                                                        >
-
-                                                            {
-                                                                language === "es"
-                                                                    ? "AGREGAR AL CARRITO"
-                                                                    : "ADD TO CART"
-                                                            }
-
-                                                        </button>
+                                            }
+                                        )
+                                    }
 
 
-                                                    </div>
+                                </div>
 
 
-                                                </article>
 
-                                            );
+                                {/* ======================================
+                                    PAGINATION
+                                ====================================== */}
 
-                                        }
+                                {
+                                    totalPages > 1 && (
+
+                                        <div className="special-occasions-pagination">
+
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+
+                                                    setCurrentPage(
+                                                        (
+                                                            current
+                                                        ) =>
+                                                            Math.max(
+                                                                1,
+                                                                current - 1
+                                                            )
+                                                    );
+
+                                                }}
+                                                disabled={
+                                                    currentPage === 1
+                                                }
+                                                aria-label={
+                                                    language === "es"
+                                                        ? "Página anterior"
+                                                        : "Previous page"
+                                                }
+                                            >
+
+                                                ←
+
+                                            </button>
+
+
+                                            {
+                                                Array.from(
+                                                    {
+                                                        length:
+                                                            totalPages,
+                                                    },
+                                                    (
+                                                        _,
+                                                        index
+                                                    ) => {
+
+                                                        const page =
+                                                            index + 1;
+
+
+                                                        return (
+
+                                                            <button
+                                                                type="button"
+                                                                key={
+                                                                    page
+                                                                }
+                                                                className={
+                                                                    page ===
+                                                                    currentPage
+                                                                        ? "is-active"
+                                                                        : ""
+                                                                }
+                                                                onClick={() =>
+                                                                    setCurrentPage(
+                                                                        page
+                                                                    )
+                                                                }
+                                                                aria-label={
+                                                                    language === "es"
+                                                                        ? `Ir a la página ${page}`
+                                                                        : `Go to page ${page}`
+                                                                }
+                                                                aria-current={
+                                                                    page ===
+                                                                    currentPage
+                                                                        ? "page"
+                                                                        : undefined
+                                                                }
+                                                            >
+
+                                                                {page}
+
+                                                            </button>
+
+                                                        );
+
+                                                    }
+                                                )
+                                            }
+
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+
+                                                    setCurrentPage(
+                                                        (
+                                                            current
+                                                        ) =>
+                                                            Math.min(
+                                                                totalPages,
+                                                                current + 1
+                                                            )
+                                                    );
+
+                                                }}
+                                                disabled={
+                                                    currentPage ===
+                                                    totalPages
+                                                }
+                                                aria-label={
+                                                    language === "es"
+                                                        ? "Página siguiente"
+                                                        : "Next page"
+                                                }
+                                            >
+
+                                                →
+
+                                            </button>
+
+
+                                        </div>
+
                                     )
                                 }
 
 
-                            </div>
+                            </>
 
                         )
                     }
@@ -1489,11 +1674,7 @@ function SpecialOccasionsPage() {
 
                                             <span className="special-occasions-product-options__label">
 
-                                                {
-                                                    language === "es"
-                                                        ? "COLOR"
-                                                        : "COLOR"
-                                                }
+                                                COLOR
 
                                             </span>
 
