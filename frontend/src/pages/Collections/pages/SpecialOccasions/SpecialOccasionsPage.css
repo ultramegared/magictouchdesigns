@@ -675,6 +675,7 @@
 
 }
 
+
 .special-occasions-product__image img {
 
     width: 100%;
@@ -1785,11 +1786,15 @@
 @keyframes specialOccasionsLightboxIn {
 
     from {
+
         opacity: 0;
+
     }
 
     to {
+
         opacity: 1;
+
     }
 
 }
@@ -2405,11 +2410,6 @@
 
     .special-occasions-products__grid {
 
-        /*
-         * 2 columns.
-         * 8 products = 4 rows.
-         */
-
         grid-template-columns:
             repeat(2, minmax(0, 1fr));
 
@@ -2702,6 +2702,11 @@
     }
 
 
+    /*
+     * La imagen ocupa todo el ancho disponible.
+     * El contenedor conserva las esquinas superiores redondeadas.
+     */
+
     .special-occasions-lightbox__visual {
 
         width: 100%;
@@ -2710,8 +2715,29 @@
 
         min-height: 0;
 
+        overflow: hidden;
+
+        border-radius:
+            19px
+            19px
+            0
+            0;
+
+        background: #111;
+
     }
 
+
+    /*
+     * IMPORTANTE:
+     *
+     * La imagen conserva su proporción natural.
+     * width: 100% hace que llegue a ambos costados.
+     * height: auto evita deformaciones.
+     *
+     * Se elimina el límite de altura que anteriormente
+     * hacía aparecer espacios laterales.
+     */
 
     .special-occasions-lightbox__image {
 
@@ -2721,11 +2747,21 @@
 
         min-height: 0;
 
-        max-height: 58vh;
+        max-height: none;
 
-        object-fit: contain;
+        display: block;
+
+        object-fit: initial;
+
+        object-position: center;
 
         background: #111;
+
+        border-radius:
+            19px
+            19px
+            0
+            0;
 
     }
 
@@ -2986,9 +3022,34 @@
     }
 
 
+    .special-occasions-lightbox__visual {
+
+        overflow: hidden;
+
+        border-radius:
+            16px
+            16px
+            0
+            0;
+
+    }
+
+
     .special-occasions-lightbox__image {
 
-        max-height: 52vh;
+        width: 100%;
+
+        height: auto;
+
+        max-height: none;
+
+        object-fit: initial;
+
+        border-radius:
+            16px
+            16px
+            0
+            0;
 
     }
 
@@ -3136,9 +3197,34 @@
     }
 
 
+    .special-occasions-lightbox__visual {
+
+        overflow: hidden;
+
+        border-radius:
+            16px
+            16px
+            0
+            0;
+
+    }
+
+
     .special-occasions-lightbox__image {
 
-        max-height: 48vh;
+        width: 100%;
+
+        height: auto;
+
+        max-height: none;
+
+        object-fit: initial;
+
+        border-radius:
+            16px
+            16px
+            0
+            0;
 
     }
 
