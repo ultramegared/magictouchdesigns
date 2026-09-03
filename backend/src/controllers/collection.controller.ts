@@ -17,6 +17,10 @@ import {
 
 import {
     getProductsByCollectionSlug,
+
+    getCollectionProductsForAdmin as
+        getCollectionProductsForAdminService,
+
 } from "../services/collection.service";
 
 
@@ -58,6 +62,65 @@ export const getCollectionProducts =
 
             console.error(
                 "Unable to load collection products:",
+                error
+            );
+
+
+            return response.status(
+                500
+            ).json(
+                {
+                    status:
+                        "error",
+
+                    message:
+                        "Unable to load collection products.",
+                }
+            );
+
+        }
+
+    };
+
+
+/* ===============================================================
+   GET COLLECTION PRODUCTS FOR ADMIN
+================================================================ */
+
+export const getCollectionProductsForAdmin =
+    async (
+        request: Request,
+        response: Response
+    ) => {
+
+        try {
+
+            const {
+                slug,
+            } = request.params;
+
+
+            const products =
+                await getCollectionProductsForAdminService(
+                    slug
+                );
+
+
+            return response.json(
+                {
+                    status:
+                        "success",
+
+                    products,
+                }
+            );
+
+        } catch (
+            error
+        ) {
+
+            console.error(
+                "Unable to load collection products for administrator:",
                 error
             );
 

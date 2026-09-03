@@ -244,7 +244,7 @@ function AdminCollections() {
                         products:
                             CollectionProduct[];
                     }>(
-                        `/api/collections/${selectedCollection}/products`
+                        `/api/collections/admin/${selectedCollection}/products`
                     );
 
 
