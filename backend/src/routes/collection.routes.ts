@@ -24,9 +24,23 @@ import {
 
 import {
     getCollectionProducts,
+
     getCollectionProductsForAdmin,
+
+    getCollectionProductForAdmin,
+
+    updateCollectionProduct,
+
+    updateCollectionProductStatus,
+
+    updateCollectionProductOrder,
+
 } from "../controllers/collection.controller";
 
+
+/* ===============================================================
+   ROUTER
+================================================================ */
 
 const router =
     Router();
@@ -41,7 +55,8 @@ const router =
  * /api/collections/admin/:slug/products
  *
  * Returns all products assigned
- * to a collection, including inactive products.
+ * to a collection, including
+ * inactive products.
  *
  * Administrator only.
  */
@@ -54,6 +69,93 @@ router.get(
     requireAdmin,
 
     getCollectionProductsForAdmin
+);
+
+
+/**
+ * GET
+ * /api/collections/admin/:slug/products/:product_id
+ *
+ * Returns one product belonging
+ * to a specific collection.
+ *
+ * Administrator only.
+ */
+
+router.get(
+    "/admin/:slug/products/:product_id",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    getCollectionProductForAdmin
+);
+
+
+/**
+ * PUT
+ * /api/collections/admin/:slug/products/:product_id
+ *
+ * Updates product information
+ * from the Collections
+ * administration panel.
+ *
+ * Administrator only.
+ */
+
+router.put(
+    "/admin/:slug/products/:product_id",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    updateCollectionProduct
+);
+
+
+/**
+ * PUT
+ * /api/collections/admin/:slug/products/:product_id/status
+ *
+ * Activates or deactivates
+ * a product from the
+ * Collections administrator.
+ *
+ * Administrator only.
+ */
+
+router.put(
+    "/admin/:slug/products/:product_id/status",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    updateCollectionProductStatus
+);
+
+
+/**
+ * PUT
+ * /api/collections/admin/:slug/products/:product_id/order
+ *
+ * Changes the display order
+ * of a product inside
+ * a collection.
+ *
+ * Administrator only.
+ */
+
+router.put(
+    "/admin/:slug/products/:product_id/order",
+
+    authenticateToken,
+
+    requireAdmin,
+
+    updateCollectionProductOrder
 );
 
 
