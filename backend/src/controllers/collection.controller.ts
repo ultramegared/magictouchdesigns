@@ -16,6 +16,8 @@ import {
 } from "express";
 
 import {
+    getCollectionBySlug,
+
     getProductsByCollectionSlug,
 
     getCollectionProductsForAdmin as
@@ -23,6 +25,18 @@ import {
 
     getCollectionProductForAdmin as
         getCollectionProductForAdminService,
+
+    getAvailableProductsForCollection as
+        getAvailableProductsForCollectionService,
+
+    addProductToCollection as
+        addProductToCollectionService,
+
+    removeProductFromCollection as
+        removeProductFromCollectionService,
+
+    updateCollection as
+        updateCollectionService,
 
     updateCollectionProduct as
         updateCollectionProductService,
@@ -33,7 +47,214 @@ import {
     updateCollectionProductOrder as
         updateCollectionProductOrderService,
 
+    reorderCollectionProducts as
+        reorderCollectionProductsService,
+
 } from "../services/collection.service";
+
+
+/* ===============================================================
+   GET COLLECTION FOR ADMIN
+================================================================ */
+
+/**
+ * GET
+ * /api/collections/admin/:slug
+ *
+ * Returns collection information.
+ *
+ * Administrator only.
+ */
+
+export const getCollectionForAdmin =
+    async (
+        request: Request,
+        response: Response
+    ) => {
+
+        try {
+
+            const {
+                slug,
+            } =
+                request.params;
+
+
+            const collection =
+                await getCollectionBySlug(
+                    slug
+                );
+
+
+            if (
+                !collection
+            ) {
+
+                return response.status(
+                    404
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "Collection was not found.",
+                    }
+                );
+
+            }
+
+
+            return response.json(
+                {
+                    status:
+                        "success",
+
+                    collection,
+                }
+            );
+
+        } catch (
+            error
+        ) {
+
+            console.error(
+                "Unable to load collection:",
+                error
+            );
+
+
+            return response.status(
+                500
+            ).json(
+                {
+                    status:
+                        "error",
+
+                    message:
+                        "Unable to load collection.",
+                }
+            );
+
+        }
+
+    };
+
+
+/* ===============================================================
+   UPDATE COLLECTION
+================================================================ */
+
+/**
+ * PUT
+ * /api/collections/admin/:slug
+ *
+ * Updates collection information.
+ *
+ * Administrator only.
+ */
+
+export const updateCollection =
+    async (
+        request: Request,
+        response: Response
+    ) => {
+
+        try {
+
+            const {
+                slug,
+            } =
+                request.params;
+
+
+            const {
+                name,
+                slug: newSlug,
+                description,
+                image_url,
+                is_active,
+                sort_order,
+            } =
+                request.body;
+
+
+            const collection =
+                await updateCollectionService(
+                    slug,
+                    {
+                        name,
+
+                        slug:
+                            newSlug,
+
+                        description,
+
+                        image_url,
+
+                        is_active,
+
+                        sort_order,
+                    }
+                );
+
+
+            if (
+                !collection
+            ) {
+
+                return response.status(
+                    404
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "Collection was not found.",
+                    }
+                );
+
+            }
+
+
+            return response.json(
+                {
+                    status:
+                        "success",
+
+                    message:
+                        "Collection updated successfully.",
+
+                    collection,
+                }
+            );
+
+        } catch (
+            error
+        ) {
+
+            console.error(
+                "Unable to update collection:",
+                error
+            );
+
+
+            return response.status(
+                500
+            ).json(
+                {
+                    status:
+                        "error",
+
+                    message:
+                        "Unable to update collection.",
+                }
+            );
+
+        }
+
+    };
 
 
 /* ===============================================================
@@ -60,7 +281,8 @@ export const getCollectionProducts =
 
             const {
                 slug,
-            } = request.params;
+            } =
+                request.params;
 
 
             const products =
@@ -130,7 +352,8 @@ export const getCollectionProductsForAdmin =
 
             const {
                 slug,
-            } = request.params;
+            } =
+                request.params;
 
 
             const products =
@@ -176,6 +399,313 @@ export const getCollectionProductsForAdmin =
 
 
 /* ===============================================================
+   GET AVAILABLE PRODUCTS FOR COLLECTION
+================================================================ */
+
+/**
+ * GET
+ * /api/collections/admin/:slug/available-products
+ *
+ * Returns products that are
+ * not currently assigned
+ * to the collection.
+ *
+ * Administrator only.
+ */
+
+export const getAvailableProductsForCollection =
+    async (
+        request: Request,
+        response: Response
+    ) => {
+
+        try {
+
+            const {
+                slug,
+            } =
+                request.params;
+
+
+            const products =
+                await getAvailableProductsForCollectionService(
+                    slug
+                );
+
+
+            if (
+                !products
+            ) {
+
+                return response.status(
+                    404
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "Collection was not found.",
+                    }
+                );
+
+            }
+
+
+            return response.json(
+                {
+                    status:
+                        "success",
+
+                    products,
+                }
+            );
+
+        } catch (
+            error
+        ) {
+
+            console.error(
+                "Unable to load available products:",
+                error
+            );
+
+
+            return response.status(
+                500
+            ).json(
+                {
+                    status:
+                        "error",
+
+                    message:
+                        "Unable to load available products.",
+                }
+            );
+
+        }
+
+    };
+
+
+/* ===============================================================
+   ADD PRODUCT TO COLLECTION
+================================================================ */
+
+/**
+ * POST
+ * /api/collections/admin/:slug/products
+ *
+ * Adds an existing product
+ * to the collection.
+ *
+ * Administrator only.
+ */
+
+export const addProductToCollection =
+    async (
+        request: Request,
+        response: Response
+    ) => {
+
+        try {
+
+            const {
+                slug,
+            } =
+                request.params;
+
+
+            const {
+                product_id,
+            } =
+                request.body;
+
+
+            if (
+                !product_id
+            ) {
+
+                return response.status(
+                    400
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "product_id is required.",
+                    }
+                );
+
+            }
+
+
+            const product =
+                await addProductToCollectionService(
+                    slug,
+                    product_id
+                );
+
+
+            if (
+                !product
+            ) {
+
+                return response.status(
+                    404
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "Collection or product was not found.",
+                    }
+                );
+
+            }
+
+
+            return response.status(
+                201
+            ).json(
+                {
+                    status:
+                        "success",
+
+                    message:
+                        "Product added to collection successfully.",
+
+                    product,
+                }
+            );
+
+        } catch (
+            error
+        ) {
+
+            console.error(
+                "Unable to add product to collection:",
+                error
+            );
+
+
+            return response.status(
+                500
+            ).json(
+                {
+                    status:
+                        "error",
+
+                    message:
+                        "Unable to add product to collection.",
+                }
+            );
+
+        }
+
+    };
+
+
+/* ===============================================================
+   REMOVE PRODUCT FROM COLLECTION
+================================================================ */
+
+/**
+ * DELETE
+ * /api/collections/admin/:slug/products/:product_id
+ *
+ * Removes a product from
+ * the collection.
+ *
+ * The original product
+ * is not deleted.
+ *
+ * Administrator only.
+ */
+
+export const removeProductFromCollection =
+    async (
+        request: Request,
+        response: Response
+    ) => {
+
+        try {
+
+            const {
+                slug,
+                product_id,
+            } =
+                request.params;
+
+
+            const product =
+                await removeProductFromCollectionService(
+                    slug,
+                    product_id
+                );
+
+
+            if (
+                !product
+            ) {
+
+                return response.status(
+                    404
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "Product was not found in this collection.",
+                    }
+                );
+
+            }
+
+
+            return response.json(
+                {
+                    status:
+                        "success",
+
+                    message:
+                        "Product removed from collection successfully.",
+
+                    product,
+                }
+            );
+
+        } catch (
+            error
+        ) {
+
+            console.error(
+                "Unable to remove product from collection:",
+                error
+            );
+
+
+            return response.status(
+                500
+            ).json(
+                {
+                    status:
+                        "error",
+
+                    message:
+                        "Unable to remove product from collection.",
+                }
+            );
+
+        }
+
+    };
+
+
+/* ===============================================================
    GET ONE COLLECTION PRODUCT FOR ADMIN
 ================================================================ */
 
@@ -201,7 +731,8 @@ export const getCollectionProductForAdmin =
             const {
                 slug,
                 product_id,
-            } = request.params;
+            } =
+                request.params;
 
 
             const product =
@@ -290,7 +821,8 @@ export const updateCollectionProduct =
             const {
                 slug,
                 product_id,
-            } = request.params;
+            } =
+                request.params;
 
 
             const {
@@ -408,7 +940,8 @@ export const updateCollectionProductStatus =
             const {
                 slug,
                 product_id,
-            } = request.params;
+            } =
+                request.params;
 
 
             const {
@@ -516,9 +1049,8 @@ export const updateCollectionProductStatus =
  * PUT
  * /api/collections/admin/:slug/products/:product_id/order
  *
- * Updates the display order
- * of a product inside
- * a collection.
+ * Moves one product
+ * to a new position.
  *
  * Administrator only.
  */
@@ -534,7 +1066,8 @@ export const updateCollectionProductOrder =
             const {
                 slug,
                 product_id,
-            } = request.params;
+            } =
+                request.params;
 
 
             const {
@@ -549,9 +1082,13 @@ export const updateCollectionProductOrder =
 
                 ||
 
-                !Number.isFinite(
+                !Number.isInteger(
                     sort_order
                 )
+
+                ||
+
+                sort_order < 1
             ) {
 
                 return response.status(
@@ -562,7 +1099,7 @@ export const updateCollectionProductOrder =
                             "error",
 
                         message:
-                            "sort_order must be a valid number.",
+                            "sort_order must be a valid positive integer.",
                     }
                 );
 
@@ -627,6 +1164,134 @@ export const updateCollectionProductOrder =
 
                     message:
                         "Unable to update collection product order.",
+                }
+            );
+
+        }
+
+    };
+
+
+/* ===============================================================
+   REORDER COLLECTION PRODUCTS
+================================================================ */
+
+/**
+ * PUT
+ * /api/collections/admin/:slug/products/reorder
+ *
+ * Reorders all products
+ * inside a collection.
+ *
+ * Body:
+ *
+ * {
+ *     "product_ids": [
+ *         "uuid-1",
+ *         "uuid-2",
+ *         "uuid-3"
+ *     ]
+ * }
+ *
+ * Administrator only.
+ */
+
+export const reorderCollectionProducts =
+    async (
+        request: Request,
+        response: Response
+    ) => {
+
+        try {
+
+            const {
+                slug,
+            } =
+                request.params;
+
+
+            const {
+                product_ids,
+            } =
+                request.body;
+
+
+            if (
+                !Array.isArray(
+                    product_ids
+                )
+            ) {
+
+                return response.status(
+                    400
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "product_ids must be an array.",
+                    }
+                );
+
+            }
+
+
+            const success =
+                await reorderCollectionProductsService(
+                    slug,
+                    product_ids
+                );
+
+
+            if (
+                !success
+            ) {
+
+                return response.status(
+                    400
+                ).json(
+                    {
+                        status:
+                            "error",
+
+                        message:
+                            "Unable to reorder collection products. Please verify the product list.",
+                    }
+                );
+
+            }
+
+
+            return response.json(
+                {
+                    status:
+                        "success",
+
+                    message:
+                        "Collection products reordered successfully.",
+                }
+            );
+
+        } catch (
+            error
+        ) {
+
+            console.error(
+                "Unable to reorder collection products:",
+                error
+            );
+
+
+            return response.status(
+                500
+            ).json(
+                {
+                    status:
+                        "error",
+
+                    message:
+                        "Unable to reorder collection products.",
                 }
             );
 

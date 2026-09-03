@@ -29,6 +29,7 @@ import {
     ImageOff,
     LoaderCircle,
     Package,
+    Plus,
     RefreshCw,
     Save,
     X,
@@ -107,6 +108,8 @@ interface ProductFormData {
 
     features: string;
 
+    is_active: boolean;
+
 }
 
 
@@ -151,6 +154,29 @@ const collections: CollectionConfig[] = [
 
 
 /* ===============================================================
+   EMPTY PRODUCT FORM
+================================================================ */
+
+const emptyProductForm: ProductFormData = {
+
+    name: "",
+
+    slug: "",
+
+    description: "",
+
+    price: "",
+
+    image_url: "",
+
+    features: "",
+
+    is_active: true,
+
+};
+
+
+/* ===============================================================
    COMPONENT
 ================================================================ */
 
@@ -190,7 +216,7 @@ function AdminCollections() {
 
 
     /* ============================================================
-       EDITING STATE
+       MODAL STATE
     ============================================================ */
 
     const [
@@ -202,19 +228,22 @@ function AdminCollections() {
 
 
     const [
+        isProductModalOpen,
+        setIsProductModalOpen,
+    ] = useState(
+        false
+    );
+
+
+    /* ============================================================
+       PRODUCT FORM
+    ============================================================ */
+
+    const [
         productForm,
         setProductForm,
     ] = useState<ProductFormData>(
-
-        {
-            name: "",
-            slug: "",
-            description: "",
-            price: "",
-            image_url: "",
-            features: "",
-        }
-
+        emptyProductForm
     );
 
 
@@ -437,8 +466,57 @@ function AdminCollections() {
             );
 
 
+            setIsProductModalOpen(
+                false
+            );
+
+
+            setProductForm(
+                emptyProductForm
+            );
+
+
             setSelectedCollection(
                 collectionSlug
+            );
+
+        };
+
+
+    /* ============================================================
+       ADD PRODUCT
+    ============================================================ */
+
+    const handleAddProduct =
+        () => {
+
+            if (
+                savingProduct ||
+                uploadingImage
+            ) {
+
+                return;
+
+            }
+
+
+            setError(
+                null
+            );
+
+
+            setEditingProduct(
+                null
+            );
+
+
+            setProductForm(
+                emptyProductForm
+            );
+
+
+            setIsProductModalOpen(
+                true
             );
 
         };
@@ -497,18 +575,26 @@ function AdminCollections() {
                             )
 
                             : "",
+
+                    is_active:
+                        product.is_active,
                 }
 
+            );
+
+
+            setIsProductModalOpen(
+                true
             );
 
         };
 
 
     /* ============================================================
-       CLOSE EDIT
+       CLOSE MODAL
     ============================================================ */
 
-    const handleCloseEdit =
+    const handleCloseProductModal =
         () => {
 
             if (
@@ -526,22 +612,18 @@ function AdminCollections() {
             );
 
 
+            setIsProductModalOpen(
+                false
+            );
+
+
             setError(
                 null
             );
 
 
             setProductForm(
-
-                {
-                    name: "",
-                    slug: "",
-                    description: "",
-                    price: "",
-                    image_url: "",
-                    features: "",
-                }
-
+                emptyProductForm
             );
 
         };
@@ -558,6 +640,7 @@ function AdminCollections() {
 
             value:
                 string
+                | boolean
         ) => {
 
             setProductForm(
@@ -756,15 +839,6 @@ function AdminCollections() {
 
 
             if (
-                !editingProduct
-            ) {
-
-                return;
-
-            }
-
-
-            if (
                 uploadingImage
             ) {
 
@@ -802,6 +876,32 @@ function AdminCollections() {
             }
 
 
+            if (
+                !productForm.name.trim()
+            ) {
+
+                setError(
+                    "Please enter a product name."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !productForm.slug.trim()
+            ) {
+
+                setError(
+                    "Please enter a product slug."
+                );
+
+                return;
+
+            }
+
+
             try {
 
                 setSavingProduct(
@@ -830,51 +930,99 @@ function AdminCollections() {
                         );
 
 
-                await apiRequest(
-
-                    `/api/collections/admin/${selectedCollection}/products/${editingProduct.product_id}`,
-
+                const productData =
                     {
-                        method:
-                            "PUT",
 
-                        body:
-                            JSON.stringify(
-                                {
-                                    name:
-                                        productForm.name.trim(),
+                        name:
+                            productForm.name.trim(),
 
-                                    slug:
-                                        productForm.slug.trim(),
+                        slug:
+                            productForm.slug.trim(),
 
-                                    description:
-                                        productForm.description.trim(),
+                        description:
+                            productForm.description.trim(),
 
-                                    price:
-                                        parsedPrice,
+                        price:
+                            parsedPrice,
 
-                                    image_url:
-                                        productForm.image_url.trim(),
+                        image_url:
+                            productForm.image_url.trim(),
 
-                                    features,
-                                }
-                            ),
-                    }
+                        features,
 
-                );
+                        is_active:
+                            productForm.is_active,
+
+                    };
+
+
+                /* ================================================
+                   CREATE PRODUCT
+                ================================================= */
+
+                if (
+                    !editingProduct
+                ) {
+
+                    await apiRequest(
+
+                        `/api/collections/admin/${selectedCollection}/products`,
+
+                        {
+
+                            method:
+                                "POST",
+
+                            body:
+                                JSON.stringify(
+                                    productData
+                                ),
+
+                        }
+
+                    );
+
+                }
+
+
+                /* ================================================
+                   UPDATE PRODUCT
+                ================================================= */
+
+                else {
+
+                    await apiRequest(
+
+                        `/api/collections/admin/${selectedCollection}/products/${editingProduct.product_id}`,
+
+                        {
+
+                            method:
+                                "PUT",
+
+                            body:
+                                JSON.stringify(
+                                    productData
+                                ),
+
+                        }
+
+                    );
+
+                }
 
 
                 await loadCollectionProducts();
 
 
-                handleCloseEdit();
+                handleCloseProductModal();
 
             } catch (
                 error
             ) {
 
                 console.error(
-                    "Unable to update collection product:",
+                    "Unable to save collection product:",
                     error
                 );
 
@@ -884,7 +1032,11 @@ function AdminCollections() {
 
                         ? error.message
 
-                        : "Unable to update product."
+                        : editingProduct
+
+                            ? "Unable to update product."
+
+                            : "Unable to create product."
                 );
 
             } finally {
@@ -924,16 +1076,20 @@ function AdminCollections() {
                     `/api/collections/admin/${selectedCollection}/products/${product.product_id}/status`,
 
                     {
+
                         method:
                             "PUT",
 
                         body:
                             JSON.stringify(
                                 {
+
                                     is_active:
                                         !product.is_active,
+
                                 }
                             ),
+
                     }
 
                 );
@@ -943,6 +1099,7 @@ function AdminCollections() {
                     (
                         previous
                     ) =>
+
                         previous.map(
                             (
                                 currentProduct
@@ -1062,16 +1219,20 @@ function AdminCollections() {
                             `/api/collections/admin/${selectedCollection}/products/${currentProduct.product_id}/order`,
 
                             {
+
                                 method:
                                     "PUT",
 
                                 body:
                                     JSON.stringify(
                                         {
+
                                             sort_order:
                                                 targetProduct.collection_sort_order,
+
                                         }
                                     ),
+
                             }
 
                         ),
@@ -1082,16 +1243,20 @@ function AdminCollections() {
                             `/api/collections/admin/${selectedCollection}/products/${targetProduct.product_id}/order`,
 
                             {
+
                                 method:
                                     "PUT",
 
                                 body:
                                     JSON.stringify(
                                         {
+
                                             sort_order:
                                                 currentProduct.collection_sort_order,
+
                                         }
                                     ),
+
                             }
 
                         ),
@@ -1317,6 +1482,10 @@ function AdminCollections() {
                                 }
                                 disabled={
                                     isLoading
+                                    ||
+                                    savingProduct
+                                    ||
+                                    uploadingImage
                                 }
                             >
 
@@ -1330,7 +1499,6 @@ function AdminCollections() {
                             </button>
 
                         </div>
-
 
 
                         <div
@@ -1507,6 +1675,32 @@ function AdminCollections() {
 
                                 </div>
 
+
+                                <button
+                                    type="button"
+                                    className="admin-collections__add-product"
+                                    onClick={
+                                        handleAddProduct
+                                    }
+                                    disabled={
+                                        savingProduct
+                                        ||
+                                        uploadingImage
+                                        ||
+                                        updatingProductId !==
+                                        null
+                                    }
+                                >
+
+                                    <Plus
+                                        size={18}
+                                    />
+
+
+                                    Add Product
+
+                                </button>
+
                             </div>
 
                         </div>
@@ -1541,7 +1735,8 @@ function AdminCollections() {
 
                         {
                             !isLoading &&
-                            error && (
+                            error &&
+                            !isProductModalOpen && (
 
                                 <div
                                     className="admin-collections__error"
@@ -1584,6 +1779,24 @@ function AdminCollections() {
                                         any products.
 
                                     </p>
+
+
+                                    <button
+                                        type="button"
+                                        className="admin-collections__add-product"
+                                        onClick={
+                                            handleAddProduct
+                                        }
+                                    >
+
+                                        <Plus
+                                            size={18}
+                                        />
+
+
+                                        Add First Product
+
+                                    </button>
 
                                 </div>
 
@@ -1914,9 +2127,7 @@ function AdminCollections() {
 
                                                         </div>
 
-
                                                     </div>
-
 
                                                 </article>
 
@@ -1929,28 +2140,25 @@ function AdminCollections() {
                             )
                         }
 
-
                     </section>
 
-
                 </section>
-
 
             </main>
 
 
 
             {/* ======================================================
-                EDIT MODAL
+                PRODUCT MODAL
                ====================================================== */}
 
             {
-                editingProduct && (
+                isProductModalOpen && (
 
                     <div
                         className="admin-collections__modal-backdrop"
                         onClick={
-                            handleCloseEdit
+                            handleCloseProductModal
                         }
                     >
 
@@ -1974,7 +2182,13 @@ function AdminCollections() {
 
                                     <span>
 
-                                        EDIT PRODUCT
+                                        {
+                                            editingProduct
+
+                                                ? "EDIT PRODUCT"
+
+                                                : "NEW PRODUCT"
+                                        }
 
                                     </span>
 
@@ -1982,7 +2196,11 @@ function AdminCollections() {
                                     <h2>
 
                                         {
-                                            editingProduct.name
+                                            editingProduct
+
+                                                ? editingProduct.name
+
+                                                : "Add Product"
                                         }
 
                                     </h2>
@@ -1993,7 +2211,7 @@ function AdminCollections() {
                                 <button
                                     type="button"
                                     onClick={
-                                        handleCloseEdit
+                                        handleCloseProductModal
                                     }
                                     disabled={
                                         savingProduct
@@ -2039,6 +2257,8 @@ function AdminCollections() {
                                     className="admin-collections__form-grid"
                                 >
 
+                                    {/* PRODUCT NAME */}
+
                                     <label>
 
                                         <span>
@@ -2070,6 +2290,9 @@ function AdminCollections() {
                                     </label>
 
 
+
+                                    {/* PRODUCT SLUG */}
+
                                     <label>
 
                                         <span>
@@ -2100,6 +2323,9 @@ function AdminCollections() {
 
                                     </label>
 
+
+
+                                    {/* DESCRIPTION */}
 
                                     <label
                                         className="admin-collections__form-field--full"
@@ -2135,6 +2361,9 @@ function AdminCollections() {
                                     </label>
 
 
+
+                                    {/* PRICE */}
+
                                     <label>
 
                                         <span>
@@ -2169,15 +2398,72 @@ function AdminCollections() {
 
 
 
-                                    {/* ==========================
-                                        IMAGE UPLOAD
-                                       ========================== */}
+                                    {/* PRODUCT STATUS */}
 
                                     <label>
 
                                         <span>
 
-                                            Upload New Image
+                                            Product Status
+
+                                        </span>
+
+
+                                        <select
+                                            value={
+                                                productForm.is_active
+
+                                                    ? "active"
+
+                                                    : "inactive"
+                                            }
+                                            onChange={
+                                                (
+                                                    event
+                                                ) =>
+
+                                                    handleFormChange(
+
+                                                        "is_active",
+
+                                                        event.target.value ===
+                                                        "active"
+
+                                                    )
+
+                                            }
+                                        >
+
+                                            <option
+                                                value="active"
+                                            >
+
+                                                Active
+
+                                            </option>
+
+
+                                            <option
+                                                value="inactive"
+                                            >
+
+                                                Inactive
+
+                                            </option>
+
+                                        </select>
+
+                                    </label>
+
+
+
+                                    {/* IMAGE UPLOAD */}
+
+                                    <label>
+
+                                        <span>
+
+                                            Upload Product Image
 
                                         </span>
 
@@ -2224,9 +2510,7 @@ function AdminCollections() {
 
 
 
-                                    {/* ==========================
-                                        IMAGE URL
-                                       ========================== */}
+                                    {/* IMAGE URL */}
 
                                     <label
                                         className="admin-collections__form-field--full"
@@ -2262,9 +2546,7 @@ function AdminCollections() {
 
 
 
-                                    {/* ==========================
-                                        IMAGE PREVIEW
-                                       ========================== */}
+                                    {/* IMAGE PREVIEW */}
 
                                     {
                                         productForm.image_url && (
@@ -2293,6 +2575,8 @@ function AdminCollections() {
                                     }
 
 
+
+                                    {/* FEATURES */}
 
                                     <label
                                         className="admin-collections__form-field--full"
@@ -2330,6 +2614,8 @@ function AdminCollections() {
 
 
 
+                                {/* MODAL ACTIONS */}
+
                                 <div
                                     className="admin-collections__modal-actions"
                                 >
@@ -2338,7 +2624,7 @@ function AdminCollections() {
                                         type="button"
                                         className="admin-collections__modal-cancel"
                                         onClick={
-                                            handleCloseEdit
+                                            handleCloseProductModal
                                         }
                                         disabled={
                                             savingProduct
@@ -2374,13 +2660,23 @@ function AdminCollections() {
 
                                                 )
 
-                                                : (
+                                                : editingProduct
 
-                                                    <Save
-                                                        size={18}
-                                                    />
+                                                    ? (
 
-                                                )
+                                                        <Save
+                                                            size={18}
+                                                        />
+
+                                                    )
+
+                                                    : (
+
+                                                        <Plus
+                                                            size={18}
+                                                        />
+
+                                                    )
 
                                         }
 
@@ -2389,13 +2685,21 @@ function AdminCollections() {
 
                                             savingProduct
 
-                                                ? "Saving..."
+                                                ? editingProduct
+
+                                                    ? "Saving..."
+
+                                                    : "Creating..."
 
                                                 : uploadingImage
 
                                                     ? "Uploading Image..."
 
-                                                    : "Save Changes"
+                                                    : editingProduct
+
+                                                        ? "Save Changes"
+
+                                                        : "Create Product"
 
                                         }
 
@@ -2411,7 +2715,6 @@ function AdminCollections() {
 
                 )
             }
-
 
         </div>
 
