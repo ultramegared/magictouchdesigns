@@ -16,9 +16,14 @@
 
 .admin-collections {
 
-    width: 100%;
+    width:
+        100%;
 
-    min-height: 100vh;
+    min-height:
+        100vh;
+
+    box-sizing:
+        border-box;
 
     padding:
         32px;
@@ -35,7 +40,8 @@
 
 .admin-collections__hero {
 
-    width: 100%;
+    width:
+        100%;
 
     margin-bottom:
         32px;
@@ -221,6 +227,9 @@
     width:
         100%;
 
+    box-sizing:
+        border-box;
+
     padding:
         28px;
 
@@ -269,7 +278,7 @@
         space-between;
 
     gap:
-        20px;
+        24px;
 
     margin-bottom:
         24px;
@@ -334,6 +343,9 @@
 
     gap:
         8px;
+
+    flex-shrink:
+        0;
 
     padding:
         11px
@@ -410,7 +422,10 @@
         );
 
     gap:
-        14px;
+        16px;
+
+    width:
+        100%;
 
 }
 
@@ -434,6 +449,9 @@
 
     padding:
         14px;
+
+    box-sizing:
+        border-box;
 
     border:
         1px solid
@@ -507,6 +525,30 @@
 
 
 /* ===============================================================
+   STATISTICS
+================================================================ */
+
+.admin-collections__statistics {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        flex-end;
+
+    gap:
+        10px;
+
+    flex-wrap:
+        wrap;
+
+}
+
+
+/* ===============================================================
    COUNT
 ================================================================ */
 
@@ -518,12 +560,21 @@
     align-items:
         center;
 
+    justify-content:
+        center;
+
     gap:
         8px;
+
+    min-height:
+        42px;
 
     padding:
         10px
         14px;
+
+    box-sizing:
+        border-box;
 
     border-radius:
         10px;
@@ -539,6 +590,9 @@
 
     font-weight:
         600;
+
+    white-space:
+        nowrap;
 
 }
 
@@ -735,6 +789,9 @@
     gap:
         20px;
 
+    width:
+        100%;
+
 }
 
 
@@ -743,6 +800,9 @@
 ================================================================ */
 
 .admin-collections__product {
+
+    min-width:
+        0;
 
     overflow:
         hidden;
@@ -905,6 +965,69 @@
 
 
 /* ===============================================================
+   PRODUCT STATUS
+================================================================ */
+
+.admin-collections__product-status {
+
+    position:
+        absolute;
+
+    top:
+        12px;
+
+    left:
+        12px;
+
+    padding:
+        6px
+        10px;
+
+    border-radius:
+        999px;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+}
+
+
+.admin-collections__product-status--active {
+
+    background:
+        rgba(
+            34,
+            140,
+            82,
+            0.92
+        );
+
+    color:
+        #ffffff;
+
+}
+
+
+.admin-collections__product-status--inactive {
+
+    background:
+        rgba(
+            180,
+            50,
+            50,
+            0.92
+        );
+
+    color:
+        #ffffff;
+
+}
+
+
+/* ===============================================================
    PRODUCT BODY
 ================================================================ */
 
@@ -1018,56 +1141,6 @@
 
 
 /* ===============================================================
-   STATUS
-================================================================ */
-
-.admin-collections__status {
-
-    display:
-        inline-flex;
-
-    align-items:
-        center;
-
-    padding:
-        6px
-        10px;
-
-    border-radius:
-        999px;
-
-    background:
-        #eeeeef;
-
-    color:
-        #77777c;
-
-    font-size:
-        11px;
-
-    font-weight:
-        700;
-
-}
-
-
-.admin-collections__status--active {
-
-    background:
-        rgba(
-            34,
-            140,
-            82,
-            0.1
-        );
-
-    color:
-        #1f8a4c;
-
-}
-
-
-/* ===============================================================
    TABLET
 ================================================================ */
 
@@ -1089,6 +1162,22 @@
 
     }
 
+
+    .admin-collections__section-header {
+
+        align-items:
+            flex-start;
+
+    }
+
+
+    .admin-collections__statistics {
+
+        justify-content:
+            flex-start;
+
+    }
+
 }
 
 
@@ -1098,15 +1187,22 @@
 
 @media (
     max-width:
-        480px
+        768px
 ) {
 
     .admin-collections {
 
         padding:
-            130px
-            12px
+            24px
             16px;
+
+    }
+
+
+    .admin-collections__hero {
+
+        margin-bottom:
+            24px;
 
     }
 
@@ -1118,25 +1214,6 @@
 
         align-items:
             flex-start;
-
-    }
-
-
-    .admin-collections__hero h1 {
-
-        font-size:
-            30px;
-
-    }
-
-
-    .admin-collections__hero-icon {
-
-        width:
-            56px;
-
-        height:
-            56px;
 
     }
 
@@ -1168,29 +1245,13 @@
     }
 
 
-    .admin-collections__selector {
-
-        grid-template-columns:
-            1fr;
-
-    }
-
-
-    .admin-collections__count {
+    .admin-collections__statistics {
 
         width:
             100%;
 
         justify-content:
-            center;
-
-    }
-
-
-    .admin-collections__grid {
-
-        grid-template-columns:
-            1fr;
+            flex-start;
 
     }
 
@@ -1276,6 +1337,41 @@
 
         font-size:
             21px;
+
+    }
+
+
+    .admin-collections__selector {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .admin-collections__statistics {
+
+        flex-direction:
+            column;
+
+        align-items:
+            stretch;
+
+    }
+
+
+    .admin-collections__count {
+
+        width:
+            100%;
+
+    }
+
+
+    .admin-collections__grid {
+
+        grid-template-columns:
+            1fr;
 
     }
 
