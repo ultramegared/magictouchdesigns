@@ -665,6 +665,40 @@
 }
 
 
+/* ===============================================================
+   PRODUCT IMAGE BOTTOM GRADIENT
+   =============================================================== */
+
+.special-occasions-product__image::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 3;
+
+    width: 100%;
+    height: 24%;
+
+    pointer-events: none;
+
+    background:
+
+        linear-gradient(
+            to top,
+            rgba(0,0,0,.68) 0%,
+            rgba(0,0,0,.34) 38%,
+            rgba(0,0,0,.10) 68%,
+            transparent 100%
+        );
+
+}
+
+
 .special-occasions-product__image:focus-visible {
 
     outline:
@@ -1474,6 +1508,250 @@
 
 }
 
+/* ===============================================================
+   FEATURED
+   =============================================================== */
+
+.special-occasions-featured {
+
+    position: relative;
+
+    width: min(1200px, calc(100% - 40px));
+
+    min-height: 430px;
+
+    margin: 0 auto 90px;
+
+    overflow: hidden;
+
+    border:
+        1px solid rgba(216,166,60,.70);
+
+    border-radius: 22px;
+
+    background: #15120f;
+
+    box-shadow:
+
+        0 25px 65px rgba(0,0,0,.48),
+
+        0 0 30px rgba(216,166,60,.07);
+
+}
+
+
+.special-occasions-featured__visual {
+
+    position: absolute;
+    inset: 0;
+
+}
+
+
+.special-occasions-featured__visual img {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+    object-position: center;
+
+}
+
+
+.special-occasions-featured__overlay {
+
+    position: absolute;
+    inset: 0;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            rgba(7,6,5,.97) 0%,
+            rgba(9,8,7,.91) 31%,
+            rgba(10,9,8,.54) 57%,
+            rgba(10,9,8,.10) 100%
+        );
+
+}
+
+
+/* ===============================================================
+   FEATURED CONTENT
+   =============================================================== */
+
+.special-occasions-featured__content {
+
+    position: relative;
+    z-index: 2;
+
+    width: 52%;
+
+    min-height: 430px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    padding: 45px;
+
+}
+
+
+.special-occasions-featured__content > span {
+
+    color: #d8a63c;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+}
+
+
+.special-occasions-featured__ornament {
+
+    width: 190px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 12px 0 18px;
+
+}
+
+
+.special-occasions-featured__ornament span {
+
+    flex: 1;
+
+    height: 1px;
+
+    background: #d8a63c;
+
+}
+
+
+.special-occasions-featured__ornament b {
+
+    color: #e9c36e;
+
+    font-size: 16px;
+
+}
+
+
+.special-occasions-featured__content h2 {
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(42px, 5vw, 65px);
+
+    line-height: .92;
+
+    font-weight: 500;
+
+}
+
+
+.special-occasions-featured__content h2 strong {
+
+    display: block;
+
+    color: #d8a63c;
+
+    font-weight: 500;
+
+}
+
+
+.special-occasions-featured__content p {
+
+    max-width: 390px;
+
+    margin: 22px 0;
+
+    color: rgba(255,255,255,.70);
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+}
+
+
+.special-occasions-featured__button {
+
+    align-self: flex-start;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 0 24px;
+
+    border:
+        1px solid #d8a63c;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e8bd67,
+            #b97d26
+        );
+
+    color: #171008;
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.2px;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.55),
+        0 8px 22px rgba(0,0,0,.32);
+
+    transition:
+        transform .25s ease,
+        filter .25s ease;
+
+}
+
+
+.special-occasions-featured__button:hover {
+
+    transform: translateY(-3px);
+
+    filter: brightness(1.08);
+
+}
+
 
 /* ===============================================================
    FINAL CTA
@@ -1848,7 +2126,7 @@
 
 
 /* ===============================================================
-   LIGHTBOX IMAGE
+   LIGHTBOX IMAGE VISUAL
    =============================================================== */
 
 .special-occasions-lightbox__visual {
@@ -1868,7 +2146,7 @@
 
 
 /* ===============================================================
-   LIGHTBOX IMAGE BOTTOM GRADIENT
+   LIGHTBOX IMAGE - SOFT BOTTOM GRADIENT
    =============================================================== */
 
 .special-occasions-lightbox__visual::after {
@@ -1884,7 +2162,8 @@
     z-index: 3;
 
     width: 100%;
-    height: 34%;
+
+    height: 28%;
 
     pointer-events: none;
 
@@ -1892,9 +2171,9 @@
 
         linear-gradient(
             to top,
-            rgba(0,0,0,.76) 0%,
-            rgba(0,0,0,.42) 30%,
-            rgba(0,0,0,.18) 58%,
+            rgba(0,0,0,.72) 0%,
+            rgba(0,0,0,.40) 30%,
+            rgba(0,0,0,.16) 60%,
             transparent 100%
         );
 
@@ -2067,10 +2346,6 @@
 
     font-size: 16px;
 
-    transition:
-        color .2s ease,
-        transform .2s ease;
-
 }
 
 
@@ -2136,9 +2411,6 @@
     color: #e9c36e;
 
     font-size: 17px;
-
-    text-shadow:
-        0 0 18px rgba(216,166,60,.45);
 
 }
 
@@ -2270,14 +2542,6 @@
 
     filter: brightness(1.08);
 
-    box-shadow:
-
-        inset 0 1px 0 rgba(255,255,255,.78),
-
-        0 15px 35px rgba(0,0,0,.50),
-
-        0 0 30px rgba(216,166,60,.22);
-
 }
 
 
@@ -2326,392 +2590,6 @@
 
 @media (max-width: 767px) {
 
-    .special-occasions-hero {
-
-        min-height: 570px;
-
-    }
-
-
-    .special-occasions-hero__visual img {
-
-        object-position: 63% center;
-
-    }
-
-
-    .special-occasions-hero__overlay {
-
-        background:
-
-            linear-gradient(
-                90deg,
-                rgba(4,4,4,.96) 0%,
-                rgba(5,5,5,.78) 55%,
-                rgba(5,5,5,.28) 100%
-            ),
-
-            linear-gradient(
-                180deg,
-                rgba(0,0,0,.25),
-                transparent 40%,
-                rgba(0,0,0,.85)
-            );
-
-    }
-
-
-    .special-occasions-hero__content {
-
-        width: calc(100% - 34px);
-
-        padding: 60px 0;
-
-    }
-
-
-    .special-occasions-back-link {
-
-        margin-bottom: 24px;
-
-        font-size: 8px;
-
-        letter-spacing: 1.3px;
-
-    }
-
-
-    .special-occasions-hero__eyebrow {
-
-        font-size: 9px;
-
-        letter-spacing: 2px;
-
-    }
-
-
-    .special-occasions-hero__content h1 {
-
-        font-size: 55px;
-
-        letter-spacing: -2.5px;
-
-    }
-
-
-    .special-occasions-hero__ornament {
-
-        width: 190px;
-
-        margin: 22px 0 18px;
-
-    }
-
-
-    .special-occasions-hero__content p {
-
-        max-width: 300px;
-
-        font-size: 12px;
-
-        line-height: 1.65;
-
-    }
-
-
-    .special-occasions-hero__button {
-
-        min-height: 44px;
-
-        padding: 0 21px;
-
-        font-size: 8px;
-
-    }
-
-
-    /* ===========================================================
-       PRODUCTS MOBILE
-       =========================================================== */
-
-    .special-occasions-products {
-
-        width: calc(100% - 20px);
-
-        padding-bottom: 65px;
-
-    }
-
-
-    .special-occasions-section-heading h2 {
-
-        font-size: 35px;
-
-    }
-
-
-    .special-occasions-products__grid {
-
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-        gap: 10px;
-
-    }
-
-
-    .special-occasions-product {
-
-        border-radius: 12px;
-
-    }
-
-
-    /* ===========================================================
-       PRODUCT BODY MOBILE
-       =========================================================== */
-
-    .special-occasions-product__body {
-
-        min-height: 58px;
-
-        padding: 8px 9px;
-
-        gap: 7px;
-
-    }
-
-
-    .special-occasions-product__price {
-
-        font-size: 15px;
-
-    }
-
-
-    .special-occasions-product__quantity {
-
-        gap: 4px;
-
-    }
-
-
-    .special-occasions-product__quantity button {
-
-        width: 22px;
-        height: 22px;
-
-        min-width: 22px;
-        min-height: 22px;
-
-        font-size: 13px;
-
-    }
-
-
-    .special-occasions-product__quantity span {
-
-        min-width: 14px;
-
-        font-size: 9px;
-
-    }
-
-
-    /* ===========================================================
-       PRODUCT NUMBER MOBILE
-       =========================================================== */
-
-    .special-occasions-product__image
-    .special-occasions-product__number {
-
-        top: 7px;
-        left: 7px;
-
-        width: 23px;
-        height: 23px;
-
-        font-size: 8px;
-
-    }
-
-
-    /* ===========================================================
-       PRODUCT ZOOM MOBILE
-       =========================================================== */
-
-    .special-occasions-product__zoom {
-
-        top: 8px;
-        right: 8px;
-
-        width: 30px;
-        height: 30px;
-
-    }
-
-
-    .special-occasions-product__zoom svg {
-
-        width: 15px;
-        height: 15px;
-
-    }
-
-
-    /* ===========================================================
-       CART MOBILE
-       =========================================================== */
-
-    .special-occasions-product__button {
-
-        width: 40px;
-
-        height: 40px;
-
-        min-width: 40px;
-
-        min-height: 40px;
-
-        padding: 0;
-
-    }
-
-
-    .special-occasions-product__button::before {
-
-        font-size: 18px;
-
-    }
-
-
-    /* ===========================================================
-       FEATURED MOBILE
-       =========================================================== */
-
-    .special-occasions-featured {
-
-        width: calc(100% - 20px);
-
-        min-height: 430px;
-
-        margin-bottom: 65px;
-
-        border-radius: 15px;
-
-    }
-
-
-    .special-occasions-featured__visual img {
-
-        object-position: 68% center;
-
-    }
-
-
-    .special-occasions-featured__overlay {
-
-        background:
-
-            linear-gradient(
-                90deg,
-                rgba(7,6,5,.96) 0%,
-                rgba(8,7,6,.80) 55%,
-                rgba(8,7,6,.25) 100%
-            );
-
-    }
-
-
-    .special-occasions-featured__content {
-
-        width: 76%;
-
-        min-height: 430px;
-
-        padding: 30px 22px;
-
-    }
-
-
-    .special-occasions-featured__content h2 {
-
-        font-size: 39px;
-
-    }
-
-
-    .special-occasions-featured__content p {
-
-        max-width: 230px;
-
-        font-size: 11px;
-
-    }
-
-
-    .special-occasions-featured__button {
-
-        min-height: 39px;
-
-        padding: 0 17px;
-
-        font-size: 7px;
-
-    }
-
-
-    /* ===========================================================
-       CTA MOBILE
-       =========================================================== */
-
-    .special-occasions-cta {
-
-        width: calc(100% - 20px);
-
-        margin-bottom: 65px;
-
-        border-radius: 15px;
-
-    }
-
-
-    .special-occasions-cta__content {
-
-        padding: 60px 18px;
-
-    }
-
-
-    .special-occasions-cta__content h2 {
-
-        font-size: 39px;
-
-    }
-
-
-    .special-occasions-cta__content p {
-
-        font-size: 11px;
-
-    }
-
-
-    .special-occasions-cta__button {
-
-        min-height: 43px;
-
-        padding: 0 20px;
-
-        font-size: 7px;
-
-    }
-
-
-    /* ===========================================================
-       LIGHTBOX MOBILE
-       =========================================================== */
-
     .special-occasions-lightbox {
 
         align-items: flex-start;
@@ -2758,43 +2636,39 @@
 
         overflow: hidden;
 
+        background: #111;
+
         border-radius:
             19px
             19px
             0
             0;
 
-        background: #111;
-
     }
 
 
     /*
-     * El degradado negro se mantiene solamente
-     * en la parte inferior de cualquier imagen.
-     * Sube suavemente sin ocupar demasiado espacio.
+     * DEGRADADO NEGRO:
+     * solamente en la parte inferior.
+     * Suave y sin subir demasiado.
      */
 
     .special-occasions-lightbox__visual::after {
 
-        height: 28%;
+        height: 26%;
 
         background:
 
             linear-gradient(
                 to top,
-                rgba(0,0,0,.74) 0%,
+                rgba(0,0,0,.70) 0%,
                 rgba(0,0,0,.38) 35%,
-                rgba(0,0,0,.14) 65%,
+                rgba(0,0,0,.12) 68%,
                 transparent 100%
             );
 
     }
 
-
-    /* ===========================================================
-       LIGHTBOX IMAGE MOBILE
-       =========================================================== */
 
     .special-occasions-lightbox__image {
 
@@ -2834,83 +2708,6 @@
         border-top:
             1px solid rgba(216,166,60,.18);
 
-        background:
-
-            radial-gradient(
-                circle at 50% 0%,
-                rgba(216,166,60,.08),
-                transparent 55%
-            ),
-
-            linear-gradient(
-                180deg,
-                #171512,
-                #090909
-            );
-
-    }
-
-
-    .special-occasions-lightbox__eyebrow {
-
-        font-size: 8px;
-
-        letter-spacing: 2.5px;
-
-        margin-bottom: 10px;
-
-    }
-
-
-    .special-occasions-lightbox__details h2 {
-
-        font-size: 31px;
-
-        line-height: 1;
-
-    }
-
-
-    .special-occasions-lightbox__ornament {
-
-        width: 150px;
-
-        margin: 16px 0;
-
-    }
-
-
-    .special-occasions-lightbox__details p {
-
-        font-size: 12px;
-
-        line-height: 1.7;
-
-    }
-
-
-    .special-occasions-lightbox__price {
-
-        margin-top: 18px;
-
-    }
-
-
-    .special-occasions-lightbox__price strong {
-
-        font-size: 24px;
-
-    }
-
-
-    .special-occasions-lightbox__cart-button {
-
-        min-height: 48px;
-
-        margin-top: 18px;
-
-        font-size: 9px;
-
     }
 
 
@@ -2937,134 +2734,6 @@
 
 @media (max-width: 420px) {
 
-    .special-occasions-hero {
-
-        min-height: 520px;
-
-    }
-
-
-    .special-occasions-hero__content h1 {
-
-        font-size: 48px;
-
-    }
-
-
-    .special-occasions-products__grid {
-
-        gap: 8px;
-
-    }
-
-
-    .special-occasions-product__body {
-
-        padding: 7px 8px;
-
-        gap: 5px;
-
-    }
-
-
-    .special-occasions-product__price {
-
-        font-size: 14px;
-
-    }
-
-
-    .special-occasions-product__quantity {
-
-        gap: 3px;
-
-    }
-
-
-    .special-occasions-product__quantity button {
-
-        width: 20px;
-        height: 20px;
-
-        min-width: 20px;
-        min-height: 20px;
-
-        font-size: 12px;
-
-    }
-
-
-    .special-occasions-product__quantity span {
-
-        min-width: 12px;
-
-        font-size: 8px;
-
-    }
-
-
-    .special-occasions-product__image
-    .special-occasions-product__number {
-
-        top: 6px;
-        left: 6px;
-
-        width: 21px;
-        height: 21px;
-
-        font-size: 7px;
-
-    }
-
-
-    .special-occasions-product__button {
-
-        width: 38px;
-        height: 38px;
-
-        min-width: 38px;
-        min-height: 38px;
-
-    }
-
-
-    .special-occasions-product__button::before {
-
-        font-size: 17px;
-
-    }
-
-
-    .special-occasions-featured {
-
-        min-height: 390px;
-
-    }
-
-
-    .special-occasions-featured__content {
-
-        min-height: 390px;
-
-        width: 80%;
-
-    }
-
-
-    .special-occasions-featured__content h2 {
-
-        font-size: 34px;
-
-    }
-
-
-    .special-occasions-cta__content h2 {
-
-        font-size: 34px;
-
-    }
-
-
     .special-occasions-lightbox {
 
         padding: 12px 9px;
@@ -3081,8 +2750,6 @@
 
     .special-occasions-lightbox__visual {
 
-        overflow: hidden;
-
         border-radius:
             16px
             16px
@@ -3094,7 +2761,7 @@
 
     .special-occasions-lightbox__visual::after {
 
-        height: 27%;
+        height: 25%;
 
     }
 
@@ -3124,27 +2791,6 @@
 
     }
 
-
-    .special-occasions-lightbox__details h2 {
-
-        font-size: 27px;
-
-    }
-
-
-    .special-occasions-lightbox__details p {
-
-        font-size: 11px;
-
-    }
-
-
-    .special-occasions-lightbox__price strong {
-
-        font-size: 22px;
-
-    }
-
 }
 
 
@@ -3154,129 +2800,9 @@
 
 @media (max-width: 360px) {
 
-    .special-occasions-hero {
-
-        min-height: 500px;
-
-    }
-
-
-    .special-occasions-hero__content h1 {
-
-        font-size: 43px;
-
-    }
-
-
-    .special-occasions-section-heading h2 {
-
-        font-size: 31px;
-
-    }
-
-
-    .special-occasions-product__body {
-
-        padding: 6px 7px;
-
-        gap: 4px;
-
-    }
-
-
-    .special-occasions-product__price {
-
-        font-size: 13px;
-
-    }
-
-
-    .special-occasions-product__quantity button {
-
-        width: 19px;
-        height: 19px;
-
-        min-width: 19px;
-
-        min-height: 19px;
-
-        font-size: 11px;
-
-    }
-
-
-    .special-occasions-product__quantity span {
-
-        min-width: 11px;
-
-        font-size: 8px;
-
-    }
-
-
-    .special-occasions-product__image
-    .special-occasions-product__number {
-
-        top: 5px;
-        left: 5px;
-
-        width: 20px;
-        height: 20px;
-
-        font-size: 7px;
-
-    }
-
-
-    .special-occasions-product__button {
-
-        width: 36px;
-        height: 36px;
-
-        min-width: 36px;
-
-        min-height: 36px;
-
-    }
-
-
-    .special-occasions-product__button::before {
-
-        font-size: 16px;
-
-    }
-
-
-    .special-occasions-featured__content h2 {
-
-        font-size: 30px;
-
-    }
-
-
-    .special-occasions-cta__content h2 {
-
-        font-size: 30px;
-
-    }
-
-
-    .special-occasions-lightbox__visual {
-
-        overflow: hidden;
-
-        border-radius:
-            16px
-            16px
-            0
-            0;
-
-    }
-
-
     .special-occasions-lightbox__visual::after {
 
-        height: 26%;
+        height: 24%;
 
     }
 
@@ -3290,26 +2816,6 @@
         max-height: none;
 
         object-fit: initial;
-
-        border-radius:
-            16px
-            16px
-            0
-            0;
-
-    }
-
-
-    .special-occasions-lightbox__details {
-
-        padding: 21px 16px 22px;
-
-    }
-
-
-    .special-occasions-lightbox__details h2 {
-
-        font-size: 24px;
 
     }
 
