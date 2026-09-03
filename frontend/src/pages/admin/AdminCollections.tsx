@@ -975,7 +975,14 @@ function AdminCollections() {
 
                             body:
                                 JSON.stringify(
-                                    productData
+                                    {
+
+                                        product_id:
+                                            crypto.randomUUID(),
+
+                                        ...productData,
+
+                                    }
                                 ),
 
                         }
