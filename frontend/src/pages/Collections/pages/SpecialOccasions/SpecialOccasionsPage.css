@@ -683,7 +683,9 @@
 
     display: block;
 
-    object-fit: cover;
+    object-fit: contain;
+
+    object-position: center;
 
     transition:
         transform .6s ease,
@@ -695,11 +697,7 @@
 .special-occasions-product:hover
 .special-occasions-product__image img {
 
-    transform: scale(1.06);
-
-    filter:
-        brightness(1.06)
-        saturate(1.04);
+    transform: scale(1.03);
 
 }
 
