@@ -16,13 +16,18 @@ import {
 } from "react";
 
 import {
+    ArrowDown,
+    ArrowUp,
+    CheckCircle2,
+    Edit3,
     FolderKanban,
+    ImageOff,
     LoaderCircle,
     Package,
     RefreshCw,
-    CheckCircle2,
+    Save,
+    X,
     XCircle,
-    ImageOff,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar";
@@ -79,6 +84,23 @@ interface CollectionConfig {
     slug: string;
 
     name: string;
+
+}
+
+
+interface ProductFormData {
+
+    name: string;
+
+    slug: string;
+
+    description: string;
+
+    price: string;
+
+    image_url: string;
+
+    features: string;
 
 }
 
@@ -148,6 +170,55 @@ function AdminCollections() {
         setProducts,
     ] = useState<CollectionProduct[]>(
         []
+    );
+
+
+    /* ============================================================
+       EDITING STATE
+    ============================================================ */
+
+    const [
+        editingProduct,
+        setEditingProduct,
+    ] = useState<CollectionProduct | null>(
+        null
+    );
+
+
+    const [
+        productForm,
+        setProductForm,
+    ] = useState<ProductFormData>(
+
+        {
+            name: "",
+            slug: "",
+            description: "",
+            price: "",
+            image_url: "",
+            features: "",
+        }
+
+    );
+
+
+    /* ============================================================
+       ACTION STATE
+    ============================================================ */
+
+    const [
+        savingProduct,
+        setSavingProduct,
+    ] = useState(
+        false
+    );
+
+
+    const [
+        updatingProductId,
+        setUpdatingProductId,
+    ] = useState<string | null>(
+        null
     );
 
 
@@ -315,6 +386,562 @@ function AdminCollections() {
             selectedCollection,
         ]
     );
+
+
+    /* ============================================================
+       SELECT COLLECTION
+    ============================================================ */
+
+    const handleCollectionChange =
+        (
+            collectionSlug: string
+        ) => {
+
+            if (
+                savingProduct ||
+                updatingProductId
+            ) {
+
+                return;
+
+            }
+
+
+            setEditingProduct(
+                null
+            );
+
+
+            setSelectedCollection(
+                collectionSlug
+            );
+
+        };
+
+
+    /* ============================================================
+       EDIT PRODUCT
+    ============================================================ */
+
+    const handleEditProduct =
+        (
+            product: CollectionProduct
+        ) => {
+
+            setEditingProduct(
+                product
+            );
+
+
+            setProductForm(
+
+                {
+                    name:
+                        product.name
+                        || "",
+
+                    slug:
+                        product.slug
+                        || "",
+
+                    description:
+                        product.description
+                        || "",
+
+                    price:
+                        String(
+                            product.price
+                        ),
+
+                    image_url:
+                        product.image_url
+                        || "",
+
+                    features:
+                        Array.isArray(
+                            product.features
+                        )
+
+                            ? product.features.join(
+                                ", "
+                            )
+
+                            : "",
+                }
+
+            );
+
+        };
+
+
+    /* ============================================================
+       CLOSE EDIT
+    ============================================================ */
+
+    const handleCloseEdit =
+        () => {
+
+            if (
+                savingProduct
+            ) {
+
+                return;
+
+            }
+
+
+            setEditingProduct(
+                null
+            );
+
+
+            setProductForm(
+
+                {
+                    name: "",
+                    slug: "",
+                    description: "",
+                    price: "",
+                    image_url: "",
+                    features: "",
+                }
+
+            );
+
+        };
+
+
+    /* ============================================================
+       FORM CHANGE
+    ============================================================ */
+
+    const handleFormChange =
+        (
+            field:
+                keyof ProductFormData,
+
+            value:
+                string
+        ) => {
+
+            setProductForm(
+                (
+                    previous
+                ) => (
+
+                    {
+                        ...previous,
+
+                        [
+                            field
+                        ]:
+                            value,
+                    }
+
+                )
+            );
+
+        };
+
+
+    /* ============================================================
+       SAVE PRODUCT
+    ============================================================ */
+
+    const handleSaveProduct =
+        async (
+            event:
+                React.FormEvent<HTMLFormElement>
+        ) => {
+
+            event.preventDefault();
+
+
+            if (
+                !editingProduct
+            ) {
+
+                return;
+
+            }
+
+
+            const parsedPrice =
+                Number(
+                    productForm.price
+                );
+
+
+            if (
+                !Number.isFinite(
+                    parsedPrice
+                )
+
+                ||
+
+                parsedPrice < 0
+            ) {
+
+                setError(
+                    "Please enter a valid product price."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                setSavingProduct(
+                    true
+                );
+
+
+                setError(
+                    null
+                );
+
+
+                const features =
+                    productForm.features
+                        .split(
+                            ","
+                        )
+                        .map(
+                            (
+                                feature
+                            ) =>
+                                feature.trim()
+                        )
+                        .filter(
+                            Boolean
+                        );
+
+
+                await apiRequest(
+
+                    `/api/collections/admin/${selectedCollection}/products/${editingProduct.product_id}`,
+
+                    {
+                        method:
+                            "PUT",
+
+                        body:
+                            JSON.stringify(
+                                {
+                                    name:
+                                        productForm.name.trim(),
+
+                                    slug:
+                                        productForm.slug.trim(),
+
+                                    description:
+                                        productForm.description.trim(),
+
+                                    price:
+                                        parsedPrice,
+
+                                    image_url:
+                                        productForm.image_url.trim(),
+
+                                    features,
+                                }
+                            ),
+                    }
+
+                );
+
+
+                await loadCollectionProducts();
+
+
+                handleCloseEdit();
+
+            } catch (
+                error
+            ) {
+
+                console.error(
+                    "Unable to update collection product:",
+                    error
+                );
+
+
+                setError(
+                    error instanceof Error
+
+                        ? error.message
+
+                        : "Unable to update product."
+                );
+
+            } finally {
+
+                setSavingProduct(
+                    false
+                );
+
+            }
+
+        };
+
+
+    /* ============================================================
+       UPDATE PRODUCT STATUS
+    ============================================================ */
+
+    const handleToggleProductStatus =
+        async (
+            product: CollectionProduct
+        ) => {
+
+            try {
+
+                setUpdatingProductId(
+                    product.product_id
+                );
+
+
+                setError(
+                    null
+                );
+
+
+                await apiRequest(
+
+                    `/api/collections/admin/${selectedCollection}/products/${product.product_id}/status`,
+
+                    {
+                        method:
+                            "PUT",
+
+                        body:
+                            JSON.stringify(
+                                {
+                                    is_active:
+                                        !product.is_active,
+                                }
+                            ),
+                    }
+
+                );
+
+
+                setProducts(
+                    (
+                        previous
+                    ) =>
+                        previous.map(
+                            (
+                                currentProduct
+                            ) =>
+
+                                currentProduct.product_id ===
+                                product.product_id
+
+                                    ? {
+
+                                        ...currentProduct,
+
+                                        is_active:
+                                            !currentProduct.is_active,
+
+                                    }
+
+                                    : currentProduct
+
+                        )
+                );
+
+            } catch (
+                error
+            ) {
+
+                console.error(
+                    "Unable to update product status:",
+                    error
+                );
+
+
+                setError(
+                    error instanceof Error
+
+                        ? error.message
+
+                        : "Unable to update product status."
+                );
+
+            } finally {
+
+                setUpdatingProductId(
+                    null
+                );
+
+            }
+
+        };
+
+
+    /* ============================================================
+       MOVE PRODUCT
+    ============================================================ */
+
+    const handleMoveProduct =
+        async (
+            productIndex: number,
+            direction:
+                "up"
+                | "down"
+        ) => {
+
+            const targetIndex =
+                direction ===
+                "up"
+
+                    ? productIndex - 1
+
+                    : productIndex + 1;
+
+
+            if (
+                targetIndex < 0
+
+                ||
+
+                targetIndex >=
+                products.length
+            ) {
+
+                return;
+
+            }
+
+
+            const currentProduct =
+                products[
+                    productIndex
+                ];
+
+
+            const targetProduct =
+                products[
+                    targetIndex
+                ];
+
+
+            try {
+
+                setUpdatingProductId(
+                    currentProduct.product_id
+                );
+
+
+                setError(
+                    null
+                );
+
+
+                await Promise.all(
+
+                    [
+
+                        apiRequest(
+
+                            `/api/collections/admin/${selectedCollection}/products/${currentProduct.product_id}/order`,
+
+                            {
+                                method:
+                                    "PUT",
+
+                                body:
+                                    JSON.stringify(
+                                        {
+                                            sort_order:
+                                                targetProduct.collection_sort_order,
+                                        }
+                                    ),
+                            }
+
+                        ),
+
+
+                        apiRequest(
+
+                            `/api/collections/admin/${selectedCollection}/products/${targetProduct.product_id}/order`,
+
+                            {
+                                method:
+                                    "PUT",
+
+                                body:
+                                    JSON.stringify(
+                                        {
+                                            sort_order:
+                                                currentProduct.collection_sort_order,
+                                        }
+                                    ),
+                            }
+
+                        ),
+
+                    ]
+
+                );
+
+
+                const updatedProducts =
+                    [
+                        ...products,
+                    ];
+
+
+                updatedProducts[
+                    productIndex
+                ] =
+                    targetProduct;
+
+
+                updatedProducts[
+                    targetIndex
+                ] =
+                    currentProduct;
+
+
+                setProducts(
+                    updatedProducts
+                );
+
+            } catch (
+                error
+            ) {
+
+                console.error(
+                    "Unable to change product order:",
+                    error
+                );
+
+
+                setError(
+                    error instanceof Error
+
+                        ? error.message
+
+                        : "Unable to change product order."
+                );
+
+
+                await loadCollectionProducts();
+
+            } finally {
+
+                setUpdatingProductId(
+                    null
+                );
+
+            }
+
+        };
 
 
     /* ============================================================
@@ -520,10 +1147,18 @@ function AdminCollections() {
                                             }
                                             onClick={() =>
 
-                                                setSelectedCollection(
+                                                handleCollectionChange(
                                                     collection.slug
                                                 )
 
+                                            }
+                                            disabled={
+                                                isLoading
+                                                ||
+                                                savingProduct
+                                                ||
+                                                updatingProductId !==
+                                                null
                                             }
                                         >
 
@@ -772,7 +1407,8 @@ function AdminCollections() {
                                     {
                                         products.map(
                                             (
-                                                product
+                                                product,
+                                                index
                                             ) => (
 
                                                 <article
@@ -920,6 +1556,176 @@ function AdminCollections() {
                                                         </div>
 
 
+
+                                                        {/* ACTIONS */}
+
+                                                        <div
+                                                            className="admin-collections__product-actions"
+                                                        >
+
+                                                            <button
+                                                                type="button"
+                                                                className="admin-collections__action admin-collections__action--edit"
+                                                                onClick={() =>
+
+                                                                    handleEditProduct(
+                                                                        product
+                                                                    )
+
+                                                                }
+                                                                disabled={
+                                                                    savingProduct
+                                                                    ||
+                                                                    updatingProductId !==
+                                                                    null
+                                                                }
+                                                            >
+
+                                                                <Edit3
+                                                                    size={16}
+                                                                />
+
+
+                                                                Edit
+
+                                                            </button>
+
+
+                                                            <button
+                                                                type="button"
+                                                                className={
+                                                                    product.is_active
+
+                                                                        ? "admin-collections__action admin-collections__action--deactivate"
+
+                                                                        : "admin-collections__action admin-collections__action--activate"
+                                                                }
+                                                                onClick={() =>
+
+                                                                    handleToggleProductStatus(
+                                                                        product
+                                                                    )
+
+                                                                }
+                                                                disabled={
+                                                                    updatingProductId ===
+                                                                    product.product_id
+                                                                }
+                                                            >
+
+                                                                {
+
+                                                                    updatingProductId ===
+                                                                    product.product_id
+
+                                                                        ? (
+
+                                                                            <LoaderCircle
+                                                                                size={16}
+                                                                            />
+
+                                                                        )
+
+                                                                        : product.is_active
+
+                                                                            ? (
+
+                                                                                <XCircle
+                                                                                    size={16}
+                                                                                />
+
+                                                                            )
+
+                                                                            : (
+
+                                                                                <CheckCircle2
+                                                                                    size={16}
+                                                                                />
+
+                                                                            )
+
+                                                                }
+
+
+                                                                {
+
+                                                                    product.is_active
+
+                                                                        ? "Deactivate"
+
+                                                                        : "Activate"
+
+                                                                }
+
+                                                            </button>
+
+                                                        </div>
+
+
+
+                                                        {/* ORDER ACTIONS */}
+
+                                                        <div
+                                                            className="admin-collections__order-actions"
+                                                        >
+
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+
+                                                                    handleMoveProduct(
+                                                                        index,
+                                                                        "up"
+                                                                    )
+
+                                                                }
+                                                                disabled={
+                                                                    index ===
+                                                                    0
+                                                                    ||
+                                                                    updatingProductId !==
+                                                                    null
+                                                                }
+                                                                aria-label="Move product up"
+                                                            >
+
+                                                                <ArrowUp
+                                                                    size={17}
+                                                                />
+
+                                                            </button>
+
+
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+
+                                                                    handleMoveProduct(
+                                                                        index,
+                                                                        "down"
+                                                                    )
+
+                                                                }
+                                                                disabled={
+                                                                    index ===
+                                                                    products.length -
+                                                                    1
+                                                                    ||
+                                                                    updatingProductId !==
+                                                                    null
+                                                                }
+                                                                aria-label="Move product down"
+                                                            >
+
+                                                                <ArrowDown
+                                                                    size={17}
+                                                                />
+
+                                                            </button>
+
+                                                        </div>
+
+
                                                     </div>
 
 
@@ -942,6 +1748,358 @@ function AdminCollections() {
 
 
             </main>
+
+
+
+            {/* ======================================================
+                EDIT MODAL
+               ====================================================== */}
+
+            {
+                editingProduct && (
+
+                    <div
+                        className="admin-collections__modal-backdrop"
+                        onClick={
+                            handleCloseEdit
+                        }
+                    >
+
+                        <div
+                            className="admin-collections__modal"
+                            onClick={
+                                (
+                                    event
+                                ) =>
+
+                                    event.stopPropagation()
+
+                            }
+                        >
+
+                            <div
+                                className="admin-collections__modal-header"
+                            >
+
+                                <div>
+
+                                    <span>
+
+                                        EDIT PRODUCT
+
+                                    </span>
+
+
+                                    <h2>
+
+                                        {
+                                            editingProduct.name
+                                        }
+
+                                    </h2>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        handleCloseEdit
+                                    }
+                                    disabled={
+                                        savingProduct
+                                    }
+                                    aria-label="Close"
+                                >
+
+                                    <X
+                                        size={22}
+                                    />
+
+                                </button>
+
+                            </div>
+
+
+
+                            <form
+                                onSubmit={
+                                    handleSaveProduct
+                                }
+                            >
+
+                                <div
+                                    className="admin-collections__form-grid"
+                                >
+
+                                    <label>
+
+                                        <span>
+
+                                            Product Name
+
+                                        </span>
+
+
+                                        <input
+                                            type="text"
+                                            value={
+                                                productForm.name
+                                            }
+                                            onChange={
+                                                (
+                                                    event
+                                                ) =>
+
+                                                    handleFormChange(
+                                                        "name",
+                                                        event.target.value
+                                                    )
+
+                                            }
+                                            required
+                                        />
+
+                                    </label>
+
+
+                                    <label>
+
+                                        <span>
+
+                                            Product Slug
+
+                                        </span>
+
+
+                                        <input
+                                            type="text"
+                                            value={
+                                                productForm.slug
+                                            }
+                                            onChange={
+                                                (
+                                                    event
+                                                ) =>
+
+                                                    handleFormChange(
+                                                        "slug",
+                                                        event.target.value
+                                                    )
+
+                                            }
+                                            required
+                                        />
+
+                                    </label>
+
+
+                                    <label
+                                        className="admin-collections__form-field--full"
+                                    >
+
+                                        <span>
+
+                                            Description
+
+                                        </span>
+
+
+                                        <textarea
+                                            rows={
+                                                5
+                                            }
+                                            value={
+                                                productForm.description
+                                            }
+                                            onChange={
+                                                (
+                                                    event
+                                                ) =>
+
+                                                    handleFormChange(
+                                                        "description",
+                                                        event.target.value
+                                                    )
+
+                                            }
+                                        />
+
+                                    </label>
+
+
+                                    <label>
+
+                                        <span>
+
+                                            Price
+
+                                        </span>
+
+
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={
+                                                productForm.price
+                                            }
+                                            onChange={
+                                                (
+                                                    event
+                                                ) =>
+
+                                                    handleFormChange(
+                                                        "price",
+                                                        event.target.value
+                                                    )
+
+                                            }
+                                            required
+                                        />
+
+                                    </label>
+
+
+                                    <label>
+
+                                        <span>
+
+                                            Image URL
+
+                                        </span>
+
+
+                                        <input
+                                            type="text"
+                                            value={
+                                                productForm.image_url
+                                            }
+                                            onChange={
+                                                (
+                                                    event
+                                                ) =>
+
+                                                    handleFormChange(
+                                                        "image_url",
+                                                        event.target.value
+                                                    )
+
+                                            }
+                                        />
+
+                                    </label>
+
+
+                                    <label
+                                        className="admin-collections__form-field--full"
+                                    >
+
+                                        <span>
+
+                                            Features
+
+                                        </span>
+
+
+                                        <input
+                                            type="text"
+                                            placeholder="Feature one, Feature two, Feature three"
+                                            value={
+                                                productForm.features
+                                            }
+                                            onChange={
+                                                (
+                                                    event
+                                                ) =>
+
+                                                    handleFormChange(
+                                                        "features",
+                                                        event.target.value
+                                                    )
+
+                                            }
+                                        />
+
+                                    </label>
+
+                                </div>
+
+
+
+                                <div
+                                    className="admin-collections__modal-actions"
+                                >
+
+                                    <button
+                                        type="button"
+                                        className="admin-collections__modal-cancel"
+                                        onClick={
+                                            handleCloseEdit
+                                        }
+                                        disabled={
+                                            savingProduct
+                                        }
+                                    >
+
+                                        Cancel
+
+                                    </button>
+
+
+                                    <button
+                                        type="submit"
+                                        className="admin-collections__modal-save"
+                                        disabled={
+                                            savingProduct
+                                        }
+                                    >
+
+                                        {
+
+                                            savingProduct
+
+                                                ? (
+
+                                                    <LoaderCircle
+                                                        size={18}
+                                                    />
+
+                                                )
+
+                                                : (
+
+                                                    <Save
+                                                        size={18}
+                                                    />
+
+                                                )
+
+                                        }
+
+
+                                        {
+
+                                            savingProduct
+
+                                                ? "Saving..."
+
+                                                : "Save Changes"
+
+                                        }
+
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                )
+            }
 
 
         </div>
