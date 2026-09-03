@@ -442,31 +442,6 @@ export const getAvailableProductsForCollection =
    ADD OR CREATE PRODUCT IN COLLECTION
 ================================================================ */
 
-/**
- * POST
- * /api/collections/admin/:slug/products
- *
- * Supports:
- *
- * Existing product:
- *
- * {
- *     product_id
- * }
- *
- * New product:
- *
- * {
- *     name,
- *     slug,
- *     description,
- *     price,
- *     image_url,
- *     features,
- *     is_active
- * }
- */
-
 export const addProductToCollection =
     async (
         request: Request,
@@ -494,19 +469,89 @@ export const addProductToCollection =
                 request.body;
 
 
+            /*
+             * =====================================================
+             * NORMALIZE PRODUCT ID
+             *
+             * Prevents empty, null or invalid values from causing
+             * the request to enter existing-product mode.
+             * =====================================================
+             */
+
+            const normalizedProductId =
+                typeof product_id ===
+                "string"
+
+                    ? product_id.trim()
+
+                    : "";
+
+
+            const hasValidProductId =
+                Boolean(
+                    normalizedProductId
+                )
+
+                &&
+
+                normalizedProductId !==
+                "undefined"
+
+                &&
+
+                normalizedProductId !==
+                "null";
+
+
+            /*
+             * =====================================================
+             * DETECT NEW PRODUCT
+             *
+             * If a product name or product slug is supplied,
+             * this is treated as a new product creation request.
+             * =====================================================
+             */
+
+            const hasNewProductData =
+                (
+                    typeof name ===
+                    "string"
+
+                    &&
+
+                    name.trim().length > 0
+                )
+
+                ||
+
+                (
+                    typeof productSlug ===
+                    "string"
+
+                    &&
+
+                    productSlug.trim().length > 0
+                );
+
+
             /* ================================================
                EXISTING PRODUCT
             ================================================= */
 
             if (
-                product_id
+                hasValidProductId
+
+                &&
+
+                !hasNewProductData
             ) {
 
                 const product =
                     await addProductToCollectionService(
                         slug,
                         {
-                            product_id,
+                            product_id:
+                                normalizedProductId,
                         }
                     );
 
@@ -553,7 +598,9 @@ export const addProductToCollection =
 
             if (
                 !name
+
                 ||
+
                 !String(
                     name
                 ).trim()
@@ -576,7 +623,9 @@ export const addProductToCollection =
 
             if (
                 !productSlug
+
                 ||
+
                 !String(
                     productSlug
                 ).trim()
@@ -597,19 +646,29 @@ export const addProductToCollection =
             }
 
 
-            if (
-                typeof price !==
+            /*
+             * Price can arrive as a string depending on the frontend.
+             */
+
+            const normalizedPrice =
+                typeof price ===
                 "number"
 
-                ||
+                    ? price
 
+                    : Number(
+                        price
+                    );
+
+
+            if (
                 !Number.isFinite(
-                    price
+                    normalizedPrice
                 )
 
                 ||
 
-                price < 0
+                normalizedPrice < 0
             ) {
 
                 return response.status(
@@ -694,7 +753,9 @@ export const addProductToCollection =
                         slug:
                             String(
                                 productSlug
-                            ).trim(),
+                            )
+                            .trim()
+                            .toLowerCase(),
 
                         description:
                             typeof description ===
@@ -704,7 +765,8 @@ export const addProductToCollection =
 
                                 : "",
 
-                        price,
+                        price:
+                            normalizedPrice,
 
                         image_url:
                             typeof image_url ===
@@ -786,7 +848,7 @@ export const addProductToCollection =
 
                     message:
                         "Unable to create product.",
-                }
+                    }
             );
 
         }
