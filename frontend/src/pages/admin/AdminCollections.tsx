@@ -32,6 +32,7 @@ import {
     Plus,
     RefreshCw,
     Save,
+    Trash2,
     X,
     XCircle,
 } from "lucide-react";
@@ -275,6 +276,14 @@ function AdminCollections() {
     );
 
 
+    const [
+        deletingProductId,
+        setDeletingProductId,
+    ] = useState<string | null>(
+        null
+    );
+
+
     /* ============================================================
        UI STATE
     ============================================================ */
@@ -453,7 +462,8 @@ function AdminCollections() {
             if (
                 savingProduct ||
                 uploadingImage ||
-                updatingProductId
+                updatingProductId ||
+                deletingProductId
             ) {
 
                 return;
@@ -492,7 +502,8 @@ function AdminCollections() {
 
             if (
                 savingProduct ||
-                uploadingImage
+                uploadingImage ||
+                deletingProductId
             ) {
 
                 return;
@@ -975,14 +986,7 @@ function AdminCollections() {
 
                             body:
                                 JSON.stringify(
-                                    {
-
-                                        product_id:
-                                            crypto.randomUUID(),
-
-                                        ...productData,
-
-                                    }
+                                    productData
                                 ),
 
                         }
@@ -1050,6 +1054,107 @@ function AdminCollections() {
 
                 setSavingProduct(
                     false
+                );
+
+            }
+
+        };
+
+
+    /* ============================================================
+       DELETE PRODUCT
+    ============================================================ */
+
+    const handleDeleteProduct =
+        async (
+            product: CollectionProduct
+        ) => {
+
+            const confirmed =
+                window.confirm(
+
+                    `Are you sure you want to remove "${product.name}" from this collection?`
+
+                );
+
+
+            if (
+                !confirmed
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+                setDeletingProductId(
+                    product.product_id
+                );
+
+
+                setError(
+                    null
+                );
+
+
+                await apiRequest(
+
+                    `/api/collections/admin/${selectedCollection}/products/${product.product_id}`,
+
+                    {
+
+                        method:
+                            "DELETE",
+
+                    }
+
+                );
+
+
+                setProducts(
+                    (
+                        previous
+                    ) =>
+
+                        previous.filter(
+                            (
+                                currentProduct
+                            ) =>
+
+                                currentProduct.product_id !==
+                                product.product_id
+
+                        )
+
+                );
+
+
+                await loadCollectionProducts();
+
+            } catch (
+                error
+            ) {
+
+                console.error(
+                    "Unable to remove collection product:",
+                    error
+                );
+
+
+                setError(
+                    error instanceof Error
+
+                        ? error.message
+
+                        : "Unable to remove product from collection."
+                );
+
+            } finally {
+
+                setDeletingProductId(
+                    null
                 );
 
             }
@@ -1493,6 +1598,9 @@ function AdminCollections() {
                                     savingProduct
                                     ||
                                     uploadingImage
+                                    ||
+                                    deletingProductId !==
+                                    null
                                 }
                             >
 
@@ -1546,6 +1654,9 @@ function AdminCollections() {
                                                 uploadingImage
                                                 ||
                                                 updatingProductId !==
+                                                null
+                                                ||
+                                                deletingProductId !==
                                                 null
                                             }
                                         >
@@ -1695,6 +1806,9 @@ function AdminCollections() {
                                         uploadingImage
                                         ||
                                         updatingProductId !==
+                                        null
+                                        ||
+                                        deletingProductId !==
                                         null
                                     }
                                 >
@@ -1972,6 +2086,8 @@ function AdminCollections() {
                                                             className="admin-collections__product-actions"
                                                         >
 
+                                                            {/* EDIT */}
+
                                                             <button
                                                                 type="button"
                                                                 className="admin-collections__action admin-collections__action--edit"
@@ -1989,6 +2105,9 @@ function AdminCollections() {
                                                                     ||
                                                                     updatingProductId !==
                                                                     null
+                                                                    ||
+                                                                    deletingProductId !==
+                                                                    null
                                                                 }
                                                             >
 
@@ -2001,6 +2120,9 @@ function AdminCollections() {
 
                                                             </button>
 
+
+
+                                                            {/* ACTIVATE / DEACTIVATE */}
 
                                                             <button
                                                                 type="button"
@@ -2021,6 +2143,9 @@ function AdminCollections() {
                                                                 disabled={
                                                                     updatingProductId ===
                                                                     product.product_id
+                                                                    ||
+                                                                    deletingProductId !==
+                                                                    null
                                                                 }
                                                             >
 
@@ -2070,6 +2195,66 @@ function AdminCollections() {
 
                                                             </button>
 
+
+
+                                                            {/* DELETE */}
+
+                                                            <button
+                                                                type="button"
+                                                                className="admin-collections__action admin-collections__action--delete"
+                                                                onClick={() =>
+
+                                                                    handleDeleteProduct(
+                                                                        product
+                                                                    )
+
+                                                                }
+                                                                disabled={
+                                                                    updatingProductId !==
+                                                                    null
+                                                                    ||
+                                                                    deletingProductId !==
+                                                                    null
+                                                                }
+                                                            >
+
+                                                                {
+
+                                                                    deletingProductId ===
+                                                                    product.product_id
+
+                                                                        ? (
+
+                                                                            <LoaderCircle
+                                                                                size={16}
+                                                                            />
+
+                                                                        )
+
+                                                                        : (
+
+                                                                            <Trash2
+                                                                                size={16}
+                                                                            />
+
+                                                                        )
+
+                                                                }
+
+
+                                                                {
+
+                                                                    deletingProductId ===
+                                                                    product.product_id
+
+                                                                        ? "Deleting..."
+
+                                                                        : "Delete"
+
+                                                                }
+
+                                                            </button>
+
                                                         </div>
 
 
@@ -2093,6 +2278,9 @@ function AdminCollections() {
                                                                     0
                                                                     ||
                                                                     updatingProductId !==
+                                                                    null
+                                                                    ||
+                                                                    deletingProductId !==
                                                                     null
                                                                 }
                                                                 aria-label="Move product up"
@@ -2121,6 +2309,9 @@ function AdminCollections() {
                                                                     1
                                                                     ||
                                                                     updatingProductId !==
+                                                                    null
+                                                                    ||
+                                                                    deletingProductId !==
                                                                     null
                                                                 }
                                                                 aria-label="Move product down"
