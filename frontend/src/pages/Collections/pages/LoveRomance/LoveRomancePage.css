@@ -3828,3 +3828,807 @@
     }
 
 }
+
+
+/* ===============================================================
+   PRODUCT OPTIONS FIX
+   COLOR + SIZE BUTTONS
+   PREMIUM MOBILE LAYOUT
+   =============================================================== */
+
+/* ---------------------------------------------------------------
+   PRODUCT BODY
+   --------------------------------------------------------------- */
+
+.love-romance-product__body {
+
+    min-height: auto;
+
+    display: block;
+
+    padding: 22px 16px 16px;
+
+}
+
+
+/* ---------------------------------------------------------------
+   PRICE
+   --------------------------------------------------------------- */
+
+.love-romance-product__price {
+
+    display: block;
+
+    margin-bottom: 22px;
+
+    color: #f0d39a;
+
+    font-size: 26px;
+
+    line-height: 1;
+
+}
+
+
+/* ===============================================================
+   COLOR SECTION
+   Supports multiple possible TSX class names
+   =============================================================== */
+
+.love-romance-product__colors,
+.love-romance-product__color,
+.love-romance-product__color-options {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* ---------------------------------------------------------------
+   COLOR LABEL
+   --------------------------------------------------------------- */
+
+.love-romance-product__color-label,
+.love-romance-product__colors-label {
+
+    display: block;
+
+    width: 100%;
+
+    margin-bottom: 10px;
+
+    color: rgba(255,255,255,.58);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+    text-transform: uppercase;
+
+}
+
+
+/* ===============================================================
+   COLOR BUTTONS
+   =============================================================== */
+
+.love-romance-product__color-button,
+.love-romance-product__color-option {
+
+    position: relative;
+
+    width: 48px;
+
+    height: 48px;
+
+    min-width: 48px;
+
+    min-height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        rgba(255,255,255,.18);
+
+    border-radius: 50%;
+
+    background:
+        #0a0a0a;
+
+    cursor:
+        pointer;
+
+    transition:
+
+        transform .22s ease,
+
+        border-color .22s ease,
+
+        box-shadow .22s ease,
+
+        background .22s ease;
+
+}
+
+
+/* ---------------------------------------------------------------
+   COLOR BUTTON HOVER
+   --------------------------------------------------------------- */
+
+.love-romance-product__color-button:hover,
+.love-romance-product__color-option:hover {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(226,184,92,.65);
+
+}
+
+
+/* ---------------------------------------------------------------
+   ACTIVE COLOR
+   --------------------------------------------------------------- */
+
+.love-romance-product__color-button.is-active,
+.love-romance-product__color-option.is-active,
+.love-romance-product__color-button.active,
+.love-romance-product__color-option.active {
+
+    border-color:
+        #e3bd67;
+
+    box-shadow:
+
+        0 0 0 3px
+        rgba(216,166,60,.13),
+
+        0 0 14px
+        rgba(216,166,60,.22);
+
+}
+
+
+/* ---------------------------------------------------------------
+   WHITE COLOR
+   --------------------------------------------------------------- */
+
+.love-romance-product__color-button--white,
+.love-romance-product__color-option--white {
+
+    background:
+        #f4f2eb;
+
+    border-color:
+        rgba(255,255,255,.75);
+
+    box-shadow:
+
+        inset 0 0 0 3px
+        rgba(0,0,0,.08);
+
+}
+
+
+/* ---------------------------------------------------------------
+   BLACK COLOR
+   --------------------------------------------------------------- */
+
+.love-romance-product__color-button--black,
+.love-romance-product__color-option--black {
+
+    background:
+
+        radial-gradient(
+            circle at 30% 25%,
+            #353535,
+            #111111 45%,
+            #050505 100%
+        );
+
+    border-color:
+        rgba(255,255,255,.22);
+
+}
+
+
+/* ===============================================================
+   SIZE SECTION
+   =============================================================== */
+
+.love-romance-product__sizes,
+.love-romance-product__size-options {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 24px;
+
+}
+
+
+/* ---------------------------------------------------------------
+   SIZE LABEL
+   --------------------------------------------------------------- */
+
+.love-romance-product__size-label,
+.love-romance-product__sizes-label {
+
+    display: block;
+
+    width: 100%;
+
+    margin-bottom: 10px;
+
+    color:
+        rgba(255,255,255,.58);
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        3px;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+/* ===============================================================
+   11 OZ / 15 OZ BUTTONS
+   =============================================================== */
+
+.love-romance-product__size-button,
+.love-romance-product__size-option {
+
+    min-width:
+        86px;
+
+    height:
+        48px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        0 20px;
+
+    border:
+        1px solid
+        rgba(216,166,60,.32);
+
+    border-radius:
+        999px;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.025),
+            rgba(255,255,255,0)
+        ),
+
+        #121212;
+
+    color:
+        rgba(255,255,255,.62);
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        .5px;
+
+    white-space:
+        nowrap;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+
+        inset 0 1px 0
+        rgba(255,255,255,.035),
+
+        0 5px 12px
+        rgba(0,0,0,.18);
+
+    transition:
+
+        transform .22s ease,
+
+        border-color .22s ease,
+
+        background .22s ease,
+
+        color .22s ease,
+
+        box-shadow .22s ease;
+
+}
+
+
+/* ---------------------------------------------------------------
+   SIZE HOVER
+   --------------------------------------------------------------- */
+
+.love-romance-product__size-button:hover,
+.love-romance-product__size-option:hover {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(226,184,92,.72);
+
+    color:
+        #f3d17b;
+
+}
+
+
+/* ---------------------------------------------------------------
+   ACTIVE SIZE
+   --------------------------------------------------------------- */
+
+.love-romance-product__size-button.is-active,
+.love-romance-product__size-option.is-active,
+.love-romance-product__size-button.active,
+.love-romance-product__size-option.active {
+
+    border-color:
+        #e2b85c;
+
+    background:
+
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(244,208,120,.13),
+            transparent 75%
+        ),
+
+        linear-gradient(
+            145deg,
+            #292015,
+            #18130d
+        );
+
+    color:
+        #f2d17b;
+
+    box-shadow:
+
+        inset 0 1px 0
+        rgba(255,255,255,.10),
+
+        0 0 0 1px
+        rgba(216,166,60,.10),
+
+        0 7px 18px
+        rgba(0,0,0,.28);
+
+}
+
+
+/* ===============================================================
+   QUANTITY
+   =============================================================== */
+
+.love-romance-product__quantity {
+
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        24px;
+
+    margin:
+        8px 0 22px;
+
+}
+
+
+.love-romance-product__quantity button {
+
+    width:
+        44px;
+
+    height:
+        44px;
+
+    min-width:
+        44px;
+
+    min-height:
+        44px;
+
+    border:
+        1px solid
+        rgba(216,166,60,.42);
+
+    border-radius:
+        50%;
+
+    background:
+
+        radial-gradient(
+            circle at 50% 25%,
+            rgba(255,255,255,.04),
+            transparent 55%
+        ),
+
+        #171717;
+
+    color:
+        rgba(255,255,255,.72);
+
+    font-size:
+        22px;
+
+    font-weight:
+        300;
+
+    line-height:
+        1;
+
+    box-shadow:
+
+        inset 0 1px 0
+        rgba(255,255,255,.04),
+
+        0 5px 14px
+        rgba(0,0,0,.30);
+
+}
+
+
+.love-romance-product__quantity span {
+
+    min-width:
+        20px;
+
+    color:
+        rgba(255,255,255,.82);
+
+    font-size:
+        16px;
+
+    font-weight:
+        600;
+
+}
+
+
+/* ===============================================================
+   ADD TO CART
+   FULL WIDTH PREMIUM BUTTON
+   =============================================================== */
+
+.love-romance-product__button {
+
+    width:
+        100%;
+
+    height:
+        58px;
+
+    min-width:
+        100%;
+
+    min-height:
+        58px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid
+        #e6bd65;
+
+    border-radius:
+        999px;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #f8d87f 0%,
+            #e6b84d 45%,
+            #bd791c 100%
+        );
+
+    color:
+        #1a1207;
+
+    font-size:
+        11px;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        2px;
+
+    text-transform:
+        uppercase;
+
+    box-shadow:
+
+        inset 0 2px 1px
+        rgba(255,255,255,.65),
+
+        inset 0 -4px 8px
+        rgba(102,57,7,.30),
+
+        0 9px 20px
+        rgba(0,0,0,.38),
+
+        0 0 22px
+        rgba(216,166,60,.10);
+
+}
+
+
+/* ---------------------------------------------------------------
+   REMOVE CART EMOJI
+   --------------------------------------------------------------- */
+
+.love-romance-product__button::before {
+
+    content:
+        none;
+
+    display:
+        none;
+
+}
+
+
+.love-romance-product__button::after {
+
+    content:
+        none;
+
+    display:
+        none;
+
+}
+
+
+.love-romance-product__button:hover {
+
+    transform:
+        translateY(-3px);
+
+    filter:
+        brightness(1.06);
+
+    box-shadow:
+
+        inset 0 2px 1px
+        rgba(255,255,255,.72),
+
+        inset 0 -4px 8px
+        rgba(102,57,7,.24),
+
+        0 14px 28px
+        rgba(0,0,0,.45),
+
+        0 0 30px
+        rgba(216,166,60,.22);
+
+}
+
+
+.love-romance-product__button:active {
+
+    transform:
+        translateY(0)
+        scale(.985);
+
+}
+
+
+/* ===============================================================
+   MOBILE OPTIONS
+   =============================================================== */
+
+@media (max-width: 767px) {
+
+    .love-romance-product__body {
+
+        padding:
+            20px 16px 16px;
+
+    }
+
+
+    .love-romance-product__price {
+
+        margin-bottom:
+            20px;
+
+        font-size:
+            25px;
+
+    }
+
+
+    .love-romance-product__color-button,
+    .love-romance-product__color-option {
+
+        width:
+            46px;
+
+        height:
+            46px;
+
+        min-width:
+            46px;
+
+        min-height:
+            46px;
+
+    }
+
+
+    .love-romance-product__size-button,
+    .love-romance-product__size-option {
+
+        min-width:
+            86px;
+
+        height:
+            47px;
+
+        padding:
+            0 18px;
+
+        font-size:
+            11px;
+
+    }
+
+
+    .love-romance-product__quantity {
+
+        gap:
+            28px;
+
+        margin:
+            12px 0 22px;
+
+    }
+
+
+    .love-romance-product__quantity button {
+
+        width:
+            43px;
+
+        height:
+            43px;
+
+        min-width:
+            43px;
+
+        min-height:
+            43px;
+
+    }
+
+
+    .love-romance-product__button {
+
+        height:
+            60px;
+
+        min-height:
+            60px;
+
+        font-size:
+            10px;
+
+        letter-spacing:
+            2px;
+
+    }
+
+}
+
+
+/* ===============================================================
+   SMALL MOBILE
+   =============================================================== */
+
+@media (max-width: 420px) {
+
+    .love-romance-product__body {
+
+        padding:
+            18px 15px 15px;
+
+    }
+
+
+    .love-romance-product__price {
+
+        font-size:
+            24px;
+
+    }
+
+
+    .love-romance-product__size-button,
+    .love-romance-product__size-option {
+
+        min-width:
+            82px;
+
+        height:
+            45px;
+
+        padding:
+            0 16px;
+
+    }
+
+
+    .love-romance-product__button {
+
+        height:
+            58px;
+
+        min-height:
+            58px;
+
+    }
+
+}
