@@ -15,6 +15,11 @@ import {
     useState,
 } from "react";
 
+import type {
+    ChangeEvent,
+    FormEvent,
+} from "react";
+
 import {
     ArrowDown,
     ArrowUp,
@@ -26,6 +31,7 @@ import {
     Package,
     RefreshCw,
     Save,
+    Upload,
     X,
     XCircle,
 } from "lucide-react";
@@ -101,6 +107,17 @@ interface ProductFormData {
     image_url: string;
 
     features: string;
+
+}
+
+
+interface UploadResponse {
+
+    status: string;
+
+    message: string;
+
+    image_url: string;
 
 }
 
@@ -209,6 +226,14 @@ function AdminCollections() {
     const [
         savingProduct,
         setSavingProduct,
+    ] = useState(
+        false
+    );
+
+
+    const [
+        uploadingImage,
+        setUploadingImage,
     ] = useState(
         false
     );
@@ -399,6 +424,7 @@ function AdminCollections() {
 
             if (
                 savingProduct ||
+                uploadingImage ||
                 updatingProductId
             ) {
 
@@ -427,6 +453,11 @@ function AdminCollections() {
         (
             product: CollectionProduct
         ) => {
+
+            setError(
+                null
+            );
+
 
             setEditingProduct(
                 product
@@ -482,7 +513,8 @@ function AdminCollections() {
         () => {
 
             if (
-                savingProduct
+                savingProduct ||
+                uploadingImage
             ) {
 
                 return;
@@ -491,6 +523,11 @@ function AdminCollections() {
 
 
             setEditingProduct(
+                null
+            );
+
+
+            setError(
                 null
             );
 
@@ -545,13 +582,175 @@ function AdminCollections() {
 
 
     /* ============================================================
+       UPLOAD PRODUCT IMAGE
+    ============================================================ */
+
+    const handleImageUpload =
+        async (
+            event:
+                ChangeEvent<HTMLInputElement>
+        ) => {
+
+            const file =
+                event.target.files?.[
+                    0
+                ];
+
+
+            if (
+                !file
+            ) {
+
+                return;
+
+            }
+
+
+            const allowedTypes = [
+
+                "image/jpeg",
+
+                "image/png",
+
+                "image/webp",
+
+            ];
+
+
+            if (
+                !allowedTypes.includes(
+                    file.type
+                )
+            ) {
+
+                setError(
+                    "Only JPG, PNG and WEBP images are allowed."
+                );
+
+
+                event.target.value =
+                    "";
+
+                return;
+
+            }
+
+
+            if (
+                file.size >
+                5 * 1024 * 1024
+            ) {
+
+                setError(
+                    "Image size cannot exceed 5 MB."
+                );
+
+
+                event.target.value =
+                    "";
+
+                return;
+
+            }
+
+
+            try {
+
+                setUploadingImage(
+                    true
+                );
+
+
+                setError(
+                    null
+                );
+
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "image",
+                    file
+                );
+
+
+                const result =
+                    await apiRequest<UploadResponse>(
+
+                        "/api/upload/product",
+
+                        {
+
+                            method:
+                                "POST",
+
+                            body:
+                                formData,
+
+                        }
+
+                    );
+
+
+                setProductForm(
+                    (
+                        previous
+                    ) => (
+
+                        {
+                            ...previous,
+
+                            image_url:
+                                result.image_url,
+
+                        }
+
+                    )
+                );
+
+
+                event.target.value =
+                    "";
+
+            } catch (
+                error
+            ) {
+
+                console.error(
+                    "Unable to upload product image:",
+                    error
+                );
+
+
+                setError(
+                    error instanceof Error
+
+                        ? error.message
+
+                        : "Unable to upload image."
+                );
+
+            } finally {
+
+                setUploadingImage(
+                    false
+                );
+
+            }
+
+        };
+
+
+    /* ============================================================
        SAVE PRODUCT
     ============================================================ */
 
     const handleSaveProduct =
         async (
             event:
-                React.FormEvent<HTMLFormElement>
+                FormEvent<HTMLFormElement>
         ) => {
 
             event.preventDefault();
@@ -560,6 +759,19 @@ function AdminCollections() {
             if (
                 !editingProduct
             ) {
+
+                return;
+
+            }
+
+
+            if (
+                uploadingImage
+            ) {
+
+                setError(
+                    "Please wait until the image upload is complete."
+                );
 
                 return;
 
@@ -1157,6 +1369,8 @@ function AdminCollections() {
                                                 ||
                                                 savingProduct
                                                 ||
+                                                uploadingImage
+                                                ||
                                                 updatingProductId !==
                                                 null
                                             }
@@ -1300,10 +1514,6 @@ function AdminCollections() {
 
 
 
-                        {/* ==========================================
-                            LOADING
-                           ========================================== */}
-
                         {
                             isLoading && (
 
@@ -1330,10 +1540,6 @@ function AdminCollections() {
 
 
 
-                        {/* ==========================================
-                            ERROR
-                           ========================================== */}
-
                         {
                             !isLoading &&
                             error && (
@@ -1350,10 +1556,6 @@ function AdminCollections() {
                         }
 
 
-
-                        {/* ==========================================
-                            EMPTY
-                           ========================================== */}
 
                         {
                             !isLoading &&
@@ -1391,10 +1593,6 @@ function AdminCollections() {
 
 
 
-                        {/* ==========================================
-                            PRODUCTS GRID
-                           ========================================== */}
-
                         {
                             !isLoading &&
                             !error &&
@@ -1417,9 +1615,6 @@ function AdminCollections() {
                                                         product.product_id
                                                     }
                                                 >
-
-
-                                                    {/* IMAGE */}
 
                                                     <div
                                                         className="admin-collections__product-image"
@@ -1498,12 +1693,9 @@ function AdminCollections() {
 
 
 
-                                                    {/* BODY */}
-
                                                     <div
                                                         className="admin-collections__product-body"
                                                     >
-
 
                                                         <h3>
 
@@ -1557,8 +1749,6 @@ function AdminCollections() {
 
 
 
-                                                        {/* ACTIONS */}
-
                                                         <div
                                                             className="admin-collections__product-actions"
                                                         >
@@ -1575,6 +1765,8 @@ function AdminCollections() {
                                                                 }
                                                                 disabled={
                                                                     savingProduct
+                                                                    ||
+                                                                    uploadingImage
                                                                     ||
                                                                     updatingProductId !==
                                                                     null
@@ -1662,8 +1854,6 @@ function AdminCollections() {
                                                         </div>
 
 
-
-                                                        {/* ORDER ACTIONS */}
 
                                                         <div
                                                             className="admin-collections__order-actions"
@@ -1808,6 +1998,8 @@ function AdminCollections() {
                                     }
                                     disabled={
                                         savingProduct
+                                        ||
+                                        uploadingImage
                                     }
                                     aria-label="Close"
                                 >
@@ -1819,6 +2011,22 @@ function AdminCollections() {
                                 </button>
 
                             </div>
+
+
+
+                            {
+                                error && (
+
+                                    <div
+                                        className="admin-collections__error"
+                                    >
+
+                                        {error}
+
+                                    </div>
+
+                                )
+                            }
 
 
 
@@ -1961,7 +2169,69 @@ function AdminCollections() {
                                     </label>
 
 
+
+                                    {/* ==========================
+                                        IMAGE UPLOAD
+                                       ========================== */}
+
                                     <label>
+
+                                        <span>
+
+                                            Upload New Image
+
+                                        </span>
+
+
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            onChange={
+                                                handleImageUpload
+                                            }
+                                            disabled={
+                                                uploadingImage
+                                                ||
+                                                savingProduct
+                                            }
+                                        />
+
+                                    </label>
+
+
+
+                                    {
+                                        uploadingImage && (
+
+                                            <div
+                                                className="admin-collections__uploading"
+                                            >
+
+                                                <LoaderCircle
+                                                    size={18}
+                                                />
+
+
+                                                <span>
+
+                                                    Uploading image...
+
+                                                </span>
+
+                                            </div>
+
+                                        )
+                                    }
+
+
+
+                                    {/* ==========================
+                                        IMAGE URL
+                                       ========================== */}
+
+                                    <label
+                                        className="admin-collections__form-field--full"
+                                    >
 
                                         <span>
 
@@ -1986,9 +2256,43 @@ function AdminCollections() {
                                                     )
 
                                             }
+                                            placeholder="Image URL will appear here after upload"
                                         />
 
                                     </label>
+
+
+
+                                    {/* ==========================
+                                        IMAGE PREVIEW
+                                       ========================== */}
+
+                                    {
+                                        productForm.image_url && (
+
+                                            <div
+                                                className="admin-collections__image-preview"
+                                            >
+
+                                                <span>
+
+                                                    Image Preview
+
+                                                </span>
+
+
+                                                <img
+                                                    src={
+                                                        productForm.image_url
+                                                    }
+                                                    alt="Product preview"
+                                                />
+
+                                            </div>
+
+                                        )
+                                    }
+
 
 
                                     <label
@@ -2039,6 +2343,8 @@ function AdminCollections() {
                                         }
                                         disabled={
                                             savingProduct
+                                            ||
+                                            uploadingImage
                                         }
                                     >
 
@@ -2052,6 +2358,8 @@ function AdminCollections() {
                                         className="admin-collections__modal-save"
                                         disabled={
                                             savingProduct
+                                            ||
+                                            uploadingImage
                                         }
                                     >
 
@@ -2084,7 +2392,11 @@ function AdminCollections() {
 
                                                 ? "Saving..."
 
-                                                : "Save Changes"
+                                                : uploadingImage
+
+                                                    ? "Uploading Image..."
+
+                                                    : "Save Changes"
 
                                         }
 
