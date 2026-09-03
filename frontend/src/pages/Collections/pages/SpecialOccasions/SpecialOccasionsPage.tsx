@@ -81,6 +81,29 @@ interface CollectionProduct {
 
 
 /* ===============================================================
+   PRODUCT OPTIONS
+================================================================ */
+
+type ProductSize =
+    "11 oz" |
+    "15 oz";
+
+
+type ProductColor =
+    "White" |
+    "Black";
+
+
+interface ProductOptions {
+
+    size: ProductSize;
+
+    color: ProductColor;
+
+}
+
+
+/* ===============================================================
    COMPONENT
 ================================================================ */
 
@@ -119,6 +142,16 @@ function SpecialOccasionsPage() {
         quantities,
         setQuantities,
     ] = useState<Record<string, number>>(
+        {}
+    );
+
+
+    const [
+        productOptions,
+        setProductOptions,
+    ] = useState<
+        Record<string, ProductOptions>
+    >(
         {}
     );
 
@@ -276,6 +309,124 @@ function SpecialOccasionsPage() {
 
 
     /* ===========================================================
+       PRODUCT OPTIONS
+    ============================================================ */
+
+    const getProductOptions =
+        (
+            productId: string
+        ): ProductOptions => {
+
+            return productOptions[
+                productId
+            ] ?? {
+
+                size:
+                    "11 oz",
+
+                color:
+                    "White",
+
+            };
+
+        };
+
+
+    const changeProductSize =
+        (
+            productId: string,
+            size: ProductSize
+        ) => {
+
+            setProductOptions(
+                (
+                    current
+                ) => {
+
+                    const currentOptions =
+                        current[
+                            productId
+                        ] ?? {
+
+                            size:
+                                "11 oz" as ProductSize,
+
+                            color:
+                                "White" as ProductColor,
+
+                        };
+
+
+                    return {
+
+                        ...current,
+
+                        [
+                            productId
+                        ]: {
+
+                            ...currentOptions,
+
+                            size,
+
+                        },
+
+                    };
+
+                }
+            );
+
+        };
+
+
+    const changeProductColor =
+        (
+            productId: string,
+            color: ProductColor
+        ) => {
+
+            setProductOptions(
+                (
+                    current
+                ) => {
+
+                    const currentOptions =
+                        current[
+                            productId
+                        ] ?? {
+
+                            size:
+                                "11 oz" as ProductSize,
+
+                            color:
+                                "White" as ProductColor,
+
+                        };
+
+
+                    return {
+
+                        ...current,
+
+                        [
+                            productId
+                        ]: {
+
+                            ...currentOptions,
+
+                            color,
+
+                        },
+
+                    };
+
+                }
+            );
+
+        };
+
+
+    /* ===========================================================
        ADD TO CART
     ============================================================ */
 
@@ -284,6 +435,12 @@ function SpecialOccasionsPage() {
             product: CollectionProduct,
             quantity: number = 1
         ) => {
+
+            const options =
+                getProductOptions(
+                    product.product_id
+                );
+
 
             addToCart(
                 {
@@ -298,10 +455,10 @@ function SpecialOccasionsPage() {
                         "Special Occasions",
 
                     size:
-                        "Standard",
+                        options.size,
 
                     color:
-                        "Default",
+                        options.color,
 
                     price:
                         Number(
@@ -391,6 +548,7 @@ function SpecialOccasionsPage() {
                 ================================================== */}
 
                 <section className="special-occasions-hero">
+
 
                     <div className="special-occasions-hero__visual">
 
@@ -494,6 +652,7 @@ function SpecialOccasionsPage() {
 
                     <div className="special-occasions-section-heading">
 
+
                         <span>
 
                             {t.products.eyebrow}
@@ -579,6 +738,12 @@ function SpecialOccasionsPage() {
                                                 );
 
 
+                                            const options =
+                                                getProductOptions(
+                                                    product.product_id
+                                                );
+
+
                                             return (
 
                                                 <article
@@ -606,11 +771,13 @@ function SpecialOccasionsPage() {
                                                             ) => {
 
                                                                 if (
+
                                                                     event.key ===
                                                                     "Enter" ||
 
                                                                     event.key ===
                                                                     " "
+
                                                                 ) {
 
                                                                     event.preventDefault();
@@ -709,6 +876,184 @@ function SpecialOccasionsPage() {
                                                                 }
 
                                                             </strong>
+
+
+                                                        </div>
+
+
+
+                                                        {/* PRODUCT OPTIONS */}
+
+                                                        <div className="special-occasions-product-options">
+
+
+                                                            {/* COLOR */}
+
+                                                            <div className="special-occasions-product-options__group">
+
+
+                                                                <span className="special-occasions-product-options__label">
+
+                                                                    {
+                                                                        language === "es"
+                                                                            ? "COLOR"
+                                                                            : "COLOR"
+                                                                    }
+
+                                                                </span>
+
+
+                                                                <div className="special-occasions-product-options__colors">
+
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            `special-occasions-color-button special-occasions-color-button--white ${
+                                                                                options.color ===
+                                                                                "White"
+                                                                                    ? "is-selected"
+                                                                                    : ""
+                                                                            }`
+                                                                        }
+                                                                        onClick={() =>
+                                                                            changeProductColor(
+                                                                                product.product_id,
+                                                                                "White"
+                                                                            )
+                                                                        }
+                                                                        aria-label={
+                                                                            language === "es"
+                                                                                ? "Color blanco"
+                                                                                : "White color"
+                                                                        }
+                                                                        aria-pressed={
+                                                                            options.color ===
+                                                                            "White"
+                                                                        }
+                                                                    >
+
+                                                                        <span></span>
+
+                                                                    </button>
+
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            `special-occasions-color-button special-occasions-color-button--black ${
+                                                                                options.color ===
+                                                                                "Black"
+                                                                                    ? "is-selected"
+                                                                                    : ""
+                                                                            }`
+                                                                        }
+                                                                        onClick={() =>
+                                                                            changeProductColor(
+                                                                                product.product_id,
+                                                                                "Black"
+                                                                            )
+                                                                        }
+                                                                        aria-label={
+                                                                            language === "es"
+                                                                                ? "Color negro"
+                                                                                : "Black color"
+                                                                        }
+                                                                        aria-pressed={
+                                                                            options.color ===
+                                                                            "Black"
+                                                                        }
+                                                                    >
+
+                                                                        <span></span>
+
+                                                                    </button>
+
+
+                                                                </div>
+
+
+                                                            </div>
+
+
+
+                                                            {/* SIZE */}
+
+                                                            <div className="special-occasions-product-options__group">
+
+
+                                                                <span className="special-occasions-product-options__label">
+
+                                                                    {
+                                                                        language === "es"
+                                                                            ? "TAMAÑO"
+                                                                            : "SIZE"
+                                                                    }
+
+                                                                </span>
+
+
+                                                                <div className="special-occasions-product-options__sizes">
+
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            `special-occasions-size-button ${
+                                                                                options.size ===
+                                                                                "11 oz"
+                                                                                    ? "is-selected"
+                                                                                    : ""
+                                                                            }`
+                                                                        }
+                                                                        onClick={() =>
+                                                                            changeProductSize(
+                                                                                product.product_id,
+                                                                                "11 oz"
+                                                                            )
+                                                                        }
+                                                                        aria-pressed={
+                                                                            options.size ===
+                                                                            "11 oz"
+                                                                        }
+                                                                    >
+
+                                                                        11 oz
+
+                                                                    </button>
+
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            `special-occasions-size-button ${
+                                                                                options.size ===
+                                                                                "15 oz"
+                                                                                    ? "is-selected"
+                                                                                    : ""
+                                                                            }`
+                                                                        }
+                                                                        onClick={() =>
+                                                                            changeProductSize(
+                                                                                product.product_id,
+                                                                                "15 oz"
+                                                                            )
+                                                                        }
+                                                                        aria-pressed={
+                                                                            options.size ===
+                                                                            "15 oz"
+                                                                        }
+                                                                    >
+
+                                                                        15 oz
+
+                                                                    </button>
+
+
+                                                                </div>
+
+
+                                                            </div>
 
 
                                                         </div>
@@ -1113,6 +1458,9 @@ function SpecialOccasionsPage() {
                                     </div>
 
 
+
+                                    {/* DESCRIPTION */}
+
                                     <p>
 
                                         {
@@ -1121,6 +1469,203 @@ function SpecialOccasionsPage() {
 
                                     </p>
 
+
+
+                                    {/* PRODUCT OPTIONS */}
+
+                                    <div className="special-occasions-product-options">
+
+
+                                        {/* COLOR */}
+
+                                        <div className="special-occasions-product-options__group">
+
+
+                                            <span className="special-occasions-product-options__label">
+
+                                                {
+                                                    language === "es"
+                                                        ? "COLOR"
+                                                        : "COLOR"
+                                                }
+
+                                            </span>
+
+
+                                            <div className="special-occasions-product-options__colors">
+
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        `special-occasions-color-button special-occasions-color-button--white ${
+                                                            getProductOptions(
+                                                                selectedProduct.product_id
+                                                            ).color ===
+                                                            "White"
+                                                                ? "is-selected"
+                                                                : ""
+                                                        }`
+                                                    }
+                                                    onClick={() =>
+                                                        changeProductColor(
+                                                            selectedProduct.product_id,
+                                                            "White"
+                                                        )
+                                                    }
+                                                    aria-label={
+                                                        language === "es"
+                                                            ? "Color blanco"
+                                                            : "White color"
+                                                    }
+                                                    aria-pressed={
+                                                        getProductOptions(
+                                                            selectedProduct.product_id
+                                                        ).color ===
+                                                        "White"
+                                                    }
+                                                >
+
+                                                    <span></span>
+
+                                                </button>
+
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        `special-occasions-color-button special-occasions-color-button--black ${
+                                                            getProductOptions(
+                                                                selectedProduct.product_id
+                                                            ).color ===
+                                                            "Black"
+                                                                ? "is-selected"
+                                                                : ""
+                                                        }`
+                                                    }
+                                                    onClick={() =>
+                                                        changeProductColor(
+                                                            selectedProduct.product_id,
+                                                            "Black"
+                                                        )
+                                                    }
+                                                    aria-label={
+                                                        language === "es"
+                                                            ? "Color negro"
+                                                            : "Black color"
+                                                    }
+                                                    aria-pressed={
+                                                        getProductOptions(
+                                                            selectedProduct.product_id
+                                                        ).color ===
+                                                        "Black"
+                                                    }
+                                                >
+
+                                                    <span></span>
+
+                                                </button>
+
+
+                                            </div>
+
+
+                                        </div>
+
+
+
+                                        {/* SIZE */}
+
+                                        <div className="special-occasions-product-options__group">
+
+
+                                            <span className="special-occasions-product-options__label">
+
+                                                {
+                                                    language === "es"
+                                                        ? "TAMAÑO"
+                                                        : "SIZE"
+                                                }
+
+                                            </span>
+
+
+                                            <div className="special-occasions-product-options__sizes">
+
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        `special-occasions-size-button ${
+                                                            getProductOptions(
+                                                                selectedProduct.product_id
+                                                            ).size ===
+                                                            "11 oz"
+                                                                ? "is-selected"
+                                                                : ""
+                                                        }`
+                                                    }
+                                                    onClick={() =>
+                                                        changeProductSize(
+                                                            selectedProduct.product_id,
+                                                            "11 oz"
+                                                        )
+                                                    }
+                                                    aria-pressed={
+                                                        getProductOptions(
+                                                            selectedProduct.product_id
+                                                        ).size ===
+                                                        "11 oz"
+                                                    }
+                                                >
+
+                                                    11 oz
+
+                                                </button>
+
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        `special-occasions-size-button ${
+                                                            getProductOptions(
+                                                                selectedProduct.product_id
+                                                            ).size ===
+                                                            "15 oz"
+                                                                ? "is-selected"
+                                                                : ""
+                                                        }`
+                                                    }
+                                                    onClick={() =>
+                                                        changeProductSize(
+                                                            selectedProduct.product_id,
+                                                            "15 oz"
+                                                        )
+                                                    }
+                                                    aria-pressed={
+                                                        getProductOptions(
+                                                            selectedProduct.product_id
+                                                        ).size ===
+                                                        "15 oz"
+                                                    }
+                                                >
+
+                                                    15 oz
+
+                                                </button>
+
+
+                                            </div>
+
+
+                                        </div>
+
+
+                                    </div>
+
+
+
+                                    {/* PRICE */}
 
                                     <div className="special-occasions-lightbox__price">
 
@@ -1154,6 +1699,8 @@ function SpecialOccasionsPage() {
                                     </div>
 
 
+
+                                    {/* ADD TO CART */}
 
                                     <button
                                         type="button"
@@ -1190,6 +1737,7 @@ function SpecialOccasionsPage() {
 
 
             <Footer />
+
 
         </>
 
