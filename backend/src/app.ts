@@ -33,6 +33,8 @@ import productRoutes from "./routes/product.routes";
 
 import collectionRoutes from "./routes/collection.routes";
 
+import subscriberRoutes from "./routes/subscriber.routes";
+
 
 const app =
     express();
@@ -122,6 +124,14 @@ app.use(
 app.use(
     "/api/collections",
     collectionRoutes
+);
+
+
+// Subscriber routes
+
+app.use(
+    "/api/subscribers",
+    subscriberRoutes
 );
 
 
