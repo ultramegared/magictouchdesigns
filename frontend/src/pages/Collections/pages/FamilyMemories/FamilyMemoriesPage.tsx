@@ -17,7 +17,9 @@ import {
     useState,
 } from "react";
 
-import { Link } from "react-router-dom";
+import {
+    Link,
+} from "react-router-dom";
 
 import Header from "../../../../components/layout/Header";
 import Footer from "../../../../components/home/Footer";
@@ -82,6 +84,29 @@ interface CollectionProductsResponse {
 
 
 /* ===============================================================
+   PRODUCT OPTIONS
+================================================================ */
+
+type ProductSize =
+    "11 oz" |
+    "15 oz";
+
+
+type ProductColor =
+    "White" |
+    "Black";
+
+
+interface ProductOptions {
+
+    size: ProductSize;
+
+    color: ProductColor;
+
+}
+
+
+/* ===============================================================
    COMPONENT
 ================================================================ */
 
@@ -90,7 +115,7 @@ function FamilyMemoriesPage() {
 
     /* ===========================================================
        LANGUAGE
-    =========================================================== */
+    ============================================================ */
 
     const {
         language,
@@ -106,7 +131,7 @@ function FamilyMemoriesPage() {
 
     /* ===========================================================
        PRODUCTS
-    =========================================================== */
+    ============================================================ */
 
     const [
         products,
@@ -137,7 +162,7 @@ function FamilyMemoriesPage() {
 
     /* ===========================================================
        LIGHTBOX
-    =========================================================== */
+    ============================================================ */
 
     const [
         selectedProduct,
@@ -150,7 +175,7 @@ function FamilyMemoriesPage() {
 
     /* ===========================================================
        QUANTITIES
-    =========================================================== */
+    ============================================================ */
 
     const [
         quantities,
@@ -162,8 +187,23 @@ function FamilyMemoriesPage() {
 
 
     /* ===========================================================
+       PRODUCT OPTIONS
+    ============================================================ */
+
+    const [
+        productOptions,
+        setProductOptions,
+    ] =
+        useState<
+            Record<string, ProductOptions>
+        >(
+            {}
+        );
+
+
+    /* ===========================================================
        LOAD PRODUCTS
-    =========================================================== */
+    ============================================================ */
 
     useEffect(
         () => {
@@ -198,6 +238,12 @@ function FamilyMemoriesPage() {
                                 result.products
                                 || []
                             )
+                                .filter(
+                                    (
+                                        product
+                                    ) =>
+                                        product.is_active
+                                )
                                 .sort(
                                     (
                                         a,
@@ -258,7 +304,7 @@ function FamilyMemoriesPage() {
 
     /* ===========================================================
        QUANTITY
-    =========================================================== */
+    ============================================================ */
 
     const getQuantity =
         (
@@ -319,14 +365,141 @@ function FamilyMemoriesPage() {
 
 
     /* ===========================================================
+       PRODUCT OPTIONS
+    ============================================================ */
+
+    const getProductOptions =
+        (
+            productId: string
+        ): ProductOptions => {
+
+            return productOptions[
+                productId
+            ]
+            ?? {
+
+                size:
+                    "11 oz",
+
+                color:
+                    "White",
+
+            };
+
+        };
+
+
+    const changeProductSize =
+        (
+            productId: string,
+            size: ProductSize
+        ) => {
+
+            setProductOptions(
+                (
+                    current
+                ) => {
+
+                    const currentOptions =
+                        current[
+                            productId
+                        ]
+                        ?? {
+
+                            size:
+                                "11 oz" as ProductSize,
+
+                            color:
+                                "White" as ProductColor,
+
+                        };
+
+
+                    return {
+
+                        ...current,
+
+                        [
+                            productId
+                        ]: {
+
+                            ...currentOptions,
+
+                            size,
+
+                        },
+
+                    };
+
+                }
+            );
+
+        };
+
+
+    const changeProductColor =
+        (
+            productId: string,
+            color: ProductColor
+        ) => {
+
+            setProductOptions(
+                (
+                    current
+                ) => {
+
+                    const currentOptions =
+                        current[
+                            productId
+                        ]
+                        ?? {
+
+                            size:
+                                "11 oz" as ProductSize,
+
+                            color:
+                                "White" as ProductColor,
+
+                        };
+
+
+                    return {
+
+                        ...current,
+
+                        [
+                            productId
+                        ]: {
+
+                            ...currentOptions,
+
+                            color,
+
+                        },
+
+                    };
+
+                }
+            );
+
+        };
+
+
+    /* ===========================================================
        ADD TO CART
-    =========================================================== */
+    ============================================================ */
 
     const handleAddToCart =
         (
             product: CollectionProduct,
             quantity: number = 1
         ) => {
+
+            const options =
+                getProductOptions(
+                    product.product_id
+                );
+
 
             addToCart(
 
@@ -342,10 +515,10 @@ function FamilyMemoriesPage() {
                         "Family & Memories",
 
                     size:
-                        "Standard",
+                        options.size,
 
                     color:
-                        "Default",
+                        options.color,
 
                     price:
                         Number(
@@ -398,7 +571,7 @@ function FamilyMemoriesPage() {
 
     /* ===========================================================
        RENDER
-    =========================================================== */
+    ============================================================ */
 
     return (
 
@@ -582,9 +755,7 @@ function FamilyMemoriesPage() {
                     </div>
 
 
-                    {/* ==============================================
-                        LOADING
-                       ============================================== */}
+                    {/* LOADING */}
 
                     {
                         isLoading && (
@@ -608,9 +779,7 @@ function FamilyMemoriesPage() {
                     }
 
 
-                    {/* ==============================================
-                        ERROR
-                       ============================================== */}
+                    {/* ERROR */}
 
                     {
                         !isLoading &&
@@ -635,9 +804,7 @@ function FamilyMemoriesPage() {
                     }
 
 
-                    {/* ==============================================
-                        EMPTY
-                       ============================================== */}
+                    {/* EMPTY */}
 
                     {
                         !isLoading &&
@@ -663,9 +830,7 @@ function FamilyMemoriesPage() {
                     }
 
 
-                    {/* ==============================================
-                        PRODUCTS
-                       ============================================== */}
+                    {/* PRODUCTS */}
 
                     {
                         !isLoading &&
@@ -685,6 +850,12 @@ function FamilyMemoriesPage() {
 
                                             const quantity =
                                                 getQuantity(
+                                                    product.product_id
+                                                );
+
+
+                                            const options =
+                                                getProductOptions(
                                                     product.product_id
                                                 );
 
@@ -840,6 +1011,235 @@ function FamilyMemoriesPage() {
                                                                 }
 
                                                             </strong>
+
+                                                        </div>
+
+
+                                                        {/* PRODUCT OPTIONS */}
+
+                                                        <div
+                                                            className="family-memories-product-options"
+                                                        >
+
+
+                                                            {/* COLOR */}
+
+                                                            <div
+                                                                className="family-memories-product-options__group"
+                                                            >
+
+                                                                <span
+                                                                    className="family-memories-product-options__label"
+                                                                >
+
+                                                                    {
+                                                                        language === "es"
+
+                                                                            ? "COLOR"
+
+                                                                            : "COLOR"
+                                                                    }
+
+                                                                </span>
+
+
+                                                                <div
+                                                                    className="family-memories-product-options__colors"
+                                                                >
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            `family-memories-color-button family-memories-color-button--white ${
+                                                                                options.color ===
+                                                                                "White"
+
+                                                                                    ? "is-selected"
+
+                                                                                    : ""
+                                                                            }`
+                                                                        }
+                                                                        onClick={() =>
+
+                                                                            changeProductColor(
+
+                                                                                product.product_id,
+
+                                                                                "White"
+
+                                                                            )
+
+                                                                        }
+                                                                        aria-label={
+
+                                                                            language === "es"
+
+                                                                                ? "Color blanco"
+
+                                                                                : "White color"
+
+                                                                        }
+                                                                        aria-pressed={
+
+                                                                            options.color ===
+                                                                            "White"
+
+                                                                        }
+                                                                    >
+
+                                                                        <span></span>
+
+                                                                    </button>
+
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            `family-memories-color-button family-memories-color-button--black ${
+                                                                                options.color ===
+                                                                                "Black"
+
+                                                                                    ? "is-selected"
+
+                                                                                    : ""
+                                                                            }`
+                                                                        }
+                                                                        onClick={() =>
+
+                                                                            changeProductColor(
+
+                                                                                product.product_id,
+
+                                                                                "Black"
+
+                                                                            )
+
+                                                                        }
+                                                                        aria-label={
+
+                                                                            language === "es"
+
+                                                                                ? "Color negro"
+
+                                                                                : "Black color"
+
+                                                                        }
+                                                                        aria-pressed={
+
+                                                                            options.color ===
+                                                                            "Black"
+
+                                                                        }
+                                                                    >
+
+                                                                        <span></span>
+
+                                                                    </button>
+
+                                                                </div>
+
+                                                            </div>
+
+
+                                                            {/* SIZE */}
+
+                                                            <div
+                                                                className="family-memories-product-options__group"
+                                                            >
+
+                                                                <span
+                                                                    className="family-memories-product-options__label"
+                                                                >
+
+                                                                    {
+                                                                        language === "es"
+
+                                                                            ? "TAMAÑO"
+
+                                                                            : "SIZE"
+                                                                    }
+
+                                                                </span>
+
+
+                                                                <div
+                                                                    className="family-memories-product-options__sizes"
+                                                                >
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            `family-memories-size-button ${
+                                                                                options.size ===
+                                                                                "11 oz"
+
+                                                                                    ? "is-selected"
+
+                                                                                    : ""
+                                                                            }`
+                                                                        }
+                                                                        onClick={() =>
+
+                                                                            changeProductSize(
+
+                                                                                product.product_id,
+
+                                                                                "11 oz"
+
+                                                                            )
+
+                                                                        }
+                                                                        aria-pressed={
+
+                                                                            options.size ===
+                                                                            "11 oz"
+
+                                                                        }
+                                                                    >
+
+                                                                        11 oz
+
+                                                                    </button>
+
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            `family-memories-size-button ${
+                                                                                options.size ===
+                                                                                "15 oz"
+
+                                                                                    ? "is-selected"
+
+                                                                                    : ""
+                                                                            }`
+                                                                        }
+                                                                        onClick={() =>
+
+                                                                            changeProductSize(
+
+                                                                                product.product_id,
+
+                                                                                "15 oz"
+
+                                                                            )
+
+                                                                        }
+                                                                        aria-pressed={
+
+                                                                            options.size ===
+                                                                            "15 oz"
+
+                                                                        }
+                                                                    >
+
+                                                                        15 oz
+
+                                                                    </button>
+
+                                                                </div>
+
+                                                            </div>
 
                                                         </div>
 
@@ -1322,6 +1722,8 @@ function FamilyMemoriesPage() {
                                     </div>
 
 
+                                    {/* DESCRIPTION */}
+
                                     <p>
 
                                         {
@@ -1330,6 +1732,247 @@ function FamilyMemoriesPage() {
 
                                     </p>
 
+
+                                    {/* PRODUCT OPTIONS */}
+
+                                    <div
+                                        className="family-memories-product-options"
+                                    >
+
+
+                                        {/* COLOR */}
+
+                                        <div
+                                            className="family-memories-product-options__group"
+                                        >
+
+                                            <span
+                                                className="family-memories-product-options__label"
+                                            >
+
+                                                COLOR
+
+                                            </span>
+
+
+                                            <div
+                                                className="family-memories-product-options__colors"
+                                            >
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        `family-memories-color-button family-memories-color-button--white ${
+                                                            getProductOptions(
+                                                                selectedProduct.product_id
+                                                            ).color ===
+                                                            "White"
+
+                                                                ? "is-selected"
+
+                                                                : ""
+                                                        }`
+                                                    }
+                                                    onClick={() =>
+
+                                                        changeProductColor(
+
+                                                            selectedProduct.product_id,
+
+                                                            "White"
+
+                                                        )
+
+                                                    }
+                                                    aria-label={
+
+                                                        language === "es"
+
+                                                            ? "Color blanco"
+
+                                                            : "White color"
+
+                                                    }
+                                                    aria-pressed={
+
+                                                        getProductOptions(
+                                                            selectedProduct.product_id
+                                                        ).color ===
+                                                        "White"
+
+                                                    }
+                                                >
+
+                                                    <span></span>
+
+                                                </button>
+
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        `family-memories-color-button family-memories-color-button--black ${
+                                                            getProductOptions(
+                                                                selectedProduct.product_id
+                                                            ).color ===
+                                                            "Black"
+
+                                                                ? "is-selected"
+
+                                                                : ""
+                                                        }`
+                                                    }
+                                                    onClick={() =>
+
+                                                        changeProductColor(
+
+                                                            selectedProduct.product_id,
+
+                                                            "Black"
+
+                                                        )
+
+                                                    }
+                                                    aria-label={
+
+                                                        language === "es"
+
+                                                            ? "Color negro"
+
+                                                            : "Black color"
+
+                                                    }
+                                                    aria-pressed={
+
+                                                        getProductOptions(
+                                                            selectedProduct.product_id
+                                                        ).color ===
+                                                        "Black"
+
+                                                    }
+                                                >
+
+                                                    <span></span>
+
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        {/* SIZE */}
+
+                                        <div
+                                            className="family-memories-product-options__group"
+                                        >
+
+                                            <span
+                                                className="family-memories-product-options__label"
+                                            >
+
+                                                {
+                                                    language === "es"
+
+                                                        ? "TAMAÑO"
+
+                                                        : "SIZE"
+                                                }
+
+                                            </span>
+
+
+                                            <div
+                                                className="family-memories-product-options__sizes"
+                                            >
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        `family-memories-size-button ${
+                                                            getProductOptions(
+                                                                selectedProduct.product_id
+                                                            ).size ===
+                                                            "11 oz"
+
+                                                                ? "is-selected"
+
+                                                                : ""
+                                                        }`
+                                                    }
+                                                    onClick={() =>
+
+                                                        changeProductSize(
+
+                                                            selectedProduct.product_id,
+
+                                                            "11 oz"
+
+                                                        )
+
+                                                    }
+                                                    aria-pressed={
+
+                                                        getProductOptions(
+                                                            selectedProduct.product_id
+                                                        ).size ===
+                                                        "11 oz"
+
+                                                    }
+                                                >
+
+                                                    11 oz
+
+                                                </button>
+
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        `family-memories-size-button ${
+                                                            getProductOptions(
+                                                                selectedProduct.product_id
+                                                            ).size ===
+                                                            "15 oz"
+
+                                                                ? "is-selected"
+
+                                                                : ""
+                                                        }`
+                                                    }
+                                                    onClick={() =>
+
+                                                        changeProductSize(
+
+                                                            selectedProduct.product_id,
+
+                                                            "15 oz"
+
+                                                        )
+
+                                                    }
+                                                    aria-pressed={
+
+                                                        getProductOptions(
+                                                            selectedProduct.product_id
+                                                        ).size ===
+                                                        "15 oz"
+
+                                                    }
+                                                >
+
+                                                    15 oz
+
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* PRICE */}
 
                                     <div
                                         className="family-memories-lightbox__price"
@@ -1366,6 +2009,8 @@ function FamilyMemoriesPage() {
 
                                     </div>
 
+
+                                    {/* ADD TO CART */}
 
                                     <button
                                         type="button"
