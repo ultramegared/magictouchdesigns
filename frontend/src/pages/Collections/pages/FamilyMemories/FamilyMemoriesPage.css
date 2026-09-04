@@ -4565,3 +4565,22 @@ body {
     }
 
 }
+
+
+/* BOTÓN ADD TO CART - TAMAÑO MÁS PEQUEÑO */
+
+.family-memories-lightbox__cart-button {
+    min-height: 64px !important;
+}
+
+@media (max-width: 767px) {
+    .family-memories-lightbox__cart-button {
+        min-height: 64px !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .family-memories-lightbox__cart-button {
+        min-height: 64px !important;
+    }
+}
