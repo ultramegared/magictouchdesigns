@@ -3897,12 +3897,7 @@ body {
     ) !important;
 }
 
-@media (max-width: 768px) {
-
-  html,
-  body {
-    background: #090909 !important;
-  }
+@media (max-width: 768px) {t
 
   .family-memories-page {
     min-height: 100vh;
