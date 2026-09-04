@@ -3917,9 +3917,36 @@ body {
 }
 
 
+
+
 /* ===============================================================
-   PREMIUM PRODUCT LIGHTBOX OPTIONS
-   FINAL PREMIUM STYLE
+   FINAL PRODUCT & LIGHTBOX FIX
+   COMPACT PREMIUM VERSION
+   =============================================================== */
+
+
+/* ===============================================================
+   NORMAL PRODUCT CARDS
+   =============================================================== */
+
+.family-memories-product__image {
+
+    aspect-ratio: 1 / 1.02;
+
+}
+
+
+.family-memories-product__body {
+
+    padding: 10px;
+
+    gap: 10px;
+
+}
+
+
+/* ===============================================================
+   LIGHTBOX PRODUCT OPTIONS
    =============================================================== */
 
 .family-memories-product-options {
@@ -3928,9 +3955,9 @@ body {
 
     flex-direction: column;
 
-    gap: 22px;
+    gap: 16px;
 
-    margin-top: 28px;
+    margin-top: 22px;
 
 }
 
@@ -3941,7 +3968,7 @@ body {
 
     flex-direction: column;
 
-    gap: 12px;
+    gap: 9px;
 
 }
 
@@ -3952,11 +3979,11 @@ body {
 
     color: #d8a63c;
 
-    font-size: 11px;
+    font-size: 10px;
 
     font-weight: 800;
 
-    letter-spacing: 3px;
+    letter-spacing: 2.5px;
 
     text-transform: uppercase;
 
@@ -3964,7 +3991,7 @@ body {
 
 
 /* ===============================================================
-   PREMIUM COLOR BUTTONS
+   COLOR BUTTONS
    =============================================================== */
 
 .family-memories-product-options__colors {
@@ -3973,7 +4000,7 @@ body {
 
     align-items: center;
 
-    gap: 14px;
+    gap: 12px;
 
 }
 
@@ -3982,9 +4009,9 @@ body {
 
     position: relative;
 
-    width: 56px;
+    width: 46px;
 
-    height: 56px;
+    height: 46px;
 
     padding: 0;
 
@@ -3997,16 +4024,14 @@ body {
     border-radius: 50%;
 
     border:
-
-        2px solid
-        rgba(255,255,255,.20);
+        1px solid rgba(255,255,255,.25);
 
     background:
 
         linear-gradient(
             145deg,
             rgba(255,255,255,.06),
-            rgba(0,0,0,.30)
+            rgba(0,0,0,.28)
         );
 
     cursor: pointer;
@@ -4016,34 +4041,32 @@ body {
         inset 0 1px 0
         rgba(255,255,255,.08),
 
-        0 6px 18px
-        rgba(0,0,0,.35);
+        0 5px 14px
+        rgba(0,0,0,.30);
 
     transition:
 
-        transform .25s ease,
+        transform .2s ease,
 
-        border-color .25s ease,
+        border-color .2s ease,
 
-        box-shadow .25s ease;
+        box-shadow .2s ease;
 
 }
 
 
 .family-memories-color-button:hover {
 
-    transform:
-
-        scale(1.05);
+    transform: scale(1.04);
 
 }
 
 
 .family-memories-color-button span {
 
-    width: 38px;
+    width: 30px;
 
-    height: 38px;
+    height: 30px;
 
     display: block;
 
@@ -4059,14 +4082,12 @@ body {
         radial-gradient(
             circle at 35% 30%,
             #ffffff 0%,
-            #f4f4f4 45%,
-            #d8d8d8 100%
+            #f2f2f2 45%,
+            #d4d4d4 100%
         );
 
     border:
-
-        1px solid
-        rgba(0,0,0,.20);
+        1px solid rgba(0,0,0,.20);
 
 }
 
@@ -4077,32 +4098,28 @@ body {
 
         radial-gradient(
             circle at 35% 30%,
-            #3a3a3a 0%,
+            #454545 0%,
             #111111 45%,
             #020202 100%
         );
 
     border:
-
-        1px solid
-        rgba(255,255,255,.18);
+        1px solid rgba(255,255,255,.18);
 
 }
 
 
 .family-memories-color-button.is-selected {
 
-    border-color:
-
-        #f0c96d;
+    border-color: #f0c96d;
 
     box-shadow:
 
-        0 0 0 3px
-        rgba(216,166,60,.22),
+        0 0 0 2px
+        rgba(216,166,60,.20),
 
-        0 0 22px
-        rgba(216,166,60,.35),
+        0 0 16px
+        rgba(216,166,60,.28),
 
         inset 0 1px 0
         rgba(255,255,255,.12);
@@ -4111,7 +4128,7 @@ body {
 
 
 /* ===============================================================
-   PREMIUM SIZE BUTTONS
+   SIZE BUTTONS
    =============================================================== */
 
 .family-memories-product-options__sizes {
@@ -4122,7 +4139,7 @@ body {
 
     align-items: center;
 
-    gap: 16px;
+    gap: 12px;
 
 }
 
@@ -4133,9 +4150,9 @@ body {
 
     min-width: 0;
 
-    height: 64px;
+    height: 54px;
 
-    padding: 0 20px;
+    padding: 0 14px;
 
     display: flex;
 
@@ -4143,12 +4160,10 @@ body {
 
     justify-content: center;
 
-    border-radius: 16px;
+    border-radius: 14px;
 
     border:
-
-        1px solid
-        rgba(216,166,60,.50);
+        1px solid rgba(216,166,60,.45);
 
     background:
 
@@ -4159,10 +4174,9 @@ body {
         );
 
     color:
-
         rgba(255,255,255,.80);
 
-    font-size: 17px;
+    font-size: 15px;
 
     font-weight: 600;
 
@@ -4175,20 +4189,18 @@ body {
         inset 0 1px 0
         rgba(255,255,255,.05),
 
-        0 6px 18px
-        rgba(0,0,0,.24);
+        0 4px 12px
+        rgba(0,0,0,.20);
 
     transition:
 
-        transform .25s ease,
+        transform .2s ease,
 
-        border-color .25s ease,
+        border-color .2s ease,
 
-        background .25s ease,
+        background .2s ease,
 
-        color .25s ease,
-
-        box-shadow .25s ease;
+        color .2s ease;
 
 }
 
@@ -4196,12 +4208,10 @@ body {
 .family-memories-size-button:hover {
 
     transform:
-
-        translateY(-2px);
+        translateY(-1px);
 
     border-color:
-
-        rgba(240,201,109,.90);
+        rgba(240,201,109,.85);
 
 }
 
@@ -4209,37 +4219,32 @@ body {
 .family-memories-size-button.is-selected {
 
     border-color:
-
         #f0c96d;
 
     background:
 
         linear-gradient(
             135deg,
-            rgba(216,166,60,.22),
-            rgba(70,52,24,.32)
+            rgba(216,166,60,.20),
+            rgba(70,52,24,.28)
         );
 
     color:
-
         #f3d27d;
 
     box-shadow:
 
-        inset 0 1px 0
-        rgba(255,255,255,.10),
+        0 0 0 1px
+        rgba(216,166,60,.10),
 
-        0 0 0 2px
-        rgba(216,166,60,.08),
-
-        0 0 18px
-        rgba(216,166,60,.15);
+        0 0 14px
+        rgba(216,166,60,.12);
 
 }
 
 
 /* ===============================================================
-   PREMIUM PRICE
+   PRICE
    =============================================================== */
 
 .family-memories-lightbox__price {
@@ -4250,11 +4255,9 @@ body {
 
     align-items: flex-start;
 
-    gap: 12px;
+    gap: 8px;
 
-    margin-top: 30px;
-
-    padding-top: 4px;
+    margin-top: 22px;
 
 }
 
@@ -4262,14 +4265,13 @@ body {
 .family-memories-lightbox__price span {
 
     color:
-
         #d8a63c;
 
-    font-size: 11px;
+    font-size: 10px;
 
     font-weight: 800;
 
-    letter-spacing: 3px;
+    letter-spacing: 2.8px;
 
     text-transform: uppercase;
 
@@ -4279,50 +4281,43 @@ body {
 .family-memories-lightbox__price strong {
 
     color:
-
         #ffffff;
 
     font-family:
-
         Georgia,
         "Times New Roman",
         serif;
 
     font-size:
-
-        clamp(
-            32px,
-            4vw,
-            44px
-        );
+        clamp(28px, 7vw, 38px);
 
     font-weight: 500;
 
     line-height: 1;
 
-    letter-spacing: .5px;
+    letter-spacing: .3px;
 
     text-shadow:
 
-        0 3px 15px
+        0 3px 12px
         rgba(0,0,0,.35);
 
 }
 
 
 /* ===============================================================
-   PREMIUM ADD TO CART BUTTON
+   PREMIUM ADD TO CART
    =============================================================== */
 
 .family-memories-lightbox__cart-button {
 
     width: 100%;
 
-    min-height: 64px;
+    min-height: 54px;
 
-    margin-top: 28px;
+    margin-top: 22px;
 
-    padding: 0 30px;
+    padding: 0 22px;
 
     display: flex;
 
@@ -4331,9 +4326,7 @@ body {
     justify-content: center;
 
     border:
-
-        1px solid
-        #f2d17b;
+        1px solid #f2d17b;
 
     border-radius: 999px;
 
@@ -4341,20 +4334,19 @@ body {
 
         linear-gradient(
             180deg,
-            #f6d987 0%,
-            #e5b84f 48%,
+            #f7dc8b 0%,
+            #e6ba51 50%,
             #c78b25 100%
         );
 
     color:
-
         #171108;
 
-    font-size: 12px;
+    font-size: 10px;
 
     font-weight: 900;
 
-    letter-spacing: 3px;
+    letter-spacing: 2.8px;
 
     text-transform: uppercase;
 
@@ -4366,21 +4358,21 @@ body {
         inset 0 -2px 5px
         rgba(112,69,9,.25),
 
-        0 12px 28px
-        rgba(0,0,0,.38),
+        0 8px 20px
+        rgba(0,0,0,.30),
 
-        0 0 25px
-        rgba(216,166,60,.12);
+        0 0 18px
+        rgba(216,166,60,.10);
 
     cursor: pointer;
 
     transition:
 
-        transform .25s ease,
+        transform .2s ease,
 
-        filter .25s ease,
+        filter .2s ease,
 
-        box-shadow .25s ease;
+        box-shadow .2s ease;
 
 }
 
@@ -4388,26 +4380,10 @@ body {
 .family-memories-lightbox__cart-button:hover {
 
     transform:
-
-        translateY(-3px);
+        translateY(-2px);
 
     filter:
-
-        brightness(1.06);
-
-    box-shadow:
-
-        inset 0 1px 0
-        rgba(255,255,255,.85),
-
-        inset 0 -2px 5px
-        rgba(112,69,9,.25),
-
-        0 16px 34px
-        rgba(0,0,0,.48),
-
-        0 0 32px
-        rgba(216,166,60,.22);
+        brightness(1.05);
 
 }
 
@@ -4415,172 +4391,261 @@ body {
 .family-memories-lightbox__cart-button:active {
 
     transform:
-
-        translateY(0)
         scale(.99);
 
 }
 
 
 /* ===============================================================
-   MOBILE PREMIUM PRODUCT LIGHTBOX
+   MOBILE LIGHTBOX
    =============================================================== */
 
 @media (max-width: 767px) {
 
+
+    /* LA IMAGEN AMPLIADA YA NO OCUPA MEDIA PANTALLA */
+
+    .family-memories-lightbox {
+
+        padding: 12px 10px;
+
+    }
+
+
+    .family-memories-lightbox__content {
+
+        width: 100%;
+
+        margin: 0 auto 18px;
+
+        border-radius: 18px;
+
+    }
+
+
+    .family-memories-lightbox__visual {
+
+        width: 100%;
+
+        background: #111;
+
+    }
+
+
+    .family-memories-lightbox__image {
+
+        width: 100%;
+
+        height: auto;
+
+        min-height: 0;
+
+        max-height: 42vh;
+
+        display: block;
+
+        object-fit: contain;
+
+    }
+
+
+    .family-memories-lightbox__details {
+
+        padding: 24px 20px 26px;
+
+    }
+
+
     .family-memories-product-options {
 
-        gap: 24px;
+        gap: 16px;
 
-        margin-top: 26px;
+        margin-top: 20px;
 
     }
 
 
     .family-memories-product-options__group {
 
-        gap: 12px;
+        gap: 9px;
 
     }
 
 
     .family-memories-product-options__label {
 
-        font-size: 11px;
+        font-size: 10px;
 
-        letter-spacing: 2.8px;
+        letter-spacing: 2.5px;
 
     }
 
 
+    /* COLORES MÁS PEQUEÑOS */
+
     .family-memories-product-options__colors {
 
-        gap: 16px;
+        gap: 12px;
 
     }
 
 
     .family-memories-color-button {
 
-        width: 58px;
+        width: 44px;
 
-        height: 58px;
+        height: 44px;
 
     }
 
 
     .family-memories-color-button span {
 
-        width: 38px;
+        width: 29px;
 
-        height: 38px;
+        height: 29px;
 
     }
 
 
+    /* BOTONES DE TAMAÑO MÁS COMPACTOS */
+
     .family-memories-product-options__sizes {
 
-        gap: 16px;
+        gap: 12px;
 
     }
 
 
     .family-memories-size-button {
 
-        height: 78px;
+        height: 52px;
 
-        border-radius: 17px;
+        border-radius: 14px;
 
-        font-size: 18px;
+        font-size: 14px;
 
     }
 
 
+    /* PRICE COMPACTO */
+
     .family-memories-lightbox__price {
 
-        gap: 13px;
+        gap: 7px;
 
-        margin-top: 32px;
+        margin-top: 20px;
 
     }
 
 
     .family-memories-lightbox__price span {
 
-        font-size: 11px;
+        font-size: 10px;
 
-        letter-spacing: 3px;
+        letter-spacing: 2.8px;
 
     }
 
 
     .family-memories-lightbox__price strong {
 
-        font-size: 38px;
+        font-size: 34px;
 
     }
 
 
+    /* ADD TO CART PREMIUM PERO MÁS PEQUEÑO */
+
     .family-memories-lightbox__cart-button {
 
-        min-height: 78px;
+        min-height: 52px;
 
-        margin-top: 30px;
+        margin-top: 20px;
 
-        font-size: 12px;
+        font-size: 10px;
 
-        letter-spacing: 3px;
+        letter-spacing: 2.6px;
+
+    }
+
+
+    .family-memories-lightbox__close {
+
+        width: 40px;
+
+        height: 40px;
+
+        font-size: 23px;
 
     }
 
 }
 
 
+/* ===============================================================
+   SMALL MOBILE
+   =============================================================== */
+
 @media (max-width: 420px) {
+
+
+    .family-memories-lightbox__details {
+
+        padding: 22px 18px 24px;
+
+    }
+
+
+    .family-memories-lightbox__image {
+
+        max-height: 38vh;
+
+    }
+
+
+    .family-memories-color-button {
+
+        width: 42px;
+
+        height: 42px;
+
+    }
+
+
+    .family-memories-color-button span {
+
+        width: 27px;
+
+        height: 27px;
+
+    }
+
 
     .family-memories-size-button {
 
-        height: 72px;
+        height: 50px;
 
-        font-size: 17px;
+        font-size: 13px;
 
     }
 
 
     .family-memories-lightbox__price strong {
 
-        font-size: 36px;
+        font-size: 32px;
 
     }
 
 
     .family-memories-lightbox__cart-button {
 
-        min-height: 64px;
+        min-height: 50px;
 
-        font-size: 11px;
+        font-size: 9px;
 
-        letter-spacing: 2.5px;
+        letter-spacing: 2.4px;
 
     }
 
-}
-
-
-/* BOTÓN ADD TO CART - TAMAÑO MÁS PEQUEÑO */
-
-.family-memories-lightbox__cart-button {
-    min-height: 64px !important;
-}
-
-@media (max-width: 767px) {
-    .family-memories-lightbox__cart-button {
-        min-height: 64px !important;
-    }
-}
-
-@media (max-width: 420px) {
-    .family-memories-lightbox__cart-button {
-        min-height: 64px !important;
-    }
 }
