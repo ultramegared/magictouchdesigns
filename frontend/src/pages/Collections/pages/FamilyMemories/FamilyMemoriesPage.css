@@ -4649,3 +4649,528 @@ body {
     }
 
 }
+
+
+/* ===============================================================
+   FINAL MOBILE PRODUCT CARDS
+   EXACT REFERENCE STYLE
+   =============================================================== */
+
+/* ---------------------------------------------------------------
+   NORMAL PRODUCT CARDS ONLY
+   --------------------------------------------------------------- */
+
+.family-memories-product .family-memories-product__body {
+    padding: 14px;
+    gap: 14px;
+}
+
+
+/* ---------------------------------------------------------------
+   PRODUCT IMAGE
+   --------------------------------------------------------------- */
+
+.family-memories-product .family-memories-product__image {
+    aspect-ratio: 1 / 1;
+}
+
+
+/* ---------------------------------------------------------------
+   PRICE
+   --------------------------------------------------------------- */
+
+.family-memories-product .family-memories-product__price {
+    display: block;
+
+    color: #f1d38b;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 26px;
+    font-weight: 500;
+
+    line-height: 1;
+
+    letter-spacing: .3px;
+
+    text-shadow:
+        0 2px 8px
+        rgba(0,0,0,.35);
+}
+
+
+/* ---------------------------------------------------------------
+   PRODUCT OPTIONS
+   --------------------------------------------------------------- */
+
+.family-memories-product .family-memories-product-options {
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+
+    margin-top: 0;
+}
+
+
+.family-memories-product
+.family-memories-product-options__group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+
+.family-memories-product
+.family-memories-product-options__label {
+    color: #d8a63c;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 2.5px;
+
+    text-transform: uppercase;
+}
+
+
+/* ---------------------------------------------------------------
+   COLORS
+   --------------------------------------------------------------- */
+
+.family-memories-product
+.family-memories-product-options__colors {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.family-memories-product
+.family-memories-color-button {
+    width: 44px;
+    height: 44px;
+
+    min-width: 44px;
+    min-height: 44px;
+
+    border-radius: 50%;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.family-memories-product
+.family-memories-color-button span {
+    width: 28px;
+    height: 28px;
+}
+
+
+/* ---------------------------------------------------------------
+   SIZE BUTTONS
+   --------------------------------------------------------------- */
+
+.family-memories-product
+.family-memories-product-options__sizes {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+
+    width: 100%;
+}
+
+
+.family-memories-product
+.family-memories-size-button {
+    width: 100%;
+
+    height: 52px;
+
+    min-width: 0;
+
+    padding: 0 8px;
+
+    border-radius: 13px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    letter-spacing: .2px;
+}
+
+
+/* ---------------------------------------------------------------
+   QUANTITY
+   --------------------------------------------------------------- */
+
+.family-memories-product
+.family-memories-product__quantity {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 16px;
+
+    margin-top: 2px;
+}
+
+
+.family-memories-product
+.family-memories-product__quantity button {
+    width: 34px;
+    height: 34px;
+
+    min-width: 34px;
+    min-height: 34px;
+
+    border-radius: 50%;
+
+    font-size: 19px;
+}
+
+
+.family-memories-product
+.family-memories-product__quantity span {
+    min-width: 18px;
+
+    font-size: 14px;
+}
+
+
+/* ---------------------------------------------------------------
+   PREMIUM ADD TO CART
+   --------------------------------------------------------------- */
+
+.family-memories-product
+.family-memories-product__button {
+    position: relative;
+
+    width: 100%;
+    height: 54px;
+
+    min-width: 0;
+    min-height: 54px;
+
+    padding: 0 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid #f2d17b;
+
+    border-radius: 999px;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #f7dc8b 0%,
+            #e6ba51 50%,
+            #c78b25 100%
+        );
+
+    color: #171108;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 2.4px;
+
+    text-transform: uppercase;
+
+    box-shadow:
+
+        inset 0 1px 0
+        rgba(255,255,255,.75),
+
+        inset 0 -2px 5px
+        rgba(112,69,9,.25),
+
+        0 8px 20px
+        rgba(0,0,0,.28),
+
+        0 0 18px
+        rgba(216,166,60,.10);
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        filter .2s ease,
+        box-shadow .2s ease;
+}
+
+
+/* REMOVE CART ICON */
+
+.family-memories-product
+.family-memories-product__button::before,
+
+.family-memories-product
+.family-memories-product__button::after {
+    display: none;
+    content: none;
+}
+
+
+/* HOVER */
+
+.family-memories-product
+.family-memories-product__button:hover {
+    transform: translateY(-2px);
+
+    filter: brightness(1.05);
+}
+
+
+/* ACTIVE */
+
+.family-memories-product
+.family-memories-product__button:active {
+    transform: scale(.98);
+}
+
+
+/* ===============================================================
+   MOBILE TWO COLUMN LAYOUT
+   =============================================================== */
+
+@media (max-width: 767px) {
+
+    .family-memories-products {
+        width: calc(100% - 20px);
+    }
+
+
+    .family-memories-products__grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+    }
+
+
+    .family-memories-product {
+        border-radius: 14px;
+    }
+
+
+    .family-memories-product .family-memories-product__body {
+        padding: 10px;
+        gap: 12px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product__price {
+        font-size: 16px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product-options {
+        gap: 13px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product-options__group {
+        gap: 8px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product-options__label {
+        font-size: 9px;
+
+        letter-spacing: 2px;
+    }
+
+
+    .family-memories-product
+    .family-memories-color-button {
+        width: 38px;
+        height: 38px;
+
+        min-width: 38px;
+        min-height: 38px;
+    }
+
+
+    .family-memories-product
+    .family-memories-color-button span {
+        width: 24px;
+        height: 24px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product-options__colors {
+        gap: 10px;
+    }
+
+
+    .family-memories-product
+    .family-memories-size-button {
+        height: 46px;
+
+        border-radius: 12px;
+
+        font-size: 11px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product__quantity {
+        gap: 12px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product__quantity button {
+        width: 30px;
+        height: 30px;
+
+        min-width: 30px;
+        min-height: 30px;
+
+        font-size: 17px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product__quantity span {
+        font-size: 12px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product__button {
+        height: 48px;
+
+        min-height: 48px;
+
+        font-size: 8px;
+
+        letter-spacing: 1.8px;
+    }
+
+
+    .family-memories-product__zoom {
+        width: 30px;
+        height: 30px;
+
+        top: 8px;
+        right: 8px;
+    }
+
+
+    .family-memories-product__zoom svg {
+        width: 15px;
+        height: 15px;
+    }
+
+
+    .family-memories-product__image
+    .family-memories-product__number {
+        width: 23px;
+        height: 23px;
+
+        top: 7px;
+        left: 7px;
+
+        font-size: 8px;
+    }
+
+}
+
+
+/* ===============================================================
+   VERY SMALL MOBILE
+   =============================================================== */
+
+@media (max-width: 390px) {
+
+    .family-memories-product .family-memories-product__body {
+        padding: 8px;
+        gap: 10px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product__price {
+        font-size: 15px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product-options {
+        gap: 11px;
+    }
+
+
+    .family-memories-product
+    .family-memories-color-button {
+        width: 34px;
+        height: 34px;
+
+        min-width: 34px;
+        min-height: 34px;
+    }
+
+
+    .family-memories-product
+    .family-memories-color-button span {
+        width: 21px;
+        height: 21px;
+    }
+
+
+    .family-memories-product
+    .family-memories-size-button {
+        height: 42px;
+
+        font-size: 10px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product__quantity button {
+        width: 28px;
+        height: 28px;
+
+        min-width: 28px;
+        min-height: 28px;
+
+        font-size: 15px;
+    }
+
+
+    .family-memories-product
+    .family-memories-product__button {
+        height: 44px;
+
+        min-height: 44px;
+
+        font-size: 7px;
+
+        letter-spacing: 1.5px;
+    }
+
+}
