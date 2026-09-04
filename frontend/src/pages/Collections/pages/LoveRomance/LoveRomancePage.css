@@ -4902,3 +4902,152 @@
     }
 
 }
+
+
+/* ===============================================================
+   LOVE & ROMANCE - COMPACT PRODUCT CONTROLS FINAL OVERRIDE
+   =============================================================== */
+
+@media (max-width: 767px) {
+
+  /* CARD BODY */
+  .love-romance-product__body {
+    min-height: auto !important;
+    padding: 10px 9px !important;
+    gap: 7px !important;
+  }
+
+  /* PRICE */
+  .love-romance-product__price {
+    margin-bottom: 0 !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+  }
+
+  /* PRODUCT OPTIONS */
+  .love-romance-product-options {
+    gap: 8px !important;
+    margin: 0 0 10px !important;
+  }
+
+  .love-romance-product-options__label {
+    margin-bottom: 5px !important;
+    font-size: 8px !important;
+  }
+
+  /* COLOR BUTTONS */
+  .love-romance-product__color-button,
+  .love-romance-product__color-option {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+  }
+
+  /* SIZE BUTTONS */
+  .love-romance-product__size-button,
+  .love-romance-product__size-option {
+    min-width: 52px !important;
+    height: 28px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+
+  /* QUANTITY */
+  .love-romance-product__quantity {
+    gap: 6px !important;
+    margin: 6px 0 8px !important;
+  }
+
+  .love-romance-product__quantity button {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    font-size: 13px !important;
+  }
+
+  .love-romance-product__quantity span {
+    min-width: 14px !important;
+    font-size: 10px !important;
+  }
+
+  /* ADD TO CART */
+  .love-romance-product__button {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    letter-spacing: 0 !important;
+  }
+
+  .love-romance-product__button::before {
+    font-size: 16px !important;
+  }
+}
+
+
+/* EXTRA SMALL MOBILE */
+@media (max-width: 420px) {
+
+  .love-romance-product__body {
+    padding: 8px 7px !important;
+    gap: 5px !important;
+  }
+
+  .love-romance-product__price {
+    font-size: 13px !important;
+  }
+
+  .love-romance-product-options {
+    gap: 6px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .love-romance-product__color-button,
+  .love-romance-product__color-option {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+  }
+
+  .love-romance-product__size-button,
+  .love-romance-product__size-option {
+    min-width: 48px !important;
+    height: 26px !important;
+    padding: 0 7px !important;
+    font-size: 8px !important;
+  }
+
+  .love-romance-product__quantity {
+    gap: 5px !important;
+    margin: 5px 0 7px !important;
+  }
+
+  .love-romance-product__quantity button {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    font-size: 12px !important;
+  }
+
+  .love-romance-product__quantity span {
+    min-width: 12px !important;
+    font-size: 9px !important;
+  }
+
+  .love-romance-product__button {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+  }
+
+  .love-romance-product__button::before {
+    font-size: 15px !important;
+  }
+}
