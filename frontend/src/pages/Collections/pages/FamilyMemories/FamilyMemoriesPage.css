@@ -3753,3 +3753,394 @@
     }
 
 }
+
+/* ===============================================================
+   PREMIUM COLOR & SIZE CONTROLS - FINAL FIX
+   =============================================================== */
+
+/* -------------------------------
+   PRODUCT COLOR AREA
+-------------------------------- */
+
+.family-memories-product__colors {
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 10px !important;
+
+}
+
+
+/* COLOR BUTTON */
+
+.family-memories-product__color {
+
+    width: 38px !important;
+    height: 38px !important;
+
+    min-width: 38px !important;
+    min-height: 38px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 4px !important;
+
+    border: 1px solid rgba(255,255,255,.25) !important;
+
+    border-radius: 50% !important;
+
+    background: rgba(255,255,255,.05) !important;
+
+}
+
+
+/* INNER COLOR CIRCLE */
+
+.family-memories-product__color::after {
+
+    content: "" !important;
+
+    display: block !important;
+
+    width: 24px !important;
+    height: 24px !important;
+
+    flex: 0 0 24px !important;
+
+    border-radius: 50% !important;
+
+}
+
+
+/* WHITE */
+
+.family-memories-product__color--white::after {
+
+    background: #ffffff !important;
+
+    border: 1px solid #cfcfcf !important;
+
+    box-shadow:
+
+        inset 0 2px 4px rgba(0,0,0,.10),
+
+        0 2px 6px rgba(0,0,0,.35) !important;
+
+}
+
+
+/* BLACK */
+
+.family-memories-product__color--black::after {
+
+    background: #050505 !important;
+
+    border: 1px solid #555555 !important;
+
+    box-shadow:
+
+        inset 0 2px 4px rgba(255,255,255,.12),
+
+        0 2px 6px rgba(0,0,0,.55) !important;
+
+}
+
+
+/* SELECTED COLOR */
+
+.family-memories-product__color.is-selected {
+
+    border-color: #e9c36e !important;
+
+    background: rgba(216,166,60,.12) !important;
+
+    box-shadow:
+
+        0 0 0 2px rgba(216,166,60,.22),
+
+        0 0 18px rgba(216,166,60,.35) !important;
+
+    transform: scale(1.08) !important;
+
+}
+
+
+/* -------------------------------
+   SIZE BUTTONS
+-------------------------------- */
+
+.family-memories-product__sizes {
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+
+}
+
+
+.family-memories-product__size {
+
+    min-width: 58px !important;
+
+    min-height: 36px !important;
+
+    padding: 0 12px !important;
+
+    display: inline-flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    border: 1px solid rgba(216,166,60,.45) !important;
+
+    border-radius: 10px !important;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            #1b1814,
+            #0b0b0b
+        ) !important;
+
+    color: rgba(255,255,255,.78) !important;
+
+    font-size: 11px !important;
+
+    font-weight: 800 !important;
+
+    letter-spacing: .4px !important;
+
+    box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,.05),
+
+        0 4px 10px rgba(0,0,0,.28) !important;
+
+}
+
+
+/* SIZE HOVER */
+
+.family-memories-product__size:hover {
+
+    border-color: #e9c36e !important;
+
+    color: #f2d17b !important;
+
+}
+
+
+/* SELECTED SIZE */
+
+.family-memories-product__size.is-selected {
+
+    border-color: #f2d17b !important;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #f5d786 0%,
+            #d6a541 55%,
+            #9a6318 100%
+        ) !important;
+
+    color: #171108 !important;
+
+    box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,.75),
+
+        0 5px 15px rgba(0,0,0,.40),
+
+        0 0 15px rgba(216,166,60,.25) !important;
+
+}
+
+
+/* ===============================================================
+   LIGHTBOX PREMIUM CONTROLS
+   =============================================================== */
+
+.family-memories-lightbox__colors {
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 12px !important;
+
+}
+
+
+.family-memories-lightbox__color {
+
+    width: 42px !important;
+
+    height: 42px !important;
+
+    padding: 4px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    border-radius: 50% !important;
+
+    background: rgba(255,255,255,.04) !important;
+
+}
+
+
+.family-memories-lightbox__color::after {
+
+    content: "" !important;
+
+    display: block !important;
+
+    width: 27px !important;
+
+    height: 27px !important;
+
+    border-radius: 50% !important;
+
+}
+
+
+.family-memories-lightbox__color--white::after {
+
+    background: #ffffff !important;
+
+    border: 1px solid #cfcfcf !important;
+
+}
+
+
+.family-memories-lightbox__color--black::after {
+
+    background: #050505 !important;
+
+    border: 1px solid #555555 !important;
+
+}
+
+
+.family-memories-lightbox__color.is-selected {
+
+    border-color: #f2d17b !important;
+
+    box-shadow:
+
+        0 0 0 3px rgba(216,166,60,.20),
+
+        0 0 20px rgba(216,166,60,.38) !important;
+
+}
+
+
+/* LIGHTBOX SIZE */
+
+.family-memories-lightbox__size {
+
+    min-width: 72px !important;
+
+    min-height: 40px !important;
+
+    border-radius: 10px !important;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            #1b1814,
+            #0b0b0b
+        ) !important;
+
+}
+
+
+.family-memories-lightbox__size.is-selected {
+
+    border-color: #f2d17b !important;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #f5d786,
+            #d6a541,
+            #9a6318
+        ) !important;
+
+    color: #171108 !important;
+
+}
+
+
+/* ===============================================================
+   MOBILE FINAL FIX
+   =============================================================== */
+
+@media (max-width: 767px) {
+
+    .family-memories-product__color {
+
+        width: 34px !important;
+        height: 34px !important;
+
+        min-width: 34px !important;
+        min-height: 34px !important;
+
+    }
+
+
+    .family-memories-product__color::after {
+
+        width: 21px !important;
+        height: 21px !important;
+
+        flex-basis: 21px !important;
+
+    }
+
+
+    .family-memories-product__size {
+
+        min-width: 55px !important;
+
+        min-height: 34px !important;
+
+        padding: 0 9px !important;
+
+        font-size: 10px !important;
+
+    }
+
+
+    .family-memories-lightbox__color {
+
+        width: 38px !important;
+        height: 38px !important;
+
+    }
+
+
+    .family-memories-lightbox__color::after {
+
+        width: 24px !important;
+        height: 24px !important;
+
+    }
+
+}
