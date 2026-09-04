@@ -4141,3 +4141,78 @@
     }
 
 }
+
+
+
+
+
+
+/* ===============================================================
+   SPECIAL OCCASIONS -- COMPACT PRODUCT SPACING
+   Solo reduce espacios verticales entre controles
+   =============================================================== */
+
+@media (max-width: 600px) {
+
+  /* Espacio general entre COLOR y SIZE */
+  .special-occasions-product-options {
+    gap: 12px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* Etiquetas COLOR / SIZE */
+  .special-occasions-product-options__label {
+    margin-bottom: 6px !important;
+  }
+
+  /* COLOR */
+  .special-occasions-product-options__colors {
+    gap: 10px !important;
+  }
+
+  /* SIZE */
+  .special-occasions-product-options__sizes {
+    gap: 8px !important;
+  }
+
+  /* Cantidad más cerca del SIZE */
+  .special-occasions-product__quantity {
+    gap: 10px !important;
+    margin-top: 2px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* ADD TO CART más cerca de la cantidad */
+  .special-occasions-product__button {
+    margin-top: 0 !important;
+    margin-bottom: 11px !important;
+  }
+}
+
+
+/* ===============================================================
+   420px -- PROPORCIÓN FINAL
+   =============================================================== */
+
+@media (max-width: 420px) {
+
+  .special-occasions-product-options {
+    gap: 11px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .special-occasions-product-options__label {
+    margin-bottom: 5px !important;
+  }
+
+  .special-occasions-product__quantity {
+    margin-top: 1px !important;
+    margin-bottom: 9px !important;
+  }
+
+  .special-occasions-product__button {
+    margin-top: 0 !important;
+    margin-bottom: 11px !important;
+  }
+  
+}
