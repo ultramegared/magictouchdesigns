@@ -3754,15 +3754,19 @@
 
 }
 
+
 /* ===============================================================
-   PREMIUM COLOR & SIZE CONTROLS - FINAL FIX
+   PREMIUM COLOR & SIZE CONTROLS
+   FAMILY MEMORIES
    =============================================================== */
 
-/* -------------------------------
-   PRODUCT COLOR AREA
--------------------------------- */
 
-.family-memories-product__colors {
+/* ===============================================================
+   PRODUCT OPTIONS CONTAINER
+   =============================================================== */
+
+.family-memories-product__colors,
+.family-memories-product__sizes {
 
     display: flex !important;
 
@@ -3773,9 +3777,13 @@
 }
 
 
-/* COLOR BUTTON */
+/* ===============================================================
+   COLOR BUTTON
+   =============================================================== */
 
 .family-memories-product__color {
+
+    position: relative;
 
     width: 38px !important;
     height: 38px !important;
@@ -3783,23 +3791,50 @@
     min-width: 38px !important;
     min-height: 38px !important;
 
-    display: flex !important;
+    padding: 4px !important;
+
+    display: inline-flex !important;
 
     align-items: center !important;
     justify-content: center !important;
 
-    padding: 4px !important;
-
-    border: 1px solid rgba(255,255,255,.25) !important;
+    border:
+        1px solid rgba(255,255,255,.28) !important;
 
     border-radius: 50% !important;
 
-    background: rgba(255,255,255,.05) !important;
+    background:
+
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.08),
+            rgba(255,255,255,.02)
+        ) !important;
+
+    cursor: pointer;
+
+    box-shadow:
+
+        inset 0 1px 1px rgba(255,255,255,.10),
+
+        0 4px 12px rgba(0,0,0,.35);
+
+    transition:
+
+        transform .22s ease,
+
+        border-color .22s ease,
+
+        background .22s ease,
+
+        box-shadow .22s ease;
 
 }
 
 
-/* INNER COLOR CIRCLE */
+/* ===============================================================
+   INNER COLOR CIRCLE
+   =============================================================== */
 
 .family-memories-product__color::after {
 
@@ -3817,188 +3852,361 @@
 }
 
 
-/* WHITE */
+/* ===============================================================
+   WHITE COLOR
+   =============================================================== */
 
 .family-memories-product__color--white::after {
-
-    background: #ffffff !important;
-
-    border: 1px solid #cfcfcf !important;
-
-    box-shadow:
-
-        inset 0 2px 4px rgba(0,0,0,.10),
-
-        0 2px 6px rgba(0,0,0,.35) !important;
-
-}
-
-
-/* BLACK */
-
-.family-memories-product__color--black::after {
-
-    background: #050505 !important;
-
-    border: 1px solid #555555 !important;
-
-    box-shadow:
-
-        inset 0 2px 4px rgba(255,255,255,.12),
-
-        0 2px 6px rgba(0,0,0,.55) !important;
-
-}
-
-
-/* SELECTED COLOR */
-
-.family-memories-product__color.is-selected {
-
-    border-color: #e9c36e !important;
-
-    background: rgba(216,166,60,.12) !important;
-
-    box-shadow:
-
-        0 0 0 2px rgba(216,166,60,.22),
-
-        0 0 18px rgba(216,166,60,.35) !important;
-
-    transform: scale(1.08) !important;
-
-}
-
-
-/* -------------------------------
-   SIZE BUTTONS
--------------------------------- */
-
-.family-memories-product__sizes {
-
-    display: flex !important;
-
-    align-items: center !important;
-
-    gap: 8px !important;
-
-}
-
-
-.family-memories-product__size {
-
-    min-width: 58px !important;
-
-    min-height: 36px !important;
-
-    padding: 0 12px !important;
-
-    display: inline-flex !important;
-
-    align-items: center !important;
-
-    justify-content: center !important;
-
-    border: 1px solid rgba(216,166,60,.45) !important;
-
-    border-radius: 10px !important;
 
     background:
 
         linear-gradient(
             145deg,
-            #1b1814,
-            #0b0b0b
+            #ffffff,
+            #e8e8e8
         ) !important;
 
-    color: rgba(255,255,255,.78) !important;
+    border:
 
-    font-size: 11px !important;
-
-    font-weight: 800 !important;
-
-    letter-spacing: .4px !important;
+        1px solid #cfcfcf !important;
 
     box-shadow:
 
-        inset 0 1px 0 rgba(255,255,255,.05),
+        inset 0 1px 2px rgba(255,255,255,.90),
 
-        0 4px 10px rgba(0,0,0,.28) !important;
+        inset 0 -2px 4px rgba(0,0,0,.10),
+
+        0 2px 7px rgba(0,0,0,.35) !important;
 
 }
 
 
-/* SIZE HOVER */
+/* ===============================================================
+   BLACK COLOR
+   =============================================================== */
+
+.family-memories-product__color--black::after {
+
+    background:
+
+        radial-gradient(
+            circle at 30% 25%,
+            #3b3b3b,
+            #121212 50%,
+            #050505 100%
+        ) !important;
+
+    border:
+
+        1px solid rgba(255,255,255,.20) !important;
+
+    box-shadow:
+
+        inset 0 2px 4px rgba(255,255,255,.10),
+
+        0 2px 7px rgba(0,0,0,.60) !important;
+
+}
+
+
+/* ===============================================================
+   COLOR HOVER
+   =============================================================== */
+
+.family-memories-product__color:hover {
+
+    transform:
+
+        translateY(-2px)
+        scale(1.05);
+
+    border-color:
+
+        rgba(242,209,123,.75) !important;
+
+}
+
+
+/* ===============================================================
+   SELECTED COLOR
+   =============================================================== */
+
+.family-memories-product__color.is-selected {
+
+    transform:
+
+        scale(1.08) !important;
+
+    border-color:
+
+        #f2d17b !important;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            rgba(242,209,123,.22),
+            rgba(216,166,60,.08)
+        ) !important;
+
+    box-shadow:
+
+        0 0 0 2px rgba(216,166,60,.22),
+
+        0 0 18px rgba(216,166,60,.42),
+
+        inset 0 1px 1px rgba(255,255,255,.16) !important;
+
+}
+
+
+/* ===============================================================
+   SELECTED COLOR INNER RING
+   =============================================================== */
+
+.family-memories-product__color.is-selected::after {
+
+    box-shadow:
+
+        0 0 0 2px rgba(242,209,123,.32),
+
+        inset 0 1px 2px rgba(255,255,255,.16),
+
+        0 3px 9px rgba(0,0,0,.40) !important;
+
+}
+
+
+/* ===============================================================
+   COLOR FOCUS
+   =============================================================== */
+
+.family-memories-product__color:focus-visible {
+
+    outline:
+
+        2px solid #f2d17b;
+
+    outline-offset:
+
+        3px;
+
+}
+
+
+/* ===============================================================
+   SIZE BUTTONS
+   =============================================================== */
+
+.family-memories-product__size {
+
+    min-width: 78px !important;
+
+    min-height: 38px !important;
+
+    padding:
+
+        0 16px !important;
+
+    display:
+
+        inline-flex !important;
+
+    align-items:
+
+        center !important;
+
+    justify-content:
+
+        center !important;
+
+    border:
+
+        1px solid rgba(216,166,60,.38) !important;
+
+    border-radius:
+
+        999px !important;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.06),
+            rgba(255,255,255,.015)
+        ) !important;
+
+    color:
+
+        rgba(255,255,255,.76) !important;
+
+    font-size:
+
+        10px !important;
+
+    font-weight:
+
+        800 !important;
+
+    letter-spacing:
+
+        .8px;
+
+    cursor:
+
+        pointer;
+
+    box-shadow:
+
+        inset 0 1px 1px rgba(255,255,255,.06),
+
+        0 4px 10px rgba(0,0,0,.22);
+
+    transition:
+
+        transform .22s ease,
+
+        border-color .22s ease,
+
+        background .22s ease,
+
+        color .22s ease,
+
+        box-shadow .22s ease;
+
+}
+
+
+/* ===============================================================
+   SIZE HOVER
+   =============================================================== */
 
 .family-memories-product__size:hover {
 
-    border-color: #e9c36e !important;
+    transform:
 
-    color: #f2d17b !important;
+        translateY(-2px);
+
+    border-color:
+
+        rgba(242,209,123,.85) !important;
+
+    color:
+
+        #f5d786 !important;
+
+    background:
+
+        rgba(216,166,60,.10) !important;
 
 }
 
 
-/* SELECTED SIZE */
+/* ===============================================================
+   SELECTED SIZE
+   =============================================================== */
 
 .family-memories-product__size.is-selected {
 
-    border-color: #f2d17b !important;
+    transform:
+
+        translateY(-1px);
+
+    border-color:
+
+        #f2d17b !important;
 
     background:
 
         linear-gradient(
             180deg,
             #f5d786 0%,
-            #d6a541 55%,
+            #d6a541 52%,
             #9a6318 100%
         ) !important;
 
-    color: #171108 !important;
+    color:
+
+        #171108 !important;
+
+    font-weight:
+
+        900 !important;
 
     box-shadow:
 
-        inset 0 1px 0 rgba(255,255,255,.75),
+        inset 0 1px 0 rgba(255,255,255,.65),
 
-        0 5px 15px rgba(0,0,0,.40),
+        inset 0 -2px 5px rgba(77,42,4,.30),
 
-        0 0 15px rgba(216,166,60,.25) !important;
+        0 5px 16px rgba(216,166,60,.32) !important;
 
 }
 
 
 /* ===============================================================
-   LIGHTBOX PREMIUM CONTROLS
+   SIZE FOCUS
    =============================================================== */
 
-.family-memories-lightbox__colors {
+.family-memories-product__size:focus-visible {
 
-    display: flex !important;
+    outline:
 
-    align-items: center !important;
+        2px solid #f2d17b;
 
-    gap: 12px !important;
+    outline-offset:
+
+        3px;
 
 }
 
 
+/* ===============================================================
+   LIGHTBOX COLORS
+   =============================================================== */
+
 .family-memories-lightbox__color {
 
-    width: 42px !important;
+    position: relative;
 
+    width: 42px !important;
     height: 42px !important;
 
-    padding: 4px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
 
-    display: flex !important;
+    padding: 5px !important;
+
+    display: inline-flex !important;
 
     align-items: center !important;
-
     justify-content: center !important;
 
-    border-radius: 50% !important;
+    border:
 
-    background: rgba(255,255,255,.04) !important;
+        1px solid rgba(255,255,255,.28) !important;
+
+    border-radius:
+
+        50% !important;
+
+    background:
+
+        rgba(255,255,255,.04) !important;
+
+    cursor:
+
+        pointer;
+
+    transition:
+
+        transform .22s ease,
+
+        border-color .22s ease,
+
+        background .22s ease,
+
+        box-shadow .22s ease;
 
 }
 
@@ -4010,7 +4218,6 @@
     display: block !important;
 
     width: 27px !important;
-
     height: 27px !important;
 
     border-radius: 50% !important;
@@ -4018,61 +4225,165 @@
 }
 
 
+/* LIGHTBOX WHITE */
+
 .family-memories-lightbox__color--white::after {
 
-    background: #ffffff !important;
+    background:
 
-    border: 1px solid #cfcfcf !important;
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #e8e8e8
+        ) !important;
+
+    border:
+
+        1px solid #cfcfcf !important;
 
 }
 
+
+/* LIGHTBOX BLACK */
 
 .family-memories-lightbox__color--black::after {
 
-    background: #050505 !important;
+    background:
 
-    border: 1px solid #555555 !important;
+        radial-gradient(
+            circle at 30% 25%,
+            #3b3b3b,
+            #111111 50%,
+            #050505
+        ) !important;
+
+    border:
+
+        1px solid rgba(255,255,255,.20) !important;
 
 }
 
 
+/* LIGHTBOX SELECTED COLOR */
+
 .family-memories-lightbox__color.is-selected {
 
-    border-color: #f2d17b !important;
+    transform:
+
+        scale(1.08) !important;
+
+    border-color:
+
+        #f2d17b !important;
+
+    background:
+
+        rgba(216,166,60,.15) !important;
 
     box-shadow:
 
-        0 0 0 3px rgba(216,166,60,.20),
+        0 0 0 2px rgba(216,166,60,.22),
 
         0 0 20px rgba(216,166,60,.38) !important;
 
 }
 
 
-/* LIGHTBOX SIZE */
+/* ===============================================================
+   LIGHTBOX SIZE BUTTONS
+   =============================================================== */
 
 .family-memories-lightbox__size {
 
-    min-width: 72px !important;
+    min-width:
 
-    min-height: 40px !important;
+        92px !important;
 
-    border-radius: 10px !important;
+    min-height:
+
+        44px !important;
+
+    padding:
+
+        0 20px !important;
+
+    display:
+
+        inline-flex !important;
+
+    align-items:
+
+        center !important;
+
+    justify-content:
+
+        center !important;
+
+    border:
+
+        1px solid rgba(216,166,60,.42) !important;
+
+    border-radius:
+
+        999px !important;
 
     background:
 
-        linear-gradient(
-            145deg,
-            #1b1814,
-            #0b0b0b
-        ) !important;
+        rgba(255,255,255,.04) !important;
+
+    color:
+
+        rgba(255,255,255,.78) !important;
+
+    font-size:
+
+        11px !important;
+
+    font-weight:
+
+        800 !important;
+
+    cursor:
+
+        pointer;
+
+    transition:
+
+        transform .22s ease,
+
+        background .22s ease,
+
+        border-color .22s ease,
+
+        color .22s ease,
+
+        box-shadow .22s ease;
+
+}
+
+
+.family-memories-lightbox__size:hover {
+
+    transform:
+
+        translateY(-2px);
+
+    border-color:
+
+        rgba(242,209,123,.85) !important;
+
+    color:
+
+        #f2d17b !important;
 
 }
 
 
 .family-memories-lightbox__size.is-selected {
 
-    border-color: #f2d17b !important;
+    border-color:
+
+        #f2d17b !important;
 
     background:
 
@@ -4083,16 +4394,35 @@
             #9a6318
         ) !important;
 
-    color: #171108 !important;
+    color:
+
+        #171108 !important;
+
+    font-weight:
+
+        900 !important;
+
+    box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,.65),
+
+        0 6px 18px rgba(216,166,60,.30) !important;
 
 }
 
 
 /* ===============================================================
-   MOBILE FINAL FIX
+   MOBILE
    =============================================================== */
 
 @media (max-width: 767px) {
+
+    .family-memories-product__colors {
+
+        gap: 8px !important;
+
+    }
+
 
     .family-memories-product__color {
 
@@ -4101,6 +4431,8 @@
 
         min-width: 34px !important;
         min-height: 34px !important;
+
+        padding: 4px !important;
 
     }
 
@@ -4115,15 +4447,26 @@
     }
 
 
+    .family-memories-product__sizes {
+
+        gap: 7px !important;
+
+    }
+
+
     .family-memories-product__size {
 
-        min-width: 55px !important;
+        min-width: 62px !important;
 
         min-height: 34px !important;
 
-        padding: 0 9px !important;
+        padding:
 
-        font-size: 10px !important;
+            0 10px !important;
+
+        font-size:
+
+            9px !important;
 
     }
 
@@ -4133,6 +4476,9 @@
         width: 38px !important;
         height: 38px !important;
 
+        min-width: 38px !important;
+        min-height: 38px !important;
+
     }
 
 
@@ -4140,6 +4486,69 @@
 
         width: 24px !important;
         height: 24px !important;
+
+    }
+
+
+    .family-memories-lightbox__size {
+
+        min-width: 78px !important;
+
+        min-height: 40px !important;
+
+        padding:
+
+            0 15px !important;
+
+        font-size:
+
+            10px !important;
+
+    }
+
+}
+
+
+/* ===============================================================
+   SMALL MOBILE
+   =============================================================== */
+
+@media (max-width: 420px) {
+
+    .family-memories-product__color {
+
+        width: 32px !important;
+        height: 32px !important;
+
+        min-width: 32px !important;
+        min-height: 32px !important;
+
+    }
+
+
+    .family-memories-product__color::after {
+
+        width: 19px !important;
+        height: 19px !important;
+
+        flex-basis: 19px !important;
+
+    }
+
+
+    .family-memories-product__size {
+
+        min-width: 58px !important;
+
+        min-height: 32px !important;
+
+        padding:
+
+            0 8px !important;
+
+        font-size:
+
+            8px !important;
 
     }
 
