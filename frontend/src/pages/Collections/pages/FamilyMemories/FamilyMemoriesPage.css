@@ -3873,3 +3873,45 @@
     box-shadow:
         0 0 14px rgba(196, 151, 61, 0.12);
 }
+
+
+/* ===============================================================
+   MOBILE BACKGROUND FIX
+   FIX: PREVENT WHITE BACKGROUND ON MOBILE
+   =============================================================== */
+
+html,
+body {
+  background: #090909 !important;
+}
+
+.family-memories-page {
+  width: 100%;
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at top,
+      #24201b 0%,
+      #141312 35%,
+      #090909 75%
+    ) !important;
+}
+
+@media (max-width: 768px) {
+
+  html,
+  body {
+    background: #090909 !important;
+  }
+
+  .family-memories-page {
+    min-height: 100vh;
+    background:
+      radial-gradient(
+        circle at top,
+        #24201b 0%,
+        #141312 35%,
+        #090909 75%
+      ) !important;
+  }
+}
