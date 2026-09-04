@@ -13,8 +13,11 @@
 import "./Newsletter.css";
 
 import {
-    FormEvent,
     useState,
+} from "react";
+
+import type {
+    FormEvent,
 } from "react";
 
 import { useLanguage } from "../../../contexts/LanguageContext";
