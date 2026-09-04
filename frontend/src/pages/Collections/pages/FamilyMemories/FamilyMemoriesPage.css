@@ -3854,9 +3854,22 @@
     font-size: 16px;
 
     cursor: pointer;
+
+    background: transparent;
+
+    color: rgba(255, 255, 255, 0.75);
+
+    border: 1px solid rgba(196, 151, 61, 0.35);
 }
 
 
 .family-memories-size-button.is-selected {
+    background: rgba(196, 151, 61, 0.12);
+
+    color: #d6a948;
+
     border-color: #c4973d;
+
+    box-shadow:
+        0 0 14px rgba(196, 151, 61, 0.12);
 }
