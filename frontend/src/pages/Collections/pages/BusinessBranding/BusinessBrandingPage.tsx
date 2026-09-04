@@ -2,24 +2,22 @@
  * ===============================================================
  * Author: ultramegared
  * Project: Magic Touch Designs
- * File: BusinessBrandingPage.tsx
- * Module: Collections / Business & Branding
+ * File: FamilyMemoriesPage.tsx
+ * Module: Collections / Family & Memories
  * Language: TypeScript React
  * Description:
- * Premium Business & Branding collection page.
+ * Premium Family & Memories collection page.
  * ===============================================================
  */
 
-import "./BusinessBrandingPage.css";
+import "./FamilyMemoriesPage.css";
 
 import {
     useEffect,
     useState,
 } from "react";
 
-import {
-    Link,
-} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import Header from "../../../../components/layout/Header";
 import Footer from "../../../../components/home/Footer";
@@ -83,23 +81,11 @@ interface CollectionProductsResponse {
 }
 
 
-type ProductColor =
-    "White"
-    |
-    "Black";
-
-
-type ProductSize =
-    "11 oz"
-    |
-    "15 oz";
-
-
 /* ===============================================================
    COMPONENT
 ================================================================ */
 
-function BusinessBrandingPage() {
+function FamilyMemoriesPage() {
 
 
     /* ===========================================================
@@ -115,7 +101,7 @@ function BusinessBrandingPage() {
     const t =
         translations[
             language
-        ].businessBranding;
+        ].familyMemories;
 
 
     /* ===========================================================
@@ -176,32 +162,6 @@ function BusinessBrandingPage() {
 
 
     /* ===========================================================
-       COLORS
-    =========================================================== */
-
-    const [
-        selectedColors,
-        setSelectedColors,
-    ] =
-        useState<Record<string, ProductColor>>(
-            {}
-        );
-
-
-    /* ===========================================================
-       SIZES
-    =========================================================== */
-
-    const [
-        selectedSizes,
-        setSelectedSizes,
-    ] =
-        useState<Record<string, ProductSize>>(
-            {}
-        );
-
-
-    /* ===========================================================
        LOAD PRODUCTS
     =========================================================== */
 
@@ -228,7 +188,7 @@ function BusinessBrandingPage() {
                                 CollectionProductsResponse
                             >(
 
-                                "/api/collections/business-branding/products"
+                                "/api/collections/family-memories/products"
 
                             );
 
@@ -258,7 +218,7 @@ function BusinessBrandingPage() {
                     ) {
 
                         console.error(
-                            "Unable to load Business & Branding products:",
+                            "Unable to load Family & Memories products:",
                             error
                         );
 
@@ -297,88 +257,19 @@ function BusinessBrandingPage() {
 
 
     /* ===========================================================
-       ESCAPE LIGHTBOX
-    =========================================================== */
-
-    useEffect(
-        () => {
-
-            const handleKeyDown =
-                (
-                    event:
-                        KeyboardEvent
-                ) => {
-
-                    if (
-                        event.key ===
-                        "Escape"
-                    ) {
-
-                        setSelectedProduct(
-                            null
-                        );
-
-                    }
-
-                };
-
-
-            if (
-                selectedProduct
-            ) {
-
-                document.addEventListener(
-                    "keydown",
-                    handleKeyDown
-                );
-
-
-                document.body.style.overflow =
-                    "hidden";
-
-            }
-
-
-            return () => {
-
-                document.removeEventListener(
-                    "keydown",
-                    handleKeyDown
-                );
-
-
-                document.body.style.overflow =
-                    "";
-
-            };
-
-        },
-        [
-            selectedProduct,
-        ]
-    );
-
-
-    /* ===========================================================
        QUANTITY
     =========================================================== */
 
     const getQuantity =
         (
-            productId:
-                string
+            productId: string
         ): number => {
 
             return (
-
                 quantities[
                     productId
                 ]
-
-                ??
-
-                1
-
+                ?? 1
             );
 
         };
@@ -386,39 +277,27 @@ function BusinessBrandingPage() {
 
     const changeQuantity =
         (
-            productId:
-                string,
-
-            change:
-                number
+            productId: string,
+            change: number
         ) => {
 
             setQuantities(
-
                 (
                     current
                 ) => {
 
                     const currentQuantity =
-
                         current[
                             productId
                         ]
-
-                        ??
-
-                        1;
+                        ?? 1;
 
 
                     const nextQuantity =
-
                         Math.max(
-
                             1,
-
                             currentQuantity +
                             change
-
                         );
 
 
@@ -429,123 +308,11 @@ function BusinessBrandingPage() {
                         [
                             productId
                         ]:
-
                             nextQuantity,
 
                     };
 
                 }
-
-            );
-
-        };
-
-
-    /* ===========================================================
-       COLOR
-    =========================================================== */
-
-    const getColor =
-        (
-            productId:
-                string
-        ): ProductColor => {
-
-            return (
-
-                selectedColors[
-                    productId
-                ]
-
-                ??
-
-                "White"
-
-            );
-
-        };
-
-
-    const changeColor =
-        (
-            productId:
-                string,
-
-            color:
-                ProductColor
-        ) => {
-
-            setSelectedColors(
-
-                (
-                    current
-                ) => ({
-
-                    ...current,
-
-                    [
-                        productId
-                    ]:
-
-                        color,
-
-                })
-
-            );
-
-        };
-
-
-    /* ===========================================================
-       SIZE
-    =========================================================== */
-
-    const getSize =
-        (
-            productId:
-                string
-        ): ProductSize => {
-
-            return (
-
-                selectedSizes[
-                    productId
-                ]
-
-                ??
-
-                "11 oz"
-
-            );
-
-        };
-
-
-    const changeSize =
-        (
-            productId:
-                string,
-
-            size:
-                ProductSize
-        ) => {
-
-            setSelectedSizes(
-
-                (
-                    current
-                ) => ({
-
-                    ...current,
-
-                    [
-                        productId
-                    ]:
-
-                        size,
-
-                })
-
             );
 
         };
@@ -557,59 +324,35 @@ function BusinessBrandingPage() {
 
     const handleAddToCart =
         (
-            product:
-                CollectionProduct,
-
-            quantity:
-                number
+            product: CollectionProduct,
+            quantity: number = 1
         ) => {
-
-            const color =
-
-                getColor(
-                    product.product_id
-                );
-
-
-            const size =
-
-                getSize(
-                    product.product_id
-                );
-
 
             addToCart(
 
                 {
 
                     id:
-
                         product.product_id,
 
                     name:
-
                         product.name,
 
                     model:
-
-                        "Business & Branding",
+                        "Family & Memories",
 
                     size:
-
-                        size,
+                        "Standard",
 
                     color:
-
-                        color,
+                        "Default",
 
                     price:
-
                         Number(
                             product.price
                         ),
 
                     image:
-
                         product.image_url,
 
                 },
@@ -623,18 +366,18 @@ function BusinessBrandingPage() {
 
     const handleCardAddToCart =
         (
-            product:
-                CollectionProduct
+            product: CollectionProduct
         ) => {
 
-            handleAddToCart(
-
-                product,
-
+            const quantity =
                 getQuantity(
                     product.product_id
-                )
+                );
 
+
+            handleAddToCart(
+                product,
+                quantity
             );
 
         };
@@ -642,49 +385,12 @@ function BusinessBrandingPage() {
 
     const handleLightboxAddToCart =
         (
-            product:
-                CollectionProduct
+            product: CollectionProduct
         ) => {
 
             handleAddToCart(
-
                 product,
-
-                getQuantity(
-                    product.product_id
-                )
-
-            );
-
-        };
-
-
-    /* ===========================================================
-       OPEN PRODUCT
-    =========================================================== */
-
-    const openProduct =
-        (
-            product:
-                CollectionProduct
-        ) => {
-
-            setSelectedProduct(
-                product
-            );
-
-        };
-
-
-    /* ===========================================================
-       CLOSE PRODUCT
-    =========================================================== */
-
-    const closeProduct =
-        () => {
-
-            setSelectedProduct(
-                null
+                1
             );
 
         };
@@ -702,7 +408,7 @@ function BusinessBrandingPage() {
 
 
             <main
-                className="business-branding-page"
+                className="family-memories-page"
             >
 
 
@@ -711,15 +417,15 @@ function BusinessBrandingPage() {
                    ================================================== */}
 
                 <section
-                    className="business-branding-hero"
+                    className="family-memories-hero"
                 >
 
                     <div
-                        className="business-branding-hero__visual"
+                        className="family-memories-hero__visual"
                     >
 
                         <img
-                            src="/images/collections/business-branding/business-branding-hero.jpg"
+                            src="/images/collections/family-memories/family-memories-hero.jpg"
                             alt={
                                 t.hero.title
                             }
@@ -729,28 +435,27 @@ function BusinessBrandingPage() {
 
 
                     <div
-                        className="business-branding-hero__overlay"
+                        className="family-memories-hero__overlay"
                     ></div>
 
 
                     <div
-                        className="business-branding-hero__glow"
+                        className="family-memories-hero__glow"
                     ></div>
 
 
                     <div
-                        className="business-branding-hero__content"
+                        className="family-memories-hero__content"
                     >
 
                         <Link
                             to="/collections"
-                            className="business-branding-back-link"
+                            className="family-memories-back-link"
                         >
 
                             ←{" "}
 
                             {
-
                                 language === "es"
 
                                     ? "VOLVER A COLECCIONES"
@@ -763,7 +468,7 @@ function BusinessBrandingPage() {
 
 
                         <span
-                            className="business-branding-hero__eyebrow"
+                            className="family-memories-hero__eyebrow"
                         >
 
                             {
@@ -792,13 +497,13 @@ function BusinessBrandingPage() {
 
 
                         <div
-                            className="business-branding-hero__ornament"
+                            className="family-memories-hero__ornament"
                         >
 
                             <span></span>
 
                             <b>
-                                ◆
+                                ♥
                             </b>
 
                             <span></span>
@@ -816,8 +521,8 @@ function BusinessBrandingPage() {
 
 
                         <Link
-                            to="/customize"
-                            className="business-branding-hero__button"
+                            to="/collections"
+                            className="family-memories-hero__button"
                         >
 
                             {
@@ -830,22 +535,22 @@ function BusinessBrandingPage() {
 
 
                     <div
-                        className="business-branding-hero__bottom-glow"
+                        className="family-memories-hero__bottom-glow"
                     ></div>
 
                 </section>
 
 
                 {/* ==================================================
-                    PRODUCTS
+                    COLLECTION PRODUCTS
                    ================================================== */}
 
                 <section
-                    className="business-branding-products"
+                    className="family-memories-products"
                 >
 
                     <div
-                        className="business-branding-section-heading"
+                        className="family-memories-section-heading"
                     >
 
                         <span>
@@ -882,15 +587,13 @@ function BusinessBrandingPage() {
                        ============================================== */}
 
                     {
-
                         isLoading && (
 
                             <div
-                                className="business-branding-products__status"
+                                className="family-memories-products__status"
                             >
 
                                 {
-
                                     language === "es"
 
                                         ? "Cargando productos..."
@@ -902,7 +605,6 @@ function BusinessBrandingPage() {
                             </div>
 
                         )
-
                     }
 
 
@@ -911,16 +613,14 @@ function BusinessBrandingPage() {
                        ============================================== */}
 
                     {
-
                         !isLoading &&
                         error && (
 
                             <div
-                                className="business-branding-products__status"
+                                className="family-memories-products__status"
                             >
 
                                 {
-
                                     language === "es"
 
                                         ? "No se pudieron cargar los productos."
@@ -932,7 +632,6 @@ function BusinessBrandingPage() {
                             </div>
 
                         )
-
                     }
 
 
@@ -941,17 +640,15 @@ function BusinessBrandingPage() {
                        ============================================== */}
 
                     {
-
                         !isLoading &&
                         !error &&
                         products.length === 0 && (
 
                             <div
-                                className="business-branding-products__status"
+                                className="family-memories-products__status"
                             >
 
                                 {
-
                                     language === "es"
 
                                         ? "Actualmente no hay productos disponibles en esta colección."
@@ -963,7 +660,6 @@ function BusinessBrandingPage() {
                             </div>
 
                         )
-
                     }
 
 
@@ -972,58 +668,36 @@ function BusinessBrandingPage() {
                        ============================================== */}
 
                     {
-
                         !isLoading &&
                         !error &&
                         products.length > 0 && (
 
                             <div
-                                className="business-branding-products__grid"
+                                className="family-memories-products__grid"
                             >
 
                                 {
-
                                     products.map(
-
                                         (
                                             product,
                                             index
                                         ) => {
 
                                             const quantity =
-
                                                 getQuantity(
                                                     product.product_id
                                                 );
 
 
-                                            const selectedColor =
-
-                                                getColor(
-                                                    product.product_id
-                                                );
-
-
-                                            const selectedSize =
-
-                                                getSize(
-                                                    product.product_id
-                                                );
-
-
                                             const productOrder =
-
                                                 product.collection_sort_order
-
-                                                ||
-
-                                                index + 1;
+                                                || index + 1;
 
 
                                             return (
 
                                                 <article
-                                                    className="business-branding-product"
+                                                    className="family-memories-product"
                                                     key={
                                                         product.product_id
                                                     }
@@ -1033,10 +707,10 @@ function BusinessBrandingPage() {
                                                     {/* IMAGE */}
 
                                                     <div
-                                                        className="business-branding-product__image"
+                                                        className="family-memories-product__image"
                                                         onClick={() =>
 
-                                                            openProduct(
+                                                            setSelectedProduct(
                                                                 product
                                                             )
 
@@ -1044,7 +718,6 @@ function BusinessBrandingPage() {
                                                         role="button"
                                                         tabIndex={0}
                                                         onKeyDown={
-
                                                             (
                                                                 event
                                                             ) => {
@@ -1064,14 +737,13 @@ function BusinessBrandingPage() {
                                                                     event.preventDefault();
 
 
-                                                                    openProduct(
+                                                                    setSelectedProduct(
                                                                         product
                                                                     );
 
                                                                 }
 
                                                             }
-
                                                         }
                                                         aria-label={
 
@@ -1095,31 +767,13 @@ function BusinessBrandingPage() {
 
 
                                                         <span
-                                                            className="business-branding-product__number"
-                                                            aria-hidden="true"
-                                                        >
-
-                                                            {
-
-                                                                String(
-                                                                    productOrder
-                                                                ).padStart(
-                                                                    2,
-                                                                    "0"
-                                                                )
-
-                                                            }
-
-                                                        </span>
-
-
-                                                        <span
-                                                            className="business-branding-product__zoom"
+                                                            className="family-memories-product__zoom"
                                                             aria-hidden="true"
                                                         >
 
                                                             <svg
                                                                 viewBox="0 0 24 24"
+                                                                aria-hidden="true"
                                                             >
 
                                                                 <circle
@@ -1127,6 +781,7 @@ function BusinessBrandingPage() {
                                                                     cy="11"
                                                                     r="6.5"
                                                                 />
+
 
                                                                 <path
                                                                     d="M16 16L21 21"
@@ -1137,8 +792,24 @@ function BusinessBrandingPage() {
                                                         </span>
 
 
+                                                        <span
+                                                            className="family-memories-product__number"
+                                                        >
+
+                                                            {
+                                                                String(
+                                                                    productOrder
+                                                                ).padStart(
+                                                                    2,
+                                                                    "0"
+                                                                )
+                                                            }
+
+                                                        </span>
+
+
                                                         <div
-                                                            className="business-branding-product__shine"
+                                                            className="family-memories-product__shine"
                                                         ></div>
 
                                                     </div>
@@ -1147,227 +818,28 @@ function BusinessBrandingPage() {
                                                     {/* PRODUCT BODY */}
 
                                                     <div
-                                                        className="business-branding-product__body"
+                                                        className="family-memories-product__body"
                                                     >
 
-
-                                                        {/* PRICE */}
-
-                                                        <strong
-                                                            className="business-branding-product__price"
-                                                        >
-
-                                                            $
-
-                                                            {
-
-                                                                Number(
-                                                                    product.price
-                                                                ).toFixed(
-                                                                    2
-                                                                )
-
-                                                            }
-
-                                                        </strong>
-
-
-                                                        {/* COLOR */}
-
                                                         <div
-                                                            className="business-branding-product__option-group"
+                                                            className="family-memories-product__info"
                                                         >
 
-                                                            <span
-                                                                className="business-branding-product__label"
+                                                            <strong
+                                                                className="family-memories-product__price"
                                                             >
+
+                                                                $
 
                                                                 {
-
-                                                                    language === "es"
-
-                                                                        ? "COLOR"
-
-                                                                        : "COLOR"
-
+                                                                    Number(
+                                                                        product.price
+                                                                    ).toFixed(
+                                                                        2
+                                                                    )
                                                                 }
 
-                                                            </span>
-
-
-                                                            <div
-                                                                className="business-branding-product__colors"
-                                                            >
-
-                                                                <button
-                                                                    type="button"
-                                                                    className={
-
-                                                                        `business-branding-product__color business-branding-product__color--white ${
-                                                                            selectedColor ===
-                                                                            "White"
-
-                                                                                ? "is-active"
-
-                                                                                : ""
-                                                                        }`
-
-                                                                    }
-                                                                    onClick={() =>
-
-                                                                        changeColor(
-
-                                                                            product.product_id,
-
-                                                                            "White"
-
-                                                                        )
-
-                                                                    }
-                                                                    aria-label={
-
-                                                                        language === "es"
-
-                                                                            ? "Seleccionar color blanco"
-
-                                                                            : "Select white color"
-
-                                                                    }
-                                                                >
-
-                                                                    <span></span>
-
-                                                                </button>
-
-
-                                                                <button
-                                                                    type="button"
-                                                                    className={
-
-                                                                        `business-branding-product__color business-branding-product__color--black ${
-                                                                            selectedColor ===
-                                                                            "Black"
-
-                                                                                ? "is-active"
-
-                                                                                : ""
-                                                                        }`
-
-                                                                    }
-                                                                    onClick={() =>
-
-                                                                        changeColor(
-
-                                                                            product.product_id,
-
-                                                                            "Black"
-
-                                                                        )
-
-                                                                    }
-                                                                    aria-label={
-
-                                                                        language === "es"
-
-                                                                            ? "Seleccionar color negro"
-
-                                                                            : "Select black color"
-
-                                                                    }
-                                                                >
-
-                                                                    <span></span>
-
-                                                                </button>
-
-                                                            </div>
-
-                                                        </div>
-
-
-                                                        {/* SIZE */}
-
-                                                        <div
-                                                            className="business-branding-product__option-group"
-                                                        >
-
-                                                            <span
-                                                                className="business-branding-product__label"
-                                                            >
-
-                                                                SIZE
-
-                                                            </span>
-
-
-                                                            <div
-                                                                className="business-branding-product__sizes"
-                                                            >
-
-                                                                <button
-                                                                    type="button"
-                                                                    className={
-
-                                                                        `business-branding-product__size ${
-                                                                            selectedSize ===
-                                                                            "11 oz"
-
-                                                                                ? "is-active"
-
-                                                                                : ""
-                                                                        }`
-
-                                                                    }
-                                                                    onClick={() =>
-
-                                                                        changeSize(
-
-                                                                            product.product_id,
-
-                                                                            "11 oz"
-
-                                                                        )
-
-                                                                    }
-                                                                >
-
-                                                                    11 oz
-
-                                                                </button>
-
-
-                                                                <button
-                                                                    type="button"
-                                                                    className={
-
-                                                                        `business-branding-product__size ${
-                                                                            selectedSize ===
-                                                                            "15 oz"
-
-                                                                                ? "is-active"
-
-                                                                                : ""
-                                                                        }`
-
-                                                                    }
-                                                                    onClick={() =>
-
-                                                                        changeSize(
-
-                                                                            product.product_id,
-
-                                                                            "15 oz"
-
-                                                                        )
-
-                                                                    }
-                                                                >
-
-                                                                    15 oz
-
-                                                                </button>
-
-                                                            </div>
+                                                            </strong>
 
                                                         </div>
 
@@ -1375,7 +847,7 @@ function BusinessBrandingPage() {
                                                         {/* QUANTITY */}
 
                                                         <div
-                                                            className="business-branding-product__quantity"
+                                                            className="family-memories-product__quantity"
                                                         >
 
                                                             <button
@@ -1451,12 +923,21 @@ function BusinessBrandingPage() {
 
                                                         <button
                                                             type="button"
-                                                            className="business-branding-product__button"
+                                                            className="family-memories-product__button"
                                                             onClick={() =>
 
                                                                 handleCardAddToCart(
                                                                     product
                                                                 )
+
+                                                            }
+                                                            aria-label={
+
+                                                                language === "es"
+
+                                                                    ? `Agregar ${product.name} al carrito`
+
+                                                                    : `Add ${product.name} to cart`
 
                                                             }
                                                         >
@@ -1480,15 +961,12 @@ function BusinessBrandingPage() {
                                             );
 
                                         }
-
                                     )
-
                                 }
 
                             </div>
 
                         )
-
                     }
 
                 </section>
@@ -1499,15 +977,15 @@ function BusinessBrandingPage() {
                    ================================================== */}
 
                 <section
-                    className="business-branding-featured"
+                    className="family-memories-featured"
                 >
 
                     <div
-                        className="business-branding-featured__visual"
+                        className="family-memories-featured__visual"
                     >
 
                         <img
-                            src="/images/collections/business-branding/business-branding-featured.jpg"
+                            src="/images/collections/family-memories/family-memories-featured.jpg"
                             alt={
                                 t.featured.title
                             }
@@ -1517,12 +995,12 @@ function BusinessBrandingPage() {
 
 
                     <div
-                        className="business-branding-featured__overlay"
+                        className="family-memories-featured__overlay"
                     ></div>
 
 
                     <div
-                        className="business-branding-featured__content"
+                        className="family-memories-featured__content"
                     >
 
                         <span>
@@ -1535,13 +1013,13 @@ function BusinessBrandingPage() {
 
 
                         <div
-                            className="business-branding-featured__ornament"
+                            className="family-memories-featured__ornament"
                         >
 
                             <span></span>
 
                             <b>
-                                ◆
+                                ♥
                             </b>
 
                             <span></span>
@@ -1578,7 +1056,7 @@ function BusinessBrandingPage() {
 
                         <Link
                             to="/customize"
-                            className="business-branding-featured__button"
+                            className="family-memories-featured__button"
                         >
 
                             {
@@ -1597,16 +1075,16 @@ function BusinessBrandingPage() {
                    ================================================== */}
 
                 <section
-                    className="business-branding-cta"
+                    className="family-memories-cta"
                 >
 
                     <div
-                        className="business-branding-cta__glow"
+                        className="family-memories-cta__glow"
                     ></div>
 
 
                     <div
-                        className="business-branding-cta__content"
+                        className="family-memories-cta__content"
                     >
 
                         <span>
@@ -1619,13 +1097,13 @@ function BusinessBrandingPage() {
 
 
                         <div
-                            className="business-branding-cta__ornament"
+                            className="family-memories-cta__ornament"
                         >
 
                             <span></span>
 
                             <b>
-                                ◆
+                                ♥
                             </b>
 
                             <span></span>
@@ -1662,7 +1140,7 @@ function BusinessBrandingPage() {
 
                         <Link
                             to="/customize"
-                            className="business-branding-cta__button"
+                            className="family-memories-cta__button"
                         >
 
                             {
@@ -1681,11 +1159,10 @@ function BusinessBrandingPage() {
                    ================================================== */}
 
                 {
-
                     selectedProduct && (
 
                         <div
-                            className="business-branding-lightbox"
+                            className="family-memories-lightbox"
                             role="dialog"
                             aria-modal="true"
                             aria-label={
@@ -1697,16 +1174,44 @@ function BusinessBrandingPage() {
                                     : "Product details"
 
                             }
-                            onClick={
-                                closeProduct
+                            onClick={() =>
+
+                                setSelectedProduct(
+                                    null
+                                )
+
                             }
                         >
 
+                            <button
+                                type="button"
+                                className="family-memories-lightbox__close"
+                                onClick={() =>
+
+                                    setSelectedProduct(
+                                        null
+                                    )
+
+                                }
+                                aria-label={
+
+                                    language === "es"
+
+                                        ? "Cerrar"
+
+                                        : "Close"
+
+                                }
+                            >
+
+                                ×
+
+                            </button>
+
 
                             <div
-                                className="business-branding-lightbox__content"
+                                className="family-memories-lightbox__content"
                                 onClick={
-
                                     (
                                         event
                                     ) =>
@@ -1716,9 +1221,8 @@ function BusinessBrandingPage() {
                                 }
                             >
 
-
                                 <div
-                                    className="business-branding-lightbox__visual"
+                                    className="family-memories-lightbox__visual"
                                 >
 
                                     <img
@@ -1728,43 +1232,21 @@ function BusinessBrandingPage() {
                                         alt={
                                             selectedProduct.name
                                         }
-                                        className="business-branding-lightbox__image"
+                                        className="family-memories-lightbox__image"
                                     />
 
                                 </div>
 
 
-                                <button
-                                    type="button"
-                                    className="business-branding-lightbox__close"
-                                    onClick={
-                                        closeProduct
-                                    }
-                                    aria-label={
-
-                                        language === "es"
-
-                                            ? "Cerrar"
-
-                                            : "Close"
-
-                                    }
-                                >
-
-                                    ×
-
-                                </button>
-
-
                                 <div
-                                    className="business-branding-lightbox__details"
+                                    className="family-memories-lightbox__details"
                                 >
 
                                     <span
-                                        className="business-branding-lightbox__eyebrow"
+                                        className="family-memories-lightbox__eyebrow"
                                     >
 
-                                        BUSINESS & BRANDING
+                                        FAMILY & MEMORIES
 
                                     </span>
 
@@ -1781,11 +1263,19 @@ function BusinessBrandingPage() {
                                     {/* RATING */}
 
                                     <div
-                                        className="business-branding-lightbox__rating"
+                                        className="family-memories-lightbox__rating"
+                                        aria-label={
+
+                                            language === "es"
+
+                                                ? "5 de 5 estrellas"
+
+                                                : "5 out of 5 stars"
+
+                                        }
                                     >
 
                                         {
-
                                             Array.from(
 
                                                 {
@@ -1812,20 +1302,19 @@ function BusinessBrandingPage() {
                                                 )
 
                                             )
-
                                         }
 
                                     </div>
 
 
                                     <div
-                                        className="business-branding-lightbox__ornament"
+                                        className="family-memories-lightbox__ornament"
                                     >
 
                                         <span></span>
 
                                         <b>
-                                            ◆
+                                            ♥
                                         </b>
 
                                         <span></span>
@@ -1842,253 +1331,8 @@ function BusinessBrandingPage() {
                                     </p>
 
 
-                                    {/* COLOR */}
-
                                     <div
-                                        className="business-branding-lightbox__option-group"
-                                    >
-
-                                        <span
-                                            className="business-branding-lightbox__label"
-                                        >
-
-                                            COLOR
-
-                                        </span>
-
-
-                                        <div
-                                            className="business-branding-lightbox__colors"
-                                        >
-
-                                            <button
-                                                type="button"
-                                                className={
-
-                                                    `business-branding-lightbox__color business-branding-lightbox__color--white ${
-                                                        getColor(
-                                                            selectedProduct.product_id
-                                                        ) ===
-                                                        "White"
-
-                                                            ? "is-active"
-
-                                                            : ""
-                                                    }`
-
-                                                }
-                                                onClick={() =>
-
-                                                    changeColor(
-
-                                                        selectedProduct.product_id,
-
-                                                        "White"
-
-                                                    )
-
-                                                }
-                                            >
-
-                                                <span></span>
-
-                                            </button>
-
-
-                                            <button
-                                                type="button"
-                                                className={
-
-                                                    `business-branding-lightbox__color business-branding-lightbox__color--black ${
-                                                        getColor(
-                                                            selectedProduct.product_id
-                                                        ) ===
-                                                        "Black"
-
-                                                            ? "is-active"
-
-                                                            : ""
-                                                    }`
-
-                                                }
-                                                onClick={() =>
-
-                                                    changeColor(
-
-                                                        selectedProduct.product_id,
-
-                                                        "Black"
-
-                                                    )
-
-                                                }
-                                            >
-
-                                                <span></span>
-
-                                            </button>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    {/* SIZE */}
-
-                                    <div
-                                        className="business-branding-lightbox__option-group"
-                                    >
-
-                                        <span
-                                            className="business-branding-lightbox__label"
-                                        >
-
-                                            SIZE
-
-                                        </span>
-
-
-                                        <div
-                                            className="business-branding-lightbox__sizes"
-                                        >
-
-                                            <button
-                                                type="button"
-                                                className={
-
-                                                    `business-branding-lightbox__size ${
-                                                        getSize(
-                                                            selectedProduct.product_id
-                                                        ) ===
-                                                        "11 oz"
-
-                                                            ? "is-active"
-
-                                                            : ""
-                                                    }`
-
-                                                }
-                                                onClick={() =>
-
-                                                    changeSize(
-
-                                                        selectedProduct.product_id,
-
-                                                        "11 oz"
-
-                                                    )
-
-                                                }
-                                            >
-
-                                                11 oz
-
-                                            </button>
-
-
-                                            <button
-                                                type="button"
-                                                className={
-
-                                                    `business-branding-lightbox__size ${
-                                                        getSize(
-                                                            selectedProduct.product_id
-                                                        ) ===
-                                                        "15 oz"
-
-                                                            ? "is-active"
-
-                                                            : ""
-                                                    }`
-
-                                                }
-                                                onClick={() =>
-
-                                                    changeSize(
-
-                                                        selectedProduct.product_id,
-
-                                                        "15 oz"
-
-                                                    )
-
-                                                }
-                                            >
-
-                                                15 oz
-
-                                            </button>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    {/* QUANTITY */}
-
-                                    <div
-                                        className="business-branding-lightbox__quantity"
-                                    >
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-
-                                                changeQuantity(
-
-                                                    selectedProduct.product_id,
-
-                                                    -1
-
-                                                )
-
-                                            }
-                                        >
-
-                                            −
-
-                                        </button>
-
-
-                                        <span>
-
-                                            {
-
-                                                getQuantity(
-                                                    selectedProduct.product_id
-                                                )
-
-                                            }
-
-                                        </span>
-
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-
-                                                changeQuantity(
-
-                                                    selectedProduct.product_id,
-
-                                                    1
-
-                                                )
-
-                                            }
-                                        >
-
-                                            +
-
-                                        </button>
-
-                                    </div>
-
-
-                                    {/* PRICE */}
-
-                                    <div
-                                        className="business-branding-lightbox__price"
+                                        className="family-memories-lightbox__price"
                                     >
 
                                         <span>
@@ -2111,13 +1355,11 @@ function BusinessBrandingPage() {
                                             $
 
                                             {
-
                                                 Number(
                                                     selectedProduct.price
                                                 ).toFixed(
                                                     2
                                                 )
-
                                             }
 
                                         </strong>
@@ -2125,11 +1367,9 @@ function BusinessBrandingPage() {
                                     </div>
 
 
-                                    {/* ADD TO CART */}
-
                                     <button
                                         type="button"
-                                        className="business-branding-lightbox__cart-button"
+                                        className="family-memories-lightbox__cart-button"
                                         onClick={() =>
 
                                             handleLightboxAddToCart(
@@ -2158,7 +1398,6 @@ function BusinessBrandingPage() {
                         </div>
 
                     )
-
                 }
 
             </main>
@@ -2173,4 +1412,4 @@ function BusinessBrandingPage() {
 }
 
 
-export default BusinessBrandingPage;
+export default FamilyMemoriesPage;
