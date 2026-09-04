@@ -927,7 +927,6 @@
 
 }
 
-
 /* ===============================================================
    PRODUCT BODY
    =============================================================== */
@@ -982,6 +981,315 @@
 
     text-shadow:
         0 2px 8px rgba(0,0,0,.35);
+
+}
+
+
+/* ===============================================================
+   PRODUCT OPTIONS
+   PREMIUM COLOR / SIZE CONTROLS
+   =============================================================== */
+
+.special-occasions-product-options {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding: 13px 14px 12px;
+
+    border-top:
+        1px solid rgba(216,166,60,.10);
+
+}
+
+
+.special-occasions-product-option {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    min-width: 0;
+
+}
+
+
+.special-occasions-product-option__label {
+
+    flex-shrink: 0;
+
+    color:
+        rgba(255,255,255,.48);
+
+    font-size: 8px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.7px;
+
+    text-transform: uppercase;
+
+}
+
+
+/* ===============================================================
+   COLOR BUTTONS
+   =============================================================== */
+
+.special-occasions-color-options {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+}
+
+
+.special-occasions-color-button {
+
+    position: relative;
+
+    width: 24px;
+    height: 24px;
+
+    min-width: 24px;
+    min-height: 24px;
+
+    padding: 0;
+
+    border:
+        1px solid rgba(216,166,60,.38);
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    cursor: pointer;
+
+    box-shadow:
+
+        0 3px 8px rgba(0,0,0,.35),
+
+        inset 0 1px 1px rgba(255,255,255,.70);
+
+    transition:
+        transform .22s ease,
+        border-color .22s ease,
+        box-shadow .22s ease;
+
+}
+
+
+.special-occasions-color-button[data-color="Black"] {
+
+    background: #080808;
+
+    border-color:
+        rgba(255,255,255,.34);
+
+    box-shadow:
+
+        0 3px 8px rgba(0,0,0,.48),
+
+        inset 0 1px 1px rgba(255,255,255,.12);
+
+}
+
+
+.special-occasions-color-button[data-color="White"] {
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff 0%,
+            #e9e9e9 55%,
+            #cfcfcf 100%
+        );
+
+}
+
+
+.special-occasions-color-button:hover {
+
+    transform:
+        scale(1.10);
+
+    border-color:
+        rgba(238,201,105,.90);
+
+    box-shadow:
+
+        0 5px 12px rgba(0,0,0,.42),
+
+        0 0 12px rgba(216,166,60,.16);
+
+}
+
+
+.special-occasions-color-button.is-selected,
+.special-occasions-color-button.active,
+.special-occasions-color-button[aria-pressed="true"] {
+
+    border-color:
+        #f2d17b;
+
+    box-shadow:
+
+        0 0 0 2px rgba(216,166,60,.18),
+
+        0 0 0 4px rgba(216,166,60,.52),
+
+        0 4px 12px rgba(0,0,0,.42);
+
+    transform:
+        scale(1.04);
+
+}
+
+
+.special-occasions-color-button:focus-visible {
+
+    outline:
+        1px solid #f2d17b;
+
+    outline-offset:
+        3px;
+
+}
+
+
+/* ===============================================================
+   SIZE BUTTONS
+   =============================================================== */
+
+.special-occasions-size-options {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 7px;
+
+}
+
+
+.special-occasions-size-button {
+
+    min-width: 55px;
+
+    height: 27px;
+
+    padding:
+        0 10px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(216,166,60,.34);
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.055),
+            rgba(255,255,255,.018)
+        );
+
+    color:
+        rgba(255,255,255,.70);
+
+    font-size: 8px;
+
+    font-weight: 800;
+
+    letter-spacing: .8px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,.06),
+
+        0 3px 8px rgba(0,0,0,.22);
+
+    transition:
+        background .22s ease,
+        border-color .22s ease,
+        color .22s ease,
+        transform .22s ease,
+        box-shadow .22s ease;
+
+}
+
+
+.special-occasions-size-button:hover {
+
+    border-color:
+        rgba(216,166,60,.75);
+
+    color:
+        #f2d17b;
+
+    background:
+        rgba(216,166,60,.10);
+
+    transform:
+        translateY(-1px);
+
+}
+
+
+.special-occasions-size-button.is-selected,
+.special-occasions-size-button.active,
+.special-occasions-size-button[aria-pressed="true"] {
+
+    border-color:
+        #e5bd68;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            rgba(216,166,60,.30),
+            rgba(157,104,30,.18)
+        );
+
+    color:
+        #f5d98a;
+
+    box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,.10),
+
+        0 0 12px rgba(216,166,60,.12);
+
+}
+
+
+.special-occasions-size-button:focus-visible {
+
+    outline:
+        1px solid #f2d17b;
+
+    outline-offset:
+        3px;
 
 }
 
@@ -1106,20 +1414,20 @@
 
 
 /* ===============================================================
-   PREMIUM 3D CART
+   PREMIUM CART BUTTON
    =============================================================== */
 
 .special-occasions-product__button {
 
     position: relative;
 
-    width: 44px;
-    height: 44px;
+    width: 100%;
 
-    min-width: 44px;
-    min-height: 44px;
+    min-height: 42px;
 
-    padding: 0;
+    margin-top: 1px;
+
+    padding: 0 18px;
 
     display: flex;
 
@@ -1127,38 +1435,39 @@
     justify-content: center;
 
     border:
-        1px solid rgba(238,201,105,.90);
+        1px solid #e0b85d;
 
-    border-radius: 50%;
+    border-radius: 999px;
 
     background:
 
-        radial-gradient(
-            circle at 30% 22%,
-            #fff4c4 0%,
-            #f1ce78 17%,
-            #d6a541 42%,
-            #a96f1e 68%,
-            #70450f 100%
+        linear-gradient(
+            180deg,
+            #f1ce78 0%,
+            #c58b2c 100%
         );
 
-    color: transparent;
+    color: #171108;
 
-    font-size: 0;
+    font-size: 9px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.35px;
 
     line-height: 1;
+
+    text-transform: uppercase;
 
     cursor: pointer;
 
     box-shadow:
 
-        inset 0 2px 2px rgba(255,255,255,.65),
+        inset 0 1px 0 rgba(255,255,255,.68),
 
-        inset 0 -4px 6px rgba(67,38,5,.52),
+        0 7px 18px rgba(0,0,0,.38),
 
-        0 5px 12px rgba(0,0,0,.50),
-
-        0 0 14px rgba(216,166,60,.15);
+        0 0 18px rgba(216,166,60,.10);
 
     transition:
         transform .25s ease,
@@ -1170,54 +1479,14 @@
 
 .special-occasions-product__button::before {
 
-    content: "🛒";
-
-    display: block;
-
-    color: #171108;
-
-    font-family:
-        "Apple Color Emoji",
-        "Segoe UI Emoji",
-        sans-serif;
-
-    font-size: 20px;
-
-    line-height: 1;
-
-    transform:
-        translateY(-1px)
-        scale(1.03);
-
-    filter:
-        drop-shadow(
-            0 2px 1px rgba(0,0,0,.65)
-        );
+    content: none;
 
 }
 
 
 .special-occasions-product__button::after {
 
-    content: "";
-
-    position: absolute;
-
-    top: 6px;
-    left: 9px;
-
-    width: 11px;
-    height: 5px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(255,255,255,.58);
-
-    filter:
-        blur(1px);
-
-    pointer-events: none;
+    content: none;
 
 }
 
@@ -1225,21 +1494,18 @@
 .special-occasions-product__button:hover {
 
     transform:
-        translateY(-3px)
-        scale(1.07);
+        translateY(-2px);
 
     filter:
-        brightness(1.10);
+        brightness(1.07);
 
     box-shadow:
 
-        inset 0 2px 2px rgba(255,255,255,.75),
+        inset 0 1px 0 rgba(255,255,255,.76),
 
-        inset 0 -4px 6px rgba(67,38,5,.45),
+        0 10px 22px rgba(0,0,0,.48),
 
-        0 9px 20px rgba(0,0,0,.55),
-
-        0 0 28px rgba(216,166,60,.30);
+        0 0 25px rgba(216,166,60,.22);
 
 }
 
@@ -1248,7 +1514,7 @@
 
     transform:
         translateY(0)
-        scale(.93);
+        scale(.98);
 
 }
 
@@ -1299,6 +1565,7 @@
 .special-occasions-featured__visual {
 
     position: absolute;
+
     inset: 0;
 
 }
@@ -1320,6 +1587,7 @@
 .special-occasions-featured__overlay {
 
     position: absolute;
+
     inset: 0;
 
     background:
@@ -1342,6 +1610,7 @@
 .special-occasions-featured__content {
 
     position: relative;
+
     z-index: 2;
 
     width: 52%;
@@ -1377,6 +1646,7 @@
     width: 190px;
 
     display: flex;
+
     align-items: center;
 
     gap: 10px;
@@ -1459,6 +1729,7 @@
     display: inline-flex;
 
     align-items: center;
+
     justify-content: center;
 
     min-height: 44px;
@@ -1490,7 +1761,9 @@
     cursor: pointer;
 
     box-shadow:
+
         inset 0 1px 0 rgba(255,255,255,.55),
+
         0 8px 22px rgba(0,0,0,.32);
 
     transition:
@@ -1502,253 +1775,11 @@
 
 .special-occasions-featured__button:hover {
 
-    transform: translateY(-3px);
-
-    filter: brightness(1.08);
-
-}
-
-/* ===============================================================
-   FEATURED
-   =============================================================== */
-
-.special-occasions-featured {
-
-    position: relative;
-
-    width: min(1200px, calc(100% - 40px));
-
-    min-height: 430px;
-
-    margin: 0 auto 90px;
-
-    overflow: hidden;
-
-    border:
-        1px solid rgba(216,166,60,.70);
-
-    border-radius: 22px;
-
-    background: #15120f;
-
-    box-shadow:
-
-        0 25px 65px rgba(0,0,0,.48),
-
-        0 0 30px rgba(216,166,60,.07);
-
-}
-
-
-.special-occasions-featured__visual {
-
-    position: absolute;
-    inset: 0;
-
-}
-
-
-.special-occasions-featured__visual img {
-
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    object-fit: cover;
-    object-position: center;
-
-}
-
-
-.special-occasions-featured__overlay {
-
-    position: absolute;
-    inset: 0;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            rgba(7,6,5,.97) 0%,
-            rgba(9,8,7,.91) 31%,
-            rgba(10,9,8,.54) 57%,
-            rgba(10,9,8,.10) 100%
-        );
-
-}
-
-
-/* ===============================================================
-   FEATURED CONTENT
-   =============================================================== */
-
-.special-occasions-featured__content {
-
-    position: relative;
-    z-index: 2;
-
-    width: 52%;
-
-    min-height: 430px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    padding: 45px;
-
-}
-
-
-.special-occasions-featured__content > span {
-
-    color: #d8a63c;
-
-    font-size: 10px;
-
-    font-weight: 800;
-
-    letter-spacing: 3px;
-
-}
-
-
-.special-occasions-featured__ornament {
-
-    width: 190px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    margin: 12px 0 18px;
-
-}
-
-
-.special-occasions-featured__ornament span {
-
-    flex: 1;
-
-    height: 1px;
-
-    background: #d8a63c;
-
-}
-
-
-.special-occasions-featured__ornament b {
-
-    color: #e9c36e;
-
-    font-size: 16px;
-
-}
-
-
-.special-occasions-featured__content h2 {
-
-    margin: 0;
-
-    color: #ffffff;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: clamp(42px, 5vw, 65px);
-
-    line-height: .92;
-
-    font-weight: 500;
-
-}
-
-
-.special-occasions-featured__content h2 strong {
-
-    display: block;
-
-    color: #d8a63c;
-
-    font-weight: 500;
-
-}
-
-
-.special-occasions-featured__content p {
-
-    max-width: 390px;
-
-    margin: 22px 0;
-
-    color: rgba(255,255,255,.70);
-
-    font-size: 14px;
-
-    line-height: 1.7;
-
-}
-
-
-.special-occasions-featured__button {
-
-    align-self: flex-start;
-
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    min-height: 44px;
-
-    padding: 0 24px;
-
-    border:
-        1px solid #d8a63c;
-
-    border-radius: 999px;
-
-    background:
-        linear-gradient(
-            180deg,
-            #e8bd67,
-            #b97d26
-        );
-
-    color: #171008;
-
-    font-size: 9px;
-
-    font-weight: 900;
-
-    letter-spacing: 1.2px;
-
-    text-decoration: none;
-
-    cursor: pointer;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.55),
-        0 8px 22px rgba(0,0,0,.32);
-
-    transition:
-        transform .25s ease,
-        filter .25s ease;
-
-}
-
-
-.special-occasions-featured__button:hover {
-
-    transform: translateY(-3px);
-
-    filter: brightness(1.08);
+    transform:
+        translateY(-3px);
+
+    filter:
+        brightness(1.08);
 
 }
 
@@ -1804,9 +1835,11 @@
     position: absolute;
 
     width: 350px;
+
     height: 350px;
 
     left: 50%;
+
     top: 50%;
 
     transform:
@@ -1822,7 +1855,8 @@
             transparent 68%
         );
 
-    filter: blur(15px);
+    filter:
+        blur(15px);
 
 }
 
@@ -1834,6 +1868,7 @@
 .special-occasions-cta__content {
 
     position: relative;
+
     z-index: 2;
 
     padding: 75px 30px;
@@ -1861,6 +1896,7 @@
     width: 190px;
 
     display: flex;
+
     align-items: center;
 
     gap: 12px;
@@ -1877,6 +1913,7 @@
     height: 1px;
 
     background:
+
         linear-gradient(
             90deg,
             transparent,
@@ -1889,6 +1926,7 @@
 .special-occasions-cta__ornament span:last-child {
 
     background:
+
         linear-gradient(
             90deg,
             #d8a63c,
@@ -1961,6 +1999,7 @@
     display: inline-flex;
 
     align-items: center;
+
     justify-content: center;
 
     min-height: 48px;
@@ -2007,9 +2046,11 @@
 
 .special-occasions-cta__button:hover {
 
-    transform: translateY(-3px);
+    transform:
+        translateY(-3px);
 
-    filter: brightness(1.08);
+    filter:
+        brightness(1.08);
 
     box-shadow:
 
@@ -2037,6 +2078,7 @@
     display: flex;
 
     align-items: center;
+
     justify-content: center;
 
     padding: 30px;
@@ -2051,9 +2093,11 @@
 
         rgba(0,0,0,.94);
 
-    backdrop-filter: blur(18px);
+    backdrop-filter:
+        blur(18px);
 
-    -webkit-backdrop-filter: blur(18px);
+    -webkit-backdrop-filter:
+        blur(18px);
 
     animation:
         specialOccasionsLightboxIn .3s ease both;
@@ -2077,6 +2121,10 @@
 
 }
 
+
+/* ===============================================================
+   LIGHTBOX CONTENT
+   =============================================================== */
 
 .special-occasions-lightbox__content {
 
@@ -2134,6 +2182,7 @@
     position: relative;
 
     width: 100%;
+
     height: 100%;
 
     min-height: 580px;
@@ -2146,7 +2195,7 @@
 
 
 /* ===============================================================
-   LIGHTBOX IMAGE - SOFT BOTTOM GRADIENT
+   LIGHTBOX IMAGE GRADIENT
    =============================================================== */
 
 .special-occasions-lightbox__visual::after {
@@ -2156,7 +2205,9 @@
     position: absolute;
 
     left: 0;
+
     right: 0;
+
     bottom: 0;
 
     z-index: 3;
@@ -2187,6 +2238,7 @@
 .special-occasions-lightbox__image {
 
     width: 100%;
+
     height: 100%;
 
     display: block;
@@ -2209,14 +2261,17 @@
     z-index: 10;
 
     top: 18px;
+
     right: 18px;
 
     width: 48px;
+
     height: 48px;
 
     display: flex;
 
     align-items: center;
+
     justify-content: center;
 
     border:
@@ -2230,15 +2285,18 @@
     color: #f0c96d;
 
     font-size: 28px;
+
     font-weight: 300;
 
     line-height: 1;
 
     cursor: pointer;
 
-    backdrop-filter: blur(10px);
+    backdrop-filter:
+        blur(10px);
 
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter:
+        blur(10px);
 
     box-shadow:
         0 8px 25px rgba(0,0,0,.40);
@@ -2253,7 +2311,8 @@
 
 .special-occasions-lightbox__close:hover {
 
-    transform: rotate(90deg);
+    transform:
+        rotate(90deg);
 
     background:
         rgba(216,166,60,.15);
@@ -2342,7 +2401,8 @@
 
 .special-occasions-lightbox__rating span {
 
-    color: rgba(255,255,255,.20);
+    color:
+        rgba(255,255,255,.20);
 
     font-size: 16px;
 
@@ -2423,7 +2483,8 @@
 
     margin: 0;
 
-    color: rgba(255,255,255,.68);
+    color:
+        rgba(255,255,255,.68);
 
     font-size: 14px;
 
@@ -2441,6 +2502,7 @@
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
     margin-top: 25px;
@@ -2538,9 +2600,11 @@
 
 .special-occasions-lightbox__cart-button:hover {
 
-    transform: translateY(-3px);
+    transform:
+        translateY(-3px);
 
-    filter: brightness(1.08);
+    filter:
+        brightness(1.08);
 
 }
 
@@ -2590,13 +2654,364 @@
 
 @media (max-width: 767px) {
 
+    /* -----------------------------------------------------------
+       PRODUCT CARD
+       ----------------------------------------------------------- */
+
+    .special-occasions-product {
+
+        border-radius: 18px;
+
+    }
+
+
+    .special-occasions-product__body {
+
+        min-height: 0;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        justify-content: flex-start;
+
+        gap: 0;
+
+        padding: 0;
+
+        border-top:
+            1px solid rgba(216,166,60,.12);
+
+    }
+
+
+    .special-occasions-product__info {
+
+        width: 100%;
+
+        display: block;
+
+        padding: 14px 14px 0;
+
+    }
+
+
+    .special-occasions-product__price {
+
+        display: block;
+
+        color: #f2d17b;
+
+        font-size: 20px;
+
+        line-height: 1;
+
+    }
+
+
+    /* -----------------------------------------------------------
+       PRODUCT OPTIONS
+       ----------------------------------------------------------- */
+
+    .special-occasions-product-options {
+
+        width: 100%;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 14px;
+
+        padding: 10px 14px 14px;
+
+        border-top: none;
+
+    }
+
+
+    .special-occasions-product-option {
+
+        width: 100%;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        justify-content: flex-start;
+
+        gap: 7px;
+
+    }
+
+
+    .special-occasions-product-option__label {
+
+        color:
+            rgba(255,255,255,.58);
+
+        font-size: 9px;
+
+        font-weight: 800;
+
+        letter-spacing: 1.8px;
+
+    }
+
+
+    /* -----------------------------------------------------------
+       COLOR
+       ----------------------------------------------------------- */
+
+    .special-occasions-color-options {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+    }
+
+
+    .special-occasions-color-button {
+
+        width: 48px;
+
+        height: 48px;
+
+        min-width: 48px;
+
+        min-height: 48px;
+
+        border:
+            2px solid rgba(255,255,255,.18);
+
+        box-shadow:
+
+            0 4px 12px rgba(0,0,0,.42),
+
+            inset 0 1px 2px rgba(255,255,255,.65);
+
+    }
+
+
+    .special-occasions-color-button[data-color="Black"] {
+
+        border-color:
+            rgba(255,255,255,.25);
+
+    }
+
+
+    .special-occasions-color-button:hover {
+
+        transform:
+            scale(1.04);
+
+    }
+
+
+    .special-occasions-color-button.is-selected,
+    .special-occasions-color-button.active,
+    .special-occasions-color-button[aria-pressed="true"] {
+
+        border-color:
+            #f2d17b;
+
+        box-shadow:
+
+            0 0 0 2px rgba(8,8,8,.95),
+
+            0 0 0 4px rgba(216,166,60,.72),
+
+            0 5px 15px rgba(0,0,0,.48);
+
+        transform:
+            scale(1.02);
+
+    }
+
+
+    /* -----------------------------------------------------------
+       SIZE
+       ----------------------------------------------------------- */
+
+    .special-occasions-size-options {
+
+        width: 100%;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 8px;
+
+    }
+
+
+    .special-occasions-size-button {
+
+        width: 100%;
+
+        min-width: 0;
+
+        height: 48px;
+
+        padding:
+            0 12px;
+
+        border:
+            1px solid rgba(216,166,60,.38);
+
+        border-radius: 15px;
+
+        background:
+
+            linear-gradient(
+                180deg,
+                rgba(255,255,255,.055),
+                rgba(255,255,255,.018)
+            );
+
+        color:
+            rgba(255,255,255,.78);
+
+        font-size: 12px;
+
+        font-weight: 800;
+
+        letter-spacing: .3px;
+
+    }
+
+
+    .special-occasions-size-button.is-selected,
+    .special-occasions-size-button.active,
+    .special-occasions-size-button[aria-pressed="true"] {
+
+        border-color:
+            #e5bd68;
+
+        background:
+
+            linear-gradient(
+                180deg,
+                rgba(216,166,60,.28),
+                rgba(157,104,30,.16)
+            );
+
+        color:
+            #f5d98a;
+
+        box-shadow:
+
+            inset 0 1px 0 rgba(255,255,255,.10),
+
+            0 0 15px rgba(216,166,60,.14);
+
+    }
+
+
+    /* -----------------------------------------------------------
+       QUANTITY
+       ----------------------------------------------------------- */
+
+    .special-occasions-product__quantity {
+
+        width: 100%;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 12px;
+
+        padding:
+            0 14px 14px;
+
+    }
+
+
+    .special-occasions-product__quantity button {
+
+        width: 38px;
+
+        height: 38px;
+
+        min-width: 38px;
+
+        min-height: 38px;
+
+        border:
+            1px solid rgba(216,166,60,.48);
+
+        background:
+            rgba(216,166,60,.055);
+
+        color:
+            rgba(255,255,255,.86);
+
+        font-size: 17px;
+
+    }
+
+
+    .special-occasions-product__quantity span {
+
+        min-width: 20px;
+
+        font-size: 13px;
+
+    }
+
+
+    /* -----------------------------------------------------------
+       ADD TO CART
+       ----------------------------------------------------------- */
+
+    .special-occasions-product__button {
+
+        width: calc(100% - 28px);
+
+        min-height: 48px;
+
+        margin:
+            0 14px 14px;
+
+        padding:
+            0 20px;
+
+        border-radius: 999px;
+
+        font-size: 10px;
+
+        letter-spacing: 1.7px;
+
+    }
+
+
+    /* -----------------------------------------------------------
+       LIGHTBOX
+       ----------------------------------------------------------- */
+
     .special-occasions-lightbox {
 
         align-items: flex-start;
 
         justify-content: center;
 
-        padding: 18px 12px;
+        padding:
+            18px 12px;
 
         overflow-y: auto;
 
@@ -2617,14 +3032,11 @@
 
         border-radius: 20px;
 
-        margin: 0 auto 20px;
+        margin:
+            0 auto 20px;
 
     }
 
-
-    /* ===========================================================
-       LIGHTBOX VISUAL MOBILE
-       =========================================================== */
 
     .special-occasions-lightbox__visual {
 
@@ -2646,12 +3058,6 @@
 
     }
 
-
-    /*
-     * DEGRADADO NEGRO:
-     * solamente en la parte inferior.
-     * Suave y sin subir demasiado.
-     */
 
     .special-occasions-lightbox__visual::after {
 
@@ -2701,7 +3107,8 @@
 
         width: 100%;
 
-        padding: 28px 22px 30px;
+        padding:
+            28px 22px 30px;
 
         border-left: none;
 
@@ -2716,9 +3123,11 @@
         position: fixed;
 
         top: 20px;
+
         right: 18px;
 
         width: 43px;
+
         height: 43px;
 
         font-size: 25px;
@@ -2734,9 +3143,147 @@
 
 @media (max-width: 420px) {
 
+    .special-occasions-products {
+
+        width:
+            calc(100% - 32px);
+
+    }
+
+
+    .special-occasions-products__grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 14px;
+
+    }
+
+
+    .special-occasions-product {
+
+        border-radius: 17px;
+
+    }
+
+
+    .special-occasions-product__info {
+
+        padding:
+            13px 11px 0;
+
+    }
+
+
+    .special-occasions-product__price {
+
+        font-size: 18px;
+
+    }
+
+
+    .special-occasions-product-options {
+
+        gap: 12px;
+
+        padding:
+            9px 11px 12px;
+
+    }
+
+
+    .special-occasions-color-options {
+
+        gap: 7px;
+
+    }
+
+
+    .special-occasions-color-button {
+
+        width: 40px;
+
+        height: 40px;
+
+        min-width: 40px;
+
+        min-height: 40px;
+
+    }
+
+
+    .special-occasions-size-options {
+
+        gap: 6px;
+
+    }
+
+
+    .special-occasions-size-button {
+
+        height: 42px;
+
+        border-radius: 13px;
+
+        font-size: 10px;
+
+    }
+
+
+    .special-occasions-product__quantity {
+
+        gap: 8px;
+
+        padding:
+            0 11px 11px;
+
+    }
+
+
+    .special-occasions-product__quantity button {
+
+        width: 32px;
+
+        height: 32px;
+
+        min-width: 32px;
+
+        min-height: 32px;
+
+        font-size: 15px;
+
+    }
+
+
+    .special-occasions-product__quantity span {
+
+        font-size: 12px;
+
+    }
+
+
+    .special-occasions-product__button {
+
+        width:
+            calc(100% - 22px);
+
+        min-height: 44px;
+
+        margin:
+            0 11px 11px;
+
+        font-size: 8px;
+
+        letter-spacing: 1.4px;
+
+    }
+
+
     .special-occasions-lightbox {
 
-        padding: 12px 9px;
+        padding:
+            12px 9px;
 
     }
 
@@ -2787,7 +3334,8 @@
 
     .special-occasions-lightbox__details {
 
-        padding: 24px 18px 25px;
+        padding:
+            24px 18px 25px;
 
     }
 
@@ -2799,6 +3347,57 @@
    =============================================================== */
 
 @media (max-width: 360px) {
+
+    .special-occasions-product__price {
+
+        font-size: 17px;
+
+    }
+
+
+    .special-occasions-color-button {
+
+        width: 36px;
+
+        height: 36px;
+
+        min-width: 36px;
+
+        min-height: 36px;
+
+    }
+
+
+    .special-occasions-size-button {
+
+        height: 39px;
+
+        font-size: 9px;
+
+    }
+
+
+    .special-occasions-product__quantity button {
+
+        width: 30px;
+
+        height: 30px;
+
+        min-width: 30px;
+
+        min-height: 30px;
+
+    }
+
+
+    .special-occasions-product__button {
+
+        min-height: 42px;
+
+        font-size: 8px;
+
+    }
+
 
     .special-occasions-lightbox__visual::after {
 
@@ -2823,9 +3422,11 @@
     .special-occasions-lightbox__close {
 
         top: 12px;
+
         right: 12px;
 
         width: 38px;
+
         height: 38px;
 
         font-size: 25px;
