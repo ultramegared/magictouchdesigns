@@ -3,14 +3,34 @@
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: BusinessBrandingPage.css
- * Module: Collections / Business & Branding
+ * Module: Collections / Business Branding
  * Language: CSS
  * Description:
- * Premium Business & Branding collection page.
+ * Ultra-premium Business Branding collection page.
+ * Designed to visually match the Special Occasions collection system.
  * ===============================================================
  */
 
+
+/* ===============================================================
+   BASE
+   =============================================================== */
+
 .business-branding-page {
+
+    --bb-gold: #d8a63c;
+    --bb-gold-light: #f2d17b;
+    --bb-gold-bright: #f6dc91;
+    --bb-gold-dark: #9d681e;
+
+    --bb-black: #080808;
+    --bb-black-soft: #0d0c0b;
+    --bb-card: #151311;
+    --bb-card-light: #1d1915;
+
+    --bb-white: #ffffff;
+    --bb-white-soft: rgba(255,255,255,.78);
+    --bb-white-muted: rgba(255,255,255,.62);
 
     width: 100%;
     min-height: 100vh;
@@ -20,9 +40,9 @@
     background:
 
         radial-gradient(
-            circle at 50% 12%,
-            rgba(214, 166, 65, .08),
-            transparent 28%
+            circle at 50% 10%,
+            rgba(216,166,60,.08),
+            transparent 27%
         ),
 
         linear-gradient(
@@ -32,7 +52,7 @@
             #080808 100%
         );
 
-    color: #ffffff;
+    color: var(--bb-white);
 
 }
 
@@ -77,8 +97,7 @@
     object-position: center;
 
     filter:
-
-        saturate(.88)
+        saturate(.94)
         contrast(1.08)
         brightness(.80);
 
@@ -86,6 +105,10 @@
 
 }
 
+
+/* ===============================================================
+   HERO OVERLAY
+   =============================================================== */
 
 .business-branding-hero__overlay {
 
@@ -96,21 +119,25 @@
 
         linear-gradient(
             90deg,
-            rgba(4, 4, 4, .96) 0%,
-            rgba(6, 5, 5, .89) 28%,
-            rgba(8, 7, 7, .54) 55%,
-            rgba(8, 7, 7, .12) 100%
+            rgba(4,4,4,.96) 0%,
+            rgba(6,5,5,.91) 26%,
+            rgba(8,7,7,.58) 55%,
+            rgba(8,7,7,.13) 100%
         ),
 
         linear-gradient(
             180deg,
-            rgba(0, 0, 0, .30),
+            rgba(0,0,0,.30) 0%,
             transparent 42%,
-            rgba(0, 0, 0, .74)
+            rgba(0,0,0,.76) 100%
         );
 
 }
 
+
+/* ===============================================================
+   HERO GOLD GLOW
+   =============================================================== */
 
 .business-branding-hero__glow {
 
@@ -119,7 +146,7 @@
     width: 620px;
     height: 620px;
 
-    left: -130px;
+    left: -140px;
     top: 50%;
 
     transform: translateY(-50%);
@@ -130,8 +157,8 @@
 
         radial-gradient(
             circle,
-            rgba(214, 166, 65, .16) 0%,
-            rgba(214, 166, 65, .06) 34%,
+            rgba(216,166,60,.18) 0%,
+            rgba(216,166,60,.07) 35%,
             transparent 70%
         );
 
@@ -160,6 +187,10 @@
 }
 
 
+/* ===============================================================
+   BACK LINK
+   =============================================================== */
+
 .business-branding-back-link {
 
     display: inline-flex;
@@ -180,10 +211,8 @@
     text-transform: uppercase;
 
     transition:
-
         color .3s ease,
-        transform .3s ease,
-        opacity .3s ease;
+        transform .3s ease;
 
 }
 
@@ -208,6 +237,10 @@
 }
 
 
+/* ===============================================================
+   HERO EYEBROW
+   =============================================================== */
+
 .business-branding-hero__eyebrow {
 
     display: inline-flex;
@@ -227,16 +260,19 @@
 }
 
 
+/* ===============================================================
+   HERO TITLE
+   =============================================================== */
+
 .business-branding-hero__content h1 {
 
-    max-width: 650px;
+    max-width: 680px;
 
     margin: 0;
 
     color: #ffffff;
 
     font-family:
-
         Georgia,
         "Times New Roman",
         serif;
@@ -250,7 +286,6 @@
     letter-spacing: -4px;
 
     text-shadow:
-
         0 8px 30px rgba(0,0,0,.45);
 
 }
@@ -261,8 +296,6 @@
     display: block;
 
     margin-top: 12px;
-
-    color: #d9ab50;
 
     background:
 
@@ -282,6 +315,10 @@
 
 }
 
+
+/* ===============================================================
+   HERO ORNAMENT
+   =============================================================== */
 
 .business-branding-hero__ornament {
 
@@ -331,14 +368,17 @@
 
     color: #f0c96d;
 
-    font-size: 16px;
+    font-size: 18px;
 
     text-shadow:
-
         0 0 15px rgba(240,201,109,.55);
 
 }
 
+
+/* ===============================================================
+   HERO DESCRIPTION
+   =============================================================== */
 
 .business-branding-hero__content p {
 
@@ -355,18 +395,21 @@
 }
 
 
-.business-branding-hero__button {
+/* ===============================================================
+   HERO BUTTON
+   =============================================================== */
 
-    min-height: 48px;
+.business-branding-hero__button {
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
+    min-height: 48px;
+
     padding: 0 28px;
 
     border:
-
         1px solid #e0b85d;
 
     border-radius: 999px;
@@ -397,10 +440,7 @@
 
         0 0 24px rgba(214,166,65,.12);
 
-    cursor: pointer;
-
     transition:
-
         transform .3s ease,
         box-shadow .3s ease,
         filter .3s ease;
@@ -414,16 +454,12 @@
 
     filter: brightness(1.08);
 
-    box-shadow:
-
-        inset 0 1px 0 rgba(255,255,255,.78),
-
-        0 12px 30px rgba(0,0,0,.45),
-
-        0 0 32px rgba(214,166,65,.25);
-
 }
 
+
+/* ===============================================================
+   HERO BOTTOM GLOW
+   =============================================================== */
 
 .business-branding-hero__bottom-glow {
 
@@ -451,7 +487,7 @@
 
 
 /* ===============================================================
-   PRODUCTS
+   PRODUCTS SECTION
    =============================================================== */
 
 .business-branding-products {
@@ -460,10 +496,14 @@
 
     margin: 0 auto;
 
-    padding: 75px 0 90px;
+    padding: 20px 0 90px;
 
 }
 
+
+/* ===============================================================
+   SECTION HEADING
+   =============================================================== */
 
 .business-branding-section-heading {
 
@@ -494,7 +534,6 @@
     color: #ffffff;
 
     font-family:
-
         Georgia,
         "Times New Roman",
         serif;
@@ -519,27 +558,15 @@
 }
 
 
-.business-branding-products__status {
-
-    width: 100%;
-
-    padding: 50px 20px;
-
-    text-align: center;
-
-    color: rgba(255,255,255,.70);
-
-    font-size: 14px;
-
-}
-
+/* ===============================================================
+   PRODUCT GRID
+   =============================================================== */
 
 .business-branding-products__grid {
 
     display: grid;
 
     grid-template-columns:
-
         repeat(4, minmax(0, 1fr));
 
     gap: 18px;
@@ -547,14 +574,21 @@
 }
 
 
+/* ===============================================================
+   PRODUCT CARD
+   =============================================================== */
+
 .business-branding-product {
 
     position: relative;
 
+    display: flex;
+
+    flex-direction: column;
+
     overflow: hidden;
 
     border:
-
         1px solid rgba(216,166,60,.52);
 
     border-radius: 18px;
@@ -575,7 +609,6 @@
         inset 0 1px 0 rgba(255,255,255,.04);
 
     transition:
-
         transform .35s ease,
         border-color .35s ease,
         box-shadow .35s ease;
@@ -627,11 +660,33 @@
 }
 
 
-.business-branding-product__image:focus-visible {
+.business-branding-product__image::after {
 
-    outline: 1px solid #e5bd68;
+    content: "";
 
-    outline-offset: -3px;
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 3;
+
+    width: 100%;
+
+    height: 22%;
+
+    pointer-events: none;
+
+    background:
+
+        linear-gradient(
+            to top,
+            rgba(0,0,0,.64) 0%,
+            rgba(0,0,0,.30) 42%,
+            rgba(0,0,0,.08) 72%,
+            transparent 100%
+        );
 
 }
 
@@ -646,7 +701,6 @@
     object-fit: cover;
 
     transition:
-
         transform .6s ease,
         filter .6s ease;
 
@@ -659,12 +713,15 @@
     transform: scale(1.06);
 
     filter:
-
         brightness(1.06)
         saturate(1.04);
 
 }
 
+
+/* ===============================================================
+   PRODUCT SHINE
+   =============================================================== */
 
 .business-branding-product__shine {
 
@@ -672,24 +729,24 @@
 
     inset: 0;
 
+    z-index: 2;
+
     background:
 
         linear-gradient(
             120deg,
-            transparent 30%,
-            rgba(255,255,255,.10) 50%,
-            transparent 70%
+            transparent 25%,
+            rgba(255,255,255,.08) 48%,
+            transparent 68%
         );
 
     transform:
-
         translateX(-120%);
 
-    pointer-events: none;
-
     transition:
+        transform .75s ease;
 
-        transform .7s ease;
+    pointer-events: none;
 
 }
 
@@ -698,14 +755,68 @@
 .business-branding-product__shine {
 
     transform:
-
         translateX(120%);
 
 }
 
 
 /* ===============================================================
-   ZOOM
+   PRODUCT NUMBER
+   =============================================================== */
+
+.business-branding-product__image
+.business-branding-product__number {
+
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    z-index: 4;
+
+    width: 27px;
+    height: 27px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(238,201,105,.60);
+
+    border-radius: 50%;
+
+    background:
+        rgba(7,7,7,.62);
+
+    color:
+        rgba(255,255,255,.82);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 10px;
+
+    box-shadow:
+
+        0 4px 12px rgba(0,0,0,.35),
+
+        inset 0 1px 0 rgba(255,255,255,.12);
+
+    backdrop-filter:
+        blur(6px);
+
+    -webkit-backdrop-filter:
+        blur(6px);
+
+}
+
+
+/* ===============================================================
+   PRODUCT ZOOM
    =============================================================== */
 
 .business-branding-product__zoom {
@@ -726,29 +837,16 @@
     justify-content: center;
 
     border:
-
         1px solid rgba(255,255,255,.55);
 
     border-radius: 50%;
 
     background:
-
         rgba(7,7,7,.58);
-
-    box-shadow:
-
-        0 5px 14px rgba(0,0,0,.38),
-
-        inset 0 1px 0 rgba(255,255,255,.16);
-
-    backdrop-filter: blur(7px);
-
-    -webkit-backdrop-filter: blur(7px);
 
     pointer-events: none;
 
     transition:
-
         transform .25s ease,
         background .25s ease;
 
@@ -766,9 +864,6 @@
 
     stroke-width: 1.8;
 
-    stroke-linecap: round;
-    stroke-linejoin: round;
-
 }
 
 
@@ -778,66 +873,7 @@
     transform: scale(1.08);
 
     background:
-
         rgba(216,166,60,.72);
-
-    border-color:
-
-        rgba(255,255,255,.82);
-
-}
-
-
-/* ===============================================================
-   PRODUCT NUMBER
-   =============================================================== */
-
-.business-branding-product__number {
-
-    position: absolute;
-
-    top: 10px;
-    left: 10px;
-
-    z-index: 4;
-
-    width: 27px;
-    height: 27px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border:
-
-        1px solid rgba(238,201,105,.60);
-
-    border-radius: 50%;
-
-    background:
-
-        rgba(7,7,7,.62);
-
-    color:
-
-        rgba(255,255,255,.82);
-
-    font-family:
-
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: 10px;
-
-    line-height: 1;
-
-    backdrop-filter: blur(6px);
-
-    -webkit-backdrop-filter: blur(6px);
-
-    pointer-events: none;
 
 }
 
@@ -852,40 +888,41 @@
 
     flex-direction: column;
 
-    align-items: stretch;
+    gap: 14px;
 
-    gap: 18px;
-
-    padding: 20px 18px 18px;
+    padding: 16px 14px 15px;
 
     border-top:
-
-        1px solid rgba(216,166,60,.14);
+        1px solid rgba(216,166,60,.12);
 
 }
 
 
-/* ===============================================================
-   PRICE
-   =============================================================== */
+.business-branding-product__info {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+}
+
 
 .business-branding-product__price {
-
-    display: block;
 
     color: #f2d17b;
 
     font-family:
-
         Georgia,
         "Times New Roman",
         serif;
 
-    font-size: 22px;
+    font-size: 20px;
 
     font-weight: 500;
-
-    line-height: 1;
 
 }
 
@@ -894,91 +931,97 @@
    PRODUCT OPTIONS
    =============================================================== */
 
-.business-branding-product__option-group {
+.business-branding-product-options {
+
+    width: 100%;
 
     display: flex;
 
     flex-direction: column;
 
-    align-items: flex-start;
+    gap: 13px;
+
+}
+
+
+.business-branding-product-options__group {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 14px;
+
+}
+
+
+.business-branding-product-options__label {
+
+    flex-shrink: 0;
+
+    color:
+        rgba(255,255,255,.52);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.4px;
+
+}
+
+
+/* ===============================================================
+   COLOR OPTIONS
+   =============================================================== */
+
+.business-branding-product-options__colors {
+
+    display: flex;
+
+    align-items: center;
 
     gap: 9px;
 
 }
 
 
-.business-branding-product__label {
+.business-branding-color-button {
 
-    color:
-
-        rgba(255,255,255,.70);
-
-    font-size: 10px;
-
-    font-weight: 800;
-
-    letter-spacing: 1.8px;
-
-    text-transform: uppercase;
-
-}
-
-
-/* ===============================================================
-   COLORS
-   =============================================================== */
-
-.business-branding-product__colors {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-}
-
-
-.business-branding-product__color {
-
-    width: 30px;
-
-    height: 30px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
+    width: 26px;
+    height: 26px;
 
     padding: 0;
 
-    border:
+    display: flex;
 
-        1px solid rgba(255,255,255,.20);
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(255,255,255,.25);
 
     border-radius: 50%;
 
     background:
-
-        rgba(255,255,255,.03);
+        transparent;
 
     cursor: pointer;
 
     transition:
-
-        transform .25s ease,
-        border-color .25s ease,
-        box-shadow .25s ease;
+        transform .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
 
 }
 
 
-.business-branding-product__color span {
+.business-branding-color-button span {
 
-    width: 18px;
-
-    height: 18px;
+    width: 16px;
+    height: 16px;
 
     display: block;
 
@@ -987,139 +1030,113 @@
 }
 
 
-.business-branding-product__color--white span {
+.business-branding-color-button--white span {
 
-    background:
-
-        #f5f5f2;
-
-    border:
-
-        1px solid rgba(0,0,0,.15);
-
-}
-
-
-.business-branding-product__color--black span {
-
-    background:
-
-        #111111;
-
-    border:
-
-        1px solid rgba(255,255,255,.16);
-
-}
-
-
-.business-branding-product__color.is-active {
-
-    border-color:
-
-        #e3b85b;
+    background: #ffffff;
 
     box-shadow:
-
-        0 0 0 2px rgba(216,166,60,.16),
-
-        0 0 15px rgba(216,166,60,.22);
+        inset 0 0 0 1px rgba(0,0,0,.18);
 
 }
 
 
-.business-branding-product__color:hover {
+.business-branding-color-button--black span {
+
+    background: #050505;
+
+    border:
+        1px solid rgba(255,255,255,.25);
+
+}
+
+
+.business-branding-color-button.is-selected {
+
+    border-color:
+        #f2d17b;
+
+    box-shadow:
+        0 0 0 2px rgba(216,166,60,.22);
 
     transform:
+        scale(1.08);
 
+}
+
+
+.business-branding-color-button:hover {
+
+    transform:
         scale(1.08);
 
 }
 
 
 /* ===============================================================
-   SIZES
+   SIZE OPTIONS
    =============================================================== */
 
-.business-branding-product__sizes {
+.business-branding-product-options__sizes {
 
     display: flex;
 
-    align-items: center;
-
-    flex-wrap: wrap;
-
-    gap: 8px;
+    gap: 7px;
 
 }
 
 
-.business-branding-product__size {
+.business-branding-size-button {
 
-    min-height: 34px;
+    min-width: 52px;
 
-    padding: 0 12px;
+    min-height: 28px;
+
+    padding: 0 9px;
 
     border:
+        1px solid rgba(216,166,60,.30);
 
-        1px solid rgba(216,166,60,.32);
-
-    border-radius: 8px;
+    border-radius: 999px;
 
     background:
-
         rgba(255,255,255,.03);
 
     color:
+        rgba(255,255,255,.62);
 
-        rgba(255,255,255,.72);
-
-    font-size: 11px;
+    font-size: 9px;
 
     font-weight: 700;
 
     cursor: pointer;
 
     transition:
-
-        background .25s ease,
-        color .25s ease,
-        border-color .25s ease,
-        transform .25s ease;
+        all .2s ease;
 
 }
 
 
-.business-branding-product__size:hover {
+.business-branding-size-button:hover {
 
     border-color:
+        rgba(216,166,60,.65);
 
-        rgba(216,166,60,.72);
+    color:
+        #f2d17b;
 
 }
 
 
-.business-branding-product__size.is-active {
+.business-branding-size-button.is-selected {
 
     border-color:
-
         #d8a63c;
 
     background:
-
-        linear-gradient(
-            180deg,
-            rgba(216,166,60,.24),
-            rgba(216,166,60,.10)
-        );
+        rgba(216,166,60,.16);
 
     color:
-
-        #f4d07c;
-
-    box-shadow:
-
-        0 0 14px rgba(216,166,60,.12);
+        #f2d17b;
 
 }
 
@@ -1130,81 +1147,66 @@
 
 .business-branding-product__quantity {
 
+    width: 100%;
+
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
-    gap: 18px;
+    gap: 10px;
 
-    padding-top: 2px;
+    padding-top: 4px;
 
 }
 
 
 .business-branding-product__quantity button {
 
-    width: 42px;
-
-    height: 42px;
-
-    min-width: 42px;
+    width: 28px;
+    height: 28px;
 
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
     padding: 0;
 
     border:
-
-        1px solid rgba(216,166,60,.48);
+        1px solid rgba(216,166,60,.38);
 
     border-radius: 50%;
 
     background:
-
-        rgba(216,166,60,.06);
+        rgba(216,166,60,.07);
 
     color:
+        rgba(255,255,255,.78);
 
-        rgba(255,255,255,.88);
-
-    font-size: 22px;
-
-    line-height: 1;
+    font-size: 16px;
 
     cursor: pointer;
 
     transition:
-
-        transform .25s ease,
-        background .25s ease,
-        border-color .25s ease;
+        all .2s ease;
 
 }
 
 
 .business-branding-product__quantity button:hover {
 
-    transform:
-
-        scale(1.08);
-
     background:
-
-        rgba(216,166,60,.17);
+        rgba(216,166,60,.18);
 
     border-color:
-
-        #d8a63c;
+        rgba(216,166,60,.75);
 
     color:
-
         #f2d17b;
+
+    transform:
+        scale(1.06);
 
 }
 
@@ -1214,12 +1216,11 @@
     min-width: 24px;
 
     color:
+        rgba(255,255,255,.85);
 
-        #ffffff;
+    font-size: 12px;
 
-    font-size: 15px;
-
-    font-weight: 800;
+    font-weight: 700;
 
     text-align: center;
 
@@ -1227,28 +1228,24 @@
 
 
 /* ===============================================================
-   CART BUTTON
+   ADD TO CART
    =============================================================== */
 
 .business-branding-product__button {
 
-    position: relative;
-
     width: 100%;
 
-    min-height: 52px;
+    min-height: 44px;
+
+    padding: 0 15px;
 
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
-    padding: 0 20px;
-
     border:
-
-        1px solid rgba(255,232,166,.88);
+        1px solid rgba(238,201,105,.90);
 
     border-radius: 999px;
 
@@ -1256,76 +1253,33 @@
 
         linear-gradient(
             180deg,
-            #f7d985 0%,
-            #dfae48 48%,
-            #bd7b1e 100%
+            #f1ce78 0%,
+            #d6a541 45%,
+            #a96f1e 100%
         );
 
-    color:
+    color: #171108;
 
-        #201609;
-
-    font-size: 10px;
+    font-size: 9px;
 
     font-weight: 900;
 
-    letter-spacing: 1.8px;
-
-    text-transform: uppercase;
+    letter-spacing: 1.1px;
 
     cursor: pointer;
 
     box-shadow:
 
-        inset 0 2px 2px rgba(255,255,255,.62),
+        inset 0 1px 0 rgba(255,255,255,.60),
 
-        inset 0 -3px 7px rgba(91,53,6,.28),
+        inset 0 -3px 5px rgba(67,38,5,.35),
 
-        0 8px 18px rgba(0,0,0,.32),
-
-        0 0 20px rgba(216,166,60,.10);
+        0 5px 14px rgba(0,0,0,.42);
 
     transition:
-
-        transform .3s ease,
-        filter .3s ease,
-        box-shadow .3s ease;
-
-}
-
-
-.business-branding-product__button::before {
-
-    display: none;
-
-}
-
-
-.business-branding-product__button::after {
-
-    content: "";
-
-    position: absolute;
-
-    top: 5px;
-
-    left: 9%;
-
-    width: 82%;
-
-    height: 9px;
-
-    border-radius: 50%;
-
-    background:
-
-        rgba(255,255,255,.25);
-
-    filter:
-
-        blur(5px);
-
-    pointer-events: none;
+        transform .25s ease,
+        box-shadow .25s ease,
+        filter .25s ease;
 
 }
 
@@ -1333,22 +1287,10 @@
 .business-branding-product__button:hover {
 
     transform:
-
-        translateY(-3px);
+        translateY(-2px);
 
     filter:
-
         brightness(1.08);
-
-    box-shadow:
-
-        inset 0 2px 2px rgba(255,255,255,.70),
-
-        inset 0 -3px 7px rgba(91,53,6,.28),
-
-        0 13px 26px rgba(0,0,0,.42),
-
-        0 0 28px rgba(216,166,60,.22);
 
 }
 
@@ -1370,7 +1312,6 @@
     overflow: hidden;
 
     border:
-
         1px solid rgba(216,166,60,.70);
 
     border-radius: 22px;
@@ -1379,7 +1320,9 @@
 
     box-shadow:
 
-        0 25px 65px rgba(0,0,0,.48);
+        0 25px 65px rgba(0,0,0,.48),
+
+        0 0 30px rgba(216,166,60,.07);
 
 }
 
@@ -1387,7 +1330,6 @@
 .business-branding-featured__visual {
 
     position: absolute;
-
     inset: 0;
 
 }
@@ -1408,7 +1350,6 @@
 .business-branding-featured__overlay {
 
     position: absolute;
-
     inset: 0;
 
     background:
@@ -1423,6 +1364,10 @@
 
 }
 
+
+/* ===============================================================
+   FEATURED CONTENT
+   =============================================================== */
 
 .business-branding-featured__content {
 
@@ -1463,7 +1408,6 @@
     width: 190px;
 
     display: flex;
-
     align-items: center;
 
     gap: 10px;
@@ -1500,7 +1444,6 @@
     color: #ffffff;
 
     font-family:
-
         Georgia,
         "Times New Roman",
         serif;
@@ -1544,18 +1487,16 @@
 
     align-self: flex-start;
 
-    min-height: 44px;
-
     display: inline-flex;
 
     align-items: center;
-
     justify-content: center;
+
+    min-height: 44px;
 
     padding: 0 24px;
 
     border:
-
         1px solid #d8a63c;
 
     border-radius: 999px;
@@ -1582,7 +1523,7 @@
 
 
 /* ===============================================================
-   CTA
+   FINAL CTA
    =============================================================== */
 
 .business-branding-cta {
@@ -1596,7 +1537,6 @@
     overflow: hidden;
 
     border:
-
         1px solid rgba(216,166,60,.55);
 
     border-radius: 24px;
@@ -1618,6 +1558,10 @@
 }
 
 
+/* ===============================================================
+   CTA GLOW
+   =============================================================== */
+
 .business-branding-cta__glow {
 
     position: absolute;
@@ -1629,7 +1573,6 @@
     top: 50%;
 
     transform:
-
         translate(-50%, -50%);
 
     border-radius: 50%;
@@ -1647,10 +1590,13 @@
 }
 
 
+/* ===============================================================
+   CTA CONTENT
+   =============================================================== */
+
 .business-branding-cta__content {
 
     position: relative;
-
     z-index: 2;
 
     padding: 75px 30px;
@@ -1678,7 +1624,6 @@
     width: 190px;
 
     display: flex;
-
     align-items: center;
 
     gap: 12px;
@@ -1695,7 +1640,6 @@
     height: 1px;
 
     background:
-
         linear-gradient(
             90deg,
             transparent,
@@ -1708,7 +1652,6 @@
 .business-branding-cta__ornament span:last-child {
 
     background:
-
         linear-gradient(
             90deg,
             #d8a63c,
@@ -1734,7 +1677,6 @@
     color: #ffffff;
 
     font-family:
-
         Georgia,
         "Times New Roman",
         serif;
@@ -1776,18 +1718,16 @@
 
 .business-branding-cta__button {
 
-    min-height: 48px;
-
     display: inline-flex;
 
     align-items: center;
-
     justify-content: center;
+
+    min-height: 48px;
 
     padding: 0 28px;
 
     border:
-
         1px solid #e0b85d;
 
     border-radius: 999px;
@@ -1810,11 +1750,13 @@
 
     text-decoration: none;
 
+    cursor: pointer;
+
 }
 
 
 /* ===============================================================
-   LIGHTBOX
+   PRODUCT LIGHTBOX
    =============================================================== */
 
 .business-branding-lightbox {
@@ -1828,7 +1770,6 @@
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
     padding: 30px;
@@ -1847,6 +1788,26 @@
 
     -webkit-backdrop-filter: blur(18px);
 
+    animation:
+        businessBrandingLightboxIn .3s ease both;
+
+}
+
+
+@keyframes businessBrandingLightboxIn {
+
+    from {
+
+        opacity: 0;
+
+    }
+
+    to {
+
+        opacity: 1;
+
+    }
+
 }
 
 
@@ -1861,14 +1822,12 @@
     display: grid;
 
     grid-template-columns:
-
         minmax(0, 1.55fr)
         minmax(330px, .85fr);
 
-    overflow: hidden;
+    overflow: auto;
 
     border:
-
         1px solid rgba(216,166,60,.65);
 
     border-radius: 24px;
@@ -1884,63 +1843,9 @@
 
     box-shadow:
 
-        0 40px 100px rgba(0,0,0,.75);
+        0 40px 100px rgba(0,0,0,.75),
 
-}
-
-
-/* ===============================================================
-   LIGHTBOX VISUAL
-   =============================================================== */
-
-.business-branding-lightbox__visual {
-
-    position: relative;
-
-    min-width: 0;
-
-    overflow: hidden;
-
-}
-
-
-/* ===============================================================
-   PERMANENT IMAGE BOTTOM GRADIENT
-
-   This layer belongs to the container, NOT the image.
-   It will always remain visible even if the user changes
-   or uploads a completely different image.
-   =============================================================== */
-
-.business-branding-lightbox__visual::after {
-
-    content: "";
-
-    position: absolute;
-
-    z-index: 2;
-
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    width: 100%;
-
-    height: 42%;
-
-    background:
-
-        linear-gradient(
-            180deg,
-            rgba(7,7,7,0) 0%,
-            rgba(7,7,7,.08) 18%,
-            rgba(7,7,7,.28) 38%,
-            rgba(7,7,7,.55) 62%,
-            rgba(7,7,7,.82) 82%,
-            rgba(7,7,7,.98) 100%
-        );
-
-    pointer-events: none;
+        0 0 45px rgba(216,166,60,.08);
 
 }
 
@@ -1949,17 +1854,25 @@
    LIGHTBOX IMAGE
    =============================================================== */
 
-.business-branding-lightbox__image {
+.business-branding-lightbox__visual {
 
     position: relative;
 
-    z-index: 1;
-
     width: 100%;
 
-    height: 100%;
-
     min-height: 580px;
+
+    overflow: hidden;
+
+    background: #111;
+
+}
+
+
+.business-branding-lightbox__image {
+
+    width: 100%;
+    height: 100%;
 
     display: block;
 
@@ -1980,8 +1893,8 @@
 
     z-index: 10000;
 
-    top: 20px;
-    right: 20px;
+    top: 22px;
+    right: 22px;
 
     width: 48px;
     height: 48px;
@@ -1992,14 +1905,12 @@
     justify-content: center;
 
     border:
-
         1px solid rgba(216,166,60,.75);
 
     border-radius: 50%;
 
     background:
-
-        rgba(8,8,8,.72);
+        rgba(8,8,8,.80);
 
     color: #f0c96d;
 
@@ -2016,6 +1927,8 @@
 
 .business-branding-lightbox__details {
 
+    position: relative;
+
     display: flex;
 
     flex-direction: column;
@@ -2025,10 +1938,7 @@
     padding: 55px 45px;
 
     border-left:
-
         1px solid rgba(216,166,60,.14);
-
-    overflow-y: auto;
 
 }
 
@@ -2055,7 +1965,6 @@
     color: #ffffff;
 
     font-family:
-
         Georgia,
         "Times New Roman",
         serif;
@@ -2068,6 +1977,10 @@
 
 }
 
+
+/* ===============================================================
+   LIGHTBOX RATING
+   =============================================================== */
 
 .business-branding-lightbox__rating {
 
@@ -2082,19 +1995,16 @@
 
 .business-branding-lightbox__rating span {
 
-    color: rgba(255,255,255,.20);
+    color: #d8a63c;
 
-    font-size: 17px;
-
-}
-
-
-.business-branding-lightbox__rating span.is-active {
-
-    color: #e9c36e;
+    font-size: 16px;
 
 }
 
+
+/* ===============================================================
+   LIGHTBOX ORNAMENT
+   =============================================================== */
 
 .business-branding-lightbox__ornament {
 
@@ -2117,21 +2027,35 @@
 
     height: 1px;
 
-    background: #d8a63c;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #d8a63c
+        );
 
 }
 
 
-.business-branding-lightbox__ornament b {
+.business-branding-lightbox__ornament span:last-child {
 
-    color: #e9c36e;
+    background:
+        linear-gradient(
+            90deg,
+            #d8a63c,
+            transparent
+        );
 
 }
 
+
+/* ===============================================================
+   LIGHTBOX DESCRIPTION
+   =============================================================== */
 
 .business-branding-lightbox__details p {
 
-    margin: 0;
+    margin: 0 0 22px;
 
     color: rgba(255,255,255,.68);
 
@@ -2146,22 +2070,39 @@
    LIGHTBOX OPTIONS
    =============================================================== */
 
-.business-branding-lightbox__option-group {
+.business-branding-lightbox__details
+.business-branding-product-options {
 
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    gap: 9px;
-
-    margin-top: 22px;
+    margin-top: 5px;
 
 }
 
 
-.business-branding-lightbox__label {
+/* ===============================================================
+   LIGHTBOX PRICE
+   =============================================================== */
+
+.business-branding-lightbox__price {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 25px;
+
+    padding: 18px 0;
+
+    border-top:
+        1px solid rgba(216,166,60,.14);
+
+    border-bottom:
+        1px solid rgba(216,166,60,.14);
+
+}
+
+
+.business-branding-lightbox__price span {
 
     color: #d8a63c;
 
@@ -2174,276 +2115,25 @@
 }
 
 
-.business-branding-lightbox__colors {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-}
-
-
-.business-branding-lightbox__color {
-
-    width: 34px;
-
-    height: 34px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 0;
-
-    border:
-
-        1px solid rgba(255,255,255,.22);
-
-    border-radius: 50%;
-
-    background:
-
-        rgba(255,255,255,.03);
-
-    cursor: pointer;
-
-    transition:
-
-        transform .25s ease,
-        border-color .25s ease,
-        box-shadow .25s ease;
-
-}
-
-
-.business-branding-lightbox__color span {
-
-    width: 21px;
-
-    height: 21px;
-
-    display: block;
-
-    border-radius: 50%;
-
-}
-
-
-.business-branding-lightbox__color--white span {
-
-    background: #f5f5f2;
-
-    border:
-
-        1px solid rgba(0,0,0,.15);
-
-}
-
-
-.business-branding-lightbox__color--black span {
-
-    background: #111111;
-
-    border:
-
-        1px solid rgba(255,255,255,.16);
-
-}
-
-
-.business-branding-lightbox__color.is-active {
-
-    border-color:
-
-        #e2b85c;
-
-    box-shadow:
-
-        0 0 0 2px rgba(216,166,60,.15),
-
-        0 0 16px rgba(216,166,60,.22);
-
-}
-
-
-.business-branding-lightbox__color:hover {
-
-    transform: scale(1.08);
-
-}
-
-
-.business-branding-lightbox__sizes {
-
-    display: flex;
-
-    flex-wrap: wrap;
-
-    gap: 8px;
-
-}
-
-
-.business-branding-lightbox__size {
-
-    min-height: 36px;
-
-    padding: 0 14px;
-
-    border:
-
-        1px solid rgba(216,166,60,.32);
-
-    border-radius: 8px;
-
-    background:
-
-        rgba(255,255,255,.03);
-
-    color:
-
-        rgba(255,255,255,.75);
-
-    font-size: 11px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition:
-
-        background .25s ease,
-        border-color .25s ease,
-        color .25s ease;
-
-}
-
-
-.business-branding-lightbox__size.is-active {
-
-    border-color:
-
-        #d8a63c;
-
-    background:
-
-        rgba(216,166,60,.16);
-
-    color:
-
-        #f2d17b;
-
-}
-
-
-.business-branding-lightbox__quantity {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 16px;
-
-    margin-top: 24px;
-
-}
-
-
-.business-branding-lightbox__quantity button {
-
-    width: 42px;
-
-    height: 42px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 0;
-
-    border:
-
-        1px solid rgba(216,166,60,.50);
-
-    border-radius: 50%;
-
-    background:
-
-        rgba(216,166,60,.06);
-
-    color:
-
-        #ffffff;
-
-    font-size: 21px;
-
-    cursor: pointer;
-
-}
-
-
-.business-branding-lightbox__quantity span {
-
-    min-width: 24px;
-
-    color:
-
-        #ffffff;
-
-    font-size: 16px;
-
-    font-weight: 800;
-
-    text-align: center;
-
-}
-
-
-/* ===============================================================
-   LIGHTBOX PRICE
-   =============================================================== */
-
-.business-branding-lightbox__price {
-
-    margin-top: 25px;
+.business-branding-lightbox__price strong {
 
     color: #ffffff;
 
     font-family:
-
         Georgia,
         "Times New Roman",
         serif;
 
     font-size: 27px;
 
-}
-
-
-.business-branding-lightbox__price span {
-
-    display: block;
-
-    margin-bottom: 5px;
-
-    color: #d8a63c;
-
-    font-family: Arial, sans-serif;
-
-    font-size: 9px;
-
-    font-weight: 800;
-
-    letter-spacing: 2px;
+    font-weight: 500;
 
 }
 
+
+/* ===============================================================
+   LIGHTBOX CART
+   =============================================================== */
 
 .business-branding-lightbox__cart-button {
 
@@ -2454,7 +2144,6 @@
     margin-top: 25px;
 
     border:
-
         1px solid #e2b85c;
 
     border-radius: 999px;
@@ -2477,11 +2166,219 @@
 
     cursor: pointer;
 
+}
+
+
+/* ===============================================================
+   PRODUCTS PAGINATION
+   =============================================================== */
+
+.business-branding-pagination {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 22px;
+
+    margin-top: 45px;
+
+}
+
+
+.business-branding-pagination__button {
+
+    min-width: 46px;
+
+    min-height: 46px;
+
+    padding: 0 20px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid rgba(216,166,60,.45);
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(255,255,255,.03);
+
+    color:
+        rgba(255,255,255,.78);
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        1.2px;
+
+    cursor:
+        pointer;
+
+    transition:
+        all .25s ease;
+
+}
+
+
+.business-branding-pagination__button:hover:not(:disabled) {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(216,166,60,.90);
+
+    background:
+        rgba(216,166,60,.12);
+
+    color:
+        #f2d17b;
+
+}
+
+
+.business-branding-pagination__button:disabled {
+
+    opacity:
+        .35;
+
+    cursor:
+        not-allowed;
+
+}
+
+
+.business-branding-pagination__pages {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        12px;
+
+}
+
+
+.business-branding-pagination__page {
+
+    width:
+        44px;
+
+    height:
+        44px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        0;
+
+    border:
+        1px solid rgba(216,166,60,.35);
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(255,255,255,.03);
+
+    color:
+        rgba(255,255,255,.65);
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    cursor:
+        pointer;
+
+    transition:
+        all .25s ease;
+
+}
+
+
+.business-branding-pagination__page:hover {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(216,166,60,.80);
+
+    color:
+        #f2d17b;
+
+}
+
+
+.business-branding-pagination__page.is-active {
+
+    border-color:
+        #e9c36e;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #f1ce78,
+            #b97d26
+        );
+
+    color:
+        #171108;
+
     box-shadow:
 
-        inset 0 1px 0 rgba(255,255,255,.55),
+        0 5px 16px
+        rgba(216,166,60,.20);
 
-        0 8px 20px rgba(0,0,0,.30);
+}
+
+
+/* ===============================================================
+   FOOTER SPACING
+   =============================================================== */
+
+.business-branding-page > footer,
+.business-branding-page + footer {
+
+    margin-top: 0;
+
+}
+
+
+.business-branding-footer-spacing {
+
+    width: 100%;
+
+    height: 40px;
 
 }
 
@@ -2498,17 +2395,34 @@
 
     }
 
+
     .business-branding-products__grid {
 
         grid-template-columns:
-
             repeat(2, minmax(0, 1fr));
 
     }
 
+
     .business-branding-featured__content {
 
         width: 62%;
+
+    }
+
+
+    .business-branding-lightbox__content {
+
+        grid-template-columns:
+            minmax(0, 1.15fr)
+            minmax(300px, .85fr);
+
+    }
+
+
+    .business-branding-lightbox__details {
+
+        padding: 40px 30px;
 
     }
 
@@ -2523,231 +2437,176 @@
 
     .business-branding-hero {
 
-        min-height: 570px;
+        min-height: 580px;
 
     }
 
-    .business-branding-hero__visual img {
-
-        object-position: 63% center;
-
-    }
 
     .business-branding-hero__content {
 
-        width: calc(100% - 34px);
+        width: min(100% - 40px, 600px);
 
-        padding: 60px 0;
+        padding: 70px 0;
 
     }
+
 
     .business-branding-hero__content h1 {
 
-        font-size: 55px;
+        font-size:
+            clamp(52px, 15vw, 74px);
 
-        letter-spacing: -2.5px;
+        letter-spacing:
+            -2px;
 
     }
+
 
     .business-branding-hero__content p {
 
-        max-width: 300px;
+        font-size: 14px;
 
-        font-size: 12px;
-
-        line-height: 1.65;
+        line-height: 1.7;
 
     }
 
-    .business-branding-hero__button {
-
-        min-height: 44px;
-
-        padding: 0 21px;
-
-        font-size: 8px;
-
-    }
 
     .business-branding-products {
 
-        width: calc(100% - 20px);
-
-        padding-bottom: 65px;
+        width:
+            min(100% - 24px, 600px);
 
     }
+
 
     .business-branding-products__grid {
 
         grid-template-columns:
-
             repeat(2, minmax(0, 1fr));
 
-        gap: 10px;
+        gap: 12px;
 
     }
 
-    .business-branding-product {
-
-        border-radius: 12px;
-
-    }
 
     .business-branding-product__body {
 
-        gap: 15px;
+        padding:
+            13px 10px 14px;
 
-        padding: 16px 13px 15px;
-
-    }
-
-    .business-branding-product__price {
-
-        font-size: 19px;
+        gap:
+            12px;
 
     }
 
-    .business-branding-product__label {
 
-        font-size: 9px;
+    .business-branding-product-options__group {
 
-        letter-spacing: 1.5px;
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+
+        gap:
+            7px;
 
     }
 
-    .business-branding-product__colors {
+
+    .business-branding-product-options__colors,
+    .business-branding-product-options__sizes {
+
+        width: 100%;
+
+    }
+
+
+    .business-branding-product__quantity {
 
         gap: 8px;
 
     }
 
-    .business-branding-product__color {
-
-        width: 27px;
-
-        height: 27px;
-
-    }
-
-    .business-branding-product__color span {
-
-        width: 16px;
-
-        height: 16px;
-
-    }
-
-    .business-branding-product__size {
-
-        min-height: 31px;
-
-        padding: 0 9px;
-
-        font-size: 10px;
-
-    }
-
-    .business-branding-product__quantity {
-
-        gap: 14px;
-
-    }
-
-    .business-branding-product__quantity button {
-
-        width: 38px;
-
-        height: 38px;
-
-        min-width: 38px;
-
-        font-size: 19px;
-
-    }
 
     .business-branding-product__button {
 
-        min-height: 48px;
+        min-height: 40px;
 
-        font-size: 9px;
+        font-size: 8px;
 
-        letter-spacing: 1.4px;
+        letter-spacing: .8px;
 
     }
+
 
     .business-branding-featured {
 
-        width: calc(100% - 20px);
+        width:
+            min(100% - 24px, 600px);
 
-        min-height: 430px;
-
-        margin-bottom: 65px;
-
-        border-radius: 15px;
+        min-height:
+            520px;
 
     }
+
+
+    .business-branding-featured__overlay {
+
+        background:
+
+            linear-gradient(
+                180deg,
+                rgba(7,6,5,.30),
+                rgba(7,6,5,.95) 65%,
+                rgba(7,6,5,.98)
+            );
+
+    }
+
 
     .business-branding-featured__content {
 
-        width: 76%;
+        width: 100%;
 
-        min-height: 430px;
+        min-height: 520px;
 
-        padding: 30px 22px;
+        justify-content:
+            flex-end;
 
-    }
-
-    .business-branding-featured__content h2 {
-
-        font-size: 39px;
+        padding: 30px;
 
     }
 
-    .business-branding-featured__content p {
-
-        max-width: 230px;
-
-        font-size: 11px;
-
-    }
 
     .business-branding-cta {
 
-        width: calc(100% - 20px);
-
-        margin-bottom: 65px;
-
-        border-radius: 15px;
+        width:
+            min(100% - 24px, 600px);
 
     }
+
 
     .business-branding-cta__content {
 
-        padding: 60px 18px;
+        padding: 60px 24px;
 
     }
 
-    .business-branding-cta__content h2 {
-
-        font-size: 39px;
-
-    }
-
-    .business-branding-cta__content p {
-
-        font-size: 11px;
-
-    }
 
     .business-branding-lightbox {
 
-        align-items: flex-start;
+        align-items:
+            flex-start;
 
-        padding: 18px 12px;
+        padding:
+            18px 12px;
 
-        overflow-y: auto;
+        overflow-y:
+            auto;
 
     }
+
 
     .business-branding-lightbox__content {
 
@@ -2759,43 +2618,36 @@
 
         flex-direction: column;
 
+        overflow: hidden;
+
+        border-radius: 20px;
+
         margin-bottom: 20px;
 
     }
 
+
     .business-branding-lightbox__visual {
 
-        position: relative;
+        min-height: 0;
 
-        width: 100%;
-
-        overflow: hidden;
+        height: auto;
 
     }
 
-    .business-branding-lightbox__visual::after {
-
-        height: 48%;
-
-    }
 
     .business-branding-lightbox__image {
-
-        position: relative;
-
-        z-index: 1;
 
         width: 100%;
 
         height: auto;
 
-        min-height: 0;
+        display: block;
 
-        max-height: 58vh;
-
-        object-fit: contain;
+        object-fit: initial;
 
     }
+
 
     .business-branding-lightbox__details {
 
@@ -2803,35 +2655,105 @@
 
         padding: 28px 22px 30px;
 
-        overflow: visible;
-
         border-left: none;
 
         border-top:
-
             1px solid rgba(216,166,60,.18);
 
     }
 
-    .business-branding-lightbox__details h2 {
-
-        font-size: 31px;
-
-    }
 
     .business-branding-lightbox__close {
 
-        position: fixed;
-
-        top: 20px;
-
-        right: 18px;
+        top: 15px;
+        right: 15px;
 
         width: 43px;
-
         height: 43px;
 
         font-size: 25px;
+
+    }
+
+
+    /* ===========================================================
+       PAGINATION MOBILE
+       =========================================================== */
+
+    .business-branding-pagination {
+
+        width: 100%;
+
+        gap:
+            18px;
+
+        flex-wrap:
+            nowrap;
+
+        margin-top:
+            50px;
+
+    }
+
+
+    .business-branding-pagination__button {
+
+        min-width:
+            48px;
+
+        min-height:
+            48px;
+
+        padding:
+            0 14px;
+
+        font-size:
+            10px;
+
+        flex-shrink:
+            0;
+
+    }
+
+
+    .business-branding-pagination__page {
+
+        width:
+            48px;
+
+        height:
+            48px;
+
+        min-width:
+            48px;
+
+        font-size:
+            11px;
+
+        flex-shrink:
+            0;
+
+    }
+
+
+    .business-branding-pagination__pages {
+
+        gap:
+            14px;
+
+        flex-shrink:
+            0;
+
+    }
+
+
+    /* ===========================================================
+       FOOTER MOBILE SPACING
+       =========================================================== */
+
+    .business-branding-footer-spacing {
+
+        height: 20px;
 
     }
 
@@ -2844,99 +2766,93 @@
 
 @media (max-width: 420px) {
 
-    .business-branding-hero {
-
-        min-height: 520px;
-
-    }
-
-    .business-branding-hero__content h1 {
-
-        font-size: 48px;
-
-    }
-
     .business-branding-products__grid {
 
-        gap: 8px;
+        gap: 9px;
 
     }
 
-    .business-branding-product__body {
 
-        gap: 14px;
+    .business-branding-product-options__sizes {
 
-        padding: 14px 11px 13px;
-
-    }
-
-    .business-branding-product__price {
-
-        font-size: 18px;
+        gap: 5px;
 
     }
 
-    .business-branding-product__quantity {
 
-        gap: 11px;
+    .business-branding-size-button {
 
-    }
+        min-width: 48px;
 
-    .business-branding-product__quantity button {
-
-        width: 36px;
-
-        height: 36px;
-
-        min-width: 36px;
+        padding:
+            0 6px;
 
     }
 
-    .business-branding-product__button {
 
-        min-height: 45px;
+    .business-branding-lightbox {
 
-        font-size: 8px;
-
-        letter-spacing: 1.1px;
+        padding:
+            12px 9px;
 
     }
 
-    .business-branding-featured {
 
-        min-height: 390px;
+    .business-branding-lightbox__content {
 
-    }
-
-    .business-branding-featured__content {
-
-        min-height: 390px;
-
-        width: 80%;
+        border-radius: 17px;
 
     }
 
-    .business-branding-featured__content h2 {
-
-        font-size: 34px;
-
-    }
-
-    .business-branding-cta__content h2 {
-
-        font-size: 34px;
-
-    }
 
     .business-branding-lightbox__details {
 
-        padding: 24px 18px 25px;
+        padding:
+            24px 18px 25px;
 
     }
 
-    .business-branding-lightbox__details h2 {
 
-        font-size: 27px;
+    .business-branding-pagination {
+
+        gap:
+            14px;
+
+    }
+
+
+    .business-branding-pagination__button {
+
+        min-width:
+            44px;
+
+        min-height:
+            44px;
+
+        padding:
+            0 12px;
+
+    }
+
+
+    .business-branding-pagination__page {
+
+        width:
+            44px;
+
+        height:
+            44px;
+
+        min-width:
+            44px;
+
+    }
+
+
+    .business-branding-pagination__pages {
+
+        gap:
+            12px;
 
     }
 
@@ -2949,101 +2865,86 @@
 
 @media (max-width: 360px) {
 
-    .business-branding-hero {
+    .business-branding-products__grid {
 
-        min-height: 500px;
-
-    }
-
-    .business-branding-hero__content h1 {
-
-        font-size: 43px;
+        grid-template-columns:
+            1fr;
 
     }
 
-    .business-branding-section-heading h2 {
 
-        font-size: 31px;
+    .business-branding-lightbox__close {
 
-    }
+        width: 38px;
+        height: 38px;
 
-    .business-branding-product__body {
-
-        gap: 12px;
-
-        padding: 12px 9px;
+        font-size: 24px;
 
     }
 
-    .business-branding-product__price {
 
-        font-size: 16px;
+    .business-branding-pagination {
 
-    }
-
-    .business-branding-product__label {
-
-        font-size: 8px;
+        gap:
+            10px;
 
     }
 
-    .business-branding-product__color {
 
-        width: 25px;
+    .business-branding-pagination__button {
 
-        height: 25px;
+        min-width:
+            40px;
 
-    }
+        min-height:
+            40px;
 
-    .business-branding-product__size {
-
-        min-height: 29px;
-
-        padding: 0 7px;
-
-        font-size: 9px;
+        padding:
+            0 10px;
 
     }
 
-    .business-branding-product__quantity {
 
-        gap: 9px;
+    .business-branding-pagination__page {
 
-    }
+        width:
+            40px;
 
-    .business-branding-product__quantity button {
+        height:
+            40px;
 
-        width: 34px;
-
-        height: 34px;
-
-        min-width: 34px;
-
-        font-size: 17px;
+        min-width:
+            40px;
 
     }
 
-    .business-branding-product__button {
 
-        min-height: 43px;
+    .business-branding-pagination__pages {
 
-        font-size: 8px;
-
-        letter-spacing: .8px;
+        gap:
+            8px;
 
     }
 
-    .business-branding-featured__content h2 {
+}
 
-        font-size: 30px;
 
-    }
+/* ===============================================================
+   ACCESSIBILITY
+   =============================================================== */
 
-    .business-branding-cta__content h2 {
+.business-branding-product__image:focus-visible,
+.business-branding-color-button:focus-visible,
+.business-branding-size-button:focus-visible,
+.business-branding-product__button:focus-visible,
+.business-branding-pagination__page:focus-visible,
+.business-branding-pagination__button:focus-visible {
 
-        font-size: 30px;
+    outline:
+        2px solid #f2d17b;
 
-    }
+    outline-offset:
+        3px;
 
 }
 
@@ -3061,6 +2962,13 @@
         scroll-behavior: auto !important;
 
         transition: none !important;
+
+        animation: none !important;
+
+    }
+
+
+    .business-branding-lightbox {
 
         animation: none !important;
 
