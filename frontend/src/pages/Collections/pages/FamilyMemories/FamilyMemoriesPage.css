@@ -3880,10 +3880,6 @@
    FIX: PREVENT WHITE BACKGROUND ON MOBILE
    =============================================================== */
 
-html,
-body {
-  background: #090909 !important;
-}
 
 .family-memories-page {
   width: 100%;
