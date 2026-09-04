@@ -12,14 +12,142 @@
 
 import "./Newsletter.css";
 
+import {
+    FormEvent,
+    useState,
+} from "react";
+
 import { useLanguage } from "../../../contexts/LanguageContext";
+
 import { translations } from "../../../translations";
+
+import { apiRequest } from "../../../services/api";
+
 
 function Newsletter() {
 
     const { language } = useLanguage();
 
-    const t = translations[language].home.community;
+    const t =
+        translations[language].home.community;
+
+
+    const [email, setEmail] =
+        useState("");
+
+    const [submitting, setSubmitting] =
+        useState(false);
+
+    const [feedback, setFeedback] =
+        useState<string | null>(
+            null
+        );
+
+    const [error, setError] =
+        useState<string | null>(
+            null
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Newsletter Submission
+    |--------------------------------------------------------------------------
+    */
+
+    const handleSubmit =
+        async (
+            event:
+                FormEvent<HTMLFormElement>
+        ) => {
+
+            event.preventDefault();
+
+
+            const normalizedEmail =
+                email
+                    .trim()
+                    .toLowerCase();
+
+
+            if (
+                !normalizedEmail
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+                setSubmitting(
+                    true
+                );
+
+                setFeedback(
+                    null
+                );
+
+                setError(
+                    null
+                );
+
+
+                const result =
+                    await apiRequest<{
+                        message:
+                            string;
+                    }>(
+                        "/api/subscribers",
+                        {
+                            method:
+                                "POST",
+
+                            body:
+                                JSON.stringify({
+                                    email:
+                                        normalizedEmail,
+
+                                    language:
+                                        language,
+                                }),
+                        }
+                    );
+
+
+                setFeedback(
+                    result.message
+                );
+
+
+                setEmail(
+                    ""
+                );
+
+            } catch (
+                requestError
+            ) {
+
+                setError(
+
+                    requestError
+                        instanceof Error
+                        ? requestError.message
+                        : "Unable to subscribe."
+
+                );
+
+            } finally {
+
+                setSubmitting(
+                    false
+                );
+
+            }
+
+        };
+
 
     return (
 
@@ -115,8 +243,8 @@ function Newsletter() {
                     </div>
 
                     <h2>
-    {t.title}
-</h2>
+                        {t.title}
+                    </h2>
 
                     <p>
                         {t.description}
@@ -126,7 +254,12 @@ function Newsletter() {
                         FORM
                        ================================================== */}
 
-                    <form className="newsletter__form">
+                    <form
+                        className="newsletter__form"
+                        onSubmit={
+                            handleSubmit
+                        }
+                    >
 
                         <div className="newsletter__input-wrap">
 
@@ -150,17 +283,45 @@ function Newsletter() {
 
                             <input
                                 type="email"
-                                placeholder={t.placeholder}
-                                aria-label={t.emailLabel}
+                                value={
+                                    email
+                                }
+                                onChange={
+                                    (
+                                        event
+                                    ) =>
+                                        setEmail(
+                                            event.target.value
+                                        )
+                                }
+                                placeholder={
+                                    t.placeholder
+                                }
+                                aria-label={
+                                    t.emailLabel
+                                }
                                 autoComplete="email"
+                                disabled={
+                                    submitting
+                                }
+                                required
                             />
 
                         </div>
 
-                        <button type="submit">
+                        <button
+                            type="submit"
+                            disabled={
+                                submitting
+                            }
+                        >
 
                             <span>
-                                {t.subscribe}
+                                {
+                                    submitting
+                                        ? "..."
+                                        : t.subscribe
+                                }
                             </span>
 
                             <span
@@ -171,6 +332,33 @@ function Newsletter() {
                         </button>
 
                     </form>
+
+
+                    {/* ==================================================
+                        FEEDBACK
+                       ================================================== */}
+
+                    {
+                        (
+                            feedback ||
+                            error
+                        ) && (
+
+                            <div
+                                className="newsletter__feedback"
+                                role="status"
+                            >
+
+                                {
+                                    feedback ||
+                                    error
+                                }
+
+                            </div>
+
+                        )
+                    }
+
 
                     {/* ==================================================
                         PRIVACY

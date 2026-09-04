@@ -42,6 +42,7 @@ import AccountPage from "./pages/Account/Account";
 import ReviewsPage from "./pages/Account/Reviews";
 import CreateReviewPage from "./pages/Account/CreateReview";
 
+
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -49,6 +50,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminRoute from "./pages/admin/AdminRoute";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCollections from "./pages/admin/AdminCollections";
+import AdminSubscribers from "./pages/admin/AdminSubscribers";
 
 
 import CustomizePage from "./pages/Customize";
@@ -147,77 +149,93 @@ function App() {
                     }
                 />
 
-{/* ==================================================
-    ADMINISTRATION
-   ================================================== */}
 
-<Route
-    path="/admin"
-    element={
-        <AdminRoute>
+                {/* ==================================================
+                    ADMINISTRATION
+                   ================================================== */}
 
-            <AdminDashboard />
+                <Route
+                    path="/admin"
+                    element={
+                        <AdminRoute>
 
-        </AdminRoute>
-    }
-/>
+                            <AdminDashboard />
 
-
-<Route
-    path="/admin/reviews"
-    element={
-        <AdminRoute>
-
-            <AdminReviews />
-
-        </AdminRoute>
-    }
-/>
+                        </AdminRoute>
+                    }
+                />
 
 
-<Route
-    path="/admin/users"
-    element={
-        <AdminRoute>
+                <Route
+                    path="/admin/reviews"
+                    element={
+                        <AdminRoute>
 
-            <AdminUsers />
+                            <AdminReviews />
 
-        </AdminRoute>
-    }
-/>
-
-
-<Route
-    path="/admin/products"
-    element={
-        <AdminRoute>
-
-            <AdminProducts />
-
-        </AdminRoute>
-    }
-/>
-
-<Route
-    path="/admin/collections"
-    element={
-        <AdminRoute>
-            <AdminCollections />
-        </AdminRoute>
-    }
-/>
+                        </AdminRoute>
+                    }
+                />
 
 
-<Route
-    path="/admin/settings"
-    element={
-        <AdminRoute>
+                <Route
+                    path="/admin/users"
+                    element={
+                        <AdminRoute>
 
-            <AdminSettings />
+                            <AdminUsers />
 
-        </AdminRoute>
-    }
-/>
+                        </AdminRoute>
+                    }
+                />
+
+
+                <Route
+                    path="/admin/products"
+                    element={
+                        <AdminRoute>
+
+                            <AdminProducts />
+
+                        </AdminRoute>
+                    }
+                />
+
+
+                <Route
+                    path="/admin/collections"
+                    element={
+                        <AdminRoute>
+
+                            <AdminCollections />
+
+                        </AdminRoute>
+                    }
+                />
+
+
+                <Route
+                    path="/admin/subscribers"
+                    element={
+                        <AdminRoute>
+
+                            <AdminSubscribers />
+
+                        </AdminRoute>
+                    }
+                />
+
+
+                <Route
+                    path="/admin/settings"
+                    element={
+                        <AdminRoute>
+
+                            <AdminSettings />
+
+                        </AdminRoute>
+                    }
+                />
 
 
                 {/* ==================================================
