@@ -3753,3 +3753,124 @@
     }
 
 }
+
+
+/* ===============================================================
+   COLOR & SIZE - VISUAL FIX
+   ONLY PRODUCT OPTIONS
+   =============================================================== */
+
+
+/* -------------------------------
+   COLOR
+   ------------------------------- */
+
+.family-memories-page
+button.family-memories-product__color {
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 30px;
+    height: 30px;
+
+    min-width: 30px;
+    min-height: 30px;
+
+    flex: 0 0 30px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    box-sizing: border-box;
+
+}
+
+
+/* Fuerza que el círculo interno nunca se deforme */
+
+.family-memories-page
+button.family-memories-product__color::after {
+
+    content: "";
+
+    display: block;
+
+    width: 19px;
+    height: 19px;
+
+    min-width: 19px;
+    min-height: 19px;
+
+    flex: 0 0 19px;
+
+    border-radius: 50%;
+
+}
+
+
+/* -------------------------------
+   SIZE
+   ------------------------------- */
+
+.family-memories-page
+button.family-memories-product__size {
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 48px;
+    height: 30px;
+
+    padding: 0 11px;
+
+    border-radius: 999px;
+
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.07),
+            rgba(216,166,60,.05)
+        );
+
+    color:
+        rgba(255,255,255,.88);
+
+}
+
+
+/* Separación más elegante */
+
+.family-memories-product__sizes {
+
+    gap: 9px;
+
+}
+
+
+/* Medida seleccionada */
+
+.family-memories-page
+button.family-memories-product__size.is-selected {
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #f5d985 0%,
+            #d8a63c 48%,
+            #a96f1e 100%
+        );
+
+    color:
+        #171108;
+
+}
