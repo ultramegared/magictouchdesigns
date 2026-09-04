@@ -3756,121 +3756,107 @@
 
 
 /* ===============================================================
-   COLOR & SIZE - VISUAL FIX
-   ONLY PRODUCT OPTIONS
-   =============================================================== */
+   PRODUCT COLOR OPTIONS
+   SOLO AJUSTE VISUAL DE COLOR
+================================================================ */
+
+.family-memories-product-options__colors {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
 
-/* -------------------------------
-   COLOR
-   ------------------------------- */
-
-.family-memories-page
-button.family-memories-product__color {
-
-    appearance: none;
-    -webkit-appearance: none;
-
-    width: 30px;
-    height: 30px;
-
-    min-width: 30px;
-    min-height: 30px;
-
-    flex: 0 0 30px;
+.family-memories-color-button {
+    width: 34px;
+    height: 34px;
 
     padding: 0;
 
     border-radius: 50%;
 
-    box-sizing: border-box;
+    border: 1px solid rgba(196, 151, 61, 0.45);
 
-}
-
-
-/* Fuerza que el círculo interno nunca se deforme */
-
-.family-memories-page
-button.family-memories-product__color::after {
-
-    content: "";
-
-    display: block;
-
-    width: 19px;
-    height: 19px;
-
-    min-width: 19px;
-    min-height: 19px;
-
-    flex: 0 0 19px;
-
-    border-radius: 50%;
-
-}
-
-
-/* -------------------------------
-   SIZE
-   ------------------------------- */
-
-.family-memories-page
-button.family-memories-product__size {
-
-    appearance: none;
-    -webkit-appearance: none;
-
-    display: inline-flex;
-
+    display: flex;
     align-items: center;
     justify-content: center;
 
-    min-width: 48px;
-    height: 30px;
+    cursor: pointer;
 
-    padding: 0 11px;
+    background: transparent;
 
-    border-radius: 999px;
-
-    box-sizing: border-box;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,.07),
-            rgba(216,166,60,.05)
-        );
-
-    color:
-        rgba(255,255,255,.88);
-
+    flex-shrink: 0;
 }
 
 
-/* Separación más elegante */
+.family-memories-color-button span {
+    display: block;
 
-.family-memories-product__sizes {
+    width: 22px;
+    height: 22px;
 
-    gap: 9px;
-
+    border-radius: 50%;
 }
 
 
-/* Medida seleccionada */
+/* WHITE */
 
-.family-memories-page
-button.family-memories-product__size.is-selected {
+.family-memories-color-button--white span {
+    background: #ffffff;
 
-    background:
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
 
-        linear-gradient(
-            180deg,
-            #f5d985 0%,
-            #d8a63c 48%,
-            #a96f1e 100%
-        );
 
-    color:
-        #171108;
+/* BLACK */
 
+.family-memories-color-button--black span {
+    background: #050505;
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+
+/* SELECTED COLOR */
+
+.family-memories-color-button.is-selected {
+    border-color: #c4973d;
+
+    box-shadow:
+        0 0 0 2px rgba(196, 151, 61, 0.18);
+}
+
+
+/* ===============================================================
+   PRODUCT SIZE OPTIONS
+   SOLO AJUSTE VISUAL DE MEDIDAS
+================================================================ */
+
+.family-memories-product-options__sizes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.family-memories-size-button {
+    min-width: 58px;
+    height: 38px;
+
+    padding: 0 12px;
+
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 16px;
+
+    cursor: pointer;
+}
+
+
+.family-memories-size-button.is-selected {
+    border-color: #c4973d;
 }
