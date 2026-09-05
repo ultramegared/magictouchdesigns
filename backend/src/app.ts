@@ -1,208 +1,56 @@
 /**
- * ================================================================
- * Author: ultramegared
- * Project: Magic Touch Designs
- * File: app.ts
- * Module: Express Application
- * Language: TypeScript
- * Description:
- * Express application configuration and API routes.
- * ================================================================
+ * Magic Touch Designs - Express Application
  */
 
 import express from "express";
 import cors from "cors";
-
-import {
-    pool,
-} from "./config/database";
+import { pool } from "./config/database";
 
 import authRoutes from "./routes/auth.routes";
-
 import userRoutes from "./routes/user.routes";
-
 import reviewRoutes from "./routes/review.routes";
-
 import uploadRoutes from "./routes/upload.routes";
-
 import adminRoutes from "./routes/admin.routes";
-
 import settingsRoutes from "./routes/settings.routes";
-
 import productRoutes from "./routes/product.routes";
-
 import collectionRoutes from "./routes/collection.routes";
-
 import subscriberRoutes from "./routes/subscriber.routes";
+import portfolioRoutes from "./routes/portfolio.routes";
 
+const app = express();
 
-const app =
-    express();
+app.use(cors());
+app.use(express.json());
 
+app.use("/api/auth", authRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/collections", collectionRoutes);
+app.use("/api/subscribers", subscriberRoutes);
+app.use("/api/portfolio", portfolioRoutes);
 
-/*
-|--------------------------------------------------------------------------
-| Middleware
-|--------------------------------------------------------------------------
-*/
-
-app.use(
-    cors()
-);
-
-
-app.use(
-    express.json()
-);
-
-
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-*/
-
-
-// Authentication routes
-
-app.use(
-    "/api/auth",
-    authRoutes
-);
-
-
-// Review routes
-
-app.use(
-    "/api/reviews",
-    reviewRoutes
-);
-
-
-// Upload routes
-
-app.use(
-    "/api/upload",
-    uploadRoutes
-);
-
-
-// User routes
-
-app.use(
-    "/api/user",
-    userRoutes
-);
-
-
-// Administrator routes
-
-app.use(
-    "/api/admin",
-    adminRoutes
-);
-
-
-// Settings routes
-
-app.use(
-    "/api/settings",
-    settingsRoutes
-);
-
-
-// Product routes
-
-app.use(
-    "/api/products",
-    productRoutes
-);
-
-
-// Collection routes
-
-app.use(
-    "/api/collections",
-    collectionRoutes
-);
-
-
-// Subscriber routes
-
-app.use(
-    "/api/subscribers",
-    subscriberRoutes
-);
-
-
-/*
-|--------------------------------------------------------------------------
-| Health Check
-|--------------------------------------------------------------------------
-*/
-
-app.get(
-    "/api/health",
-    async (
-        _req,
-        res
-    ) => {
-
-        try {
-
-            await pool.query(
-                "SELECT 1"
-            );
-
-
-            res.json({
-
-                status:
-                    "ok",
-
-                project:
-                    "Magic Touch Designs",
-
-                author:
-                    "ultramegared",
-
-                database:
-                    "connected",
-
-            });
-
-        } catch (
-            error
-        ) {
-
-            console.error(
-                "Database connection error:",
-                error
-            );
-
-
-            res.status(
-                503
-            ).json({
-
-                status:
-                    "error",
-
-                project:
-                    "Magic Touch Designs",
-
-                author:
-                    "ultramegared",
-
-                database:
-                    "disconnected",
-
-            });
-
-        }
-
+app.get("/api/health", async (_req, res) => {
+    try {
+        await pool.query("SELECT 1");
+        res.json({
+            status: "ok",
+            project: "Magic Touch Designs",
+            author: "ultramegared",
+            database: "connected",
+        });
+    } catch (error) {
+        console.error("Database connection error:", error);
+        res.status(503).json({
+            status: "error",
+            project: "Magic Touch Designs",
+            author: "ultramegared",
+            database: "disconnected",
+        });
     }
-);
-
+});
 
 export default app;
