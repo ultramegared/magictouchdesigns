@@ -32,6 +32,10 @@ const loadPayPalSdk = (environment: string): Promise<void> => {
     const existing = document.getElementById("paypal-web-sdk-v6");
     if (existing) {
         return new Promise((resolve, reject) => {
+            if (window.paypal) {
+                resolve();
+                return;
+            }
             existing.addEventListener("load", () => resolve(), { once: true });
             existing.addEventListener("error", () => reject(new Error("Unable to load PayPal.")), { once: true });
         });
@@ -53,15 +57,7 @@ const loadPayPalSdk = (environment: string): Promise<void> => {
 function CheckoutPage() {
     const navigate = useNavigate();
     const formRef = useRef<HTMLFormElement>(null);
-    const paypalContainerRef = useRef<HTMLDivElement>(null);
-    const paypalCleanupRef = useRef<(() => void) | null>(null);
-    const [cartItems, setCartItems] = useState<CartItem[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [paypalLoading, setPaypalLoading] = useState(true);
-    const [paypalEnabled, setPaypalEnabled] = useState(false);
-    const [paypalError, setPaypalError] = useState("");
-    const [error, setError] = useState("");
-    const [form, setForm] = useState({
+    const formStateRef = useRef({
         firstName: "",
         lastName: "",
         email: "",
@@ -73,6 +69,19 @@ function CheckoutPage() {
         state: "",
         zip: "",
     });
+    const paypalContainerRef = useRef<HTMLDivElement>(null);
+    const paypalCleanupRef = useRef<(() => void) | null>(null);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [paypalLoading, setPaypalLoading] = useState(true);
+    const [paypalEnabled, setPaypalEnabled] = useState(false);
+    const [paypalError, setPaypalError] = useState("");
+    const [error, setError] = useState("");
+    const [form, setForm] = useState(formStateRef.current);
+
+    useEffect(() => {
+        formStateRef.current = form;
+    }, [form]);
 
     useEffect(() => {
         const items = getCartItems();
@@ -87,8 +96,8 @@ function CheckoutPage() {
         setForm((current) => ({ ...current, [field]: value }));
     };
 
-    const buildPaymentPayload = () => ({
-        customer: form,
+    const buildPaymentPayload = (customer = formStateRef.current) => ({
+        customer,
         items: cartItems.map((item) => ({
             productId: String(item.id),
             quantity: item.quantity,
