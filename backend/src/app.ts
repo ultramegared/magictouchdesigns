@@ -16,10 +16,23 @@ import productRoutes from "./routes/product.routes";
 import collectionRoutes from "./routes/collection.routes";
 import subscriberRoutes from "./routes/subscriber.routes";
 import portfolioRoutes from "./routes/portfolio.routes";
+import orderRoutes from "./routes/order.routes";
+import { stripeWebhook } from "./controllers/order.controller";
 
 const app = express();
 
 app.use(cors());
+
+/*
+ * Stripe requires the untouched request body for webhook signature
+ * verification. This route must remain before express.json().
+ */
+app.post(
+    "/api/orders/webhook",
+    express.raw({ type: "application/json" }),
+    stripeWebhook,
+);
+
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
@@ -32,6 +45,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/collections", collectionRoutes);
 app.use("/api/subscribers", subscriberRoutes);
 app.use("/api/portfolio", portfolioRoutes);
+app.use("/api/orders", orderRoutes);
 
 app.get("/api/health", async (_req, res) => {
     try {
