@@ -1,962 +1,235 @@
 /**
  * ================================================================
- * Author: ultramegared
- * Project: Magic Touch Designs
- * File: CheckoutPage.tsx
- * Module: Frontend
- * Language: TypeScript React
- * Description:
- * Checkout page.
+ * Magic Touch Designs - CheckoutPage.tsx
+ * Secure checkout handoff.
+ * Card data is collected by Stripe, never by Magic Touch Designs.
  * ================================================================
  */
 
-import { useEffect, useState } from "react";
-
+import { FormEvent, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./CheckoutPage.css";
-
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
+import { getCartItems, type CartItem } from "../../utils/cart";
 
-import {
-    getCartItems,
-    type CartItem,
-} from "../../utils/cart";
-
+const API_URL = "https://api.magictouchdesigns.com/api";
 
 function CheckoutPage() {
-
-    const [cartItems, setCartItems] =
-        useState<CartItem[]>([]);
-     const [deliveryType, setDeliveryType] =
-    useState<"house" | "apartment">("house");
-
-const [paymentMethod, setPaymentMethod] =
-    useState<
-        "credit-card" |
-        "debit-card" |
-        "paypal" |
-        "apple-pay"
-    >("credit-card");
-    const [cardNumber, setCardNumber] =
-    useState("");
-
-const [cardName, setCardName] =
-    useState("");
-
-const [cardExpiry, setCardExpiry] =
-    useState("");
-
-const [cardCvc, setCardCvc] =
-    useState("");
-
+    const navigate = useNavigate();
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [form, setForm] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        deliveryType: "house" as "house" | "apartment",
+        address: "",
+        apartment: "",
+        city: "",
+        state: "",
+        zip: "",
+    });
 
     useEffect(() => {
-
-        setCartItems(getCartItems());
-
-    }, []);
-
+        const items = getCartItems();
+        setCartItems(items);
+        if (!items.length) navigate("/cart", { replace: true });
+    }, [navigate]);
 
     const subtotal = cartItems.reduce(
-        (total, item) =>
-            total + item.price * item.quantity,
-        0
+        (total, item) => total + item.price * item.quantity,
+        0,
     );
+    const shipping = subtotal > 0 ? 5.99 : 0;
 
+    const updateField = (
+        field: keyof typeof form,
+        value: string,
+    ) => {
+        setForm((current) => ({ ...current, [field]: value }));
+    };
 
-    const delivery =
-        subtotal > 0
-            ? 5.99
-            : 0;
+    const submitCheckout = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setError("");
+        setLoading(true);
 
+        try {
+            const response = await fetch(`${API_URL}/orders/checkout`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    customer: form,
+                    items: cartItems.map((item) => ({
+                        productId: String(item.id),
+                        quantity: item.quantity,
+                        model: item.model,
+                        size: item.size,
+                        color: item.color,
+                    })),
+                }),
+            });
 
-    const taxes =
-        subtotal * 0.08;
+            const data = await response.json() as {
+                checkoutUrl?: string;
+                message?: string;
+            };
 
+            if (!response.ok || !data.checkoutUrl) {
+                throw new Error(data.message || "Unable to start secure checkout.");
+            }
 
-    const total =
-        subtotal +
-        delivery +
-        taxes;
-
+            window.location.assign(data.checkoutUrl);
+        } catch (checkoutError: unknown) {
+            setError(
+                checkoutError instanceof Error
+                    ? checkoutError.message
+                    : "Unable to start secure checkout.",
+            );
+            setLoading(false);
+        }
+    };
 
     return (
         <>
             <Header />
-
             <main className="checkout-page">
-
-                {/* ==================================================
-                   HERO
-                   ================================================== */}
-
                 <section className="checkout-hero">
-
                     <div className="checkout-hero__background">
-
                         <img
                             src="/images/cart/cart-hero-background.jpg"
                             alt="Magic Touch Designs"
                         />
-
                     </div>
-
                     <div className="checkout-hero__overlay" />
-
                     <div className="checkout-hero__content">
-
-                        <span>
-                            SECURE CHECKOUT
-                        </span>
-
-                        <h1>
-                            Complete Your Order
-                        </h1>
-
-                        <p>
-                            Review your information and
-                            complete your purchase.
-                        </p>
-
+                        <span>SECURE CHECKOUT</span>
+                        <h1>Complete Your Order</h1>
+                        <p>Enter your delivery information and continue to secure payment.</p>
                     </div>
-
                 </section>
-
-
-                {/* ==================================================
-                   CHECKOUT CONTENT
-                   ================================================== */}
 
                 <section className="checkout-container">
-
-                    <div className="checkout-grid">
-
-                        {/* ==================================================
-                           CUSTOMER INFORMATION
-                           ================================================== */}
-
+                    <form className="checkout-grid" onSubmit={submitCheckout}>
                         <div className="checkout-form">
+                            <div className="checkout-section">
+                                <span className="checkout-section__eyebrow">CUSTOMER INFORMATION</span>
+                                <h2>Your Details</h2>
+                                <div className="checkout-fields">
+                                    <label>
+                                        <span>First Name</span>
+                                        <input required value={form.firstName} onChange={(e) => updateField("firstName", e.target.value)} autoComplete="given-name" />
+                                    </label>
+                                    <label>
+                                        <span>Last Name</span>
+                                        <input required value={form.lastName} onChange={(e) => updateField("lastName", e.target.value)} autoComplete="family-name" />
+                                    </label>
+                                    <label className="checkout-field--full">
+                                        <span>Email Address</span>
+                                        <input required type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} autoComplete="email" />
+                                    </label>
+                                    <label className="checkout-field--full">
+                                        <span>Phone Number</span>
+                                        <input value={form.phone} onChange={(e) => updateField("phone", e.target.value)} autoComplete="tel" />
+                                    </label>
+                                </div>
+                            </div>
 
                             <div className="checkout-section">
-
-                                <span className="checkout-section__eyebrow">
-                                    CUSTOMER INFORMATION
-                                </span>
-
-                                <h2>
-                                    Your Details
-                                </h2>
-
+                                <span className="checkout-section__eyebrow">DELIVERY</span>
+                                <h2>Shipping Address</h2>
+                                <div className="checkout-address-types">
+                                    <button type="button" className={`checkout-address-type ${form.deliveryType === "house" ? "checkout-address-type--active" : ""}`} onClick={() => updateField("deliveryType", "house")}>
+                                        <span className="checkout-address-type__icon">🏠</span>
+                                        <span><strong>House</strong><small>Residential home</small></span>
+                                    </button>
+                                    <button type="button" className={`checkout-address-type ${form.deliveryType === "apartment" ? "checkout-address-type--active" : ""}`} onClick={() => updateField("deliveryType", "apartment")}>
+                                        <span className="checkout-address-type__icon">🏢</span>
+                                        <span><strong>Apartment</strong><small>Apartment or unit</small></span>
+                                    </button>
+                                </div>
 
                                 <div className="checkout-fields">
-
-                                    <label>
-
-                                        <span>
-                                            First Name
-                                        </span>
-
-                                        <input
-                                            type="text"
-                                            name="firstName"
-                                            placeholder="First name"
-                                            autoComplete="given-name"
-                                        />
-
-                                    </label>
-
-
-                                    <label>
-
-                                        <span>
-                                            Last Name
-                                        </span>
-
-                                        <input
-                                            type="text"
-                                            name="lastName"
-                                            placeholder="Last name"
-                                            autoComplete="family-name"
-                                        />
-
-                                    </label>
-
-
                                     <label className="checkout-field--full">
-
-                                        <span>
-                                            Email Address
-                                        </span>
-
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            placeholder="you@example.com"
-                                            autoComplete="email"
-                                        />
-
+                                        <span>Street Address</span>
+                                        <input required value={form.address} onChange={(e) => updateField("address", e.target.value)} autoComplete="street-address" />
                                     </label>
-
-
-                                    <label className="checkout-field--full">
-
-                                        <span>
-                                            Phone Number
-                                        </span>
-
-                                        <input
-                                            type="tel"
-                                            name="phone"
-                                            placeholder="Phone number"
-                                            autoComplete="tel"
-                                        />
-
+                                    {form.deliveryType === "apartment" && (
+                                        <label className="checkout-field--full">
+                                            <span>Apartment / Unit Number</span>
+                                            <input required value={form.apartment} onChange={(e) => updateField("apartment", e.target.value)} autoComplete="address-line2" />
+                                        </label>
+                                    )}
+                                    <label>
+                                        <span>City</span>
+                                        <input required value={form.city} onChange={(e) => updateField("city", e.target.value)} autoComplete="address-level2" />
                                     </label>
-
+                                    <label>
+                                        <span>State</span>
+                                        <input required value={form.state} onChange={(e) => updateField("state", e.target.value)} autoComplete="address-level1" />
+                                    </label>
+                                    <label>
+                                        <span>ZIP Code</span>
+                                        <input required value={form.zip} onChange={(e) => updateField("zip", e.target.value)} autoComplete="postal-code" inputMode="numeric" />
+                                    </label>
                                 </div>
-
                             </div>
-
-
-                            {/* ==================================================
-                               DELIVERY
-                               ================================================== */}
-
-                           <div className="checkout-section">
-
-    <span className="checkout-section__eyebrow">
-        DELIVERY
-    </span>
-
-    <h2>
-        Shipping Address
-    </h2>
-
-
-    <div className="checkout-address-types">
-
-        <button
-            type="button"
-            className={`checkout-address-type ${
-                deliveryType === "house"
-                    ? "checkout-address-type--active"
-                    : ""
-            }`}
-            onClick={() =>
-                setDeliveryType("house")
-            }
-        >
-
-            <span className="checkout-address-type__icon">
-                🏠
-            </span>
-
-            <span>
-
-                <strong>
-                    House
-                </strong>
-
-                <small>
-                    Residential home
-                </small>
-
-            </span>
-
-        </button>
-
-
-        <button
-            type="button"
-            className={`checkout-address-type ${
-                deliveryType === "apartment"
-                    ? "checkout-address-type--active"
-                    : ""
-            }`}
-            onClick={() =>
-                setDeliveryType("apartment")
-            }
-        >
-
-            <span className="checkout-address-type__icon">
-                🏢
-            </span>
-
-            <span>
-
-                <strong>
-                    Apartment
-                </strong>
-
-                <small>
-                    Apartment or unit
-                </small>
-
-            </span>
-
-        </button>
-
-    </div>
-
-
-    <div className="checkout-fields">
-
-        <label className="checkout-field--full">
-
-            <span>
-                Address
-            </span>
-
-            <input
-                type="text"
-                name="address"
-                placeholder="Street address"
-                autoComplete="street-address"
-            />
-
-        </label>
-
-
-        {deliveryType === "apartment" && (
-
-            <label className="checkout-field--full">
-
-                <span>
-                    Apartment / Unit Number
-                </span>
-
-                <input
-                    type="text"
-                    name="apartment"
-                    placeholder="Apartment or unit number"
-                    autoComplete="address-line2"
-                />
-
-            </label>
-
-        )}
-
-
-        <label>
-
-            <span>
-                City
-            </span>
-
-            <input
-                type="text"
-                name="city"
-                placeholder="City"
-                autoComplete="address-level2"
-            />
-
-        </label>
-
-
-        <label>
-
-            <span>
-                State
-            </span>
-
-            <input
-                type="text"
-                name="state"
-                placeholder="State"
-                autoComplete="address-level1"
-            />
-
-        </label>
-
-
-        <label>
-
-            <span>
-                ZIP Code
-            </span>
-
-            <input
-                type="text"
-                name="zip"
-                placeholder="ZIP code"
-                autoComplete="postal-code"
-            />
-
-        </label>
-
-    </div>
-
-</div>
-
-
-                            {/* ==================================================
-                               PAYMENT PLACEHOLDER
-                               ================================================== */}
 
                             <div className="checkout-section">
-
-    <span className="checkout-section__eyebrow">
-        PAYMENT
-    </span>
-
-    <h2>
-        Payment Method
-    </h2>
-
-
-    <div className="checkout-payment-methods">
-
-        <button
-            type="button"
-            className={`checkout-payment-method ${
-                paymentMethod === "credit-card"
-                    ? "checkout-payment-method--active"
-                    : ""
-            }`}
-            onClick={() =>
-                setPaymentMethod("credit-card")
-            }
-        >
-
-            <span className="checkout-payment-method__icon">
-                💳
-            </span>
-
-            <span>
-
-                <strong>
-                    Credit Card
-                </strong>
-
-                <small>
-                    Visa, Mastercard, Amex
-                </small>
-
-            </span>
-
-        </button>
-
-
-        <button
-            type="button"
-            className={`checkout-payment-method ${
-                paymentMethod === "debit-card"
-                    ? "checkout-payment-method--active"
-                    : ""
-            }`}
-            onClick={() =>
-                setPaymentMethod("debit-card")
-            }
-        >
-
-            <span className="checkout-payment-method__icon">
-                💳
-            </span>
-
-            <span>
-
-                <strong>
-                    Debit Card
-                </strong>
-
-                <small>
-                    Pay with your debit card
-                </small>
-
-            </span>
-
-        </button>
-
-
-        <button
-            type="button"
-            className={`checkout-payment-method ${
-                paymentMethod === "paypal"
-                    ? "checkout-payment-method--active"
-                    : ""
-            }`}
-            onClick={() =>
-                setPaymentMethod("paypal")
-            }
-        >
-
-            <span className="checkout-payment-method__icon">
-                P
-            </span>
-
-            <span>
-
-                <strong>
-                    PayPal
-                </strong>
-
-                <small>
-                    Pay securely with PayPal
-                </small>
-
-            </span>
-
-        </button>
-
-
-        <button
-            type="button"
-            className={`checkout-payment-method ${
-                paymentMethod === "apple-pay"
-                    ? "checkout-payment-method--active"
-                    : ""
-            }`}
-            onClick={() =>
-                setPaymentMethod("apple-pay")
-            }
-        >
-
-            <span className="checkout-payment-method__icon">
-                
-            </span>
-
-            <span>
-
-                <strong>
-                    Apple Pay
-                </strong>
-
-                <small>
-                    Fast and secure payment
-                </small>
-
-            </span>
-
-        </button>
-
-    </div>
-
-
-   {(paymentMethod === "credit-card" ||
-    paymentMethod === "debit-card") && (
-
-    <div className="checkout-payment-content">
-
-        <div className="checkout-card-preview">
-
-            <div className="checkout-card-preview__top">
-
-                <span>
-                    MAGIC TOUCH
-                </span>
-
-                <strong>
-                    {paymentMethod === "credit-card"
-                        ? "CREDIT"
-                        : "DEBIT"}
-                </strong>
-
-            </div>
-
-
-            <div className="checkout-card-preview__number">
-
-                {cardNumber || "•••• •••• •••• ••••"}
-
-            </div>
-
-
-            <div className="checkout-card-preview__bottom">
-
-                <div>
-
-                    <small>
-                        CARD HOLDER
-                    </small>
-
-                    <strong>
-                        {cardName || "YOUR NAME"}
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <small>
-                        EXPIRES
-                    </small>
-
-                    <strong>
-                        {cardExpiry || "MM / YY"}
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div className="checkout-card-fields">
-
-            <label className="checkout-field--full">
-
-                <span>
-                    Card Number
-                </span>
-
-                <input
-                    type="text"
-                    name="cardNumber"
-                    value={cardNumber}
-                    placeholder="1234 5678 9012 3456"
-                    inputMode="numeric"
-                    autoComplete="cc-number"
-                    maxLength={19}
-                    onChange={(event) => {
-
-                        const value =
-                            event.target.value
-                                .replace(/\D/g, "")
-                                .slice(0, 16)
-                                .replace(/(\d{4})(?=\d)/g, "$1 ");
-
-                        setCardNumber(value);
-
-                    }}
-                />
-
-            </label>
-
-
-            <label>
-
-                <span>
-                    Name on Card
-                </span>
-
-                <input
-                    type="text"
-                    name="cardName"
-                    value={cardName}
-                    placeholder="Your name"
-                    autoComplete="cc-name"
-                    onChange={(event) =>
-                        setCardName(event.target.value)
-                    }
-                />
-
-            </label>
-
-
-            <label>
-
-                <span>
-                    Expiration Date
-                </span>
-
-                <input
-                    type="text"
-                    name="cardExpiry"
-                    value={cardExpiry}
-                    placeholder="MM / YY"
-                    inputMode="numeric"
-                    autoComplete="cc-exp"
-                    maxLength={7}
-                    onChange={(event) => {
-
-                        const value =
-                            event.target.value
-                                .replace(/\D/g, "")
-                                .slice(0, 4)
-                                .replace(
-                                    /(\d{2})(?=\d)/,
-                                    "$1 / "
-                                );
-
-                        setCardExpiry(value);
-
-                    }}
-                />
-
-            </label>
-
-
-            <label>
-
-                <span>
-                    Security Code
-                </span>
-
-                <input
-                    type="password"
-                    name="cardCvc"
-                    value={cardCvc}
-                    placeholder="CVC"
-                    inputMode="numeric"
-                    autoComplete="cc-csc"
-                    maxLength={4}
-                    onChange={(event) =>
-                        setCardCvc(
-                            event.target.value
-                                .replace(/\D/g, "")
-                                .slice(0, 4)
-                        )
-                    }
-                />
-
-            </label>
-
-        </div>
-
-    </div>
-
-)}
-
-
-{paymentMethod === "paypal" && (
-
-    <div className="checkout-alternative-payment">
-
-        <div className="checkout-alternative-payment__icon">
-            P
-        </div>
-
-        <div className="checkout-alternative-payment__content">
-
-            <strong>
-                PayPal
-            </strong>
-
-            <p>
-                Pay securely using your PayPal account.
-            </p>
-
-        </div>
-
-        <button
-            type="button"
-            className="checkout-payment-action"
-        >
-            Continue with PayPal
-            <span>→</span>
-        </button>
-
-    </div>
-
-)}
-
-
-{paymentMethod === "apple-pay" && (
-
-    <div className="checkout-alternative-payment">
-
-        <div className="checkout-alternative-payment__icon checkout-alternative-payment__icon--apple">
-            
-        </div>
-
-        <div className="checkout-alternative-payment__content">
-
-            <strong>
-                Apple Pay
-            </strong>
-
-            <p>
-                Fast and secure checkout with Apple Pay.
-            </p>
-
-        </div>
-
-        <button
-            type="button"
-            className="checkout-payment-action"
-        >
-            Pay with Apple Pay
-            <span></span>
-        </button>
-
-    </div>
-
-)}
-</div>
-
+                                <span className="checkout-section__eyebrow">PAYMENT</span>
+                                <h2>Secure Payment</h2>
+                                <div className="checkout-alternative-payment">
+                                    <div className="checkout-alternative-payment__icon">✓</div>
+                                    <div className="checkout-alternative-payment__content">
+                                        <strong>Protected by Stripe</strong>
+                                        <p>Your card details are entered securely on Stripe. Magic Touch Designs never receives or stores your full card number, expiration date, or security code.</p>
+                                    </div>
+                                </div>
+                                {error && <p role="alert" className="checkout-error">{error}</p>}
+                                <button className="checkout-payment-action" type="submit" disabled={loading || !cartItems.length}>
+                                    {loading ? "Opening secure payment…" : "Continue to Secure Payment"}
+                                    <span>→</span>
+                                </button>
+                            </div>
                         </div>
 
-
-                        {/* ==================================================
-                           ORDER SUMMARY
-                           ================================================== */}
-
                         <aside className="checkout-summary">
-
                             <div className="checkout-summary__header">
-
-                                <span>
-                                    YOUR ORDER
-                                </span>
-
-                                <h2>
-                                    Order Summary
-                                </h2>
-
+                                <span>YOUR ORDER</span>
+                                <h2>Order Summary</h2>
                             </div>
-
-
                             <div className="checkout-summary__items">
-
-                                {cartItems.length > 0 ? (
-
-                                    cartItems.map((item) => (
-
-                                        <div
-                                            className="checkout-summary__item"
-                                            key={item.id}
-                                        >
-
-                                            <div className="checkout-summary__image">
-
-                                                <img
-                                                    src={item.image}
-                                                    alt={item.name}
-                                                />
-
-                                            </div>
-
-
-                                            <div className="checkout-summary__details">
-
-                                                <strong>
-                                                    {item.name}
-                                                </strong>
-
-                                                <span>
-                                                    Qty: {item.quantity}
-                                                </span>
-
-                                            </div>
-
-
-                                            <strong>
-                                                $
-                                                {(
-                                                    item.price *
-                                                    item.quantity
-                                                ).toFixed(2)}
-                                            </strong>
-
+                                {cartItems.map((item) => (
+                                    <div className="checkout-summary__item" key={`${item.id}-${item.model}-${item.size}-${item.color}`}>
+                                        <div className="checkout-summary__image">
+                                            <img src={item.image} alt={item.name} />
                                         </div>
-
-                                    ))
-
-                                ) : (
-
-                                    <p className="checkout-empty">
-                                        Your cart is empty.
-                                    </p>
-
-                                )}
-
+                                        <div className="checkout-summary__details">
+                                            <strong>{item.name}</strong>
+                                            <span>Qty: {item.quantity}</span>
+                                        </div>
+                                        <strong>${(item.price * item.quantity).toFixed(2)}</strong>
+                                    </div>
+                                ))}
                             </div>
-
-
-                            <div className="checkout-summary__rows">
-
-                                <div>
-
-                                    <span>
-                                        Subtotal
-                                    </span>
-
-                                    <strong>
-                                        ${subtotal.toFixed(2)}
-                                    </strong>
-
-                                </div>
-
-
-                                <div>
-
-                                    <span>
-                                        Delivery
-                                    </span>
-
-                                    <strong>
-                                        ${delivery.toFixed(2)}
-                                    </strong>
-
-                                </div>
-
-
-                                <div>
-
-                                    <span>
-                                        Taxes
-                                    </span>
-
-                                    <strong>
-                                        ${taxes.toFixed(2)}
-                                    </strong>
-
-                                </div>
-
+                            <div className="checkout-summary__totals">
+                                <div><span>Subtotal</span><strong>${subtotal.toFixed(2)}</strong></div>
+                                <div><span>Shipping</span><strong>${shipping.toFixed(2)}</strong></div>
+                                <div><span>Sales Tax</span><span>Calculated at secure checkout</span></div>
+                                <div className="checkout-summary__total"><span>Total</span><strong>From ${(subtotal + shipping).toFixed(2)} + applicable tax</strong></div>
                             </div>
-
-
-                            <div className="checkout-summary__total">
-
-                                <span>
-                                    Total
-                                </span>
-
-                                <strong>
-                                    ${total.toFixed(2)}
-                                </strong>
-
-                            </div>
-
-
-                            <button
-                                type="button"
-                                className="checkout-place-order"
-                                disabled={cartItems.length === 0}
-                            >
-                                Place Order
-
-                                <span>
-                                    →
-                                </span>
-
-                            </button>
-
-
-                            <div className="checkout-secure">
-
-                                <span>
-                                    ✓
-                                </span>
-
-                                <div>
-
-                                    <strong>
-                                        Secure Checkout
-                                    </strong>
-
-                                    <small>
-                                        Your information is protected.
-                                    </small>
-
-                                </div>
-
-                            </div>
-
+                            <p className="checkout-summary__note">Taxes are calculated from the shipping destination during secure checkout.</p>
+                            <Link to="/cart">← Back to Cart</Link>
                         </aside>
-
-                    </div>
-
+                    </form>
                 </section>
-
             </main>
-
             <Footer />
         </>
     );
 }
-
 
 export default CheckoutPage;
