@@ -19,7 +19,6 @@ import {
 import {
     LayoutDashboard,
     ShoppingBag,
-    Package,
     Users,
     Star,
     Image,
@@ -122,10 +121,6 @@ function AdminSidebar({ username }: AdminSidebarProps) {
                     <NavLink to="/admin/orders" className={getNavLinkClass} onClick={closeMobileMenu}>
                         <ShoppingBag size={20} />
                         <span>Orders</span>
-                    </NavLink>
-                    <NavLink to="/admin/products" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <Package size={20} />
-                        <span>Products</span>
                     </NavLink>
                     <NavLink to="/admin/collections" className={getNavLinkClass} onClick={closeMobileMenu}>
                         <FolderKanban size={20} />
