@@ -1,1 +1,0 @@
-Temporary diagnostic marker for frontend Vercel deployment investigation. Remove after build is confirmed.
