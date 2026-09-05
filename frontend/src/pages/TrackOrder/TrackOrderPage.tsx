@@ -5,7 +5,8 @@
  * ===============================================================
  */
 
-import { FormEvent, useState } from "react";
+import type { FormEvent } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import "./TrackOrderPage.css";
 import Header from "../../components/layout/Header";
@@ -56,9 +57,7 @@ function TrackOrderPage() {
         setOrder(null);
 
         try {
-            const response = await fetch(
-                `${API_URL}/orders/${encodeURIComponent(orderNumber.trim())}?email=${encodeURIComponent(email.trim())}`,
-            );
+            const response = await fetch(`${API_URL}/orders/${encodeURIComponent(orderNumber.trim())}?email=${encodeURIComponent(email.trim())}`);
             const data = await response.json() as Order & { message?: string };
             if (!response.ok) throw new Error(data.message || "Order not found.");
             setOrder(data);
@@ -75,60 +74,8 @@ function TrackOrderPage() {
         <>
             <Header />
             <main className="track-order-page">
-                <section className="track-order-page__hero">
-                    <div className="track-order-page__container">
-                        <span className="track-order-page__eyebrow">{t.hero.eyebrow}</span>
-                        <h1>{t.hero.title}<span>{t.hero.titleAccent}</span></h1>
-                        <div className="track-order-page__divider"><span /></div>
-                        <p className="track-order-page__intro">{t.hero.intro}</p>
-                    </div>
-                </section>
-
-                <section className="track-order-page__content">
-                    <div className="track-order-page__container">
-                        <div className="track-order-page__card">
-                            <h2>{t.tracking.title}</h2>
-                            <p>{t.tracking.description}</p>
-                            <form className="track-order-page__form" onSubmit={lookupOrder}>
-                                <div className="track-order-page__field">
-                                    <label htmlFor="order-number">{t.tracking.orderNumberLabel}</label>
-                                    <input id="order-number" name="orderNumber" type="text" required value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder={t.tracking.orderNumberPlaceholder} />
-                                </div>
-                                <div className="track-order-page__field">
-                                    <label htmlFor="email">{t.tracking.emailLabel}</label>
-                                    <input id="email" name="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.tracking.emailPlaceholder} />
-                                </div>
-                                <button type="submit" className="track-order-page__button" disabled={loading}>
-                                    {loading ? "Checking…" : t.tracking.button}
-                                </button>
-                            </form>
-
-                            {error && <p role="alert" className="track-order-page__error">{error}</p>}
-
-                            {order && (
-                                <div className="track-order-page__result">
-                                    <h3>{order.order_code}</h3>
-                                    <p><strong>Status:</strong> {order.status.replaceAll("_", " ")}</p>
-                                    <p><strong>Payment:</strong> {order.payment_status}</p>
-                                    <p><strong>Total:</strong> ${Number(order.total).toFixed(2)}</p>
-                                    {order.tracking_number ? (
-                                        <p>
-                                            <strong>Tracking:</strong> {order.carrier || "Carrier"} — {order.tracking_number}
-                                            {trackingLink && <><br /><a href={trackingLink} target="_blank" rel="noreferrer">Track package with carrier →</a></>}
-                                        </p>
-                                    ) : (
-                                        <p>Your tracking number will appear here as soon as your order ships.</p>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="track-order-page__help">
-                            <h2>{t.help.title}</h2>
-                            <p>{t.help.description}</p>
-                        </div>
-                    </div>
-                </section>
+                <section className="track-order-page__hero"><div className="track-order-page__container"><span className="track-order-page__eyebrow">{t.hero.eyebrow}</span><h1>{t.hero.title}<span>{t.hero.titleAccent}</span></h1><div className="track-order-page__divider"><span /></div><p className="track-order-page__intro">{t.hero.intro}</p></div></section>
+                <section className="track-order-page__content"><div className="track-order-page__container"><div className="track-order-page__card"><h2>{t.tracking.title}</h2><p>{t.tracking.description}</p><form className="track-order-page__form" onSubmit={lookupOrder}><div className="track-order-page__field"><label htmlFor="order-number">{t.tracking.orderNumberLabel}</label><input id="order-number" name="orderNumber" type="text" required value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder={t.tracking.orderNumberPlaceholder} /></div><div className="track-order-page__field"><label htmlFor="email">{t.tracking.emailLabel}</label><input id="email" name="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.tracking.emailPlaceholder} /></div><button type="submit" className="track-order-page__button" disabled={loading}>{loading ? "Checking…" : t.tracking.button}</button></form>{error && <p role="alert" className="track-order-page__error">{error}</p>}{order && <div className="track-order-page__result"><h3>{order.order_code}</h3><p><strong>Status:</strong> {order.status.replaceAll("_", " ")}</p><p><strong>Payment:</strong> {order.payment_status}</p><p><strong>Total:</strong> ${Number(order.total).toFixed(2)}</p>{order.tracking_number ? <p><strong>Tracking:</strong> {order.carrier || "Carrier"} — {order.tracking_number}{trackingLink && <><br /><a href={trackingLink} target="_blank" rel="noreferrer">Track package with carrier →</a></>}</p> : <p>Your tracking number will appear here as soon as your order ships.</p>}</div>}</div><div className="track-order-page__help"><h2>{t.help.title}</h2><p>{t.help.description}</p></div></div></section>
             </main>
             <Footer />
         </>
