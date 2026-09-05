@@ -88,15 +88,27 @@ const translateFields = async (
         return null;
     }
 
-    const translated = await translateEnglishToSpanish(source);
-    const parts = translated.translation.split("\n\n");
+    try {
+        const translated = await translateEnglishToSpanish(source);
+        const parts = translated.translation.split("\n\n");
 
-    return {
-        titleEs: parts[0]?.trim() || title,
-        descriptionEs: description ? (parts[1]?.trim() || description) : null,
-        characteristicsEs: characteristics ? (parts[2]?.trim() || characteristics) : null,
-        hash,
-    };
+        return {
+            titleEs: parts[0]?.trim() || title,
+            descriptionEs: description ? (parts[1]?.trim() || description) : null,
+            characteristicsEs: characteristics ? (parts[2]?.trim() || characteristics) : null,
+            hash,
+        };
+    } catch (error) {
+        // Translation must never prevent a completed portfolio work from being saved.
+        // English remains the safe fallback and can be translated on a later edit.
+        console.error("Portfolio translation failed; saving English fallback:", error);
+        return {
+            titleEs: title,
+            descriptionEs: description,
+            characteristicsEs: characteristics,
+            hash,
+        };
+    }
 };
 
 export const getActivePortfolio = async () => {
