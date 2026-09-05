@@ -176,13 +176,22 @@ function Portfolio() {
                     <div className="portfolio__lightbox-frame" onClick={event => event.stopPropagation()}>
                         <span className="portfolio__lightbox-gold" aria-hidden="true" />
                         <img src={selected.image_url} alt={text(selected, "title")} />
-                        <div className="portfolio__lightbox-info">
-                            <h3>{text(selected, "title")}</h3>
-                            {text(selected, "description") && <p>{text(selected, "description")}</p>}
+                        <div className="portfolio__lightbox-info" style={{ padding: "24px 30px 28px", textAlign: "center" }}>
+                            <h3 style={{ margin: "0 0 12px", color: "#fff", fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 500, letterSpacing: "-0.4px" }}>
+                                {text(selected, "title")}
+                            </h3>
+                            <div aria-hidden="true" style={{ width: "70px", height: "1px", margin: "0 auto 18px", background: "#d8a63c", boxShadow: "0 0 12px rgba(216,166,60,.35)" }} />
+                            {text(selected, "description") && (
+                                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: "12px", maxWidth: "820px", margin: "0 auto", color: "rgba(255,255,255,.86)" }}>
+                                    <span aria-hidden="true" style={{ flex: "0 0 auto", color: "#f1cc76", fontFamily: "Georgia, serif", fontSize: "48px", lineHeight: ".7", textShadow: "0 0 14px rgba(216,166,60,.35)" }}>“</span>
+                                    <p style={{ margin: 0, padding: "0 2px", fontSize: "clamp(14px, 1.8vw, 18px)", lineHeight: 1.7, fontWeight: 400, letterSpacing: ".1px" }}>{text(selected, "description")}</p>
+                                    <span aria-hidden="true" style={{ flex: "0 0 auto", alignSelf: "flex-end", color: "#f1cc76", fontFamily: "Georgia, serif", fontSize: "48px", lineHeight: ".7", textShadow: "0 0 14px rgba(216,166,60,.35)" }}>”</span>
+                                </div>
+                            )}
                             {text(selected, "characteristics") && (
-                                <div className="portfolio__lightbox-characteristics">
-                                    <strong>{language === "es" ? "Características" : "Characteristics"}</strong>
-                                    <p>{text(selected, "characteristics")}</p>
+                                <div className="portfolio__lightbox-characteristics" style={{ marginTop: "22px", paddingTop: "18px", borderTop: "1px solid rgba(216,166,60,.18)" }}>
+                                    <strong style={{ color: "#f1cc76", fontSize: "10px", letterSpacing: "2px", textTransform: "uppercase" }}>{language === "es" ? "Características" : "Characteristics"}</strong>
+                                    <p style={{ margin: "8px 0 0", color: "rgba(255,255,255,.68)", fontSize: "13px", lineHeight: 1.6 }}>{text(selected, "characteristics")}</p>
                                 </div>
                             )}
                         </div>
