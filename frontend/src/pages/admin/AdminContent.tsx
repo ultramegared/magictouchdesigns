@@ -17,7 +17,7 @@ import "./AdminContent.css";
 interface PortfolioItem {
     portfolio_id: string;
     image_url: string;
-    cloudinary_public_id: string;
+    cloudinary_public_id: string | null;
     title_en: string;
     title_es: string | null;
     description_en: string | null;
@@ -91,7 +91,7 @@ const AdminContent = () => {
             sort_order: String(item.sort_order),
         });
         setImageUrl(item.image_url);
-        setPublicId(item.cloudinary_public_id);
+        setPublicId(item.cloudinary_public_id || "");
         setModalOpen(true);
     };
 
@@ -126,7 +126,7 @@ const AdminContent = () => {
     };
 
     const save = async () => {
-        if (!imageUrl || !publicId || !form.title.trim()) {
+        if (!imageUrl || (!editing && !publicId) || !form.title.trim()) {
             alert("Please provide an image and title.");
             return;
         }
@@ -135,7 +135,7 @@ const AdminContent = () => {
         try {
             const payload = {
                 image_url: imageUrl,
-                public_id: publicId,
+                ...(publicId ? { public_id: publicId } : {}),
                 title: form.title.trim(),
                 description: form.description.trim() || null,
                 characteristics: form.characteristics.trim() || null,
@@ -179,7 +179,9 @@ const AdminContent = () => {
 
     const remove = async (item: PortfolioItem) => {
         const confirmed = window.confirm(
-            `Permanently delete “${item.title_en}”? This will also remove the image from Cloudinary.`
+            item.cloudinary_public_id
+                ? `Permanently delete “${item.title_en}”? This will also remove the image from Cloudinary.`
+                : `Remove “${item.title_en}” from the portfolio? This legacy image is stored with the website, so its source file will remain in the repository.`
         );
         if (!confirmed) return;
 
