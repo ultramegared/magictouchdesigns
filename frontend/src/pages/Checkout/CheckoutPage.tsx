@@ -10,11 +10,13 @@ import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./CheckoutPage.css";
+import "./CheckoutPaymentMethods.css";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 import { getCartItems, type CartItem } from "../../utils/cart";
 
 const API_URL = "https://api.magictouchdesigns.com/api";
+const PAYPAL_CONFIRMATION_KEY = "mtd-paypal-confirmation";
 
 interface PayPalSdk {
     createInstance: (options: { clientId: string; components: string[]; pageType: string; locale?: string }) => Promise<any>;
@@ -197,10 +199,14 @@ function CheckoutPage() {
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify(buildPaymentPayload()),
                             });
-                            const data = await response.json() as { paypalOrderId?: string; message?: string };
-                            if (!response.ok || !data.paypalOrderId) {
+                            const data = await response.json() as { paypalOrderId?: string; orderCode?: string; message?: string };
+                            if (!response.ok || !data.paypalOrderId || !data.orderCode) {
                                 throw new Error(data.message || "Unable to create PayPal payment.");
                             }
+                            sessionStorage.setItem(PAYPAL_CONFIRMATION_KEY, JSON.stringify({
+                                orderCode: data.orderCode,
+                                email: formStateRef.current.email.trim().toLowerCase(),
+                            }));
                             return { orderId: data.paypalOrderId };
                         })());
                     } catch (paypalStartError: unknown) {
