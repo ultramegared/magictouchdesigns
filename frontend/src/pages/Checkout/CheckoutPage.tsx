@@ -89,37 +89,19 @@ function CheckoutPage() {
             if (!config.enabled || !config.publishableKey) throw new Error("Stripe card and Apple Pay are not configured yet.");
             await loadStripeSdk();
             if (!window.Stripe) throw new Error("Stripe.js could not be loaded securely.");
-
             const response = await fetch(`${API_URL}/orders/stripe/custom`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(buildPaymentPayload()) });
             const data = await response.json() as { clientSecret?: string; orderCode?: string; sessionId?: string; message?: string };
             if (!response.ok || !data.clientSecret || !data.orderCode || !data.sessionId) throw new Error(data.message || "Unable to start Stripe checkout.");
-
             const stripe = window.Stripe(config.publishableKey);
-            const checkout = stripe.initCheckout({
-                clientSecret: data.clientSecret,
-                defaultValues: {
-                    email: formStateRef.current.email.trim().toLowerCase(),
-                    phoneNumber: formStateRef.current.phone.trim(),
-                    shippingAddress: {
-                        name: `${formStateRef.current.firstName} ${formStateRef.current.lastName}`.trim(),
-                        address: { country: "US", line1: formStateRef.current.address, line2: formStateRef.current.apartment || undefined, city: formStateRef.current.city, state: formStateRef.current.state.toUpperCase(), postal_code: formStateRef.current.zip },
-                    },
-                },
-            });
+            const checkout = stripe.initCheckout({ clientSecret: data.clientSecret, defaultValues: { email: formStateRef.current.email.trim().toLowerCase(), phoneNumber: formStateRef.current.phone.trim(), shippingAddress: { name: `${formStateRef.current.firstName} ${formStateRef.current.lastName}`.trim(), address: { country: "US", line1: formStateRef.current.address, line2: formStateRef.current.apartment || undefined, city: formStateRef.current.city, state: formStateRef.current.state.toUpperCase(), postal_code: formStateRef.current.zip } } } });
             const actionsResult = await checkout.loadActions();
             if (actionsResult.type !== "success") throw new Error(actionsResult.error.message || "Stripe checkout could not initialize.");
-            stripeActionsRef.current = actionsResult.actions;
-            stripeSessionIdRef.current = data.sessionId;
-            stripeOrderCodeRef.current = data.orderCode;
-
+            stripeActionsRef.current = actionsResult.actions; stripeSessionIdRef.current = data.sessionId; stripeOrderCodeRef.current = data.orderCode;
             const paymentElement = checkout.createPaymentElement({ layout: "tabs", wallets: { applePay: "never", googlePay: "never", link: "never" } });
             const expressElement = checkout.createExpressCheckoutElement({ buttonHeight: 52, buttonType: { applePay: "check-out" }, buttonTheme: { applePay: "black" }, paymentMethodOrder: ["apple_pay"] });
-            const paymentHost = stripePaymentRef.current;
-            const appleHost = stripeAppleRef.current;
+            const paymentHost = stripePaymentRef.current; const appleHost = stripeAppleRef.current;
             if (!paymentHost || !appleHost) throw new Error("Stripe payment area is unavailable.");
-            paymentHost.replaceChildren(); appleHost.replaceChildren();
-            paymentElement.mount(paymentHost); expressElement.mount(appleHost);
-
+            paymentHost.replaceChildren(); appleHost.replaceChildren(); paymentElement.mount(paymentHost); expressElement.mount(appleHost);
             expressElement.on("ready", (event: { availablePaymentMethods?: Record<string, unknown> | null }) => setApplePayAvailable(Boolean(event.availablePaymentMethods?.applePay)));
             expressElement.on("confirm", async (event: any) => {
                 setError(""); setLoading(true);
@@ -128,7 +110,6 @@ function CheckoutPage() {
                     if (result?.type === "error") { setError(result.error?.message || "Apple Pay payment could not be completed."); setLoading(false); }
                 } catch (confirmError: unknown) { setError(confirmError instanceof Error ? confirmError.message : "Apple Pay payment could not be completed."); setLoading(false); }
             });
-
             stripeElementsCleanupRef.current = () => { paymentElement.unmount?.(); expressElement.unmount?.(); paymentHost.replaceChildren(); appleHost.replaceChildren(); stripeActionsRef.current = null; };
             setStripeReady(true); setLoading(false);
         } catch (stripeError: unknown) { setError(stripeError instanceof Error ? stripeError.message : "Unable to load secure Stripe payment."); setLoading(false); }
@@ -143,9 +124,7 @@ function CheckoutPage() {
         try {
             const result = await actions.confirm({ redirect: "if_required", email: formStateRef.current.email.trim().toLowerCase(), phoneNumber: formStateRef.current.phone.trim() });
             if (result?.type === "error") { setError(result.error?.message || "Card payment could not be completed."); setLoading(false); return; }
-            if (result?.type === "success") {
-                window.location.assign(`/checkout/success?session_id=${encodeURIComponent(stripeSessionIdRef.current)}&order_code=${encodeURIComponent(stripeOrderCodeRef.current)}`);
-            }
+            if (result?.type === "success") window.location.assign(`/checkout/success?session_id=${encodeURIComponent(stripeSessionIdRef.current)}&order_code=${encodeURIComponent(stripeOrderCodeRef.current)}`);
         } catch (confirmError: unknown) { setError(confirmError instanceof Error ? confirmError.message : "Card payment could not be completed."); setLoading(false); }
     };
 
@@ -216,7 +195,7 @@ function CheckoutPage() {
                                 <button type="button" className={`checkout-address-type ${form.deliveryType === "apartment" ? "checkout-address-type--active" : ""}`} onClick={() => updateField("deliveryType", "apartment")}><span className="checkout-address-type__icon">🏢</span><span><strong>Apartment</strong><small>Apartment or unit</small></span></button>
                             </div><div className="checkout-fields">
                                 <label className="checkout-field--full"><span>Street Address</span><input required value={form.address} onChange={(e) => updateField("address", e.target.value)} autoComplete="street-address" /></label>
-                                {form.deliveryType === "apartment" && <label className="checkout-field--full"><span>Apartment / Unit Number</span><input required value={form.apartment} onChange={(e) => updateField("apartment", e.target.value)} autoComplete="address-line2" />}</label>}
+                                {form.deliveryType === "apartment" && <label className="checkout-field--full"><span>Apartment / Unit Number</span><input required value={form.apartment} onChange={(e) => updateField("apartment", e.target.value)} autoComplete="address-line2" /></label>}
                                 <label><span>City</span><input required value={form.city} onChange={(e) => updateField("city", e.target.value)} autoComplete="address-level2" /></label>
                                 <label><span>State</span><input required value={form.state} onChange={(e) => updateField("state", e.target.value)} autoComplete="address-level1" /></label>
                                 <label><span>ZIP Code</span><input required value={form.zip} onChange={(e) => updateField("zip", e.target.value)} autoComplete="postal-code" inputMode="numeric" /></label>
@@ -227,9 +206,9 @@ function CheckoutPage() {
                                     <button type="button" className={`checkout-method-option ${selectedMethod === "apple" ? "checkout-method-option--active" : ""}`} onClick={() => { setSelectedMethod("apple"); setError(""); }}><span className="checkout-method-option__icon"></span><span><strong>Apple Pay</strong><small>Fast, secure payment with Apple Wallet</small></span></button>
                                     <button type="button" className={`checkout-method-option ${selectedMethod === "paypal" ? "checkout-method-option--active" : ""}`} onClick={() => { setSelectedMethod("paypal"); setError(""); }}><span className="checkout-method-option__icon">P</span><span><strong>PayPal</strong><small>Pay securely with your PayPal account</small></span></button>
                                 </div>
-                                {selectedMethod === "card" && <div className="checkout-method-panel"><p>Secure card payment</p><div ref={stripePaymentRef} className="checkout-stripe-payment-element" />{!stripeReady && <button className="checkout-payment-action" type="submit" disabled={loading || !cartItems.length}>{loading ? "Loading secure card payment…" : "Continue with Credit / Debit Card"}<span>→</span></button>}{stripeReady && <button className="checkout-payment-action" type="submit" disabled={loading || !cartItems.length}>{loading ? "Processing…" : "Pay Securely with Card"}<span>→</span></button>}</div>}
-                                {selectedMethod === "apple" && <div className="checkout-method-panel"><p>Apple Pay is shown by Stripe only when this device, browser, Wallet and merchant domain are eligible.</p><div ref={stripeAppleRef} className="checkout-stripe-apple-element" />{!stripeReady && <button className="checkout-payment-action" type="button" disabled={loading || !cartItems.length} onClick={() => void prepareStripe()}>{loading ? "Loading Apple Pay…" : "Enable Apple Pay"}<span></span></button>}{stripeReady && applePayAvailable === false && <p className="checkout-payment-loading">Apple Pay is not available on this device or browser.</p>}{stripeReady && applePayAvailable === null && <p className="checkout-payment-loading">Checking Apple Pay availability…</p>}</div>}
-                                {selectedMethod === "paypal" && <div className="checkout-method-panel"><p>Secure PayPal checkout</p>{paypalLoading && <p className="checkout-payment-loading">Loading PayPal…</p>}<div ref={paypalContainerRef} className="checkout-paypal-button" />{!paypalLoading && !paypalEnabled && !paypalError && <p className="checkout-payment-loading">PayPal is not enabled yet.</p>}{paypalError && <p role="alert" className="checkout-error">{paypalError}</p>}</div>}
+                                <div className="checkout-method-panel" hidden={selectedMethod !== "card"}><p>Secure card payment</p><div ref={stripePaymentRef} className="checkout-stripe-payment-element" />{!stripeReady && <button className="checkout-payment-action" type="submit" disabled={loading || !cartItems.length}>{loading ? "Loading secure card payment…" : "Continue with Credit / Debit Card"}<span>→</span></button>}{stripeReady && <button className="checkout-payment-action" type="submit" disabled={loading || !cartItems.length}>{loading ? "Processing…" : "Pay Securely with Card"}<span>→</span></button>}</div>
+                                <div className="checkout-method-panel" hidden={selectedMethod !== "apple"}><p>Apple Pay is shown by Stripe only when this device, browser, Wallet and merchant domain are eligible.</p><div ref={stripeAppleRef} className="checkout-stripe-apple-element" />{!stripeReady && <button className="checkout-payment-action" type="button" disabled={loading || !cartItems.length} onClick={() => void prepareStripe()}>{loading ? "Loading Apple Pay…" : "Enable Apple Pay"}<span></span></button>}{stripeReady && applePayAvailable === false && <p className="checkout-payment-loading">Apple Pay is not available on this device or browser.</p>}{stripeReady && applePayAvailable === null && <p className="checkout-payment-loading">Checking Apple Pay availability…</p>}</div>
+                                <div className="checkout-method-panel" hidden={selectedMethod !== "paypal"}><p>Secure PayPal checkout</p>{paypalLoading && <p className="checkout-payment-loading">Loading PayPal…</p>}<div ref={paypalContainerRef} className="checkout-paypal-button" />{!paypalLoading && !paypalEnabled && !paypalError && <p className="checkout-payment-loading">PayPal is not enabled yet.</p>}{paypalError && <p role="alert" className="checkout-error">{paypalError}</p>}</div>
                                 {error && <p role="alert" className="checkout-error">{error}</p>}
                                 <p className="checkout-security-note">Your card number, expiration date and security code are handled by the payment provider. Magic Touch Designs does not store full card details.</p>
                             </div>
