@@ -17,7 +17,6 @@ export const createCheckout = async (req: Request, res: Response): Promise<void>
     try {
         const customer = req.body?.customer as CheckoutCustomerInput;
         const items = req.body?.items as CheckoutItemInput[];
-
         if (!customer?.firstName || !customer?.lastName || !customer?.email) {
             res.status(400).json({ message: "Customer information is required." });
             return;
@@ -26,25 +25,23 @@ export const createCheckout = async (req: Request, res: Response): Promise<void>
             res.status(400).json({ message: "A complete shipping address is required." });
             return;
         }
-
         res.status(201).json(await createCheckoutSession(customer, items || []));
     } catch (error) {
         console.error("Create checkout error:", error);
-        res.status(400).json({
-            message: error instanceof Error ? error.message : "Unable to start checkout.",
-        });
+        res.status(400).json({ message: error instanceof Error ? error.message : "Unable to start checkout." });
     }
 };
 
 export const getOrder = async (req: Request, res: Response): Promise<void> => {
     try {
         const code = String(req.params.code || "").trim();
-        if (!code) {
-            res.status(400).json({ message: "Order code is required." });
+        const email = String(req.query.email || "").trim().toLowerCase();
+        if (!code || !email) {
+            res.status(400).json({ message: "Order code and email are required." });
             return;
         }
         const order = await getOrderByCode(code);
-        if (!order) {
+        if (!order || String(order.customer_email).toLowerCase() !== email) {
             res.status(404).json({ message: "Order not found." });
             return;
         }
