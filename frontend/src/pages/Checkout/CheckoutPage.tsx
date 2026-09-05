@@ -36,9 +36,7 @@ const loadScript = (id: string, src: string): Promise<void> => {
     if (document.getElementById(id)) return Promise.resolve();
     return new Promise((resolve, reject) => {
         const script = document.createElement("script");
-        script.id = id;
-        script.async = true;
-        script.src = src;
+        script.id = id; script.async = true; script.src = src;
         script.onload = () => resolve();
         script.onerror = () => reject(new Error("Secure payment provider could not be loaded."));
         document.head.appendChild(script);
@@ -84,8 +82,7 @@ function CheckoutPage() {
     const prepareStripe = async () => {
         if (stripeReady) return;
         if (!validateCustomer()) return;
-        setError("");
-        setLoading(true);
+        setError(""); setLoading(true);
         try {
             const configResponse = await fetch(`${API_URL}/orders/stripe/config`);
             const config = await configResponse.json() as { enabled?: boolean; publishableKey?: string | null };
@@ -99,40 +96,27 @@ function CheckoutPage() {
             const checkout = stripe.initCheckout({ clientSecret: data.clientSecret, defaultValues: { email: formStateRef.current.email.trim().toLowerCase(), phoneNumber: formStateRef.current.phone.trim(), shippingAddress: { name: `${formStateRef.current.firstName} ${formStateRef.current.lastName}`.trim(), address: { country: "US", line1: formStateRef.current.address, line2: formStateRef.current.apartment || undefined, city: formStateRef.current.city, state: formStateRef.current.state.toUpperCase(), postal_code: formStateRef.current.zip } } } });
             const actionsResult = await checkout.loadActions();
             if (actionsResult.type !== "success") throw new Error(actionsResult.error.message || "Stripe checkout could not initialize.");
-            stripeActionsRef.current = actionsResult.actions;
-            stripeSessionIdRef.current = data.sessionId;
-            stripeOrderCodeRef.current = data.orderCode;
+            stripeActionsRef.current = actionsResult.actions; stripeSessionIdRef.current = data.sessionId; stripeOrderCodeRef.current = data.orderCode;
             const paymentElement = checkout.createPaymentElement({ layout: "tabs", wallets: { applePay: "never", googlePay: "never", link: "never" } });
             const expressElement = checkout.createExpressCheckoutElement({ buttonHeight: 52, buttonType: { applePay: "check-out" }, buttonTheme: { applePay: "black" }, paymentMethodOrder: ["apple_pay"] });
-            const paymentHost = stripePaymentRef.current;
-            const appleHost = stripeAppleRef.current;
+            const paymentHost = stripePaymentRef.current; const appleHost = stripeAppleRef.current;
             if (!paymentHost || !appleHost) throw new Error("Stripe payment area is unavailable.");
-            paymentHost.replaceChildren();
-            appleHost.replaceChildren();
-            paymentElement.mount(paymentHost);
-            expressElement.mount(appleHost);
+            paymentHost.replaceChildren(); appleHost.replaceChildren(); paymentElement.mount(paymentHost); expressElement.mount(appleHost);
             expressElement.on("ready", (event: { availablePaymentMethods?: Record<string, unknown> | null }) => setApplePayAvailable(Boolean(event.availablePaymentMethods?.applePay)));
             expressElement.on("confirm", async (event: any) => {
-                setError("");
-                setLoading(true);
+                setError(""); setLoading(true);
                 try {
                     const result = await actionsResult.actions.confirm({ expressCheckoutConfirmEvent: event });
                     if (result?.type === "error") { setError(result.error?.message || "Apple Pay payment could not be completed."); setLoading(false); }
                 } catch (confirmError: unknown) { setError(confirmError instanceof Error ? confirmError.message : "Apple Pay payment could not be completed."); setLoading(false); }
             });
             stripeElementsCleanupRef.current = () => { paymentElement.unmount?.(); expressElement.unmount?.(); paymentHost.replaceChildren(); appleHost.replaceChildren(); stripeActionsRef.current = null; };
-            setStripeReady(true);
-            setLoading(false);
-        } catch (stripeError: unknown) {
-            setError(stripeError instanceof Error ? stripeError.message : "Unable to load secure Stripe payment.");
-            setLoading(false);
-        }
+            setStripeReady(true); setLoading(false);
+        } catch (stripeError: unknown) { setError(stripeError instanceof Error ? stripeError.message : "Unable to load secure Stripe payment."); setLoading(false); }
     };
 
     const selectPaymentMethod = (method: "card" | "apple" | "paypal") => {
-        setSelectedMethod(method);
-        setError("");
-        setPaypalError("");
+        setSelectedMethod(method); setError(""); setPaypalError("");
         if ((method === "card" || method === "apple") && !stripeReady) void prepareStripe();
     };
 
@@ -141,8 +125,7 @@ function CheckoutPage() {
         if (!stripeReady) { await prepareStripe(); return; }
         const actions = stripeActionsRef.current;
         if (!actions) { setError("Secure card payment is not ready. Please try again."); return; }
-        setError("");
-        setLoading(true);
+        setError(""); setLoading(true);
         try {
             const result = await actions.confirm({ redirect: "if_required", email: formStateRef.current.email.trim().toLowerCase(), phoneNumber: formStateRef.current.phone.trim() });
             if (result?.type === "error") { setError(result.error?.message || "Card payment could not be completed."); setLoading(false); return; }
@@ -176,12 +159,9 @@ function CheckoutPage() {
                 const container = paypalContainerRef.current;
                 if (!container) return;
                 container.replaceChildren();
-                const button = document.createElement("paypal-button");
-                button.setAttribute("type", "pay");
-                button.setAttribute("aria-label", "Pay with PayPal");
+                const button = document.createElement("paypal-button"); button.setAttribute("type", "pay"); button.setAttribute("aria-label", "Pay with PayPal");
                 const handleClick = async () => {
-                    setPaypalError("");
-                    if (!validateCustomer()) return;
+                    setPaypalError(""); if (!validateCustomer()) return;
                     try {
                         await session.start({ presentationMode: "auto" }, (async () => {
                             const create = await fetch(`${API_URL}/orders/paypal/create`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(buildPaymentPayload()) });
@@ -192,10 +172,8 @@ function CheckoutPage() {
                         })());
                     } catch (paypalStartError: unknown) { setPaypalError(paypalStartError instanceof Error ? paypalStartError.message : "PayPal payment could not be started."); }
                 };
-                button.addEventListener("click", handleClick);
-                container.appendChild(button);
-                setPaypalEnabled(true);
-                setPaypalLoading(false);
+                button.addEventListener("click", handleClick); container.appendChild(button);
+                setPaypalEnabled(true); setPaypalLoading(false);
                 paypalCleanupRef.current = () => { button.removeEventListener("click", handleClick); container.replaceChildren(); };
             } catch (setupError) { if (cancelled) return; console.error("PayPal setup error:", setupError); setPaypalError("PayPal is temporarily unavailable. You can still use Card or Apple Pay."); setPaypalLoading(false); }
         };
@@ -222,7 +200,7 @@ function CheckoutPage() {
                                 <button type="button" className={`checkout-address-type ${form.deliveryType === "apartment" ? "checkout-address-type--active" : ""}`} onClick={() => updateField("deliveryType", "apartment")}><span className="checkout-address-type__icon">🏢</span><span><strong>Apartment</strong><small>Apartment or unit</small></span></button>
                             </div><div className="checkout-fields">
                                 <label className="checkout-field--full"><span>Street Address</span><input required value={form.address} onChange={(e) => updateField("address", e.target.value)} autoComplete="street-address" /></label>
-                                {form.deliveryType === "apartment" && <label className="checkout-field--full"><span>Apartment / Unit Number</span><input required value={form.apartment} onChange={(e) => updateField("apartment", e.target.value)} autoComplete="address-line2" />}</label>}
+                                {form.deliveryType === "apartment" && <label className="checkout-field--full"><span>Apartment / Unit Number</span><input required value={form.apartment} onChange={(e) => updateField("apartment", e.target.value)} autoComplete="address-line2" /></label>}
                                 <label><span>City</span><input required value={form.city} onChange={(e) => updateField("city", e.target.value)} autoComplete="address-level2" /></label>
                                 <label><span>State</span><input required value={form.state} onChange={(e) => updateField("state", e.target.value)} autoComplete="address-level1" /></label>
                                 <label><span>ZIP Code</span><input required value={form.zip} onChange={(e) => updateField("zip", e.target.value)} autoComplete="postal-code" inputMode="numeric" /></label>
