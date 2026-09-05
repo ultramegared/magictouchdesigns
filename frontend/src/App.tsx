@@ -27,6 +27,7 @@ import AboutPage from "./pages/About";
 import HowItWorksPage from "./components/home/HowItWorks/HowItWorksPage";
 import CartPage from "./pages/Cart";
 import CheckoutPage from "./pages/Checkout";
+import CheckoutSuccessPage from "./pages/Checkout/CheckoutSuccessPage";
 import ShippingReturnsPage from "./pages/ShippingReturns";
 import FAQPage from "./pages/FAQ";
 import TrackOrderPage from "./pages/TrackOrder";
@@ -67,6 +68,7 @@ function App() {
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
                 <Route path="/shipping-returns" element={<ShippingReturnsPage />} />
                 <Route path="/faqs" element={<FAQPage />} />
                 <Route path="/track-order" element={<TrackOrderPage />} />
