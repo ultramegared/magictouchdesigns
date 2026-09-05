@@ -35,7 +35,7 @@ export interface CheckoutCustomerInput {
     zip?: string;
 }
 
-interface OrderItemSnapshot {
+export interface OrderItemSnapshot {
     product_id: string;
     name: string;
     image_url: string | null;
@@ -56,6 +56,10 @@ export const ensureOrderTables = async (): Promise<void> => {
             order_code VARCHAR(32) NOT NULL UNIQUE,
             stripe_checkout_session_id VARCHAR(255) UNIQUE,
             stripe_payment_intent_id VARCHAR(255),
+            paypal_order_id VARCHAR(255) UNIQUE,
+            paypal_capture_id VARCHAR(255),
+            payment_provider VARCHAR(32),
+            payment_method VARCHAR(64),
             customer_first_name VARCHAR(120) NOT NULL,
             customer_last_name VARCHAR(120) NOT NULL,
             customer_email VARCHAR(320) NOT NULL,
@@ -73,6 +77,11 @@ export const ensureOrderTables = async (): Promise<void> => {
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS paypal_order_id VARCHAR(255);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS paypal_capture_id VARCHAR(255);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_provider VARCHAR(32);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(64);
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_paypal_order_id ON orders(paypal_order_id) WHERE paypal_order_id IS NOT NULL;
         CREATE TABLE IF NOT EXISTS order_items (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -119,7 +128,7 @@ const makeOrderCode = async (): Promise<string> => {
     return `#MTD-${date}-${result.rows[0].sequence.padStart(4, "0")}`;
 };
 
-export const createCheckoutSession = async (
+export const buildOrderSnapshot = async (
     customer: CheckoutCustomerInput,
     items: CheckoutItemInput[],
 ) => {
@@ -189,6 +198,23 @@ export const createCheckoutSession = async (
         );
     }
 
+    return {
+        orderId,
+        orderCode,
+        normalizedItems,
+        subtotal,
+        shipping: SHIPPING_AMOUNT_CENTS / 100,
+        shippingAddress,
+    };
+};
+
+export const createCheckoutSession = async (
+    customer: CheckoutCustomerInput,
+    items: CheckoutItemInput[],
+) => {
+    const snapshot = await buildOrderSnapshot(customer, items);
+    const { orderId, orderCode, normalizedItems } = snapshot;
+
     const params = new URLSearchParams();
     params.set("mode", "payment");
     params.set("success_url", `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
@@ -215,7 +241,7 @@ export const createCheckoutSession = async (
     try {
         const session = await stripeRequest("/checkout/sessions", params);
         await pool.query(
-            `UPDATE orders SET stripe_checkout_session_id = $1, updated_at = NOW() WHERE id = $2`,
+            `UPDATE orders SET stripe_checkout_session_id = $1, payment_provider = 'stripe', payment_method = 'card_or_wallet', updated_at = NOW() WHERE id = $2`,
             [session.id, orderId],
         );
         return { orderCode, checkoutUrl: session.url };
@@ -277,7 +303,8 @@ export const handleStripeWebhook = async (event: any): Promise<void> => {
     await pool.query(
         `UPDATE orders SET
             stripe_payment_intent_id = $1, subtotal = $2, shipping = $3,
-            tax = $4, total = $5, payment_status = 'paid', status = 'paid', updated_at = NOW()
+            tax = $4, total = $5, payment_status = 'paid', status = 'paid',
+            payment_provider = 'stripe', updated_at = NOW()
          WHERE id = $6`,
         [session.payment_intent || null, amountSubtotal, amountShipping, amountTax, amountTotal, orderId],
     );
