@@ -17,35 +17,66 @@ type Order = {
     customer_last_name: string;
 };
 
+const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
 function CheckoutSuccessPage() {
     const [searchParams] = useSearchParams();
     const sessionId = searchParams.get("session_id");
+    const requestedOrderCode = searchParams.get("order_code");
     const isPayPal = searchParams.get("paypal") === "1";
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
+        let cancelled = false;
+
         const confirmStripe = async () => {
             if (!sessionId) throw new Error("The checkout session could not be found.");
-            const response = await fetch(`${API_URL}/orders/session/${encodeURIComponent(sessionId)}`);
-            if (!response.ok) throw new Error("Order confirmation is not available yet.");
-            return response.json() as Promise<Order>;
+
+            let lastError = "Order confirmation is still processing.";
+            for (let attempt = 0; attempt < 10; attempt += 1) {
+                if (cancelled) return null;
+                const response = await fetch(`${API_URL}/orders/session/${encodeURIComponent(sessionId)}`);
+                if (response.ok) {
+                    const data = await response.json() as Order;
+                    if (data.payment_status === "paid" || attempt === 9) return data;
+                    lastError = "Payment received. Finalizing your order confirmation…";
+                } else {
+                    lastError = "Order confirmation is still processing.";
+                }
+                await wait(1500);
+            }
+            throw new Error(lastError);
         };
 
         const confirmPayPal = async () => {
             const raw = sessionStorage.getItem(PAYPAL_CONFIRMATION_KEY);
             if (!raw) throw new Error("PayPal confirmation details could not be found. Use Track My Order if needed.");
             const confirmation = JSON.parse(raw) as { orderCode?: string; email?: string };
-            if (!confirmation.orderCode || !confirmation.email) throw new Error("PayPal confirmation details are incomplete.");
-            const response = await fetch(`${API_URL}/orders/${encodeURIComponent(confirmation.orderCode)}?email=${encodeURIComponent(confirmation.email)}`);
-            if (!response.ok) throw new Error("PayPal order confirmation is not available yet.");
-            return response.json() as Promise<Order>;
+            const orderCode = confirmation.orderCode || requestedOrderCode;
+            if (!orderCode || !confirmation.email) throw new Error("PayPal confirmation details are incomplete.");
+
+            let lastError = "PayPal confirmation is still processing.";
+            for (let attempt = 0; attempt < 10; attempt += 1) {
+                if (cancelled) return null;
+                const response = await fetch(`${API_URL}/orders/${encodeURIComponent(orderCode)}?email=${encodeURIComponent(confirmation.email)}`);
+                if (response.ok) {
+                    const data = await response.json() as Order;
+                    if (data.payment_status === "paid" || attempt === 9) return data;
+                    lastError = "Payment received. Finalizing your order confirmation…";
+                } else {
+                    lastError = "PayPal order confirmation is still processing.";
+                }
+                await wait(1500);
+            }
+            throw new Error(lastError);
         };
 
         const confirm = isPayPal ? confirmPayPal : confirmStripe;
         confirm()
             .then((data) => {
+                if (!data || cancelled) return;
                 setOrder(data);
                 if (data.payment_status === "paid") {
                     clearCart();
@@ -53,10 +84,15 @@ function CheckoutSuccessPage() {
                 }
             })
             .catch((requestError: unknown) => {
+                if (cancelled) return;
                 setError(requestError instanceof Error ? requestError.message : "Unable to confirm the order.");
             })
-            .finally(() => setLoading(false));
-    }, [isPayPal, sessionId]);
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+
+        return () => { cancelled = true; };
+    }, [isPayPal, requestedOrderCode, sessionId]);
 
     return (
         <>
@@ -66,12 +102,13 @@ function CheckoutSuccessPage() {
                     {loading ? (
                         <>
                             <span className="checkout-success-eyebrow">PROCESSING PAYMENT</span>
-                            <h1>Confirming your order…</h1>
-                            <p>Please wait while we confirm your secure payment.</p>
+                            <div className="checkout-success-icon" aria-hidden="true">✓</div>
+                            <h1>Confirming Your Order…</h1>
+                            <p>Please wait while we securely confirm your payment and finalize your order.</p>
                         </>
                     ) : order ? (
                         <>
-                            <div className="checkout-success-icon">✓</div>
+                            <div className="checkout-success-icon" aria-hidden="true">✓</div>
                             <span className="checkout-success-eyebrow">PAYMENT CONFIRMED</span>
                             <h1>Thank You for Your Order</h1>
                             <p>We received your purchase successfully.</p>
