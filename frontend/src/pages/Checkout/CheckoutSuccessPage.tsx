@@ -6,6 +6,7 @@ import { clearCart } from "../../utils/cart";
 import "./CheckoutSuccessPage.css";
 
 const API_URL = "https://api.magictouchdesigns.com/api";
+const PAYPAL_CONFIRMATION_KEY = "mtd-paypal-confirmation";
 
 type Order = {
     order_code: string;
@@ -19,31 +20,43 @@ type Order = {
 function CheckoutSuccessPage() {
     const [searchParams] = useSearchParams();
     const sessionId = searchParams.get("session_id");
+    const isPayPal = searchParams.get("paypal") === "1";
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        if (!sessionId) {
-            setError("The checkout session could not be found.");
-            setLoading(false);
-            return;
-        }
+        const confirmStripe = async () => {
+            if (!sessionId) throw new Error("The checkout session could not be found.");
+            const response = await fetch(`${API_URL}/orders/session/${encodeURIComponent(sessionId)}`);
+            if (!response.ok) throw new Error("Order confirmation is not available yet.");
+            return response.json() as Promise<Order>;
+        };
 
-        fetch(`${API_URL}/orders/session/${encodeURIComponent(sessionId)}`)
-            .then(async (response) => {
-                if (!response.ok) throw new Error("Order confirmation is not available yet.");
-                return response.json() as Promise<Order>;
-            })
+        const confirmPayPal = async () => {
+            const raw = sessionStorage.getItem(PAYPAL_CONFIRMATION_KEY);
+            if (!raw) throw new Error("PayPal confirmation details could not be found. Use Track My Order if needed.");
+            const confirmation = JSON.parse(raw) as { orderCode?: string; email?: string };
+            if (!confirmation.orderCode || !confirmation.email) throw new Error("PayPal confirmation details are incomplete.");
+            const response = await fetch(`${API_URL}/orders/${encodeURIComponent(confirmation.orderCode)}?email=${encodeURIComponent(confirmation.email)}`);
+            if (!response.ok) throw new Error("PayPal order confirmation is not available yet.");
+            return response.json() as Promise<Order>;
+        };
+
+        const confirm = isPayPal ? confirmPayPal : confirmStripe;
+        confirm()
             .then((data) => {
                 setOrder(data);
-                if (data.payment_status === "paid") clearCart();
+                if (data.payment_status === "paid") {
+                    clearCart();
+                    if (isPayPal) sessionStorage.removeItem(PAYPAL_CONFIRMATION_KEY);
+                }
             })
             .catch((requestError: unknown) => {
                 setError(requestError instanceof Error ? requestError.message : "Unable to confirm the order.");
             })
             .finally(() => setLoading(false));
-    }, [sessionId]);
+    }, [isPayPal, sessionId]);
 
     return (
         <>
