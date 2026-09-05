@@ -23,6 +23,7 @@ export interface TranslationResult {
         string;
 }
 
+
 /*
 |--------------------------------------------------------------------------
 | Environment
@@ -35,6 +36,7 @@ const openAiApiKey =
 const openAiModel =
     process.env.OPENAI_TRANSLATION_MODEL
     || "gpt-5.6-luna";
+
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +53,13 @@ export const translateEnglishToSpanish =
         const normalizedText =
             text.trim();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Input
+        |--------------------------------------------------------------------------
+        */
+
         if (
             !normalizedText
         ) {
@@ -60,6 +69,13 @@ export const translateEnglishToSpanish =
             );
 
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate API Key
+        |--------------------------------------------------------------------------
+        */
 
         if (
             !openAiApiKey
@@ -71,62 +87,99 @@ export const translateEnglishToSpanish =
 
         }
 
-        const response =
-            await fetch(
-                "https://api.openai.com/v1/responses",
-                {
-                    method:
-                        "POST",
 
-                    headers: {
-                        Authorization:
-                            `Bearer ${openAiApiKey}`,
+        /*
+        |--------------------------------------------------------------------------
+        | OpenAI Request
+        |--------------------------------------------------------------------------
+        */
 
-                        "Content-Type":
-                            "application/json",
-                    },
+        let response:
+            Response;
 
-                    body:
-                        JSON.stringify({
-                            model:
-                                openAiModel,
 
-                            input:
-                                [
-                                    {
-                                        role:
-                                            "system",
+        try {
 
-                                        content:
-                                            [
-                                                {
-                                                    type:
-                                                        "input_text",
+            response =
+                await fetch(
+                    "https://api.openai.com/v1/responses",
+                    {
+                        method:
+                            "POST",
 
-                                                    text:
-                                                        "You are a professional English-to-Spanish translator for Magic Touch Designs. Translate the provided English promotional content into natural, clear, persuasive Spanish. Preserve the original meaning, tone, paragraph structure, line breaks, emojis, numbers, prices, discount percentages, product names, brand names, URLs, and special formatting. Do not add explanations, comments, quotation marks, or additional content. Return only the Spanish translation.",
-                                                },
-                                            ],
-                                    },
-                                    {
-                                        role:
-                                            "user",
+                        headers: {
+                            Authorization:
+                                `Bearer ${openAiApiKey}`,
 
-                                        content:
-                                            [
-                                                {
-                                                    type:
-                                                        "input_text",
+                            "Content-Type":
+                                "application/json",
+                        },
 
-                                                    text:
-                                                        normalizedText,
-                                                },
-                                            ],
-                                    },
-                                ],
-                        }),
-                }
-            );
+                        body:
+                            JSON.stringify({
+                                model:
+                                    openAiModel,
+
+                                input:
+                                    [
+                                        {
+                                            role:
+                                                "system",
+
+                                            content:
+                                                [
+                                                    {
+                                                        type:
+                                                            "input_text",
+
+                                                        text:
+                                                            "You are a professional English-to-Spanish translator for Magic Touch Designs. Translate the provided English promotional content into natural, clear, persuasive Spanish. Preserve the original meaning, tone, paragraph structure, line breaks, emojis, numbers, prices, discount percentages, product names, brand names, URLs, and special formatting. Do not add explanations, comments, quotation marks, or additional content. Return only the Spanish translation.",
+                                                    },
+                                                ],
+                                        },
+
+                                        {
+                                            role:
+                                                "user",
+
+                                            content:
+                                                [
+                                                    {
+                                                        type:
+                                                            "input_text",
+
+                                                        text:
+                                                            normalizedText,
+                                                    },
+                                                ],
+                                        },
+                                    ],
+                            }),
+                    }
+                );
+
+            } catch (
+                error
+            ) {
+
+                console.error(
+                    "OpenAI network error:",
+                    error
+                );
+
+
+                throw new Error(
+                    "Unable to connect to OpenAI translation service."
+                );
+
+            }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Response Body
+        |--------------------------------------------------------------------------
+        */
 
         const responseData:
             unknown =
@@ -135,6 +188,13 @@ export const translateEnglishToSpanish =
                 .catch(
                     () => null
                 );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | OpenAI Error
+        |--------------------------------------------------------------------------
+        */
 
         if (
             !response.ok
@@ -151,11 +211,19 @@ export const translateEnglishToSpanish =
                     ? responseData.error.message
                     : "Failed to translate content.";
 
+
             throw new Error(
                 `OpenAI error: ${errorMessage}`
             );
 
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Response
+        |--------------------------------------------------------------------------
+        */
 
         if (
             typeof responseData !== "object"
@@ -168,6 +236,7 @@ export const translateEnglishToSpanish =
 
         }
 
+
         if (
             !("output_text" in responseData)
             || typeof responseData.output_text !== "string"
@@ -179,8 +248,16 @@ export const translateEnglishToSpanish =
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Translation
+        |--------------------------------------------------------------------------
+        */
+
         const translation =
             responseData.output_text.trim();
+
 
         if (
             !translation
@@ -192,7 +269,15 @@ export const translateEnglishToSpanish =
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Result
+        |--------------------------------------------------------------------------
+        */
+
         return {
             translation,
         };
+
     };
