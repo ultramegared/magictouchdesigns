@@ -6,7 +6,8 @@
  * Module: Administrator Subscribers
  * Language: CSS
  * Description:
- * Premium responsive styling for newsletter subscriber management.
+ * Premium responsive styling for newsletter subscriber management
+ * and promotional campaigns.
  * ================================================================
  */
 
@@ -225,6 +226,519 @@
     font-size: 22px;
     font-weight: 700;
     letter-spacing: -0.02em;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Promotion Composer
+|--------------------------------------------------------------------------
+*/
+
+.admin-subscribers__promotion {
+    margin-bottom: 28px;
+    padding: 26px;
+    border: 1px solid rgba(205, 196, 184, 0.78);
+    border-radius: 16px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.97),
+            rgba(249, 246, 241, 0.97)
+        );
+    box-shadow:
+        0 12px 34px rgba(43, 35, 26, 0.055);
+}
+
+
+.admin-subscribers__promotion-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 28px;
+    margin-bottom: 25px;
+}
+
+
+.admin-subscribers__promotion-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 8px;
+    color: #9b7848;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+
+.admin-subscribers__promotion-header h2 {
+    margin: 0;
+    color: #201e1b;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+
+.admin-subscribers__promotion-header p {
+    max-width: 620px;
+    margin: 8px 0 0;
+    color: #77716a;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+.admin-subscribers__promotion-recipients {
+    min-width: 180px;
+    padding: 15px 17px;
+    border: 1px solid #e1d7c8;
+    border-radius: 12px;
+    background: #fcfaf7;
+    text-align: right;
+}
+
+
+.admin-subscribers__promotion-recipients > span {
+    display: block;
+    margin-bottom: 3px;
+    color: #8b8278;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+
+.admin-subscribers__promotion-recipients > strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #201e1b;
+    font-size: 25px;
+    line-height: 1;
+}
+
+
+.admin-subscribers__promotion-recipients div {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+
+.admin-subscribers__promotion-recipients div span {
+    margin: 0;
+    color: #96764b;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Promotion Grid
+|--------------------------------------------------------------------------
+*/
+
+.admin-subscribers__promotion-grid {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.08fr)
+        minmax(330px, 0.92fr);
+    gap: 24px;
+}
+
+
+.admin-subscribers__promotion-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+
+.admin-subscribers__promotion-fields label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+
+.admin-subscribers__promotion-fields label > span {
+    color: #5c554d;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+
+.admin-subscribers__promotion-fields input,
+.admin-subscribers__promotion-fields textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d9d0c5;
+    border-radius: 10px;
+    outline: none;
+    background: #ffffff;
+    color: #282522;
+    font: inherit;
+    font-size: 13px;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.admin-subscribers__promotion-fields input {
+    height: 45px;
+    padding: 0 13px;
+}
+
+
+.admin-subscribers__promotion-fields textarea {
+    min-height: 205px;
+    padding: 13px;
+    resize: vertical;
+    line-height: 1.65;
+}
+
+
+.admin-subscribers__promotion-fields input::placeholder,
+.admin-subscribers__promotion-fields textarea::placeholder {
+    color: #aaa39a;
+}
+
+
+.admin-subscribers__promotion-fields input:focus,
+.admin-subscribers__promotion-fields textarea:focus {
+    border-color: #b89a6c;
+    box-shadow:
+        0 0 0 3px rgba(184, 154, 108, 0.11);
+}
+
+
+.admin-subscribers__promotion-fields input:disabled,
+.admin-subscribers__promotion-fields textarea:disabled {
+    background: #f5f2ee;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Promotion Upload
+|--------------------------------------------------------------------------
+*/
+
+.admin-subscribers__promotion-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+.admin-subscribers__promotion-upload-label {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+
+.admin-subscribers__promotion-upload-label > span {
+    color: #5c554d;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+
+.admin-subscribers__promotion-upload-label small {
+    color: #999087;
+    font-size: 10px;
+}
+
+
+.admin-subscribers__promotion-upload-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 92px;
+    padding: 18px;
+    border: 1px dashed #cdbda7;
+    border-radius: 11px;
+    background: #fcfaf7;
+    color: #8a6a42;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.admin-subscribers__promotion-upload-button:hover:not(:disabled) {
+    border-color: #ae8c60;
+    background: #f9f3ea;
+    transform: translateY(-1px);
+}
+
+
+.admin-subscribers__promotion-upload-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+
+.admin-subscribers__promotion-image-preview {
+    position: relative;
+    overflow: hidden;
+    min-height: 92px;
+    border: 1px solid #d9d0c5;
+    border-radius: 11px;
+    background: #f4f1ed;
+}
+
+
+.admin-subscribers__promotion-image-preview img {
+    display: block;
+    width: 100%;
+    max-height: 230px;
+    object-fit: cover;
+}
+
+
+.admin-subscribers__promotion-image-preview button {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 31px;
+    height: 31px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    background: rgba(25, 23, 21, 0.78);
+    color: #ffffff;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.admin-subscribers__promotion-image-preview button:hover:not(:disabled) {
+    background: #1f1d1a;
+    transform: scale(1.04);
+}
+
+
+.admin-subscribers__promotion-image-preview button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Promotion Preview
+|--------------------------------------------------------------------------
+*/
+
+.admin-subscribers__promotion-preview {
+    min-width: 0;
+}
+
+
+.admin-subscribers__promotion-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 25px;
+    margin-bottom: 10px;
+}
+
+
+.admin-subscribers__promotion-preview-header > div {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #5f574f;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+
+.admin-subscribers__promotion-email {
+    overflow: hidden;
+    border: 1px solid #ddd5cb;
+    border-radius: 13px;
+    background: #ffffff;
+    box-shadow:
+        0 8px 24px rgba(35, 29, 23, 0.055);
+}
+
+
+.admin-subscribers__promotion-email-brand {
+    padding: 18px 20px;
+    background: #171615;
+    color: #d8c29d;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+
+.admin-subscribers__promotion-email > img {
+    display: block;
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+}
+
+
+.admin-subscribers__promotion-email-content {
+    padding: 25px 23px;
+}
+
+
+.admin-subscribers__promotion-email-content h3 {
+    margin: 0 0 13px;
+    color: #24211e;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+
+.admin-subscribers__promotion-email-content p {
+    margin: 0;
+    color: #625b53;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+
+.admin-subscribers__promotion-email-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #eee8e0;
+    background: #faf8f5;
+    color: #928a81;
+    font-size: 10px;
+    text-align: center;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Promotion Messages
+|--------------------------------------------------------------------------
+*/
+
+.admin-subscribers__promotion-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 20px;
+    padding: 12px 14px;
+    border-radius: 9px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+.admin-subscribers__promotion-message--error {
+    border: 1px solid #e7caca;
+    background: #fff7f7;
+    color: #a33a3a;
+}
+
+
+.admin-subscribers__promotion-message--success {
+    border: 1px solid #cce0d1;
+    background: #f4faf5;
+    color: #4d7c59;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Promotion Actions
+|--------------------------------------------------------------------------
+*/
+
+.admin-subscribers__promotion-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 23px;
+    padding-top: 20px;
+    border-top: 1px solid #ebe4db;
+}
+
+
+.admin-subscribers__promotion-actions > span {
+    color: #8b8278;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+
+.admin-subscribers__promotion-send {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 165px;
+    min-height: 42px;
+    padding: 0 18px;
+    border: 1px solid #201e1b;
+    border-radius: 9px;
+    background: #201e1b;
+    color: #ffffff;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.admin-subscribers__promotion-send:hover:not(:disabled) {
+    border-color: #3a342d;
+    background: #302c27;
+    box-shadow:
+        0 5px 15px rgba(25, 22, 19, 0.15);
+    transform: translateY(-1px);
+}
+
+
+.admin-subscribers__promotion-send:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
 }
 
 
@@ -650,6 +1164,17 @@
             );
     }
 
+
+    .admin-subscribers__promotion-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .admin-subscribers__promotion-preview {
+        max-width: 700px;
+    }
+
 }
 
 
@@ -722,6 +1247,116 @@
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Promotion - Mobile
+    |--------------------------------------------------------------------------
+    */
+
+    .admin-subscribers__promotion {
+        margin-bottom: 20px;
+        padding: 17px;
+        border-radius: 12px;
+    }
+
+
+    .admin-subscribers__promotion-header {
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 19px;
+    }
+
+
+    .admin-subscribers__promotion-header h2 {
+        font-size: 20px;
+    }
+
+
+    .admin-subscribers__promotion-header p {
+        font-size: 12px;
+    }
+
+
+    .admin-subscribers__promotion-recipients {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        text-align: left;
+    }
+
+
+    .admin-subscribers__promotion-recipients div {
+        justify-content: flex-start;
+    }
+
+
+    .admin-subscribers__promotion-grid {
+        gap: 20px;
+    }
+
+
+    .admin-subscribers__promotion-fields {
+        gap: 15px;
+    }
+
+
+    .admin-subscribers__promotion-fields input {
+        height: 43px;
+    }
+
+
+    .admin-subscribers__promotion-fields textarea {
+        min-height: 180px;
+    }
+
+
+    .admin-subscribers__promotion-upload-label {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+
+    .admin-subscribers__promotion-upload-button {
+        min-height: 78px;
+    }
+
+
+    .admin-subscribers__promotion-email-content {
+        padding: 21px 18px;
+    }
+
+
+    .admin-subscribers__promotion-email-content h3 {
+        font-size: 16px;
+    }
+
+
+    .admin-subscribers__promotion-email-content p {
+        font-size: 12px;
+    }
+
+
+    .admin-subscribers__promotion-actions {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 13px;
+        margin-top: 19px;
+        padding-top: 17px;
+    }
+
+
+    .admin-subscribers__promotion-send {
+        width: 100%;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Toolbar
+    |--------------------------------------------------------------------------
+    */
+
     .admin-subscribers__toolbar {
         align-items: stretch;
         flex-direction: column;
@@ -745,6 +1380,12 @@
         min-width: 0;
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Table
+    |--------------------------------------------------------------------------
+    */
 
     .admin-subscribers__table-card {
         border-radius: 12px;
@@ -811,6 +1452,27 @@
 
     .admin-subscribers__stat-card strong {
         font-size: 17px;
+    }
+
+
+    .admin-subscribers__promotion {
+        padding: 14px;
+    }
+
+
+    .admin-subscribers__promotion-header h2 {
+        font-size: 18px;
+    }
+
+
+    .admin-subscribers__promotion-email-brand {
+        padding: 15px;
+        font-size: 10px;
+    }
+
+
+    .admin-subscribers__promotion-email-content {
+        padding: 18px 15px;
     }
 
 }
