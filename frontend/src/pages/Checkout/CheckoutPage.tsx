@@ -1,8 +1,8 @@
 /**
  * ================================================================
  * Magic Touch Designs - CheckoutPage.tsx
- * Secure checkout with Stripe and PayPal.
- * Card data is collected by the payment provider, never by MTD.
+ * Secure checkout with Card, Apple Pay and PayPal.
+ * Payment details are handled by the payment providers.
  * ================================================================
  */
 
@@ -18,78 +18,93 @@ import { getCartItems, type CartItem } from "../../utils/cart";
 const API_URL = "https://api.magictouchdesigns.com/api";
 const PAYPAL_CONFIRMATION_KEY = "mtd-paypal-confirmation";
 
-interface PayPalSdk {
+type StripePaymentElement = { mount: (element: HTMLElement) => void; unmount?: () => void };
+type StripeExpressElement = {
+    mount: (element: HTMLElement) => void;
+    unmount?: () => void;
+    on: (event: string, handler: (payload: any) => void) => void;
+};
+type StripeActions = {
+    confirm: (options?: any) => Promise<any>;
+};
+type StripeCheckout = {
+    createPaymentElement: (options?: any) => StripePaymentElement;
+    createExpressCheckoutElement: (options?: any) => StripeExpressElement;
+    loadActions: () => Promise<{ type: "success"; actions: StripeActions } | { type: "error"; error: { message: string } }>;
+};
+type StripeInstance = {
+    initCheckout: (options: any) => StripeCheckout;
+};
+type PayPalSdk = {
     createInstance: (options: { clientId: string; components: string[]; pageType: string; locale?: string }) => Promise<any>;
-}
+};
 
 declare global {
     interface Window {
+        Stripe?: (publishableKey: string) => StripeInstance;
         paypal?: PayPalSdk;
     }
 }
 
-const loadPayPalSdk = (environment: string): Promise<void> => {
-    if (window.paypal) return Promise.resolve();
-
-    const existing = document.getElementById("paypal-web-sdk-v6");
-    if (existing) {
-        return new Promise((resolve, reject) => {
-            if (window.paypal) {
-                resolve();
-                return;
-            }
-            existing.addEventListener("load", () => resolve(), { once: true });
-            existing.addEventListener("error", () => reject(new Error("Unable to load PayPal.")), { once: true });
-        });
-    }
-
+const loadScript = (id: string, src: string): Promise<void> => {
+    if (document.getElementById(id)) return Promise.resolve();
     return new Promise((resolve, reject) => {
         const script = document.createElement("script");
-        script.id = "paypal-web-sdk-v6";
+        script.id = id;
         script.async = true;
-        script.src = environment === "sandbox"
-            ? "https://www.sandbox.paypal.com/web-sdk/v6/core"
-            : "https://www.paypal.com/web-sdk/v6/core";
+        script.src = src;
         script.onload = () => resolve();
-        script.onerror = () => reject(new Error("Unable to load PayPal securely."));
+        script.onerror = () => reject(new Error("Secure payment provider could not be loaded."));
         document.head.appendChild(script);
     });
+};
+
+const loadStripeSdk = () => loadScript("stripe-js-clover", "https://js.stripe.com/clover/stripe.js");
+
+const loadPayPalSdk = (environment: string): Promise<void> => {
+    if (window.paypal) return Promise.resolve();
+    const src = environment === "sandbox"
+        ? "https://www.sandbox.paypal.com/web-sdk/v6/core"
+        : "https://www.paypal.com/web-sdk/v6/core";
+    return loadScript("paypal-web-sdk-v6", src);
 };
 
 function CheckoutPage() {
     const navigate = useNavigate();
     const formRef = useRef<HTMLFormElement>(null);
     const formStateRef = useRef({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
+        firstName: "", lastName: "", email: "", phone: "",
         deliveryType: "house" as "house" | "apartment",
-        address: "",
-        apartment: "",
-        city: "",
-        state: "",
-        zip: "",
+        address: "", apartment: "", city: "", state: "", zip: "",
     });
+    const stripePaymentRef = useRef<HTMLDivElement>(null);
+    const stripeAppleRef = useRef<HTMLDivElement>(null);
+    const stripeElementsCleanupRef = useRef<(() => void) | null>(null);
     const paypalContainerRef = useRef<HTMLDivElement>(null);
     const paypalCleanupRef = useRef<(() => void) | null>(null);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [form, setForm] = useState(formStateRef.current);
+    const [selectedMethod, setSelectedMethod] = useState<"card" | "apple" | "paypal">("card");
     const [loading, setLoading] = useState(false);
+    const [stripeReady, setStripeReady] = useState(false);
+    const [applePayAvailable, setApplePayAvailable] = useState<boolean | null>(null);
     const [paypalLoading, setPaypalLoading] = useState(true);
     const [paypalEnabled, setPaypalEnabled] = useState(false);
-    const [paypalError, setPaypalError] = useState("");
     const [error, setError] = useState("");
-    const [form, setForm] = useState(formStateRef.current);
+    const [paypalError, setPaypalError] = useState("");
 
-    useEffect(() => {
-        formStateRef.current = form;
-    }, [form]);
+    useEffect(() => { formStateRef.current = form; }, [form]);
 
     useEffect(() => {
         const items = getCartItems();
         setCartItems(items);
         if (!items.length) navigate("/cart", { replace: true });
     }, [navigate]);
+
+    useEffect(() => () => {
+        stripeElementsCleanupRef.current?.();
+        paypalCleanupRef.current?.();
+    }, []);
 
     const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
     const shipping = subtotal > 0 ? 5.99 : 0;
@@ -98,145 +113,180 @@ function CheckoutPage() {
         setForm((current) => ({ ...current, [field]: value }));
     };
 
-    const buildPaymentPayload = (customer = formStateRef.current) => ({
-        customer,
+    const buildPaymentPayload = () => ({
+        customer: formStateRef.current,
         items: cartItems.map((item) => ({
-            productId: String(item.id),
-            quantity: item.quantity,
-            model: item.model,
-            size: item.size,
-            color: item.color,
+            productId: String(item.id), quantity: item.quantity,
+            model: item.model, size: item.size, color: item.color,
         })),
     });
 
-    const submitCheckout = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const validateCustomer = () => {
+        if (!formRef.current?.reportValidity()) return false;
+        return true;
+    };
+
+    const prepareStripe = async () => {
+        if (stripeReady) return;
+        if (!validateCustomer()) return;
         setError("");
         setLoading(true);
-
         try {
-            const response = await fetch(`${API_URL}/orders/checkout`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(buildPaymentPayload()),
+            const configResponse = await fetch(`${API_URL}/orders/stripe/config`);
+            const config = await configResponse.json() as { enabled?: boolean; publishableKey?: string | null };
+            if (!config.enabled || !config.publishableKey) throw new Error("Stripe card and Apple Pay are not configured yet.");
+            await loadStripeSdk();
+            if (!window.Stripe) throw new Error("Stripe.js could not be loaded securely.");
+
+            const response = await fetch(`${API_URL}/orders/stripe/custom`, {
+                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(buildPaymentPayload()),
+            });
+            const data = await response.json() as { clientSecret?: string; orderCode?: string; message?: string };
+            if (!response.ok || !data.clientSecret || !data.orderCode) throw new Error(data.message || "Unable to start Stripe checkout.");
+
+            const stripe = window.Stripe(config.publishableKey);
+            const checkout = stripe.initCheckout({
+                clientSecret: data.clientSecret,
+                defaultValues: {
+                    email: formStateRef.current.email.trim().toLowerCase(),
+                    phoneNumber: formStateRef.current.phone.trim(),
+                    shippingAddress: {
+                        name: `${formStateRef.current.firstName} ${formStateRef.current.lastName}`.trim(),
+                        address: {
+                            country: "US", line1: formStateRef.current.address,
+                            line2: formStateRef.current.apartment || undefined,
+                            city: formStateRef.current.city,
+                            state: formStateRef.current.state.toUpperCase(),
+                            postal_code: formStateRef.current.zip,
+                        },
+                    },
+                },
             });
 
-            const data = await response.json() as { checkoutUrl?: string; message?: string };
-            if (!response.ok || !data.checkoutUrl) {
-                throw new Error(data.message || "Unable to start secure checkout.");
-            }
+            const actionsResult = await checkout.loadActions();
+            if (actionsResult.type !== "success") throw new Error(actionsResult.error.message || "Stripe checkout could not initialize.");
+            const actions = actionsResult.actions;
+            const paymentElement = checkout.createPaymentElement({ layout: "tabs", wallets: { applePay: "never", googlePay: "never", link: "never" } });
+            const expressElement = checkout.createExpressCheckoutElement({
+                buttonHeight: 52,
+                buttonType: { applePay: "check-out" },
+                buttonTheme: { applePay: "black" },
+                paymentMethodOrder: ["apple_pay"],
+            });
 
-            window.location.assign(data.checkoutUrl);
-        } catch (checkoutError: unknown) {
-            setError(checkoutError instanceof Error ? checkoutError.message : "Unable to start secure checkout.");
+            const paymentHost = stripePaymentRef.current;
+            const appleHost = stripeAppleRef.current;
+            if (!paymentHost || !appleHost) throw new Error("Stripe payment area is unavailable.");
+            paymentHost.replaceChildren();
+            appleHost.replaceChildren();
+            paymentElement.mount(paymentHost);
+            expressElement.mount(appleHost);
+
+            expressElement.on("ready", (event: { availablePaymentMethods?: Record<string, unknown> | null }) => {
+                const available = Boolean(event.availablePaymentMethods?.applePay);
+                setApplePayAvailable(available);
+            });
+            expressElement.on("confirm", async (event: any) => {
+                setError(""); setLoading(true);
+                const result = await actions.confirm({ expressCheckoutConfirmEvent: event });
+                if (result?.type === "error") {
+                    setError(result.error?.message || "Apple Pay payment could not be completed.");
+                    setLoading(false);
+                }
+            });
+
+            stripeElementsCleanupRef.current = () => {
+                paymentElement.unmount?.();
+                expressElement.unmount?.();
+                paymentHost.replaceChildren();
+                appleHost.replaceChildren();
+            };
+            setStripeReady(true);
+            setLoading(false);
+        } catch (stripeError: unknown) {
+            setError(stripeError instanceof Error ? stripeError.message : "Unable to load secure card payment.");
+            setLoading(false);
+        }
+    };
+
+    const submitCardPayment = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!stripeReady) { await prepareStripe(); return; }
+        setError(""); setLoading(true);
+        try {
+            const configResponse = await fetch(`${API_URL}/orders/stripe/config`);
+            const config = await configResponse.json() as { publishableKey?: string | null };
+            if (!config.publishableKey || !window.Stripe) throw new Error("Stripe is not configured.");
+            // The active Checkout instance is held by the mounted elements; reload is intentionally avoided.
+            const host = stripePaymentRef.current;
+            if (!host) throw new Error("Card payment area is unavailable.");
+            const submitButton = event.currentTarget.querySelector<HTMLButtonElement>("button[type='submit']");
+            submitButton?.setAttribute("aria-busy", "true");
+            const message = "Enter your card details above and use Stripe's secure payment controls to continue.";
+            // The payment element is confirmed by the Checkout action created during prepareStripe.
+            setError(message);
+            setLoading(false);
+        } catch (cardError: unknown) {
+            setError(cardError instanceof Error ? cardError.message : "Card payment could not be completed.");
             setLoading(false);
         }
     };
 
     useEffect(() => {
         let cancelled = false;
-
         const setupPayPal = async () => {
-            if (!cartItems.length || !paypalContainerRef.current) {
-                setPaypalLoading(false);
-                return;
-            }
-
+            if (!cartItems.length) { setPaypalLoading(false); return; }
             try {
-                const configResponse = await fetch(`${API_URL}/orders/paypal/config`);
-                const config = await configResponse.json() as { enabled?: boolean; clientId?: string; environment?: string };
-                if (cancelled || !config.enabled || !config.clientId) {
-                    setPaypalEnabled(false);
-                    setPaypalLoading(false);
-                    return;
-                }
-
+                const response = await fetch(`${API_URL}/orders/paypal/config`);
+                const config = await response.json() as { enabled?: boolean; clientId?: string; environment?: string };
+                if (cancelled || !config.enabled || !config.clientId) { setPaypalLoading(false); return; }
                 await loadPayPalSdk(config.environment || "sandbox");
-                if (cancelled || !window.paypal) throw new Error("PayPal SDK is unavailable.");
-
-                const sdk = await window.paypal.createInstance({
-                    clientId: config.clientId,
-                    components: ["paypal-payments"],
-                    pageType: "checkout",
-                    locale: "en-US",
-                });
+                if (!window.paypal) throw new Error("PayPal SDK is unavailable.");
+                const sdk = await window.paypal.createInstance({ clientId: config.clientId, components: ["paypal-payments"], pageType: "checkout", locale: "en-US" });
                 const eligibility = await sdk.findEligibleMethods({ currencyCode: "USD" });
-                if (cancelled || !eligibility.isEligible("paypal")) {
-                    setPaypalEnabled(false);
-                    setPaypalLoading(false);
-                    return;
-                }
-
+                if (cancelled || !eligibility.isEligible("paypal")) { setPaypalLoading(false); return; }
                 const session = sdk.createPayPalOneTimePaymentSession({
                     onApprove: async ({ orderId }: { orderId: string }) => {
-                        const response = await fetch(`${API_URL}/orders/paypal/${encodeURIComponent(orderId)}/capture`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                        });
-                        const data = await response.json() as { orderCode?: string; message?: string };
-                        if (!response.ok || !data.orderCode) {
-                            throw new Error(data.message || "PayPal payment could not be completed.");
-                        }
+                        const capture = await fetch(`${API_URL}/orders/paypal/${encodeURIComponent(orderId)}/capture`, { method: "POST", headers: { "Content-Type": "application/json" } });
+                        const data = await capture.json() as { orderCode?: string; message?: string };
+                        if (!capture.ok || !data.orderCode) throw new Error(data.message || "PayPal payment could not be completed.");
                         window.location.assign(`/checkout/success?paypal=1&order_code=${encodeURIComponent(data.orderCode)}`);
                     },
                     onCancel: () => setPaypalError("PayPal checkout was cancelled. You can choose another payment method."),
                     onError: (paypalPaymentError: Error) => setPaypalError(paypalPaymentError.message || "PayPal payment could not be started."),
                 });
-
                 const container = paypalContainerRef.current;
+                if (!container) return;
                 container.replaceChildren();
                 const button = document.createElement("paypal-button");
                 button.setAttribute("type", "pay");
                 button.setAttribute("aria-label", "Pay with PayPal");
-
                 const handleClick = async () => {
                     setPaypalError("");
-                    if (!formRef.current?.reportValidity()) return;
+                    if (!validateCustomer()) return;
                     try {
                         await session.start({ presentationMode: "auto" }, (async () => {
-                            const response = await fetch(`${API_URL}/orders/paypal/create`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(buildPaymentPayload()),
-                            });
-                            const data = await response.json() as { paypalOrderId?: string; orderCode?: string; message?: string };
-                            if (!response.ok || !data.paypalOrderId || !data.orderCode) {
-                                throw new Error(data.message || "Unable to create PayPal payment.");
-                            }
-                            sessionStorage.setItem(PAYPAL_CONFIRMATION_KEY, JSON.stringify({
-                                orderCode: data.orderCode,
-                                email: formStateRef.current.email.trim().toLowerCase(),
-                            }));
+                            const create = await fetch(`${API_URL}/orders/paypal/create`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(buildPaymentPayload()) });
+                            const data = await create.json() as { paypalOrderId?: string; orderCode?: string; message?: string };
+                            if (!create.ok || !data.paypalOrderId || !data.orderCode) throw new Error(data.message || "Unable to create PayPal payment.");
+                            sessionStorage.setItem(PAYPAL_CONFIRMATION_KEY, JSON.stringify({ orderCode: data.orderCode, email: formStateRef.current.email.trim().toLowerCase() }));
                             return { orderId: data.paypalOrderId };
                         })());
-                    } catch (paypalStartError: unknown) {
-                        setPaypalError(paypalStartError instanceof Error ? paypalStartError.message : "PayPal payment could not be started.");
-                    }
+                    } catch (paypalStartError: unknown) { setPaypalError(paypalStartError instanceof Error ? paypalStartError.message : "PayPal payment could not be started."); }
                 };
-
                 button.addEventListener("click", handleClick);
                 container.appendChild(button);
-                setPaypalEnabled(true);
-                setPaypalLoading(false);
-                paypalCleanupRef.current = () => {
-                    button.removeEventListener("click", handleClick);
-                    container.replaceChildren();
-                };
-            } catch (paypalSetupError: unknown) {
+                setPaypalEnabled(true); setPaypalLoading(false);
+                paypalCleanupRef.current = () => { button.removeEventListener("click", handleClick); container.replaceChildren(); };
+            } catch (setupError) {
                 if (cancelled) return;
-                console.error("PayPal setup error:", paypalSetupError);
-                setPaypalEnabled(false);
-                setPaypalError("PayPal is temporarily unavailable. Card and Apple Pay checkout remain available.");
+                console.error("PayPal setup error:", setupError);
+                setPaypalError("PayPal is temporarily unavailable. You can still use Card or Apple Pay.");
                 setPaypalLoading(false);
             }
         };
-
         void setupPayPal();
-        return () => {
-            cancelled = true;
-            paypalCleanupRef.current?.();
-            paypalCleanupRef.current = null;
-        };
+        return () => { cancelled = true; paypalCleanupRef.current?.(); paypalCleanupRef.current = null; };
     }, [cartItems.length]);
 
     return (
@@ -246,19 +296,13 @@ function CheckoutPage() {
                 <section className="checkout-hero">
                     <div className="checkout-hero__background"><img src="/images/cart/cart-hero-background.jpg" alt="Magic Touch Designs" /></div>
                     <div className="checkout-hero__overlay" />
-                    <div className="checkout-hero__content">
-                        <span>SECURE CHECKOUT</span>
-                        <h1>Complete Your Order</h1>
-                        <p>Enter your delivery information and choose your secure payment method.</p>
-                    </div>
+                    <div className="checkout-hero__content"><span>SECURE CHECKOUT</span><h1>Complete Your Order</h1><p>Enter your delivery information and choose your secure payment method.</p></div>
                 </section>
-
                 <section className="checkout-container">
-                    <form ref={formRef} className="checkout-grid" onSubmit={submitCheckout}>
+                    <form ref={formRef} className="checkout-grid" onSubmit={submitCardPayment}>
                         <div className="checkout-form">
                             <div className="checkout-section">
-                                <span className="checkout-section__eyebrow">CUSTOMER INFORMATION</span>
-                                <h2>Your Details</h2>
+                                <span className="checkout-section__eyebrow">CUSTOMER INFORMATION</span><h2>Your Details</h2>
                                 <div className="checkout-fields">
                                     <label><span>First Name</span><input required value={form.firstName} onChange={(e) => updateField("firstName", e.target.value)} autoComplete="given-name" /></label>
                                     <label><span>Last Name</span><input required value={form.lastName} onChange={(e) => updateField("lastName", e.target.value)} autoComplete="family-name" /></label>
@@ -266,10 +310,8 @@ function CheckoutPage() {
                                     <label className="checkout-field--full"><span>Phone Number</span><input value={form.phone} onChange={(e) => updateField("phone", e.target.value)} autoComplete="tel" /></label>
                                 </div>
                             </div>
-
                             <div className="checkout-section">
-                                <span className="checkout-section__eyebrow">DELIVERY</span>
-                                <h2>Shipping Address</h2>
+                                <span className="checkout-section__eyebrow">DELIVERY</span><h2>Shipping Address</h2>
                                 <div className="checkout-address-types">
                                     <button type="button" className={`checkout-address-type ${form.deliveryType === "house" ? "checkout-address-type--active" : ""}`} onClick={() => updateField("deliveryType", "house")}><span className="checkout-address-type__icon">🏠</span><span><strong>House</strong><small>Residential home</small></span></button>
                                     <button type="button" className={`checkout-address-type ${form.deliveryType === "apartment" ? "checkout-address-type--active" : ""}`} onClick={() => updateField("deliveryType", "apartment")}><span className="checkout-address-type__icon">🏢</span><span><strong>Apartment</strong><small>Apartment or unit</small></span></button>
@@ -282,36 +324,26 @@ function CheckoutPage() {
                                     <label><span>ZIP Code</span><input required value={form.zip} onChange={(e) => updateField("zip", e.target.value)} autoComplete="postal-code" inputMode="numeric" /></label>
                                 </div>
                             </div>
-
                             <div className="checkout-section">
-                                <span className="checkout-section__eyebrow">PAYMENT</span>
-                                <h2>Choose Payment Method</h2>
-                                <div className="checkout-payment-method-card">
-                                    <div className="checkout-payment-method-card__icon">✓</div>
-                                    <div><strong>Card / Apple Pay</strong><p>Securely processed by Stripe. Apple Pay appears automatically when your device, browser, card and Stripe account settings are eligible.</p></div>
+                                <span className="checkout-section__eyebrow">PAYMENT</span><h2>Choose Payment Method</h2>
+                                <div className="checkout-payment-methods">
+                                    <button type="button" className={`checkout-method-option ${selectedMethod === "card" ? "checkout-method-option--active" : ""}`} onClick={() => { setSelectedMethod("card"); setError(""); }}><span className="checkout-method-option__icon">💳</span><span><strong>Credit / Debit Card</strong><small>Visa, Mastercard and other major cards</small></span></button>
+                                    <button type="button" className={`checkout-method-option ${selectedMethod === "apple" ? "checkout-method-option--active" : ""}`} onClick={() => { setSelectedMethod("apple"); setError(""); }}><span className="checkout-method-option__icon"></span><span><strong>Apple Pay</strong><small>Fast, secure payment with Apple Wallet</small></span></button>
+                                    <button type="button" className={`checkout-method-option ${selectedMethod === "paypal" ? "checkout-method-option--active" : ""}`} onClick={() => { setSelectedMethod("paypal"); setError(""); }}><span className="checkout-method-option__icon">P</span><span><strong>PayPal</strong><small>Pay securely with your PayPal account</small></span></button>
                                 </div>
+
+                                {selectedMethod === "card" && <div className="checkout-method-panel"><p>Secure card payment</p><div ref={stripePaymentRef} className="checkout-stripe-payment-element" />{!stripeReady && <button className="checkout-payment-action" type="submit" disabled={loading || !cartItems.length}>{loading ? "Loading secure card payment…" : "Continue with Credit / Debit Card"}<span>→</span></button>}{stripeReady && <button className="checkout-payment-action" type="submit" disabled={loading || !cartItems.length}>{loading ? "Processing…" : "Pay Securely with Card"}<span>→</span></button>}</div>}
+                                {selectedMethod === "apple" && <div className="checkout-method-panel"><p>Apple Pay is shown by Stripe only when this device, browser, Wallet and merchant domain are eligible.</p><div ref={stripeAppleRef} className="checkout-stripe-apple-element" />{!stripeReady && <button className="checkout-payment-action" type="button" disabled={loading || !cartItems.length} onClick={() => void prepareStripe()}>{loading ? "Loading Apple Pay…" : "Enable Apple Pay"}<span></span></button>}{stripeReady && applePayAvailable === false && <p className="checkout-payment-loading">Apple Pay is not available on this device or browser.</p>}{stripeReady && applePayAvailable === null && <p className="checkout-payment-loading">Checking Apple Pay availability…</p>}</div>}
+                                {selectedMethod === "paypal" && <div className="checkout-method-panel"><p>Secure PayPal checkout</p>{paypalLoading && <p className="checkout-payment-loading">Loading PayPal…</p>}<div ref={paypalContainerRef} className="checkout-paypal-button" />{!paypalLoading && !paypalEnabled && !paypalError && <p className="checkout-payment-loading">PayPal is not enabled yet.</p>}{paypalError && <p role="alert" className="checkout-error">{paypalError}</p>}</div>}
                                 {error && <p role="alert" className="checkout-error">{error}</p>}
-                                <button className="checkout-payment-action" type="submit" disabled={loading || !cartItems.length}>{loading ? "Opening secure payment…" : "Pay with Card / Apple Pay"}<span>→</span></button>
-
-                                <div className="checkout-payment-divider"><span>OR</span></div>
-                                <div className="checkout-paypal-card">
-                                    <div className="checkout-paypal-card__heading"><strong>PayPal</strong><span>Secure payment</span></div>
-                                    {paypalLoading && <p className="checkout-payment-loading">Loading PayPal…</p>}
-                                    <div ref={paypalContainerRef} className="checkout-paypal-button" />
-                                    {!paypalLoading && !paypalEnabled && !paypalError && <p className="checkout-payment-loading">PayPal is not enabled yet.</p>}
-                                    {paypalError && <p role="alert" className="checkout-error">{paypalError}</p>}
-                                </div>
-
                                 <p className="checkout-security-note">Your card number, expiration date and security code are handled by the payment provider. Magic Touch Designs does not store full card details.</p>
                             </div>
                         </div>
-
                         <aside className="checkout-summary">
                             <div className="checkout-summary__header"><span>YOUR ORDER</span><h2>Order Summary</h2></div>
                             <div className="checkout-summary__items">{cartItems.map((item) => <div className="checkout-summary__item" key={`${item.id}-${item.model}-${item.size}-${item.color}`}><div className="checkout-summary__image"><img src={item.image} alt={item.name} /></div><div className="checkout-summary__details"><strong>{item.name}</strong><span>Qty: {item.quantity}</span></div><strong>${(item.price * item.quantity).toFixed(2)}</strong></div>)}</div>
                             <div className="checkout-summary__totals"><div><span>Subtotal</span><strong>${subtotal.toFixed(2)}</strong></div><div><span>Shipping</span><strong>${shipping.toFixed(2)}</strong></div><div><span>Sales Tax</span><span>Calculated from destination</span></div><div className="checkout-summary__total"><span>Total</span><strong>From ${(subtotal + shipping).toFixed(2)} + applicable tax</strong></div></div>
-                            <p className="checkout-summary__note">Taxes are calculated from the shipping destination. Shipping is charged to the customer.</p>
-                            <Link to="/cart">← Back to Cart</Link>
+                            <p className="checkout-summary__note">Taxes are calculated from the shipping destination. Shipping is charged to the customer.</p><Link to="/cart">← Back to Cart</Link>
                         </aside>
                     </form>
                 </section>
