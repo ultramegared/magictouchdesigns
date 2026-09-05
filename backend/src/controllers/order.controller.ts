@@ -12,6 +12,11 @@ import {
     type CheckoutCustomerInput,
     type CheckoutItemInput,
 } from "../services/order.service";
+import {
+    capturePayPalOrder,
+    createPayPalOrder,
+    getPayPalPublicConfig,
+} from "../services/paypal.service";
 
 export const createCheckout = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -29,6 +34,43 @@ export const createCheckout = async (req: Request, res: Response): Promise<void>
     } catch (error) {
         console.error("Create checkout error:", error);
         res.status(400).json({ message: error instanceof Error ? error.message : "Unable to start checkout." });
+    }
+};
+
+export const getPayPalConfig = (_req: Request, res: Response): void => {
+    res.json(getPayPalPublicConfig());
+};
+
+export const createPayPalCheckout = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const customer = req.body?.customer as CheckoutCustomerInput;
+        const items = req.body?.items as CheckoutItemInput[];
+        if (!customer?.firstName || !customer?.lastName || !customer?.email) {
+            res.status(400).json({ message: "Customer information is required." });
+            return;
+        }
+        if (!customer.address || !customer.city || !customer.state || !customer.zip) {
+            res.status(400).json({ message: "A complete shipping address is required." });
+            return;
+        }
+        res.status(201).json(await createPayPalOrder(customer, items || []));
+    } catch (error) {
+        console.error("Create PayPal checkout error:", error);
+        res.status(400).json({ message: error instanceof Error ? error.message : "Unable to start PayPal checkout." });
+    }
+};
+
+export const capturePayPalCheckout = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const paypalOrderId = String(req.params.paypalOrderId || "").trim();
+        if (!paypalOrderId) {
+            res.status(400).json({ message: "PayPal order is required." });
+            return;
+        }
+        res.json(await capturePayPalOrder(paypalOrderId));
+    } catch (error) {
+        console.error("Capture PayPal checkout error:", error);
+        res.status(400).json({ message: error instanceof Error ? error.message : "Unable to capture PayPal payment." });
     }
 };
 
