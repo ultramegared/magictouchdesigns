@@ -103,15 +103,15 @@ function Portfolio() {
 
     if (loading || visibleItems.length === 0) return null;
 
-    const text = (item: PortfolioItem, field: "title" | "description" | "characteristics") => {
+    const text = (item: PortfolioItem, field: "title" | "description" | "characteristics"): string => {
         if (language === "es") {
             if (field === "title") return item.title_es || item.title_en;
-            if (field === "description") return item.description_es || item.description_en;
-            return item.characteristics_es || item.characteristics_en;
+            if (field === "description") return item.description_es || item.description_en || "";
+            return item.characteristics_es || item.characteristics_en || "";
         }
         if (field === "title") return item.title_en;
-        if (field === "description") return item.description_en;
-        return item.characteristics_en;
+        if (field === "description") return item.description_en || "";
+        return item.characteristics_en || "";
     };
 
     return (
