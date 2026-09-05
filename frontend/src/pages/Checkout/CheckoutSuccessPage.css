@@ -1,65 +1,116 @@
 .checkout-success-page {
-    min-height: 60vh;
+    position: relative;
+    min-height: 70vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 80px 24px;
+    padding: 90px 20px;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 18%, rgba(224, 173, 67, 0.10), transparent 34%),
+        linear-gradient(180deg, #080808 0%, #0d0c0a 100%);
+}
+
+.checkout-success-page::before {
+    content: "";
+    position: absolute;
+    inset: 28px 14px;
+    border: 1px solid rgba(224, 173, 67, 0.10);
+    border-radius: 28px;
+    pointer-events: none;
 }
 
 .checkout-success-card {
+    position: relative;
+    z-index: 1;
     width: min(680px, 100%);
+    padding: 58px 34px 52px;
     text-align: center;
-    padding: 56px 32px;
-    border: 1px solid rgba(184, 148, 62, 0.28);
-    border-radius: 20px;
-    background: #fff;
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
+    color: #f8f5ee;
+    border: 1px solid rgba(224, 173, 67, 0.38);
+    border-radius: 24px;
+    background:
+        linear-gradient(145deg, rgba(31, 27, 20, 0.96), rgba(10, 10, 10, 0.98));
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.045),
+        0 0 0 1px rgba(224, 173, 67, 0.035);
+}
+
+.checkout-success-card::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(224, 173, 67, 0.45), transparent);
 }
 
 .checkout-success-icon {
-    width: 64px;
-    height: 64px;
+    width: 78px;
+    height: 78px;
     margin: 0 auto 24px;
-    border-radius: 50%;
     display: grid;
     place-items: center;
-    font-size: 32px;
-    border: 2px solid #b8943e;
+    border: 1px solid rgba(224, 173, 67, 0.72);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(224, 173, 67, 0.18), rgba(224, 173, 67, 0.035) 68%);
+    color: #e0ad43;
+    font-size: 34px;
+    font-weight: 700;
+    box-shadow: 0 0 32px rgba(224, 173, 67, 0.12), inset 0 0 22px rgba(224, 173, 67, 0.06);
 }
 
 .checkout-success-eyebrow {
     display: block;
-    margin-bottom: 12px;
-    letter-spacing: 0.18em;
-    font-size: 12px;
-    font-weight: 700;
+    margin-bottom: 13px;
+    color: #e0ad43;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.24em;
 }
 
 .checkout-success-card h1 {
-    margin: 0 0 16px;
+    margin: 0 0 14px;
+    color: #fff;
+    font-size: clamp(30px, 5vw, 44px);
+    line-height: 1.08;
+    letter-spacing: -0.025em;
 }
 
 .checkout-success-card p {
-    margin: 0 auto 20px;
     max-width: 520px;
-    line-height: 1.7;
+    margin: 0 auto 20px;
+    color: rgba(255, 255, 255, 0.64);
+    line-height: 1.75;
 }
 
 .checkout-success-order {
     display: inline-block;
-    margin: 8px 0 20px;
-    font-size: 24px;
-    letter-spacing: 0.05em;
+    margin: 10px 0 20px;
+    padding: 10px 18px;
+    border: 1px solid rgba(224, 173, 67, 0.25);
+    border-radius: 10px;
+    background: rgba(224, 173, 67, 0.06);
+    color: #e0ad43;
+    font-size: 20px;
+    letter-spacing: 0.08em;
 }
 
 .checkout-success-total {
+    color: rgba(255, 255, 255, 0.76) !important;
     font-size: 17px;
+}
+
+.checkout-success-total strong {
+    color: #e0ad43;
 }
 
 .checkout-success-actions {
     display: flex;
     justify-content: center;
-    gap: 14px;
+    gap: 12px;
     flex-wrap: wrap;
     margin-top: 30px;
 }
@@ -69,9 +120,58 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
-    padding: 0 24px;
+    min-height: 50px;
+    padding: 0 25px;
+    border: 1px solid rgba(224, 173, 67, 0.55);
     border-radius: 10px;
+    color: #e0ad43;
+    background: rgba(224, 173, 67, 0.055);
     text-decoration: none;
-    border: 1px solid #b8943e;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.checkout-success-actions a:hover,
+.checkout-success-primary:hover {
+    transform: translateY(-1px);
+    border-color: #e0ad43;
+    background: rgba(224, 173, 67, 0.12);
+}
+
+.checkout-success-actions a:first-child,
+.checkout-success-primary {
+    color: #0a0a0a;
+    background: linear-gradient(145deg, #e9c15e, #b47d22);
+    border-color: #e0ad43;
+}
+
+@media (max-width: 640px) {
+    .checkout-success-page {
+        min-height: 65vh;
+        padding: 55px 14px;
+    }
+
+    .checkout-success-page::before {
+        inset: 16px 8px;
+        border-radius: 20px;
+    }
+
+    .checkout-success-card {
+        padding: 48px 22px 40px;
+        border-radius: 20px;
+    }
+
+    .checkout-success-icon {
+        width: 68px;
+        height: 68px;
+        margin-bottom: 20px;
+    }
+
+    .checkout-success-actions a,
+    .checkout-success-primary {
+        width: 100%;
+    }
 }
