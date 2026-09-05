@@ -14,13 +14,8 @@ import crypto from "crypto";
 import { pool } from "../config/database";
 import { getProductById } from "./product.service";
 
-const FRONTEND_URL =
-    process.env.FRONTEND_URL ||
-    "https://magictouchdesigns.com";
-
-const STRIPE_API =
-    "https://api.stripe.com/v1";
-
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://magictouchdesigns.com";
+const STRIPE_API = "https://api.stripe.com/v1";
 const SHIPPING_AMOUNT_CENTS = 599;
 
 export interface CheckoutItemInput {
@@ -59,6 +54,7 @@ export const ensureOrderTables = async (): Promise<void> => {
     if (initialized) return;
 
     await pool.query(`
+        CREATE EXTENSION IF NOT EXISTS pgcrypto;
         CREATE SEQUENCE IF NOT EXISTS mtd_order_sequence START 1;
 
         CREATE TABLE IF NOT EXISTS orders (
@@ -95,14 +91,10 @@ export const ensureOrderTables = async (): Promise<void> => {
             variant JSONB NOT NULL DEFAULT '{}'::jsonb
         );
 
-        CREATE INDEX IF NOT EXISTS idx_orders_created_at
-            ON orders(created_at DESC);
-        CREATE INDEX IF NOT EXISTS idx_orders_status
-            ON orders(status);
-        CREATE INDEX IF NOT EXISTS idx_orders_customer_email
-            ON orders(customer_email);
-        CREATE INDEX IF NOT EXISTS idx_order_items_order_id
-            ON order_items(order_id);
+        CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+        CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
+        CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
     `);
 
     initialized = true;
@@ -110,16 +102,11 @@ export const ensureOrderTables = async (): Promise<void> => {
 
 const requireStripeKey = (): string => {
     const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) {
-        throw new Error("STRIPE_SECRET_KEY is not configured.");
-    }
+    if (!key) throw new Error("STRIPE_SECRET_KEY is not configured.");
     return key;
 };
 
-const stripeRequest = async (
-    path: string,
-    body: URLSearchParams,
-): Promise<any> => {
+const stripeRequest = async (path: string, body: URLSearchParams): Promise<any> => {
     const response = await fetch(`${STRIPE_API}${path}`, {
         method: "POST",
         headers: {
@@ -130,14 +117,7 @@ const stripeRequest = async (
     });
 
     const data = await response.json() as any;
-
-    if (!response.ok) {
-        throw new Error(
-            data?.error?.message ||
-            "Stripe request failed."
-        );
-    }
-
+    if (!response.ok) throw new Error(data?.error?.message || "Stripe request failed.");
     return data;
 };
 
@@ -145,14 +125,8 @@ const makeOrderCode = async (): Promise<string> => {
     const result = await pool.query<{ sequence: string }>(
         "SELECT nextval('mtd_order_sequence')::text AS sequence"
     );
-
-    const sequence = result.rows[0].sequence;
-    const date = new Date()
-        .toISOString()
-        .slice(0, 10)
-        .replace(/-/g, "");
-
-    return `#MTD-${date}-${sequence.padStart(4, "0")}`;
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    return `#MTD-${date}-${result.rows[0].sequence.padStart(4, "0")}`;
 };
 
 export const createCheckoutSession = async (
@@ -160,22 +134,17 @@ export const createCheckoutSession = async (
     items: CheckoutItemInput[],
 ) => {
     await ensureOrderTables();
-
-    if (!items.length) {
-        throw new Error("Your cart is empty.");
-    }
+    if (!items.length) throw new Error("Your cart is empty.");
 
     const normalizedItems: OrderItemSnapshot[] = [];
 
     for (const input of items) {
         const quantity = Math.floor(Number(input.quantity));
-
         if (!input.productId || quantity < 1 || quantity > 99) {
             throw new Error("Invalid cart item.");
         }
 
         const product = await getProductById(input.productId);
-
         if (!product || !product.is_active) {
             throw new Error("One of the products is no longer available.");
         }
@@ -195,8 +164,7 @@ export const createCheckoutSession = async (
     }
 
     const subtotal = normalizedItems.reduce(
-        (sum, item) =>
-            sum + item.unit_price * item.quantity,
+        (sum, item) => sum + item.unit_price * item.quantity,
         0,
     );
 
@@ -211,24 +179,12 @@ export const createCheckoutSession = async (
     };
 
     const orderResult = await pool.query(
-        `
-        INSERT INTO orders (
-            order_code,
-            customer_first_name,
-            customer_last_name,
-            customer_email,
-            customer_phone,
-            shipping_address,
-            subtotal,
-            shipping,
-            tax,
-            total,
-            status,
-            payment_status
-        )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,$9,'pending_payment','pending')
-        RETURNING id, order_code
-        `,
+        `INSERT INTO orders (
+            order_code, customer_first_name, customer_last_name, customer_email,
+            customer_phone, shipping_address, subtotal, shipping, tax, total,
+            status, payment_status
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,$9,'pending_payment','pending')
+        RETURNING id, order_code`,
         [
             orderCode,
             customer.firstName.trim(),
@@ -246,18 +202,9 @@ export const createCheckoutSession = async (
 
     for (const item of normalizedItems) {
         await pool.query(
-            `
-            INSERT INTO order_items (
-                order_id,
-                product_id,
-                product_name,
-                image_url,
-                unit_price,
-                quantity,
-                variant
-            )
-            VALUES ($1,$2,$3,$4,$5,$6,$7)
-            `,
+            `INSERT INTO order_items (
+                order_id, product_id, product_name, image_url, unit_price, quantity, variant
+            ) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
             [
                 orderId,
                 item.product_id,
@@ -287,48 +234,24 @@ export const createCheckoutSession = async (
 
     normalizedItems.forEach((item, index) => {
         params.set(`line_items[${index}][price_data][currency]`, "usd");
-        params.set(
-            `line_items[${index}][price_data][product_data][name]`,
-            item.name,
-        );
+        params.set(`line_items[${index}][price_data][product_data][name]`, item.name);
         if (item.image_url) {
-            params.set(
-                `line_items[${index}][price_data][product_data][images][0]`,
-                item.image_url,
-            );
+            params.set(`line_items[${index}][price_data][product_data][images][0]`, item.image_url);
         }
-        params.set(
-            `line_items[${index}][price_data][unit_amount]`,
-            String(Math.round(item.unit_price * 100)),
-        );
+        params.set(`line_items[${index}][price_data][unit_amount]`, String(Math.round(item.unit_price * 100)));
         params.set(`line_items[${index}][quantity]`, String(item.quantity));
     });
 
     try {
         const session = await stripeRequest("/checkout/sessions", params);
-
         await pool.query(
-            `
-            UPDATE orders
-            SET stripe_checkout_session_id = $1,
-                updated_at = NOW()
-            WHERE id = $2
-            `,
+            `UPDATE orders SET stripe_checkout_session_id = $1, updated_at = NOW() WHERE id = $2`,
             [session.id, orderId],
         );
-
-        return {
-            orderCode,
-            checkoutUrl: session.url,
-        };
+        return { orderCode, checkoutUrl: session.url };
     } catch (error) {
         await pool.query(
-            `
-            UPDATE orders
-            SET status = 'payment_setup_failed',
-                updated_at = NOW()
-            WHERE id = $1
-            `,
+            `UPDATE orders SET status = 'payment_setup_failed', updated_at = NOW() WHERE id = $1`,
             [orderId],
         );
         throw error;
@@ -337,55 +260,33 @@ export const createCheckoutSession = async (
 
 export const getOrderByCode = async (orderCode: string) => {
     await ensureOrderTables();
-
-    const orderResult = await pool.query(
-        `SELECT * FROM orders WHERE order_code = $1`,
-        [orderCode],
-    );
-
+    const orderResult = await pool.query(`SELECT * FROM orders WHERE order_code = $1`, [orderCode]);
     if (!orderResult.rows[0]) return null;
-
-    const items = await pool.query(
-        `SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC`,
-        [orderResult.rows[0].id],
-    );
-
-    return {
-        ...orderResult.rows[0],
-        items: items.rows,
-    };
+    const items = await pool.query(`SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC`, [orderResult.rows[0].id]);
+    return { ...orderResult.rows[0], items: items.rows };
 };
 
-export const verifyStripeSignature = (
-    payload: Buffer,
-    signature: string,
-): boolean => {
+export const verifyStripeSignature = (payload: Buffer, signature: string): boolean => {
     const secret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!secret || !signature) return false;
 
     const parts = signature.split(",");
-    const timestamp = parts
-        .find((part) => part.startsWith("t="))
-        ?.slice(2);
-    const signatureValue = parts
-        .find((part) => part.startsWith("v1="))
-        ?.slice(3);
-
+    const timestamp = parts.find((part) => part.startsWith("t="))?.slice(2);
+    const signatureValue = parts.find((part) => part.startsWith("v1="))?.slice(3);
     if (!timestamp || !signatureValue) return false;
 
     const age = Math.abs(Date.now() / 1000 - Number(timestamp));
     if (!Number.isFinite(age) || age > 300) return false;
 
-    const signedPayload = `${timestamp}.${payload.toString("utf8")}`;
-    const expected = crypto
-        .createHmac("sha256", secret)
-        .update(signedPayload)
+    const expected = crypto.createHmac("sha256", secret)
+        .update(`${timestamp}.${payload.toString("utf8")}`)
         .digest("hex");
 
-    return crypto.timingSafeEqual(
-        Buffer.from(expected),
-        Buffer.from(signatureValue),
-    );
+    const expectedBuffer = Buffer.from(expected, "hex");
+    const receivedBuffer = Buffer.from(signatureValue, "hex");
+    if (expectedBuffer.length !== receivedBuffer.length) return false;
+
+    return crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
 };
 
 export const handleStripeWebhook = async (event: any): Promise<void> => {
@@ -394,9 +295,7 @@ export const handleStripeWebhook = async (event: any): Promise<void> => {
     if (
         event?.type !== "checkout.session.completed" &&
         event?.type !== "checkout.session.async_payment_succeeded"
-    ) {
-        return;
-    }
+    ) return;
 
     const session = event.data?.object;
     const orderId = session?.metadata?.order_id;
@@ -408,9 +307,8 @@ export const handleStripeWebhook = async (event: any): Promise<void> => {
     const amountShipping = Number(session.total_details?.amount_shipping || SHIPPING_AMOUNT_CENTS) / 100;
 
     await pool.query(
-        `
-        UPDATE orders
-        SET stripe_payment_intent_id = $1,
+        `UPDATE orders SET
+            stripe_payment_intent_id = $1,
             subtotal = $2,
             shipping = $3,
             tax = $4,
@@ -418,8 +316,7 @@ export const handleStripeWebhook = async (event: any): Promise<void> => {
             payment_status = 'paid',
             status = 'paid',
             updated_at = NOW()
-        WHERE id = $6
-        `,
+         WHERE id = $6`,
         [
             session.payment_intent || null,
             amountSubtotal,
