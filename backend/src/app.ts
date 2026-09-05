@@ -17,16 +17,14 @@ import collectionRoutes from "./routes/collection.routes";
 import subscriberRoutes from "./routes/subscriber.routes";
 import portfolioRoutes from "./routes/portfolio.routes";
 import orderRoutes from "./routes/order.routes";
+import adminOrderRoutes from "./routes/order.admin.routes";
 import { stripeWebhook } from "./controllers/order.controller";
 
 const app = express();
 
 app.use(cors());
 
-/*
- * Stripe requires the untouched request body for webhook signature
- * verification. This route must remain before express.json().
- */
+/* Stripe needs the untouched body for webhook signature verification. */
 app.post(
     "/api/orders/webhook",
     express.raw({ type: "application/json" }),
@@ -40,6 +38,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin/orders", adminOrderRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/collections", collectionRoutes);
