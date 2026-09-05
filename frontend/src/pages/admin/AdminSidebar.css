@@ -15,7 +15,8 @@
    ADMIN LAYOUT
    ================================================================ */
 
-.admin-layout {
+.admin-layout,
+.admin-page {
 
     min-height:
         100vh;
