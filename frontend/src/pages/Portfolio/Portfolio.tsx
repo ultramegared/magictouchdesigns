@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { apiRequest } from "../../services/api";
 import { useLanguage } from "../../contexts/LanguageContext";
 import "./Portfolio.css";
@@ -68,14 +68,14 @@ function Portfolio() {
         };
     }, [direction, isDragging, selected, visibleItems.length]);
 
-    const handlePointerDown = (event: React.PointerEvent) => {
+    const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
         pointerActive.current = true;
         pointerLastX.current = event.clientX;
         setIsDragging(true);
         event.currentTarget.setPointerCapture(event.pointerId);
     };
 
-    const handlePointerMove = (event: React.PointerEvent) => {
+    const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
         if (!pointerActive.current) return;
         const movement = event.clientX - pointerLastX.current;
         if (Math.abs(movement) < 0.5) return;
@@ -84,7 +84,7 @@ function Portfolio() {
         pointerLastX.current = event.clientX;
     };
 
-    const handlePointerUp = (event: React.PointerEvent) => {
+    const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
         pointerActive.current = false;
         setIsDragging(false);
         if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -92,7 +92,7 @@ function Portfolio() {
         }
     };
 
-    const getItemStyle = (index: number): React.CSSProperties => {
+    const getItemStyle = (index: number): CSSProperties => {
         const total = visibleItems.length;
         const angleStep = 360 / total;
         const angle = rotation + index * angleStep;
