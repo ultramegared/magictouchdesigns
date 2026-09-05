@@ -7,13 +7,17 @@ import {
     capturePayPalCheckout,
     createCheckout,
     createPayPalCheckout,
+    createStripeElements,
     getOrder,
     getOrderByCheckoutSession,
     getPayPalConfig,
+    getStripeConfig,
 } from "../controllers/order.controller";
 
 const router = Router();
 
+router.get("/stripe/config", getStripeConfig);
+router.post("/stripe/custom", createStripeElements);
 router.get("/paypal/config", getPayPalConfig);
 router.post("/paypal/create", createPayPalCheckout);
 router.post("/paypal/:paypalOrderId/capture", capturePayPalCheckout);
