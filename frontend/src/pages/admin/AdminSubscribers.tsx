@@ -6,14 +6,19 @@
  * Module: Administrator Subscribers
  * Language: TypeScript React
  * Description:
- * Administrative newsletter subscriber management.
+ * Administrative newsletter subscriber management and promotions.
  * ================================================================
  */
 
 import {
     useCallback,
     useEffect,
+    useRef,
     useState,
+} from "react";
+
+import type {
+    ChangeEvent,
 } from "react";
 
 import {
@@ -26,6 +31,9 @@ import {
     Trash2,
     Check,
     X,
+    Upload,
+    Send,
+    Eye,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar";
@@ -88,6 +96,44 @@ interface SubscriberCounts {
 
     active_es:
         number;
+}
+
+
+interface UploadResponse {
+    status:
+        string;
+
+    message:
+        string;
+
+    image_url:
+        string;
+}
+
+
+interface PromotionResponse {
+    status:
+        string;
+
+    message:
+        string;
+
+    data: {
+        totalRecipients:
+            number;
+
+        englishRecipients:
+            number;
+
+        spanishRecipients:
+            number;
+
+        englishSent:
+            boolean;
+
+        spanishSent:
+            boolean;
+    };
 }
 
 
@@ -160,6 +206,68 @@ function AdminSubscribers() {
     ] = useState<string | null>(
         null
     );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Promotion State
+    |--------------------------------------------------------------------------
+    */
+
+    const [
+        promotionSubject,
+        setPromotionSubject,
+    ] = useState("");
+
+
+    const [
+        promotionMessage,
+        setPromotionMessage,
+    ] = useState("");
+
+
+    const [
+        promotionImage,
+        setPromotionImage,
+    ] = useState<File | null>(
+        null
+    );
+
+
+    const [
+        promotionImagePreview,
+        setPromotionImagePreview,
+    ] = useState<string | null>(
+        null
+    );
+
+
+    const [
+        promotionSending,
+        setPromotionSending,
+    ] = useState(false);
+
+
+    const [
+        promotionSuccess,
+        setPromotionSuccess,
+    ] = useState<string | null>(
+        null
+    );
+
+
+    const [
+        promotionError,
+        setPromotionError,
+    ] = useState<string | null>(
+        null
+    );
+
+
+    const promotionImageInputRef =
+        useRef<HTMLInputElement | null>(
+            null
+        );
 
 
     /*
@@ -481,6 +589,355 @@ function AdminSubscribers() {
 
     /*
     |--------------------------------------------------------------------------
+    | Promotion Image Selection
+    |--------------------------------------------------------------------------
+    */
+
+    const handlePromotionImageChange =
+        (
+            event:
+                ChangeEvent<HTMLInputElement>
+        ) => {
+
+            const file =
+                event.target.files?.[0];
+
+
+            if (
+                !file
+            ) {
+
+                return;
+
+            }
+
+
+            setPromotionError(
+                null
+            );
+
+            setPromotionSuccess(
+                null
+            );
+
+
+            const allowedTypes =
+                [
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp",
+                ];
+
+
+            if (
+                !allowedTypes.includes(
+                    file.type
+                )
+            ) {
+
+                setPromotionError(
+                    "Please select a JPG, PNG, or WEBP image."
+                );
+
+                event.target.value =
+                    "";
+
+                return;
+
+            }
+
+
+            const maxFileSize =
+                5 * 1024 * 1024;
+
+
+            if (
+                file.size > maxFileSize
+            ) {
+
+                setPromotionError(
+                    "The promotion image must be 5 MB or smaller."
+                );
+
+                event.target.value =
+                    "";
+
+                return;
+
+            }
+
+
+            if (
+                promotionImagePreview
+            ) {
+
+                URL.revokeObjectURL(
+                    promotionImagePreview
+                );
+
+            }
+
+
+            const previewUrl =
+                URL.createObjectURL(
+                    file
+                );
+
+
+            setPromotionImage(
+                file
+            );
+
+
+            setPromotionImagePreview(
+                previewUrl
+            );
+
+        };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove Promotion Image
+    |--------------------------------------------------------------------------
+    */
+
+    const handleRemovePromotionImage =
+        () => {
+
+            if (
+                promotionImagePreview
+            ) {
+
+                URL.revokeObjectURL(
+                    promotionImagePreview
+                );
+
+            }
+
+
+            setPromotionImage(
+                null
+            );
+
+
+            setPromotionImagePreview(
+                null
+            );
+
+
+            if (
+                promotionImageInputRef.current
+            ) {
+
+                promotionImageInputRef.current.value =
+                    "";
+
+            }
+
+        };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Send Promotion
+    |--------------------------------------------------------------------------
+    */
+
+    const handleSendPromotion =
+        async () => {
+
+            setPromotionError(
+                null
+            );
+
+            setPromotionSuccess(
+                null
+            );
+
+
+            const subject =
+                promotionSubject.trim();
+
+            const message =
+                promotionMessage.trim();
+
+
+            if (
+                !subject
+            ) {
+
+                setPromotionError(
+                    "Please enter a promotion subject."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !message
+            ) {
+
+                setPromotionError(
+                    "Please enter a promotion message."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                counts.active === 0
+            ) {
+
+                setPromotionError(
+                    "There are no active subscribers to receive this promotion."
+                );
+
+                return;
+
+            }
+
+
+            const confirmed =
+                window.confirm(
+                    `Send this promotion to ${counts.active} active subscriber${counts.active === 1 ? "" : "s"}?\n\nEnglish: ${counts.active_en}\nSpanish: ${counts.active_es}`
+                );
+
+
+            if (
+                !confirmed
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+                setPromotionSending(
+                    true
+                );
+
+
+                let imageUrl:
+                    string
+                    | undefined;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Upload Image
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    promotionImage
+                ) {
+
+                    const formData =
+                        new FormData();
+
+
+                    formData.append(
+                        "image",
+                        promotionImage
+                    );
+
+
+                    const uploadResult =
+                        await apiRequest<UploadResponse>(
+                            "/api/upload/promotion",
+                            {
+                                method:
+                                    "POST",
+
+                                body:
+                                    formData,
+                            }
+                        );
+
+
+                    imageUrl =
+                        uploadResult.image_url;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Send Promotion
+                |--------------------------------------------------------------------------
+                */
+
+                const promotionResult =
+                    await apiRequest<PromotionResponse>(
+                        "/api/subscribers/admin/promotion",
+                        {
+                            method:
+                                "POST",
+
+                            body:
+                                JSON.stringify({
+                                    subject,
+
+                                    message,
+
+                                    imageUrl,
+                                }),
+                        }
+                    );
+
+
+                const result =
+                    promotionResult.data;
+
+
+                setPromotionSuccess(
+                    `Promotion sent successfully to ${result.totalRecipients} subscriber${result.totalRecipients === 1 ? "" : "s"} -- EN ${result.englishRecipients} / ES ${result.spanishRecipients}.`
+                );
+
+
+                setPromotionSubject(
+                    ""
+                );
+
+
+                setPromotionMessage(
+                    ""
+                );
+
+
+                handleRemovePromotionImage();
+
+            } catch (
+                requestError
+            ) {
+
+                setPromotionError(
+                    requestError
+                        instanceof Error
+                        ? requestError.message
+                        : "Unable to send promotion."
+                );
+
+            } finally {
+
+                setPromotionSending(
+                    false
+                );
+
+            }
+
+        };
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Format Date
     |--------------------------------------------------------------------------
     */
@@ -562,6 +1019,7 @@ function AdminSubscribers() {
                         }
                         disabled={
                             loading
+                            || promotionSending
                         }
                     >
 
@@ -715,6 +1173,397 @@ function AdminSubscribers() {
                             </strong>
 
                         </div>
+
+                    </div>
+
+                </section>
+
+
+                {/* ==================================================
+                    PROMOTION COMPOSER
+                   ================================================== */}
+
+                <section className="admin-subscribers__promotion">
+
+                    <div className="admin-subscribers__promotion-header">
+
+                        <div>
+
+                            <div className="admin-subscribers__promotion-eyebrow">
+
+                                <Send
+                                    size={15}
+                                />
+
+                                <span>
+                                    Promotion
+                                </span>
+
+                            </div>
+
+                            <h2>
+                                Send a Promotion
+                            </h2>
+
+                            <p>
+                                Create one promotion in English.
+                                Spanish subscribers will receive an
+                                automatic Spanish translation.
+                            </p>
+
+                        </div>
+
+
+                        <div className="admin-subscribers__promotion-recipients">
+
+                            <span>
+                                Active recipients
+                            </span>
+
+                            <strong>
+                                {counts.active}
+                            </strong>
+
+                            <div>
+
+                                <span>
+                                    EN {counts.active_en}
+                                </span>
+
+                                <span>
+                                    ES {counts.active_es}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div className="admin-subscribers__promotion-grid">
+
+                        <div className="admin-subscribers__promotion-fields">
+
+                            <label>
+
+                                <span>
+                                    Subject
+                                </span>
+
+                                <input
+                                    type="text"
+                                    value={
+                                        promotionSubject
+                                    }
+                                    onChange={
+                                        (
+                                            event
+                                        ) =>
+                                            setPromotionSubject(
+                                                event.target.value
+                                            )
+                                    }
+                                    placeholder="Example: Summer Sale -- 20% Off"
+                                    maxLength={
+                                        180
+                                    }
+                                    disabled={
+                                        promotionSending
+                                    }
+                                />
+
+                            </label>
+
+
+                            <label>
+
+                                <span>
+                                    Message in English
+                                </span>
+
+                                <textarea
+                                    value={
+                                        promotionMessage
+                                    }
+                                    onChange={
+                                        (
+                                            event
+                                        ) =>
+                                            setPromotionMessage(
+                                                event.target.value
+                                            )
+                                    }
+                                    placeholder="Write your promotion message here..."
+                                    rows={
+                                        10
+                                    }
+                                    disabled={
+                                        promotionSending
+                                    }
+                                />
+
+                            </label>
+
+
+                            <div className="admin-subscribers__promotion-upload">
+
+                                <div className="admin-subscribers__promotion-upload-label">
+
+                                    <span>
+                                        Promotion Image
+                                    </span>
+
+                                    <small>
+                                        Optional · JPG, PNG, WEBP · Max 5 MB
+                                    </small>
+
+                                </div>
+
+
+                                <input
+                                    ref={
+                                        promotionImageInputRef
+                                    }
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={
+                                        handlePromotionImageChange
+                                    }
+                                    hidden
+                                    disabled={
+                                        promotionSending
+                                    }
+                                />
+
+
+                                {
+                                    promotionImagePreview ? (
+
+                                        <div className="admin-subscribers__promotion-image-preview">
+
+                                            <img
+                                                src={
+                                                    promotionImagePreview
+                                                }
+                                                alt="Promotion preview"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                onClick={
+                                                    handleRemovePromotionImage
+                                                }
+                                                disabled={
+                                                    promotionSending
+                                                }
+                                                title="Remove image"
+                                            >
+
+                                                <X
+                                                    size={17}
+                                                />
+
+                                            </button>
+
+                                        </div>
+
+                                    ) : (
+
+                                        <button
+                                            type="button"
+                                            className="admin-subscribers__promotion-upload-button"
+                                            onClick={
+                                                () =>
+                                                    promotionImageInputRef.current?.click()
+                                            }
+                                            disabled={
+                                                promotionSending
+                                            }
+                                        >
+
+                                            <Upload
+                                                size={20}
+                                            />
+
+                                            <span>
+                                                Upload Promotion Image
+                                            </span>
+
+                                        </button>
+
+                                    )
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="admin-subscribers__promotion-preview">
+
+                            <div className="admin-subscribers__promotion-preview-header">
+
+                                <div>
+
+                                    <Eye
+                                        size={16}
+                                    />
+
+                                    <span>
+                                        Email Preview
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="admin-subscribers__promotion-email">
+
+                                <div className="admin-subscribers__promotion-email-brand">
+                                    Magic Touch Designs
+                                </div>
+
+
+                                {
+                                    promotionImagePreview && (
+
+                                        <img
+                                            src={
+                                                promotionImagePreview
+                                            }
+                                            alt="Promotion preview"
+                                        />
+
+                                    )
+                                }
+
+
+                                <div className="admin-subscribers__promotion-email-content">
+
+                                    <h3>
+                                        {
+                                            promotionSubject.trim()
+                                            || "Your promotion subject"
+                                        }
+                                    </h3>
+
+
+                                    <p>
+                                        {
+                                            promotionMessage.trim()
+                                            || "Your promotion message will appear here."
+                                        }
+                                    </p>
+
+                                </div>
+
+
+                                <div className="admin-subscribers__promotion-email-footer">
+                                    Magic Touch Designs
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {
+                        promotionError && (
+
+                            <div
+                                className="admin-subscribers__promotion-message admin-subscribers__promotion-message--error"
+                                role="alert"
+                            >
+
+                                <X
+                                    size={17}
+                                />
+
+                                <span>
+                                    {promotionError}
+                                </span>
+
+                            </div>
+
+                        )
+                    }
+
+
+                    {
+                        promotionSuccess && (
+
+                            <div
+                                className="admin-subscribers__promotion-message admin-subscribers__promotion-message--success"
+                                role="status"
+                            >
+
+                                <Check
+                                    size={17}
+                                />
+
+                                <span>
+                                    {promotionSuccess}
+                                </span>
+
+                            </div>
+
+                        )
+                    }
+
+
+                    <div className="admin-subscribers__promotion-actions">
+
+                        <span>
+                            {
+                                counts.active > 0
+                                    ? `${counts.active} active subscriber${counts.active === 1 ? "" : "s"} will receive this promotion.`
+                                    : "No active subscribers."
+                            }
+                        </span>
+
+
+                        <button
+                            type="button"
+                            className="admin-subscribers__promotion-send"
+                            onClick={
+                                handleSendPromotion
+                            }
+                            disabled={
+                                promotionSending
+                                || counts.active === 0
+                            }
+                        >
+
+                            {
+                                promotionSending ? (
+
+                                    <>
+                                        <RefreshCw
+                                            size={17}
+                                            className="admin-subscribers__refresh-icon--spinning"
+                                        />
+
+                                        Sending...
+                                    </>
+
+                                ) : (
+
+                                    <>
+                                        <Send
+                                            size={17}
+                                        />
+
+                                        Send Promotion
+                                    </>
+
+                                )
+                            }
+
+                        </button>
 
                     </div>
 
