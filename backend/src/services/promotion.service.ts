@@ -6,9 +6,9 @@
  * Module: Promotion Service
  * Language: TypeScript
  * Description:
- * Handles promotional email campaigns for active subscribers.
- * Separates English and Spanish recipients, translates content,
- * and sends the promotion through the centralized email service.
+ * Handles promotional email campaigns for all active subscribers.
+ * Sends the same English promotional content to every active
+ * subscriber through the centralized email service.
  * Languages: English (en) | Español (es)
  * ================================================================
  */
@@ -20,10 +20,6 @@ import {
 import {
     sendEmail,
 } from "./email.service";
-
-import {
-    translateEnglishToSpanish,
-} from "./translation.service";
 
 /*
 |--------------------------------------------------------------------------
@@ -357,150 +353,67 @@ export const sendPromotion =
 
         /*
         |--------------------------------------------------------------------------
-        | Separate Recipients by Language
+        | Count Recipients by Registered Language
         |--------------------------------------------------------------------------
+        |
+        | Language is used only for administrative statistics.
+        | It does NOT determine the email content or whether the
+        | subscriber receives the promotion.
+        |
         */
 
-        const englishSubscribers =
+        const englishRecipients =
             subscribers.filter(
                 (
                     subscriber
                 ) =>
                     subscriber.language === "en"
-            );
+            ).length;
 
-        const spanishSubscribers =
+        const spanishRecipients =
             subscribers.filter(
                 (
                     subscriber
                 ) =>
                     subscriber.language === "es"
+            ).length;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Send Promotion to ALL Active Subscribers
+        |--------------------------------------------------------------------------
+        |
+        | Every active subscriber receives the same English content.
+        | No translation service is used.
+        |
+        */
+
+        const recipients =
+            subscribers.map(
+                (
+                    subscriber
+                ) =>
+                    subscriber.email
             );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Translate Subject and Message
-        |--------------------------------------------------------------------------
-        */
+        await sendEmail({
+            to:
+                recipients,
 
-        let spanishSubject =
-            subject;
+            subject:
+                subject,
 
-        let spanishMessage =
-            message;
+            html:
+                buildPromotionHtml(
+                    message,
+                    imageUrl
+                ),
 
-        if (
-            spanishSubscribers.length > 0
-        ) {
-
-            const [
-                translatedSubject,
-                translatedMessage,
-            ] =
-                await Promise.all([
-                    translateEnglishToSpanish(
-                        subject
-                    ),
-
-                    translateEnglishToSpanish(
-                        message
-                    ),
-                ]);
-
-            spanishSubject =
-                translatedSubject.translation;
-
-            spanishMessage =
-                translatedMessage.translation;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Send English Promotion
-        |--------------------------------------------------------------------------
-        */
-
-        let englishSent =
-            false;
-
-        if (
-            englishSubscribers.length > 0
-        ) {
-
-            const englishRecipients =
-                englishSubscribers.map(
-                    (
-                        subscriber
-                    ) =>
-                        subscriber.email
-                );
-
-            await sendEmail({
-                to:
-                    englishRecipients,
-
-                subject:
-                    subject,
-
-                html:
-                    buildPromotionHtml(
-                        message,
-                        imageUrl
-                    ),
-
-                text:
-                    buildPromotionText(
-                        message
-                    ),
-            });
-
-            englishSent =
-                true;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Send Spanish Promotion
-        |--------------------------------------------------------------------------
-        */
-
-        let spanishSent =
-            false;
-
-        if (
-            spanishSubscribers.length > 0
-        ) {
-
-            const spanishRecipients =
-                spanishSubscribers.map(
-                    (
-                        subscriber
-                    ) =>
-                        subscriber.email
-                );
-
-            await sendEmail({
-                to:
-                    spanishRecipients,
-
-                subject:
-                    spanishSubject,
-
-                html:
-                    buildPromotionHtml(
-                        spanishMessage,
-                        imageUrl
-                    ),
-
-                text:
-                    buildPromotionText(
-                        spanishMessage
-                    ),
-            });
-
-            spanishSent =
-                true;
-        }
+            text:
+                buildPromotionText(
+                    message
+                ),
+        });
 
         /*
         |--------------------------------------------------------------------------
@@ -512,14 +425,14 @@ export const sendPromotion =
             totalRecipients:
                 subscribers.length,
 
-            englishRecipients:
-                englishSubscribers.length,
+            englishRecipients,
 
-            spanishRecipients:
-                spanishSubscribers.length,
+            spanishRecipients,
 
-            englishSent,
+            englishSent:
+                englishRecipients > 0,
 
-            spanishSent,
+            spanishSent:
+                spanishRecipients > 0,
         };
     };
