@@ -27,7 +27,8 @@ export type UploadFolder =
     | "logos"
     | "reviews"
     | "products"
-    | "customizations";
+    | "customizations"
+    | "promotions";
 
 
 /* ===============================================================

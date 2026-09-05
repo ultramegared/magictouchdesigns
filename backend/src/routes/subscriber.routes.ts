@@ -36,6 +36,11 @@ import {
 } from "../controllers/subscriber.controller";
 
 
+import {
+    sendPromotionController,
+} from "../controllers/promotion.controller";
+
+
 const router =
     Router();
 
@@ -144,6 +149,38 @@ router.delete(
     authenticateToken,
     requireAdmin,
     remove
+);
+
+
+/**
+ * ================================================================
+ * ADMINISTRATIVE PROMOTION
+ * ================================================================
+ *
+ * POST /api/subscribers/admin/promotion
+ *
+ * Sends a promotional email to all active subscribers.
+ *
+ * The promotion service handles:
+ *
+ * 1. English recipients
+ * 2. Spanish recipients
+ * 3. English -> Spanish translation
+ * 4. Email delivery through Resend
+ *
+ * Receives:
+ *
+ * {
+ *     subject: string,
+ *     message: string,
+ *     imageUrl?: string
+ * }
+ */
+router.post(
+    "/admin/promotion",
+    authenticateToken,
+    requireAdmin,
+    sendPromotionController
 );
 
 
