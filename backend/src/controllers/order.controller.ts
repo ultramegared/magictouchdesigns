@@ -17,6 +17,10 @@ import {
     createPayPalOrder,
     getPayPalPublicConfig,
 } from "../services/paypal.service";
+import {
+    createStripeElementsCheckout,
+    getStripeElementsPublicConfig,
+} from "../services/stripe-elements.service";
 
 export const createCheckout = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -34,6 +38,29 @@ export const createCheckout = async (req: Request, res: Response): Promise<void>
     } catch (error) {
         console.error("Create checkout error:", error);
         res.status(400).json({ message: error instanceof Error ? error.message : "Unable to start checkout." });
+    }
+};
+
+export const getStripeConfig = (_req: Request, res: Response): void => {
+    res.json(getStripeElementsPublicConfig());
+};
+
+export const createStripeElements = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const customer = req.body?.customer as CheckoutCustomerInput;
+        const items = req.body?.items as CheckoutItemInput[];
+        if (!customer?.firstName || !customer?.lastName || !customer?.email) {
+            res.status(400).json({ message: "Customer information is required." });
+            return;
+        }
+        if (!customer.address || !customer.city || !customer.state || !customer.zip) {
+            res.status(400).json({ message: "A complete shipping address is required." });
+            return;
+        }
+        res.status(201).json(await createStripeElementsCheckout(customer, items || []));
+    } catch (error) {
+        console.error("Create Stripe Elements checkout error:", error);
+        res.status(400).json({ message: error instanceof Error ? error.message : "Unable to start card checkout." });
     }
 };
 
