@@ -5,6 +5,7 @@
  * ================================================================
  */
 
+import crypto from "crypto";
 import { pool } from "../config/database";
 import {
     buildOrderSnapshot,
@@ -14,7 +15,6 @@ import {
 } from "./order.service";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://magictouchdesigns.com";
-const SHIPPING_AMOUNT = 5.99;
 
 const getPayPalBaseUrl = (): string =>
     process.env.PAYPAL_BASE_URL || "https://api-m.sandbox.paypal.com";
