@@ -21,6 +21,7 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCollections from "./pages/admin/AdminCollections";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import AdminContent from "./pages/admin/AdminContent";
+import AdminOrders from "./pages/admin/AdminOrders";
 import CustomizePage from "./pages/Customize";
 import ContactPage from "./pages/Contact";
 import AboutPage from "./pages/About";
@@ -54,6 +55,7 @@ function App() {
                 <Route path="/admin/collections" element={<AdminRoute><AdminCollections /></AdminRoute>} />
                 <Route path="/admin/subscribers" element={<AdminRoute><AdminSubscribers /></AdminRoute>} />
                 <Route path="/admin/content" element={<AdminRoute><AdminContent /></AdminRoute>} />
+                <Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
                 <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
 
                 <Route path="/products" element={<ProductsPage />} />
