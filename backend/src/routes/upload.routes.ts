@@ -355,4 +355,33 @@ router.post(
 );
 
 
+/* ===============================================================
+   PROMOTION UPLOAD
+================================================================ */
+
+/**
+ * POST
+ * /api/upload/promotion
+ *
+ * Requires authentication.
+ *
+ * Cloudinary folder:
+ * magic-touch-designs/promotions
+ */
+
+router.post(
+    "/promotion",
+
+    authenticateToken,
+
+    processImageUpload,
+
+    assignUploadFolder(
+        "promotions"
+    ),
+
+    upload
+);
+
+
 export default router;
