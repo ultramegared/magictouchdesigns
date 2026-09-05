@@ -3,10 +3,6 @@
  * Project: Magic Touch Designs
  * File: order.service.ts
  * Module: Orders / Payments
- * Language: TypeScript
- * Description:
- * Server-side order persistence and Stripe Checkout integration.
- * Raw card data is never accepted or stored by this service.
  * ================================================================
  */
 
@@ -52,11 +48,9 @@ let initialized = false;
 
 export const ensureOrderTables = async (): Promise<void> => {
     if (initialized) return;
-
     await pool.query(`
         CREATE EXTENSION IF NOT EXISTS pgcrypto;
         CREATE SEQUENCE IF NOT EXISTS mtd_order_sequence START 1;
-
         CREATE TABLE IF NOT EXISTS orders (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             order_code VARCHAR(32) NOT NULL UNIQUE,
@@ -79,7 +73,6 @@ export const ensureOrderTables = async (): Promise<void> => {
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
-
         CREATE TABLE IF NOT EXISTS order_items (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -90,13 +83,11 @@ export const ensureOrderTables = async (): Promise<void> => {
             quantity INTEGER NOT NULL CHECK (quantity > 0),
             variant JSONB NOT NULL DEFAULT '{}'::jsonb
         );
-
         CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
         CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
         CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
         CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
     `);
-
     initialized = true;
 };
 
@@ -115,7 +106,6 @@ const stripeRequest = async (path: string, body: URLSearchParams): Promise<any> 
         },
         body,
     });
-
     const data = await response.json() as any;
     if (!response.ok) throw new Error(data?.error?.message || "Stripe request failed.");
     return data;
@@ -137,17 +127,12 @@ export const createCheckoutSession = async (
     if (!items.length) throw new Error("Your cart is empty.");
 
     const normalizedItems: OrderItemSnapshot[] = [];
-
     for (const input of items) {
         const quantity = Math.floor(Number(input.quantity));
-        if (!input.productId || quantity < 1 || quantity > 99) {
-            throw new Error("Invalid cart item.");
-        }
+        if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item.");
 
         const product = await getProductById(input.productId);
-        if (!product || !product.is_active) {
-            throw new Error("One of the products is no longer available.");
-        }
+        if (!product || !product.is_active) throw new Error("One of the products is no longer available.");
 
         normalizedItems.push({
             product_id: String(product.product_id),
@@ -163,11 +148,7 @@ export const createCheckoutSession = async (
         });
     }
 
-    const subtotal = normalizedItems.reduce(
-        (sum, item) => sum + item.unit_price * item.quantity,
-        0,
-    );
-
+    const subtotal = normalizedItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
     const orderCode = await makeOrderCode();
     const shippingAddress = {
         deliveryType: customer.deliveryType || "house",
@@ -199,21 +180,12 @@ export const createCheckoutSession = async (
     );
 
     const orderId = orderResult.rows[0].id as string;
-
     for (const item of normalizedItems) {
         await pool.query(
             `INSERT INTO order_items (
                 order_id, product_id, product_name, image_url, unit_price, quantity, variant
             ) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-            [
-                orderId,
-                item.product_id,
-                item.name,
-                item.image_url,
-                item.unit_price,
-                item.quantity,
-                JSON.stringify(item.variant),
-            ],
+            [orderId, item.product_id, item.name, item.image_url, item.unit_price, item.quantity, JSON.stringify(item.variant)],
         );
     }
 
@@ -235,9 +207,7 @@ export const createCheckoutSession = async (
     normalizedItems.forEach((item, index) => {
         params.set(`line_items[${index}][price_data][currency]`, "usd");
         params.set(`line_items[${index}][price_data][product_data][name]`, item.name);
-        if (item.image_url) {
-            params.set(`line_items[${index}][price_data][product_data][images][0]`, item.image_url);
-        }
+        if (item.image_url) params.set(`line_items[${index}][price_data][product_data][images][0]`, item.image_url);
         params.set(`line_items[${index}][price_data][unit_amount]`, String(Math.round(item.unit_price * 100)));
         params.set(`line_items[${index}][quantity]`, String(item.quantity));
     });
@@ -258,45 +228,43 @@ export const createCheckoutSession = async (
     }
 };
 
-export const getOrderByCode = async (orderCode: string) => {
-    await ensureOrderTables();
-    const orderResult = await pool.query(`SELECT * FROM orders WHERE order_code = $1`, [orderCode]);
+const getOrderWithItems = async (where: string, values: unknown[]) => {
+    const orderResult = await pool.query(`SELECT * FROM orders ${where}`, values);
     if (!orderResult.rows[0]) return null;
     const items = await pool.query(`SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC`, [orderResult.rows[0].id]);
     return { ...orderResult.rows[0], items: items.rows };
 };
 
+export const getOrderByCode = async (orderCode: string) => {
+    await ensureOrderTables();
+    return getOrderWithItems("WHERE order_code = $1", [orderCode]);
+};
+
+export const getOrderBySessionId = async (sessionId: string) => {
+    await ensureOrderTables();
+    return getOrderWithItems("WHERE stripe_checkout_session_id = $1", [sessionId]);
+};
+
 export const verifyStripeSignature = (payload: Buffer, signature: string): boolean => {
     const secret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!secret || !signature) return false;
-
     const parts = signature.split(",");
     const timestamp = parts.find((part) => part.startsWith("t="))?.slice(2);
     const signatureValue = parts.find((part) => part.startsWith("v1="))?.slice(3);
     if (!timestamp || !signatureValue) return false;
-
     const age = Math.abs(Date.now() / 1000 - Number(timestamp));
     if (!Number.isFinite(age) || age > 300) return false;
-
-    const expected = crypto.createHmac("sha256", secret)
+    const expectedBuffer = crypto.createHmac("sha256", secret)
         .update(`${timestamp}.${payload.toString("utf8")}`)
-        .digest("hex");
-
-    const expectedBuffer = Buffer.from(expected, "hex");
+        .digest();
     const receivedBuffer = Buffer.from(signatureValue, "hex");
     if (expectedBuffer.length !== receivedBuffer.length) return false;
-
     return crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
 };
 
 export const handleStripeWebhook = async (event: any): Promise<void> => {
     await ensureOrderTables();
-
-    if (
-        event?.type !== "checkout.session.completed" &&
-        event?.type !== "checkout.session.async_payment_succeeded"
-    ) return;
-
+    if (event?.type !== "checkout.session.completed" && event?.type !== "checkout.session.async_payment_succeeded") return;
     const session = event.data?.object;
     const orderId = session?.metadata?.order_id;
     if (!orderId) return;
@@ -308,22 +276,9 @@ export const handleStripeWebhook = async (event: any): Promise<void> => {
 
     await pool.query(
         `UPDATE orders SET
-            stripe_payment_intent_id = $1,
-            subtotal = $2,
-            shipping = $3,
-            tax = $4,
-            total = $5,
-            payment_status = 'paid',
-            status = 'paid',
-            updated_at = NOW()
+            stripe_payment_intent_id = $1, subtotal = $2, shipping = $3,
+            tax = $4, total = $5, payment_status = 'paid', status = 'paid', updated_at = NOW()
          WHERE id = $6`,
-        [
-            session.payment_intent || null,
-            amountSubtotal,
-            amountShipping,
-            amountTax,
-            amountTotal,
-            orderId,
-        ],
+        [session.payment_intent || null, amountSubtotal, amountShipping, amountTax, amountTotal, orderId],
     );
 };
