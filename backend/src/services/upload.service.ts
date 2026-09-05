@@ -28,29 +28,32 @@ export type UploadFolder =
     | "reviews"
     | "products"
     | "customizations"
-    | "promotions";
+    | "promotions"
+    | "portfolio";
+
+export interface UploadedImageAsset {
+
+    imageUrl:
+        string;
+
+    publicId:
+        string;
+}
 
 
 /* ===============================================================
-   UPLOAD IMAGE
+   UPLOAD IMAGE ASSET
 ================================================================ */
 
 /**
- * Uploads an image buffer to Cloudinary.
- *
- * The destination folder can be selected
- * according to the type of image.
- *
- * Returns the secure public image URL.
+ * Uploads an image buffer and keeps the Cloudinary public_id.
+ * The public_id is required for permanent asset deletion.
  */
-
-export const uploadImage =
+export const uploadImageAsset =
     async (
         fileBuffer: Buffer,
-
-        folder:
-            UploadFolder = "reviews"
-    ): Promise<string> => {
+        folder: UploadFolder = "reviews"
+    ): Promise<UploadedImageAsset> => {
 
         return new Promise(
             (
@@ -60,9 +63,7 @@ export const uploadImage =
 
                 const uploadStream =
                     cloudinary.uploader.upload_stream(
-
                         {
-
                             folder:
                                 `magic-touch-designs/${folder}`,
 
@@ -70,19 +71,12 @@ export const uploadImage =
                                 "image",
 
                             allowed_formats: [
-
                                 "jpg",
-
                                 "jpeg",
-
                                 "png",
-
                                 "webp",
-
                             ],
-
                         },
-
                         (
                             error,
                             result
@@ -101,45 +95,102 @@ export const uploadImage =
                                 );
 
                                 return;
-
                             }
 
-
                             if (
-                                !result.secure_url
+                                !result.secure_url ||
+                                !result.public_id
                             ) {
 
                                 reject(
                                     new Error(
-                                        "Cloudinary did not return an image URL."
+                                        "Cloudinary did not return the required image metadata."
                                     )
                                 );
 
                                 return;
-
                             }
 
+                            resolve({
+                                imageUrl:
+                                    result.secure_url,
 
-                            resolve(
-                                result.secure_url
-                            );
-
+                                publicId:
+                                    result.public_id,
+                            });
                         }
-
                     );
 
-
-                const readableStream =
-                    Readable.from(
-                        fileBuffer
-                    );
-
-
-                readableStream.pipe(
+                Readable.from(
+                    fileBuffer
+                ).pipe(
                     uploadStream
                 );
-
             }
         );
+    };
 
+
+/* ===============================================================
+   UPLOAD IMAGE
+================================================================ */
+
+/**
+ * Backwards-compatible image upload helper.
+ * Existing upload consumers continue receiving only the URL.
+ */
+export const uploadImage =
+    async (
+        fileBuffer: Buffer,
+        folder: UploadFolder = "reviews"
+    ): Promise<string> => {
+
+        const asset =
+            await uploadImageAsset(
+                fileBuffer,
+                folder
+            );
+
+        return asset.imageUrl;
+    };
+
+
+/* ===============================================================
+   DELETE IMAGE
+================================================================ */
+
+/**
+ * Permanently deletes an image from Cloudinary.
+ */
+export const deleteImage =
+    async (
+        publicId: string
+    ): Promise<void> => {
+
+        const normalizedPublicId =
+            publicId.trim();
+
+        if (!normalizedPublicId) {
+            return;
+        }
+
+        const result =
+            await cloudinary.uploader.destroy(
+                normalizedPublicId,
+                {
+                    resource_type:
+                        "image",
+                    invalidate:
+                        true,
+                }
+            );
+
+        if (
+            result.result !== "ok" &&
+            result.result !== "not found"
+        ) {
+            throw new Error(
+                `Cloudinary could not delete image: ${result.result}`
+            );
+        }
     };
