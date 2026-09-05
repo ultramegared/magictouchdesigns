@@ -29,12 +29,8 @@
     color: #f8f5ee;
     border: 1px solid rgba(224, 173, 67, 0.38);
     border-radius: 24px;
-    background:
-        linear-gradient(145deg, rgba(31, 27, 20, 0.96), rgba(10, 10, 10, 0.98));
-    box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.045),
-        0 0 0 1px rgba(224, 173, 67, 0.035);
+    background: linear-gradient(145deg, rgba(31, 27, 20, 0.96), rgba(10, 10, 10, 0.98));
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 0 0 1px rgba(224, 173, 67, 0.035);
 }
 
 .checkout-success-card::before {
