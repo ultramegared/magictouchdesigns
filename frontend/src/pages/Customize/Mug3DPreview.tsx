@@ -14,7 +14,7 @@
 import { useEffect, useRef } from "react";
 
 const THREE_CDN =
-    "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.min.js";
+    "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.min.js";
 
 declare global {
     interface Window {
@@ -361,7 +361,6 @@ function Mug3DPreview({
             const printableWidth = canvas.width * 0.78;
             const printableHeight = canvas.height * 0.68;
             const imageRatio = image.width / image.height;
-            const printableRatio = printableWidth / printableHeight;
 
             let width = printableWidth;
             let height = width / imageRatio;
@@ -382,7 +381,6 @@ function Mug3DPreview({
             context.drawImage(image, -width / 2, -height / 2, width, height);
             context.restore();
 
-            void printableRatio;
             texture.needsUpdate = true;
         };
         image.onerror = () => {
