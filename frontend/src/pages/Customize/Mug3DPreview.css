@@ -22,13 +22,22 @@
     min-height: inherit;
 }
 
-.mug-3d-preview__badge {
+.mug-3d-preview__topbar {
     position: absolute;
-    z-index: 4;
-    top: 16px;
-    left: 16px;
+    z-index: 5;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.mug-3d-preview__badge {
     padding: 8px 11px;
-    border: 1px solid rgba(255,255,255,.75);
+    border: 1px solid rgba(255,255,255,.78);
     border-radius: 999px;
     background: rgba(17,17,17,.76);
     color: #fff;
@@ -36,7 +45,17 @@
     font-weight: 850;
     letter-spacing: .08em;
     backdrop-filter: blur(10px);
-    pointer-events: none;
+}
+
+.mug-3d-preview__size {
+    padding: 8px 11px;
+    border: 1px solid rgba(255,255,255,.72);
+    border-radius: 999px;
+    background: rgba(255,255,255,.78);
+    color: #202020;
+    font-size: 10px;
+    font-weight: 800;
+    backdrop-filter: blur(10px);
 }
 
 .mug-3d-preview__hint {
@@ -62,12 +81,32 @@
     pointer-events: none;
 }
 
+.mug-3d-preview__hint span { color: #d0a54a; margin-right: 3px; }
+
+.mug-3d-preview__error {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: min(86%, 360px);
+    transform: translate(-50%, -50%);
+    padding: 18px;
+    border: 1px solid #ead1d1;
+    border-radius: 14px;
+    background: rgba(255,255,255,.94);
+    color: #8f2525;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+}
+
 @media (max-width: 900px) {
     .mug-3d-preview { min-height: 520px; border-radius: 20px; }
 }
 
 @media (max-width: 600px) {
     .mug-3d-preview { min-height: 430px; border-radius: 18px; }
-    .mug-3d-preview__badge { top: 11px; left: 11px; font-size: 9px; }
-    .mug-3d-preview__hint { bottom: 12px; font-size: 10px; }
+    .mug-3d-preview__topbar { top: 10px; left: 10px; right: 10px; }
+    .mug-3d-preview__badge,
+    .mug-3d-preview__size { padding: 7px 9px; font-size: 8px; }
+    .mug-3d-preview__hint { bottom: 12px; font-size: 10px; max-width: calc(100% - 20px); }
 }
