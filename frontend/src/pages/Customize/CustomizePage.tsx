@@ -12,7 +12,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { RotateCcw, Upload, ShieldCheck, Maximize2 } from "lucide-react";
+import { RotateCcw, Upload, ShieldCheck } from "lucide-react";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
@@ -302,64 +302,26 @@ function CustomizePage() {
 
                                 <div className="customize-control-row">
                                     <label htmlFor="design-scale">Scale</label>
-                                    <span className="customize-control-value">
-                                        {Math.round(designScale * 100)}%
-                                    </span>
-                                    <input
-                                        id="design-scale"
-                                        className="customize-range"
-                                        type="range"
-                                        min="0.4"
-                                        max="1.6"
-                                        step="0.01"
-                                        value={designScale}
-                                        onChange={(event) => setDesignScale(Number(event.target.value))}
-                                    />
+                                    <span className="customize-control-value">{Math.round(designScale * 100)}%</span>
+                                    <input id="design-scale" className="customize-range" type="range" min="0.4" max="1.6" step="0.01" value={designScale} onChange={(event) => setDesignScale(Number(event.target.value))} />
                                 </div>
 
                                 <div className="customize-control-row">
                                     <label htmlFor="design-x">Horizontal</label>
                                     <span className="customize-control-value">{designX}%</span>
-                                    <input
-                                        id="design-x"
-                                        className="customize-range"
-                                        type="range"
-                                        min="-35"
-                                        max="35"
-                                        step="1"
-                                        value={designX}
-                                        onChange={(event) => setDesignX(Number(event.target.value))}
-                                    />
+                                    <input id="design-x" className="customize-range" type="range" min="-35" max="35" step="1" value={designX} onChange={(event) => setDesignX(Number(event.target.value))} />
                                 </div>
 
                                 <div className="customize-control-row">
                                     <label htmlFor="design-y">Vertical</label>
                                     <span className="customize-control-value">{designY}%</span>
-                                    <input
-                                        id="design-y"
-                                        className="customize-range"
-                                        type="range"
-                                        min="-25"
-                                        max="25"
-                                        step="1"
-                                        value={designY}
-                                        onChange={(event) => setDesignY(Number(event.target.value))}
-                                    />
+                                    <input id="design-y" className="customize-range" type="range" min="-25" max="25" step="1" value={designY} onChange={(event) => setDesignY(Number(event.target.value))} />
                                 </div>
 
                                 <div className="customize-control-row">
                                     <label htmlFor="design-rotation">Artwork rotation</label>
                                     <span className="customize-control-value">{designRotation}°</span>
-                                    <input
-                                        id="design-rotation"
-                                        className="customize-range"
-                                        type="range"
-                                        min="-180"
-                                        max="180"
-                                        step="1"
-                                        value={designRotation}
-                                        onChange={(event) => setDesignRotation(Number(event.target.value))}
-                                    />
+                                    <input id="design-rotation" className="customize-range" type="range" min="-180" max="180" step="1" value={designRotation} onChange={(event) => setDesignRotation(Number(event.target.value))} />
                                 </div>
 
                                 <button type="button" className="customize-reset" onClick={resetDesign}>
@@ -370,18 +332,10 @@ function CustomizePage() {
 
                         <section className="customize-center">
                             <div className="customize-view-tabs">
-                                <button type="button" className="customize-view-tab customize-view-tab--active">
-                                    Realistic 3D
-                                </button>
-                                <button type="button" className="customize-view-tab" onClick={() => setMugRotation(0)}>
-                                    Front View
-                                </button>
-                                <button type="button" className="customize-view-tab" onClick={() => setMugRotation(Math.PI)}>
-                                    Back View
-                                </button>
-                                <button type="button" className="customize-view-tab" onClick={() => setMugRotation(Math.PI / 2)}>
-                                    Side View
-                                </button>
+                                <button type="button" className="customize-view-tab customize-view-tab--active">Realistic 3D</button>
+                                <button type="button" className="customize-view-tab" onClick={() => setMugRotation(0)}>Front View</button>
+                                <button type="button" className="customize-view-tab" onClick={() => setMugRotation(Math.PI)}>Back View</button>
+                                <button type="button" className="customize-view-tab" onClick={() => setMugRotation(Math.PI / 2)}>Side View</button>
                             </div>
 
                             <Mug3DPreview
@@ -411,49 +365,29 @@ function CustomizePage() {
                                     <div className="customize-summary__product">
                                         <div>
                                             <strong>{selectedProduct?.name || "Ceramic Mug"}</strong>
-                                            <span>
-                                                {size} · {color.name} · Custom artwork
-                                            </span>
+                                            <span>{size} · {color.name} · Custom artwork</span>
                                         </div>
-                                        <span className="customize-summary__price">
-                                            ${price.toFixed(2)}
-                                        </span>
+                                        <span className="customize-summary__price">${price.toFixed(2)}</span>
                                     </div>
                                 </div>
 
                                 <div className="customize-summary__specs">
-                                    <div className="customize-summary__spec">
-                                        <span>Size</span>
-                                        <strong>{size}</strong>
-                                    </div>
-                                    <div className="customize-summary__spec">
-                                        <span>Mug color</span>
-                                        <strong>{color.name}</strong>
-                                    </div>
-                                    <div className="customize-summary__spec">
-                                        <span>Artwork</span>
-                                        <strong>{designUrl ? "Uploaded" : "Not added"}</strong>
-                                    </div>
+                                    <div className="customize-summary__spec"><span>Size</span><strong>{size}</strong></div>
+                                    <div className="customize-summary__spec"><span>Mug color</span><strong>{color.name}</strong></div>
+                                    <div className="customize-summary__spec"><span>Artwork</span><strong>{designUrl ? "Uploaded" : "Not added"}</strong></div>
                                 </div>
 
                                 <div>
                                     <div className="customize-summary__note">
-                                        Shipping and taxes are calculated automatically at checkout
-                                        from the customer's delivery destination.
+                                        Shipping and taxes are calculated automatically at checkout from the customer's delivery destination.
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        className="customize-summary__button"
-                                        disabled={!selectedProduct || adding}
-                                        onClick={saveAndAddToCart}
-                                    >
+                                    <button type="button" className="customize-summary__button" disabled={!selectedProduct || adding} onClick={saveAndAddToCart}>
                                         {adding ? "Adding…" : "Add Custom Mug to Cart →"}
                                     </button>
 
                                     <div className="customize-summary__secure">
-                                        <ShieldCheck size={13} /> Your original artwork stays in the
-                                        temporary browser session until the order workflow is complete.
+                                        <ShieldCheck size={13} /> Your original artwork stays in the temporary browser session until the order workflow is complete.
                                     </div>
                                 </div>
                             </div>
