@@ -3,18 +3,19 @@
  * Author: ultramegared
  * Project: Magic Touch Designs
  * File: Mug3DPreview.tsx
- * Module: Frontend
+ * Module: Customize
  * Language: TypeScript React
  * Description:
- * Client-side realistic 3D mug renderer used by the Customize page.
- * The customer's uploaded artwork remains client-side only.
+ * Client-side realistic 3D mug renderer. Supports the real Magic Touch
+ * mug families: white ceramic with colored handle/rim, and solid-color
+ * ceramic mugs. Customer artwork remains client-side only.
  * ================================================================
  */
 
 import { useEffect, useRef } from "react";
 
 const THREE_CDN =
-    "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.min.js";
+    "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.min.js";
 
 declare global {
     interface Window {
@@ -22,8 +23,12 @@ declare global {
     }
 }
 
+type MugStyle = "colored-handle" | "solid";
+
 type Mug3DPreviewProps = {
-    mugColor: string;
+    mugStyle: MugStyle;
+    mugBodyColor: string;
+    mugAccentColor: string;
     designUrl: string | null;
     designScale: number;
     designX: number;
@@ -34,9 +39,7 @@ type Mug3DPreviewProps = {
 };
 
 function loadThree(): Promise<any> {
-    if (window.THREE) {
-        return Promise.resolve(window.THREE);
-    }
+    if (window.THREE) return Promise.resolve(window.THREE);
 
     return new Promise((resolve, reject) => {
         const existing = document.querySelector<HTMLScriptElement>(
@@ -45,15 +48,12 @@ function loadThree(): Promise<any> {
 
         if (existing) {
             existing.addEventListener("load", () => {
-                if (window.THREE) {
-                    resolve(window.THREE);
-                } else {
-                    reject(new Error("Three.js did not initialize."));
-                }
+                if (window.THREE) resolve(window.THREE);
+                else reject(new Error("Three.js did not initialize."));
             });
-            existing.addEventListener("error", () => {
-                reject(new Error("Three.js could not be loaded."));
-            });
+            existing.addEventListener("error", () =>
+                reject(new Error("Three.js could not be loaded."))
+            );
             return;
         }
 
@@ -62,19 +62,80 @@ function loadThree(): Promise<any> {
         script.async = true;
         script.dataset.mtdThree = "true";
         script.onload = () => {
-            if (window.THREE) {
-                resolve(window.THREE);
-            } else {
-                reject(new Error("Three.js did not initialize."));
-            }
+            if (window.THREE) resolve(window.THREE);
+            else reject(new Error("Three.js did not initialize."));
         };
-        script.onerror = () => reject(new Error("Three.js could not be loaded."));
+        script.onerror = () =>
+            reject(new Error("Three.js could not be loaded."));
         document.head.appendChild(script);
     });
 }
 
+function drawArtworkTexture(
+    THREE: any,
+    designUrl: string | null,
+    bodyColor: string,
+    scale: number,
+    x: number,
+    y: number,
+    rotation: number
+) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1600;
+    canvas.height = 720;
+
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+
+    context.fillStyle = bodyColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (!designUrl) {
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.needsUpdate = true;
+        return { texture, canvas };
+    }
+
+    const image = new Image();
+    image.decoding = "async";
+    image.onload = () => {
+        const maxWidth = 760 * scale;
+        const maxHeight = 560 * scale;
+        const ratio = Math.min(
+            maxWidth / image.width,
+            maxHeight / image.height,
+            1
+        );
+        const width = image.width * ratio;
+        const height = image.height * ratio;
+        const centerX = canvas.width * (0.5 + x / 100);
+        const centerY = canvas.height * (0.5 - y / 100);
+
+        context.save();
+        context.translate(centerX, centerY);
+        context.rotate((rotation * Math.PI) / 180);
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+        context.drawImage(image, -width / 2, -height / 2, width, height);
+        context.restore();
+
+        texture.needsUpdate = true;
+    };
+    image.src = designUrl;
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 8;
+    texture.needsUpdate = true;
+
+    return { texture, canvas };
+}
+
 function Mug3DPreview({
-    mugColor,
+    mugStyle,
+    mugBodyColor,
+    mugAccentColor,
     designUrl,
     designScale,
     designX,
@@ -87,220 +148,282 @@ function Mug3DPreview({
     const rendererRef = useRef<any>(null);
     const sceneRef = useRef<any>(null);
     const cameraRef = useRef<any>(null);
-    const mugRef = useRef<any>(null);
-    const artworkRef = useRef<any>(null);
+    const mugGroupRef = useRef<any>(null);
+    const artworkMaterialRef = useRef<any>(null);
     const animationRef = useRef<number | null>(null);
     const rotationRef = useRef(rotation);
+    const textureRef = useRef<any>(null);
     const interactionRef = useRef({
         active: false,
         startX: 0,
         startRotation: 0,
     });
-    const textureCanvasRef = useRef<HTMLCanvasElement | null>(null);
-    const textureRef = useRef<any>(null);
-    const designImageRef = useRef<HTMLImageElement | null>(null);
 
     useEffect(() => {
         rotationRef.current = rotation;
+        if (mugGroupRef.current) {
+            mugGroupRef.current.rotation.y = rotation;
+        }
     }, [rotation]);
 
     useEffect(() => {
         let disposed = false;
+        let resizeObserver: ResizeObserver | null = null;
 
         const setup = async () => {
             const THREE = await loadThree();
-            if (disposed || !hostRef.current) {
-                return;
-            }
+            if (disposed || !hostRef.current) return;
 
             const host = hostRef.current;
             const scene = new THREE.Scene();
-            scene.background = new THREE.Color("#f3f4f6");
+            scene.background = new THREE.Color("#f1f3f5");
             sceneRef.current = scene;
 
-            const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
-            camera.position.set(4.5, 2.8, 5.8);
-            camera.lookAt(0, 0, 0);
+            const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+            camera.position.set(0, 0.35, 5.8);
+            camera.lookAt(0, 0.1, 0);
             cameraRef.current = camera;
 
             const renderer = new THREE.WebGLRenderer({
                 antialias: true,
                 alpha: false,
-                preserveDrawingBuffer: true,
+                powerPreference: "high-performance",
             });
             renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            host.replaceChildren(renderer.domElement);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.15;
             rendererRef.current = renderer;
+            host.replaceChildren(renderer.domElement);
 
-            const ambient = new THREE.HemisphereLight("#ffffff", "#b8b8b8", 2.2);
+            const ambient = new THREE.HemisphereLight("#ffffff", "#777777", 2.2);
             scene.add(ambient);
 
-            const key = new THREE.DirectionalLight("#ffffff", 3.4);
-            key.position.set(4, 6, 5);
+            const key = new THREE.DirectionalLight("#ffffff", 4.0);
+            key.position.set(3.5, 5, 4.5);
             key.castShadow = true;
             key.shadow.mapSize.set(1024, 1024);
             scene.add(key);
 
-            const fill = new THREE.DirectionalLight("#ffffff", 1.4);
+            const fill = new THREE.DirectionalLight("#ffffff", 1.5);
             fill.position.set(-4, 2, 2);
             scene.add(fill);
 
-            const floor = new THREE.Mesh(
-                new THREE.PlaneGeometry(20, 20),
-                new THREE.MeshStandardMaterial({
-                    color: "#e7e7e7",
-                    roughness: 0.96,
-                    metalness: 0,
-                })
+            const mugGroup = new THREE.Group();
+            mugGroup.rotation.y = rotationRef.current;
+            mugGroupRef.current = mugGroup;
+            scene.add(mugGroup);
+
+            const bodyMaterial = new THREE.MeshPhysicalMaterial({
+                color: mugBodyColor,
+                roughness: 0.24,
+                metalness: 0,
+                clearcoat: 0.18,
+                clearcoatRoughness: 0.2,
+            });
+
+            const bodyGeometry = new THREE.CylinderGeometry(
+                1.42,
+                1.36,
+                2.72,
+                96,
+                1,
+                false
             );
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.05;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            mugGroup.add(body);
+
+            const insideMaterial = new THREE.MeshPhysicalMaterial({
+                color: mugStyle === "solid" ? mugBodyColor : mugAccentColor,
+                roughness: 0.3,
+                clearcoat: 0.12,
+            });
+            const insideGeometry = new THREE.CylinderGeometry(
+                1.23,
+                1.23,
+                0.18,
+                96
+            );
+            const inside = new THREE.Mesh(insideGeometry, insideMaterial);
+            inside.position.y = 1.38;
+            inside.castShadow = true;
+            mugGroup.add(inside);
+
+            const rimMaterial = new THREE.MeshPhysicalMaterial({
+                color: mugStyle === "solid" ? mugBodyColor : mugAccentColor,
+                roughness: 0.22,
+                clearcoat: 0.22,
+            });
+            const rimGeometry = new THREE.TorusGeometry(1.35, 0.105, 20, 96);
+            const rim = new THREE.Mesh(rimGeometry, rimMaterial);
+            rim.rotation.x = Math.PI / 2;
+            rim.position.y = 1.43;
+            rim.castShadow = true;
+            mugGroup.add(rim);
+
+            const bottomRingGeometry = new THREE.TorusGeometry(
+                1.35,
+                0.045,
+                12,
+                96
+            );
+            const bottomRing = new THREE.Mesh(
+                bottomRingGeometry,
+                bodyMaterial.clone()
+            );
+            bottomRing.rotation.x = Math.PI / 2;
+            bottomRing.position.y = -1.31;
+            mugGroup.add(bottomRing);
+
+            const handleMaterial = new THREE.MeshPhysicalMaterial({
+                color: mugStyle === "solid" ? mugBodyColor : mugAccentColor,
+                roughness: 0.25,
+                clearcoat: 0.2,
+            });
+            const handleGeometry = new THREE.TorusGeometry(
+                0.83,
+                0.19,
+                28,
+                96,
+                Math.PI * 1.58
+            );
+            const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.rotation.z = Math.PI / 2;
+            handle.rotation.y = Math.PI;
+            handle.position.set(1.48, 0.05, 0);
+            handle.castShadow = true;
+            mugGroup.add(handle);
+
+            const artwork = drawArtworkTexture(
+                THREE,
+                designUrl,
+                mugBodyColor,
+                designScale,
+                designX,
+                designY,
+                designRotation
+            );
+
+            if (artwork) {
+                textureRef.current = artwork.texture;
+                const artworkMaterial = new THREE.MeshPhysicalMaterial({
+                    map: artwork.texture,
+                    roughness: 0.29,
+                    metalness: 0,
+                    clearcoat: 0.1,
+                });
+                artworkMaterialRef.current = artworkMaterial;
+
+                const artworkGeometry = new THREE.CylinderGeometry(
+                    1.425,
+                    1.365,
+                    2.68,
+                    96,
+                    1,
+                    false,
+                    -Math.PI,
+                    Math.PI * 2
+                );
+                const artworkMesh = new THREE.Mesh(
+                    artworkGeometry,
+                    artworkMaterial
+                );
+                artworkMesh.position.y = 0.05;
+                artworkMesh.castShadow = true;
+                artworkMesh.receiveShadow = true;
+                mugGroup.add(artworkMesh);
+            }
+
+            const floorGeometry = new THREE.CircleGeometry(4.4, 64);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: "#d7dade",
+                roughness: 0.82,
+                metalness: 0,
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
             floor.rotation.x = -Math.PI / 2;
-            floor.position.y = -1.52;
+            floor.position.y = -1.42;
             floor.receiveShadow = true;
             scene.add(floor);
 
-            const mug = new THREE.Group();
-            mug.rotation.y = rotationRef.current;
-            mugRef.current = mug;
-            scene.add(mug);
+            const onPointerDown = (event: PointerEvent) => {
+                interactionRef.current = {
+                    active: true,
+                    startX: event.clientX,
+                    startRotation: rotationRef.current,
+                };
+                renderer.domElement.setPointerCapture?.(event.pointerId);
+            };
 
-            const body = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.38, 1.48, 2.65, 96, 32, true),
-                new THREE.MeshPhysicalMaterial({
-                    color: mugColor,
-                    roughness: 0.22,
-                    metalness: 0,
-                    clearcoat: 0.28,
-                    clearcoatRoughness: 0.2,
-                })
-            );
-            body.castShadow = true;
-            body.receiveShadow = true;
-            mug.add(body);
+            const onPointerMove = (event: PointerEvent) => {
+                if (!interactionRef.current.active) return;
+                const delta = event.clientX - interactionRef.current.startX;
+                const next =
+                    interactionRef.current.startRotation + delta * 0.012;
+                rotationRef.current = next;
+                mugGroup.rotation.y = next;
+                onRotationChange(next);
+            };
 
-            const topRim = new THREE.Mesh(
-                new THREE.TorusGeometry(1.38, 0.095, 32, 96),
-                new THREE.MeshPhysicalMaterial({
-                    color: mugColor,
-                    roughness: 0.18,
-                    clearcoat: 0.35,
-                })
-            );
-            topRim.rotation.x = Math.PI / 2;
-            topRim.position.y = 1.325;
-            topRim.castShadow = true;
-            mug.add(topRim);
+            const onPointerUp = () => {
+                interactionRef.current.active = false;
+            };
 
-            const bottomRim = new THREE.Mesh(
-                new THREE.TorusGeometry(1.47, 0.075, 24, 96),
-                new THREE.MeshStandardMaterial({
-                    color: mugColor,
-                    roughness: 0.3,
-                })
-            );
-            bottomRim.rotation.x = Math.PI / 2;
-            bottomRim.position.y = -1.325;
-            mug.add(bottomRim);
-
-            const interior = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.18, 1.18, 0.18, 96),
-                new THREE.MeshPhysicalMaterial({
-                    color: "#171717",
-                    roughness: 0.22,
-                    metalness: 0.04,
-                })
-            );
-            interior.position.y = 1.19;
-            mug.add(interior);
-
-            const innerWell = new THREE.Mesh(
-                new THREE.CircleGeometry(1.17, 96),
-                new THREE.MeshStandardMaterial({
-                    color: "#111111",
-                    roughness: 0.35,
-                    side: THREE.DoubleSide,
-                })
-            );
-            innerWell.rotation.x = -Math.PI / 2;
-            innerWell.position.y = 1.29;
-            mug.add(innerWell);
-
-            const handle = new THREE.Mesh(
-                new THREE.TorusGeometry(0.83, 0.18, 36, 96, Math.PI * 1.78),
-                new THREE.MeshPhysicalMaterial({
-                    color: mugColor,
-                    roughness: 0.2,
-                    clearcoat: 0.3,
-                })
-            );
-            handle.rotation.y = Math.PI / 2;
-            handle.position.set(1.43, 0, 0);
-            handle.castShadow = true;
-            handle.receiveShadow = true;
-            mug.add(handle);
-
-            const handleInner = new THREE.Mesh(
-                new THREE.TorusGeometry(0.61, 0.055, 20, 64, Math.PI * 1.72),
-                new THREE.MeshStandardMaterial({
-                    color: "#d8d8d8",
-                    roughness: 0.75,
-                })
-            );
-            handleInner.rotation.y = Math.PI / 2;
-            handleInner.position.set(1.44, 0, 0);
-            mug.add(handleInner);
-
-            const textureCanvas = document.createElement("canvas");
-            textureCanvas.width = 2048;
-            textureCanvas.height = 1024;
-            textureCanvasRef.current = textureCanvas;
-
-            const texture = new THREE.CanvasTexture(textureCanvas);
-            texture.colorSpace = THREE.SRGBColorSpace;
-            texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-            textureRef.current = texture;
-
-            const artwork = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.405, 1.505, 2.61, 96, 32, true),
-                new THREE.MeshBasicMaterial({
-                    map: texture,
-                    transparent: true,
-                    depthWrite: false,
-                    side: THREE.FrontSide,
-                })
-            );
-            artworkRef.current = artwork;
-            mug.add(artwork);
+            renderer.domElement.addEventListener("pointerdown", onPointerDown);
+            renderer.domElement.addEventListener("pointermove", onPointerMove);
+            renderer.domElement.addEventListener("pointerup", onPointerUp);
+            renderer.domElement.addEventListener("pointercancel", onPointerUp);
+            renderer.domElement.style.touchAction = "none";
+            renderer.domElement.style.cursor = "grab";
 
             const resize = () => {
-                if (!hostRef.current) return;
-                const width = Math.max(320, hostRef.current.clientWidth);
-                const height = Math.max(420, hostRef.current.clientHeight);
+                const width = Math.max(1, host.clientWidth);
+                const height = Math.max(1, host.clientHeight);
+                renderer.setSize(width, height, false);
                 camera.aspect = width / height;
                 camera.updateProjectionMatrix();
-                renderer.setSize(width, height, false);
             };
 
+            resizeObserver = new ResizeObserver(resize);
+            resizeObserver.observe(host);
             resize();
-            const observer = new ResizeObserver(resize);
-            observer.observe(host);
 
-            const render = () => {
+            const animate = () => {
                 if (disposed) return;
-                mug.rotation.y = rotationRef.current;
+                animationRef.current = requestAnimationFrame(animate);
                 renderer.render(scene, camera);
-                animationRef.current = requestAnimationFrame(render);
             };
+            animate();
 
-            render();
-
-            return () => observer.disconnect();
+            return () => {
+                renderer.domElement.removeEventListener("pointerdown", onPointerDown);
+                renderer.domElement.removeEventListener("pointermove", onPointerMove);
+                renderer.domElement.removeEventListener("pointerup", onPointerUp);
+                renderer.domElement.removeEventListener("pointercancel", onPointerUp);
+                renderer.dispose();
+                scene.traverse((object: any) => {
+                    object.geometry?.dispose?.();
+                    if (object.material) {
+                        const materials = Array.isArray(object.material)
+                            ? object.material
+                            : [object.material];
+                        materials.forEach((material: any) => {
+                            material.map?.dispose?.();
+                            material.dispose?.();
+                        });
+                    }
+                });
+            };
         };
 
-        void setup().catch((error) => {
-            console.error("Magic Touch 3D preview failed to initialize.", error);
+        let cleanup: (() => void) | undefined;
+        void setup().then((result) => {
+            cleanup = result;
         });
 
         return () => {
@@ -308,133 +431,35 @@ function Mug3DPreview({
             if (animationRef.current !== null) {
                 cancelAnimationFrame(animationRef.current);
             }
-            rendererRef.current?.dispose?.();
+            resizeObserver?.disconnect();
+            cleanup?.();
             textureRef.current?.dispose?.();
-            sceneRef.current?.traverse?.((object: any) => {
-                object.geometry?.dispose?.();
-                if (Array.isArray(object.material)) {
-                    object.material.forEach((material: any) => material.dispose?.());
-                } else {
-                    object.material?.dispose?.();
-                }
-            });
+            textureRef.current = null;
+            artworkMaterialRef.current = null;
+            rendererRef.current = null;
+            sceneRef.current = null;
+            cameraRef.current = null;
+            mugGroupRef.current = null;
         };
-    }, []);
-
-    useEffect(() => {
-        const mug = mugRef.current;
-        if (!mug) return;
-
-        mug.traverse((object: any) => {
-            const material = object.material;
-            if (!material?.color) return;
-            if (object.geometry?.type === "CylinderGeometry" && object !== artworkRef.current) {
-                material.color.set(mugColor);
-            }
-            if (object.geometry?.type === "TorusGeometry") {
-                material.color.set(mugColor);
-            }
-        });
-    }, [mugColor]);
-
-    useEffect(() => {
-        const canvas = textureCanvasRef.current;
-        const texture = textureRef.current;
-        if (!canvas || !texture) return;
-
-        const context = canvas.getContext("2d");
-        if (!context) return;
-
-        context.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (!designUrl) {
-            texture.needsUpdate = true;
-            designImageRef.current = null;
-            return;
-        }
-
-        const image = new Image();
-        image.onload = () => {
-            designImageRef.current = image;
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            const printableWidth = canvas.width * 0.78;
-            const printableHeight = canvas.height * 0.68;
-            const imageRatio = image.width / image.height;
-
-            let width = printableWidth;
-            let height = width / imageRatio;
-            if (height > printableHeight) {
-                height = printableHeight;
-                width = height * imageRatio;
-            }
-
-            width *= designScale;
-            height *= designScale;
-
-            const centerX = canvas.width / 2 + (designX / 100) * canvas.width * 0.35;
-            const centerY = canvas.height / 2 + (designY / 100) * canvas.height * 0.25;
-
-            context.save();
-            context.translate(centerX, centerY);
-            context.rotate((designRotation * Math.PI) / 180);
-            context.drawImage(image, -width / 2, -height / 2, width, height);
-            context.restore();
-
-            texture.needsUpdate = true;
-        };
-        image.onerror = () => {
-            designImageRef.current = null;
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            texture.needsUpdate = true;
-        };
-        image.src = designUrl;
-    }, [designUrl, designScale, designX, designY, designRotation]);
-
-    const beginDrag = (clientX: number) => {
-        interactionRef.current = {
-            active: true,
-            startX: clientX,
-            startRotation: rotationRef.current,
-        };
-    };
-
-    const moveDrag = (clientX: number) => {
-        if (!interactionRef.current.active) return;
-        const delta = clientX - interactionRef.current.startX;
-        const next = interactionRef.current.startRotation + delta * 0.012;
-        rotationRef.current = next;
-        onRotationChange(next);
-    };
-
-    const endDrag = () => {
-        interactionRef.current.active = false;
-    };
+    }, [
+        mugStyle,
+        mugBodyColor,
+        mugAccentColor,
+        designUrl,
+        designScale,
+        designX,
+        designY,
+        designRotation,
+        onRotationChange,
+    ]);
 
     return (
-        <div
-            ref={hostRef}
-            className="customize-3d-preview"
-            onPointerDown={(event) => {
-                event.currentTarget.setPointerCapture(event.pointerId);
-                beginDrag(event.clientX);
-            }}
-            onPointerMove={(event) => moveDrag(event.clientX)}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
-            role="application"
-            aria-label="Interactive 3D mug preview. Drag to rotate the mug."
-        >
-            <div className="customize-3d-preview__hint">
-                <span>360°</span>
-                Drag to rotate
+        <div className="mug-3d-preview">
+            <div className="mug-3d-preview__badge">360° · DRAG TO ROTATE</div>
+            <div ref={hostRef} className="mug-3d-preview__canvas" />
+            <div className="mug-3d-preview__hint">
+                Drag the mug with your mouse or finger to inspect every side.
             </div>
-            {!designUrl && (
-                <div className="customize-3d-preview__empty">
-                    <strong>Your design will appear here</strong>
-                    <span>Upload an image to preview it on the mug.</span>
-                </div>
-            )}
         </div>
     );
 }
