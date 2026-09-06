@@ -19,6 +19,7 @@ export type CartItem = {
     price: number;
     quantity: number;
     image: string;
+    customizationId?: string;
 };
 
 const CART_STORAGE_KEY = "magic-touch-cart";
@@ -52,6 +53,9 @@ function normalizeCartItem(item: CartItem): CartItem | null {
         size: String(item.size ?? ""),
         color: String(item.color ?? ""),
         image: String(item.image ?? ""),
+        customizationId: item.customizationId
+            ? String(item.customizationId)
+            : undefined,
     };
 }
 
@@ -102,7 +106,8 @@ export function addToCart(
             String(cartItem.id) === String(item.id) &&
             cartItem.model === item.model &&
             cartItem.size === item.size &&
-            cartItem.color === item.color
+            cartItem.color === item.color &&
+            cartItem.customizationId === item.customizationId
     );
 
     if (existingItemIndex >= 0) {
@@ -134,7 +139,8 @@ export function removeFromCart(
     id: string | number,
     model?: string,
     size?: string,
-    color?: string
+    color?: string,
+    customizationId?: string
 ): CartItem[] {
     const updatedItems = getCartItems().filter((item) => {
         const sameId = String(item.id) === String(id);
@@ -155,6 +161,13 @@ export function removeFromCart(
             return true;
         }
 
+        if (
+            customizationId !== undefined &&
+            item.customizationId !== customizationId
+        ) {
+            return true;
+        }
+
         return false;
     });
 
@@ -167,7 +180,8 @@ export function updateCartQuantity(
     quantity: number,
     model?: string,
     size?: string,
-    color?: string
+    color?: string,
+    customizationId?: string
 ): CartItem[] {
     const safeQuantity = normalizeQuantity(quantity);
 
@@ -176,7 +190,9 @@ export function updateCartQuantity(
         const sameVariant =
             (model === undefined || item.model === model) &&
             (size === undefined || item.size === size) &&
-            (color === undefined || item.color === color);
+            (color === undefined || item.color === color) &&
+            (customizationId === undefined ||
+                item.customizationId === customizationId);
 
         if (!sameId || !sameVariant) {
             return item;
