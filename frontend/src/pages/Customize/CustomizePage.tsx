@@ -6,16 +6,12 @@ import { RotateCcw, Upload, ShieldCheck } from "lucide-react";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 import { addToCart } from "../../utils/cart";
-import {
-    createCustomizationId,
-    saveCustomizationSession,
-} from "../../utils/customization";
+import { createCustomizationId, saveCustomizationSession } from "../../utils/customization";
 import Mug3DPreview from "./Mug3DPreview";
 import "./Mug3DPreview.css";
 import "./CustomizePage.css";
 
-const API_URL =
-    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 type MugVariant = {
     id: string;
@@ -93,10 +89,7 @@ function CustomizePage() {
         return () => { cancelled = true; };
     }, []);
 
-    const selectedProduct = useMemo(
-        () => products.find((product) => product.product_id === productId) || null,
-        [products, productId]
-    );
+    const selectedProduct = useMemo(() => products.find((product) => product.product_id === productId) || null, [products, productId]);
     const selectedVariant = MUG_VARIANTS.find((variant) => variant.id === variantId) || MUG_VARIANTS[0];
     const price = Number(selectedProduct?.price || 0);
 
@@ -132,11 +125,9 @@ function CustomizePage() {
     const saveAndAddToCart = () => {
         if (!selectedProduct) return setError("Choose a mug model before continuing.");
         if (!designUrl) return setError("Upload your design before adding the custom mug to the cart.");
-
         setAdding(true);
         setError("");
         const customizationId = createCustomizationId();
-
         saveCustomizationSession({
             id: customizationId,
             productId: selectedProduct.product_id,
@@ -152,7 +143,6 @@ function CustomizePage() {
             mugRotation,
             createdAt: new Date().toISOString(),
         });
-
         addToCart({
             id: selectedProduct.product_id,
             name: selectedProduct.name,
@@ -178,9 +168,7 @@ function CustomizePage() {
                             <p>Choose the exact mug style you use, upload your artwork and inspect the finished mug in realistic 3D before ordering.</p>
                         </div>
                     </header>
-
                     {error && <div className="customize-error">{error}</div>}
-
                     <section className="customize-engine">
                         <aside className="customize-panel customize-panel--controls">
                             <div className="customize-step">
@@ -190,37 +178,24 @@ function CustomizePage() {
                                     {products.map((product) => <option key={product.product_id} value={product.product_id}>{product.name}</option>)}
                                 </select>
                             </div>
-
                             <div className="customize-step">
                                 <div className="customize-step__title"><span className="customize-step__number">2</span>Select Size</div>
                                 <div className="customize-size-grid">
-                                    {(["11 oz", "15 oz"] as const).map((option) => (
-                                        <button key={option} type="button" className={`customize-choice ${size === option ? "customize-choice--active" : ""}`} onClick={() => setSize(option)}>{option}</button>
-                                    ))}
+                                    {(["11 oz", "15 oz"] as const).map((option) => <button key={option} type="button" className={`customize-choice ${size === option ? "customize-choice--active" : ""}`} onClick={() => setSize(option)}>{option}</button>)}
                                 </div>
                             </div>
-
                             <div className="customize-step">
                                 <div className="customize-step__title"><span className="customize-step__number">3</span>Choose Your Real Mug Style</div>
                                 <p className="customize-step__description">These are the mug combinations you actually use. The 3D model changes to match the selected style.</p>
                                 <div className="customize-colors">
                                     {MUG_VARIANTS.map((option) => (
-                                        <button
-                                            key={option.id}
-                                            type="button"
-                                            title={option.name}
-                                            aria-label={`Choose ${option.name}`}
-                                            className={`customize-color customize-color--${option.id} ${variantId === option.id ? "customize-color--active" : ""}`}
-                                            style={{ "--mug-swatch": option.swatchColor } as CSSProperties}
-                                            onClick={() => { setVariantId(option.id); setMugRotation(0); }}
-                                        >
+                                        <button key={option.id} type="button" title={option.name} aria-label={`Choose ${option.name}`} className={`customize-color customize-color--${option.id} ${variantId === option.id ? "customize-color--active" : ""}`} style={{ "--mug-swatch": option.swatchColor } as CSSProperties} onClick={() => { setVariantId(option.id); setMugRotation(0); }}>
                                             <span />
                                             <small>{option.name}</small>
                                         </button>
                                     ))}
                                 </div>
                             </div>
-
                             <div className="customize-step">
                                 <div className="customize-step__title"><span className="customize-step__number">4</span>Add Your Design</div>
                                 <label className="customize-upload">
@@ -231,7 +206,6 @@ function CustomizePage() {
                                 </label>
                                 {designFileName && <div className="customize-file-name" title={designFileName}>{designFileName}</div>}
                             </div>
-
                             <div className="customize-step">
                                 <div className="customize-step__title"><span className="customize-step__number">5</span>Adjust Design</div>
                                 <div className="customize-control-row"><label htmlFor="design-scale">Scale</label><span className="customize-control-value">{Math.round(designScale * 100)}%</span><input id="design-scale" className="customize-range" type="range" min="0.4" max="1.6" step="0.01" value={designScale} onChange={(event) => setDesignScale(Number(event.target.value))} /></div>
@@ -241,7 +215,6 @@ function CustomizePage() {
                                 <button type="button" className="customize-reset" onClick={resetDesign}><RotateCcw size={14} /> Reset Design</button>
                             </div>
                         </aside>
-
                         <section className="customize-center">
                             <div className="customize-view-tabs">
                                 <button type="button" className="customize-view-tab customize-view-tab--active">Realistic 3D</button>
@@ -249,20 +222,7 @@ function CustomizePage() {
                                 <button type="button" className="customize-view-tab" onClick={() => setMugRotation(Math.PI)}>Back View</button>
                                 <button type="button" className="customize-view-tab" onClick={() => setMugRotation(Math.PI / 2)}>Side View</button>
                             </div>
-
-                            <Mug3DPreview
-                                mugStyle={selectedVariant.family}
-                                mugBodyColor={selectedVariant.bodyColor}
-                                mugAccentColor={selectedVariant.accentColor}
-                                designUrl={designUrl}
-                                designScale={designScale}
-                                designX={designX}
-                                designY={designY}
-                                designRotation={designRotation}
-                                rotation={mugRotation}
-                                onRotationChange={setMugRotation}
-                            />
-
+                            <Mug3DPreview mugStyle={selectedVariant.family} mugSize={size} mugBodyColor={selectedVariant.bodyColor} mugAccentColor={selectedVariant.accentColor} designUrl={designUrl} designScale={designScale} designX={designX} designY={designY} designRotation={designRotation} rotation={mugRotation} onRotationChange={setMugRotation} />
                             <div className="customize-side-preview">
                                 <button type="button" onClick={() => setMugRotation(0)}>Front</button>
                                 <button type="button" onClick={() => setMugRotation(Math.PI / 2)}>Right Side</button>
@@ -270,16 +230,12 @@ function CustomizePage() {
                                 <button type="button" onClick={() => setMugRotation(-Math.PI / 2)}>Left Side</button>
                             </div>
                         </section>
-
                         <aside className="customize-panel customize-panel--summary">
                             <div className="customize-summary">
                                 <div>
                                     <span className="customize-summary__label">YOUR CREATION</span>
                                     <h2>Product Details</h2>
-                                    <div className="customize-summary__product">
-                                        <div><strong>{selectedProduct?.name || "Ceramic Mug"}</strong><span>{size} · {selectedVariant.name} · Custom artwork</span></div>
-                                        <span className="customize-summary__price">${price.toFixed(2)}</span>
-                                    </div>
+                                    <div className="customize-summary__product"><div><strong>{selectedProduct?.name || "Ceramic Mug"}</strong><span>{size} · {selectedVariant.name} · Custom artwork</span></div><span className="customize-summary__price">${price.toFixed(2)}</span></div>
                                 </div>
                                 <div className="customize-summary__specs">
                                     <div className="customize-summary__spec"><span>Size</span><strong>{size}</strong></div>
