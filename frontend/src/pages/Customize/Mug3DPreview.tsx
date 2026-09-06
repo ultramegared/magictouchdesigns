@@ -14,7 +14,7 @@
 
 import { useEffect, useRef } from "react";
 
-const THREE_CDN = "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.min.js";
+const THREE_CDN = "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.185.1/three.min.js";
 
 declare global {
     interface Window {
@@ -160,11 +160,7 @@ function Mug3DPreview({
                 camera.lookAt(0, 0.1, 0);
                 cameraRef.current = camera;
 
-                const renderer = new THREE.WebGLRenderer({
-                    antialias: true,
-                    alpha: false,
-                    powerPreference: "high-performance",
-                });
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
                 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
                 renderer.outputColorSpace = THREE.SRGBColorSpace;
                 renderer.shadowMap.enabled = true;
@@ -175,158 +171,80 @@ function Mug3DPreview({
                 host.replaceChildren(renderer.domElement);
 
                 scene.add(new THREE.HemisphereLight("#ffffff", "#777777", 2.25));
-
                 const key = new THREE.DirectionalLight("#ffffff", 4.2);
                 key.position.set(3.5, 5, 4.5);
                 key.castShadow = true;
                 key.shadow.mapSize.set(1024, 1024);
                 scene.add(key);
-
                 const fill = new THREE.DirectionalLight("#ffffff", 1.45);
                 fill.position.set(-4, 2, 2);
                 scene.add(fill);
-
                 const rimLight = new THREE.DirectionalLight("#ffffff", 1.1);
                 rimLight.position.set(1, 3, -4);
                 scene.add(rimLight);
 
                 const mugGroup = new THREE.Group();
                 mugGroup.rotation.y = rotationRef.current;
-
-                // 15 oz is modeled slightly taller and wider, rather than only
-                // stretching the 11 oz mug vertically.
                 const sizeScale = mugSize === "15 oz" ? { x: 1.045, y: 1.16, z: 1.045 } : { x: 1, y: 1, z: 1 };
                 mugGroup.scale.set(sizeScale.x, sizeScale.y, sizeScale.z);
                 mugGroupRef.current = mugGroup;
                 scene.add(mugGroup);
 
-                const bodyMaterial = new THREE.MeshPhysicalMaterial({
-                    color: mugBodyColor,
-                    roughness: 0.24,
-                    metalness: 0,
-                    clearcoat: 0.18,
-                    clearcoatRoughness: 0.2,
-                });
-
-                const body = new THREE.Mesh(
-                    new THREE.CylinderGeometry(1.42, 1.36, 2.72, 128, 1, false),
-                    bodyMaterial
-                );
+                const bodyMaterial = new THREE.MeshPhysicalMaterial({ color: mugBodyColor, roughness: 0.24, metalness: 0, clearcoat: 0.18, clearcoatRoughness: 0.2 });
+                const body = new THREE.Mesh(new THREE.CylinderGeometry(1.42, 1.36, 2.72, 128, 1, false), bodyMaterial);
                 body.position.y = 0.05;
                 body.castShadow = true;
                 body.receiveShadow = true;
                 mugGroup.add(body);
 
                 const accent = mugStyle === "solid" ? mugBodyColor : mugAccentColor;
-
-                const insideMaterial = new THREE.MeshPhysicalMaterial({
-                    color: accent,
-                    roughness: 0.3,
-                    clearcoat: 0.12,
-                });
-                const inside = new THREE.Mesh(
-                    new THREE.CylinderGeometry(1.23, 1.23, 0.18, 128),
-                    insideMaterial
-                );
+                const insideMaterial = new THREE.MeshPhysicalMaterial({ color: accent, roughness: 0.3, clearcoat: 0.12 });
+                const inside = new THREE.Mesh(new THREE.CylinderGeometry(1.23, 1.23, 0.18, 128), insideMaterial);
                 inside.position.y = 1.38;
                 inside.castShadow = true;
                 mugGroup.add(inside);
 
-                const rimMaterial = new THREE.MeshPhysicalMaterial({
-                    color: accent,
-                    roughness: 0.22,
-                    clearcoat: 0.22,
-                });
-                const rim = new THREE.Mesh(
-                    new THREE.TorusGeometry(1.35, 0.105, 24, 128),
-                    rimMaterial
-                );
+                const rimMaterial = new THREE.MeshPhysicalMaterial({ color: accent, roughness: 0.22, clearcoat: 0.22 });
+                const rim = new THREE.Mesh(new THREE.TorusGeometry(1.35, 0.105, 24, 128), rimMaterial);
                 rim.rotation.x = Math.PI / 2;
                 rim.position.y = 1.43;
                 rim.castShadow = true;
                 mugGroup.add(rim);
 
-                const bottomRing = new THREE.Mesh(
-                    new THREE.TorusGeometry(1.35, 0.045, 14, 128),
-                    bodyMaterial.clone()
-                );
+                const bottomRing = new THREE.Mesh(new THREE.TorusGeometry(1.35, 0.045, 14, 128), bodyMaterial.clone());
                 bottomRing.rotation.x = Math.PI / 2;
                 bottomRing.position.y = -1.31;
                 mugGroup.add(bottomRing);
 
-                const handleMaterial = new THREE.MeshPhysicalMaterial({
-                    color: accent,
-                    roughness: 0.25,
-                    clearcoat: 0.2,
-                });
-                const handle = new THREE.Mesh(
-                    new THREE.TorusGeometry(0.83, 0.19, 32, 128, Math.PI * 1.58),
-                    handleMaterial
-                );
+                const handleMaterial = new THREE.MeshPhysicalMaterial({ color: accent, roughness: 0.25, clearcoat: 0.2 });
+                const handle = new THREE.Mesh(new THREE.TorusGeometry(0.83, 0.19, 32, 128, Math.PI * 1.58), handleMaterial);
                 handle.rotation.z = Math.PI / 2;
                 handle.rotation.y = Math.PI;
                 handle.position.set(1.48, 0.05, 0);
                 handle.castShadow = true;
                 mugGroup.add(handle);
 
-                const artwork = drawArtworkTexture(
-                    THREE,
-                    designUrl,
-                    mugBodyColor,
-                    designScale,
-                    designX,
-                    designY,
-                    designRotation
-                );
-
+                const artwork = drawArtworkTexture(THREE, designUrl, mugBodyColor, designScale, designX, designY, designRotation);
                 if (artwork) {
-                    const artworkMaterial = new THREE.MeshPhysicalMaterial({
-                        map: artwork.texture,
-                        roughness: 0.31,
-                        metalness: 0,
-                        clearcoat: 0.08,
-                    });
-
-                    // The artwork shell is microscopically offset from the ceramic
-                    // surface to avoid z-fighting while following the mug curvature.
-                    const artworkMesh = new THREE.Mesh(
-                        new THREE.CylinderGeometry(
-                            1.425,
-                            1.365,
-                            2.68,
-                            128,
-                            1,
-                            false,
-                            -Math.PI,
-                            Math.PI * 2
-                        ),
-                        artworkMaterial
-                    );
+                    const artworkMaterial = new THREE.MeshPhysicalMaterial({ map: artwork.texture, roughness: 0.31, metalness: 0, clearcoat: 0.08 });
+                    const artworkMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.425, 1.365, 2.68, 128, 1, false, -Math.PI, Math.PI * 2), artworkMaterial);
                     artworkMesh.position.y = 0.05;
                     artworkMesh.castShadow = true;
                     artworkMesh.receiveShadow = true;
                     mugGroup.add(artworkMesh);
                 }
 
-                const floor = new THREE.Mesh(
-                    new THREE.CircleGeometry(4.4, 96),
-                    new THREE.MeshStandardMaterial({ color: "#d7dade", roughness: 0.82, metalness: 0 })
-                );
+                const floor = new THREE.Mesh(new THREE.CircleGeometry(4.4, 96), new THREE.MeshStandardMaterial({ color: "#d7dade", roughness: 0.82, metalness: 0 }));
                 floor.rotation.x = -Math.PI / 2;
                 floor.position.y = -1.42;
                 floor.receiveShadow = true;
                 scene.add(floor);
 
                 const onPointerDown = (event: PointerEvent) => {
-                    interactionRef.current = {
-                        active: true,
-                        startX: event.clientX,
-                        startRotation: rotationRef.current,
-                    };
+                    interactionRef.current = { active: true, startX: event.clientX, startRotation: rotationRef.current };
                     renderer.domElement.setPointerCapture?.(event.pointerId);
                     renderer.domElement.style.cursor = "grabbing";
                 };
-
                 const onPointerMove = (event: PointerEvent) => {
                     if (!interactionRef.current.active) return;
                     const delta = event.clientX - interactionRef.current.startX;
@@ -335,12 +253,10 @@ function Mug3DPreview({
                     mugGroup.rotation.y = next;
                     onRotationChange(next);
                 };
-
                 const onPointerUp = () => {
                     interactionRef.current.active = false;
                     renderer.domElement.style.cursor = "grab";
                 };
-
                 const onWheel = (event: WheelEvent) => {
                     event.preventDefault();
                     zoomRef.current = Math.max(4.35, Math.min(7.4, zoomRef.current + event.deltaY * 0.0025));
@@ -363,7 +279,6 @@ function Mug3DPreview({
                     camera.aspect = width / height;
                     camera.updateProjectionMatrix();
                 };
-
                 resizeObserver = new ResizeObserver(resize);
                 resizeObserver.observe(host);
                 resize();
@@ -384,9 +299,7 @@ function Mug3DPreview({
                     renderer.dispose();
                     scene.traverse((object: any) => {
                         object.geometry?.dispose?.();
-                        const materials = object.material
-                            ? (Array.isArray(object.material) ? object.material : [object.material])
-                            : [];
+                        const materials = object.material ? (Array.isArray(object.material) ? object.material : [object.material]) : [];
                         materials.forEach((material: any) => {
                             material.map?.dispose?.();
                             material.dispose?.();
@@ -394,14 +307,11 @@ function Mug3DPreview({
                     });
                 };
             } catch {
-                if (!disposed && hostRef.current) {
-                    hostRef.current.innerHTML = "<div class=\"mug-3d-preview__error\">3D preview could not be loaded. Please refresh and try again.</div>";
-                }
+                if (!disposed && hostRef.current) hostRef.current.innerHTML = "<div class=\"mug-3d-preview__error\">3D preview could not be loaded. Please refresh and try again.</div>";
             }
         };
 
         void setup();
-
         return () => {
             disposed = true;
             if (animationRef.current !== null) cancelAnimationFrame(animationRef.current);
@@ -421,9 +331,7 @@ function Mug3DPreview({
                 <span className="mug-3d-preview__size">{mugSize} · {mugStyle === "solid" ? "Solid" : "Colored Handle"}</span>
             </div>
             <div ref={hostRef} className="mug-3d-preview__canvas" />
-            <div className="mug-3d-preview__hint">
-                <span>↔</span> Drag to rotate · Scroll/pinch to zoom · Inspect every side
-            </div>
+            <div className="mug-3d-preview__hint"><span>↔</span> Drag to rotate · Scroll/pinch to zoom · Inspect every side</div>
         </div>
     );
 }
