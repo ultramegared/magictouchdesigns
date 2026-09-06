@@ -12,6 +12,7 @@ import reviewRoutes from "./routes/review.routes";
 import uploadRoutes from "./routes/upload.routes";
 import adminRoutes from "./routes/admin.routes";
 import settingsRoutes from "./routes/settings.routes";
+import reportsRoutes from "./routes/reports.routes";
 import productRoutes from "./routes/product.routes";
 import collectionRoutes from "./routes/collection.routes";
 import subscriberRoutes from "./routes/subscriber.routes";
@@ -21,16 +22,9 @@ import adminOrderRoutes from "./routes/order.admin.routes";
 import { stripeWebhook } from "./controllers/order.controller";
 
 const app = express();
-
 app.use(cors());
 
-/* Stripe needs the untouched body for webhook signature verification. */
-app.post(
-    "/api/orders/webhook",
-    express.raw({ type: "application/json" }),
-    stripeWebhook,
-);
-
+app.post("/api/orders/webhook", express.raw({ type: "application/json" }), stripeWebhook);
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
@@ -39,6 +33,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/orders", adminOrderRoutes);
+app.use("/api/admin/reports", reportsRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/collections", collectionRoutes);
@@ -49,20 +44,10 @@ app.use("/api/orders", orderRoutes);
 app.get("/api/health", async (_req, res) => {
     try {
         await pool.query("SELECT 1");
-        res.json({
-            status: "ok",
-            project: "Magic Touch Designs",
-            author: "ultramegared",
-            database: "connected",
-        });
+        res.json({ status: "ok", project: "Magic Touch Designs", author: "ultramegared", database: "connected" });
     } catch (error) {
         console.error("Database connection error:", error);
-        res.status(503).json({
-            status: "error",
-            project: "Magic Touch Designs",
-            author: "ultramegared",
-            database: "disconnected",
-        });
+        res.status(503).json({ status: "error", project: "Magic Touch Designs", author: "ultramegared", database: "disconnected" });
     }
 });
 

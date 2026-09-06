@@ -1,0 +1,19 @@
+import { useEffect, useState } from "react";
+import { BarChart3, CalendarDays, DollarSign, ShoppingBag, Receipt, Truck } from "lucide-react";
+import AdminSidebar from "./AdminSidebar";
+import { apiRequest } from "../../services/api";
+import "./AdminReports.css";
+
+type Summary={orders:number;paid_orders:number;gross_sales:string;product_sales:string;shipping_collected:string;tax_collected:string;average_order_value:string};
+type Report={start:string;end:string;summary:Summary;daily:{date:string;orders:number;sales:string}[];payments:{provider:string;method:string;orders:number;sales:string}[];products:{product_id:string;product_name:string;quantity:number;sales:string}[]};
+const money=(v:string|number)=>`$${Number(v||0).toFixed(2)}`;
+function AdminReports(){const [start,setStart]=useState("");const [end,setEnd]=useState("");const [report,setReport]=useState<Report|null>(null);const [loading,setLoading]=useState(true);const [error,setError]=useState("");
+ const load=async()=>{try{setLoading(true);setError("");const params=new URLSearchParams();if(start)params.set("start",start);if(end)params.set("end",end);const r=await apiRequest<Report>(`/api/admin/reports?${params}`);setReport(r);if(!start)setStart(r.start);if(!end)setEnd(r.end);}catch(e){setError(e instanceof Error?e.message:"Unable to load reports.");}finally{setLoading(false);}};
+ useEffect(()=>{load();},[]);
+ return <div className="admin-layout"><AdminSidebar username="Administrator"/><main className="admin-reports"><header className="admin-reports__hero"><div><span>ADMINISTRATION</span><h1>Reports</h1><p>Real sales and order reporting from the database.</p></div><BarChart3 size={42}/></header>{error&&<div className="admin-reports__error">{error}</div>}
+ <section className="admin-reports__filters"><CalendarDays/><label>From<input type="date" value={start} onChange={e=>setStart(e.target.value)}/></label><label>To<input type="date" value={end} onChange={e=>setEnd(e.target.value)}/></label><button onClick={load}>Apply</button></section>
+ {loading?<div className="admin-reports__loading">Loading report…</div>:report&&<><section className="admin-reports__cards"><article><DollarSign/><span>Gross Sales</span><strong>{money(report.summary.gross_sales)}</strong></article><article><ShoppingBag/><span>Paid Orders</span><strong>{report.summary.paid_orders}</strong></article><article><Receipt/><span>Tax Collected</span><strong>{money(report.summary.tax_collected)}</strong></article><article><Truck/><span>Shipping Collected</span><strong>{money(report.summary.shipping_collected)}</strong></article><article><DollarSign/><span>Average Order</span><strong>{money(report.summary.average_order_value)}</strong></article></section>
+ <section className="admin-reports__panel"><h2>Daily Sales</h2><div className="admin-reports__table-wrap"><table><thead><tr><th>Date</th><th>Orders</th><th>Sales</th></tr></thead><tbody>{report.daily.map(x=><tr key={x.date}><td>{x.date}</td><td>{x.orders}</td><td>{money(x.sales)}</td></tr>)}{!report.daily.length&&<tr><td colSpan={3}>No orders in this period.</td></tr>}</tbody></table></div></section>
+ <section className="admin-reports__two"><section className="admin-reports__panel"><h2>Payment Methods</h2><table><thead><tr><th>Provider</th><th>Orders</th><th>Sales</th></tr></thead><tbody>{report.payments.map((x,i)=><tr key={`${x.provider}-${x.method}-${i}`}><td>{x.provider} · {x.method}</td><td>{x.orders}</td><td>{money(x.sales)}</td></tr>)}</tbody></table></section><section className="admin-reports__panel"><h2>Top Products</h2><table><thead><tr><th>Product</th><th>Qty</th><th>Sales</th></tr></thead><tbody>{report.products.map(x=><tr key={x.product_id}><td>{x.product_name}</td><td>{x.quantity}</td><td>{money(x.sales)}</td></tr>)}</tbody></table></section></section></>}
+ </main></div>}
+export default AdminReports;
