@@ -21,7 +21,7 @@ import { stripeWebhook } from "./controllers/order.controller";
 const app = express();
 app.use(cors());
 app.post("/api/orders/webhook", express.raw({ type: "application/json" }), stripeWebhook);
-app.use(express.json({ limit: "12mb" }));
+app.use(express.json({ limit: "5mb" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/upload", uploadRoutes);
