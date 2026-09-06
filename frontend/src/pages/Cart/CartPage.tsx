@@ -24,6 +24,7 @@ import {
     updateCartQuantity,
     type CartItem,
 } from "../../utils/cart";
+import { getCustomizationPreview } from "../../utils/customization";
 
 function CartPage() {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -42,14 +43,16 @@ function CartPage() {
         change: number,
         model: string,
         size: string,
-        color: string
+        color: string,
+        customizationId?: string
     ) => {
         const currentItem = cartItems.find(
             (item) =>
                 String(item.id) === String(id) &&
                 item.model === model &&
                 item.size === size &&
-                item.color === color
+                item.color === color &&
+                item.customizationId === customizationId
         );
 
         if (!currentItem) {
@@ -61,7 +64,8 @@ function CartPage() {
             currentItem.quantity + change,
             model,
             size,
-            color
+            color,
+            customizationId
         );
 
         setCartItems(updatedItems);
@@ -71,27 +75,21 @@ function CartPage() {
         id: string | number,
         model: string,
         size: string,
-        color: string
+        color: string,
+        customizationId?: string
     ) => {
         const updatedItems = removeFromCart(
             id,
             model,
             size,
-            color
+            color,
+            customizationId
         );
 
         setCartItems(updatedItems);
     };
 
     const subtotal = getCartSubtotal();
-
-    /*
-     * Delivery and tax are intentionally not hard-coded here as final
-     * checkout values. They depend on the customer's shipping destination
-     * and the final order calculation performed during checkout.
-     * The cart keeps the current visual estimate until checkout receives
-     * the customer's address.
-     */
     const delivery = subtotal > 0 ? 5.99 : 0;
     const taxes = subtotal * 0.08;
     const total = subtotal + delivery + taxes;
@@ -103,6 +101,14 @@ function CartPage() {
 
     const handleContinueShopping = () => {
         window.history.back();
+    };
+
+    const getItemImage = (item: CartItem) => {
+        if (item.customizationId) {
+            return getCustomizationPreview(item.customizationId) || item.image;
+        }
+
+        return item.image;
     };
 
     return (
@@ -152,18 +158,18 @@ function CartPage() {
                                 cartItems.map((item) => (
                                     <article
                                         className="cart-item"
-                                        key={`${item.id}-${item.model}-${item.size}-${item.color}`}
+                                        key={`${item.id}-${item.model}-${item.size}-${item.color}-${item.customizationId || "standard"}`}
                                     >
                                         <div className="cart-item__image">
                                             <img
-                                                src={item.image}
+                                                src={getItemImage(item)}
                                                 alt={item.name}
                                             />
                                         </div>
 
                                         <div className="cart-item__details">
                                             <span className="cart-item__label">
-                                                CUSTOM MUG
+                                                {item.customizationId ? "CUSTOM MUG" : "MUG"}
                                             </span>
 
                                             <h3>{item.name}</h3>
@@ -180,6 +186,12 @@ function CartPage() {
                                                 </span>
                                             </div>
 
+                                            {item.customizationId && (
+                                                <small>
+                                                    Personalized design attached to this cart item.
+                                                </small>
+                                            )}
+
                                             <button
                                                 type="button"
                                                 className="cart-item__remove"
@@ -188,7 +200,8 @@ function CartPage() {
                                                         item.id,
                                                         item.model,
                                                         item.size,
-                                                        item.color
+                                                        item.color,
+                                                        item.customizationId
                                                     )
                                                 }
                                             >
@@ -206,7 +219,8 @@ function CartPage() {
                                                             -1,
                                                             item.model,
                                                             item.size,
-                                                            item.color
+                                                            item.color,
+                                                            item.customizationId
                                                         )
                                                     }
                                                     aria-label={`Decrease quantity of ${item.name}`}
@@ -224,7 +238,8 @@ function CartPage() {
                                                             1,
                                                             item.model,
                                                             item.size,
-                                                            item.color
+                                                            item.color,
+                                                            item.customizationId
                                                         )
                                                     }
                                                     aria-label={`Increase quantity of ${item.name}`}
