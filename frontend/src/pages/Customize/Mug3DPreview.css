@@ -1,97 +1,73 @@
-.customize-3d-preview {
+.mug-3d-preview {
     position: relative;
     width: 100%;
     min-height: 620px;
     overflow: hidden;
+    border: 1px solid #e2e4e7;
     border-radius: 24px;
-    background: #f3f4f6;
+    background: #f1f3f5;
     cursor: grab;
     touch-action: none;
     user-select: none;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .035), 0 16px 40px rgba(0, 0, 0, .055);
 }
 
-.customize-3d-preview:active {
-    cursor: grabbing;
-}
+.mug-3d-preview:active { cursor: grabbing; }
 
-.customize-3d-preview canvas {
+.mug-3d-preview__canvas,
+.mug-3d-preview__canvas canvas {
     display: block;
     width: 100%;
     height: 100%;
+    min-height: inherit;
 }
 
-.customize-3d-preview__hint {
+.mug-3d-preview__badge {
+    position: absolute;
+    z-index: 4;
+    top: 16px;
+    left: 16px;
+    padding: 8px 11px;
+    border: 1px solid rgba(255,255,255,.75);
+    border-radius: 999px;
+    background: rgba(17,17,17,.76);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: .08em;
+    backdrop-filter: blur(10px);
+    pointer-events: none;
+}
+
+.mug-3d-preview__hint {
     position: absolute;
     z-index: 3;
     left: 50%;
-    bottom: 22px;
+    bottom: 18px;
     transform: translateX(-50%);
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    width: max-content;
+    max-width: calc(100% - 28px);
     padding: 9px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255,255,255,.75);
     border-radius: 999px;
-    background: rgba(17, 17, 17, 0.78);
-    color: #ffffff;
-    font-size: 12px;
+    background: rgba(17,17,17,.78);
+    color: #fff;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.02em;
+    line-height: 1.3;
     backdrop-filter: blur(12px);
     pointer-events: none;
-}
-
-.customize-3d-preview__hint span {
-    color: #c89b3c;
-    font-size: 13px;
-}
-
-.customize-3d-preview__empty {
-    position: absolute;
-    z-index: 4;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: min(82%, 360px);
-    padding: 18px 20px;
-    text-align: center;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.84);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
-    pointer-events: none;
-    backdrop-filter: blur(12px);
-}
-
-.customize-3d-preview__empty strong {
-    display: block;
-    margin-bottom: 6px;
-    color: #151515;
-    font-size: 15px;
-}
-
-.customize-3d-preview__empty span {
-    display: block;
-    color: #707070;
-    font-size: 13px;
-    line-height: 1.5;
 }
 
 @media (max-width: 900px) {
-    .customize-3d-preview {
-        min-height: 520px;
-        border-radius: 20px;
-    }
+    .mug-3d-preview { min-height: 520px; border-radius: 20px; }
 }
 
 @media (max-width: 600px) {
-    .customize-3d-preview {
-        min-height: 430px;
-        border-radius: 18px;
-    }
-
-    .customize-3d-preview__hint {
-        bottom: 14px;
-        font-size: 11px;
-    }
+    .mug-3d-preview { min-height: 430px; border-radius: 18px; }
+    .mug-3d-preview__badge { top: 11px; left: 11px; font-size: 9px; }
+    .mug-3d-preview__hint { bottom: 12px; font-size: 10px; }
 }
