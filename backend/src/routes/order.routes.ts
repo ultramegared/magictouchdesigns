@@ -1,7 +1,3 @@
-/**
- * Magic Touch Designs - Order Routes
- */
-
 import { Router } from "express";
 import {
     capturePayPalCheckout,
@@ -13,6 +9,8 @@ import {
     getPayPalConfig,
     getStripeConfig,
 } from "../controllers/order.controller";
+import { getMyOrders } from "../controllers/my-order.controller";
+import { authenticateToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
@@ -23,6 +21,7 @@ router.post("/paypal/create", createPayPalCheckout);
 router.post("/paypal/:paypalOrderId/capture", capturePayPalCheckout);
 router.post("/checkout", createCheckout);
 router.get("/session/:sessionId", getOrderByCheckoutSession);
+router.get("/mine", authenticateToken, getMyOrders);
 router.get("/:code", getOrder);
 
 export default router;
