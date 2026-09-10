@@ -2,138 +2,17 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
-import { clearCart } from "../../utils/cart";
+import { clearCart, getCartItems } from "../../utils/cart";
+import { removeCustomizationSession } from "../../utils/customization";
 import "./CheckoutSuccessPage.css";
-
 const API_URL = "https://api.magictouchdesigns.com/api";
 const PAYPAL_CONFIRMATION_KEY = "mtd-paypal-confirmation";
-
-type Order = {
-    order_code: string;
-    payment_status: string;
-    status: string;
-    total: string | number;
-    customer_first_name: string;
-    customer_last_name: string;
-};
-
+type Order = { order_code: string; payment_status: string; status: string; total: string | number; customer_first_name: string; customer_last_name: string };
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
-
 function CheckoutSuccessPage() {
-    const [searchParams] = useSearchParams();
-    const sessionId = searchParams.get("session_id");
-    const requestedOrderCode = searchParams.get("order_code");
-    const isPayPal = searchParams.get("paypal") === "1";
-    const [order, setOrder] = useState<Order | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-
-    useEffect(() => {
-        let cancelled = false;
-
-        const confirmStripe = async () => {
-            if (!sessionId) throw new Error("The checkout session could not be found.");
-
-            let lastError = "Order confirmation is still processing.";
-            for (let attempt = 0; attempt < 10; attempt += 1) {
-                if (cancelled) return null;
-                const response = await fetch(`${API_URL}/orders/session/${encodeURIComponent(sessionId)}`);
-                if (response.ok) {
-                    const data = await response.json() as Order;
-                    if (data.payment_status === "paid" || attempt === 9) return data;
-                    lastError = "Payment received. Finalizing your order confirmation…";
-                } else {
-                    lastError = "Order confirmation is still processing.";
-                }
-                await wait(1500);
-            }
-            throw new Error(lastError);
-        };
-
-        const confirmPayPal = async () => {
-            const raw = sessionStorage.getItem(PAYPAL_CONFIRMATION_KEY);
-            if (!raw) throw new Error("PayPal confirmation details could not be found. Use Track My Order if needed.");
-            const confirmation = JSON.parse(raw) as { orderCode?: string; email?: string };
-            const orderCode = confirmation.orderCode || requestedOrderCode;
-            if (!orderCode || !confirmation.email) throw new Error("PayPal confirmation details are incomplete.");
-
-            let lastError = "PayPal confirmation is still processing.";
-            for (let attempt = 0; attempt < 10; attempt += 1) {
-                if (cancelled) return null;
-                const response = await fetch(`${API_URL}/orders/${encodeURIComponent(orderCode)}?email=${encodeURIComponent(confirmation.email)}`);
-                if (response.ok) {
-                    const data = await response.json() as Order;
-                    if (data.payment_status === "paid" || attempt === 9) return data;
-                    lastError = "Payment received. Finalizing your order confirmation…";
-                } else {
-                    lastError = "PayPal order confirmation is still processing.";
-                }
-                await wait(1500);
-            }
-            throw new Error(lastError);
-        };
-
-        const confirm = isPayPal ? confirmPayPal : confirmStripe;
-        confirm()
-            .then((data) => {
-                if (!data || cancelled) return;
-                setOrder(data);
-                if (data.payment_status === "paid") {
-                    clearCart();
-                    if (isPayPal) sessionStorage.removeItem(PAYPAL_CONFIRMATION_KEY);
-                }
-            })
-            .catch((requestError: unknown) => {
-                if (cancelled) return;
-                setError(requestError instanceof Error ? requestError.message : "Unable to confirm the order.");
-            })
-            .finally(() => {
-                if (!cancelled) setLoading(false);
-            });
-
-        return () => { cancelled = true; };
-    }, [isPayPal, requestedOrderCode, sessionId]);
-
-    return (
-        <>
-            <Header />
-            <main className="checkout-success-page">
-                <section className="checkout-success-card">
-                    {loading ? (
-                        <>
-                            <span className="checkout-success-eyebrow">PROCESSING PAYMENT</span>
-                            <div className="checkout-success-icon" aria-hidden="true">✓</div>
-                            <h1>Confirming Your Order…</h1>
-                            <p>Please wait while we securely confirm your payment and finalize your order.</p>
-                        </>
-                    ) : order ? (
-                        <>
-                            <div className="checkout-success-icon" aria-hidden="true">✓</div>
-                            <span className="checkout-success-eyebrow">PAYMENT CONFIRMED</span>
-                            <h1>Thank You for Your Order</h1>
-                            <p>We received your purchase successfully.</p>
-                            <strong className="checkout-success-order">{order.order_code}</strong>
-                            <p className="checkout-success-total">
-                                Total paid: <strong>${Number(order.total).toFixed(2)}</strong>
-                            </p>
-                            <div className="checkout-success-actions">
-                                <Link to={`/track-order?order=${encodeURIComponent(order.order_code)}`}>Track My Order</Link>
-                                <Link to="/">Continue Shopping</Link>
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <span className="checkout-success-eyebrow">ORDER STATUS</span>
-                            <h1>We’re Confirming Your Order</h1>
-                            <p>{error || "Your payment was submitted, but confirmation is still being processed."}</p>
-                            <Link className="checkout-success-primary" to="/track-order">Track My Order</Link>
-                        </>
-                    )}
-                </section>
-            </main>
-            <Footer />
-        </>
-    );
+    const [searchParams] = useSearchParams(); const sessionId = searchParams.get("session_id"); const requestedOrderCode = searchParams.get("order_code"); const isPayPal = searchParams.get("paypal") === "1"; const [order, setOrder] = useState<Order | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
+    const clearSuccessfulCustomizations = () => { getCartItems().forEach((item) => { if (item.customizationId) removeCustomizationSession(item.customizationId); }); clearCart(); };
+    useEffect(() => { let cancelled = false; const confirmStripe = async () => { if (!sessionId) throw new Error("The checkout session could not be found."); let lastError = "Order confirmation is still processing."; for (let attempt = 0; attempt < 10; attempt += 1) { if (cancelled) return null; const response = await fetch(`${API_URL}/orders/session/${encodeURIComponent(sessionId)}`); if (response.ok) { const data = await response.json() as Order; if (data.payment_status === "paid" || attempt === 9) return data; lastError = "Payment received. Finalizing your order confirmation…"; } else lastError = "Order confirmation is still processing."; await wait(1500); } throw new Error(lastError); }; const confirmPayPal = async () => { const raw = sessionStorage.getItem(PAYPAL_CONFIRMATION_KEY); if (!raw) throw new Error("PayPal confirmation details could not be found. Use Track My Order if needed."); const confirmation = JSON.parse(raw) as { orderCode?: string; email?: string }; const orderCode = confirmation.orderCode || requestedOrderCode; if (!orderCode || !confirmation.email) throw new Error("PayPal confirmation details are incomplete."); let lastError = "PayPal confirmation is still processing."; for (let attempt = 0; attempt < 10; attempt += 1) { if (cancelled) return null; const response = await fetch(`${API_URL}/orders/${encodeURIComponent(orderCode)}?email=${encodeURIComponent(confirmation.email)}`); if (response.ok) { const data = await response.json() as Order; if (data.payment_status === "paid" || attempt === 9) return data; lastError = "Payment received. Finalizing your order confirmation…"; } else lastError = "PayPal order confirmation is still processing."; await wait(1500); } throw new Error(lastError); }; (isPayPal ? confirmPayPal : confirmStripe)().then((data) => { if (!data || cancelled) return; setOrder(data); if (data.payment_status === "paid") { clearSuccessfulCustomizations(); if (isPayPal) sessionStorage.removeItem(PAYPAL_CONFIRMATION_KEY); } }).catch((requestError: unknown) => { if (!cancelled) setError(requestError instanceof Error ? requestError.message : "Unable to confirm the order."); }).finally(() => { if (!cancelled) setLoading(false); }); return () => { cancelled = true; }; }, [isPayPal, requestedOrderCode, sessionId]);
+    return <><Header /><main className="checkout-success-page"><section className="checkout-success-card">{loading ? <><span className="checkout-success-eyebrow">PROCESSING PAYMENT</span><div className="checkout-success-icon" aria-hidden="true">✓</div><h1>Confirming Your Order…</h1><p>Please wait while we securely confirm your payment and finalize your order.</p></> : order ? <><div className="checkout-success-icon" aria-hidden="true">✓</div><span className="checkout-success-eyebrow">PAYMENT CONFIRMED</span><h1>Thank You for Your Order</h1><p>We received your purchase successfully.</p><strong className="checkout-success-order">{order.order_code}</strong><p className="checkout-success-total">Total paid: <strong>${Number(order.total).toFixed(2)}</strong></p><div className="checkout-success-actions"><Link to={`/track-order?order=${encodeURIComponent(order.order_code)}`}>Track My Order</Link><Link to="/">Continue Shopping</Link></div></> : <><span className="checkout-success-eyebrow">ORDER STATUS</span><h1>We’re Confirming Your Order</h1><p>{error || "Your payment was submitted, but confirmation is still being processed."}</p><Link className="checkout-success-primary" to="/track-order">Track My Order</Link></>}</section></main><Footer /></>;
 }
-
 export default CheckoutSuccessPage;

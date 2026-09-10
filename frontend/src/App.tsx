@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import { apiRequest } from "./services/api";
+import { translations } from "./translations";
 import HomePage from "./pages/Home";
 import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
@@ -16,6 +18,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminReports from "./pages/admin/AdminReports";
 import AdminRoute from "./pages/admin/AdminRoute";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCollections from "./pages/admin/AdminCollections";
@@ -37,48 +40,33 @@ import TermsOfServicePage from "./pages/TermsOfService";
 import ForgotPasswordPage from "./pages/ForgotPassword/ForgotPassword";
 
 function App() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/account" element={<AccountPage />} />
-                <Route path="/account/reviews" element={<ReviewsPage />} />
-                <Route path="/account/reviews/create" element={<CreateReviewPage />} />
-
-                <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-                <Route path="/admin/reviews" element={<AdminRoute><AdminReviews /></AdminRoute>} />
-                <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
-                <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
-                <Route path="/admin/collections" element={<AdminRoute><AdminCollections /></AdminRoute>} />
-                <Route path="/admin/subscribers" element={<AdminRoute><AdminSubscribers /></AdminRoute>} />
-                <Route path="/admin/content" element={<AdminRoute><AdminContent /></AdminRoute>} />
-                <Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
-                <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
-
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/collections" element={<CollectionsPage />} />
-                <Route path="/collections/love-romance" element={<LoveRomancePage />} />
-                <Route path="/collections/family-memories" element={<FamilyMemoriesPage />} />
-                <Route path="/collections/business-branding" element={<BusinessBrandingPage />} />
-                <Route path="/collections/special-occasions" element={<SpecialOccasionsPage />} />
-                <Route path="/customize" element={<CustomizePage />} />
-                <Route path="/how-it-works" element={<HowItWorksPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
-                <Route path="/shipping-returns" element={<ShippingReturnsPage />} />
-                <Route path="/faqs" element={<FAQPage />} />
-                <Route path="/track-order" element={<TrackOrderPage />} />
-                <Route path="/privacy" element={<PrivacyPage />} />
-                <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-            </Routes>
-        </BrowserRouter>
-    );
+    const [ready, setReady] = useState(false);
+    useEffect(() => {
+        apiRequest<{ status: string; settings: { websiteName: string; browserTitle: string; config: unknown } }>("/api/settings")
+            .then(({ settings }) => {
+                localStorage.setItem("mtd_site_config", JSON.stringify(settings.config));
+                document.title = settings.browserTitle;
+                const dictionaries = translations as any;
+                const year = new Date().getFullYear();
+                for (const lang of ["en", "es"]) {
+                    if (dictionaries[lang]?.footer) {
+                        dictionaries[lang].footer.copyright = `© ${year} ${settings.websiteName}. All rights reserved.`;
+                        const cfg = settings.config as any;
+                        dictionaries[lang].footer.designer = lang === "es"
+                            ? `Diseñado por ${cfg?.designerName?.es || cfg?.designerName?.en || "J.Q"} - ${cfg?.designerTitle?.es || cfg?.designerTitle?.en || "Webmaster"}`
+                            : `Designed by ${cfg?.designerName?.en || "J.Q"} - ${cfg?.designerTitle?.en || "Webmaster"}`;
+                    }
+                }
+            })
+            .catch(() => {})
+            .finally(() => setReady(true));
+    }, []);
+    if (!ready) return null;
+    return <BrowserRouter><Routes>
+        <Route path="/" element={<HomePage />} /><Route path="/login" element={<LoginPage />} /><Route path="/register" element={<RegisterPage />} /><Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/account" element={<AccountPage />} /><Route path="/account/reviews" element={<ReviewsPage />} /><Route path="/account/reviews/create" element={<CreateReviewPage />} />
+        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} /><Route path="/admin/reviews" element={<AdminRoute><AdminReviews /></AdminRoute>} /><Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} /><Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} /><Route path="/admin/collections" element={<AdminRoute><AdminCollections /></AdminRoute>} /><Route path="/admin/subscribers" element={<AdminRoute><AdminSubscribers /></AdminRoute>} /><Route path="/admin/content" element={<AdminRoute><AdminContent /></AdminRoute>} /><Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} /><Route path="/admin/reports" element={<AdminRoute><AdminReports /></AdminRoute>} /><Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
+        <Route path="/products" element={<ProductsPage />} /><Route path="/collections" element={<CollectionsPage />} /><Route path="/collections/love-romance" element={<LoveRomancePage />} /><Route path="/collections/family-memories" element={<FamilyMemoriesPage />} /><Route path="/collections/business-branding" element={<BusinessBrandingPage />} /><Route path="/collections/special-occasions" element={<SpecialOccasionsPage />} /><Route path="/customize" element={<CustomizePage />} /><Route path="/how-it-works" element={<HowItWorksPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/about" element={<AboutPage />} /><Route path="/cart" element={<CartPage />} /><Route path="/checkout" element={<CheckoutPage />} /><Route path="/checkout/success" element={<CheckoutSuccessPage />} /><Route path="/shipping-returns" element={<ShippingReturnsPage />} /><Route path="/faqs" element={<FAQPage />} /><Route path="/track-order" element={<TrackOrderPage />} /><Route path="/privacy" element={<PrivacyPage />} /><Route path="/terms-of-service" element={<TermsOfServicePage />} />
+    </Routes></BrowserRouter>;
 }
-
 export default App;
