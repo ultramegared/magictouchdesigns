@@ -6,9 +6,9 @@
  * Module: Customize
  * Language: TypeScript React
  * Description:
- * Stable Canvas-based interactive mug preview. The artwork is mapped
- * to a cylindrical surface with perspective-aware columns so it stays
- * attached to the mug while rotating on desktop and mobile.
+ * Dependency-free interactive mug preview using Canvas. Artwork is
+ * mapped continuously to a cylindrical print surface so it remains
+ * attached to the mug while the mug rotates.
  * ================================================================
  */
 
@@ -66,53 +66,62 @@ function drawArtworkOnCylinder(
     designRotation: number,
     mugRotation: number,
 ) {
-    const scale = clamp(designScale, 0.55, 1.55);
-    const texture = document.createElement("canvas");
-    const textureWidth = 720;
+    const textureWidth = 1440;
     const textureHeight = 720;
+    const texture = document.createElement("canvas");
     texture.width = textureWidth;
     texture.height = textureHeight;
     const tctx = texture.getContext("2d");
     if (!tctx) return;
 
-    const imageAspect = image.width / Math.max(1, image.height);
-    const baseHeight = textureHeight * 0.70 * scale;
-    const baseWidth = Math.min(textureWidth * 0.76 * scale, baseHeight * imageAspect);
-    const centerX = textureWidth / 2 + (designX / 100) * textureWidth * 0.34;
-    const centerY = textureHeight / 2 - (designY / 100) * textureHeight * 0.34;
+    const scale = clamp(designScale, 0.55, 1.55);
+    const aspect = image.width / Math.max(1, image.height);
+    const imageHeight = Math.min(textureHeight * 0.76 * scale, textureHeight * 0.92);
+    const imageWidth = Math.min(textureWidth * 0.76 * scale, imageHeight * aspect);
+    const centerX = textureWidth / 2 + (designX / 100) * textureWidth * 0.28;
+    const centerY = textureHeight / 2 - (designY / 100) * textureHeight * 0.28;
 
     tctx.save();
     tctx.translate(centerX, centerY);
     tctx.rotate((designRotation * Math.PI) / 180);
-    tctx.drawImage(image, -baseWidth / 2, -baseHeight / 2, baseWidth, baseHeight);
+    tctx.imageSmoothingEnabled = true;
+    tctx.drawImage(image, -imageWidth / 2, -imageHeight / 2, imageWidth, imageHeight);
     tctx.restore();
 
     ctx.save();
     mugPath(ctx, body);
     ctx.clip();
 
-    const columns = Math.max(140, Math.round(body.width * 0.95));
-    const radius = body.width * 0.50;
-    const center = body.x + body.width / 2;
+    const columns = Math.max(220, Math.round(body.width * 1.5));
+    const radius = body.width * 0.5;
+    const center = body.x + body.width * 0.5;
     const halfAngle = Math.PI * 0.5;
     const turn = ((mugRotation % TAU) + TAU) % TAU;
-    const textureOffset = (turn / TAU) * textureWidth;
+    const rotationU = turn / TAU;
 
     for (let i = 0; i < columns; i += 1) {
-        const a0 = -halfAngle + (i / columns) * Math.PI;
-        const a1 = -halfAngle + ((i + 1) / columns) * Math.PI;
-        const mid = (a0 + a1) / 2;
+        const t0 = i / columns;
+        const t1 = (i + 1) / columns;
+        const a0 = -halfAngle + t0 * Math.PI;
+        const a1 = -halfAngle + t1 * Math.PI;
+        const mid = (a0 + a1) * 0.5;
+
         const x0 = center + Math.sin(a0) * radius;
         const x1 = center + Math.sin(a1) * radius;
-        const projectedWidth = Math.max(0.55, Math.abs(x1 - x0) + 0.8);
         const x = Math.min(x0, x1);
-        const sourceX = (((textureOffset + ((mid + halfAngle) / Math.PI) * textureWidth) % textureWidth) + textureWidth) % textureWidth;
-        const sourceWidth = Math.max(1.5, textureWidth / columns * 1.8);
-        const depth = Math.max(0.06, Math.cos(mid));
-        const shade = 0.74 + depth * 0.26;
+        const projectedWidth = Math.max(0.7, Math.abs(x1 - x0) + 0.45);
+
+        // Texture coordinates belong to the mug surface, not the screen.
+        // This keeps the artwork physically attached while the mug rotates.
+        const surfaceU = (rotationU + (mid + Math.PI) / TAU) % 1;
+        const sourceX = surfaceU * textureWidth;
+        const sourceWidth = Math.max(2, (textureWidth / columns) * 1.35);
+        const depth = Math.max(0.08, Math.cos(mid));
+        const shade = 0.84 + depth * 0.16;
 
         ctx.save();
         ctx.globalAlpha = shade;
+        ctx.imageSmoothingEnabled = true;
         ctx.drawImage(texture, sourceX, 0, sourceWidth, textureHeight, x, body.y, projectedWidth, body.height);
         ctx.restore();
     }
@@ -149,7 +158,7 @@ function drawMug(
 
     ctx.save();
     ctx.translate(cx, cy + mugHeight * 0.57);
-    ctx.scale(1 + Math.abs(side) * 0.06, 1);
+    ctx.scale(1 + Math.abs(side) * 0.05, 1);
     ctx.filter = "blur(9px)";
     const shadow = ctx.createRadialGradient(0, 0, 8, 0, 0, mugWidth * 0.62);
     shadow.addColorStop(0, "rgba(30,24,20,.28)");
@@ -161,8 +170,9 @@ function drawMug(
     ctx.restore();
 
     ctx.save();
-    const handleScale = 0.72 + Math.abs(Math.cos(turn)) * 0.28;
-    const handleX = body.x + body.width * (0.985 + Math.max(0, side) * 0.07);
+    const facing = Math.cos(turn);
+    const handleScale = 0.68 + Math.abs(facing) * 0.32;
+    const handleX = body.x + body.width * (0.99 + Math.max(0, side) * 0.08);
     ctx.strokeStyle = `rgb(${accentRgb.r},${accentRgb.g},${accentRgb.b})`;
     ctx.lineWidth = Math.max(16, mugWidth * 0.105 * handleScale);
     ctx.lineCap = "round";
