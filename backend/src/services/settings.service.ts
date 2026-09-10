@@ -1,444 +1,154 @@
 /**
- * ================================================================
- * Project: Magic Touch Designs
- * Author: ultramegared
- * File: settings.service.ts
- * Module: Settings
- * Language: TypeScript
- * Description:
- * Service responsible for managing global application settings.
- * ================================================================
+ * Magic Touch Designs - Global Site Settings Service
  */
+import { pool } from "../config/database";
+import { translateEnglishToSpanish } from "./translation.service";
 
-import {
-    pool,
-} from "../config/database";
-
-
-/* ===============================================================
-   TYPES
-================================================================ */
-
-export interface Settings {
-
-    websiteName:
-        string;
-
-    browserTitle:
-        string;
-
-    slogan:
-        string;
-
-    logoUrl:
-        string | null;
-
-    supportEmail:
-        string;
-
-    notificationsEnabled:
-        boolean;
-
+export interface LocalizedText { en: string; es: string; }
+export interface HeroSlideConfig {
+    id: string; image: string; background: string; order: number; active: boolean;
+    title: LocalizedText; subtitle: LocalizedText; primaryButton: LocalizedText;
+    primaryLink: string; secondaryButton: LocalizedText; secondaryLink: string;
+}
+export interface NavLinkConfig { id: string; label: LocalizedText; path: string; active: boolean; order: number; }
+export interface FooterSectionConfig { id: string; title: LocalizedText; links: NavLinkConfig[]; active: boolean; order: number; }
+export interface SocialLinkConfig { id: string; name: string; url: string; active: boolean; order: number; }
+export interface SitePageConfig { id: string; title: LocalizedText; slug: string; body: LocalizedText; active: boolean; }
+export interface SiteConfig {
+    slogan: LocalizedText;
+    designerName: LocalizedText;
+    designerTitle: LocalizedText;
+    designerBio: LocalizedText;
+    businessPhone: string;
+    businessAddress: string;
+    heroSlides: HeroSlideConfig[];
+    headerLinks: NavLinkConfig[];
+    footerSections: FooterSectionConfig[];
+    socialLinks: SocialLinkConfig[];
+    pages: SitePageConfig[];
 }
 
-
-export interface UpdateSettingsData {
-
-    websiteName?:
-        string;
-
-    browserTitle?:
-        string;
-
-    slogan?:
-        string;
-
-    logoUrl?:
-        string | null;
-
-    supportEmail?:
-        string;
-
-    notificationsEnabled?:
-        boolean;
-
-}
-
-
-/* ===============================================================
-   DATABASE SETTINGS ROW
-================================================================ */
-
-interface SettingsRow {
-
-    id:
-        string;
-
-    website_name:
-        string;
-
-    browser_title:
-        string;
-
-    slogan:
-        string | null;
-
-    logo_url:
-        string | null;
-
-    support_email:
-        string | null;
-
-    notifications_enabled:
-        boolean;
-
-}
-
-
-/* ===============================================================
-   DEFAULT SETTINGS
-================================================================ */
-
-const DEFAULT_SETTINGS:
-    Settings = {
-
-        websiteName:
-            "Magic Touch Designs",
-
-        browserTitle:
-            "Magic Touch Designs | Personalized Gifts & Designs",
-
-        slogan:
-            "Personalized Gifts & Designs",
-
-        logoUrl:
-            null,
-
-        supportEmail:
-            "",
-
-        notificationsEnabled:
-            true,
-
-    };
-
-
-/* ===============================================================
-   HELPERS
-================================================================ */
-
-const mapSettingsRow =
-    (
-        row:
-            SettingsRow
-    ): Settings => {
-
-        return {
-
-            websiteName:
-                row.website_name,
-
-            browserTitle:
-                row.browser_title,
-
-            slogan:
-                row.slogan
-                ?? "",
-
-            logoUrl:
-                row.logo_url,
-
-            supportEmail:
-                row.support_email
-                ?? "",
-
-            notificationsEnabled:
-                row.notifications_enabled,
-
-        };
-
-    };
-
-
-const normalizeText =
-    (
-        value:
-            string
-    ): string => {
-
-        return value.trim();
-
-    };
-
-
-/* ===============================================================
-   GET SETTINGS
-================================================================ */
-
-export const getSettings =
-    async (): Promise<Settings> => {
-
-        const result =
-            await pool.query<SettingsRow>(
-                `
-                    SELECT
-                        id,
-                        website_name,
-                        browser_title,
-                        slogan,
-                        logo_url,
-                        support_email,
-                        notifications_enabled
-                    FROM settings
-                    ORDER BY created_at ASC
-                    LIMIT 1
-                `
-            );
-
-
-        if (
-            result.rows.length === 0
-        ) {
-
-            return DEFAULT_SETTINGS;
-
-        }
-
-
-        return mapSettingsRow(
-            result.rows[0]
-        );
-
-    };
-
-
-/* ===============================================================
-   UPDATE SETTINGS
-================================================================ */
-
-export const updateSettings =
-    async (
-        data:
-            UpdateSettingsData
-    ): Promise<Settings> => {
-
-        const existingResult =
-            await pool.query<SettingsRow>(
-                `
-                    SELECT
-                        id,
-                        website_name,
-                        browser_title,
-                        slogan,
-                        logo_url,
-                        support_email,
-                        notifications_enabled
-                    FROM settings
-                    ORDER BY created_at ASC
-                    LIMIT 1
-                `
-            );
-
-
-        const currentSettings =
-            existingResult.rows.length > 0
-
-                ? mapSettingsRow(
-                    existingResult.rows[0]
-                )
-
-                : DEFAULT_SETTINGS;
-
-
-        const updatedSettings:
-            Settings = {
-
-                websiteName:
-                    data.websiteName !== undefined
-
-                        ? normalizeText(
-                            data.websiteName
-                        )
-
-                        : currentSettings.websiteName,
-
-
-                browserTitle:
-                    data.browserTitle !== undefined
-
-                        ? normalizeText(
-                            data.browserTitle
-                        )
-
-                        : currentSettings.browserTitle,
-
-
-                slogan:
-                    data.slogan !== undefined
-
-                        ? normalizeText(
-                            data.slogan
-                        )
-
-                        : currentSettings.slogan,
-
-
-                logoUrl:
-                    data.logoUrl !== undefined
-
-                        ? data.logoUrl
-
-                        : currentSettings.logoUrl,
-
-
-                supportEmail:
-                    data.supportEmail !== undefined
-
-                        ? normalizeText(
-                            data.supportEmail
-                        )
-
-                        : currentSettings.supportEmail,
-
-
-                notificationsEnabled:
-                    data.notificationsEnabled
-                    ?? currentSettings.notificationsEnabled,
-
-            };
-
-
-        /* ===========================================================
-           VALIDATION
-        =========================================================== */
-
-        if (
-            !updatedSettings.websiteName
-        ) {
-
-            throw new Error(
-                "Website name is required."
-            );
-
-        }
-
-
-        if (
-            !updatedSettings.browserTitle
-        ) {
-
-            throw new Error(
-                "Browser title is required."
-            );
-
-        }
-
-
-        /* ===========================================================
-           INSERT SETTINGS
-        =========================================================== */
-
-        if (
-            existingResult.rows.length === 0
-        ) {
-
-            const insertResult =
-                await pool.query<SettingsRow>(
-                    `
-                        INSERT INTO settings (
-                            website_name,
-                            browser_title,
-                            slogan,
-                            logo_url,
-                            support_email,
-                            notifications_enabled
-                        )
-                        VALUES (
-                            $1,
-                            $2,
-                            $3,
-                            $4,
-                            $5,
-                            $6
-                        )
-                        RETURNING
-                            id,
-                            website_name,
-                            browser_title,
-                            slogan,
-                            logo_url,
-                            support_email,
-                            notifications_enabled
-                    `,
-                    [
-                        updatedSettings.websiteName,
-
-                        updatedSettings.browserTitle,
-
-                        updatedSettings.slogan,
-
-                        updatedSettings.logoUrl,
-
-                        updatedSettings.supportEmail,
-
-                        updatedSettings.notificationsEnabled,
-                    ]
-                );
-
-
-            return mapSettingsRow(
-                insertResult.rows[0]
-            );
-
-        }
-
-
-        /* ===========================================================
-           UPDATE SETTINGS
-        =========================================================== */
-
-        const updateResult =
-            await pool.query<SettingsRow>(
-                `
-                    UPDATE settings
-                    SET
-                        website_name = $1,
-                        browser_title = $2,
-                        slogan = $3,
-                        logo_url = $4,
-                        support_email = $5,
-                        notifications_enabled = $6,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE id = $7
-                    RETURNING
-                        id,
-                        website_name,
-                        browser_title,
-                        slogan,
-                        logo_url,
-                        support_email,
-                        notifications_enabled
-                `,
-                [
-                    updatedSettings.websiteName,
-
-                    updatedSettings.browserTitle,
-
-                    updatedSettings.slogan,
-
-                    updatedSettings.logoUrl,
-
-                    updatedSettings.supportEmail,
-
-                    updatedSettings.notificationsEnabled,
-
-                    existingResult.rows[0].id,
-                ]
-            );
-
-
-        return mapSettingsRow(
-            updateResult.rows[0]
-        );
-
-    };
+const localized = (en: string, es = ""): LocalizedText => ({ en, es });
+const id = (prefix: string, n: number) => `${prefix}-${n}`;
+
+const DEFAULT_CONFIG: SiteConfig = {
+    slogan: localized("Personalized Gifts & Designs", "Regalos y diseños personalizados"),
+    designerName: localized("J.Q", "J.Q"),
+    designerTitle: localized("Webmaster & Designer", "Webmaster y diseñador"),
+    designerBio: localized("Magic Touch Designs creator and webmaster.", "Creador y webmaster de Magic Touch Designs."),
+    businessPhone: "+1 (346) 760-3007",
+    businessAddress: "",
+    heroSlides: [
+        { id: "hero-1", image: "/images/hero/hero-mug.png", background: "/images/hero/hero-background.jpg", order: 1, active: true,
+          title: localized("YOUR STORY.\nYOUR MUG.", "TU HISTORIA.\nTU TAZA."), subtitle: localized("Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.", "Diseña una taza personalizada premium con tu nombre, logo o foto favorita. Creada para regalos inolvidables y recuerdos que duran."), primaryButton: localized("CREATE YOUR MUG", "CREA TU TAZA"), primaryLink: "/customize", secondaryButton: localized("SHOP MUGS", "COMPRAR TAZAS"), secondaryLink: "/products" },
+        { id: "hero-2", image: "/images/hero/hero-cap.png", background: "/images/hero/hero-background.jpg", order: 2, active: true,
+          title: localized("WEAR\nYOUR BRAND.", "LLEVA\nTU MARCA."), subtitle: localized("Create premium custom caps with your logo, business name or team design. Perfect for businesses, events and everyday wear.", "Crea gorras personalizadas premium con tu logo, nombre de negocio o diseño de equipo. Perfectas para negocios, eventos y uso diario."), primaryButton: localized("CREATE YOUR CAP", "CREA TU GORRA"), primaryLink: "/customize", secondaryButton: localized("SHOP CAPS", "COMPRAR GORRAS"), secondaryLink: "/products" },
+        { id: "hero-3", image: "/images/hero/hero-shirt.png", background: "/images/hero/hero-background.jpg", order: 3, active: true,
+          title: localized("YOUR STYLE.\nYOUR SHIRT.", "TU ESTILO.\nTU CAMISETA."), subtitle: localized("Design premium custom t-shirts with your logo, artwork or business branding. Perfect for teams, businesses and special events.", "Diseña camisetas personalizadas premium con tu logo, arte o marca empresarial. Perfectas para equipos, negocios y eventos especiales."), primaryButton: localized("CREATE YOUR SHIRT", "CREA TU CAMISETA"), primaryLink: "/customize", secondaryButton: localized("SHOP T-SHIRTS", "COMPRAR CAMISETAS"), secondaryLink: "/products" },
+    ],
+    headerLinks: [
+        { id: id("nav",1), label: localized("Home","Inicio"), path: "/", active: true, order: 1 },
+        { id: id("nav",2), label: localized("Products","Productos"), path: "/products", active: true, order: 2 },
+        { id: id("nav",3), label: localized("Collections","Colecciones"), path: "/collections", active: true, order: 3 },
+        { id: id("nav",4), label: localized("Customize","Personalizar"), path: "/customize", active: true, order: 4 },
+        { id: id("nav",5), label: localized("Contact","Contacto"), path: "/contact", active: true, order: 5 },
+    ],
+    footerSections: [
+        { id: "footer-shop", title: localized("SHOP","TIENDA"), active: true, order: 1, links: [
+            { id:"f-products", label:localized("All Models","Todos los modelos"), path:"/products", active:true, order:1 },
+            { id:"f-collections", label:localized("Collections","Colecciones"), path:"/collections", active:true, order:2 },
+            { id:"f-customize", label:localized("Customize","Personalizar"), path:"/customize", active:true, order:3 },
+        ]},
+        { id: "footer-company", title: localized("COMPANY","EMPRESA"), active: true, order: 2, links: [
+            { id:"f-about", label:localized("About Us","Nosotros"), path:"/about", active:true, order:1 },
+            { id:"f-how", label:localized("How It Works","Cómo funciona"), path:"/how-it-works", active:true, order:2 },
+            { id:"f-shipping", label:localized("Shipping & Returns","Envíos y devoluciones"), path:"/shipping-returns", active:true, order:3 },
+            { id:"f-faq", label:localized("FAQs","Preguntas frecuentes"), path:"/faqs", active:true, order:4 },
+        ]},
+        { id: "footer-support", title: localized("SUPPORT","SOPORTE"), active: true, order: 3, links: [
+            { id:"f-contact", label:localized("Contact Us","Contáctanos"), path:"/contact", active:true, order:1 },
+            { id:"f-track", label:localized("Track My Order","Rastrear mi pedido"), path:"/track-order", active:true, order:2 },
+            { id:"f-privacy", label:localized("Privacy Policy","Política de privacidad"), path:"/privacy", active:true, order:3 },
+            { id:"f-terms", label:localized("Terms of Service","Términos del servicio"), path:"/terms-of-service", active:true, order:4 },
+        ]},
+    ],
+    socialLinks: [
+        {id:"social-instagram",name:"Instagram",url:"https://www.instagram.com/magic.touch_designs",active:true,order:1},
+        {id:"social-facebook",name:"Facebook",url:"https://www.facebook.com/share/1ciBB3BuE3/?mibextid=wwXIfr",active:true,order:2},
+        {id:"social-tiktok",name:"TikTok",url:"#",active:true,order:3},
+        {id:"social-youtube",name:"YouTube",url:"https://youtube.com/@magictouchdesigns-u7t",active:true,order:4},
+    ],
+    pages: [],
+};
+
+let initialized = false;
+export const ensureSettingsTables = async (): Promise<void> => {
+    if (initialized) return;
+    await pool.query(`
+        ALTER TABLE settings ADD COLUMN IF NOT EXISTS site_config JSONB NOT NULL DEFAULT '{}'::jsonb;
+    `);
+    initialized = true;
+};
+
+const mergeConfig = (raw: unknown): SiteConfig => {
+    if (!raw || typeof raw !== "object") return DEFAULT_CONFIG;
+    const value = raw as Partial<SiteConfig>;
+    return {
+        ...DEFAULT_CONFIG,
+        ...value,
+        heroSlides: Array.isArray(value.heroSlides) && value.heroSlides.length ? value.heroSlides : DEFAULT_CONFIG.heroSlides,
+        headerLinks: Array.isArray(value.headerLinks) && value.headerLinks.length ? value.headerLinks : DEFAULT_CONFIG.headerLinks,
+        footerSections: Array.isArray(value.footerSections) && value.footerSections.length ? value.footerSections : DEFAULT_CONFIG.footerSections,
+        socialLinks: Array.isArray(value.socialLinks) && value.socialLinks.length ? value.socialLinks : DEFAULT_CONFIG.socialLinks,
+        pages: Array.isArray(value.pages) ? value.pages : DEFAULT_CONFIG.pages,
+    } as SiteConfig;
+};
+
+export const getSettings = async () => {
+    await ensureSettingsTables();
+    const result = await pool.query(`SELECT id, website_name, browser_title, slogan, logo_url, support_email, notifications_enabled, site_config FROM settings ORDER BY created_at ASC LIMIT 1`);
+    if (!result.rows[0]) return { websiteName:"Magic Touch Designs", browserTitle:"Magic Touch Designs | Personalized Gifts & Designs", slogan:DEFAULT_CONFIG.slogan.en, logoUrl:null, supportEmail:"", notificationsEnabled:true, config:DEFAULT_CONFIG };
+    const row = result.rows[0];
+    return { websiteName:row.website_name, browserTitle:row.browser_title, slogan:row.slogan ?? "", logoUrl:row.logo_url, supportEmail:row.support_email ?? "", notificationsEnabled:row.notifications_enabled, config:mergeConfig(row.site_config) };
+};
+
+const translateIfChanged = async (text: LocalizedText): Promise<LocalizedText> => {
+    const en = String(text?.en ?? "").trim();
+    const es = String(text?.es ?? "").trim();
+    if (!en) return { en: "", es: "" };
+    if (es) return { en, es };
+    try { const result = await translateEnglishToSpanish(en); return { en, es: result.translation }; }
+    catch (error) { console.warn("Automatic translation unavailable; preserving English text.", error); return { en, es: en }; }
+};
+
+const translateConfig = async (config: SiteConfig): Promise<SiteConfig> => {
+    const heroSlides = await Promise.all(config.heroSlides.map(async slide => ({ ...slide, title:await translateIfChanged(slide.title), subtitle:await translateIfChanged(slide.subtitle), primaryButton:await translateIfChanged(slide.primaryButton), secondaryButton:await translateIfChanged(slide.secondaryButton) })));
+    const headerLinks = await Promise.all(config.headerLinks.map(async item => ({...item,label:await translateIfChanged(item.label)})));
+    const footerSections = await Promise.all(config.footerSections.map(async section => ({...section,title:await translateIfChanged(section.title),links:await Promise.all(section.links.map(async item=>({...item,label:await translateIfChanged(item.label)})))})));
+    const pages = await Promise.all(config.pages.map(async page=>({...page,title:await translateIfChanged(page.title),body:await translateIfChanged(page.body)})));
+    return {...config, slogan:await translateIfChanged(config.slogan),designerName:await translateIfChanged(config.designerName),designerTitle:await translateIfChanged(config.designerTitle),designerBio:await translateIfChanged(config.designerBio),heroSlides,headerLinks,footerSections,pages};
+};
+
+export const updateSettings = async (data: any) => {
+    await ensureSettingsTables();
+    const current = await getSettings();
+    const config = await translateConfig({ ...current.config, ...(data.config || {}) });
+    const websiteName = String(data.websiteName ?? current.websiteName).trim();
+    const browserTitle = String(data.browserTitle ?? current.browserTitle).trim();
+    if (!websiteName) throw new Error("Website name is required.");
+    if (!browserTitle) throw new Error("Browser title is required.");
+    const result = await pool.query(`
+        INSERT INTO settings (website_name,browser_title,slogan,logo_url,support_email,notifications_enabled,site_config)
+        VALUES ($1,$2,$3,$4,$5,$6,$7)
+        ON CONFLICT (id) DO NOTHING
+        RETURNING id
+    `,[websiteName,browserTitle,config.slogan.en,data.logoUrl !== undefined ? data.logoUrl : current.logoUrl,String(data.supportEmail ?? current.supportEmail).trim(),data.notificationsEnabled ?? current.notificationsEnabled,JSON.stringify(config)]);
+    if (!result.rows[0]) {
+        const existing = await pool.query(`SELECT id FROM settings ORDER BY created_at ASC LIMIT 1`);
+        if (!existing.rows[0]) throw new Error("Unable to initialize settings.");
+        await pool.query(`UPDATE settings SET website_name=$1,browser_title=$2,slogan=$3,logo_url=$4,support_email=$5,notifications_enabled=$6,site_config=$7,updated_at=CURRENT_TIMESTAMP WHERE id=$8`,[websiteName,browserTitle,config.slogan.en,data.logoUrl !== undefined ? data.logoUrl : current.logoUrl,String(data.supportEmail ?? current.supportEmail).trim(),data.notificationsEnabled ?? current.notificationsEnabled,JSON.stringify(config),existing.rows[0].id]);
+    }
+    return getSettings();
+};
+
+export const getPublicSiteConfig = async () => (await getSettings()).config;
