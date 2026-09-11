@@ -1,20 +1,15 @@
-/**
- * Magic Touch Designs - Global Site Settings Service
- */
 import { pool } from "../config/database";
 import { translateEnglishToSpanish } from "./translation.service";
 
 export interface LocalizedText { en: string; es: string; }
-export interface HeroSlideConfig {
-    id: string; image: string; background: string; order: number; active: boolean;
-    title: LocalizedText; subtitle: LocalizedText; primaryButton: LocalizedText;
-    primaryLink: string; secondaryButton: LocalizedText; secondaryLink: string;
-}
+export interface HeroSlideConfig { id: string; image: string; background: string; order: number; active: boolean; title: LocalizedText; subtitle: LocalizedText; primaryButton: LocalizedText; primaryLink: string; secondaryButton: LocalizedText; secondaryLink: string; }
 export interface NavLinkConfig { id: string; label: LocalizedText; path: string; active: boolean; order: number; }
 export interface FooterSectionConfig { id: string; title: LocalizedText; links: NavLinkConfig[]; active: boolean; order: number; }
 export interface SocialLinkConfig { id: string; name: string; url: string; active: boolean; order: number; }
 export interface SitePageConfig { id: string; title: LocalizedText; slug: string; body: LocalizedText; active: boolean; }
 export interface SiteConfig {
+    websiteName: LocalizedText;
+    browserTitle: LocalizedText;
     slogan: LocalizedText;
     designerName: LocalizedText;
     designerTitle: LocalizedText;
@@ -32,6 +27,8 @@ const localized = (en: string, es = ""): LocalizedText => ({ en, es });
 const id = (prefix: string, n: number) => `${prefix}-${n}`;
 
 const DEFAULT_CONFIG: SiteConfig = {
+    websiteName: localized("Magic Touch Designs", "Magic Touch Designs"),
+    browserTitle: localized("Magic Touch Designs | Personalized Gifts & Designs", "Magic Touch Designs | Regalos y diseños personalizados"),
     slogan: localized("Personalized Gifts & Designs", "Regalos y diseños personalizados"),
     designerName: localized("J.Q", "J.Q"),
     designerTitle: localized("Webmaster & Designer", "Webmaster y diseñador"),
@@ -39,12 +36,9 @@ const DEFAULT_CONFIG: SiteConfig = {
     businessPhone: "+1 (346) 760-3007",
     businessAddress: "",
     heroSlides: [
-        { id: "hero-1", image: "/images/hero/hero-mug.png", background: "/images/hero/hero-background.jpg", order: 1, active: true,
-          title: localized("YOUR STORY.\nYOUR MUG.", "TU HISTORIA.\nTU TAZA."), subtitle: localized("Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.", "Diseña una taza personalizada premium con tu nombre, logo o foto favorita. Creada para regalos inolvidables y recuerdos que duran."), primaryButton: localized("CREATE YOUR MUG", "CREA TU TAZA"), primaryLink: "/customize", secondaryButton: localized("SHOP MUGS", "COMPRAR TAZAS"), secondaryLink: "/products" },
-        { id: "hero-2", image: "/images/hero/hero-cap.png", background: "/images/hero/hero-background.jpg", order: 2, active: true,
-          title: localized("WEAR\nYOUR BRAND.", "LLEVA\nTU MARCA."), subtitle: localized("Create premium custom caps with your logo, business name or team design. Perfect for businesses, events and everyday wear.", "Crea gorras personalizadas premium con tu logo, nombre de negocio o diseño de equipo. Perfectas para negocios, eventos y uso diario."), primaryButton: localized("CREATE YOUR CAP", "CREA TU GORRA"), primaryLink: "/customize", secondaryButton: localized("SHOP CAPS", "COMPRAR GORRAS"), secondaryLink: "/products" },
-        { id: "hero-3", image: "/images/hero/hero-shirt.png", background: "/images/hero/hero-background.jpg", order: 3, active: true,
-          title: localized("YOUR STYLE.\nYOUR SHIRT.", "TU ESTILO.\nTU CAMISETA."), subtitle: localized("Design premium custom t-shirts with your logo, artwork or business branding. Perfect for teams, businesses and special events.", "Diseña camisetas personalizadas premium con tu logo, arte o marca empresarial. Perfectas para equipos, negocios y eventos especiales."), primaryButton: localized("CREATE YOUR SHIRT", "CREA TU CAMISETA"), primaryLink: "/customize", secondaryButton: localized("SHOP T-SHIRTS", "COMPRAR CAMISETAS"), secondaryLink: "/products" },
+        { id: "hero-1", image: "/images/hero/hero-mug.png", background: "/images/hero/hero-background.jpg", order: 1, active: true, title: localized("YOUR STORY.\nYOUR MUG.", "TU HISTORIA.\nTU TAZA."), subtitle: localized("Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.", "Diseña una taza personalizada premium con tu nombre, logo o foto favorita. Creada para regalos inolvidables y recuerdos que duran."), primaryButton: localized("CREATE YOUR MUG", "CREA TU TAZA"), primaryLink: "/customize", secondaryButton: localized("SHOP MUGS", "COMPRAR TAZAS"), secondaryLink: "/products" },
+        { id: "hero-2", image: "/images/hero/hero-cap.png", background: "/images/hero/hero-background.jpg", order: 2, active: true, title: localized("WEAR\nYOUR BRAND.", "LLEVA\nTU MARCA."), subtitle: localized("Create premium custom caps with your logo, business name or team design. Perfect for businesses, events and everyday wear.", "Crea gorras personalizadas premium con tu logo, nombre de negocio o diseño de equipo. Perfectas para negocios, eventos y uso diario."), primaryButton: localized("CREATE YOUR CAP", "CREA TU GORRA"), primaryLink: "/customize", secondaryButton: localized("SHOP CAPS", "COMPRAR GORRAS"), secondaryLink: "/products" },
+        { id: "hero-3", image: "/images/hero/hero-shirt.png", background: "/images/hero/hero-background.jpg", order: 3, active: true, title: localized("YOUR STYLE.\nYOUR SHIRT.", "TU ESTILO.\nTU CAMISETA."), subtitle: localized("Design premium custom t-shirts with your logo, artwork or business branding. Perfect for teams, businesses and special events.", "Diseña camisetas personalizadas premium con tu logo, arte o marca empresarial. Perfectas para equipos, negocios y eventos especiales."), primaryButton: localized("CREATE YOUR SHIRT", "CREA TU CAMISETA"), primaryLink: "/customize", secondaryButton: localized("SHOP T-SHIRTS", "COMPRAR CAMISETAS"), secondaryLink: "/products" },
     ],
     headerLinks: [
         { id: id("nav",1), label: localized("Home","Inicio"), path: "/", active: true, order: 1 },
@@ -84,9 +78,7 @@ const DEFAULT_CONFIG: SiteConfig = {
 let initialized = false;
 export const ensureSettingsTables = async (): Promise<void> => {
     if (initialized) return;
-    await pool.query(`
-        ALTER TABLE settings ADD COLUMN IF NOT EXISTS site_config JSONB NOT NULL DEFAULT '{}'::jsonb;
-    `);
+    await pool.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS site_config JSONB NOT NULL DEFAULT '{}'::jsonb;`);
     initialized = true;
 };
 
@@ -100,6 +92,8 @@ const mergeConfig = (raw: unknown): SiteConfig => {
     return {
         ...DEFAULT_CONFIG,
         ...value,
+        websiteName: value.websiteName && typeof value.websiteName === "object" ? value.websiteName : DEFAULT_CONFIG.websiteName,
+        browserTitle: value.browserTitle && typeof value.browserTitle === "object" ? value.browserTitle : DEFAULT_CONFIG.browserTitle,
         heroSlides: Array.isArray(value.heroSlides) && value.heroSlides.length ? value.heroSlides : DEFAULT_CONFIG.heroSlides,
         headerLinks: Array.isArray(value.headerLinks) && value.headerLinks.length ? value.headerLinks : DEFAULT_CONFIG.headerLinks,
         footerSections: Array.isArray(value.footerSections) && value.footerSections.length ? value.footerSections : DEFAULT_CONFIG.footerSections,
@@ -122,13 +116,7 @@ const translateIfChanged = async (text: LocalizedText, previous?: LocalizedText,
     const previousEn = String(previous?.en ?? "").trim();
     const englishChanged = previous !== undefined && en !== previousEn;
     const staleSpanish = repairStaleSpanish && !!en && es === en;
-
     if (!en) return { en: "", es: "" };
-
-    // Admin Settings edits the English source. Every Hero field is treated as
-    // English-first, so any English change must regenerate its Spanish value.
-    // We also repair existing Hero entries where Spanish was previously saved
-    // as the exact same English text.
     if (englishChanged || !es || staleSpanish) {
         try {
             const result = await translateEnglishToSpanish(en);
@@ -138,7 +126,6 @@ const translateIfChanged = async (text: LocalizedText, previous?: LocalizedText,
             throw new Error("Unable to translate English content to Spanish. Changes were not saved.");
         }
     }
-
     return { en, es };
 };
 
@@ -146,48 +133,26 @@ const translateConfig = async (config: SiteConfig, previous: SiteConfig): Promis
     const previousHero = new Map(previous.heroSlides.map(item => [item.id, item]));
     const heroSlides = await Promise.all(config.heroSlides.map(async slide => {
         const old = previousHero.get(slide.id);
-        return {
-            ...slide,
-            title: await translateIfChanged(slide.title, old?.title, true),
-            subtitle: await translateIfChanged(slide.subtitle, old?.subtitle, true),
-            primaryButton: await translateIfChanged(slide.primaryButton, old?.primaryButton, true),
-            secondaryButton: await translateIfChanged(slide.secondaryButton, old?.secondaryButton, true),
-        };
+        return { ...slide, title: await translateIfChanged(slide.title, old?.title, true), subtitle: await translateIfChanged(slide.subtitle, old?.subtitle, true), primaryButton: await translateIfChanged(slide.primaryButton, old?.primaryButton, true), secondaryButton: await translateIfChanged(slide.secondaryButton, old?.secondaryButton, true) };
     }));
-
     const previousHeader = new Map(previous.headerLinks.map(item => [item.id, item]));
-    const headerLinks = await Promise.all(config.headerLinks.map(async item => ({
-        ...item,
-        label: await translateIfChanged(item.label, previousHeader.get(item.id)?.label),
-    })));
-
+    const headerLinks = await Promise.all(config.headerLinks.map(async item => ({ ...item, label: await translateIfChanged(item.label, previousHeader.get(item.id)?.label) })));
     const previousFooter = new Map(previous.footerSections.map(section => [section.id, section]));
     const footerSections = await Promise.all(config.footerSections.map(async section => {
         const oldSection = previousFooter.get(section.id);
         const previousLinks = new Map((oldSection?.links ?? []).map(item => [item.id, item]));
-        return {
-            ...section,
-            title: await translateIfChanged(section.title, oldSection?.title),
-            links: await Promise.all(section.links.map(async item => ({
-                ...item,
-                label: await translateIfChanged(item.label, previousLinks.get(item.id)?.label),
-            }))),
-        };
+        return { ...section, title: await translateIfChanged(section.title, oldSection?.title), links: await Promise.all(section.links.map(async item => ({ ...item, label: await translateIfChanged(item.label, previousLinks.get(item.id)?.label) }))) };
     }));
-
     const previousPages = new Map(previous.pages.map(item => [item.id, item]));
     const pages = await Promise.all(config.pages.map(async page => {
         const old = previousPages.get(page.id);
-        return {
-            ...page,
-            title: await translateIfChanged(page.title, old?.title),
-            body: await translateIfChanged(page.body, old?.body),
-        };
+        return { ...page, title: await translateIfChanged(page.title, old?.title), body: await translateIfChanged(page.body, old?.body) };
     }));
-
     return {
         ...config,
-        slogan: await translateIfChanged(config.slogan, previous.slogan),
+        websiteName: await translateIfChanged(config.websiteName, previous.websiteName, true),
+        browserTitle: await translateIfChanged(config.browserTitle, previous.browserTitle, true),
+        slogan: await translateIfChanged(config.slogan, previous.slogan, true),
         designerName: await translateIfChanged(config.designerName, previous.designerName),
         designerTitle: await translateIfChanged(config.designerTitle, previous.designerTitle),
         designerBio: await translateIfChanged(config.designerBio, previous.designerBio),
@@ -201,47 +166,22 @@ const translateConfig = async (config: SiteConfig, previous: SiteConfig): Promis
 export const updateSettings = async (data: any) => {
     await ensureSettingsTables();
     const current = await getSettings();
-    const config = await translateConfig({ ...current.config, ...(data.config || {}) }, current.config);
-    const websiteName = String(data.websiteName ?? current.websiteName).trim();
-    const browserTitle = String(data.browserTitle ?? current.browserTitle).trim();
+    const incomingConfig = { ...current.config, ...(data.config || {}) } as SiteConfig;
+    incomingConfig.websiteName = { en: String(data.websiteName ?? current.websiteName).trim(), es: current.config.websiteName?.es || "" };
+    incomingConfig.browserTitle = { en: String(data.browserTitle ?? current.browserTitle).trim(), es: current.config.browserTitle?.es || "" };
+    const config = await translateConfig(incomingConfig, current.config);
+    const websiteName = config.websiteName.en;
+    const browserTitle = config.browserTitle.en;
     if (!websiteName) throw new Error("Website name is required.");
     if (!browserTitle) throw new Error("Browser title is required.");
 
-    const values = [
-        websiteName,
-        browserTitle,
-        config.slogan.en,
-        data.logoUrl !== undefined ? data.logoUrl : current.logoUrl,
-        String(data.supportEmail ?? current.supportEmail).trim(),
-        data.notificationsEnabled ?? current.notificationsEnabled,
-        JSON.stringify(config),
-    ];
-
+    const values = [websiteName, browserTitle, config.slogan.en, data.logoUrl !== undefined ? data.logoUrl : current.logoUrl, String(data.supportEmail ?? current.supportEmail).trim(), data.notificationsEnabled ?? current.notificationsEnabled, JSON.stringify(config)];
     const existing = await pool.query(`SELECT id FROM settings ORDER BY created_at DESC LIMIT 1`);
-
     if (existing.rows[0]) {
-        await pool.query(
-            `UPDATE settings
-             SET website_name=$1,
-                 browser_title=$2,
-                 slogan=$3,
-                 logo_url=$4,
-                 support_email=$5,
-                 notifications_enabled=$6,
-                 site_config=$7,
-                 updated_at=CURRENT_TIMESTAMP
-             WHERE id=$8`,
-            [...values, existing.rows[0].id]
-        );
+        await pool.query(`UPDATE settings SET website_name=$1, browser_title=$2, slogan=$3, logo_url=$4, support_email=$5, notifications_enabled=$6, site_config=$7, updated_at=CURRENT_TIMESTAMP WHERE id=$8`, [...values, existing.rows[0].id]);
     } else {
-        await pool.query(
-            `INSERT INTO settings
-                (website_name,browser_title,slogan,logo_url,support_email,notifications_enabled,site_config)
-             VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-            values
-        );
+        await pool.query(`INSERT INTO settings (website_name,browser_title,slogan,logo_url,support_email,notifications_enabled,site_config) VALUES ($1,$2,$3,$4,$5,$6,$7)`, values);
     }
-
     return getSettings();
 };
 
