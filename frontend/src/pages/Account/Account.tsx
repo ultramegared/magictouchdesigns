@@ -49,7 +49,7 @@ function Account(){
   navigate("/");
  };
 
- if(loading||!user)return <><Header/><main className="account-v2"><div className="account-v2__loading"><RefreshCw className="account-v2__spin" size={30}/><strong>{isEs?"Preparando tu cuenta...":"Preparing your account..."}</strong><span>{isEs?"Un momento, estamos cargando tu espacio personal.":"One moment, we're loading your personal space."}</span></div></main><Footer/></>;
+ if(loading||!user)return <><Header/><main className="account-v2" style={{paddingTop:"clamp(44px,4vw,56px)"}}><div className="account-v2__loading"><RefreshCw className="account-v2__spin" size={30}/><strong>{isEs?"Preparando tu cuenta...":"Preparing your account..."}</strong><span>{isEs?"Un momento, estamos cargando tu espacio personal.":"One moment, we're loading your personal space."}</span></div></main><Footer/></>;
 
  const registrationDate=new Date(user.created_at).toLocaleDateString(isEs?"es-US":"en-US",{month:"short",day:"numeric",year:"numeric"});
  const totalSpent=orders.reduce((sum,order)=>sum+Number(order.total||0),0);
@@ -57,13 +57,12 @@ function Account(){
 
  return <>
   <Header/>
-  <main className="account-v2">
+  <main className="account-v2" style={{paddingTop:"clamp(44px,4vw,56px)"}}>
    <div className="account-v2__ambient account-v2__ambient--one"/>
    <div className="account-v2__ambient account-v2__ambient--two"/>
    <div className="account-v2__shell">
     <section className="account-v2__hero">
      <div><span className="account-v2__eyebrow">{isEs?"MI CUENTA":"MY ACCOUNT"}</span><h1>{isEs?`Bienvenido de nuevo, ${user.first_name}`:`Welcome back, ${user.first_name}`} <span>✦</span></h1><p>{isEs?"Administra tus pedidos, reseñas y detalles de cuenta desde un solo lugar.":"Manage your orders, reviews, and account details — all in one place."}</p></div>
-     <div className="account-v2__hero-mark">MTD</div>
     </section>
     <div className="account-v2__layout">
      <aside className="account-v2__sidebar">
