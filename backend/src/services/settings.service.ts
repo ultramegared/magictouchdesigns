@@ -116,27 +116,99 @@ export const getSettings = async () => {
     return { websiteName:row.website_name, browserTitle:row.browser_title, slogan:row.slogan ?? "", logoUrl:row.logo_url, supportEmail:row.support_email ?? "", notificationsEnabled:row.notifications_enabled, config:mergeConfig(row.site_config) };
 };
 
-const translateIfChanged = async (text: LocalizedText): Promise<LocalizedText> => {
+const translateIfChanged = async (text: LocalizedText, previous?: LocalizedText): Promise<LocalizedText> => {
     const en = String(text?.en ?? "").trim();
     const es = String(text?.es ?? "").trim();
+    const previousEn = String(previous?.en ?? "").trim();
+    const previousEs = String(previous?.es ?? "").trim();
+    const englishChanged = previous !== undefined && en !== previousEn;
+    const spanishWasExplicitlyChanged = previous !== undefined && es !== previousEs;
+
     if (!en) return { en: "", es: "" };
+
+    // When English changes and Spanish was not explicitly edited, regenerate
+    // the Spanish value instead of keeping the translation of the old text.
+    if (englishChanged && !spanishWasExplicitlyChanged) {
+        try {
+            const result = await translateEnglishToSpanish(en);
+            return { en, es: result.translation };
+        } catch (error) {
+            console.warn("Automatic translation unavailable; preserving English text.", error);
+            return { en, es: en };
+        }
+    }
+
     if (es) return { en, es };
-    try { const result = await translateEnglishToSpanish(en); return { en, es: result.translation }; }
-    catch (error) { console.warn("Automatic translation unavailable; preserving English text.", error); return { en, es: en }; }
+
+    try {
+        const result = await translateEnglishToSpanish(en);
+        return { en, es: result.translation };
+    } catch (error) {
+        console.warn("Automatic translation unavailable; preserving English text.", error);
+        return { en, es: en };
+    }
 };
 
-const translateConfig = async (config: SiteConfig): Promise<SiteConfig> => {
-    const heroSlides = await Promise.all(config.heroSlides.map(async slide => ({ ...slide, title:await translateIfChanged(slide.title), subtitle:await translateIfChanged(slide.subtitle), primaryButton:await translateIfChanged(slide.primaryButton), secondaryButton:await translateIfChanged(slide.secondaryButton) })));
-    const headerLinks = await Promise.all(config.headerLinks.map(async item => ({...item,label:await translateIfChanged(item.label)})));
-    const footerSections = await Promise.all(config.footerSections.map(async section => ({...section,title:await translateIfChanged(section.title),links:await Promise.all(section.links.map(async item=>({...item,label:await translateIfChanged(item.label)})))})));
-    const pages = await Promise.all(config.pages.map(async page=>({...page,title:await translateIfChanged(page.title),body:await translateIfChanged(page.body)})));
-    return {...config, slogan:await translateIfChanged(config.slogan),designerName:await translateIfChanged(config.designerName),designerTitle:await translateIfChanged(config.designerTitle),designerBio:await translateIfChanged(config.designerBio),heroSlides,headerLinks,footerSections,pages};
+const translateConfig = async (config: SiteConfig, previous: SiteConfig): Promise<SiteConfig> => {
+    const previousHero = new Map(previous.heroSlides.map(item => [item.id, item]));
+    const heroSlides = await Promise.all(config.heroSlides.map(async slide => {
+        const old = previousHero.get(slide.id);
+        return {
+            ...slide,
+            title: await translateIfChanged(slide.title, old?.title),
+            subtitle: await translateIfChanged(slide.subtitle, old?.subtitle),
+            primaryButton: await translateIfChanged(slide.primaryButton, old?.primaryButton),
+            secondaryButton: await translateIfChanged(slide.secondaryButton, old?.secondaryButton),
+        };
+    }));
+
+    const previousHeader = new Map(previous.headerLinks.map(item => [item.id, item]));
+    const headerLinks = await Promise.all(config.headerLinks.map(async item => ({
+        ...item,
+        label: await translateIfChanged(item.label, previousHeader.get(item.id)?.label),
+    })));
+
+    const previousFooter = new Map(previous.footerSections.map(section => [section.id, section]));
+    const footerSections = await Promise.all(config.footerSections.map(async section => {
+        const oldSection = previousFooter.get(section.id);
+        const previousLinks = new Map((oldSection?.links ?? []).map(item => [item.id, item]));
+        return {
+            ...section,
+            title: await translateIfChanged(section.title, oldSection?.title),
+            links: await Promise.all(section.links.map(async item => ({
+                ...item,
+                label: await translateIfChanged(item.label, previousLinks.get(item.id)?.label),
+            }))),
+        };
+    }));
+
+    const previousPages = new Map(previous.pages.map(item => [item.id, item]));
+    const pages = await Promise.all(config.pages.map(async page => {
+        const old = previousPages.get(page.id);
+        return {
+            ...page,
+            title: await translateIfChanged(page.title, old?.title),
+            body: await translateIfChanged(page.body, old?.body),
+        };
+    }));
+
+    return {
+        ...config,
+        slogan: await translateIfChanged(config.slogan, previous.slogan),
+        designerName: await translateIfChanged(config.designerName, previous.designerName),
+        designerTitle: await translateIfChanged(config.designerTitle, previous.designerTitle),
+        designerBio: await translateIfChanged(config.designerBio, previous.designerBio),
+        heroSlides,
+        headerLinks,
+        footerSections,
+        pages,
+    };
 };
 
 export const updateSettings = async (data: any) => {
     await ensureSettingsTables();
     const current = await getSettings();
-    const config = await translateConfig({ ...current.config, ...(data.config || {}) });
+    const config = await translateConfig({ ...current.config, ...(data.config || {}) }, current.config);
     const websiteName = String(data.websiteName ?? current.websiteName).trim();
     const browserTitle = String(data.browserTitle ?? current.browserTitle).trim();
     if (!websiteName) throw new Error("Website name is required.");
