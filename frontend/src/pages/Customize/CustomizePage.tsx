@@ -11,7 +11,7 @@ import Mug3DPreview from "./Mug3DPreview";
 import "./Mug3DPreview.css";
 import "./CustomizePage.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://api.magictouchdesigns.com/api";
 
 type MugVariant = { id: string; name: string; family: "colored-handle" | "solid"; bodyColor: string; accentColor: string; swatchColor: string };
 const MUG_VARIANTS: MugVariant[] = [
