@@ -110,14 +110,13 @@ export const getSettings = async () => {
     return { websiteName:row.website_name, browserTitle:row.browser_title, slogan:row.slogan ?? "", logoUrl:row.logo_url, supportEmail:row.support_email ?? "", notificationsEnabled:row.notifications_enabled, config:mergeConfig(row.site_config) };
 };
 
-const translateIfChanged = async (text: LocalizedText, previous?: LocalizedText, repairStaleSpanish = false): Promise<LocalizedText> => {
+const translateIfChanged = async (text: LocalizedText, previous?: LocalizedText): Promise<LocalizedText> => {
     const en = String(text?.en ?? "").trim();
     const es = String(text?.es ?? "").trim();
     const previousEn = String(previous?.en ?? "").trim();
     const englishChanged = previous !== undefined && en !== previousEn;
-    const staleSpanish = repairStaleSpanish && !!en && es === en;
     if (!en) return { en: "", es: "" };
-    if (englishChanged || !es || staleSpanish) {
+    if (englishChanged || !es) {
         try {
             const result = await translateEnglishToSpanish(en);
             return { en, es: result.translation };
@@ -133,7 +132,7 @@ const translateConfig = async (config: SiteConfig, previous: SiteConfig): Promis
     const previousHero = new Map(previous.heroSlides.map(item => [item.id, item]));
     const heroSlides = await Promise.all(config.heroSlides.map(async slide => {
         const old = previousHero.get(slide.id);
-        return { ...slide, title: await translateIfChanged(slide.title, old?.title, true), subtitle: await translateIfChanged(slide.subtitle, old?.subtitle, true), primaryButton: await translateIfChanged(slide.primaryButton, old?.primaryButton, true), secondaryButton: await translateIfChanged(slide.secondaryButton, old?.secondaryButton, true) };
+        return { ...slide, title: await translateIfChanged(slide.title, old?.title), subtitle: await translateIfChanged(slide.subtitle, old?.subtitle), primaryButton: await translateIfChanged(slide.primaryButton, old?.primaryButton), secondaryButton: await translateIfChanged(slide.secondaryButton, old?.secondaryButton) };
     }));
     const previousHeader = new Map(previous.headerLinks.map(item => [item.id, item]));
     const headerLinks = await Promise.all(config.headerLinks.map(async item => ({ ...item, label: await translateIfChanged(item.label, previousHeader.get(item.id)?.label) })));
@@ -150,9 +149,9 @@ const translateConfig = async (config: SiteConfig, previous: SiteConfig): Promis
     }));
     return {
         ...config,
-        websiteName: await translateIfChanged(config.websiteName, previous.websiteName, true),
-        browserTitle: await translateIfChanged(config.browserTitle, previous.browserTitle, true),
-        slogan: await translateIfChanged(config.slogan, previous.slogan, true),
+        websiteName: await translateIfChanged(config.websiteName, previous.websiteName),
+        browserTitle: await translateIfChanged(config.browserTitle, previous.browserTitle),
+        slogan: await translateIfChanged(config.slogan, previous.slogan),
         designerName: await translateIfChanged(config.designerName, previous.designerName),
         designerTitle: await translateIfChanged(config.designerTitle, previous.designerTitle),
         designerBio: await translateIfChanged(config.designerBio, previous.designerBio),
@@ -169,13 +168,34 @@ export const updateSettings = async (data: any) => {
     const incomingConfig = { ...current.config, ...(data.config || {}) } as SiteConfig;
     incomingConfig.websiteName = { en: String(data.websiteName ?? current.websiteName).trim(), es: current.config.websiteName?.es || "" };
     incomingConfig.browserTitle = { en: String(data.browserTitle ?? current.browserTitle).trim(), es: current.config.browserTitle?.es || "" };
-    const config = await translateConfig(incomingConfig, current.config);
+
+    const requestedLogo = data.logoUrl !== undefined ? data.logoUrl : current.logoUrl;
+    const logoChanged = requestedLogo !== current.logoUrl;
+    const requestedSupportEmail = String(data.supportEmail ?? current.supportEmail).trim();
+    const notificationsChanged = data.notificationsEnabled !== undefined && data.notificationsEnabled !== current.notificationsEnabled;
+    const textConfigChanged =
+        incomingConfig.websiteName.en !== current.config.websiteName.en ||
+        incomingConfig.browserTitle.en !== current.config.browserTitle.en ||
+        incomingConfig.slogan.en !== current.config.slogan.en ||
+        incomingConfig.designerName.en !== current.config.designerName.en ||
+        incomingConfig.designerTitle.en !== current.config.designerTitle.en ||
+        incomingConfig.designerBio.en !== current.config.designerBio.en ||
+        JSON.stringify(incomingConfig.heroSlides) !== JSON.stringify(current.config.heroSlides) ||
+        JSON.stringify(incomingConfig.headerLinks) !== JSON.stringify(current.config.headerLinks) ||
+        JSON.stringify(incomingConfig.footerSections) !== JSON.stringify(current.config.footerSections) ||
+        JSON.stringify(incomingConfig.pages) !== JSON.stringify(current.config.pages);
+
+    // Images/logos are not translatable. A logo-only/settings-only save must never depend on the translator.
+    const config = textConfigChanged
+        ? await translateConfig(incomingConfig, current.config)
+        : current.config;
+
     const websiteName = config.websiteName.en;
     const browserTitle = config.browserTitle.en;
     if (!websiteName) throw new Error("Website name is required.");
     if (!browserTitle) throw new Error("Browser title is required.");
 
-    const values = [websiteName, browserTitle, config.slogan.en, data.logoUrl !== undefined ? data.logoUrl : current.logoUrl, String(data.supportEmail ?? current.supportEmail).trim(), data.notificationsEnabled ?? current.notificationsEnabled, JSON.stringify(config)];
+    const values = [websiteName, browserTitle, config.slogan.en, logoChanged ? requestedLogo : current.logoUrl, requestedSupportEmail, data.notificationsEnabled ?? current.notificationsEnabled, JSON.stringify(config)];
     const existing = await pool.query(`SELECT id FROM settings ORDER BY created_at DESC LIMIT 1`);
     if (existing.rows[0]) {
         await pool.query(`UPDATE settings SET website_name=$1, browser_title=$2, slogan=$3, logo_url=$4, support_email=$5, notifications_enabled=$6, site_config=$7, updated_at=CURRENT_TIMESTAMP WHERE id=$8`, [...values, existing.rows[0].id]);
