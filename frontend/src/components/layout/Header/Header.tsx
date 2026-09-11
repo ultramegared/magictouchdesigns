@@ -95,7 +95,13 @@ function Header() {
     const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
     const [accountMenuOpen, setAccountMenuOpen] = useState(false);
     const [websiteName, setWebsiteName] = useState(APP_CONFIG.companyName);
-    const [logoUrl, setLogoUrl] = useState(APP_CONFIG.logo);
+    const [logoUrl, setLogoUrl] = useState(() => {
+        try {
+            return localStorage.getItem("mtd_logo_url") || "";
+        } catch {
+            return "";
+        }
+    });
     const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
     const navigate = useNavigate();
     const { language, setLanguage } = useLanguage();
@@ -124,7 +130,21 @@ function Header() {
                     { cache: "no-store" }
                 );
                 if (result.settings?.websiteName) setWebsiteName(result.settings.websiteName);
-                if (result.settings?.logoUrl) setLogoUrl(result.settings.logoUrl);
+                if (result.settings?.logoUrl) {
+                    setLogoUrl(result.settings.logoUrl);
+                    try {
+                        localStorage.setItem("mtd_logo_url", result.settings.logoUrl);
+                    } catch {
+                        // Local storage may be unavailable; the server value remains authoritative.
+                    }
+                } else {
+                    setLogoUrl("");
+                    try {
+                        localStorage.removeItem("mtd_logo_url");
+                    } catch {
+                        // Ignore local storage failures.
+                    }
+                }
                 if (result.settings?.browserTitle) document.title = result.settings.browserTitle;
             } catch (error) {
                 console.error("Unable to load website settings:", error);
@@ -186,7 +206,7 @@ function Header() {
         <header className="header">
             <div className="header__container">
                 <NavLink to="/" className="header__brand" onClick={() => { setMenuOpen(false); setAccountMenuOpen(false); }}>
-                    <img src={logoUrl} alt={websiteName} className="header__logo" />
+                    {logoUrl && <img src={logoUrl} alt={websiteName} className="header__logo" />}
                     <div className="header__brand-text">
                         <span className="header__brand-title">{brand.title}</span>
                         {brand.subtitle && <span className="header__brand-subtitle">{brand.subtitle}</span>}
