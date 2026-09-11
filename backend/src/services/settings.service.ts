@@ -93,13 +93,17 @@ export const ensureSettingsTables = async (): Promise<void> => {
 const mergeConfig = (raw: unknown): SiteConfig => {
     if (!raw || typeof raw !== "object") return DEFAULT_CONFIG;
     const value = raw as Partial<SiteConfig>;
+    const configuredSocials = Array.isArray(value.socialLinks) ? value.socialLinks : [];
+    const socialLinks = configuredSocials.length
+        ? [...configuredSocials, ...DEFAULT_CONFIG.socialLinks.filter(defaultSocial => !configuredSocials.some(currentSocial => String(currentSocial.name).trim().toLowerCase() === String(defaultSocial.name).trim().toLowerCase()))]
+        : DEFAULT_CONFIG.socialLinks;
     return {
         ...DEFAULT_CONFIG,
         ...value,
         heroSlides: Array.isArray(value.heroSlides) && value.heroSlides.length ? value.heroSlides : DEFAULT_CONFIG.heroSlides,
         headerLinks: Array.isArray(value.headerLinks) && value.headerLinks.length ? value.headerLinks : DEFAULT_CONFIG.headerLinks,
         footerSections: Array.isArray(value.footerSections) && value.footerSections.length ? value.footerSections : DEFAULT_CONFIG.footerSections,
-        socialLinks: Array.isArray(value.socialLinks) && value.socialLinks.length ? value.socialLinks : DEFAULT_CONFIG.socialLinks,
+        socialLinks,
         pages: Array.isArray(value.pages) ? value.pages : DEFAULT_CONFIG.pages,
     } as SiteConfig;
 };
