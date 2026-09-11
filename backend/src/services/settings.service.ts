@@ -120,21 +120,21 @@ const translateIfChanged = async (text: LocalizedText, previous?: LocalizedText)
     const en = String(text?.en ?? "").trim();
     const es = String(text?.es ?? "").trim();
     const previousEn = String(previous?.en ?? "").trim();
-    const previousEs = String(previous?.es ?? "").trim();
     const englishChanged = previous !== undefined && en !== previousEn;
-    const spanishWasExplicitlyChanged = previous !== undefined && es !== previousEs;
 
     if (!en) return { en: "", es: "" };
 
-    // When English changes and Spanish was not explicitly edited, regenerate
-    // the Spanish value instead of keeping the translation of the old text.
-    if (englishChanged && !spanishWasExplicitlyChanged) {
+    // Admin Settings edits the English source text. Whenever that source changes,
+    // always regenerate Spanish, even when the payload still contains the old
+    // Spanish value. This prevents stale translations from being mistaken for
+    // an intentional Spanish edit.
+    if (englishChanged) {
         try {
             const result = await translateEnglishToSpanish(en);
             return { en, es: result.translation };
         } catch (error) {
-            console.warn("Automatic translation unavailable; preserving English text.", error);
-            return { en, es: en };
+            console.warn("Automatic translation unavailable; preserving previous Spanish text.", error);
+            return { en, es: es || en };
         }
     }
 
