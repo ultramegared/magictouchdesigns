@@ -35,163 +35,134 @@ function AdminCollectionDetail() {
     const [modalOpen, setModalOpen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [busyId, setBusyId] = useState<string | null>(null);
-    const [refreshing, setRefreshing] = useState(false);
+    const [busyProduct, setBusyProduct] = useState<string | null>(null);
 
-    const load = async (refresh = false) => {
-        if (!slug || !definition) return;
-        setRefreshing(refresh);
-        setIsLoading(true);
-        setError(null);
+    const load = async () => {
+        setIsLoading(true); setError(null);
         try {
-            const [collectionResult, productResult] = await Promise.all([
-                apiRequest<{ status: string; collection: Collection }>(`/api/collections/admin/${slug}`),
-                apiRequest<{ status: string; products: Product[] }>(`/api/collections/admin/${slug}/products`),
+            const [collectionResponse, productsResponse, userResponse] = await Promise.all([
+                apiRequest<{ collection: Collection }>(`/api/collections/admin/${slug}`),
+                apiRequest<{ products: Product[] }>(`/api/collections/admin/${slug}/products`),
+                apiRequest<CurrentUser>("/api/user/me"),
             ]);
-            setCollection(collectionResult.collection);
-            setProducts((productResult.products || []).slice().sort((a, b) => a.collection_sort_order - b.collection_sort_order));
-        } catch (requestError) {
-            setError(requestError instanceof Error ? requestError.message : "Unable to load this collection.");
-        } finally {
-            setIsLoading(false);
-            setRefreshing(false);
-        }
+            setCollection(collectionResponse.collection);
+            setProducts(productsResponse.products || []);
+            setCurrentUser(userResponse);
+        } catch (err) { setError(err instanceof Error ? err.message : "Unable to load collection."); }
+        finally { setIsLoading(false); }
     };
-
-    useEffect(() => {
-        apiRequest<{ status: string; user: CurrentUser }>("/api/user/me").then((result) => setCurrentUser(result.user)).catch(() => undefined);
-    }, []);
 
     useEffect(() => { load(); }, [slug]);
 
-    const visibleProducts = useMemo(() => products.filter((product) => `${product.name} ${product.slug} ${product.description}`.toLowerCase().includes(search.toLowerCase().trim())), [products, search]);
+    const filteredProducts = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        if (!term) return products;
+        return products.filter((product) => `${product.name} ${product.slug} ${product.description}`.toLowerCase().includes(term));
+    }, [products, search]);
+
     const activeCount = products.filter((product) => product.is_active).length;
     const inactiveCount = products.length - activeCount;
 
-    const openCreate = () => { setEditing(null); setForm(emptyForm); setError(null); setModalOpen(true); };
+    const openCreate = () => { setEditing(null); setForm(emptyForm); setModalOpen(true); };
     const openEdit = (product: Product) => {
         setEditing(product);
-        setForm({ name: product.name || "", slug: product.slug || "", description: product.description || "", price: String(product.price ?? ""), image_url: product.image_url || "", features: Array.isArray(product.features) ? product.features.join(", ") : "", is_active: product.is_active });
-        setError(null);
+        setForm({ name: product.name, slug: product.slug, description: product.description || "", price: String(product.price), image_url: product.image_url || "", features: (product.features || []).join(", "), is_active: product.is_active });
         setModalOpen(true);
     };
-    const closeModal = () => { if (saving || uploading) return; setModalOpen(false); setEditing(null); setForm(emptyForm); setError(null); };
-    const updateForm = (field: keyof ProductForm, value: string | boolean) => setForm((previous) => ({ ...previous, [field]: value }));
+    const closeModal = () => { if (!saving && !uploading) setModalOpen(false); };
+    const updateForm = (key: keyof ProductForm, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
 
     const uploadImage = async (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) { setError("Only JPG, PNG and WEBP images are allowed."); return; }
-        if (file.size > 5 * 1024 * 1024) { setError("Image size cannot exceed 5 MB."); return; }
-        setUploading(true); setError(null);
+        const file = event.target.files?.[0]; if (!file) return;
+        setUploading(true);
         try {
-            const data = new FormData(); data.append("image", file);
-            const result = await apiRequest<{ image_url: string }>("/api/upload/product", { method: "POST", body: data });
-            updateForm("image_url", result.image_url);
-        } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Unable to upload image."); }
+            const body = new FormData(); body.append("image", file);
+            const response = await apiRequest<{ url?: string; image_url?: string }>("/api/upload/product", { method: "POST", body });
+            updateForm("image_url", response.url || response.image_url || "");
+        } catch (err) { window.alert(err instanceof Error ? err.message : "Unable to upload image."); }
         finally { setUploading(false); event.target.value = ""; }
     };
 
     const saveProduct = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const price = Number(form.price);
-        if (!form.name.trim() || !form.slug.trim()) { setError("Product name and slug are required."); return; }
-        if (!Number.isFinite(price) || price < 0) { setError("Please enter a valid product price."); return; }
-        setSaving(true); setError(null);
+        event.preventDefault(); setSaving(true);
         try {
-            const payload = { name: form.name.trim(), slug: form.slug.trim(), description: form.description.trim(), price, image_url: form.image_url.trim(), features: form.features.split(",").map((item) => item.trim()).filter(Boolean), is_active: form.is_active };
-            if (editing) {
-                await apiRequest(`/api/collections/admin/${slug}/products/${editing.product_id}`, { method: "PUT", body: JSON.stringify(payload) });
-            } else {
-                await apiRequest(`/api/collections/admin/${slug}/products`, { method: "POST", body: JSON.stringify(payload) });
-            }
-            await load(); closeModal();
-        } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Unable to save product."); }
+            const payload = { ...form, price: Number(form.price), features: form.features.split(",").map((item) => item.trim()).filter(Boolean) };
+            const path = editing ? `/api/collections/admin/${slug}/products/${editing.product_id}` : `/api/collections/admin/${slug}/products`;
+            const response = await apiRequest<{ product: Product }>(path, { method: editing ? "PUT" : "POST", body: JSON.stringify(payload) });
+            setProducts((current) => editing ? current.map((item) => item.product_id === editing.product_id ? response.product : item) : [...current, response.product]);
+            setModalOpen(false);
+        } catch (err) { window.alert(err instanceof Error ? err.message : "Unable to save product."); }
         finally { setSaving(false); }
     };
 
     const toggleStatus = async (product: Product) => {
-        setBusyId(product.product_id); setError(null);
+        setBusyProduct(product.product_id);
         try {
-            await apiRequest(`/api/collections/admin/${slug}/products/${product.product_id}/status`, { method: "PUT", body: JSON.stringify({ is_active: !product.is_active }) });
-            setProducts((previous) => previous.map((item) => item.product_id === product.product_id ? { ...item, is_active: !item.is_active } : item));
-        } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Unable to update product status."); }
-        finally { setBusyId(null); }
+            const response = await apiRequest<{ product: Product }>(`/api/collections/admin/${slug}/products/${product.product_id}/status`, { method: "PUT", body: JSON.stringify({ is_active: !product.is_active }) });
+            setProducts((current) => current.map((item) => item.product_id === product.product_id ? response.product : item));
+        } catch (err) { window.alert(err instanceof Error ? err.message : "Unable to update status."); }
+        finally { setBusyProduct(null); }
     };
 
     const removeProduct = async (product: Product) => {
-        if (!window.confirm(`Remove "${product.name}" from this collection?`)) return;
-        setBusyId(product.product_id); setError(null);
+        if (!window.confirm(`Remove ${product.name} from this collection?`)) return;
+        setBusyProduct(product.product_id);
         try {
             await apiRequest(`/api/collections/admin/${slug}/products/${product.product_id}`, { method: "DELETE" });
-            await load();
-        } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Unable to remove product."); }
-        finally { setBusyId(null); }
+            setProducts((current) => current.filter((item) => item.product_id !== product.product_id));
+        } catch (err) { window.alert(err instanceof Error ? err.message : "Unable to remove product."); }
+        finally { setBusyProduct(null); }
     };
 
-    const moveProduct = async (index: number, direction: "up" | "down") => {
-        const target = direction === "up" ? index - 1 : index + 1;
-        if (target < 0 || target >= products.length) return;
-        const current = products[index]; const other = products[target];
-        setBusyId(current.product_id); setError(null);
+    const moveProduct = async (product: Product, direction: "up" | "down") => {
+        const index = products.findIndex((item) => item.product_id === product.product_id);
+        const targetIndex = direction === "up" ? index - 1 : index + 1;
+        if (index < 0 || targetIndex < 0 || targetIndex >= products.length) return;
+        const target = products[targetIndex]; setBusyProduct(product.product_id);
         try {
-            await apiRequest(`/api/collections/admin/${slug}/products/${current.product_id}/order`, { method: "PUT", body: JSON.stringify({ sort_order: other.collection_sort_order }) });
-            await apiRequest(`/api/collections/admin/${slug}/products/${other.product_id}/order`, { method: "PUT", body: JSON.stringify({ sort_order: current.collection_sort_order }) });
-            await load();
-        } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Unable to change product order."); }
-        finally { setBusyId(null); }
+            await apiRequest(`/api/collections/admin/${slug}/products/${product.product_id}/order`, { method: "PUT", body: JSON.stringify({ sort_order: target.collection_sort_order }) });
+            await apiRequest(`/api/collections/admin/${slug}/products/${target.product_id}/order`, { method: "PUT", body: JSON.stringify({ sort_order: product.collection_sort_order }) });
+            setProducts((current) => { const next = [...current]; [next[index], next[targetIndex]] = [next[targetIndex], next[index]]; return next.map((item, position) => ({ ...item, collection_sort_order: position })); });
+        } catch (err) { window.alert(err instanceof Error ? err.message : "Unable to reorder products."); }
+        finally { setBusyProduct(null); }
     };
 
-    if (!definition) return <div className="admin-layout"><AdminSidebar username={currentUser?.username || "Administrator"} /><main className="admin-collection-detail"><div className="collection-detail__not-found"><h1>Collection not found</h1><button onClick={() => navigate("/admin/collections")}>Back to Collections</button></div></main></div>;
+    if (!definition) return <div className="admin-layout"><AdminSidebar currentUser={currentUser || undefined} /><main className="admin-collection-detail"><div className="collection-detail__empty"><XCircle size={42} /><h1>Collection not found</h1><button onClick={() => navigate("/admin/collections")}>Back to Collections</button></div></main></div>;
 
     return (
         <div className="admin-layout">
-            <AdminSidebar username={currentUser?.username || "Administrator"} />
+            <AdminSidebar currentUser={currentUser || undefined} />
             <main className="admin-collection-detail">
-                <div className="collection-detail__topbar">
-                    <button type="button" className="collection-detail__back" onClick={() => navigate("/admin/collections")}><ArrowLeft size={17} /> Collections</button>
-                    <button type="button" className="collection-detail__refresh" onClick={() => load(true)} disabled={refreshing}><RefreshCw size={16} className={refreshing ? "is-spinning" : ""} /> {refreshing ? "Refreshing..." : "Refresh"}</button>
-                </div>
-
-                <section className="collection-detail__hero">
-                    <div className="collection-detail__hero-image"><img src={collection?.image_url || definition.image} alt={collection?.name || definition.name} /></div>
-                    <div className="collection-detail__hero-content">
-                        <span>COLLECTION WORKSPACE</span>
-                        <h1>{collection?.name || definition.name}</h1>
-                        <p>{collection?.description || definition.description}</p>
-                        <div className="collection-detail__hero-meta"><span className="is-active"><CheckCircle2 size={14} /> {collection?.is_active === false ? "Hidden" : "Active"}</span><span><Package size={14} /> {products.length} products</span><span><Eye size={14} /> {activeCount} visible</span></div>
+                <header className="collection-detail__header">
+                    <div className="collection-detail__heading">
+                        <button className="collection-detail__back" onClick={() => navigate("/admin/collections")} aria-label="Back to collections"><ArrowLeft size={18} /></button>
+                        <div><span className="collection-detail__eyebrow">Collection Management</span><h1>{collection?.name || definition.name}</h1><p>{collection?.description || definition.description}</p></div>
                     </div>
-                    <button type="button" className="collection-detail__add" onClick={openCreate}><Plus size={18} /> Add Product</button>
-                </section>
+                    <div className="collection-detail__actions"><button className="secondary" onClick={load} disabled={isLoading}><RefreshCw size={17} className={isLoading ? "is-spinning" : ""} />Refresh</button><button className="primary" onClick={openCreate}><Plus size={17} />Add Product</button></div>
+                </header>
 
                 <section className="collection-detail__stats">
-                    <article><Package size={18} /><div><strong>{products.length}</strong><span>Total products</span></div></article>
-                    <article><Eye size={18} /><div><strong>{activeCount}</strong><span>Active</span></div></article>
-                    <article><EyeOff size={18} /><div><strong>{inactiveCount}</strong><span>Inactive</span></div></article>
-                    <article><Package size={18} /><div><strong>{collection?.sort_order ?? "—"}</strong><span>Collection order</span></div></article>
+                    <article><span className="stat-icon"><Package size={19} /></span><div><strong>{products.length}</strong><span>Total products</span></div></article>
+                    <article><span className="stat-icon"><CheckCircle2 size={19} /></span><div><strong>{activeCount}</strong><span>Active</span></div></article>
+                    <article><span className="stat-icon"><EyeOff size={19} /></span><div><strong>{inactiveCount}</strong><span>Inactive</span></div></article>
                 </section>
 
-                <section className="collection-detail__workspace">
-                    <div className="collection-detail__toolbar">
-                        <div><span>PRODUCTS IN COLLECTION</span><h2>Manage products</h2></div>
-                        <label className="collection-detail__search"><SearchIcon /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search products..." /></label>
-                    </div>
+                <section className="collection-detail__toolbar"><div className="collection-detail__search"><SearchIcon /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search products..." /></div><span>{filteredProducts.length} shown</span></section>
 
-                    {error && !modalOpen && <div className="collection-detail__error">{error}</div>}
-                    {isLoading ? <div className="collection-detail__loading"><LoaderCircle className="is-spinning" size={28} /><span>Loading collection...</span></div> : visibleProducts.length === 0 ? <div className="collection-detail__empty"><Package size={34} /><h3>{search ? "No products match your search" : "This collection is empty"}</h3><p>{search ? "Try another search term." : "Add the first product to start building this collection."}</p>{!search && <button type="button" onClick={openCreate}><Plus size={17} /> Add Product</button>}</div> : <div className="collection-detail__grid">{visibleProducts.map((product) => {
-                        const actualIndex = products.findIndex((item) => item.product_id === product.product_id);
-                        return <article className="collection-product-card" key={product.product_id}>
-                            <div className="collection-product-card__image">{product.image_url ? <img src={product.image_url} alt={product.name} /> : <div><ImageOff size={28} /></div>}<span>#{product.collection_sort_order}</span><b className={product.is_active ? "active" : "inactive"}>{product.is_active ? "Active" : "Inactive"}</b></div>
-                            <div className="collection-product-card__body"><div className="collection-product-card__title"><h3>{product.name}</h3><strong>${Number(product.price).toFixed(2)}</strong></div><p>{product.description || "No description available."}</p><div className="collection-product-card__actions"><button type="button" onClick={() => openEdit(product)} disabled={busyId !== null}><Edit3 size={15} /> Edit</button><button type="button" className={product.is_active ? "deactivate" : "activate"} onClick={() => toggleStatus(product)} disabled={busyId !== null}>{busyId === product.product_id ? <LoaderCircle size={15} className="is-spinning" /> : product.is_active ? <XCircle size={15} /> : <CheckCircle2 size={15} />}{product.is_active ? "Hide" : "Activate"}</button><button type="button" className="delete" onClick={() => removeProduct(product)} disabled={busyId !== null}><Trash2 size={15} /> Remove</button></div><div className="collection-product-card__order"><button onClick={() => moveProduct(actualIndex, "up")} disabled={actualIndex === 0 || busyId !== null} aria-label="Move product up"><ArrowUp size={15} /></button><span>Display order {product.collection_sort_order}</span><button onClick={() => moveProduct(actualIndex, "down")} disabled={actualIndex === products.length - 1 || busyId !== null} aria-label="Move product down"><ArrowDown size={15} /></button></div></div>
-                        </article>;
-                    })}</div>}
-                </section>
-            </main>
+                {error && <div className="collection-detail__error"><XCircle size={19} /><div><strong>Unable to load this collection</strong><span>{error}</span></div><button onClick={load}>Retry</button></div>}
+                {isLoading ? <div className="collection-detail__loading">Loading collection...</div> : filteredProducts.length === 0 ? <div className="collection-detail__empty"><ImageOff size={42} /><h2>{search ? "No products found" : "No products in this collection"}</h2><p>{search ? "Try a different search." : "Add the first product to this collection."}</p>{!search && <button className="primary" onClick={openCreate}><Plus size={17} />Add Product</button>}</div> : (
+                    <section className="collection-detail__products">
+                        {filteredProducts.map((product, index) => <article className="collection-product" key={product.product_id}>
+                            <div className="collection-product__image">{product.image_url ? <img src={product.image_url} alt={product.name} /> : <ImageOff size={28} />}</div>
+                            <div className="collection-product__info"><div className="collection-product__top"><span className={product.is_active ? "status active" : "status inactive"}>{product.is_active ? "Active" : "Inactive"}</span><span className="product-order">#{index + 1}</span></div><h2>{product.name}</h2><p>{product.description || "No description provided."}</p><strong>${Number(product.price).toFixed(2)}</strong>{product.features?.length > 0 && <div className="product-features">{product.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div>}</div>
+                            <div className="collection-product__actions"><button title="Move up" onClick={() => moveProduct(product, "up")} disabled={index === 0 || !!busyProduct}><ArrowUp size={17} /></button><button title="Move down" onClick={() => moveProduct(product, "down")} disabled={index === filteredProducts.length - 1 || !!busyProduct}><ArrowDown size={17} /></button><button title={product.is_active ? "Deactivate" : "Activate"} onClick={() => toggleStatus(product)} disabled={busyProduct === product.product_id}>{product.is_active ? <EyeOff size={17} /> : <Eye size={17} />}</button><button title="Edit" onClick={() => openEdit(product)} disabled={!!busyProduct}><Edit3 size={17} /></button><button title="Remove" className="danger" onClick={() => removeProduct(product)} disabled={busyProduct === product.product_id}>{busyProduct === product.product_id ? <LoaderCircle size={17} className="is-spinning" /> : <Trash2 size={17} />}</button></div>
+                        </article>)}
+                    </section>
+                )}
 
-            {modalOpen && <div className="collection-detail__modal-backdrop" onClick={closeModal}><div className="collection-detail__modal" onClick={(event) => event.stopPropagation()}>
-                <header><div><span>{editing ? "EDIT PRODUCT" : "NEW PRODUCT"}</span><h2>{editing ? editing.name : `Add product to ${definition.name}`}</h2></div><button type="button" onClick={closeModal} disabled={saving || uploading}><X size={20} /></button></header>
-                {error && <div className="collection-detail__error">{error}</div>}
-                <form onSubmit={saveProduct}><div className="collection-detail__form-grid">
+                <footer className="collection-detail__footer"><span>Signed in as <strong>{currentUser?.username || "Admin"}</strong></span><button onClick={() => navigate("/admin/collections")}><ArrowLeft size={16} />Back to Collections</button></footer>
+
+                {modalOpen && <div className="collection-detail__modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeModal(); }}><div className="collection-detail__modal"><header><div><span>{editing ? "Edit product" : "New product"}</span><h2>{editing ? "Update collection product" : "Add product to collection"}</h2></div><button onClick={closeModal} disabled={saving || uploading} aria-label="Close"><X size={20} /></button></header><form onSubmit={saveProduct}><div className="collection-detail__form-grid">
                     <label><span>Product name</span><input value={form.name} onChange={(event) => updateForm("name", event.target.value)} required /></label>
                     <label><span>Product slug</span><input value={form.slug} onChange={(event) => updateForm("slug", event.target.value)} required /></label>
                     <label className="full"><span>Description</span><textarea rows={4} value={form.description} onChange={(event) => updateForm("description", event.target.value)} /></label>
@@ -207,7 +178,6 @@ function AdminCollectionDetail() {
     );
 }
 
-function FolderIcon() { return <Package size={18} />; }
 function SearchIcon() { return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>; }
 
 export default AdminCollectionDetail;
