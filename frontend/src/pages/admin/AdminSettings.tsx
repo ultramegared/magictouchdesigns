@@ -98,9 +98,6 @@ function AdminSettings() {
             const r=await apiRequest<{status:string;settings:SettingsData}>("/api/settings",{method:"PUT",body:JSON.stringify({websiteName,browserTitle,logoUrl:finalLogo,supportEmail,notificationsEnabled,config:configPatch})});
             const verified=r.settings;
             setSettings(verified);setWebsiteName(verified.websiteName);setBrowserTitle(verified.browserTitle);setLogoUrl(verified.logoUrl??"");setSupportEmail(verified.supportEmail);setNotificationsEnabled(verified.notificationsEnabled);syncPublicConfig(verified.config);
-            if(key==="header"&&!verified.config.headerLinks.some(link=>link.id===config.headerLinks.find((item)=>item.path==="/products")?.id && link.active===false)){
-                throw new Error("El servidor no confirmó el cambio de navegación. No se aplicó el cambio en la vista pública.");
-            }
             updateStatus(key,"✓ Cambios guardados");
             setMessage("Cambios guardados y verificados en el servidor.");
         }catch(err){updateStatus(key,"No se pudo guardar");setMessage(err instanceof Error?err.message:"Unable to save settings.");}
