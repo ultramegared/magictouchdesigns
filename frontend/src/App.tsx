@@ -6,10 +6,7 @@ import { useLanguage } from "./contexts/LanguageContext";
 import HomePage from "./pages/Home";
 import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
-import LoveRomancePage from "./pages/Collections/pages/LoveRomance/LoveRomancePage";
-import FamilyMemoriesPage from "./pages/Collections/pages/FamilyMemories/FamilyMemoriesPage";
-import BusinessBrandingPage from "./pages/Collections/pages/BusinessBranding/BusinessBrandingPage";
-import SpecialOccasionsPage from "./pages/Collections/pages/SpecialOccasions/SpecialOccasionsPage";
+import UnifiedCollectionPage from "./components/collections/UnifiedCollectionPage";
 import LoginPage from "./pages/Login/Login";
 import RegisterPage from "./pages/Register/Register";
 import AccountPage from "./pages/Account/Account";
@@ -23,7 +20,7 @@ import AdminReports from "./pages/admin/AdminReports";
 import AdminRoute from "./pages/admin/AdminRoute";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCollectionsHub from "./pages/admin/AdminCollectionsHub";
-import AdminCollectionDetail from "./pages/admin/AdminCollectionDetail";
+import AdminCollectionProducts from "./pages/admin/AdminCollectionProducts";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import AdminContent from "./pages/admin/AdminContent";
 import AdminOrders from "./pages/admin/AdminOrders";
@@ -52,8 +49,8 @@ function App() {
     return <BrowserRouter><Routes>
         <Route path="/" element={<HomePage/>}/><Route path="/login" element={<LoginPage/>}/><Route path="/register" element={<RegisterPage/>}/><Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
         <Route path="/account" element={<AccountPage/>}/><Route path="/account/reviews" element={<ReviewsPage/>}/><Route path="/account/reviews/create" element={<CreateReviewPage/>}/>
-        <Route path="/admin" element={<AdminRoute><AdminDashboard/></AdminRoute>}/><Route path="/admin/sales" element={<AdminRoute><AdminSales/></AdminRoute>}/><Route path="/admin/reviews" element={<AdminRoute><AdminReviews/></AdminRoute>}/><Route path="/admin/users" element={<AdminRoute><AdminUsers/></AdminRoute>}/><Route path="/admin/products" element={<AdminRoute><AdminProducts/></AdminRoute>}/><Route path="/admin/collections" element={<AdminRoute><AdminCollectionsHub/></AdminRoute>}/><Route path="/admin/collections/:slug" element={<AdminRoute><AdminCollectionDetail/></AdminRoute>}/><Route path="/admin/subscribers" element={<AdminRoute><AdminSubscribers/></AdminRoute>}/><Route path="/admin/content" element={<AdminRoute><AdminContent/></AdminRoute>}/><Route path="/admin/orders" element={<AdminRoute><AdminOrders/></AdminRoute>}/><Route path="/admin/reports" element={<AdminRoute><AdminReports/></AdminRoute>}/><Route path="/admin/settings" element={<AdminRoute><AdminSettings/></AdminRoute>}/>
-        <Route path="/products" element={<ProductsPage/>}/><Route path="/collections" element={<CollectionsPage/>}/><Route path="/collections/love-romance" element={<LoveRomancePage/>}/><Route path="/collections/family-memories" element={<FamilyMemoriesPage/>}/><Route path="/collections/business-branding" element={<BusinessBrandingPage/>}/><Route path="/collections/special-occasions" element={<SpecialOccasionsPage/>}/><Route path="/customize" element={<CustomizePage/>}/><Route path="/how-it-works" element={<HowItWorksPage/>}/><Route path="/contact" element={<ContactPage/>}/><Route path="/about" element={<AboutPage/>}/><Route path="/cart" element={<CartPage/>}/><Route path="/checkout" element={<CheckoutPage/>}/><Route path="/checkout/success" element={<CheckoutSuccessPage/>}/><Route path="/shipping-returns" element={<ShippingReturnsPage/>}/><Route path="/faqs" element={<FAQPage/>}/><Route path="/track-order" element={<TrackOrderPage/>}/><Route path="/privacy" element={<PrivacyPage/>}/><Route path="/terms-of-service" element={<TermsOfServicePage/>}/>
+        <Route path="/admin" element={<AdminRoute><AdminDashboard/></AdminRoute>}/><Route path="/admin/sales" element={<AdminRoute><AdminSales/></AdminRoute>}/><Route path="/admin/reviews" element={<AdminRoute><AdminReviews/></AdminRoute>}/><Route path="/admin/users" element={<AdminRoute><AdminUsers/></AdminRoute>}/><Route path="/admin/products" element={<AdminRoute><AdminProducts/></AdminRoute>}/><Route path="/admin/collections" element={<AdminRoute><AdminCollectionsHub/></AdminRoute>}/><Route path="/admin/collections/:slug" element={<AdminRoute><AdminCollectionProducts/></AdminRoute>}/><Route path="/admin/subscribers" element={<AdminRoute><AdminSubscribers/></AdminRoute>}/><Route path="/admin/content" element={<AdminRoute><AdminContent/></AdminRoute>}/><Route path="/admin/orders" element={<AdminRoute><AdminOrders/></AdminRoute>}/><Route path="/admin/reports" element={<AdminRoute><AdminReports/></AdminRoute>}/><Route path="/admin/settings" element={<AdminRoute><AdminSettings/></AdminRoute>}/>
+        <Route path="/products" element={<ProductsPage/>}/><Route path="/collections" element={<CollectionsPage/>}/><Route path="/collections/love-romance" element={<UnifiedCollectionPage slug="love-romance"/>}/><Route path="/collections/family-memories" element={<UnifiedCollectionPage slug="family-memories"/>}/><Route path="/collections/business-branding" element={<UnifiedCollectionPage slug="business-branding"/>}/><Route path="/collections/special-occasions" element={<UnifiedCollectionPage slug="special-occasions"/>}/><Route path="/customize" element={<CustomizePage/>}/><Route path="/how-it-works" element={<HowItWorksPage/>}/><Route path="/contact" element={<ContactPage/>}/><Route path="/about" element={<AboutPage/>}/><Route path="/cart" element={<CartPage/>}/><Route path="/checkout" element={<CheckoutPage/>}/><Route path="/checkout/success" element={<CheckoutSuccessPage/>}/><Route path="/shipping-returns" element={<ShippingReturnsPage/>}/><Route path="/faqs" element={<FAQPage/>}/><Route path="/track-order" element={<TrackOrderPage/>}/><Route path="/privacy" element={<PrivacyPage/>}/><Route path="/terms-of-service" element={<TermsOfServicePage/>}/>
     </Routes></BrowserRouter>;
 }
 export default App;
