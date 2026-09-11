@@ -1,0 +1,2 @@
+/* Approved desktop studio background — mobile remains unchanged. */
+@media(min-width:761px){.admin-login{background:#050505 url('/images/admin/admin-login-pc.jpg') center center / cover no-repeat}.admin-login::before{background:linear-gradient(90deg,rgba(0,0,0,.36),rgba(0,0,0,.08) 30%,rgba(0,0,0,.12) 70%,rgba(0,0,0,.40)),radial-gradient(ellipse at 50% 15%,rgba(255,202,92,.14),transparent 34%),linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.22))}}
