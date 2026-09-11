@@ -116,37 +116,30 @@ export const getSettings = async () => {
     return { websiteName:row.website_name, browserTitle:row.browser_title, slogan:row.slogan ?? "", logoUrl:row.logo_url, supportEmail:row.support_email ?? "", notificationsEnabled:row.notifications_enabled, config:mergeConfig(row.site_config) };
 };
 
-const translateIfChanged = async (text: LocalizedText, previous?: LocalizedText): Promise<LocalizedText> => {
+const translateIfChanged = async (text: LocalizedText, previous?: LocalizedText, repairStaleSpanish = false): Promise<LocalizedText> => {
     const en = String(text?.en ?? "").trim();
     const es = String(text?.es ?? "").trim();
     const previousEn = String(previous?.en ?? "").trim();
     const englishChanged = previous !== undefined && en !== previousEn;
+    const staleSpanish = repairStaleSpanish && !!en && es === en;
 
     if (!en) return { en: "", es: "" };
 
-    // Admin Settings edits the English source text. Whenever that source changes,
-    // always regenerate Spanish, even when the payload still contains the old
-    // Spanish value. This prevents stale translations from being mistaken for
-    // an intentional Spanish edit.
-    if (englishChanged) {
+    // Admin Settings edits the English source. Every Hero field is treated as
+    // English-first, so any English change must regenerate its Spanish value.
+    // We also repair existing Hero entries where Spanish was previously saved
+    // as the exact same English text.
+    if (englishChanged || !es || staleSpanish) {
         try {
             const result = await translateEnglishToSpanish(en);
             return { en, es: result.translation };
         } catch (error) {
-            console.warn("Automatic translation unavailable; preserving previous Spanish text.", error);
-            return { en, es: es || en };
+            console.error("Automatic English-to-Spanish translation failed.", error);
+            throw new Error("Unable to translate English content to Spanish. Changes were not saved.");
         }
     }
 
-    if (es) return { en, es };
-
-    try {
-        const result = await translateEnglishToSpanish(en);
-        return { en, es: result.translation };
-    } catch (error) {
-        console.warn("Automatic translation unavailable; preserving English text.", error);
-        return { en, es: en };
-    }
+    return { en, es };
 };
 
 const translateConfig = async (config: SiteConfig, previous: SiteConfig): Promise<SiteConfig> => {
@@ -155,10 +148,10 @@ const translateConfig = async (config: SiteConfig, previous: SiteConfig): Promis
         const old = previousHero.get(slide.id);
         return {
             ...slide,
-            title: await translateIfChanged(slide.title, old?.title),
-            subtitle: await translateIfChanged(slide.subtitle, old?.subtitle),
-            primaryButton: await translateIfChanged(slide.primaryButton, old?.primaryButton),
-            secondaryButton: await translateIfChanged(slide.secondaryButton, old?.secondaryButton),
+            title: await translateIfChanged(slide.title, old?.title, true),
+            subtitle: await translateIfChanged(slide.subtitle, old?.subtitle, true),
+            primaryButton: await translateIfChanged(slide.primaryButton, old?.primaryButton, true),
+            secondaryButton: await translateIfChanged(slide.secondaryButton, old?.secondaryButton, true),
         };
     }));
 
