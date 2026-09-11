@@ -63,9 +63,11 @@ function AdminSidebar({ username }: AdminSidebarProps) {
 
     const handleLogout = () => {
         localStorage.removeItem("auth_token");
+        sessionStorage.removeItem("auth_token");
         localStorage.removeItem("auth_user");
+        sessionStorage.removeItem("auth_user");
         closeMobileMenu();
-        navigate("/login");
+        navigate("/");
     };
 
     return (
@@ -110,46 +112,16 @@ function AdminSidebar({ username }: AdminSidebarProps) {
                 </div>
 
                 <nav className="admin-sidebar__nav">
-                    <NavLink to="/admin" end className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <LayoutDashboard size={20} />
-                        <span>Dashboard</span>
-                    </NavLink>
-                    <NavLink to="/admin/sales" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <BarChart3 size={20} />
-                        <span>Sales</span>
-                    </NavLink>
-                    <NavLink to="/admin/orders" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <ShoppingBag size={20} />
-                        <span>Orders</span>
-                    </NavLink>
-                    <NavLink to="/admin/collections" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <FolderKanban size={20} />
-                        <span>Collections</span>
-                    </NavLink>
-                    <NavLink to="/admin/users" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <Users size={20} />
-                        <span>Users</span>
-                    </NavLink>
-                    <NavLink to="/admin/subscribers" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <Mail size={20} />
-                        <span>Subscribers</span>
-                    </NavLink>
-                    <NavLink to="/admin/reviews" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <Star size={20} />
-                        <span>Reviews</span>
-                    </NavLink>
-                    <NavLink to="/admin/content" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <Image size={20} />
-                        <span>Portfolio</span>
-                    </NavLink>
-                    <NavLink to="/admin/reports" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <BarChart3 size={20} />
-                        <span>Reports</span>
-                    </NavLink>
-                    <NavLink to="/admin/settings" className={getNavLinkClass} onClick={closeMobileMenu}>
-                        <Settings size={20} />
-                        <span>Settings</span>
-                    </NavLink>
+                    <NavLink to="/admin" end className={getNavLinkClass} onClick={closeMobileMenu}><LayoutDashboard size={20} /><span>Dashboard</span></NavLink>
+                    <NavLink to="/admin/sales" className={getNavLinkClass} onClick={closeMobileMenu}><BarChart3 size={20} /><span>Sales</span></NavLink>
+                    <NavLink to="/admin/orders" className={getNavLinkClass} onClick={closeMobileMenu}><ShoppingBag size={20} /><span>Orders</span></NavLink>
+                    <NavLink to="/admin/collections" className={getNavLinkClass} onClick={closeMobileMenu}><FolderKanban size={20} /><span>Collections</span></NavLink>
+                    <NavLink to="/admin/users" className={getNavLinkClass} onClick={closeMobileMenu}><Users size={20} /><span>Users</span></NavLink>
+                    <NavLink to="/admin/subscribers" className={getNavLinkClass} onClick={closeMobileMenu}><Mail size={20} /><span>Subscribers</span></NavLink>
+                    <NavLink to="/admin/reviews" className={getNavLinkClass} onClick={closeMobileMenu}><Star size={20} /><span>Reviews</span></NavLink>
+                    <NavLink to="/admin/content" className={getNavLinkClass} onClick={closeMobileMenu}><Image size={20} /><span>Portfolio</span></NavLink>
+                    <NavLink to="/admin/reports" className={getNavLinkClass} onClick={closeMobileMenu}><BarChart3 size={20} /><span>Reports</span></NavLink>
+                    <NavLink to="/admin/settings" className={getNavLinkClass} onClick={closeMobileMenu}><Settings size={20} /><span>Settings</span></NavLink>
                 </nav>
 
                 <div className="admin-sidebar__bottom">
