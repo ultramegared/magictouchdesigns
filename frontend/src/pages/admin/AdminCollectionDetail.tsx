@@ -1,4 +1,5 @@
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { ArrowLeft, ArrowDown, ArrowUp, CheckCircle2, Edit3, Eye, EyeOff, ImageOff, LoaderCircle, Package, Plus, RefreshCw, Save, Trash2, X, XCircle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
@@ -167,7 +168,7 @@ function AdminCollectionDetail() {
                     <article><Package size={18} /><div><strong>{products.length}</strong><span>Total products</span></div></article>
                     <article><Eye size={18} /><div><strong>{activeCount}</strong><span>Active</span></div></article>
                     <article><EyeOff size={18} /><div><strong>{inactiveCount}</strong><span>Inactive</span></div></article>
-                    <article><FolderIcon /><div><strong>{collection?.sort_order ?? "—"}</strong><span>Collection order</span></div></article>
+                    <article><Package size={18} /><div><strong>{collection?.sort_order ?? "—"}</strong><span>Collection order</span></div></article>
                 </section>
 
                 <section className="collection-detail__workspace">
