@@ -106,7 +106,7 @@ const mergeConfig = (raw: unknown): SiteConfig => {
 
 export const getSettings = async () => {
     await ensureSettingsTables();
-    const result = await pool.query(`SELECT id, website_name, browser_title, slogan, logo_url, support_email, notifications_enabled, site_config FROM settings ORDER BY created_at ASC LIMIT 1`);
+    const result = await pool.query(`SELECT id, website_name, browser_title, slogan, logo_url, support_email, notifications_enabled, site_config FROM settings ORDER BY created_at DESC LIMIT 1`);
     if (!result.rows[0]) return { websiteName:"Magic Touch Designs", browserTitle:"Magic Touch Designs | Personalized Gifts & Designs", slogan:DEFAULT_CONFIG.slogan.en, logoUrl:null, supportEmail:"", notificationsEnabled:true, config:DEFAULT_CONFIG };
     const row = result.rows[0];
     return { websiteName:row.website_name, browserTitle:row.browser_title, slogan:row.slogan ?? "", logoUrl:row.logo_url, supportEmail:row.support_email ?? "", notificationsEnabled:row.notifications_enabled, config:mergeConfig(row.site_config) };
@@ -137,17 +137,42 @@ export const updateSettings = async (data: any) => {
     const browserTitle = String(data.browserTitle ?? current.browserTitle).trim();
     if (!websiteName) throw new Error("Website name is required.");
     if (!browserTitle) throw new Error("Browser title is required.");
-    const result = await pool.query(`
-        INSERT INTO settings (website_name,browser_title,slogan,logo_url,support_email,notifications_enabled,site_config)
-        VALUES ($1,$2,$3,$4,$5,$6,$7)
-        ON CONFLICT (id) DO NOTHING
-        RETURNING id
-    `,[websiteName,browserTitle,config.slogan.en,data.logoUrl !== undefined ? data.logoUrl : current.logoUrl,String(data.supportEmail ?? current.supportEmail).trim(),data.notificationsEnabled ?? current.notificationsEnabled,JSON.stringify(config)]);
-    if (!result.rows[0]) {
-        const existing = await pool.query(`SELECT id FROM settings ORDER BY created_at ASC LIMIT 1`);
-        if (!existing.rows[0]) throw new Error("Unable to initialize settings.");
-        await pool.query(`UPDATE settings SET website_name=$1,browser_title=$2,slogan=$3,logo_url=$4,support_email=$5,notifications_enabled=$6,site_config=$7,updated_at=CURRENT_TIMESTAMP WHERE id=$8`,[websiteName,browserTitle,config.slogan.en,data.logoUrl !== undefined ? data.logoUrl : current.logoUrl,String(data.supportEmail ?? current.supportEmail).trim(),data.notificationsEnabled ?? current.notificationsEnabled,JSON.stringify(config),existing.rows[0].id]);
+
+    const values = [
+        websiteName,
+        browserTitle,
+        config.slogan.en,
+        data.logoUrl !== undefined ? data.logoUrl : current.logoUrl,
+        String(data.supportEmail ?? current.supportEmail).trim(),
+        data.notificationsEnabled ?? current.notificationsEnabled,
+        JSON.stringify(config),
+    ];
+
+    const existing = await pool.query(`SELECT id FROM settings ORDER BY created_at DESC LIMIT 1`);
+
+    if (existing.rows[0]) {
+        await pool.query(
+            `UPDATE settings
+             SET website_name=$1,
+                 browser_title=$2,
+                 slogan=$3,
+                 logo_url=$4,
+                 support_email=$5,
+                 notifications_enabled=$6,
+                 site_config=$7,
+                 updated_at=CURRENT_TIMESTAMP
+             WHERE id=$8`,
+            [...values, existing.rows[0].id]
+        );
+    } else {
+        await pool.query(
+            `INSERT INTO settings
+                (website_name,browser_title,slogan,logo_url,support_email,notifications_enabled,site_config)
+             VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+            values
+        );
     }
+
     return getSettings();
 };
 
