@@ -176,6 +176,7 @@ function AdminCollectionDetail() {
                     {form.image_url && <div className="collection-detail__preview full"><span>Image preview</span><img src={form.image_url} alt="Product preview" /></div>}
                 </div><footer><button type="button" onClick={closeModal} disabled={saving || uploading}>Cancel</button><button type="submit" className="primary" disabled={saving || uploading}>{saving ? <LoaderCircle size={17} className="is-spinning" /> : editing ? <Save size={17} /> : <Plus size={17} />}{saving ? "Saving..." : editing ? "Save changes" : "Create product"}</button></footer></form>
             </div></div>}
+            </main>
         </div>
     );
 }
