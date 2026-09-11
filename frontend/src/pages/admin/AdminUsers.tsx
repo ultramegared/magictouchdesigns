@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Calendar, CheckCircle2, ChevronLeft, ChevronRight, Eye, Mail, RefreshCw, Search, Shield, Trash2, User, Users, X } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Eye, RefreshCw, Search, Shield, Trash2, Users, X } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import { apiRequest } from "../../services/api";
 import "./AdminUsers.css";
