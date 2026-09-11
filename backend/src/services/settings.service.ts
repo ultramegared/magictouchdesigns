@@ -93,24 +93,13 @@ export const ensureSettingsTables = async (): Promise<void> => {
 const mergeConfig = (raw: unknown): SiteConfig => {
     if (!raw || typeof raw !== "object") return DEFAULT_CONFIG;
     const value = raw as Partial<SiteConfig>;
-    const configuredSocials = Array.isArray(value.socialLinks) ? value.socialLinks : [];
-    const socialLinks = configuredSocials.length
-        ? [
-            ...configuredSocials,
-            ...DEFAULT_CONFIG.socialLinks.filter(defaultSocial =>
-                !configuredSocials.some(currentSocial =>
-                    String(currentSocial.name).trim().toLowerCase() === String(defaultSocial.name).trim().toLowerCase()
-                )
-            ),
-        ]
-        : DEFAULT_CONFIG.socialLinks;
     return {
         ...DEFAULT_CONFIG,
         ...value,
         heroSlides: Array.isArray(value.heroSlides) && value.heroSlides.length ? value.heroSlides : DEFAULT_CONFIG.heroSlides,
         headerLinks: Array.isArray(value.headerLinks) && value.headerLinks.length ? value.headerLinks : DEFAULT_CONFIG.headerLinks,
         footerSections: Array.isArray(value.footerSections) && value.footerSections.length ? value.footerSections : DEFAULT_CONFIG.footerSections,
-        socialLinks,
+        socialLinks: Array.isArray(value.socialLinks) && value.socialLinks.length ? value.socialLinks : DEFAULT_CONFIG.socialLinks,
         pages: Array.isArray(value.pages) ? value.pages : DEFAULT_CONFIG.pages,
     } as SiteConfig;
 };
@@ -134,7 +123,7 @@ const translateIfChanged = async (text: LocalizedText): Promise<LocalizedText> =
 
 const translateConfig = async (config: SiteConfig): Promise<SiteConfig> => {
     const heroSlides = await Promise.all(config.heroSlides.map(async slide => ({ ...slide, title:await translateIfChanged(slide.title), subtitle:await translateIfChanged(slide.subtitle), primaryButton:await translateIfChanged(slide.primaryButton), secondaryButton:await translateIfChanged(slide.secondaryButton) })));
-    const headerLinks = await Promise.all(config.headerLinks.map(async item => ({...item,label:await translateIfChanged(item.label)}));
+    const headerLinks = await Promise.all(config.headerLinks.map(async item => ({...item,label:await translateIfChanged(item.label)})));
     const footerSections = await Promise.all(config.footerSections.map(async section => ({...section,title:await translateIfChanged(section.title),links:await Promise.all(section.links.map(async item=>({...item,label:await translateIfChanged(item.label)})))})));
     const pages = await Promise.all(config.pages.map(async page=>({...page,title:await translateIfChanged(page.title),body:await translateIfChanged(page.body)})));
     return {...config, slogan:await translateIfChanged(config.slogan),designerName:await translateIfChanged(config.designerName),designerTitle:await translateIfChanged(config.designerTitle),designerBio:await translateIfChanged(config.designerBio),heroSlides,headerLinks,footerSections,pages};
