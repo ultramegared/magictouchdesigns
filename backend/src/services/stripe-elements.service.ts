@@ -15,7 +15,6 @@ import {
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://magictouchdesigns.com";
 const STRIPE_API = "https://api.stripe.com/v1";
 const STRIPE_API_VERSION = "2025-09-30.clover";
-const SHIPPING_AMOUNT_CENTS = 599;
 
 const requireStripeKey = (): string => {
     const key = process.env.STRIPE_SECRET_KEY;
@@ -58,7 +57,7 @@ export const createStripeElementsCheckout = async (
     params.set("phone_number_collection[enabled]", "true");
     params.set("shipping_address_collection[allowed_countries][0]", "US");
     params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
-    params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(SHIPPING_AMOUNT_CENTS));
+    params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents));
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
     params.set("shipping_options[0][shipping_rate_data][display_name]", "Standard Shipping");
     params.set("automatic_tax[enabled]", "true");
@@ -91,6 +90,7 @@ export const createStripeElementsCheckout = async (
             orderCode: snapshot.orderCode,
             sessionId: session.id,
             clientSecret: session.client_secret,
+            shipping: snapshot.shipping,
         };
     } catch (error) {
         await pool.query(
