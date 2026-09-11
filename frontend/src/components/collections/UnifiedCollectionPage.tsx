@@ -105,6 +105,7 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
     const [selectedProduct, setSelectedProduct] = useState<CollectionProduct | null>(null);
     const [selectedOptions, setSelectedOptions] = useState<Record<string, Record<string, string>>>({});
     const [quantities, setQuantities] = useState<Record<string, number>>({});
+    const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -118,7 +119,10 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
                 const response = await fetch(`${apiBase}/api/collections/${slug}/products`);
                 if (!response.ok) throw new Error("Unable to load collection products");
                 const data = await response.json();
-                if (!cancelled) setProducts((data.products || []).filter((product: CollectionProduct) => product.is_active));
+                if (!cancelled) {
+                    setProducts((data.products || []).filter((product: CollectionProduct) => product.is_active));
+                    setCurrentPage(1);
+                }
             } catch (err) {
                 console.error(err);
                 if (!cancelled) setError(true);
@@ -135,6 +139,17 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
         const bOrder = Number(b.collection_sort_order ?? 999999);
         return aOrder - bOrder;
     }), [products]);
+
+    const PRODUCTS_PER_PAGE = 8;
+    const totalPages = Math.max(1, Math.ceil(orderedProducts.length / PRODUCTS_PER_PAGE));
+    const pageProducts = useMemo(() => {
+        const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
+        return orderedProducts.slice(start, start + PRODUCTS_PER_PAGE);
+    }, [orderedProducts, currentPage]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) setCurrentPage(totalPages);
+    }, [currentPage, totalPages]);
 
     const getProductState = (product: CollectionProduct) => {
         const features = normalizeFeatures(product.features);
@@ -248,32 +263,43 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
                 {loading && <div className="unified-state">{language === "es" ? "Cargando productos..." : "Loading products..."}</div>}
                 {!loading && error && <div className="unified-state unified-state--error">{language === "es" ? "No se pudieron cargar los productos." : "Unable to load products."}</div>}
 
-                {!loading && !error && <div className="unified-products-grid">
-                    {orderedProducts.map((product, index) => {
-                        const quantity = quantityFor(product);
-                        return <article className="unified-product" key={product.product_id}>
-                            <div className="unified-product__image" role="button" tabIndex={0} onClick={() => setSelectedProduct(product)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedProduct(product); } }} aria-label={language === "es" ? `Ver ${product.name} en grande` : `View ${product.name} enlarged`}>
-                                <img src={product.image_url || "/images/products/placeholder.jpg"} alt={product.name} />
-                                <span className="unified-product__number">{String(index + 1).padStart(2, "0")}</span>
-                                <span className="unified-product__zoom">⌕</span>
-                                <div className="unified-product__gradient" />
-                            </div>
-                            <div className="unified-product__body">
-                                <div className="unified-product__title-row">
-                                    <h3>{product.name}</h3>
-                                    <strong>${Number(product.price).toFixed(2)}</strong>
+                {!loading && !error && <>
+                    <div className="unified-products-grid">
+                        {pageProducts.map((product, index) => {
+                            const quantity = quantityFor(product);
+                            const productNumber = (currentPage - 1) * PRODUCTS_PER_PAGE + index + 1;
+                            return <article className="unified-product" key={product.product_id}>
+                                <div className="unified-product__image" aria-label={language === "es" ? `Imagen de ${product.name}` : `Image of ${product.name}`}>
+                                    <img src={product.image_url || "/images/products/placeholder.jpg"} alt={product.name} />
+                                    <span className="unified-product__number">{String(productNumber).padStart(2, "0")}</span>
+                                    <button type="button" className="unified-product__zoom" onClick={() => setSelectedProduct(product)} aria-label={language === "es" ? `Ver ${product.name} en grande` : `View ${product.name} enlarged`}>⌕</button>
+                                    <div className="unified-product__gradient" />
                                 </div>
-                                <div className="unified-rating" aria-label="5 out of 5 stars">★★★★★</div>
-                                <div className="unified-divider"><span>♥</span></div>
-                                {product.description && <p className="unified-product__description">{product.description}</p>}
-                                {renderOptions(product)}
-                                <div className="unified-product__quantity"><button type="button" onClick={() => changeQuantity(product, -1)}>−</button><span>{quantity}</span><button type="button" onClick={() => changeQuantity(product, 1)}>+</button></div>
-                                <button type="button" className="unified-add-cart" onClick={() => addProductToCart(product, quantity)}>{language === "es" ? "AGREGAR AL CARRITO" : "ADD TO CART"}</button>
-                            </div>
-                        </article>;
-                    })}
-                    {!orderedProducts.length && <div className="unified-state">{language === "es" ? "No hay productos disponibles." : "No products available."}</div>}
-                </div>}
+                                <div className="unified-product__body">
+                                    <div className="unified-product__title-row">
+                                        <h3>{product.name}</h3>
+                                        <strong>${Number(product.price).toFixed(2)}</strong>
+                                    </div>
+                                    <div className="unified-rating" aria-label="5 out of 5 stars">★★★★★</div>
+                                    <div className="unified-divider"><span>♥</span></div>
+                                    {product.description && <p className="unified-product__description">{product.description}</p>}
+                                    {renderOptions(product)}
+                                    <div className="unified-product__quantity"><button type="button" onClick={() => changeQuantity(product, -1)}>−</button><span>{quantity}</span><button type="button" onClick={() => changeQuantity(product, 1)}>+</button></div>
+                                    <button type="button" className="unified-add-cart" onClick={() => addProductToCart(product, quantity)}>{language === "es" ? "AGREGAR AL CARRITO" : "ADD TO CART"}</button>
+                                </div>
+                            </article>;
+                        })}
+                        {!orderedProducts.length && <div className="unified-state">{language === "es" ? "No hay productos disponibles." : "No products available."}</div>}
+                    </div>
+
+                    {totalPages > 1 && <nav className="unified-pagination" aria-label={language === "es" ? "Paginación de productos" : "Product pagination"}>
+                        <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage === 1}>←</button>
+                        {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                            <button key={page} type="button" className={currentPage === page ? "is-current" : ""} onClick={() => setCurrentPage(page)} aria-current={currentPage === page ? "page" : undefined}>{page}</button>
+                        ))}
+                        <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage === totalPages}>→</button>
+                    </nav>}
+                </>}
             </section>
 
             {selectedProduct && <div className="unified-lightbox" role="dialog" aria-modal="true" aria-label={selectedProduct.name} onClick={() => setSelectedProduct(null)}>
