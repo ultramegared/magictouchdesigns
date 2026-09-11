@@ -26,6 +26,8 @@ const syncPublicConfig = (config:SiteConfig) => {
     } catch {}
 };
 
+const settingsRequestOptions = { cache: "no-store" as RequestCache };
+
 function AdminSettings() {
     const [currentUser,setCurrentUser]=useState<{username:string}|null>(null);
     const [settings,setSettings]=useState<SettingsData|null>(null);
@@ -44,7 +46,7 @@ function AdminSettings() {
 
     useEffect(()=>{
         apiRequest<{status:string;user:{username:string}}>("/api/user/me").then(r=>setCurrentUser(r.user)).catch(()=>{});
-        apiRequest<{status:string;settings:SettingsData}>("/api/settings").then(r=>{setSettings(r.settings);setWebsiteName(r.settings.websiteName);setBrowserTitle(r.settings.browserTitle);setLogoUrl(r.settings.logoUrl??"");setSupportEmail(r.settings.supportEmail);setNotificationsEnabled(r.settings.notificationsEnabled);syncPublicConfig(r.settings.config);}).catch(e=>setMessage(e instanceof Error?e.message:"Unable to load settings."));
+        apiRequest<{status:string;settings:SettingsData}>(`/api/settings?settings_refresh=${Date.now()}`,settingsRequestOptions).then(r=>{setSettings(r.settings);setWebsiteName(r.settings.websiteName);setBrowserTitle(r.settings.browserTitle);setLogoUrl(r.settings.logoUrl??"");setSupportEmail(r.settings.supportEmail);setNotificationsEnabled(r.settings.notificationsEnabled);syncPublicConfig(r.settings.config);}).catch(e=>setMessage(e instanceof Error?e.message:"Unable to load settings."));
     },[]);
 
     const config=settings?.config;
@@ -94,10 +96,13 @@ function AdminSettings() {
             }
             const configPatch:Partial<SiteConfig>=key==="branding"?{businessPhone:config.businessPhone,businessAddress:config.businessAddress,slogan:config.slogan}:key==="hero"?{heroSlides:config.heroSlides}:key==="header"?{headerLinks:config.headerLinks,pages:config.pages}:key==="footer"?{footerSections:config.footerSections}:key==="social"?{socialLinks:config.socialLinks}:{designerName:config.designerName,designerTitle:config.designerTitle,designerBio:config.designerBio};
             const r=await apiRequest<{status:string;settings:SettingsData}>("/api/settings",{method:"PUT",body:JSON.stringify({websiteName,browserTitle,logoUrl:finalLogo,supportEmail,notificationsEnabled,config:configPatch})});
-            const verify=await apiRequest<{status:string;settings:SettingsData}>("/api/settings");
-            setSettings(verify.settings);setWebsiteName(verify.settings.websiteName);setBrowserTitle(verify.settings.browserTitle);setLogoUrl(verify.settings.logoUrl??"");setSupportEmail(verify.settings.supportEmail);setNotificationsEnabled(verify.settings.notificationsEnabled);syncPublicConfig(verify.settings.config);
+            const verified=r.settings;
+            setSettings(verified);setWebsiteName(verified.websiteName);setBrowserTitle(verified.browserTitle);setLogoUrl(verified.logoUrl??"");setSupportEmail(verified.supportEmail);setNotificationsEnabled(verified.notificationsEnabled);syncPublicConfig(verified.config);
+            if(key==="header"&&!verified.config.headerLinks.some(link=>link.id===config.headerLinks.find((item)=>item.path==="/products")?.id && link.active===false)){
+                throw new Error("El servidor no confirmó el cambio de navegación. No se aplicó el cambio en la vista pública.");
+            }
             updateStatus(key,"✓ Cambios guardados");
-            setMessage(r.status==="success"?"Cambios guardados y verificados en el servidor.":"Cambios actualizados.");
+            setMessage("Cambios guardados y verificados en el servidor.");
         }catch(err){updateStatus(key,"No se pudo guardar");setMessage(err instanceof Error?err.message:"Unable to save settings.");}
         finally{setSaving(null);}
     };
