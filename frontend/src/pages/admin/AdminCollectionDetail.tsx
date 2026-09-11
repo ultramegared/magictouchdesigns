@@ -129,11 +129,11 @@ function AdminCollectionDetail() {
         finally { setBusyProduct(null); }
     };
 
-    if (!definition) return <div className="admin-layout"><AdminSidebar currentUser={currentUser || undefined} /><main className="admin-collection-detail"><div className="collection-detail__empty"><XCircle size={42} /><h1>Collection not found</h1><button onClick={() => navigate("/admin/collections")}>Back to Collections</button></div></main></div>;
+    if (!definition) return <div className="admin-layout"><AdminSidebar username={currentUser?.username} /><main className="admin-collection-detail"><div className="collection-detail__empty"><XCircle size={42} /><h1>Collection not found</h1><button onClick={() => navigate("/admin/collections")}>Back to Collections</button></div></main></div>;
 
     return (
         <div className="admin-layout">
-            <AdminSidebar currentUser={currentUser || undefined} />
+            <AdminSidebar username={currentUser?.username} />
             <main className="admin-collection-detail">
                 <header className="collection-detail__header">
                     <div className="collection-detail__heading">
