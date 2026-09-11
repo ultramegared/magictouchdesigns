@@ -62,6 +62,7 @@ function AdminCollectionDetail() {
 
     const activeCount = products.filter((product) => product.is_active).length;
     const inactiveCount = products.length - activeCount;
+    const isSearching = search.trim().length > 0;
 
     const openCreate = () => { setEditing(null); setForm(emptyForm); setModalOpen(true); };
     const openEdit = (product: Product) => {
@@ -115,6 +116,7 @@ function AdminCollectionDetail() {
     };
 
     const moveProduct = async (product: Product, direction: "up" | "down") => {
+        if (isSearching) return;
         const index = products.findIndex((item) => item.product_id === product.product_id);
         const targetIndex = direction === "up" ? index - 1 : index + 1;
         if (index < 0 || targetIndex < 0 || targetIndex >= products.length) return;
@@ -155,7 +157,7 @@ function AdminCollectionDetail() {
                         {filteredProducts.map((product, index) => <article className="collection-product" key={product.product_id}>
                             <div className="collection-product__image">{product.image_url ? <img src={product.image_url} alt={product.name} /> : <ImageOff size={28} />}</div>
                             <div className="collection-product__info"><div className="collection-product__top"><span className={product.is_active ? "status active" : "status inactive"}>{product.is_active ? "Active" : "Inactive"}</span><span className="product-order">#{index + 1}</span></div><h2>{product.name}</h2><p>{product.description || "No description provided."}</p><strong>${Number(product.price).toFixed(2)}</strong>{product.features?.length > 0 && <div className="product-features">{product.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div>}</div>
-                            <div className="collection-product__actions"><button title="Move up" onClick={() => moveProduct(product, "up")} disabled={index === 0 || !!busyProduct}><ArrowUp size={17} /></button><button title="Move down" onClick={() => moveProduct(product, "down")} disabled={index === filteredProducts.length - 1 || !!busyProduct}><ArrowDown size={17} /></button><button title={product.is_active ? "Deactivate" : "Activate"} onClick={() => toggleStatus(product)} disabled={busyProduct === product.product_id}>{product.is_active ? <EyeOff size={17} /> : <Eye size={17} />}</button><button title="Edit" onClick={() => openEdit(product)} disabled={!!busyProduct}><Edit3 size={17} /></button><button title="Remove" className="danger" onClick={() => removeProduct(product)} disabled={busyProduct === product.product_id}>{busyProduct === product.product_id ? <LoaderCircle size={17} className="is-spinning" /> : <Trash2 size={17} />}</button></div>
+                            <div className="collection-product__actions"><button title={isSearching ? "Clear search to reorder" : "Move up"} onClick={() => moveProduct(product, "up")} disabled={isSearching || index === 0 || !!busyProduct}><ArrowUp size={17} /></button><button title={isSearching ? "Clear search to reorder" : "Move down"} onClick={() => moveProduct(product, "down")} disabled={isSearching || index === filteredProducts.length - 1 || !!busyProduct}><ArrowDown size={17} /></button><button title={product.is_active ? "Deactivate" : "Activate"} onClick={() => toggleStatus(product)} disabled={busyProduct === product.product_id}>{product.is_active ? <EyeOff size={17} /> : <Eye size={17} />}</button><button title="Edit" onClick={() => openEdit(product)} disabled={!!busyProduct}><Edit3 size={17} /></button><button title="Remove" className="danger" onClick={() => removeProduct(product)} disabled={busyProduct === product.product_id}>{busyProduct === product.product_id ? <LoaderCircle size={17} className="is-spinning" /> : <Trash2 size={17} />}</button></div>
                         </article>)}
                     </section>
                 )}
