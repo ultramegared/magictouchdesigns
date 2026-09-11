@@ -8,9 +8,10 @@
  * Description:
  * Dependency-free interactive mug preview using Canvas.
  *
- * Artwork is printed only across the 180° printable front arc:
- * handle-to-handle. The two artwork edges stay anchored at the
- * handle junctions and do not wrap around the rear of the mug.
+ * Artwork is mapped across the full 180° printable front arc:
+ * handle-to-handle. The artwork remains centered on the printable
+ * surface while the mug rotates, with cylindrical perspective and
+ * stronger edge shading.
  * ================================================================
  */
 
@@ -77,7 +78,7 @@ function mugPath(ctx: CanvasRenderingContext2D, body: { x: number; y: number; wi
 }
 
 function createPrintTexture(image: HTMLImageElement, designScale: number, designX: number, designY: number, designRotation: number) {
-    const textureWidth = 1600;
+    const textureWidth = 2048;
     const textureHeight = 900;
     const texture = document.createElement("canvas");
     texture.width = textureWidth;
@@ -87,7 +88,7 @@ function createPrintTexture(image: HTMLImageElement, designScale: number, design
 
     const scale = clamp(designScale, 0.55, 1.55);
     const aspect = image.width / Math.max(1, image.height);
-    const maxArtworkWidth = textureWidth * 0.96;
+    const maxArtworkWidth = textureWidth * 0.99;
     const maxArtworkHeight = textureHeight * 0.88;
     let artworkHeight = maxArtworkHeight * scale;
     let artworkWidth = artworkHeight * aspect;
@@ -117,7 +118,7 @@ function drawArtworkOnMug(ctx: CanvasRenderingContext2D, image: HTMLImageElement
 
     const centerX = body.x + body.width * 0.5;
     const radius = body.width * 0.5;
-    const columns = Math.max(360, Math.round(body.width * 2.2));
+    const columns = Math.max(420, Math.round(body.width * 2.6));
 
     for (let i = 0; i < columns; i += 1) {
         const u0 = i / columns;
@@ -134,10 +135,10 @@ function drawArtworkOnMug(ctx: CanvasRenderingContext2D, image: HTMLImageElement
         const x0 = centerX + Math.sin(cameraA0) * radius;
         const x1 = centerX + Math.sin(cameraA1) * radius;
         const left = Math.min(x0, x1);
-        const projectedWidth = Math.max(0.55, Math.abs(x1 - x0) + 0.7);
+        const projectedWidth = Math.max(0.5, Math.abs(x1 - x0) + 0.55);
         const sourceX = u0 * texture.width;
-        const sourceWidth = Math.max(2, (u1 - u0) * texture.width + 1);
-        const shade = 0.72 + clamp(depth, 0, 1) * 0.28;
+        const sourceWidth = Math.max(2, (u1 - u0) * texture.width + 1.25);
+        const shade = 0.68 + clamp(depth, 0, 1) * 0.32;
 
         ctx.save();
         ctx.globalAlpha = shade;
