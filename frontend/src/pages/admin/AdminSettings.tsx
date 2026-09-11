@@ -19,6 +19,13 @@ const emptyHero = (order:number):HeroSlide => ({ id:`hero-${Date.now()}`, image:
 const emptyLink = (order:number):NavLink => ({ id:`link-${Date.now()}`, label:emptyText(), path:"/", active:true, order });
 const emptyPage = ():PageConfig => ({ id:`page-${Date.now()}`, title:emptyText(), slug:"new-page", body:emptyText(), active:true });
 
+const syncPublicConfig = (config:SiteConfig) => {
+    try {
+        localStorage.setItem("mtd_site_config", JSON.stringify(config));
+        window.dispatchEvent(new Event("mtd-site-config-updated"));
+    } catch {}
+};
+
 function AdminSettings() {
     const [currentUser,setCurrentUser]=useState<{username:string}|null>(null);
     const [settings,setSettings]=useState<SettingsData|null>(null);
@@ -37,7 +44,7 @@ function AdminSettings() {
 
     useEffect(()=>{
         apiRequest<{status:string;user:{username:string}}>("/api/user/me").then(r=>setCurrentUser(r.user)).catch(()=>{});
-        apiRequest<{status:string;settings:SettingsData}>("/api/settings").then(r=>{setSettings(r.settings);setWebsiteName(r.settings.websiteName);setBrowserTitle(r.settings.browserTitle);setLogoUrl(r.settings.logoUrl??"");setSupportEmail(r.settings.supportEmail);setNotificationsEnabled(r.settings.notificationsEnabled);}).catch(e=>setMessage(e instanceof Error?e.message:"Unable to load settings."));
+        apiRequest<{status:string;settings:SettingsData}>("/api/settings").then(r=>{setSettings(r.settings);setWebsiteName(r.settings.websiteName);setBrowserTitle(r.settings.browserTitle);setLogoUrl(r.settings.logoUrl??"");setSupportEmail(r.settings.supportEmail);setNotificationsEnabled(r.settings.notificationsEnabled);syncPublicConfig(r.settings.config);}).catch(e=>setMessage(e instanceof Error?e.message:"Unable to load settings."));
     },[]);
 
     const config=settings?.config;
@@ -88,7 +95,7 @@ function AdminSettings() {
             const configPatch:Partial<SiteConfig>=key==="branding"?{businessPhone:config.businessPhone,businessAddress:config.businessAddress,slogan:config.slogan}:key==="hero"?{heroSlides:config.heroSlides}:key==="header"?{headerLinks:config.headerLinks,pages:config.pages}:key==="footer"?{footerSections:config.footerSections}:key==="social"?{socialLinks:config.socialLinks}:{designerName:config.designerName,designerTitle:config.designerTitle,designerBio:config.designerBio};
             const r=await apiRequest<{status:string;settings:SettingsData}>("/api/settings",{method:"PUT",body:JSON.stringify({websiteName,browserTitle,logoUrl:finalLogo,supportEmail,notificationsEnabled,config:configPatch})});
             const verify=await apiRequest<{status:string;settings:SettingsData}>("/api/settings");
-            setSettings(verify.settings);setWebsiteName(verify.settings.websiteName);setBrowserTitle(verify.settings.browserTitle);setLogoUrl(verify.settings.logoUrl??"");setSupportEmail(verify.settings.supportEmail);setNotificationsEnabled(verify.settings.notificationsEnabled);
+            setSettings(verify.settings);setWebsiteName(verify.settings.websiteName);setBrowserTitle(verify.settings.browserTitle);setLogoUrl(verify.settings.logoUrl??"");setSupportEmail(verify.settings.supportEmail);setNotificationsEnabled(verify.settings.notificationsEnabled);syncPublicConfig(verify.settings.config);
             updateStatus(key,"✓ Cambios guardados");
             setMessage(r.status==="success"?"Cambios guardados y verificados en el servidor.":"Cambios actualizados.");
         }catch(err){updateStatus(key,"No se pudo guardar");setMessage(err instanceof Error?err.message:"Unable to save settings.");}
