@@ -41,7 +41,7 @@ function AdminSettings(){
  const supportSectionIndex=config.footerSections.findIndex(s=>s.id==="footer-support");
  const resolvedSupportIndex=supportSectionIndex>=0?supportSectionIndex:Math.min(2,Math.max(0,config.footerSections.length-1));
  const supportSection=config.footerSections[resolvedSupportIndex];
- const whatsappIndex=supportSection?.links.findIndex(l=>l.label.toLowerCase()==="whatsapp")??-1;
+ const whatsappIndex=supportSection?.links.findIndex(l=>String(l.label?.en??"").trim().toLowerCase()==="whatsapp")??-1;
  const whatsappUrl=whatsappIndex>=0?supportSection.links[whatsappIndex].path:"https://wa.me/qr/6FQZEC7MEQN3N1";
  const updateWhatsappUrl=(url:string)=>{if(!config)return;if(!supportSection)return;if(whatsappIndex>=0){updateFooterLink(resolvedSupportIndex,whatsappIndex,{path:url});return}updateFooter(resolvedSupportIndex,{links:[...supportSection.links,{id:`whatsapp-${Date.now()}`,label:{en:"WhatsApp",es:"WhatsApp"},path:url,active:true,order:supportSection.links.length+1}]})};
  const qrPreview=`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(whatsappUrl)}`;
