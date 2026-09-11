@@ -5,6 +5,45 @@ export interface TranslationResult {
 const getOpenAiApiKey = (): string => String(process.env.OPENAI_API_KEY || "").trim();
 const getOpenAiModel = (): string => String(process.env.OPENAI_TRANSLATION_MODEL || "gpt-5.6-luna").trim();
 
+const extractOutputText = (responseData: unknown): string => {
+    if (!responseData || typeof responseData !== "object") {
+        return "";
+    }
+
+    const data = responseData as {
+        output_text?: unknown;
+        output?: unknown;
+    };
+
+    // `output_text` is an SDK convenience property and is not guaranteed
+    // to be present in the raw Responses API JSON returned by fetch().
+    if (typeof data.output_text === "string" && data.output_text.trim()) {
+        return data.output_text.trim();
+    }
+
+    if (!Array.isArray(data.output)) {
+        return "";
+    }
+
+    const parts: string[] = [];
+
+    for (const item of data.output) {
+        if (!item || typeof item !== "object") continue;
+        const message = item as { type?: unknown; content?: unknown };
+        if (message.type !== "message" || !Array.isArray(message.content)) continue;
+
+        for (const content of message.content) {
+            if (!content || typeof content !== "object") continue;
+            const part = content as { type?: unknown; text?: unknown };
+            if (part.type === "output_text" && typeof part.text === "string") {
+                parts.push(part.text);
+            }
+        }
+    }
+
+    return parts.join("").trim();
+};
+
 export const translateEnglishToSpanish = async (text: string): Promise<TranslationResult> => {
     const normalizedText = text.trim();
     if (!normalizedText) throw new Error("Text to translate cannot be empty.");
@@ -58,12 +97,10 @@ export const translateEnglishToSpanish = async (text: string): Promise<Translati
         throw new Error(`OpenAI error: ${errorMessage}`);
     }
 
-    if (typeof responseData !== "object" || responseData === null || !("output_text" in responseData) || typeof responseData.output_text !== "string") {
+    const translation = extractOutputText(responseData);
+    if (!translation) {
         throw new Error("OpenAI did not return translated text.");
     }
-
-    const translation = responseData.output_text.trim();
-    if (!translation) throw new Error("OpenAI returned an empty translation.");
 
     return { translation };
 };
