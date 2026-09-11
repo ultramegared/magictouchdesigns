@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { apiRequest } from "./services/api";
 import { translations } from "./translations";
+import { useLanguage } from "./contexts/LanguageContext";
 import HomePage from "./pages/Home";
 import ProductsPage from "./pages/Products";
 import CollectionsPage from "./pages/Collections";
@@ -39,28 +40,42 @@ import PrivacyPage from "./pages/Privacy";
 import TermsOfServicePage from "./pages/TermsOfService";
 import ForgotPasswordPage from "./pages/ForgotPassword/ForgotPassword";
 
+interface LocalizedText { en: string; es: string; }
+interface SiteConfigSnapshot { websiteName?: LocalizedText; browserTitle?: LocalizedText; designerName?: LocalizedText; designerTitle?: LocalizedText; }
+
+const pickLocalized = (value: LocalizedText | undefined, language: "en" | "es", fallback: string) => {
+    const selected = language === "es" ? value?.es : value?.en;
+    return String(selected || value?.en || fallback);
+};
+
 function App() {
+    const { language } = useLanguage();
     const [ready, setReady] = useState(false);
+
     useEffect(() => {
-        apiRequest<{ status: string; settings: { websiteName: string; browserTitle: string; config: unknown } }>("/api/settings")
+        let cancelled = false;
+        apiRequest<{ status: string; settings: { websiteName: string; browserTitle: string; config: SiteConfigSnapshot } }>(`/api/settings?app_refresh=${Date.now()}`, { cache: "no-store" })
             .then(({ settings }) => {
+                if (cancelled) return;
                 localStorage.setItem("mtd_site_config", JSON.stringify(settings.config));
-                document.title = settings.browserTitle;
+                document.title = pickLocalized(settings.config.browserTitle, language, settings.browserTitle);
                 const dictionaries = translations as any;
                 const year = new Date().getFullYear();
-                for (const lang of ["en", "es"]) {
+                for (const lang of ["en", "es"] as const) {
                     if (dictionaries[lang]?.footer) {
-                        dictionaries[lang].footer.copyright = `© ${year} ${settings.websiteName}. All rights reserved.`;
-                        const cfg = settings.config as any;
+                        dictionaries[lang].footer.copyright = `© ${year} ${pickLocalized(settings.config.websiteName, lang, settings.websiteName)}. All rights reserved.`;
+                        const cfg = settings.config;
                         dictionaries[lang].footer.designer = lang === "es"
-                            ? `Diseñado por ${cfg?.designerName?.es || cfg?.designerName?.en || "J.Q"} - ${cfg?.designerTitle?.es || cfg?.designerTitle?.en || "Webmaster"}`
-                            : `Designed by ${cfg?.designerName?.en || "J.Q"} - ${cfg?.designerTitle?.en || "Webmaster"}`;
+                            ? `Diseñado por ${pickLocalized(cfg?.designerName, "es", "J.Q")} - ${pickLocalized(cfg?.designerTitle, "es", "Webmaster")}`
+                            : `Designed by ${pickLocalized(cfg?.designerName, "en", "J.Q")} - ${pickLocalized(cfg?.designerTitle, "en", "Webmaster")}`;
                     }
                 }
             })
             .catch(() => {})
-            .finally(() => setReady(true));
-    }, []);
+            .finally(() => { if (!cancelled) setReady(true); });
+        return () => { cancelled = true; };
+    }, [language]);
+
     if (!ready) return null;
     return <BrowserRouter><Routes>
         <Route path="/" element={<HomePage />} /><Route path="/login" element={<LoginPage />} /><Route path="/register" element={<RegisterPage />} /><Route path="/forgot-password" element={<ForgotPasswordPage />} />

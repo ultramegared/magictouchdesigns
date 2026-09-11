@@ -1,283 +1,69 @@
-/**
- * ================================================================
- * Author: ultramegared
- * Project: Magic Touch Designs
- * File: translation.service.ts
- * Module: Translation Service
- * Language: TypeScript
- * Description:
- * Dynamic English to Spanish translation using the OpenAI API.
- * Used for promotional email content and future dynamic content.
- * Languages: English (en) | Español (es)
- * ================================================================
- */
-
-/*
-|--------------------------------------------------------------------------
-| Types
-|--------------------------------------------------------------------------
-*/
-
 export interface TranslationResult {
-    translation:
-        string;
+    translation: string;
 }
 
+const getOpenAiApiKey = (): string => String(process.env.OPENAI_API_KEY || "").trim();
+const getOpenAiModel = (): string => String(process.env.OPENAI_TRANSLATION_MODEL || "gpt-5.6-luna").trim();
 
-/*
-|--------------------------------------------------------------------------
-| Environment
-|--------------------------------------------------------------------------
-*/
+export const translateEnglishToSpanish = async (text: string): Promise<TranslationResult> => {
+    const normalizedText = text.trim();
+    if (!normalizedText) throw new Error("Text to translate cannot be empty.");
 
-const openAiApiKey =
-    process.env.OPENAI_API_KEY;
+    const openAiApiKey = getOpenAiApiKey();
+    if (!openAiApiKey) {
+        throw new Error("OPENAI_API_KEY environment variable is not configured.");
+    }
 
-const openAiModel =
-    process.env.OPENAI_TRANSLATION_MODEL
-    || "gpt-5.6-luna";
+    const openAiModel = getOpenAiModel();
+    let response: Response;
 
-
-/*
-|--------------------------------------------------------------------------
-| Translate English to Spanish
-|--------------------------------------------------------------------------
-*/
-
-export const translateEnglishToSpanish =
-    async (
-        text:
-            string
-    ): Promise<TranslationResult> => {
-
-        const normalizedText =
-            text.trim();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Input
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !normalizedText
-        ) {
-
-            throw new Error(
-                "Text to translate cannot be empty."
-            );
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate API Key
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !openAiApiKey
-        ) {
-
-            throw new Error(
-                "OPENAI_API_KEY environment variable is not configured."
-            );
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | OpenAI Request
-        |--------------------------------------------------------------------------
-        */
-
-        let response:
-            Response;
-
-
-        try {
-
-            response =
-                await fetch(
-                    "https://api.openai.com/v1/responses",
+    try {
+        response = await fetch("https://api.openai.com/v1/responses", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${openAiApiKey}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                model: openAiModel,
+                input: [
                     {
-                        method:
-                            "POST",
+                        role: "system",
+                        content: [{
+                            type: "input_text",
+                            text: "You are the professional English-to-Spanish translator for Magic Touch Designs. Translate only the provided English content into natural, clear, polished Spanish for a premium ecommerce website. Preserve meaning, tone, paragraph structure, line breaks, emojis, numbers, prices, percentages, product names, brand names, URLs and special formatting. Do not add explanations, labels, quotation marks or content. Return only the Spanish translation.",
+                        }],
+                    },
+                    {
+                        role: "user",
+                        content: [{ type: "input_text", text: normalizedText }],
+                    },
+                ],
+            }),
+        });
+    } catch (error) {
+        console.error("OpenAI network error:", error);
+        throw new Error("Unable to connect to OpenAI translation service.");
+    }
 
-                        headers: {
-                            Authorization:
-                                `Bearer ${openAiApiKey}`,
+    const responseData: unknown = await response.json().catch(() => null);
 
-                            "Content-Type":
-                                "application/json",
-                        },
+    if (!response.ok) {
+        const errorMessage =
+            typeof responseData === "object" && responseData !== null && "error" in responseData &&
+            typeof responseData.error === "object" && responseData.error !== null &&
+            "message" in responseData.error && typeof responseData.error.message === "string"
+                ? responseData.error.message
+                : "Failed to translate content.";
+        throw new Error(`OpenAI error: ${errorMessage}`);
+    }
 
-                        body:
-                            JSON.stringify({
-                                model:
-                                    openAiModel,
+    if (typeof responseData !== "object" || responseData === null || !("output_text" in responseData) || typeof responseData.output_text !== "string") {
+        throw new Error("OpenAI did not return translated text.");
+    }
 
-                                input:
-                                    [
-                                        {
-                                            role:
-                                                "system",
+    const translation = responseData.output_text.trim();
+    if (!translation) throw new Error("OpenAI returned an empty translation.");
 
-                                            content:
-                                                [
-                                                    {
-                                                        type:
-                                                            "input_text",
-
-                                                        text:
-                                                            "You are a professional English-to-Spanish translator for Magic Touch Designs. Translate the provided English promotional content into natural, clear, persuasive Spanish. Preserve the original meaning, tone, paragraph structure, line breaks, emojis, numbers, prices, discount percentages, product names, brand names, URLs, and special formatting. Do not add explanations, comments, quotation marks, or additional content. Return only the Spanish translation.",
-                                                    },
-                                                ],
-                                        },
-
-                                        {
-                                            role:
-                                                "user",
-
-                                            content:
-                                                [
-                                                    {
-                                                        type:
-                                                            "input_text",
-
-                                                        text:
-                                                            normalizedText,
-                                                    },
-                                                ],
-                                        },
-                                    ],
-                            }),
-                    }
-                );
-
-            } catch (
-                error
-            ) {
-
-                console.error(
-                    "OpenAI network error:",
-                    error
-                );
-
-
-                throw new Error(
-                    "Unable to connect to OpenAI translation service."
-                );
-
-            }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Response Body
-        |--------------------------------------------------------------------------
-        */
-
-        const responseData:
-            unknown =
-            await response
-                .json()
-                .catch(
-                    () => null
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | OpenAI Error
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !response.ok
-        ) {
-
-            const errorMessage =
-                typeof responseData === "object"
-                && responseData !== null
-                && "error" in responseData
-                && typeof responseData.error === "object"
-                && responseData.error !== null
-                && "message" in responseData.error
-                && typeof responseData.error.message === "string"
-                    ? responseData.error.message
-                    : "Failed to translate content.";
-
-
-            throw new Error(
-                `OpenAI error: ${errorMessage}`
-            );
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Response
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            typeof responseData !== "object"
-            || responseData === null
-        ) {
-
-            throw new Error(
-                "OpenAI returned an invalid response."
-            );
-
-        }
-
-
-        if (
-            !("output_text" in responseData)
-            || typeof responseData.output_text !== "string"
-        ) {
-
-            throw new Error(
-                "OpenAI did not return translated text."
-            );
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Translation
-        |--------------------------------------------------------------------------
-        */
-
-        const translation =
-            responseData.output_text.trim();
-
-
-        if (
-            !translation
-        ) {
-
-            throw new Error(
-                "OpenAI returned an empty translation."
-            );
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Result
-        |--------------------------------------------------------------------------
-        */
-
-        return {
-            translation,
-        };
-
-    };
+    return { translation };
+};
