@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Eye, EyeOff, Lock, UserRound } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
 import { apiRequest } from "../../services/api";
 import "./AdminLogin.css";
 
@@ -47,22 +47,31 @@ function AdminLogin() {
 
     const year = new Date().getFullYear();
     return <main className="admin-login">
-        <div className="admin-login__side-copy admin-login__side-copy--left" aria-hidden="true"><span>CREATE</span><span>PERSONALIZE</span><span>INSPIRE</span><span>DELIVER</span></div>
-        <div className="admin-login__side-copy admin-login__side-copy--right" aria-hidden="true"><span>IDEAS</span><span>DESIGNS</span><span>SOLUTIONS</span><span>RESULTS</span></div>
+        <div className="admin-login__ambient admin-login__ambient--left" aria-hidden="true" />
+        <div className="admin-login__ambient admin-login__ambient--right" aria-hidden="true" />
+        <div className="admin-login__side-copy admin-login__side-copy--left" aria-hidden="true"><span>CREATE</span><span>PERSONALIZE</span><span>INSPIRE</span><span>DELIVER</span><i /></div>
+        <div className="admin-login__side-copy admin-login__side-copy--right" aria-hidden="true"><span>IDEAS</span><span>DESIGNS</span><span>SOLUTIONS</span><span>RESULTS</span><i /></div>
+        <div className="admin-login__private"><LockKeyhole size={23} /><div><strong>PRIVATE ACCESS</strong><span>AUTHORIZED PERSONNEL ONLY</span></div></div>
         <section className="admin-login__card">
             <div className="admin-login__card-glow" aria-hidden="true" />
-            <div className="admin-login__brand"><img src="/images/logo/logo.png" alt="JQYD" className="admin-login__logo" /><div className="admin-login__brand-name">Magic Touch Designs</div><span className="admin-login__eyebrow">ADMINISTRATOR ACCESS</span><p>Secure. Manage. Grow.</p></div>
-            <div className="admin-login__divider" aria-hidden="true" />
+            <div className="admin-login__edge-glow admin-login__edge-glow--top" aria-hidden="true" />
+            <div className="admin-login__brand">
+                <div className="admin-login__logo-wrap"><img src="/images/logo/admin-jqyd.svg" alt="JQ & YD" className="admin-login__logo" /></div>
+                <div className="admin-login__brand-name">Magic Touch Designs</div>
+                <span className="admin-login__eyebrow">ADMINISTRATOR ACCESS</span>
+                <div className="admin-login__mini-line" aria-hidden="true" />
+                <p>SECURE. MANAGE. GROW.</p>
+            </div>
             <form className="admin-login__form" onSubmit={handleSubmit}>
-                <label className="admin-login__field"><span>Email or Username</span><div className="admin-login__input"><UserRound size={19} aria-hidden="true" /><input name="username" type="text" autoComplete="username" placeholder="Email or Username" required disabled={isLoading} /></div></label>
-                <label className="admin-login__field"><span>Password</span><div className="admin-login__input"><Lock size={19} aria-hidden="true" /><input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Password" required disabled={isLoading} /><button type="button" className="admin-login__password-toggle" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? "Hide password" : "Show password"} disabled={isLoading}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div></label>
+                <label className="admin-login__field"><span className="sr-only">Email or Username</span><div className="admin-login__input"><UserRound size={20} aria-hidden="true" /><input name="username" type="text" autoComplete="username" placeholder="Email or Username" required disabled={isLoading} /></div></label>
+                <label className="admin-login__field"><span className="sr-only">Password</span><div className="admin-login__input"><LockKeyhole size={20} aria-hidden="true" /><input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Password" required disabled={isLoading} /><button type="button" className="admin-login__password-toggle" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? "Hide password" : "Show password"} disabled={isLoading}>{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div></label>
                 <div className="admin-login__options"><label><input type="checkbox" /> <span>Remember me</span></label><button type="button" onClick={() => window.location.assign("/forgot-password")} disabled={isLoading}>Forgot password?</button></div>
                 {message && <div className="admin-login__message" role="alert">{message}</div>}
                 <button type="submit" className="admin-login__submit" disabled={isLoading}><span>{isLoading ? "Signing in..." : "Sign In"}</span><span aria-hidden="true">→</span></button>
             </form>
-            <div className="admin-login__private"><span className="admin-login__lock">⌕</span><strong>PRIVATE ACCESS</strong><span>Authorized Personnel Only</span></div>
-            <footer className="admin-login__footer"><span>© {year} {websiteName}. All rights reserved.</span></footer>
+            <div className="admin-login__brand-footer"><div><span /> <b>Magic Touch Designs</b> <span /></div><em>More Than Products We Create Connections</em><i /></div>
         </section>
+        <footer className="admin-login__footer"><span>© {year} {websiteName}</span><span>All rights reserved.</span></footer>
     </main>;
 }
 
