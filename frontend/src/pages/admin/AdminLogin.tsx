@@ -56,7 +56,7 @@ function AdminLogin() {
             <div className="admin-login__card-glow" aria-hidden="true" />
             <div className="admin-login__edge-glow admin-login__edge-glow--top" aria-hidden="true" />
             <div className="admin-login__brand">
-                <div className="admin-login__logo-wrap"><img src="/images/logo/admin-jqyd.svg" alt="JQ & YD" className="admin-login__logo" /></div>
+                <div className="admin-login__logo-wrap"><img src="/images/logo/admin-jqyd.jpg" alt="JQ & YD" className="admin-login__logo" /></div>
                 <div className="admin-login__brand-name">Magic Touch Designs</div>
                 <span className="admin-login__eyebrow">ADMINISTRATOR ACCESS</span>
                 <div className="admin-login__mini-line" aria-hidden="true" />
