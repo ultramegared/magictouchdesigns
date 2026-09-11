@@ -5,19 +5,21 @@ import { apiRequest } from "../../services/api";
 import "./AdminLogin.css";
 
 type AdminUser = { id: string; username: string; role: string; first_name?: string; last_name?: string; email?: string; is_active?: boolean };
-type SettingsResponse = { settings?: { websiteName?: string; config?: { websiteName?: { en?: string } } } };
+type SettingsResponse = { settings?: { websiteName?: string; logoUrl?: string | null; config?: { websiteName?: { en?: string } } } };
 
 function AdminLogin() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [websiteName, setWebsiteName] = useState("Magic Touch Designs");
+    const [logoUrl, setLogoUrl] = useState("");
 
     useEffect(() => {
         apiRequest<SettingsResponse>(`/api/settings?admin_login_refresh=${Date.now()}`, { cache: "no-store" })
             .then(({ settings }) => {
                 const configuredName = settings?.config?.websiteName?.en || settings?.websiteName;
                 if (configuredName) setWebsiteName(configuredName);
+                if (settings?.logoUrl) setLogoUrl(settings.logoUrl);
             })
             .catch(() => {});
         const token = localStorage.getItem("auth_token");
@@ -56,7 +58,7 @@ function AdminLogin() {
             <div className="admin-login__card-glow" aria-hidden="true" />
             <div className="admin-login__edge-glow admin-login__edge-glow--top" aria-hidden="true" />
             <div className="admin-login__brand">
-                <div className="admin-login__logo-wrap"><img src="/images/logo/admin-jqyd.jpg" alt="JQ & YD" className="admin-login__logo" /></div>
+                <div className="admin-login__logo-wrap"><img src={logoUrl || "/images/logo/logo.png"} alt="JQ & YD" className="admin-login__logo" /></div>
                 <div className="admin-login__brand-name">Magic Touch Designs</div>
                 <span className="admin-login__eyebrow">ADMINISTRATOR ACCESS</span>
                 <div className="admin-login__mini-line" aria-hidden="true" />
