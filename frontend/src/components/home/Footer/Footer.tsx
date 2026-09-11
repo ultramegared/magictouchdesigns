@@ -46,9 +46,11 @@ function Footer() {
     const supportLinks = footerContent.support.links;
     const whatsapp = supportLinks.find((link) => link.label.toLowerCase() === "whatsapp") ?? { label: "WhatsApp", href: "https://wa.me/qr/6FQZEC7MEQN3N1" };
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(whatsapp.href)}`;
-    const socialLinks = footerContent.social.filter((social) => social.href && social.href !== "#");
+    const socialLinks = footerContent.social.filter((social) => social.name && social.href);
     const shopLinks = footerContent.shop.links.slice(0, 5);
     const companyLinks = footerContent.company.links.slice(0, 5);
+
+    const renderSocialLink = (social: typeof footerContent.social[number]) => <a key={social.name} href={social.href === "#" ? undefined : social.href} className={`footer__social-card footer__social-card--${social.name.toLowerCase()}`} target={social.href === "#" ? undefined : "_blank"} rel={social.href === "#" ? undefined : "noopener noreferrer"} aria-label={social.name}><SocialIcon name={social.name} /><span>{social.name}</span></a>;
 
     return (
         <footer className="footer">
@@ -60,60 +62,26 @@ function Footer() {
                         <p>Custom items for every occasion.<br />Personalized just for you.</p>
                         <div className="footer__benefits"><span>♢ <b>High Quality</b></span><span>⌁ <b>Fast Shipping</b></span><span>♡ <b>Made with Love</b></span></div>
                     </div>
-
                     <div className="footer__connect">
                         <div className="footer__connect-heading"><span>{language === "es" ? "Conecta" : "Connect"}</span> {language === "es" ? "con Nosotros" : "With Us"}</div>
                         <p>{language === "es" ? "Síguenos, escríbenos o escanea el QR para hablar directamente por WhatsApp." : "Follow us, message us, or scan the QR code to chat directly on WhatsApp."}</p>
-                        <div className="footer__social-grid">
-                            {socialLinks.map((social) => <a key={social.name} href={social.href} className={`footer__social-card footer__social-card--${social.name.toLowerCase()}`} target="_blank" rel="noopener noreferrer" aria-label={social.name}><SocialIcon name={social.name} /><span>{social.name}</span></a>)}
-                        </div>
-                        <div className="footer__whatsapp-card">
-                            <div className="footer__whatsapp-copy">
-                                <div className="footer__whatsapp-title"><span className="footer__whatsapp-icon">◔</span><span>Chat on <strong>WhatsApp</strong></span></div>
-                                <p>{language === "es" ? "¡Contáctanos directamente!" : "Get in touch with us directly!"}</p>
-                                <a href={whatsapp.href} className="footer__whatsapp-button" target="_blank" rel="noopener noreferrer">{language === "es" ? "Abrir WhatsApp" : "Open WhatsApp"}<span>→</span></a>
-                            </div>
-                            <div className="footer__qr-wrap"><img src={qrUrl} alt="WhatsApp QR code" /><span>Scan Me!</span></div>
-                            <a href={`tel:${footerContent.phone.replace(/\D/g, "")}`} className="footer__whatsapp-phone">{footerContent.phone}</a>
-                        </div>
+                        <div className="footer__social-grid">{socialLinks.map(renderSocialLink)}</div>
+                        <div className="footer__whatsapp-card"><div className="footer__whatsapp-copy"><div className="footer__whatsapp-title"><span className="footer__whatsapp-icon">◔</span><span>Chat on <strong>WhatsApp</strong></span></div><p>{language === "es" ? "¡Contáctanos directamente!" : "Get in touch with us directly!"}</p><a href={whatsapp.href} className="footer__whatsapp-button" target="_blank" rel="noopener noreferrer">{language === "es" ? "Abrir WhatsApp" : "Open WhatsApp"}<span>→</span></a></div><div className="footer__qr-wrap"><img src={qrUrl} alt="WhatsApp QR code"/><span>Scan Me!</span></div><a href={`tel:${footerContent.phone.replace(/\D/g, "")}`} className="footer__whatsapp-phone">{footerContent.phone}</a></div>
                     </div>
-
-                    <div className="footer__quick-links">
-                        <div className="footer__quick-title">Quick Links</div>
-                        {[...shopLinks, ...companyLinks].slice(0, 8).map((link) => <a key={`${link.label}-${link.href}`} href={link.href} className="footer__link">{footerLinkTranslations[link.label] ?? link.label}</a>)}
-                    </div>
+                    <div className="footer__quick-links"><div className="footer__quick-title">Quick Links</div>{[...shopLinks,...companyLinks].slice(0,8).map((link)=><a key={`${link.label}-${link.href}`} href={link.href} className="footer__link">{footerLinkTranslations[link.label]??link.label}</a>)}</div>
                 </div>
 
                 <div className="footer__mobile-sections">
-                    {renderSection("shop-mobile", t.navigation.shop, footerContent.shop.links)}
-                    {renderSection("company-mobile", t.navigation.company, footerContent.company.links)}
-                    {renderSection("support-mobile", t.navigation.support, supportLinks)}
-                    <div className="footer__section">
-                        <button type="button" className="footer__section-title" onClick={() => toggleSection("payments-mobile")} aria-expanded={openSection === "payments-mobile"}><span>{t.footer.paymentMethods}</span><span className={`footer__section-icon ${openSection === "payments-mobile" ? "is-open" : ""}`}>+</span></button>
-                        <div className={`footer__section-content ${openSection === "payments-mobile" ? "is-open" : ""}`}><div className="footer__payments"><span>VISA</span><span>AMEX</span><span>PayPal</span><span> Pay</span></div></div>
-                    </div>
-                    <div className="footer__section">
-                        <button type="button" className="footer__section-title" onClick={() => toggleSection("language-mobile")} aria-expanded={openSection === "language-mobile"}><span>{t.footer.language}</span><span className={`footer__section-icon ${openSection === "language-mobile" ? "is-open" : ""}`}>+</span></button>
-                        <div className={`footer__section-content ${openSection === "language-mobile" ? "is-open" : ""}`}><div className="footer__languages"><button type="button" className={language === "en" ? "footer__language footer__language--active" : "footer__language"} onClick={() => setLanguage("en")}>EN</button><button type="button" className={language === "es" ? "footer__language footer__language--active" : "footer__language"} onClick={() => setLanguage("es")}>ES</button></div></div>
-                    </div>
+                    {renderSection("shop-mobile",t.navigation.shop,footerContent.shop.links)}
+                    {renderSection("company-mobile",t.navigation.company,footerContent.company.links)}
+                    {renderSection("support-mobile",t.navigation.support,supportLinks)}
+                    <div className="footer__section"><button type="button" className="footer__section-title" onClick={()=>toggleSection("payments-mobile")} aria-expanded={openSection==="payments-mobile"}><span>{t.footer.paymentMethods}</span><span className={`footer__section-icon ${openSection==="payments-mobile"?"is-open":""}`}>+</span></button><div className={`footer__section-content ${openSection==="payments-mobile"?"is-open":""}`}><div className="footer__payments"><span>VISA</span><span>AMEX</span><span>PayPal</span><span> Pay</span></div></div></div>
+                    <div className="footer__section"><button type="button" className="footer__section-title" onClick={()=>toggleSection("language-mobile")} aria-expanded={openSection==="language-mobile"}><span>{t.footer.language}</span><span className={`footer__section-icon ${openSection==="language-mobile"?"is-open":""}`}>+</span></button><div className={`footer__section-content ${openSection==="language-mobile"?"is-open":""}`}><div className="footer__languages"><button type="button" className={language==="en"?"footer__language footer__language--active":"footer__language"} onClick={()=>setLanguage("en")}>EN</button><button type="button" className={language==="es"?"footer__language footer__language--active":"footer__language"} onClick={()=>setLanguage("es")}>ES</button></div></div></div>
                 </div>
 
-                <div className="footer__mobile-connect">
-                    <div className="footer__connect-heading"><span>{language === "es" ? "Conecta" : "Connect"}</span> {language === "es" ? "con Nosotros" : "With Us"}</div>
-                    <p>{language === "es" ? "Síguenos o escríbenos directamente por WhatsApp." : "Follow us or chat with us directly."}</p>
-                    <div className="footer__social-grid">
-                        {socialLinks.map((social) => <a key={social.name} href={social.href} className={`footer__social-card footer__social-card--${social.name.toLowerCase()}`} target="_blank" rel="noopener noreferrer" aria-label={social.name}><SocialIcon name={social.name} /><span>{social.name}</span></a>)}
-                    </div>
-                    <div className="footer__whatsapp-card">
-                        <div className="footer__whatsapp-copy"><div className="footer__whatsapp-title"><span className="footer__whatsapp-icon">◔</span><span>Chat on <strong>WhatsApp</strong></span></div><p>{language === "es" ? "¡Contáctanos directamente!" : "Get in touch with us directly!"}</p><a href={whatsapp.href} className="footer__whatsapp-button" target="_blank" rel="noopener noreferrer">{language === "es" ? "Abrir WhatsApp" : "Open WhatsApp"}<span>→</span></a></div>
-                        <div className="footer__qr-wrap"><img src={qrUrl} alt="WhatsApp QR code" /><span>Scan Me!</span></div>
-                        <a href={`tel:${footerContent.phone.replace(/\D/g, "")}`} className="footer__whatsapp-phone">{footerContent.phone}</a>
-                    </div>
-                </div>
+                <div className="footer__mobile-connect"><div className="footer__connect-heading"><span>{language === "es" ? "Conecta" : "Connect"}</span> {language === "es" ? "con Nosotros" : "With Us"}</div><p>{language === "es" ? "Síguenos o escríbenos directamente por WhatsApp." : "Follow us or chat with us directly."}</p><div className="footer__social-grid">{socialLinks.map(renderSocialLink)}</div><div className="footer__whatsapp-card"><div className="footer__whatsapp-copy"><div className="footer__whatsapp-title"><span className="footer__whatsapp-icon">◔</span><span>Chat on <strong>WhatsApp</strong></span></div><p>{language === "es" ? "¡Contáctanos directamente!" : "Get in touch with us directly!"}</p><a href={whatsapp.href} className="footer__whatsapp-button" target="_blank" rel="noopener noreferrer">{language === "es" ? "Abrir WhatsApp" : "Open WhatsApp"}<span>→</span></a></div><div className="footer__qr-wrap"><img src={qrUrl} alt="WhatsApp QR code"/><span>Scan Me!</span></div><a href={`tel:${footerContent.phone.replace(/\D/g, "")}`} className="footer__whatsapp-phone">{footerContent.phone}</a></div></div>
 
-                <div className="footer__desktop-bottom">
-                    <div>{t.footer.copyright}</div><nav><a href="/privacy">{t.footer.privacyPolicy}</a><span>|</span><a href="/terms-of-service">{t.footer.termsOfService}</a><span>|</span><a href="/shipping-returns">{t.footer.shippingReturns}</a></nav><div className="footer__secure">♙ Secure Payments <span>VISA</span><span>AMEX</span><span>PayPal</span><span> Pay</span></div>
-                </div>
+                <div className="footer__desktop-bottom"><div>{t.footer.copyright}</div><nav><a href="/privacy">{t.footer.privacyPolicy}</a><span>|</span><a href="/terms-of-service">{t.footer.termsOfService}</a><span>|</span><a href="/shipping-returns">{t.footer.shippingReturns}</a></nav><div className="footer__secure">♙ Secure Payments <span>VISA</span><span>AMEX</span><span>PayPal</span><span> Pay</span></div></div>
                 <div className="footer__bottom"><p className="footer__copyright">{t.footer.copyright}</p><p className="footer__designer">{t.footer.designer}</p></div>
             </div>
         </footer>
