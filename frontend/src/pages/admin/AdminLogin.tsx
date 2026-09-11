@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
 import { apiRequest } from "../../services/api";
 import "./AdminLogin.css";
+import "./AdminLoginDesktop.css";
 
 type AdminUser = { id: string; username: string; role: string; first_name?: string; last_name?: string; email?: string; is_active?: boolean };
 type SettingsResponse = { settings?: { websiteName?: string; logoUrl?: string | null; config?: { websiteName?: { en?: string } } } };
