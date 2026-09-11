@@ -95,13 +95,9 @@ function Header() {
     const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
     const [accountMenuOpen, setAccountMenuOpen] = useState(false);
     const [websiteName, setWebsiteName] = useState(APP_CONFIG.companyName);
-    const [logoUrl, setLogoUrl] = useState(() => {
-        try {
-            return localStorage.getItem("mtd_logo_url") || "";
-        } catch {
-            return "";
-        }
-    });
+    // Never render the static/default logo while settings are loading. The
+    // server value is authoritative, so a replaced logo can never flash first.
+    const [logoUrl, setLogoUrl] = useState("");
     const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
     const navigate = useNavigate();
     const { language, setLanguage } = useLanguage();
@@ -132,21 +128,14 @@ function Header() {
                 if (result.settings?.websiteName) setWebsiteName(result.settings.websiteName);
                 if (result.settings?.logoUrl) {
                     setLogoUrl(result.settings.logoUrl);
-                    try {
-                        localStorage.setItem("mtd_logo_url", result.settings.logoUrl);
-                    } catch {
-                        // Local storage may be unavailable; the server value remains authoritative.
-                    }
                 } else {
                     setLogoUrl("");
-                    try {
-                        localStorage.removeItem("mtd_logo_url");
-                    } catch {
-                        // Ignore local storage failures.
-                    }
                 }
                 if (result.settings?.browserTitle) document.title = result.settings.browserTitle;
             } catch (error) {
+                // Keep the logo blank if the server cannot be reached. Never fall
+                // back to the old bundled logo after a permanent logo replacement.
+                setLogoUrl("");
                 console.error("Unable to load website settings:", error);
             }
         };
