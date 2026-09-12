@@ -174,6 +174,43 @@ function CheckoutPage() {
 
             const checkout = window.Stripe(cfg.publishableKey).initCheckout({
                 clientSecret: d.clientSecret,
+                elementsOptions: {
+                    appearance: {
+                        theme: "night",
+                        inputs: "spaced",
+                        labels: "above",
+                        variables: {
+                            colorPrimary: "#E0AD43",
+                            colorBackground: "#111111",
+                            colorText: "#F5F5F5",
+                            colorTextSecondary: "#C9C9C9",
+                            colorTextPlaceholder: "#8C8C8C",
+                            colorDanger: "#F36B6B",
+                            iconColor: "#E0AD43",
+                            borderRadius: "10px",
+                            fontSizeBase: "16px",
+                            fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+                        },
+                        rules: {
+                            ".Label": {
+                                color: "#E0AD43",
+                                fontWeight: "600",
+                            },
+                            ".Label--focused": {
+                                color: "#F1C75B",
+                            },
+                            ".Input": {
+                                color: "#F5F5F5",
+                                backgroundColor: "#111111",
+                                border: "1px solid #3A3A3A",
+                            },
+                            ".Input:focus": {
+                                borderColor: "#E0AD43",
+                                boxShadow: "0 0 0 1px #E0AD43",
+                            },
+                        },
+                    },
+                },
                 defaultValues: {
                     email: form.email.trim().toLowerCase(),
                     phoneNumber: form.phone.trim(),
