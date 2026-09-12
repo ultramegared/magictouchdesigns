@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin-login
+Disallow: /account
+Disallow: /checkout
+Disallow: /cart
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://jqydesigns.com/sitemap.xml
