@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, ChevronDown, Filter, Package, RefreshCw, Search, Truck } from "lucide-react";
+import { CheckCircle2, ChevronDown, Filter, Package, RefreshCw, Search, Trash2, Truck } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import { apiRequest } from "../../services/api";
 import "./AdminOrders.css";
@@ -36,6 +36,7 @@ function AdminOrders() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState<string | null>(null);
+    const [deleting, setDeleting] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -69,6 +70,23 @@ function AdminOrders() {
             setError(err instanceof Error ? err.message : "Unable to update order.");
         } finally {
             setSaving(null);
+        }
+    };
+
+    const deleteOrder = async (order: Order) => {
+        if (order.status !== "cancelled" || order.payment_status === "paid") return;
+        const confirmed = window.confirm(`Delete order ${order.order_code}?\n\nThis permanently removes the cancelled unpaid order and its items. This action cannot be undone.`);
+        if (!confirmed) return;
+
+        try {
+            setDeleting(order.id);
+            setError(null);
+            await apiRequest(`/api/admin/orders/${order.id}`, { method: "DELETE" });
+            setOrders(current => current.filter(item => item.id !== order.id));
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Unable to delete order.");
+        } finally {
+            setDeleting(null);
         }
     };
 
@@ -128,31 +146,50 @@ function AdminOrders() {
                     {loading ? <div className="admin-orders__empty">Loading orders...</div> : orders.length === 0 ? <div className="admin-orders__empty"><Package size={30} /><strong>No orders yet</strong><span>New customer orders will appear here.</span></div> : filteredOrders.length === 0 ? <div className="admin-orders__empty"><Search size={30} /><strong>No matching orders</strong><span>Try a different search or clear the filters.</span></div> : (
                         <div className="admin-orders__table-wrap">
                             <table className="admin-orders__table">
-                                <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Shipping & tracking</th><th>Date</th></tr></thead>
+                                <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Shipping & tracking</th><th>Date</th><th>Actions</th></tr></thead>
                                 <tbody>
-                                    {filteredOrders.map(order => (
-                                        <tr key={order.id}>
-                                            <td><strong className="order-code">{order.order_code}</strong><small>{order.item_count} item{order.item_count === 1 ? "" : "s"}</small></td>
-                                            <td><strong>{order.customer_name || "Customer"}</strong><small>{order.customer_email}</small></td>
-                                            <td><strong className="order-total">{money(order.total_amount)}</strong><small>Subtotal {money(order.subtotal)}</small></td>
-                                            <td><span className={`payment-badge payment-badge--${order.payment_status}`}>{statusLabel(order.payment_status)}</span></td>
-                                            <td><select className="status-select" value={order.status} disabled={saving === order.id} onChange={event => updateOrder(order, { status: event.target.value })}>{STATUSES.map(status => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></td>
-                                            <td>
-                                                <div className="admin-orders__shipping">
-                                                    <select value={order.carrier || ""} disabled={saving === order.id} onChange={event => updateOrder(order, { carrier: event.target.value })}>
-                                                        <option value="">Carrier</option>
-                                                        {CARRIERS.map(carrier => <option key={carrier} value={carrier}>{carrier}</option>)}
-                                                    </select>
-                                                    <input aria-label={`Tracking number for ${order.order_code}`} placeholder="Tracking number" defaultValue={order.tracking_number || ""} onBlur={event => {
-                                                        const value = event.target.value.trim();
-                                                        if (value !== (order.tracking_number || "")) updateOrder(order, { trackingNumber: value });
-                                                    }} />
-                                                    {order.tracking_number && <a href={order.carrier === "USPS" ? `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(order.tracking_number)}` : order.carrier === "UPS" ? `https://www.ups.com/track?loc=en_US&tracknum=${encodeURIComponent(order.tracking_number)}` : order.carrier === "FedEx" ? `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(order.tracking_number)}` : order.carrier === "DHL" ? `https://www.dhl.com/global-en/home/tracking.html?tracking-id=${encodeURIComponent(order.tracking_number)}` : "#"} target="_blank" rel="noreferrer"><Truck size={15} /> Track shipment</a>}
-                                                </div>
-                                            </td>
-                                            <td><time dateTime={order.created_at}>{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</time></td>
-                                        </tr>
-                                    ))}
+                                    {filteredOrders.map(order => {
+                                        const canDelete = order.status === "cancelled" && order.payment_status !== "paid";
+                                        return (
+                                            <tr key={order.id}>
+                                                <td><strong className="order-code">{order.order_code}</strong><small>{order.item_count} item{order.item_count === 1 ? "" : "s"}</small></td>
+                                                <td><strong>{order.customer_name || "Customer"}</strong><small>{order.customer_email}</small></td>
+                                                <td><strong className="order-total">{money(order.total_amount)}</strong><small>Subtotal {money(order.subtotal)}</small></td>
+                                                <td><span className={`payment-badge payment-badge--${order.payment_status}`}>{statusLabel(order.payment_status)}</span></td>
+                                                <td><select className="status-select" value={order.status} disabled={saving === order.id || deleting === order.id} onChange={event => updateOrder(order, { status: event.target.value })}>{STATUSES.map(status => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></td>
+                                                <td>
+                                                    <div className="admin-orders__shipping">
+                                                        <select value={order.carrier || ""} disabled={saving === order.id || deleting === order.id} onChange={event => updateOrder(order, { carrier: event.target.value })}>
+                                                            <option value="">Carrier</option>
+                                                            {CARRIERS.map(carrier => <option key={carrier} value={carrier}>{carrier}</option>)}
+                                                        </select>
+                                                        <input aria-label={`Tracking number for ${order.order_code}`} placeholder="Tracking number" defaultValue={order.tracking_number || ""} disabled={deleting === order.id} onBlur={event => {
+                                                            const value = event.target.value.trim();
+                                                            if (value !== (order.tracking_number || "")) updateOrder(order, { trackingNumber: value });
+                                                        }} />
+                                                        {order.tracking_number && <a href={order.carrier === "USPS" ? `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(order.tracking_number)}` : order.carrier === "UPS" ? `https://www.ups.com/track?loc=en_US&tracknum=${encodeURIComponent(order.tracking_number)}` : order.carrier === "FedEx" ? `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(order.tracking_number)}` : order.carrier === "DHL" ? `https://www.dhl.com/global-en/home/tracking.html?tracking-id=${encodeURIComponent(order.tracking_number)}` : "#"} target="_blank" rel="noreferrer"><Truck size={15} /> Track shipment</a>}
+                                                    </div>
+                                                </td>
+                                                <td><time dateTime={order.created_at}>{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</time></td>
+                                                <td>
+                                                    {canDelete ? (
+                                                        <button
+                                                            type="button"
+                                                            title="Delete cancelled unpaid order"
+                                                            aria-label={`Delete ${order.order_code}`}
+                                                            onClick={() => deleteOrder(order)}
+                                                            disabled={deleting === order.id || saving === order.id}
+                                                            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, padding: 0, border: "1px solid #E3E3E3", borderRadius: 8, background: "#FFFFFF", cursor: deleting === order.id ? "wait" : "pointer", opacity: deleting === order.id ? 0.55 : 1 }}
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    ) : (
+                                                        <span style={{ color: "#A0A0A0", fontSize: 12 }}>{order.payment_status === "paid" ? "Protected" : "—"}</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
