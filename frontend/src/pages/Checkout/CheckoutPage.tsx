@@ -15,7 +15,7 @@ type StripeCheckout = { createPaymentElement: (options?: any) => StripePaymentEl
 type StripeInstance = { initCheckout: (options: any) => StripeCheckout };
 type PayPalSdk = { createInstance: (options: { clientId: string; components: string[]; pageType: string; locale?: string }) => Promise<any> };
 declare global { interface Window { Stripe?: (key: string) => StripeInstance; paypal?: PayPalSdk } }
-const API_URL = "https://api.magictouchdesigns.com/api";
+const API_URL = "https://api.jqydesigns.com/api";
 const loadScript = (id: string, src: string) => new Promise<void>((resolve, reject) => { if (document.getElementById(id)) return resolve(); const s = document.createElement("script"); s.id = id; s.async = true; s.src = src; s.onload = () => resolve(); s.onerror = () => reject(new Error("Secure payment provider could not be loaded.")); document.head.appendChild(s); });
 
 function CheckoutPage() {
