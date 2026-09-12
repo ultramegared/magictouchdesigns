@@ -49,6 +49,7 @@ function AdminOrders() {
             setError(null);
             const result = await apiRequest<Order[]>("/api/admin/orders");
             setOrders(Array.isArray(result) ? result : []);
+            setSelectedOrderIds(new Set());
         } catch (err) {
             setError(err instanceof Error ? err.message : "Unable to load orders.");
         } finally {
@@ -106,12 +107,12 @@ function AdminOrders() {
         });
     }, [orders, search, statusFilter, paymentFilter]);
 
-    const selectableOrders = useMemo(
-        () => filteredOrders.filter(order => order.status === "cancelled" && order.payment_status !== "paid"),
-        [filteredOrders],
+    const deletableSelectedCount = useMemo(
+        () => Array.from(selectedOrderIds).filter(id => orders.some(order => order.id === id && order.status === "cancelled" && order.payment_status !== "paid")).length,
+        [orders, selectedOrderIds],
     );
 
-    const allSelectableSelected = selectableOrders.length > 0 && selectableOrders.every(order => selectedOrderIds.has(order.id));
+    const allFilteredSelected = filteredOrders.length > 0 && filteredOrders.every(order => selectedOrderIds.has(order.id));
 
     const toggleOrderSelection = (orderId: string) => {
         setSelectedOrderIds(current => {
@@ -125,31 +126,43 @@ function AdminOrders() {
     const toggleAllSelection = () => {
         setSelectedOrderIds(current => {
             const next = new Set(current);
-            if (allSelectableSelected) {
-                selectableOrders.forEach(order => next.delete(order.id));
+            if (allFilteredSelected) {
+                filteredOrders.forEach(order => next.delete(order.id));
             } else {
-                selectableOrders.forEach(order => next.add(order.id));
+                filteredOrders.forEach(order => next.add(order.id));
             }
             return next;
         });
     };
 
     const bulkDeleteOrders = async () => {
-        const ids = Array.from(selectedOrderIds).filter(id => orders.some(order => order.id === id && order.status === "cancelled" && order.payment_status !== "paid"));
-        if (!ids.length || ids.length > 1000) return;
+        const ids = Array.from(selectedOrderIds);
+        const deletableIds = ids.filter(id => orders.some(order => order.id === id && order.status === "cancelled" && order.payment_status !== "paid"));
+        if (!deletableIds.length || deletableIds.length > 1000) {
+            setError("Select at least one cancelled unpaid order to delete. Paid or active orders are protected.");
+            return;
+        }
 
-        const confirmed = window.confirm(`Delete ${ids.length} selected order${ids.length === 1 ? "" : "s"}?\n\nOnly cancelled unpaid orders will be deleted. Paid or active orders are protected. This action cannot be undone.`);
+        const protectedCount = ids.length - deletableIds.length;
+        const warning = protectedCount > 0
+            ? `\n\n${protectedCount} selected order${protectedCount === 1 ? " is" : "s are"} protected and will remain.`
+            : "";
+        const confirmed = window.confirm(`Delete ${deletableIds.length} selected order${deletableIds.length === 1 ? "" : "s"}?${warning}\n\nOnly cancelled unpaid orders will be permanently deleted. This action cannot be undone.`);
         if (!confirmed) return;
 
         try {
             setDeleting("bulk");
             setError(null);
-            await apiRequest(`/api/admin/orders/${ids[0]}`, {
+            await apiRequest(`/api/admin/orders/${deletableIds[0]}`, {
                 method: "DELETE",
-                body: JSON.stringify({ ids }),
+                body: JSON.stringify({ ids: deletableIds }),
             });
-            setOrders(current => current.filter(order => !ids.includes(order.id)));
-            setSelectedOrderIds(new Set());
+            setOrders(current => current.filter(order => !deletableIds.includes(order.id)));
+            setSelectedOrderIds(current => {
+                const next = new Set(current);
+                deletableIds.forEach(id => next.delete(id));
+                return next;
+            });
         } catch (err) {
             setError(err instanceof Error ? err.message : "Unable to delete selected orders.");
         } finally {
@@ -201,14 +214,10 @@ function AdminOrders() {
                     </div>
 
                     {selectedOrderIds.size > 0 && (
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 14px", margin: "0 0 10px", border: "1px solid #E6E0D4", borderRadius: 10, background: "#FFFCF5" }}>
-                            <strong style={{ fontSize: 13 }}>{selectedOrderIds.size} selected</strong>
-                            <button
-                                type="button"
-                                onClick={bulkDeleteOrders}
-                                disabled={deleting !== null}
-                                style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 12px", border: "0", borderRadius: 8, background: "#222", color: "#FFF", fontWeight: 600, fontSize: 13, cursor: deleting !== null ? "wait" : "pointer", opacity: deleting !== null ? 0.6 : 1 }}
-                            >
+                        <div className="admin-orders__selection-bar">
+                            <strong>{selectedOrderIds.size} selected</strong>
+                            <span>{deletableSelectedCount} deletable</span>
+                            <button type="button" onClick={bulkDeleteOrders} disabled={deleting !== null || deletableSelectedCount === 0}>
                                 <Trash2 size={15} /> {deleting === "bulk" ? "Deleting..." : "Delete selected"}
                             </button>
                         </div>
@@ -218,8 +227,8 @@ function AdminOrders() {
                         <div className="admin-orders__table-wrap">
                             <table className="admin-orders__table">
                                 <thead><tr>
-                                    <th style={{ width: 42, textAlign: "center" }}>
-                                        <input type="checkbox" checked={allSelectableSelected} onChange={toggleAllSelection} disabled={selectableOrders.length === 0 || deleting !== null} aria-label="Select all cancellable unpaid orders" />
+                                    <th className="admin-orders__select-cell">
+                                        <input type="checkbox" checked={allFilteredSelected} onChange={toggleAllSelection} disabled={deleting !== null} aria-label="Select all visible orders" />
                                     </th>
                                     <th>Order</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Shipping & tracking</th><th>Date</th><th>Actions</th>
                                 </tr></thead>
@@ -228,8 +237,8 @@ function AdminOrders() {
                                         const canDelete = order.status === "cancelled" && order.payment_status !== "paid";
                                         return (
                                             <tr key={order.id}>
-                                                <td style={{ textAlign: "center" }}>
-                                                    <input type="checkbox" checked={selectedOrderIds.has(order.id)} onChange={() => toggleOrderSelection(order.id)} disabled={!canDelete || deleting !== null} aria-label={`Select ${order.order_code}`} />
+                                                <td className="admin-orders__select-cell">
+                                                    <input type="checkbox" checked={selectedOrderIds.has(order.id)} onChange={() => toggleOrderSelection(order.id)} disabled={deleting !== null} aria-label={`Select ${order.order_code}`} />
                                                 </td>
                                                 <td><strong className="order-code">{order.order_code}</strong><small>{order.item_count} item{order.item_count === 1 ? "" : "s"}</small></td>
                                                 <td><strong>{order.customer_name || "Customer"}</strong><small>{order.customer_email}</small></td>
@@ -252,18 +261,11 @@ function AdminOrders() {
                                                 <td><time dateTime={order.created_at}>{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</time></td>
                                                 <td>
                                                     {canDelete ? (
-                                                        <button
-                                                            type="button"
-                                                            title="Delete cancelled unpaid order"
-                                                            aria-label={`Delete ${order.order_code}`}
-                                                            onClick={() => deleteOrder(order)}
-                                                            disabled={deleting !== null || saving === order.id}
-                                                            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, padding: 0, border: "1px solid #E3E3E3", borderRadius: 8, background: "#FFFFFF", cursor: deleting !== null ? "wait" : "pointer", opacity: deleting !== null ? 0.55 : 1 }}
-                                                        >
+                                                        <button className="admin-orders__delete-button" type="button" title="Delete cancelled unpaid order" aria-label={`Delete ${order.order_code}`} onClick={() => deleteOrder(order)} disabled={deleting !== null || saving === order.id}>
                                                             <Trash2 size={16} />
                                                         </button>
                                                     ) : (
-                                                        <span style={{ color: "#A0A0A0", fontSize: 12 }}>{order.payment_status === "paid" ? "Protected" : "—"}</span>
+                                                        <span className="admin-orders__protected">{order.payment_status === "paid" ? "Protected" : "—"}</span>
                                                     )}
                                                 </td>
                                             </tr>
