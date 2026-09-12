@@ -198,6 +198,11 @@ function CheckoutPage() {
 
             const payment = checkout.createPaymentElement({
                 layout: "tabs",
+                fields: {
+                    billingDetails: {
+                        name: "always",
+                    },
+                },
                 wallets: { applePay: "never", googlePay: "never", link: "never" },
             });
             const express = checkout.createExpressCheckoutElement({
