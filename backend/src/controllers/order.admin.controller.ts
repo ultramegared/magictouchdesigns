@@ -97,6 +97,68 @@ export const deleteAdminOrder = async (
     try {
         await ensureOrderTables();
 
+        const requestedIds = Array.isArray(req.body?.ids)
+            ? req.body.ids.map((value: unknown) => String(value || "").trim()).filter(Boolean)
+            : [];
+
+        if (requestedIds.length > 1000) {
+            res.status(400).json({ message: "You can delete up to 1000 orders at a time." });
+            return;
+        }
+
+        if (requestedIds.length > 0) {
+            const ids = [...new Set(requestedIds)];
+            const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            if (!ids.every(id => uuidPattern.test(id))) {
+                res.status(400).json({ message: "Invalid order selection." });
+                return;
+            }
+
+            const client = await pool.connect();
+            try {
+                await client.query("BEGIN");
+
+                const selected = await client.query(
+                    `SELECT id, status, payment_status FROM orders WHERE id = ANY($1::uuid[]) FOR UPDATE`,
+                    [ids],
+                );
+
+                if (selected.rows.length !== ids.length) {
+                    await client.query("ROLLBACK");
+                    res.status(404).json({ message: "One or more selected orders could not be found." });
+                    return;
+                }
+
+                const protectedOrder = selected.rows.find(
+                    (order: { status: string; payment_status: string }) => order.status !== "cancelled" || order.payment_status === "paid",
+                );
+
+                if (protectedOrder) {
+                    await client.query("ROLLBACK");
+                    res.status(409).json({ message: "Only cancelled unpaid orders can be deleted. Paid or active orders were not deleted." });
+                    return;
+                }
+
+                const deleted = await client.query(
+                    `DELETE FROM orders WHERE id = ANY($1::uuid[]) RETURNING id, order_code`,
+                    [ids],
+                );
+
+                await client.query("COMMIT");
+                res.json({
+                    deleted: true,
+                    count: deleted.rows.length,
+                    orderCodes: deleted.rows.map((row: { order_code: string }) => row.order_code),
+                });
+                return;
+            } catch (error) {
+                await client.query("ROLLBACK");
+                throw error;
+            } finally {
+                client.release();
+            }
+        }
+
         const orderId = String(req.params.id || "");
         const result = await pool.query(
             `
