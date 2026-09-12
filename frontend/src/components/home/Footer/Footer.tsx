@@ -28,13 +28,14 @@ const localize = (value: LocalizedText | undefined, language: "en" | "es", fallb
 function Footer() {
     const [openSection, setOpenSection] = useState<string | null>(null);
     const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null);
+    const [logoUrl, setLogoUrl] = useState("");
     const { language, setLanguage } = useLanguage();
     const t = translations[language];
 
     useEffect(() => {
         let cancelled = false;
-        apiRequest<{ status: string; settings: { config: SiteConfig } }>(`/api/settings?footer_refresh=${Date.now()}`, { cache: "no-store" })
-            .then(result => { if (!cancelled) setSiteConfig(result.settings.config); })
+        apiRequest<{ status: string; settings: { config: SiteConfig; logoUrl?: string | null } }>(`/api/settings?footer_refresh=${Date.now()}`, { cache: "no-store" })
+            .then(result => { if (!cancelled) { setSiteConfig(result.settings.config); setLogoUrl(result.settings.logoUrl || ""); } })
             .catch(() => {});
         return () => { cancelled = true; };
     }, [language]);
@@ -71,7 +72,7 @@ function Footer() {
             <div className="footer__container">
                 <div className="footer__desktop-layout">
                     <div className="footer__brand">
-                        <div className="footer__brand-mark">MT<span>D</span></div>
+                        <div className="footer__brand-mark" style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none", color: "transparent", backgroundImage: `url('${logoUrl || "/images/logo/jqyd-logo-256.png"}')`, backgroundPosition: "center", backgroundSize: "contain", backgroundRepeat: "no-repeat" }} aria-label="JQ & YD" />
                         <div className="footer__brand-name">{websiteName}</div>
                         <p>{slogan}.</p>
                         <div className="footer__benefits"><span>♢ <b>{language === "es" ? "Alta calidad" : "High Quality"}</b></span><span>⌁ <b>{language === "es" ? "Envío rápido" : "Fast Shipping"}</b></span><span>♡ <b>{language === "es" ? "Hecho con amor" : "Made with Love"}</b></span></div>

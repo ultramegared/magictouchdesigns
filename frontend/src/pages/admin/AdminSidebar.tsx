@@ -29,12 +29,12 @@ function AdminSidebar({ username }: AdminSidebarProps) {
         <>
             <header className="admin-sidebar-mobile-header">
                 <button type="button" className="admin-sidebar-mobile-menu" aria-label="Open administrator menu" onClick={() => setMobileMenuOpen(true)}><Menu size={24} /></button>
-                <div className="admin-sidebar-mobile-brand"><strong>MAGIC TOUCH</strong><span>ADMIN</span></div>
+                <div className="admin-sidebar-mobile-brand"><img src="/images/logo/jqyd-logo-256.png" alt="JQ & YD" style={{ width: "38px", height: "38px", objectFit: "contain" }} /><strong>MAGIC TOUCH</strong><span>ADMIN</span></div>
                 <div className="admin-sidebar-mobile-user">{username ? username.slice(0, 2).toUpperCase() : "AD"}</div>
             </header>
             {mobileMenuOpen && <button type="button" className="admin-sidebar-overlay" aria-label="Close administrator menu" onClick={closeMobileMenu} />}
             <aside className={`admin-sidebar ${mobileMenuOpen ? "admin-sidebar--open" : ""}`}>
-                <div className="admin-sidebar__brand"><div className="admin-sidebar__brand-mark">MTD</div><div className="admin-sidebar__brand-text"><strong>MAGIC TOUCH</strong><span>ADMINISTRATION</span></div><button type="button" className="admin-sidebar__close" aria-label="Close administrator menu" onClick={closeMobileMenu}><X size={22} /></button></div>
+                <div className="admin-sidebar__brand"><div className="admin-sidebar__brand-mark" style={{ background: "transparent", borderRadius: 0, color: "transparent", fontSize: 0, boxShadow: "none", backgroundImage: "url('/images/logo/jqyd-logo-256.png')", backgroundPosition: "center", backgroundSize: "contain", backgroundRepeat: "no-repeat" }} aria-label="JQ & YD" /><div className="admin-sidebar__brand-text"><strong>MAGIC TOUCH</strong><span>ADMINISTRATION</span></div><button type="button" className="admin-sidebar__close" aria-label="Close administrator menu" onClick={closeMobileMenu}><X size={22} /></button></div>
                 <div className="admin-sidebar__user"><div className="admin-sidebar__user-avatar">{username ? username.slice(0, 2).toUpperCase() : "AD"}</div><div className="admin-sidebar__user-info"><strong>{username || "Administrator"}</strong><span>Administrator</span></div></div>
                 <nav className="admin-sidebar__nav">
                     <NavLink to="/admin" end className={getNavLinkClass} onClick={closeMobileMenu}><LayoutDashboard size={20} /><span>Dashboard</span></NavLink>
