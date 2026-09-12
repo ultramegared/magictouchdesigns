@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { ArrowLeft, Mail, Loader2 } from "lucide-react";
 import "../Login/Login.css";
@@ -12,6 +12,15 @@ function ForgotPassword() {
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [logoUrl, setLogoUrl] = useState("");
+
+    useEffect(() => {
+        let cancelled = false;
+        apiRequest<{ status: string; settings: { logoUrl?: string | null } }>(`/api/settings?auth_logo_refresh=${Date.now()}`, { cache: "no-store" })
+            .then(result => { if (!cancelled) setLogoUrl(result.settings?.logoUrl || ""); })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, []);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -42,7 +51,7 @@ function ForgotPassword() {
             <section className="login__card">
                 <div className="login__card-shine" aria-hidden="true" />
                 <div className="login__brand">
-                    <div className="login__brand-mark" style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none", color: "transparent", backgroundImage: "url('/images/logo/jqyd-logo-256.png')", backgroundPosition: "center", backgroundSize: "contain", backgroundRepeat: "no-repeat" }} aria-label="JQ & YD" />
+                    <div className="login__brand-mark" style={{ background: `url('${logoUrl || "/images/logo/jqyd-logo-256.png"}') center / contain no-repeat`, border: 0, borderRadius: 0, boxShadow: "none", color: "transparent", fontSize: 0 }} aria-label="JQ & YD" />
                     <div className="login__brand-name">MAGIC TOUCH<span>DESIGNS</span></div>
                 </div>
                 <div className="login__header">
