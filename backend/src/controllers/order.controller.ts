@@ -1,8 +1,5 @@
-/**
- * Magic Touch Designs - Order Controllers
- */
-
 import type { Request, Response } from "express";
+import { pool } from "../config/database";
 import {
     createCheckoutSession,
     getOrderByCode,
@@ -30,10 +27,20 @@ export const getStripeConfig = (_req: Request, res: Response): void => { res.jso
 
 export const createStripeElements = async (req: Request, res: Response): Promise<void> => {
     try {
-        const customer = req.body?.customer as CheckoutCustomerInput;
+        const input = (req.body?.customer || {}) as Partial<CheckoutCustomerInput>;
         const items = req.body?.items as CheckoutItemInput[];
-        if (!customer?.firstName || !customer?.lastName || !customer?.email) return void res.status(400).json({ message: "Customer information is required." });
-        if (!customer.address || !customer.city || !customer.state || !customer.zip) return void res.status(400).json({ message: "A complete shipping address is required." });
+        const customer: CheckoutCustomerInput = {
+            firstName: String(input.firstName || "").trim(),
+            lastName: String(input.lastName || "").trim(),
+            email: String(input.email || "").trim().toLowerCase(),
+            phone: String(input.phone || "").trim(),
+            deliveryType: input.deliveryType || "house",
+            address: String(input.address || "").trim(),
+            apartment: String(input.apartment || "").trim(),
+            city: String(input.city || "").trim(),
+            state: String(input.state || "").trim(),
+            zip: String(input.zip || "").trim(),
+        };
         res.status(201).json(await createStripeElementsCheckout(customer, items || []));
     } catch (error) { console.error("Create Stripe Elements checkout error:", error); res.status(400).json({ message: error instanceof Error ? error.message : "Unable to start card checkout." }); }
 };
@@ -86,7 +93,66 @@ export const stripeWebhook = async (req: Request, res: Response): Promise<void> 
         const payload = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body));
         const signature = String(req.headers["stripe-signature"] || "");
         if (!verifyStripeSignature(payload, signature)) return void res.status(400).send("Invalid Stripe signature.");
-        await handleStripeWebhook(JSON.parse(payload.toString("utf8")));
+
+        const event = JSON.parse(payload.toString("utf8"));
+        const session = event?.data?.object;
+        const orderId = session?.metadata?.order_id;
+
+        if (
+            orderId &&
+            (event?.type === "checkout.session.completed" ||
+                event?.type === "checkout.session.async_payment_succeeded")
+        ) {
+            const customerDetails = session?.customer_details || {};
+            const shippingDetails = session?.shipping_details || {};
+            const shippingAddress = shippingDetails?.address || {};
+            const name = String(
+                shippingDetails?.name || customerDetails?.name || "",
+            ).trim();
+            const nameParts = name.split(/\s+/).filter(Boolean);
+            const firstName = nameParts.shift() || "";
+            const lastName = nameParts.join(" ") || "";
+            const email = String(customerDetails?.email || "").trim().toLowerCase();
+            const phone = String(customerDetails?.phone || "").trim();
+
+            if (firstName || lastName || email || phone || shippingDetails?.address) {
+                await pool.query(
+                    `UPDATE orders SET
+                        customer_first_name = COALESCE(NULLIF($1, ''), customer_first_name),
+                        customer_last_name = COALESCE(NULLIF($2, ''), customer_last_name),
+                        customer_email = COALESCE(NULLIF($3, ''), customer_email),
+                        customer_phone = COALESCE(NULLIF($4, ''), customer_phone),
+                        shipping_address = CASE
+                            WHEN $5::boolean THEN jsonb_build_object(
+                                'deliveryType', COALESCE(shipping_address->>'deliveryType', 'house'),
+                                'address', COALESCE($6, ''),
+                                'apartment', COALESCE($7, ''),
+                                'city', COALESCE($8, ''),
+                                'state', COALESCE($9, ''),
+                                'zip', COALESCE($10, '')
+                            )
+                            ELSE shipping_address
+                        END,
+                        updated_at = NOW()
+                     WHERE id = $11`,
+                    [
+                        firstName,
+                        lastName,
+                        email,
+                        phone,
+                        Boolean(shippingDetails?.address),
+                        String(shippingAddress?.line1 || "").trim(),
+                        String(shippingAddress?.line2 || "").trim(),
+                        String(shippingAddress?.city || "").trim(),
+                        String(shippingAddress?.state || "").trim(),
+                        String(shippingAddress?.postal_code || "").trim(),
+                        orderId,
+                    ],
+                );
+            }
+        }
+
+        await handleStripeWebhook(event);
         res.json({ received: true });
     } catch (error) { console.error("Stripe webhook error:", error); res.status(400).send("Webhook processing failed."); }
 };
