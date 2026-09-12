@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ArrowLeft, Lock, Loader2 } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Lock, Loader2 } from "lucide-react";
 import "../Login/Login.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { apiRequest } from "../../services/api";
@@ -11,12 +11,14 @@ function ResetPassword() {
     const token = searchParams.get("token") || "";
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [done, setDone] = useState(false);
     const [error, setError] = useState("");
     const es = language === "es";
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setError("");
         if (!token) { setError(es ? "Este enlace de recuperación no es válido." : "This recovery link is not valid."); return; }
@@ -30,6 +32,8 @@ function ResetPassword() {
             setError(requestError instanceof Error ? requestError.message : (es ? "No pudimos cambiar la contraseña. Inténtalo nuevamente." : "We could not change your password. Please try again."));
         } finally { setLoading(false); }
     };
+
+    const visibilityLabel = (visible: boolean) => visible ? (es ? "Ocultar contraseña" : "Hide password") : (es ? "Mostrar contraseña" : "Show password");
 
     return (
         <main className="login">
@@ -49,8 +53,26 @@ function ResetPassword() {
                     <div className="login__header"><p>{es ? "Tu contraseña fue actualizada correctamente. Ya puedes iniciar sesión." : "Your password has been updated successfully. You can now sign in."}</p></div>
                 ) : (
                     <form className="login__form" onSubmit={handleSubmit}>
-                        <div className="login__field"><label htmlFor="reset-password">{es ? "Nueva contraseña" : "New password"}</label><div className="login__input"><Lock size={19} aria-hidden="true" /><input id="reset-password" type="password" autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required /></div></div>
-                        <div className="login__field"><label htmlFor="reset-password-confirm">{es ? "Confirmar contraseña" : "Confirm password"}</label><div className="login__input"><Lock size={19} aria-hidden="true" /><input id="reset-password-confirm" type="password" autoComplete="new-password" minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required /></div></div>
+                        <div className="login__field">
+                            <label htmlFor="reset-password">{es ? "Nueva contraseña" : "New password"}</label>
+                            <div className="login__input">
+                                <Lock size={19} aria-hidden="true" />
+                                <input id="reset-password" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required />
+                                <button type="button" className="login__password-toggle" onClick={() => setShowPassword((visible) => !visible)} aria-label={visibilityLabel(showPassword)} title={visibilityLabel(showPassword)}>
+                                    {showPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}
+                                </button>
+                            </div>
+                        </div>
+                        <div className="login__field">
+                            <label htmlFor="reset-password-confirm">{es ? "Confirmar contraseña" : "Confirm password"}</label>
+                            <div className="login__input">
+                                <Lock size={19} aria-hidden="true" />
+                                <input id="reset-password-confirm" type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                                <button type="button" className="login__password-toggle" onClick={() => setShowConfirmPassword((visible) => !visible)} aria-label={visibilityLabel(showConfirmPassword)} title={visibilityLabel(showConfirmPassword)}>
+                                    {showConfirmPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}
+                                </button>
+                            </div>
+                        </div>
                         {error && <p role="alert" style={{ color: "#b42318", margin: "-4px 0 4px", fontSize: "13px" }}>{error}</p>}
                         <button type="submit" className="login__submit" disabled={loading}><span>{loading ? (es ? "Actualizando..." : "Updating...") : (es ? "Cambiar contraseña" : "Update password")}</span>{loading ? <Loader2 size={18} className="spin" aria-hidden="true" /> : <span className="login__submit-shine" aria-hidden="true" />}</button>
                     </form>
