@@ -61,7 +61,6 @@ export const createStripeElementsCheckout = async (
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
     params.set("shipping_options[0][shipping_rate_data][display_name]", "Standard Shipping");
     params.set("automatic_tax[enabled]", "true");
-    params.set("payment_method_types[0]", "card");
     params.set("metadata[order_id]", snapshot.orderId);
     params.set("metadata[order_code]", snapshot.orderCode);
 
