@@ -37,6 +37,7 @@ function AdminOrders() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState<string | null>(null);
     const [deleting, setDeleting] = useState<string | null>(null);
+    const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -83,6 +84,11 @@ function AdminOrders() {
             setError(null);
             await apiRequest(`/api/admin/orders/${order.id}`, { method: "DELETE" });
             setOrders(current => current.filter(item => item.id !== order.id));
+            setSelectedOrderIds(current => {
+                const next = new Set(current);
+                next.delete(order.id);
+                return next;
+            });
         } catch (err) {
             setError(err instanceof Error ? err.message : "Unable to delete order.");
         } finally {
@@ -100,6 +106,57 @@ function AdminOrders() {
         });
     }, [orders, search, statusFilter, paymentFilter]);
 
+    const selectableOrders = useMemo(
+        () => filteredOrders.filter(order => order.status === "cancelled" && order.payment_status !== "paid"),
+        [filteredOrders],
+    );
+
+    const allSelectableSelected = selectableOrders.length > 0 && selectableOrders.every(order => selectedOrderIds.has(order.id));
+
+    const toggleOrderSelection = (orderId: string) => {
+        setSelectedOrderIds(current => {
+            const next = new Set(current);
+            if (next.has(orderId)) next.delete(orderId);
+            else next.add(orderId);
+            return next;
+        });
+    };
+
+    const toggleAllSelection = () => {
+        setSelectedOrderIds(current => {
+            const next = new Set(current);
+            if (allSelectableSelected) {
+                selectableOrders.forEach(order => next.delete(order.id));
+            } else {
+                selectableOrders.forEach(order => next.add(order.id));
+            }
+            return next;
+        });
+    };
+
+    const bulkDeleteOrders = async () => {
+        const ids = Array.from(selectedOrderIds).filter(id => orders.some(order => order.id === id && order.status === "cancelled" && order.payment_status !== "paid"));
+        if (!ids.length || ids.length > 1000) return;
+
+        const confirmed = window.confirm(`Delete ${ids.length} selected order${ids.length === 1 ? "" : "s"}?\n\nOnly cancelled unpaid orders will be deleted. Paid or active orders are protected. This action cannot be undone.`);
+        if (!confirmed) return;
+
+        try {
+            setDeleting("bulk");
+            setError(null);
+            await apiRequest(`/api/admin/orders/${ids[0]}`, {
+                method: "DELETE",
+                body: JSON.stringify({ ids }),
+            });
+            setOrders(current => current.filter(order => !ids.includes(order.id)));
+            setSelectedOrderIds(new Set());
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Unable to delete selected orders.");
+        } finally {
+            setDeleting(null);
+        }
+    };
+
     const paidOrders = orders.filter(order => order.payment_status === "paid");
     const activeOrders = orders.filter(order => !["cancelled", "refunded", "delivered"].includes(order.status));
     const fulfillmentOrders = orders.filter(order => ["shipped", "delivered"].includes(order.status));
@@ -115,7 +172,7 @@ function AdminOrders() {
                         <h1>Orders</h1>
                         <p>Manage fulfillment, payment status, and shipment tracking from one operational workspace.</p>
                     </div>
-                    <button className="admin-orders__refresh" onClick={loadOrders} disabled={loading}>
+                    <button className="admin-orders__refresh" onClick={loadOrders} disabled={loading || deleting !== null}>
                         <RefreshCw size={17} className={loading ? "spin" : ""} /> Refresh
                     </button>
                 </header>
@@ -143,27 +200,49 @@ function AdminOrders() {
                         {(search || statusFilter !== "all" || paymentFilter !== "all") && <button type="button" onClick={() => { setSearch(""); setStatusFilter("all"); setPaymentFilter("all"); }}>Clear filters</button>}
                     </div>
 
+                    {selectedOrderIds.size > 0 && (
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 14px", margin: "0 0 10px", border: "1px solid #E6E0D4", borderRadius: 10, background: "#FFFCF5" }}>
+                            <strong style={{ fontSize: 13 }}>{selectedOrderIds.size} selected</strong>
+                            <button
+                                type="button"
+                                onClick={bulkDeleteOrders}
+                                disabled={deleting !== null}
+                                style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 12px", border: "0", borderRadius: 8, background: "#222", color: "#FFF", fontWeight: 600, fontSize: 13, cursor: deleting !== null ? "wait" : "pointer", opacity: deleting !== null ? 0.6 : 1 }}
+                            >
+                                <Trash2 size={15} /> {deleting === "bulk" ? "Deleting..." : "Delete selected"}
+                            </button>
+                        </div>
+                    )}
+
                     {loading ? <div className="admin-orders__empty">Loading orders...</div> : orders.length === 0 ? <div className="admin-orders__empty"><Package size={30} /><strong>No orders yet</strong><span>New customer orders will appear here.</span></div> : filteredOrders.length === 0 ? <div className="admin-orders__empty"><Search size={30} /><strong>No matching orders</strong><span>Try a different search or clear the filters.</span></div> : (
                         <div className="admin-orders__table-wrap">
                             <table className="admin-orders__table">
-                                <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Shipping & tracking</th><th>Date</th><th>Actions</th></tr></thead>
+                                <thead><tr>
+                                    <th style={{ width: 42, textAlign: "center" }}>
+                                        <input type="checkbox" checked={allSelectableSelected} onChange={toggleAllSelection} disabled={selectableOrders.length === 0 || deleting !== null} aria-label="Select all cancellable unpaid orders" />
+                                    </th>
+                                    <th>Order</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Shipping & tracking</th><th>Date</th><th>Actions</th>
+                                </tr></thead>
                                 <tbody>
                                     {filteredOrders.map(order => {
                                         const canDelete = order.status === "cancelled" && order.payment_status !== "paid";
                                         return (
                                             <tr key={order.id}>
+                                                <td style={{ textAlign: "center" }}>
+                                                    <input type="checkbox" checked={selectedOrderIds.has(order.id)} onChange={() => toggleOrderSelection(order.id)} disabled={!canDelete || deleting !== null} aria-label={`Select ${order.order_code}`} />
+                                                </td>
                                                 <td><strong className="order-code">{order.order_code}</strong><small>{order.item_count} item{order.item_count === 1 ? "" : "s"}</small></td>
                                                 <td><strong>{order.customer_name || "Customer"}</strong><small>{order.customer_email}</small></td>
                                                 <td><strong className="order-total">{money(order.total_amount)}</strong><small>Subtotal {money(order.subtotal)}</small></td>
                                                 <td><span className={`payment-badge payment-badge--${order.payment_status}`}>{statusLabel(order.payment_status)}</span></td>
-                                                <td><select className="status-select" value={order.status} disabled={saving === order.id || deleting === order.id} onChange={event => updateOrder(order, { status: event.target.value })}>{STATUSES.map(status => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></td>
+                                                <td><select className="status-select" value={order.status} disabled={saving === order.id || deleting !== null} onChange={event => updateOrder(order, { status: event.target.value })}>{STATUSES.map(status => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></td>
                                                 <td>
                                                     <div className="admin-orders__shipping">
-                                                        <select value={order.carrier || ""} disabled={saving === order.id || deleting === order.id} onChange={event => updateOrder(order, { carrier: event.target.value })}>
+                                                        <select value={order.carrier || ""} disabled={saving === order.id || deleting !== null} onChange={event => updateOrder(order, { carrier: event.target.value })}>
                                                             <option value="">Carrier</option>
                                                             {CARRIERS.map(carrier => <option key={carrier} value={carrier}>{carrier}</option>)}
                                                         </select>
-                                                        <input aria-label={`Tracking number for ${order.order_code}`} placeholder="Tracking number" defaultValue={order.tracking_number || ""} disabled={deleting === order.id} onBlur={event => {
+                                                        <input aria-label={`Tracking number for ${order.order_code}`} placeholder="Tracking number" defaultValue={order.tracking_number || ""} disabled={deleting !== null} onBlur={event => {
                                                             const value = event.target.value.trim();
                                                             if (value !== (order.tracking_number || "")) updateOrder(order, { trackingNumber: value });
                                                         }} />
@@ -178,8 +257,8 @@ function AdminOrders() {
                                                             title="Delete cancelled unpaid order"
                                                             aria-label={`Delete ${order.order_code}`}
                                                             onClick={() => deleteOrder(order)}
-                                                            disabled={deleting === order.id || saving === order.id}
-                                                            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, padding: 0, border: "1px solid #E3E3E3", borderRadius: 8, background: "#FFFFFF", cursor: deleting === order.id ? "wait" : "pointer", opacity: deleting === order.id ? 0.55 : 1 }}
+                                                            disabled={deleting !== null || saving === order.id}
+                                                            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, padding: 0, border: "1px solid #E3E3E3", borderRadius: 8, background: "#FFFFFF", cursor: deleting !== null ? "wait" : "pointer", opacity: deleting !== null ? 0.55 : 1 }}
                                                         >
                                                             <Trash2 size={16} />
                                                         </button>
