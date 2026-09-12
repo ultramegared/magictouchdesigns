@@ -15,7 +15,7 @@ import Footer from "../../components/home/Footer";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://api.magictouchdesigns.com/api";
+const API_URL = "https://api.jqydesigns.com/api";
 
 type OrderItem = {
     product_name: string;
@@ -43,18 +43,34 @@ type Order = {
 
 const carrierUrl = (carrier: string | null, tracking: string | null) => {
     if (!carrier || !tracking) return null;
+
     const value = encodeURIComponent(tracking);
     const normalized = carrier.toLowerCase();
-    if (normalized.includes("ups")) return `https://www.ups.com/track?loc=en_US&tracknum=${value}`;
-    if (normalized.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${value}`;
-    if (normalized.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${value}`;
-    if (normalized.includes("dhl")) return `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${value}`;
+
+    if (normalized.includes("ups")) {
+        return `https://www.ups.com/track?loc=en_US&tracknum=${value}`;
+    }
+
+    if (normalized.includes("fedex")) {
+        return `https://www.fedex.com/fedextrack/?trknbr=${value}`;
+    }
+
+    if (normalized.includes("usps")) {
+        return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${value}`;
+    }
+
+    if (normalized.includes("dhl")) {
+        return `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${value}`;
+    }
+
     return null;
 };
 
 const normalizeOrderCode = (value: string) => {
     const trimmed = value.trim();
+
     if (!trimmed) return "";
+
     return trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
 };
 
@@ -65,7 +81,9 @@ const formatStatus = (value: string) =>
 
 const formatDate = (value: string) => {
     const date = new Date(value);
+
     if (Number.isNaN(date.getTime())) return value;
+
     return date.toLocaleDateString("en-US", {
         month: "long",
         day: "numeric",
@@ -73,58 +91,12 @@ const formatDate = (value: string) => {
     });
 };
 
-const money = (value: string | number) => `$${Number(value || 0).toFixed(2)}`;
+const money = (value: string | number) =>
+    `$${Number(value || 0).toFixed(2)}`;
 
 function TrackOrderPage() {
     const { language } = useLanguage();
     const t = translations[language].trackOrder;
-    const [searchParams] = useSearchParams();
-    const [orderNumber, setOrderNumber] = useState(searchParams.get("order") || "");
-    const [email, setEmail] = useState("");
-    const [order, setOrder] = useState<Order | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-
-    const lookupOrder = async (event: FormEvent) => {
-        event.preventDefault();
-
-        const normalizedOrderCode = normalizeOrderCode(orderNumber);
-        const normalizedEmail = email.trim().toLowerCase();
-
-        if (!normalizedOrderCode || !normalizedEmail) return;
-
-        setLoading(true);
-        setError("");
-        setOrder(null);
-
-        try {
-            const response = await fetch(
-                `${API_URL}/orders/${encodeURIComponent(normalizedOrderCode)}?email=${encodeURIComponent(normalizedEmail)}`,
-            );
-
-            const data = await response.json() as Order & { message?: string };
-
-            if (!response.ok) {
-                throw new Error(data.message || "Order not found.");
-            }
-
-            setOrder(data);
-            setOrderNumber(data.order_code);
-        } catch (lookupError: unknown) {
-            setError(
-                lookupError instanceof Error
-                    ? lookupError.message
-                    : "Unable to find your order.",
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const trackingLink = carrierUrl(
-        order?.carrier || null,
-        order?.tracking_number || null,
-    );
 
     const [searchParams] = useSearchParams();
 
@@ -220,14 +192,19 @@ function TrackOrderPage() {
                                     <label htmlFor="order-number">
                                         {t.tracking.orderNumberLabel}
                                     </label>
+
                                     <input
                                         id="order-number"
                                         name="orderNumber"
                                         type="text"
                                         required
                                         value={orderNumber}
-                                        onChange={(event) => setOrderNumber(event.target.value)}
-                                        placeholder={t.tracking.orderNumberPlaceholder}
+                                        onChange={(event) =>
+                                            setOrderNumber(event.target.value)
+                                        }
+                                        placeholder={
+                                            t.tracking.orderNumberPlaceholder
+                                        }
                                         autoComplete="off"
                                     />
                                 </div>
@@ -236,13 +213,16 @@ function TrackOrderPage() {
                                     <label htmlFor="email">
                                         {t.tracking.emailLabel}
                                     </label>
+
                                     <input
                                         id="email"
                                         name="email"
                                         type="email"
                                         required
                                         value={email}
-                                        onChange={(event) => setEmail(event.target.value)}
+                                        onChange={(event) =>
+                                            setEmail(event.target.value)
+                                        }
                                         placeholder={t.tracking.emailPlaceholder}
                                         autoComplete="email"
                                     />
@@ -253,7 +233,9 @@ function TrackOrderPage() {
                                     className="track-order-page__button"
                                     disabled={loading}
                                 >
-                                    {loading ? "Checking…" : t.tracking.button}
+                                    {loading
+                                        ? "Checking…"
+                                        : t.tracking.button}
                                 </button>
                             </form>
 
@@ -288,16 +270,27 @@ function TrackOrderPage() {
                                     {order.items?.length ? (
                                         <div>
                                             <strong>Items:</strong>
+
                                             <ul>
-                                                {order.items.map((item, index) => (
-                                                    <li key={`${item.product_name}-${index}`}>
-                                                        {item.product_name}
-                                                        {item.variant?.model ? ` · ${item.variant.model}` : ""}
-                                                        {item.variant?.size ? ` · ${item.variant.size}` : ""}
-                                                        {item.variant?.color ? ` · ${item.variant.color}` : ""}
-                                                        {` × ${item.quantity}`}
-                                                    </li>
-                                                ))}
+                                                {order.items.map(
+                                                    (item, index) => (
+                                                        <li
+                                                            key={`${item.product_name}-${index}`}
+                                                        >
+                                                            {item.product_name}
+                                                            {item.variant?.model
+                                                                ? ` · ${item.variant.model}`
+                                                                : ""}
+                                                            {item.variant?.size
+                                                                ? ` · ${item.variant.size}`
+                                                                : ""}
+                                                            {item.variant?.color
+                                                                ? ` · ${item.variant.color}`
+                                                                : ""}
+                                                            {` × ${item.quantity}`}
+                                                        </li>
+                                                    ),
+                                                )}
                                             </ul>
                                         </div>
                                     ) : null}
@@ -325,23 +318,28 @@ function TrackOrderPage() {
                                     {order.tracking_number ? (
                                         <p>
                                             <strong>Tracking:</strong>{" "}
-                                            {order.carrier || "Carrier"} — {order.tracking_number}
+                                            {order.carrier || "Carrier"} --{" "}
+                                            {order.tracking_number}
+
                                             {trackingLink && (
                                                 <>
                                                     <br />
+
                                                     <a
                                                         href={trackingLink}
                                                         target="_blank"
                                                         rel="noreferrer"
                                                     >
-                                                        Track package with carrier →
+                                                        Track package with
+                                                        carrier →
                                                     </a>
                                                 </>
                                             )}
                                         </p>
                                     ) : (
                                         <p>
-                                            Your tracking number will appear here as soon as your order ships.
+                                            Your tracking number will appear
+                                            here as soon as your order ships.
                                         </p>
                                     )}
                                 </div>
