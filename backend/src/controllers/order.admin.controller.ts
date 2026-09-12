@@ -129,25 +129,26 @@ export const deleteAdminOrder = async (
                     return;
                 }
 
-                const protectedOrder = selected.rows.find(
-                    (order: { status: string; payment_status: string }) => order.status !== "cancelled" || order.payment_status === "paid",
-                );
+                const deletableIds = selected.rows
+                    .filter((order: { id: string; status: string; payment_status: string }) => order.status === "cancelled" && order.payment_status !== "paid")
+                    .map((order: { id: string }) => order.id);
 
-                if (protectedOrder) {
+                if (deletableIds.length === 0) {
                     await client.query("ROLLBACK");
-                    res.status(409).json({ message: "Only cancelled unpaid orders can be deleted. Paid or active orders were not deleted." });
+                    res.status(409).json({ message: "No selected orders are eligible for deletion. Only cancelled unpaid orders can be deleted." });
                     return;
                 }
 
                 const deleted = await client.query(
                     `DELETE FROM orders WHERE id = ANY($1::uuid[]) RETURNING id, order_code`,
-                    [ids],
+                    [deletableIds],
                 );
 
                 await client.query("COMMIT");
                 res.json({
                     deleted: true,
                     count: deleted.rows.length,
+                    skipped: ids.length - deleted.rows.length,
                     orderCodes: deleted.rows.map((row: { order_code: string }) => row.order_code),
                 });
                 return;
