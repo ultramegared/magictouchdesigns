@@ -45,7 +45,9 @@ function Footer() {
         { id: "company", title: { en: "COMPANY", es: "EMPRESA" }, active: true, order: 2, links: footerContent.company.links.map((x, i) => ({ id: `company-${i}`, label: { en: x.label, es: x.label }, path: x.href, active: true, order: i + 1 })) },
         { id: "support", title: { en: "SUPPORT", es: "SOPORTE" }, active: true, order: 3, links: footerContent.support.links.map((x, i) => ({ id: `support-${i}`, label: { en: x.label, es: x.label }, path: x.href, active: true, order: i + 1 })) },
     ];
-    const sections = (siteConfig?.footerSections?.length ? siteConfig.footerSections : defaultSections).filter(x => x.active).sort((a, b) => a.order - b.order);
+    const sections = (siteConfig?.footerSections?.length ? siteConfig.footerSections : defaultSections)
+        .filter(x => x.active && (x.title?.en?.trim() || x.title?.es?.trim()))
+        .sort((a, b) => a.order - b.order);
     const socialLinks = (siteConfig?.socialLinks?.length ? siteConfig.socialLinks : footerContent.social.map((x, i) => ({ id: `social-${i}`, name: x.name, url: x.href, active: true, order: i + 1 }))).filter(x => x.active && x.name && x.url);
     const phone = siteConfig?.businessPhone || footerContent.phone;
     const supportSection = sections.find(x => x.id === "footer-support") || sections.find(x => x.id === "support") || sections[sections.length - 1];
