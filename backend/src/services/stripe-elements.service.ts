@@ -53,7 +53,6 @@ export const createStripeElementsCheckout = async (
     params.set("ui_mode", "custom");
     params.set("managed_payments[enabled]", "false");
     params.set("return_url", `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
-    params.set("customer_email", customer.email.trim().toLowerCase());
     params.set("billing_address_collection", "auto");
     params.set("phone_number_collection[enabled]", "true");
     params.set("shipping_address_collection[allowed_countries][0]", "US");
