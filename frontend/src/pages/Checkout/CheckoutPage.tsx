@@ -1199,111 +1199,125 @@ function CheckoutPage() {
                                     </button>
                                 </div>
 
-                                {method === "card" && (
-                                    <div className="checkout-payment-content">
-                                        <div className="checkout-provider-heading">
-                                            <strong>
-                                                Credit or Debit
-                                                Card
-                                            </strong>
+                                <div
+                                    className="checkout-payment-content"
+                                    style={{
+                                        display:
+                                            method ===
+                                            "card"
+                                                ? "block"
+                                                : "none",
+                                    }}
+                                >
+                                    <div className="checkout-provider-heading">
+                                        <strong>
+                                            Credit or Debit
+                                            Card
+                                        </strong>
+
+                                        <span>
+                                            Securely
+                                            processed by
+                                            Stripe
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        ref={
+                                            stripePaymentRef
+                                        }
+                                        className="checkout-stripe-payment-element"
+                                    />
+
+                                    {!stripeReady && (
+                                        <button
+                                            className="checkout-payment-action"
+                                            type="submit"
+                                            disabled={
+                                                loading
+                                            }
+                                        >
+                                            {loading
+                                                ? "Loading secure card fields…"
+                                                : "Load Secure Card Payment"}
 
                                             <span>
-                                                Securely
-                                                processed by
-                                                Stripe
+                                                →
                                             </span>
-                                        </div>
+                                        </button>
+                                    )}
 
-                                        <div
-                                            ref={
-                                                stripePaymentRef
+                                    {stripeReady && (
+                                        <button
+                                            className="checkout-payment-action"
+                                            type="submit"
+                                            disabled={
+                                                loading
                                             }
-                                            className="checkout-stripe-payment-element"
-                                        />
+                                        >
+                                            {loading
+                                                ? "Processing…"
+                                                : "Pay Securely with Card"}
 
-                                        {!stripeReady && (
-                                            <button
-                                                className="checkout-payment-action"
-                                                type="submit"
-                                                disabled={
-                                                    loading
-                                                }
-                                            >
-                                                {loading
-                                                    ? "Loading secure card fields…"
-                                                    : "Load Secure Card Payment"}
+                                            <span>
+                                                →
+                                            </span>
+                                        </button>
+                                    )}
+                                </div>
 
-                                                <span>
-                                                    →
-                                                </span>
-                                            </button>
-                                        )}
+                                <div
+                                    className="checkout-payment-content"
+                                    style={{
+                                        display:
+                                            method ===
+                                            "apple"
+                                                ? "block"
+                                                : "none",
+                                    }}
+                                >
+                                    <div className="checkout-provider-heading">
+                                        <strong>
+                                            Apple Pay
+                                        </strong>
 
-                                        {stripeReady && (
-                                            <button
-                                                className="checkout-payment-action"
-                                                type="submit"
-                                                disabled={
-                                                    loading
-                                                }
-                                            >
-                                                {loading
-                                                    ? "Processing…"
-                                                    : "Pay Securely with Card"}
-
-                                                <span>
-                                                    →
-                                                </span>
-                                            </button>
-                                        )}
+                                        <span>
+                                            Securely
+                                            processed by
+                                            Stripe
+                                        </span>
                                     </div>
-                                )}
 
-                                {method === "apple" && (
-                                    <div className="checkout-payment-content">
-                                        <div className="checkout-provider-heading">
-                                            <strong>
+                                    <div
+                                        ref={
+                                            stripeAppleRef
+                                        }
+                                        className="checkout-stripe-apple-element"
+                                    />
+
+                                    {stripeReady &&
+                                        appleAvailable ===
+                                            false && (
+                                            <p className="checkout-payment-loading">
+                                                Apple Pay is
+                                                not
+                                                available
+                                                on this
+                                                device or
+                                                browser.
+                                            </p>
+                                        )}
+
+                                    {stripeReady &&
+                                        appleAvailable ===
+                                            null && (
+                                            <p className="checkout-payment-loading">
+                                                Checking
                                                 Apple Pay
-                                            </strong>
-
-                                            <span>
-                                                Securely
-                                                processed by
-                                                Stripe
-                                            </span>
-                                        </div>
-
-                                        <div
-                                            ref={
-                                                stripeAppleRef
-                                            }
-                                            className="checkout-stripe-apple-element"
-                                        />
-
-                                        {stripeReady &&
-                                            appleAvailable ===
-                                                false && (
-                                                <p className="checkout-payment-loading">
-                                                    Apple Pay is
-                                                    not
-                                                    available
-                                                    on this
-                                                    device or
-                                                    browser.
-                                                </p>
-                                            )}
-
-                                        {stripeReady &&
-                                            appleAvailable ===
-                                                null && (
-                                                <p className="checkout-payment-loading">
-                                                    Checking
-                                                    Apple Pay
-                                                    availability…
-                                                </p>
-                                            )}
-                                    </div>
-                                )}
+                                                availability…
+                                            </p>
+                                        )}
+                                </div>
 
                                 {method === "paypal" && (
                                     <div className="checkout-payment-content">
