@@ -31,6 +31,10 @@ import {
     deleteReview,
 } from "../controllers/admin.controller";
 
+import {
+    updateAdminUserRole,
+} from "../controllers/adminUserRole.controller";
+
 
 const router = Router();
 
@@ -77,6 +81,16 @@ router.get(
 router.get(
     "/users",
     getAdminUsers
+);
+
+
+/**
+ * UPDATE ADMIN USER ROLE
+ */
+
+router.patch(
+    "/users/:id/role",
+    updateAdminUserRole
 );
 
 
