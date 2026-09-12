@@ -50,7 +50,7 @@ function ResetPassword() {
                     <p>{es ? "Elige una contraseña nueva y segura para tu cuenta." : "Choose a new, secure password for your account."}</p>
                 </div>
                 {done ? (
-                    <div className="login__header"><p>{es ? "Tu contraseña fue actualizada correctamente. Ya puedes iniciar sesión." : "Your password has been updated successfully. You can now sign in."}</p></div>
+                    <div className="login__header"><p>{es ? "Tu contraseña fue actualizada correctamente. Ya puedes iniciar sesión desde el inicio." : "Your password has been updated successfully. You can now sign in from the home page."}</p></div>
                 ) : (
                     <form className="login__form" onSubmit={handleSubmit}>
                         <div className="login__field">
@@ -77,7 +77,7 @@ function ResetPassword() {
                         <button type="submit" className="login__submit" disabled={loading}><span>{loading ? (es ? "Actualizando..." : "Updating...") : (es ? "Cambiar contraseña" : "Update password")}</span>{loading ? <Loader2 size={18} className="spin" aria-hidden="true" /> : <span className="login__submit-shine" aria-hidden="true" />}</button>
                     </form>
                 )}
-                <div className="login__register"><button type="button" onClick={() => { window.location.href = "/login"; }}><ArrowLeft size={16} aria-hidden="true" />{es ? "Volver a iniciar sesión" : "Back to login"}</button></div>
+                <div className="login__register"><button type="button" onClick={() => { window.location.href = "/"; }}><ArrowLeft size={16} aria-hidden="true" />{es ? "Volver al inicio" : "Back to home"}</button></div>
             </section>
         </main>
     );
