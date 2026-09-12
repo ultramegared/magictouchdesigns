@@ -6,30 +6,18 @@
  * Module: Authentication Routes
  * Language: TypeScript
  * Description:
- * Authentication API routes.
+ * Authentication and password recovery API routes.
  * ================================================================
  */
 
 import { Router } from "express";
-import {
-    register,
-    login,
-} from "../controllers/auth.controller";
+import { register, login, requestPasswordReset, resetPassword } from "../controllers/auth.controller";
 
 const router = Router();
 
-/**
- * POST /api/auth/register
- *
- * Creates a new user account.
- */
 router.post("/register", register);
-
-/**
- * POST /api/auth/login
- *
- * Authenticates an existing user.
- */
 router.post("/login", login);
+router.post("/forgot-password", requestPasswordReset);
+router.post("/reset-password", resetPassword);
 
 export default router;
