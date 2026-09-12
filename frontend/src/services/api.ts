@@ -12,7 +12,7 @@
  */
 
 const API_BASE_URL =
-    "https://api.magictouchdesigns.com";
+    "https://api.jqydesigns.com";
 
 
 /*
