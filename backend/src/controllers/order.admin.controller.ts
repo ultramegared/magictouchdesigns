@@ -89,3 +89,52 @@ export const updateAdminOrder = async (
         res.status(500).json({ message: "Unable to update order." });
     }
 };
+
+export const deleteAdminOrder = async (
+    req: Request,
+    res: Response,
+): Promise<void> => {
+    try {
+        await ensureOrderTables();
+
+        const orderId = String(req.params.id || "");
+        const result = await pool.query(
+            `
+            DELETE FROM orders
+            WHERE id = $1
+              AND status = 'cancelled'
+              AND payment_status <> 'paid'
+            RETURNING id, order_code
+            `,
+            [orderId],
+        );
+
+        if (!result.rows[0]) {
+            const orderResult = await pool.query(
+                `SELECT status, payment_status FROM orders WHERE id = $1`,
+                [orderId],
+            );
+
+            if (!orderResult.rows[0]) {
+                res.status(404).json({ message: "Order not found." });
+                return;
+            }
+
+            if (orderResult.rows[0].payment_status === "paid") {
+                res.status(409).json({ message: "Paid orders cannot be deleted. Use refund or cancellation instead." });
+                return;
+            }
+
+            res.status(409).json({ message: "Only cancelled unpaid orders can be deleted." });
+            return;
+        }
+
+        res.json({
+            deleted: true,
+            orderCode: result.rows[0].order_code,
+        });
+    } catch (error) {
+        console.error("Delete admin order error:", error);
+        res.status(500).json({ message: "Unable to delete order." });
+    }
+};
