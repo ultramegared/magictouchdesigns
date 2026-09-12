@@ -246,7 +246,15 @@ function CheckoutPage() {
                 buttonHeight: 52,
                 buttonType: { applePay: "check-out" },
                 buttonTheme: { applePay: "black" },
-                paymentMethodOrder: ["apple_pay"],
+                paymentMethods: {
+                    applePay: "auto",
+                    googlePay: "never",
+                    link: "never",
+                    paypal: "never",
+                    amazonPay: "never",
+                    klarna: "never",
+                },
+                paymentMethodOrder: ["applePay"],
             });
 
             if (!stripePaymentRef.current || !stripeAppleRef.current) throw new Error("Payment area is unavailable.");
@@ -255,8 +263,12 @@ function CheckoutPage() {
             payment.mount(stripePaymentRef.current);
             express.mount(stripeAppleRef.current);
 
-            express.on("ready", (e: { availablePaymentMethods?: Record<string, unknown> | null }) =>
-                setAppleAvailable(Boolean(e.availablePaymentMethods?.applePay)));
+            const updateAppleAvailability = (e: any) => {
+                const methods = e?.paymentMethods ?? e?.availablePaymentMethods ?? null;
+                setAppleAvailable(Boolean(methods?.applePay));
+            };
+
+            express.on("availablepaymentmethodschange", updateAppleAvailability);
 
             express.on("confirm", async (e: any) => {
                 setLoading(true);
@@ -441,7 +453,7 @@ function CheckoutPage() {
 
                                 <div className="checkout-payment-content" style={{ display: method === "apple" ? "block" : "none" }}>
                                     <div className="checkout-provider-heading"><strong>Apple Pay</strong><span>Securely processed by Stripe</span></div>
-                                    <div ref={stripeAppleRef} className="checkout-stripe-apple-element" />
+                                    <div ref={stripeAppleRef} className="checkout-stripe-apple-element" style={{ display: stripeReady && appleAvailable === false ? "none" : "block" }} />
                                     {stripeReady && appleAvailable === false && <p className="checkout-payment-loading">Apple Pay is not available on this device or browser.</p>}
                                     {stripeReady && appleAvailable === null && <p className="checkout-payment-loading">Checking Apple Pay availability…</p>}
                                 </div>
