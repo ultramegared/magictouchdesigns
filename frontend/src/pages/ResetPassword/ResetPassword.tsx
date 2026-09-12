@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff, Lock, Loader2 } from "lucide-react";
 import "../Login/Login.css";
@@ -16,7 +16,16 @@ function ResetPassword() {
     const [loading, setLoading] = useState(false);
     const [done, setDone] = useState(false);
     const [error, setError] = useState("");
+    const [logoUrl, setLogoUrl] = useState("");
     const es = language === "es";
+
+    useEffect(() => {
+        let cancelled = false;
+        apiRequest<{ status: string; settings: { logoUrl?: string | null } }>(`/api/settings?auth_logo_refresh=${Date.now()}`, { cache: "no-store" })
+            .then(result => { if (!cancelled) setLogoUrl(result.settings?.logoUrl || ""); })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, []);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -43,7 +52,7 @@ function ResetPassword() {
             <div className="login__spark login__spark--two" aria-hidden="true">✧</div>
             <section className="login__card">
                 <div className="login__card-shine" aria-hidden="true" />
-                <div className="login__brand"><div className="login__brand-mark" style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none", color: "transparent", backgroundImage: "url('/images/logo/jqyd-logo-256.png')", backgroundPosition: "center", backgroundSize: "contain", backgroundRepeat: "no-repeat" }} aria-label="JQ & YD" /><div className="login__brand-name">MAGIC TOUCH<span>DESIGNS</span></div></div>
+                <div className="login__brand"><div className="login__brand-mark" style={{ background: `url('${logoUrl || "/images/logo/jqyd-logo-256.png"}') center / contain no-repeat`, border: 0, borderRadius: 0, boxShadow: "none", color: "transparent", fontSize: 0 }} aria-label="JQ & YD" /><div className="login__brand-name">MAGIC TOUCH<span>DESIGNS</span></div></div>
                 <div className="login__header">
                     <span className="login__eyebrow">{es ? "RECUPERACIÓN SEGURA" : "SECURE RECOVERY"}</span>
                     <h1>{es ? "Crear nueva contraseña" : "Create a new password"}</h1>
@@ -53,26 +62,8 @@ function ResetPassword() {
                     <div className="login__header"><p>{es ? "Tu contraseña fue actualizada correctamente. Ya puedes iniciar sesión desde el inicio." : "Your password has been updated successfully. You can now sign in from the home page."}</p></div>
                 ) : (
                     <form className="login__form" onSubmit={handleSubmit}>
-                        <div className="login__field">
-                            <label htmlFor="reset-password">{es ? "Nueva contraseña" : "New password"}</label>
-                            <div className="login__input">
-                                <Lock size={19} aria-hidden="true" />
-                                <input id="reset-password" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required />
-                                <button type="button" className="login__password-toggle" onClick={() => setShowPassword((visible) => !visible)} aria-label={visibilityLabel(showPassword)} title={visibilityLabel(showPassword)}>
-                                    {showPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}
-                                </button>
-                            </div>
-                        </div>
-                        <div className="login__field">
-                            <label htmlFor="reset-password-confirm">{es ? "Confirmar contraseña" : "Confirm password"}</label>
-                            <div className="login__input">
-                                <Lock size={19} aria-hidden="true" />
-                                <input id="reset-password-confirm" type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                                <button type="button" className="login__password-toggle" onClick={() => setShowConfirmPassword((visible) => !visible)} aria-label={visibilityLabel(showConfirmPassword)} title={visibilityLabel(showConfirmPassword)}>
-                                    {showConfirmPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}
-                                </button>
-                            </div>
-                        </div>
+                        <div className="login__field"><label htmlFor="reset-password">{es ? "Nueva contraseña" : "New password"}</label><div className="login__input"><Lock size={19} aria-hidden="true" /><input id="reset-password" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required /><button type="button" className="login__password-toggle" onClick={() => setShowPassword((visible) => !visible)} aria-label={visibilityLabel(showPassword)} title={visibilityLabel(showPassword)}>{showPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button></div></div>
+                        <div className="login__field"><label htmlFor="reset-password-confirm">{es ? "Confirmar contraseña" : "Confirm password"}</label><div className="login__input"><Lock size={19} aria-hidden="true" /><input id="reset-password-confirm" type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required /><button type="button" className="login__password-toggle" onClick={() => setShowConfirmPassword((visible) => !visible)} aria-label={visibilityLabel(showConfirmPassword)} title={visibilityLabel(showConfirmPassword)}>{showConfirmPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button></div></div>
                         {error && <p role="alert" style={{ color: "#b42318", margin: "-4px 0 4px", fontSize: "13px" }}>{error}</p>}
                         <button type="submit" className="login__submit" disabled={loading}><span>{loading ? (es ? "Actualizando..." : "Updating...") : (es ? "Cambiar contraseña" : "Update password")}</span>{loading ? <Loader2 size={18} className="spin" aria-hidden="true" /> : <span className="login__submit-shine" aria-hidden="true" />}</button>
                     </form>
