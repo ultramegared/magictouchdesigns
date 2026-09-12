@@ -1,15 +1,3 @@
-/**
- * ================================================================
- * Author: ultramegared
- * Project: Magic Touch Designs
- * File: ForgotPassword.tsx
- * Module: Pages / Forgot Password
- * Language: TypeScript React
- * Description:
- * Premium bilingual password recovery page connected to the API.
- * ================================================================
- */
-
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { ArrowLeft, Mail, Loader2 } from "lucide-react";
@@ -83,9 +71,9 @@ function ForgotPassword() {
                     </div>
                 )}
                 <div className="login__register">
-                    <button type="button" onClick={() => { window.location.href = "/login"; }}>
+                    <button type="button" onClick={() => { window.location.href = "/"; }}>
                         <ArrowLeft size={16} aria-hidden="true" />
-                        {t.backToLogin}
+                        {language === "es" ? "Volver al inicio" : "Back to home"}
                     </button>
                 </div>
             </section>
