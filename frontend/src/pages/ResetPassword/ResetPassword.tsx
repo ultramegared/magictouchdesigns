@@ -43,7 +43,7 @@ function ResetPassword() {
             <div className="login__spark login__spark--two" aria-hidden="true">✧</div>
             <section className="login__card">
                 <div className="login__card-shine" aria-hidden="true" />
-                <div className="login__brand"><div className="login__brand-mark">MTD</div><div className="login__brand-name">MAGIC TOUCH<span>DESIGNS</span></div></div>
+                <div className="login__brand"><div className="login__brand-mark" style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none", color: "transparent", backgroundImage: "url('/images/logo/jqyd-logo-256.png')", backgroundPosition: "center", backgroundSize: "contain", backgroundRepeat: "no-repeat" }} aria-label="JQ & YD" /><div className="login__brand-name">MAGIC TOUCH<span>DESIGNS</span></div></div>
                 <div className="login__header">
                     <span className="login__eyebrow">{es ? "RECUPERACIÓN SEGURA" : "SECURE RECOVERY"}</span>
                     <h1>{es ? "Crear nueva contraseña" : "Create a new password"}</h1>

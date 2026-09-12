@@ -55,7 +55,7 @@ function Login() {
             <div className="login__spark login__spark--two" aria-hidden="true">✧</div>
             <section className="login__card">
                 <div className="login__card-shine" aria-hidden="true" />
-                <div className="login__brand"><div className="login__brand-mark">MTD</div><div className="login__brand-name">MAGIC TOUCH<span>DESIGNS</span></div></div>
+                <div className="login__brand"><div className="login__brand-mark" style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none", color: "transparent", backgroundImage: "url('/images/logo/jqyd-logo-256.png')", backgroundPosition: "center", backgroundSize: "contain", backgroundRepeat: "no-repeat" }} aria-label="JQ & YD" /><div className="login__brand-name">MAGIC TOUCH<span>DESIGNS</span></div></div>
                 <div className="login__header"><span className="login__eyebrow">{t.eyebrow}</span><h1>{t.title}</h1><p>{t.description}</p></div>
                 <form className="login__form" onSubmit={handleSubmit}>
                     <div className="login__field"><label htmlFor="login-username">{t.username}</label><div className="login__input"><User size={19} aria-hidden="true" /><input id="login-username" name="username" type="text" placeholder={t.usernamePlaceholder} autoComplete="username" required disabled={isLoading} /></div></div>

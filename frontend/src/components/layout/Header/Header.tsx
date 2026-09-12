@@ -51,7 +51,7 @@ function Header() {
         <header className="header">
             <div className="header__container">
                 <NavLink to="/" className="header__brand" onClick={() => { setMenuOpen(false); setAccountMenuOpen(false); setLoginPopoverOpen(false); }}>
-                    {logoUrl && <img src={logoUrl} alt={localized(localizedWebsiteName, language, websiteName)} className="header__logo" />}
+                    <img src={logoUrl || "/images/logo/jqyd-logo-256.png"} alt="JQ & YD" className="header__logo" />
                     <div className="header__brand-text"><span className="header__brand-title">{brand.title}</span>{brand.subtitle && <span className="header__brand-subtitle">{brand.subtitle}</span>}</div>
                 </NavLink>
                 <nav className="header__nav">{navigation.map(item => <NavLink key={item.id} to={item.path} className={({ isActive }) => item.label === "Customize" ? `header__link header__link--cta ${isActive ? "header__link--active" : ""}` : `header__link ${isActive ? "header__link--active" : ""}`}>{item.label === "Shop" ? t.navigation.shop : item.label === "Company" ? t.navigation.company : item.label === "Support" ? t.navigation.support : item.label === "Home" ? t.navigation.home : item.label === "Products" ? t.navigation.products : item.label === "Collections" ? t.navigation.collections : item.label === "Customize" ? t.navigation.customize : item.label === "Contact" ? t.navigation.contact : item.label}</NavLink>)}</nav>
