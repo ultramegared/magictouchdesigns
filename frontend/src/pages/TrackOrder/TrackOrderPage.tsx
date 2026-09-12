@@ -38,6 +38,13 @@ type Order = {
     carrier: string | null;
     tracking_number: string | null;
     created_at: string;
+    shipping_address?: {
+        address?: string;
+        apartment?: string;
+        city?: string;
+        state?: string;
+        zip?: string;
+    } | null;
     items?: OrderItem[];
 };
 
@@ -204,7 +211,15 @@ function TrackOrderPage() {
                                         <div style={{ padding: 20, borderRadius: 12, background: "rgba(255,255,255,.02)", border: "1px solid rgba(255,255,255,.06)" }}>
                                             <h4 style={{ color: "#f0cf70", margin: "0 0 14px", display: "flex", gap: 8, alignItems: "center" }}><MapPin size={16} />{isEs ? "Envío" : "Shipping"}</h4>
                                             <strong style={{ color: "#fff" }}>{order.customer_first_name} {order.customer_last_name}</strong>
-                                            <p style={{ margin: "8px 0 0", color: "rgba(255,255,255,.58)" }}>{isEs ? "Consulta los detalles de entrega en tu cuenta." : "Delivery details are available in your account."}</p>
+                                            {order.shipping_address?.address ? (
+                                                <p style={{ margin: "8px 0 0", color: "rgba(255,255,255,.58)", lineHeight: 1.55 }}>
+                                                    {order.shipping_address.address}
+                                                    {order.shipping_address.apartment ? <><br />{order.shipping_address.apartment}</> : null}
+                                                    <br />{order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.zip}
+                                                </p>
+                                            ) : (
+                                                <p style={{ margin: "8px 0 0", color: "rgba(255,255,255,.58)" }}>{isEs ? "Los detalles de entrega aparecerán aquí cuando estén disponibles." : "Delivery details will appear here when available."}</p>
+                                            )}
                                         </div>
                                     </div>
 
