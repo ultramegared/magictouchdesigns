@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { LayoutDashboard, ShoppingBag, Users, Star, Image, BarChart3, Settings, Store, Menu, X, LogOut, FolderKanban, Mail } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Users, Star, Image, BarChart3, Settings, Store, Menu, X, LogOut, FolderKanban, Mail, Megaphone } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./AdminSidebar.css";
 
@@ -38,6 +38,7 @@ function AdminSidebar({ username }: AdminSidebarProps) {
                 <div className="admin-sidebar__user"><div className="admin-sidebar__user-avatar">{username ? username.slice(0, 2).toUpperCase() : "AD"}</div><div className="admin-sidebar__user-info"><strong>{username || "Administrator"}</strong><span>Administrator</span></div></div>
                 <nav className="admin-sidebar__nav">
                     <NavLink to="/admin" end className={getNavLinkClass} onClick={closeMobileMenu}><LayoutDashboard size={20} /><span>Dashboard</span></NavLink>
+                    <NavLink to="/admin/marketing" className={getNavLinkClass} onClick={closeMobileMenu}><Megaphone size={20} /><span>Marketing</span></NavLink>
                     <NavLink to="/admin/sales" className={getNavLinkClass} onClick={closeMobileMenu}><BarChart3 size={20} /><span>Sales</span></NavLink>
                     <NavLink to="/admin/orders" className={getNavLinkClass} onClick={closeMobileMenu}><ShoppingBag size={20} /><span>Orders</span></NavLink>
                     <NavLink to="/admin/collections" className={getNavLinkClass} onClick={closeMobileMenu}><FolderKanban size={20} /><span>Collections</span></NavLink>
