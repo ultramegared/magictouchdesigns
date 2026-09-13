@@ -14,10 +14,14 @@ import {
     type CheckoutItemInput,
 } from "./order.service";
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://magictouchdesigns.com";
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://jqydesigns.com";
 
-const getPayPalBaseUrl = (): string =>
-    process.env.PAYPAL_BASE_URL || "https://api-m.sandbox.paypal.com";
+const getPayPalBaseUrl = (): string => {
+    if (process.env.PAYPAL_BASE_URL) return process.env.PAYPAL_BASE_URL;
+    return process.env.PAYPAL_ENVIRONMENT === "live"
+        ? "https://api-m.paypal.com"
+        : "https://api-m.sandbox.paypal.com";
+};
 
 const requirePayPalCredentials = (): { clientId: string; secret: string } => {
     const clientId = process.env.PAYPAL_CLIENT_ID;
@@ -108,8 +112,9 @@ const formatMoney = (amount: number): string => amount.toFixed(2);
 
 export const getPayPalPublicConfig = () => {
     const clientId = process.env.PAYPAL_CLIENT_ID;
+    const secret = process.env.PAYPAL_CLIENT_SECRET;
     return {
-        enabled: Boolean(clientId),
+        enabled: Boolean(clientId && secret),
         clientId: clientId || null,
         currency: "USD",
         environment: getPayPalBaseUrl().includes("sandbox") ? "sandbox" : "live",
@@ -169,7 +174,7 @@ export const createPayPalOrder = async (
             payment_source: {
                 paypal: {
                     experience_context: {
-                        brand_name: "Magic Touch Designs",
+                        brand_name: "JQYD",
                         user_action: "PAY_NOW",
                         shipping_preference: "SET_PROVIDED_ADDRESS",
                         return_url: `${FRONTEND_URL}/checkout/success?paypal=1&order_code=${encodeURIComponent(snapshot.orderCode)}`,
