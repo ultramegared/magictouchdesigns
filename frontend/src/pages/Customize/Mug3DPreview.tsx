@@ -6,9 +6,12 @@
  * Module: Customize
  * Language: TypeScript React
  * Description:
- * Dependency-free interactive mug preview using Canvas. Artwork is
- * mapped continuously to a cylindrical print surface so it remains
- * attached to the mug while the mug rotates.
+ * Dependency-free interactive mug preview using Canvas.
+ *
+ * Artwork is mapped across the full 180° printable front arc:
+ * handle-to-handle. The artwork remains centered on the printable
+ * surface while the mug rotates, with cylindrical perspective and
+ * stronger edge shading.
  * ================================================================
  */
 
@@ -31,20 +34,38 @@ type Mug3DPreviewProps = {
     onRotationChange: (rotation: number) => void;
 };
 
-type DragState = { active: boolean; startX: number; startRotation: number };
+type DragState = {
+    active: boolean;
+    startX: number;
+    startRotation: number;
+};
+
+type Rgb = { r: number; g: number; b: number };
 
 const TAU = Math.PI * 2;
-const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+const PRINT_ARC = Math.PI;
+const PRINT_START = -Math.PI / 2;
+const clamp = (value: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, value));
 
-function hexToRgb(hex: string) {
-    const value = hex.replace("#", "");
-    const normalized = value.length === 3 ? value.split("").map((part) => part + part).join("") : value;
+function hexToRgb(hex: string): Rgb {
+    const value = hex.replace("#", "").trim();
+    const normalized = value.length === 3
+        ? value.split("").map((part) => part + part).join("")
+        : value;
     const parsed = Number.parseInt(normalized, 16);
     return {
         r: (parsed >> 16) & 255,
         g: (parsed >> 8) & 255,
         b: parsed & 255,
     };
+}
+
+function normalizeAngle(angle: number) {
+    let value = angle % TAU;
+    if (value <= -Math.PI) value += TAU;
+    if (value > Math.PI) value -= TAU;
+    return value;
 }
 
 function mugPath(ctx: CanvasRenderingContext2D, body: { x: number; y: number; width: number; height: number }) {
@@ -56,89 +77,80 @@ function mugPath(ctx: CanvasRenderingContext2D, body: { x: number; y: number; wi
     ctx.closePath();
 }
 
-function drawArtworkOnCylinder(
-    ctx: CanvasRenderingContext2D,
-    image: HTMLImageElement,
-    body: { x: number; y: number; width: number; height: number },
-    designScale: number,
-    designX: number,
-    designY: number,
-    designRotation: number,
-    mugRotation: number,
-) {
-    const textureWidth = 1440;
-    const textureHeight = 720;
+function createPrintTexture(image: HTMLImageElement, designScale: number, designX: number, designY: number, designRotation: number) {
+    const textureWidth = 2048;
+    const textureHeight = 900;
     const texture = document.createElement("canvas");
     texture.width = textureWidth;
     texture.height = textureHeight;
     const tctx = texture.getContext("2d");
-    if (!tctx) return;
+    if (!tctx) return texture;
 
     const scale = clamp(designScale, 0.55, 1.55);
     const aspect = image.width / Math.max(1, image.height);
-    const imageHeight = Math.min(textureHeight * 0.76 * scale, textureHeight * 0.92);
-    const imageWidth = Math.min(textureWidth * 0.76 * scale, imageHeight * aspect);
-    const centerX = textureWidth / 2 + (designX / 100) * textureWidth * 0.28;
-    const centerY = textureHeight / 2 - (designY / 100) * textureHeight * 0.28;
+    const maxArtworkWidth = textureWidth * 0.99;
+    const maxArtworkHeight = textureHeight * 0.88;
+    let artworkHeight = maxArtworkHeight * scale;
+    let artworkWidth = artworkHeight * aspect;
+    if (artworkWidth > maxArtworkWidth) {
+        artworkWidth = maxArtworkWidth;
+        artworkHeight = artworkWidth / Math.max(aspect, 0.01);
+    }
+    artworkHeight = Math.min(artworkHeight, textureHeight * 0.96);
 
+    const centerX = textureWidth * 0.5 + (designX / 100) * textureWidth * 0.24;
+    const centerY = textureHeight * 0.5 - (designY / 100) * textureHeight * 0.24;
+    tctx.clearRect(0, 0, textureWidth, textureHeight);
     tctx.save();
     tctx.translate(centerX, centerY);
     tctx.rotate((designRotation * Math.PI) / 180);
     tctx.imageSmoothingEnabled = true;
-    tctx.drawImage(image, -imageWidth / 2, -imageHeight / 2, imageWidth, imageHeight);
+    tctx.drawImage(image, -artworkWidth / 2, -artworkHeight / 2, artworkWidth, artworkHeight);
     tctx.restore();
+    return texture;
+}
 
+function drawArtworkOnMug(ctx: CanvasRenderingContext2D, image: HTMLImageElement, body: { x: number; y: number; width: number; height: number }, designScale: number, designX: number, designY: number, designRotation: number, mugRotation: number) {
+    const texture = createPrintTexture(image, designScale, designX, designY, designRotation);
     ctx.save();
     mugPath(ctx, body);
     ctx.clip();
 
-    const columns = Math.max(220, Math.round(body.width * 1.5));
+    const centerX = body.x + body.width * 0.5;
     const radius = body.width * 0.5;
-    const center = body.x + body.width * 0.5;
-    const halfAngle = Math.PI * 0.5;
-    const turn = ((mugRotation % TAU) + TAU) % TAU;
-    const rotationU = turn / TAU;
+    const columns = Math.max(420, Math.round(body.width * 2.6));
 
     for (let i = 0; i < columns; i += 1) {
-        const t0 = i / columns;
-        const t1 = (i + 1) / columns;
-        const a0 = -halfAngle + t0 * Math.PI;
-        const a1 = -halfAngle + t1 * Math.PI;
-        const mid = (a0 + a1) * 0.5;
+        const u0 = i / columns;
+        const u1 = (i + 1) / columns;
+        const localA0 = PRINT_START + u0 * PRINT_ARC;
+        const localA1 = PRINT_START + u1 * PRINT_ARC;
+        const localMid = (localA0 + localA1) * 0.5;
+        const cameraA0 = normalizeAngle(localA0 + mugRotation);
+        const cameraA1 = normalizeAngle(localA1 + mugRotation);
+        const cameraMid = normalizeAngle(localMid + mugRotation);
+        const depth = Math.cos(cameraMid);
+        if (depth <= 0.015) continue;
 
-        const x0 = center + Math.sin(a0) * radius;
-        const x1 = center + Math.sin(a1) * radius;
-        const x = Math.min(x0, x1);
-        const projectedWidth = Math.max(0.7, Math.abs(x1 - x0) + 0.45);
-
-        // Texture coordinates belong to the mug surface, not the screen.
-        // This keeps the artwork physically attached while the mug rotates.
-        const surfaceU = (rotationU + (mid + Math.PI) / TAU) % 1;
-        const sourceX = surfaceU * textureWidth;
-        const sourceWidth = Math.max(2, (textureWidth / columns) * 1.35);
-        const depth = Math.max(0.08, Math.cos(mid));
-        const shade = 0.84 + depth * 0.16;
+        const x0 = centerX + Math.sin(cameraA0) * radius;
+        const x1 = centerX + Math.sin(cameraA1) * radius;
+        const left = Math.min(x0, x1);
+        const projectedWidth = Math.max(0.5, Math.abs(x1 - x0) + 0.55);
+        const sourceX = u0 * texture.width;
+        const sourceWidth = Math.max(2, (u1 - u0) * texture.width + 1.25);
+        const shade = 0.68 + clamp(depth, 0, 1) * 0.32;
 
         ctx.save();
         ctx.globalAlpha = shade;
         ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(texture, sourceX, 0, sourceWidth, textureHeight, x, body.y, projectedWidth, body.height);
+        ctx.drawImage(texture, sourceX, 0, sourceWidth, texture.height, left, body.y, projectedWidth, body.height);
         ctx.restore();
     }
-
     ctx.restore();
 }
 
-function drawMug(
-    ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number,
-    props: Mug3DPreviewProps,
-    image: HTMLImageElement | null,
-    zoom: number,
-) {
+function drawMug(ctx: CanvasRenderingContext2D, width: number, height: number, props: Mug3DPreviewProps, image: HTMLImageElement | null) {
     ctx.clearRect(0, 0, width, height);
-
     const bg = ctx.createLinearGradient(0, 0, 0, height);
     bg.addColorStop(0, "#fbfaf7");
     bg.addColorStop(0.56, "#f3f0eb");
@@ -151,14 +163,12 @@ function drawMug(
     const mugHeight = Math.min(height * 0.58, width * 0.72) * (props.mugSize === "15 oz" ? 1.08 : 1);
     const mugWidth = mugHeight * 0.93;
     const body = { x: cx - mugWidth / 2, y: cy - mugHeight / 2, width: mugWidth, height: mugHeight };
-    const turn = ((props.rotation % TAU) + TAU) % TAU;
-    const side = Math.sin(turn);
+    const turn = normalizeAngle(props.rotation);
     const bodyRgb = hexToRgb(props.mugBodyColor);
     const accentRgb = hexToRgb(props.mugAccentColor);
 
     ctx.save();
     ctx.translate(cx, cy + mugHeight * 0.57);
-    ctx.scale(1 + Math.abs(side) * 0.05, 1);
     ctx.filter = "blur(9px)";
     const shadow = ctx.createRadialGradient(0, 0, 8, 0, 0, mugWidth * 0.62);
     shadow.addColorStop(0, "rgba(30,24,20,.28)");
@@ -170,27 +180,10 @@ function drawMug(
     ctx.restore();
 
     ctx.save();
-    const facing = Math.cos(turn);
-    const handleScale = 0.68 + Math.abs(facing) * 0.32;
-    const handleX = body.x + body.width * (0.99 + Math.max(0, side) * 0.08);
-    ctx.strokeStyle = `rgb(${accentRgb.r},${accentRgb.g},${accentRgb.b})`;
-    ctx.lineWidth = Math.max(16, mugWidth * 0.105 * handleScale);
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.arc(handleX, cy, mugHeight * 0.22 * handleScale, -Math.PI / 2, Math.PI / 2);
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(255,255,255,.28)";
-    ctx.lineWidth = Math.max(4, mugWidth * 0.022);
-    ctx.beginPath();
-    ctx.arc(handleX - 2, cy - 1, mugHeight * 0.22 * handleScale, -Math.PI / 2, Math.PI / 2);
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.save();
     const mugGradient = ctx.createLinearGradient(body.x, 0, body.x + body.width, 0);
     mugGradient.addColorStop(0, `rgb(${Math.max(0, bodyRgb.r - 24)},${Math.max(0, bodyRgb.g - 24)},${Math.max(0, bodyRgb.b - 24)})`);
-    mugGradient.addColorStop(0.18, `rgb(${Math.min(255, bodyRgb.r + 8)},${Math.min(255, bodyRgb.g + 8)},${Math.min(255, bodyRgb.b + 8)})`);
-    mugGradient.addColorStop(0.50, `rgb(${bodyRgb.r},${bodyRgb.g},${bodyRgb.b})`);
+    mugGradient.addColorStop(0.2, `rgb(${Math.min(255, bodyRgb.r + 8)},${Math.min(255, bodyRgb.g + 8)},${Math.min(255, bodyRgb.b + 8)})`);
+    mugGradient.addColorStop(0.5, `rgb(${bodyRgb.r},${bodyRgb.g},${bodyRgb.b})`);
     mugGradient.addColorStop(0.82, `rgb(${Math.max(0, bodyRgb.r - 12)},${Math.max(0, bodyRgb.g - 12)},${Math.max(0, bodyRgb.b - 12)})`);
     mugGradient.addColorStop(1, `rgb(${Math.max(0, bodyRgb.r - 34)},${Math.max(0, bodyRgb.g - 34)},${Math.max(0, bodyRgb.b - 34)})`);
     ctx.fillStyle = mugGradient;
@@ -198,16 +191,14 @@ function drawMug(
     ctx.fill();
     ctx.restore();
 
-    if (image) {
-        drawArtworkOnCylinder(ctx, image, body, props.designScale, props.designX, props.designY, props.designRotation, props.rotation);
-    }
+    if (image) drawArtworkOnMug(ctx, image, body, props.designScale, props.designX, props.designY, props.designRotation, turn);
 
     ctx.save();
     const sheen = ctx.createLinearGradient(body.x, 0, body.x + body.width, 0);
     sheen.addColorStop(0, "rgba(0,0,0,.18)");
     sheen.addColorStop(0.13, "rgba(255,255,255,.24)");
-    sheen.addColorStop(0.33, "rgba(255,255,255,.07)");
-    sheen.addColorStop(0.72, "rgba(0,0,0,.035)");
+    sheen.addColorStop(0.34, "rgba(255,255,255,.08)");
+    sheen.addColorStop(0.7, "rgba(0,0,0,.035)");
     sheen.addColorStop(1, "rgba(0,0,0,.18)");
     ctx.fillStyle = sheen;
     mugPath(ctx, body);
@@ -221,38 +212,46 @@ function drawMug(
     ctx.fill();
     ctx.fillStyle = `rgb(${Math.max(0, bodyRgb.r - 15)},${Math.max(0, bodyRgb.g - 15)},${Math.max(0, bodyRgb.b - 15)})`;
     ctx.beginPath();
-    ctx.ellipse(cx, body.y + 13, body.width * 0.40, body.width * 0.058, 0, 0, TAU);
+    ctx.ellipse(cx, body.y + 13, body.width * 0.4, body.width * 0.058, 0, 0, TAU);
     ctx.fill();
-    ctx.fillStyle = "rgba(255,255,255,.90)";
+    ctx.fillStyle = "rgba(255,255,255,.9)";
     ctx.beginPath();
     ctx.ellipse(cx, body.y + 10, body.width * 0.31, body.width * 0.035, 0, 0, TAU);
     ctx.fill();
     ctx.restore();
 
+    // Draw the handle after the body/print so the artwork can never cover its junction.
+    const side = Math.sin(turn);
+    const facing = Math.cos(turn);
+    const handleScale = 0.68 + Math.abs(facing) * 0.32;
+    const handleX = body.x + body.width * (0.99 + Math.max(0, side) * 0.08);
     ctx.save();
-    ctx.strokeStyle = "rgba(255,255,255,.68)";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = `rgb(${accentRgb.r},${accentRgb.g},${accentRgb.b})`;
+    ctx.lineWidth = Math.max(16, mugWidth * 0.105 * handleScale);
+    ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.moveTo(body.x + 15, body.y + 25);
-    ctx.quadraticCurveTo(body.x + body.width * 0.5, body.y + 9, body.x + body.width - 15, body.y + 25);
+    ctx.arc(handleX, cy, mugHeight * 0.22 * handleScale, -Math.PI / 2, Math.PI / 2);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(255,255,255,.28)";
+    ctx.lineWidth = Math.max(4, mugWidth * 0.022);
+    ctx.beginPath();
+    ctx.arc(handleX - 2, cy - 1, mugHeight * 0.22 * handleScale, -Math.PI / 2, Math.PI / 2);
     ctx.stroke();
     ctx.restore();
 
-    const angleText = Math.round((turn * 180) / Math.PI);
+    const angleText = Math.round((((turn + TAU) % TAU) * 180) / Math.PI) % 360;
     ctx.save();
     ctx.fillStyle = "rgba(72,56,38,.72)";
     ctx.font = "600 11px system-ui, -apple-system, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(`${angleText}° · LIVE PRODUCT PREVIEW`, cx, height - 28);
+    ctx.fillText(`${angleText}° · HANDLE-TO-HANDLE PRINT`, cx, height - 28);
     ctx.restore();
-    void zoom;
 }
 
 function Mug3DPreview(props: Mug3DPreviewProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imageRef = useRef<HTMLImageElement | null>(null);
     const rotationRef = useRef(props.rotation);
-    const zoomRef = useRef(1);
     const dragRef = useRef<DragState>({ active: false, startX: 0, startRotation: props.rotation });
 
     const render = () => {
@@ -271,7 +270,7 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        drawMug(ctx, width, height, { ...props, rotation: rotationRef.current }, imageRef.current, zoomRef.current);
+        drawMug(ctx, width, height, { ...props, rotation: rotationRef.current }, imageRef.current);
     };
 
     useEffect(() => {
@@ -281,23 +280,11 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
 
     useEffect(() => {
         const image = new Image();
-        image.onload = () => {
-            imageRef.current = image;
-            render();
-        };
-        image.onerror = () => {
-            imageRef.current = null;
-            render();
-        };
+        image.onload = () => { imageRef.current = image; render(); };
+        image.onerror = () => { imageRef.current = null; render(); };
         if (props.designUrl) image.src = props.designUrl;
-        else {
-            imageRef.current = null;
-            render();
-        }
-        return () => {
-            image.onload = null;
-            image.onerror = null;
-        };
+        else { imageRef.current = null; render(); }
+        return () => { image.onload = null; image.onerror = null; };
     }, [props.designUrl]);
 
     useEffect(() => {
@@ -322,40 +309,30 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             props.onRotationChange(next);
             render();
         };
-        const onPointerUp = () => {
-            dragRef.current.active = false;
-            canvas.style.cursor = "grab";
-        };
-        const onWheel = (event: WheelEvent) => {
-            event.preventDefault();
-            zoomRef.current = clamp(zoomRef.current + (event.deltaY > 0 ? -0.08 : 0.08), 0.90, 1.14);
-            render();
-        };
+        const stopDragging = () => { dragRef.current.active = false; canvas.style.cursor = "grab"; };
+        const onWheel = (event: WheelEvent) => { event.preventDefault(); };
         canvas.addEventListener("pointerdown", onPointerDown);
         canvas.addEventListener("pointermove", onPointerMove);
-        canvas.addEventListener("pointerup", onPointerUp);
-        canvas.addEventListener("pointercancel", onPointerUp);
+        canvas.addEventListener("pointerup", stopDragging);
+        canvas.addEventListener("pointercancel", stopDragging);
         canvas.addEventListener("wheel", onWheel, { passive: false });
-        canvas.style.touchAction = "none";
-        canvas.style.cursor = "grab";
         return () => {
             canvas.removeEventListener("pointerdown", onPointerDown);
             canvas.removeEventListener("pointermove", onPointerMove);
-            canvas.removeEventListener("pointerup", onPointerUp);
-            canvas.removeEventListener("pointercancel", onPointerUp);
+            canvas.removeEventListener("pointerup", stopDragging);
+            canvas.removeEventListener("pointercancel", stopDragging);
             canvas.removeEventListener("wheel", onWheel);
         };
-    }, [props.onRotationChange]);
+    });
 
     return (
-        <div className="mug-3d-preview">
-            <div className="mug-3d-preview__topbar">
-                <span className="mug-3d-preview__badge"><span className="mug-3d-preview__live-dot" /> LIVE 3D PREVIEW</span>
-                <span className="mug-3d-preview__size">{props.mugSize} · {props.mugStyle === "solid" ? "Solid" : "Colored Handle"}</span>
+        <div className="mug-3d-preview" role="img" aria-label="3D mug preview">
+            <canvas ref={canvasRef} className="mug-3d-preview__canvas" />
+            <div className="mug-3d-preview__badge">LIVE 3D PREVIEW</div>
+            <div className="mug-3d-preview__size">
+                {props.mugSize} · {props.mugStyle === "colored-handle" ? "Colored Handle" : "Solid"}
             </div>
-            <canvas ref={canvasRef} className="mug-3d-preview__canvas" aria-label="Interactive custom mug preview" />
-            {!props.designUrl && <div className="mug-3d-preview__empty"><strong>Your artwork will appear here</strong><span>Upload an image to see your custom mug come to life.</span></div>}
-            <div className="mug-3d-preview__hint"><span>↔</span> Drag to rotate · Scroll/pinch to zoom · Inspect every side</div>
+            <div className="mug-3d-preview__hint">↔ Drag to rotate · Scroll/pinch to zoom · Inspect every side</div>
         </div>
     );
 }
