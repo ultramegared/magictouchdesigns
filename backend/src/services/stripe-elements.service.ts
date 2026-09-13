@@ -12,7 +12,7 @@ import {
     type CheckoutItemInput,
 } from "./order.service";
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://magictouchdesigns.com";
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://jqydesigns.com";
 const STRIPE_API = "https://api.stripe.com/v1";
 const STRIPE_API_VERSION = "2025-09-30.clover";
 
