@@ -11,6 +11,7 @@ interface GscResponse { connected: boolean; siteUrl?: string; permissionLevel?: 
 interface GaStatus { configured: boolean; propertyId?: string | null; error?: string; }
 interface GaRow { dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }
 interface GaResponse { rows?: GaRow[]; error?: string; }
+interface SearchMetrics { clicks: number; impressions: number; ctr: number; position: number; count: number; }
 type ChannelName = "Google" | "Facebook" | "Instagram" | "TikTok" | "YouTube" | "Pinterest" | "WhatsApp" | "Email";
 type Draft = { id: string; title: string; channel: ChannelName; brief: string; content: string; createdAt: string };
 type Channel = { name: ChannelName; detail: string; icon: LucideIcon; tone: string };
@@ -98,7 +99,7 @@ function AdminMarketing() {
         const d = sales?.daily || [];
         return { orders: d.reduce((a, x) => a + Number(x.orders || 0), 0), revenue: d.reduce((a, x) => a + Number(x.revenue || 0), 0) };
     }, [sales]);
-    const searchMetrics = useMemo(() => gscRows.reduce((a, x) => ({ clicks: a.clicks + Number(x.clicks || 0), impressions: a.impressions + Number(x.impressions || 0), ctr: a.ctr + Number(x.ctr || 0), position: a.position + Number(x.position || 0), count: a.count + 1 }), { clicks: 0, impressions: 0, ctr: 0, position: 0, count: 0 }), [gscRows]);
+    const searchMetrics = useMemo<SearchMetrics>(() => gscRows.reduce<SearchMetrics>((a, x) => ({ clicks: a.clicks + Number(x.clicks || 0), impressions: a.impressions + Number(x.impressions || 0), ctr: a.ctr + Number(x.ctr || 0), position: a.position + Number(x.position || 0), count: a.count + 1 }), { clicks: 0, impressions: 0, ctr: 0, position: 0, count: 0 }), [gscRows]);
     const gaMetrics = useMemo(() => gaRows.reduce((a, x) => { const m = x.metricValues || []; return { users: a.users + Number(m[0]?.value || 0), sessions: a.sessions + Number(m[1]?.value || 0), views: a.views + Number(m[2]?.value || 0), revenue: a.revenue + Number(m[3]?.value || 0) }; }, { users: 0, sessions: 0, views: 0, revenue: 0 }), [gaRows]);
     const chart = useMemo(() => { const d = sales?.daily || []; if (!d.length) return "0,100 100,100 200,100 300,100"; const max = Math.max(...d.map(x => Number(x.revenue || 0)), 1); return d.map((x, i) => `${(d.length === 1 ? 150 : (i / (d.length - 1)) * 300).toFixed(1)},${(100 - (Number(x.revenue || 0) / max) * 82).toFixed(1)}`).join(" "); }, [sales]);
 
