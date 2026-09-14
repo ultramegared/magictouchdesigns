@@ -21,6 +21,10 @@ type ParcelProfile = { length: number; width: number; height: number; weight: nu
 
 const EASYPOST_API = "https://api.easypost.com/v2";
 
+// JQYDDesigns shipping rule: one 15 oz mug = 15 oz billable product weight.
+// Quantity scales linearly: 2 mugs = 30 oz, 3 = 45 oz, 4 = 60 oz, etc.
+const MUG_WEIGHT_OZ = 15;
+
 const requiredEnv = (name: string): string => {
     const value = process.env[name]?.trim();
     if (!value) throw new Error(`${name} is not configured.`);
@@ -46,7 +50,8 @@ const parseProfiles = (): ParcelProfile[] => {
             length: Number(item.length),
             width: Number(item.width),
             height: Number(item.height),
-            weight: Number(item.weight),
+            // Weight is controlled by the JQYDDesigns 15 oz-per-mug rule below.
+            weight: MUG_WEIGHT_OZ,
         };
         if (![profile.length, profile.width, profile.height, profile.weight].every((n) => Number.isFinite(n) && n > 0)) {
             throw new Error("Invalid shipping package profile. Dimensions are inches and weight is ounces.");
@@ -60,15 +65,14 @@ const buildParcel = (items: ShippingItem[]): ParcelProfile => {
     const profiles = parseProfiles();
     const totalQuantity = items.reduce((sum, item) => sum + Math.max(1, Math.floor(Number(item.quantity) || 0)), 0);
     const base = profiles[0];
-    if (profiles.length === 1 || totalQuantity <= 1) return base;
 
-    // Pack multiple units conservatively into the configured base profile.
-    // Product-specific package profiles can be added later without changing the API contract.
+    // Product weight is exactly 15 oz per mug and scales linearly with quantity.
+    // Dimensions scale conservatively for multiple mugs so EasyPost can quote a realistic parcel.
     return {
         length: base.length,
         width: base.width,
-        height: Number((base.height * Math.ceil(totalQuantity / 2)).toFixed(1)),
-        weight: Number((base.weight * totalQuantity).toFixed(1)),
+        height: Number((base.height * Math.max(1, Math.ceil(totalQuantity / 2))).toFixed(1)),
+        weight: Number((MUG_WEIGHT_OZ * totalQuantity).toFixed(1)),
     };
 };
 
