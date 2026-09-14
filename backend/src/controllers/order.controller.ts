@@ -12,6 +12,7 @@ import {
 } from "../services/order.service";
 import { capturePayPalOrder, createPayPalOrder, getPayPalPublicConfig } from "../services/paypal.service";
 import { createStripeElementsCheckout, getStripeElementsPublicConfig } from "../services/stripe-elements.service";
+import { calculateCheckoutQuote } from "../services/checkout-quote.service";
 
 export const createCheckout = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -43,6 +44,17 @@ export const createStripeElements = async (req: Request, res: Response): Promise
         };
         res.status(201).json(await createStripeElementsCheckout(customer, items || []));
     } catch (error) { console.error("Create Stripe Elements checkout error:", error); res.status(400).json({ message: error instanceof Error ? error.message : "Unable to start card checkout." }); }
+};
+
+export const getCheckoutQuote = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const customer = req.body?.customer as CheckoutCustomerInput;
+        const items = req.body?.items as CheckoutItemInput[];
+        res.json(await calculateCheckoutQuote(customer, items || []));
+    } catch (error) {
+        console.error("Checkout quote error:", error);
+        res.status(400).json({ message: error instanceof Error ? error.message : "Unable to calculate checkout totals." });
+    }
 };
 
 export const getPayPalConfig = (_req: Request, res: Response): void => { res.json(getPayPalPublicConfig()); };
@@ -106,9 +118,7 @@ export const stripeWebhook = async (req: Request, res: Response): Promise<void> 
             const customerDetails = session?.customer_details || {};
             const shippingDetails = session?.shipping_details || {};
             const shippingAddress = shippingDetails?.address || {};
-            const name = String(
-                shippingDetails?.name || customerDetails?.name || "",
-            ).trim();
+            const name = String(shippingDetails?.name || customerDetails?.name || "").trim();
             const nameParts = name.split(/\s+/).filter(Boolean);
             const firstName = nameParts.shift() || "";
             const lastName = nameParts.join(" ") || "";
