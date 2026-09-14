@@ -1,31 +1,6 @@
 import { getProductById } from "./product.service";
 import type { CheckoutCustomerInput, CheckoutItemInput } from "./order.service";
-
-const getConfiguredShippingCents = (zip: string): number => {
-    const normalizedZip = String(zip || "").trim().replace(/[^0-9]/g, "").slice(0, 5);
-    if (!normalizedZip) throw new Error("A ZIP Code is required to calculate shipping.");
-    try {
-        const raw = process.env.SHIPPING_ZIP_RATES_CENTS;
-        if (!raw) throw new Error("Shipping rates are not configured.");
-        const parsed = JSON.parse(raw) as Record<string, unknown>;
-        const rates = Object.fromEntries(
-            Object.entries(parsed)
-                .filter(([, value]) => Number.isFinite(Number(value)) && Number(value) >= 0)
-                .map(([key, value]) => [key.trim(), Math.round(Number(value))]),
-        ) as Record<string, number>;
-        const exact = rates[normalizedZip];
-        if (exact !== undefined) return exact;
-        const prefix3 = rates[normalizedZip.slice(0, 3)];
-        if (prefix3 !== undefined) return prefix3;
-        const prefix1 = rates[normalizedZip.slice(0, 1)];
-        if (prefix1 !== undefined) return prefix1;
-        if (rates.default !== undefined) return rates.default;
-        throw new Error("Shipping is not available for this ZIP Code.");
-    } catch (error) {
-        if (error instanceof Error) throw error;
-        throw new Error("Unable to calculate shipping for this ZIP Code.");
-    }
-};
+import { getShippingQuote } from "./shipping.service";
 
 const calculateTax = async (
     customer: CheckoutCustomerInput,
@@ -92,7 +67,22 @@ export const calculateCheckoutQuote = async (
     }
 
     const subtotal = normalizedItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
-    const shippingCents = getConfiguredShippingCents(customer.zip);
+    const shippingQuote = await getShippingQuote(
+        {
+            firstName: customer.firstName,
+            lastName: customer.lastName,
+            email: customer.email,
+            phone: customer.phone,
+            address: customer.address,
+            apartment: customer.apartment,
+            city: customer.city,
+            state: customer.state,
+            zip: customer.zip,
+            country: "US",
+        },
+        normalizedItems,
+    );
+    const shippingCents = shippingQuote.shippingCents;
     const shipping = shippingCents / 100;
     const tax = await calculateTax(customer, normalizedItems, shippingCents);
     const total = subtotal + shipping + tax;
@@ -103,5 +93,10 @@ export const calculateCheckoutQuote = async (
         tax: Number(tax.toFixed(2)),
         total: Number(total.toFixed(2)),
         shippingCents,
+        shippingCarrier: shippingQuote.carrier,
+        shippingService: shippingQuote.service,
+        shippingDeliveryDays: shippingQuote.deliveryDays,
+        shippingShipmentId: shippingQuote.shipmentId,
+        shippingRateId: shippingQuote.rateId,
     };
 };
