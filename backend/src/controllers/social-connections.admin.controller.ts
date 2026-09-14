@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { disconnect, getConnectUrl, getConnections, isSocialProvider, publishMeta, type SocialChannel } from "../services/social-connections.service";
+import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
@@ -30,7 +30,6 @@ export async function socialCallback(req: Request, res: Response) {
         const code = String(req.query.code || "");
         const state = String(req.query.state || "");
         if (!code || !state) throw new Error(String(req.query.error_description || req.query.error || "Authorization was cancelled."));
-        const { handleCallback } = await import("../services/social-connections.service");
         await handleCallback(provider, code, state);
         res.redirect(`${process.env.FRONTEND_PUBLIC_URL || "https://jqydesigns.com"}/admin/marketing?social=connected&provider=${encodeURIComponent(provider)}`);
     } catch (error) {
