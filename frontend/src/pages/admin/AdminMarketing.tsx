@@ -11,6 +11,7 @@ interface GscResponse { connected: boolean; siteUrl?: string; error?: string; }
 interface GaStatus { configured: boolean; propertyId?: string | null; error?: string; }
 interface GaRow { metricValues?: Array<{ value?: string }> }
 interface GaResponse { rows?: GaRow[]; error?: string; }
+interface SearchMetrics { clicks: number; impressions: number; ctr: number; position: number; count: number; }
 type SocialChannel = "facebook" | "instagram" | "tiktok" | "youtube" | "pinterest" | "whatsapp";
 type ChannelName = "Google" | "Facebook" | "Instagram" | "TikTok" | "YouTube" | "Pinterest" | "WhatsApp" | "Email";
 type Channel = { name: ChannelName; detail: string; icon: LucideIcon; tone: string; social?: SocialChannel; provider?: "meta" | "tiktok" | "youtube" | "pinterest" };
@@ -97,7 +98,7 @@ function AdminMarketing() {
         const daily = sales?.daily || [];
         return { orders: daily.reduce((sum, row) => sum + Number(row.orders || 0), 0), revenue: daily.reduce((sum, row) => sum + Number(row.revenue || 0), 0) };
     }, [sales]);
-    const searchMetrics = useMemo(() => gscRows.reduce((sum, row) => ({ clicks: sum.clicks + Number(row.clicks || 0), impressions: sum.impressions + Number(row.impressions || 0), ctr: sum.ctr + Number(row.ctr || 0), position: sum.position + Number(row.position || 0), count: sum.count + 1 }), { clicks: 0, impressions: 0, ctr: 0, position: 0, count: 0 }), [gscRows]);
+    const searchMetrics = useMemo<SearchMetrics>(() => gscRows.reduce<SearchMetrics>((sum, row) => ({ clicks: sum.clicks + Number(row.clicks || 0), impressions: sum.impressions + Number(row.impressions || 0), ctr: sum.ctr + Number(row.ctr || 0), position: sum.position + Number(row.position || 0), count: sum.count + 1 }), { clicks: 0, impressions: 0, ctr: 0, position: 0, count: 0 }), [gscRows]);
     const gaMetrics = useMemo(() => gaRows.reduce((sum, row) => { const metrics = row.metricValues || []; return { users: sum.users + Number(metrics[0]?.value || 0), sessions: sum.sessions + Number(metrics[1]?.value || 0), views: sum.views + Number(metrics[2]?.value || 0), revenue: sum.revenue + Number(metrics[3]?.value || 0) }; }, { users: 0, sessions: 0, views: 0, revenue: 0 }), [gaRows]);
 
     const isConnected = (channel: Channel) => channel.social ? Boolean(social.channels?.[channel.social]) : channel.name === "Google" ? Boolean(gsc?.connected || ga?.configured) : false;
