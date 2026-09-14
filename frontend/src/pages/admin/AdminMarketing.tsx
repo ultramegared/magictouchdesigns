@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BarChart3, CheckCircle2, Clock3, Image, Link2, Mail, MessageCircle, MousePointer2, Play, Plus, RefreshCw, Search, Send, Sparkles, TrendingUp, Unplug, Users, Video, X, Loader2 } from "lucide-react";
+import { BarChart3, CheckCircle2, Clock3, Image, Link2, Mail, MessageCircle, MousePointer2, Play, RefreshCw, Search, Send, Sparkles, TrendingUp, Unplug, Users, Video, X, Loader2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { apiRequest } from "../../services/api";
 import AdminSidebar from "./AdminSidebar";
