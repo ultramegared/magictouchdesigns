@@ -1,10 +1,18 @@
 import type { Request, Response } from "express";
-import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, type SocialChannel } from "../services/social-connections.service";
+import { disconnect, getConnectUrl, getConnections, isSocialProvider, publishMeta, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
     try { res.json(await getConnections(String(req.user!.userId))); }
     catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Unable to load social connections." }); }
+}
+
+export function socialAuthorize(req: AuthenticatedRequest, res: Response) {
+    try {
+        const provider = String(req.params.provider);
+        if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
+        res.json({ url: getConnectUrl(provider, String(req.user!.userId)) });
+    } catch (error) { res.status(503).json({ error: error instanceof Error ? error.message : "Social integration is not configured." }); }
 }
 
 export function socialConnect(req: AuthenticatedRequest, res: Response) {
@@ -22,6 +30,7 @@ export async function socialCallback(req: Request, res: Response) {
         const code = String(req.query.code || "");
         const state = String(req.query.state || "");
         if (!code || !state) throw new Error(String(req.query.error_description || req.query.error || "Authorization was cancelled."));
+        const { handleCallback } = await import("../services/social-connections.service");
         await handleCallback(provider, code, state);
         res.redirect(`${process.env.FRONTEND_PUBLIC_URL || "https://jqydesigns.com"}/admin/marketing?social=connected&provider=${encodeURIComponent(provider)}`);
     } catch (error) {
