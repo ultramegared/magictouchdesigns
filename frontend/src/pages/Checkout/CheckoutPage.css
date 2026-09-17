@@ -240,11 +240,15 @@
 .checkout-fields input:-webkit-autofill:hover,
 .checkout-fields input:-webkit-autofill:focus,
 .checkout-fields input:-webkit-autofill:active {
-    -webkit-text-fill-color: #fff;
+    -webkit-text-fill-color: #fff !important;
     caret-color: #fff;
+    color-scheme: dark;
+    background: #111 !important;
     background-color: #111 !important;
-    -webkit-box-shadow: 0 0 0 1000px #111 inset;
-    box-shadow: 0 0 0 1000px #111 inset;
+    background-image: none !important;
+    -webkit-box-shadow: 0 0 0 1000px #111 inset !important;
+    box-shadow: 0 0 0 1000px #111 inset !important;
+    -webkit-background-clip: padding-box;
     border-color: rgba(224, 173, 67, 0.45);
     transition: background-color 9999s ease-out 0s;
 }
