@@ -239,18 +239,33 @@
 .checkout-fields input:-webkit-autofill,
 .checkout-fields input:-webkit-autofill:hover,
 .checkout-fields input:-webkit-autofill:focus,
-.checkout-fields input:-webkit-autofill:active {
+.checkout-fields input:-webkit-autofill:active,
+.checkout-fields input:autofill {
+    -webkit-appearance: none !important;
+    appearance: none !important;
     -webkit-text-fill-color: #fff !important;
     caret-color: #fff;
     color-scheme: dark;
-    background: #111 !important;
-    background-color: #111 !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+    background-color: rgba(0, 0, 0, 0.35) !important;
     background-image: none !important;
-    -webkit-box-shadow: 0 0 0 1000px #111 inset !important;
-    box-shadow: 0 0 0 1000px #111 inset !important;
-    -webkit-background-clip: padding-box;
-    border-color: rgba(224, 173, 67, 0.45);
-    transition: background-color 9999s ease-out 0s;
+    background-clip: padding-box !important;
+    -webkit-background-clip: padding-box !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.35) inset !important;
+    box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.35) inset !important;
+    border-color: rgba(255, 255, 255, 0.13) !important;
+    transition: background-color 9999s ease-out 0s !important;
+}
+
+.checkout-fields input.checkout-autofill-value {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    -webkit-text-fill-color: #fff !important;
+    color: #fff !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+    background-color: rgba(0, 0, 0, 0.35) !important;
+    box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.35) inset !important;
+    border-color: rgba(255, 255, 255, 0.13) !important;
 }
 
 
