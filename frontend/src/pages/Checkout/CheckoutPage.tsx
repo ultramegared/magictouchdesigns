@@ -36,6 +36,17 @@ type PayPalSdk = {
     createInstance: (options: { clientId: string; components: string[]; pageType: string; locale?: string }) => Promise<any>;
 };
 
+type CheckoutQuote = {
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    total: number;
+    shippingCents?: number;
+    shippingCarrier?: string;
+    shippingService?: string;
+    shippingDeliveryDays?: number | null;
+};
+
 declare global {
     interface Window {
         Stripe?: (key: string) => StripeInstance;
@@ -89,6 +100,9 @@ function CheckoutPage() {
     const [paypalEnabled, setPaypalEnabled] = useState(false);
     const [error, setError] = useState("");
     const [paypalError, setPaypalError] = useState("");
+    const [quote, setQuote] = useState<CheckoutQuote | null>(null);
+    const [quoteLoading, setQuoteLoading] = useState(false);
+    const [quoteError, setQuoteError] = useState("");
 
     useEffect(() => {
         const items = getCartItems();
@@ -99,8 +113,9 @@ function CheckoutPage() {
     useEffect(() => () => stripeCleanupRef.current?.(), []);
 
     const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shipping = subtotal ? 5.99 : 0;
-    const baseTotal = subtotal + shipping;
+    const shipping = quote?.shipping ?? (subtotal ? 5.99 : 0);
+    const tax = quote?.tax ?? null;
+    const baseTotal = quote?.total ?? subtotal + shipping;
 
     const update = (key: keyof typeof form, value: string) =>
         setForm((f) => ({ ...f, [key]: value }));
@@ -141,6 +156,69 @@ function CheckoutPage() {
             };
         }),
     });
+
+    useEffect(() => {
+        if (!cartItems.length) {
+            setQuote(null);
+            return;
+        }
+
+        const customerReady =
+            form.firstName.trim().length > 0 &&
+            form.lastName.trim().length > 0 &&
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()) &&
+            form.address.trim().length > 0 &&
+            form.city.trim().length > 0 &&
+            form.state.trim().length > 0 &&
+            /^\d{5}(?:-\d{4})?$/.test(form.zip.trim()) &&
+            (form.deliveryType !== "apartment" || form.apartment.trim().length > 0);
+
+        if (!customerReady) {
+            setQuote(null);
+            setQuoteError("");
+            setQuoteLoading(false);
+            return;
+        }
+
+        const controller = new AbortController();
+        const timer = window.setTimeout(async () => {
+            setQuoteLoading(true);
+            setQuoteError("");
+            try {
+                const r = await fetch(`${API_URL}/orders/quote`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload()),
+                    signal: controller.signal,
+                });
+                const d = (await r.json()) as Partial<CheckoutQuote> & { message?: string };
+                if (!r.ok || typeof d.subtotal !== "number" || typeof d.shipping !== "number" || typeof d.tax !== "number" || typeof d.total !== "number") {
+                    throw new Error(d.message || "Unable to calculate shipping and tax.");
+                }
+                setQuote({
+                    subtotal: d.subtotal,
+                    shipping: d.shipping,
+                    tax: d.tax,
+                    total: d.total,
+                    shippingCents: d.shippingCents,
+                    shippingCarrier: d.shippingCarrier,
+                    shippingService: d.shippingService,
+                    shippingDeliveryDays: d.shippingDeliveryDays,
+                });
+            } catch (x) {
+                if (controller.signal.aborted) return;
+                setQuote(null);
+                setQuoteError(x instanceof Error ? x.message : "Unable to calculate shipping and tax.");
+            } finally {
+                if (!controller.signal.aborted) setQuoteLoading(false);
+            }
+        }, 500);
+
+        return () => {
+            window.clearTimeout(timer);
+            controller.abort();
+        };
+    }, [cartItems, form]);
 
     const prepareStripe = async () => {
         if (stripeReady || stripeStartingRef.current) return;
@@ -482,11 +560,13 @@ function CheckoutPage() {
                             </div>
                             <div className="checkout-summary__totals">
                                 <div><span>Subtotal</span><strong>${subtotal.toFixed(2)}</strong></div>
-                                <div><span>Shipping</span><strong>${shipping.toFixed(2)}</strong></div>
-                                <div><span>Sales Tax</span><span>Calculated at checkout</span></div>
-                                <div className="checkout-summary__total"><span>Total before tax</span><strong>${baseTotal.toFixed(2)}</strong></div>
+                                <div><span>Shipping</span><strong>{quoteLoading ? "Calculating…" : `$${shipping.toFixed(2)}`}</strong></div>
+                                <div><span>Sales Tax</span><strong>{quoteLoading ? "Calculating…" : tax === null ? "Enter address" : `$${tax.toFixed(2)}`}</strong></div>
+                                <div className="checkout-summary__total"><span>Total</span><strong>{quoteLoading ? "Calculating…" : `$${baseTotal.toFixed(2)}`}</strong></div>
                             </div>
-                            <p className="checkout-summary__note">Applicable sales tax is calculated from the shipping destination. Shipping is charged to the customer.</p>
+                            {quote?.shippingCarrier && <p className="checkout-summary__note">Shipping: {quote.shippingCarrier}{quote.shippingService ? ` · ${quote.shippingService}` : ""}{quote.shippingDeliveryDays ? ` · ${quote.shippingDeliveryDays} business days` : ""}</p>}
+                            {quoteError && <p className="checkout-error" role="alert">{quoteError}</p>}
+                            <p className="checkout-summary__note">Shipping and applicable sales tax are calculated from the delivery destination. Final payment totals are recalculated securely by the server.</p>
                             <Link to="/cart">← Back to Cart</Link>
                         </aside>
                     </form>
