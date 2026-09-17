@@ -74,23 +74,32 @@ function CheckoutPage() {
         const formEl = formRef.current;
         if (!formEl) return;
         const values = new FormData(formEl);
-        const next = {
+        setForm((current) => ({
+            ...current,
             firstName: String(values.get("firstName") || ""),
             lastName: String(values.get("lastName") || ""),
             email: String(values.get("email") || ""),
             phone: String(values.get("phone") || ""),
-            deliveryType: form.deliveryType,
             address: String(values.get("address") || ""),
             apartment: String(values.get("apartment") || ""),
             city: String(values.get("city") || ""),
             state: String(values.get("state") || ""),
             zip: String(values.get("zip") || ""),
-        } as typeof form;
-        setForm((current) => {
-            if (JSON.stringify(current) === JSON.stringify(next)) return current;
-            return next;
-        });
+        }));
     };
+
+    // iOS/Safari can apply saved contact/address data without firing React's
+    // change/input events. Poll the native form briefly so autofill is reflected
+    // in React state and the shipping/tax quote starts automatically.
+    useEffect(() => {
+        const sync = () => syncAutofilledFields();
+        const interval = window.setInterval(sync, 300);
+        const frame = window.requestAnimationFrame(sync);
+        return () => {
+            window.clearInterval(interval);
+            window.cancelAnimationFrame(frame);
+        };
+    }, []);
     const valid = () => { syncAutofilledFields(); return Boolean(formRef.current?.reportValidity()); };
 
     const payload = () => ({ customer: form, items: cartItems.map((item) => {
