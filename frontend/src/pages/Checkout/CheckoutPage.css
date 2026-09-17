@@ -235,6 +235,19 @@
     color: rgba(255, 255, 255, 0.35);
 }
 
+/* Keep iOS/Safari Autofill visually consistent with the dark premium checkout. */
+.checkout-fields input:-webkit-autofill,
+.checkout-fields input:-webkit-autofill:hover,
+.checkout-fields input:-webkit-autofill:focus,
+.checkout-fields input:-webkit-autofill:active {
+    -webkit-text-fill-color: #fff;
+    caret-color: #fff;
+    -webkit-box-shadow: 0 0 0 1000px #111 inset;
+    box-shadow: 0 0 0 1000px #111 inset;
+    border-color: rgba(224, 173, 67, 0.45);
+    transition: background-color 9999s ease-out 0s;
+}
+
 
 .checkout-fields input:focus {
     border-color: rgba(224, 173, 67, 0.75);
