@@ -3,12 +3,14 @@
  */
 
 import { Router } from "express";
-import { capturePayPalCheckout, createCheckout, createPayPalCheckout, createStripeElements, getCheckoutQuote, getOrder, getOrderByCheckoutSession, getPayPalClientToken, getPayPalConfig, getStripeConfig } from "../controllers/order.controller";
+import { capturePayPalCheckout, createCheckout, createPayPalCheckout, createStripeApplePay, createStripeElements, getCheckoutQuote, getOrder, getOrderByCheckoutSession, getPayPalClientToken, getPayPalConfig, getStripeConfig, updateApplePayShipping } from "../controllers/order.controller";
 
 const router = Router();
 
 router.get("/stripe/config", getStripeConfig);
 router.post("/stripe/custom", createStripeElements);
+router.post("/stripe/apple-pay", createStripeApplePay);
+router.post("/stripe/apple-pay/shipping", updateApplePayShipping);
 router.post("/quote", getCheckoutQuote);
 router.get("/paypal/config", getPayPalConfig);
 router.get("/paypal/client-token", getPayPalClientToken);

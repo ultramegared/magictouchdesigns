@@ -52,6 +52,7 @@ function CheckoutPage() {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", deliveryType: "house" as "house" | "apartment", address: "", apartment: "", city: "", state: "", zip: "" });
         const [stripeReady, setStripeReady] = useState(false);
+    const [appleReady, setAppleReady] = useState(false);
     const [appleAvailable, setAppleAvailable] = useState<boolean | null>(null);
     const [loading, setLoading] = useState(false);
     const [paypalLoading, setPaypalLoading] = useState(true);
@@ -198,9 +199,162 @@ function CheckoutPage() {
         finally { setLoading(false); }
     };
 
-    // Keep all payment providers visible. Stripe/Apple Pay initialize as soon as the
-    // destination is complete enough to calculate the server-side quote.
-    useEffect(() => { if (cartItems.length && addressReady) void prepareStripe(); }, [cartItems.length, addressReady]);
+    const prepareApplePay = async () => {
+        if (!cartItems.length || appleReady) return;
+        try {
+            const cfg = (await (await fetch(`${API_URL}/orders/stripe/config`)).json()) as { enabled?: boolean; publishableKey?: string };
+            if (!cfg.enabled || !cfg.publishableKey) throw new Error("Apple Pay is not configured in Stripe.");
+            await loadScript("stripe-js-clover", "https://js.stripe.com/clover/stripe.js");
+            if (!window.Stripe) throw new Error("Stripe could not be loaded.");
+            const r = await fetch(`${API_URL}/orders/stripe/apple-pay`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload()),
+            });
+            const d = (await r.json()) as { clientSecret?: string; orderCode?: string; sessionId?: string; message?: string };
+            if (!r.ok || !d.clientSecret || !d.orderCode || !d.sessionId) throw new Error(d.message || "Unable to initialize Apple Pay.");
+
+            const checkout = window.Stripe(cfg.publishableKey).initCheckout({
+                clientSecret: d.clientSecret,
+                elementsOptions: {
+                    appearance: {
+                        theme: "night",
+                        variables: {
+                            colorPrimary: "#E0AD43",
+                            colorBackground: "#111111",
+                            colorText: "#F5F5F5",
+                            colorTextSecondary: "#C9C9C9",
+                            colorDanger: "#F36B6B",
+                            borderRadius: "10px",
+                            fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+                        }
+                    }
+                },
+                defaultValues: {
+                    email: readCustomerForm().email.trim().toLowerCase(),
+                    phoneNumber: readCustomerForm().phone.trim(),
+                    shippingAddress: {
+                        name: `${readCustomerForm().firstName} ${readCustomerForm().lastName}`.trim(),
+                        address: {
+                            country: "US",
+                            line1: readCustomerForm().address,
+                            line2: readCustomerForm().apartment || undefined,
+                            city: readCustomerForm().city,
+                            state: readCustomerForm().state.toUpperCase(),
+                            postal_code: readCustomerForm().zip
+                        }
+                    }
+                }
+            });
+
+            const actions = await checkout.loadActions();
+            if (actions.type !== "success") throw new Error(actions.error.message || "Apple Pay could not initialize.");
+            stripeSessionRef.current = { id: d.sessionId, code: d.orderCode };
+            const express = checkout.createExpressCheckoutElement({
+                buttonHeight: 52,
+                buttonType: { applePay: "check-out" },
+                buttonTheme: { applePay: "black" },
+                paymentMethods: {
+                    applePay: "auto",
+                    googlePay: "never",
+                    link: "never",
+                    paypal: "never",
+                    amazonPay: "never",
+                    klarna: "never"
+                },
+                paymentMethodOrder: ["applePay"],
+                shippingAddressRequired: true,
+                allowedShippingCountries: ["US"],
+                shippingRates: [{
+                    id: "pending-shipping",
+                    displayName: "Shipping calculated from your delivery ZIP",
+                    amount: 0,
+                    deliveryEstimate: {
+                        minimum: { unit: "day", value: 5 },
+                        maximum: { unit: "day", value: 10 }
+                    }
+                }]
+            } as any);
+
+            if (!stripeAppleRef.current) throw new Error("Apple Pay area is unavailable.");
+            stripeAppleRef.current.replaceChildren();
+            express.mount(stripeAppleRef.current);
+
+            express.on("shippingaddresschange", async (event: any) => {
+                try {
+                    const current = readCustomerForm();
+                    const walletAddress = event?.address || {};
+                    const walletZip = String(walletAddress.postal_code || "").trim();
+                    const walletCity = String(walletAddress.city || "").trim();
+                    const walletState = String(walletAddress.state || "").trim();
+                    if (!walletZip || !walletCity || !walletState) throw new Error("Apple Pay needs your ZIP code, city, and state.");
+                    if (current.zip.trim() && current.zip.trim() !== walletZip) throw new Error("The Apple Pay delivery ZIP must match the ZIP entered in checkout.");
+                    const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            sessionId: d.sessionId,
+                            shippingDetails: {
+                                name: `${current.firstName} ${current.lastName}`.trim(),
+                                address: {
+                                    country: "US",
+                                    line1: current.address,
+                                    line2: current.apartment || undefined,
+                                    city: walletCity,
+                                    state: walletState,
+                                    postal_code: walletZip
+                                }
+                            }
+                        })
+                    });
+                    const result = (await response.json()) as { message?: string };
+                    if (!response.ok) throw new Error(result.message || "Unable to calculate Apple Pay shipping.");
+                    event.resolve();
+                } catch (x) {
+                    event.reject();
+                    setError(x instanceof Error ? x.message : "Unable to calculate Apple Pay shipping.");
+                }
+            });
+
+            express.on("availablepaymentmethodschange", (e: any) => {
+                const methods = e?.paymentMethods ?? e?.availablePaymentMethods ?? null;
+                setAppleAvailable(Boolean(methods?.applePay));
+            });
+            express.on("ready", (e: any) => {
+                const methods = e?.availablePaymentMethods;
+                if (methods) setAppleAvailable(Boolean(methods.applePay));
+            });
+            express.on("confirm", async (e: any) => {
+                setLoading(true);
+                try {
+                    const result = await actions.actions.confirm({ expressCheckoutConfirmEvent: e });
+                    if (result?.type === "error") {
+                        setError(result.error?.message || "Apple Pay payment could not be completed.");
+                        setLoading(false);
+                    }
+                } catch (x) {
+                    setError(x instanceof Error ? x.message : "Apple Pay payment could not be completed.");
+                    setLoading(false);
+                }
+            });
+
+            stripeCleanupRef.current = () => {
+                express.unmount?.();
+                stripeAppleRef.current?.replaceChildren();
+                stripeActionsRef.current = null;
+            };
+            setAppleReady(true);
+        } catch (x) {
+            setAppleReady(false);
+            setError(x instanceof Error ? x.message : "Unable to initialize Apple Pay.");
+        }
+    };
+
+    // Apple Pay has its own Stripe Checkout Session and does not wait for EasyPost
+    // to mount. Shipping is recalculated from the destination during the wallet flow.
+    useEffect(() => {
+        if (cartItems.length) void prepareApplePay();
+    }, [cartItems.length]);
 
     const submit = async (e: FormEvent<HTMLFormElement>) => { e.preventDefault(); const customer = syncAutofilledFields(); if (!valid()) return; if (!stripeReady) await prepareStripe(customer); const actions = stripeActionsRef.current; if (!actions) return setError("Secure card payment is not ready."); setLoading(true); setError(""); try { const r = await actions.confirm({ redirect: "if_required" }); if (r?.type === "error") { setError(r.error?.message || "Card payment could not be completed."); setLoading(false); } else if (r?.type === "success") window.location.assign(`/checkout/success?session_id=${encodeURIComponent(stripeSessionRef.current.id)}&order_code=${encodeURIComponent(stripeSessionRef.current.code)}`); } catch (x) { setError(x instanceof Error ? x.message : "Card payment could not be completed."); setLoading(false); } };
 
@@ -228,6 +382,6 @@ function CheckoutPage() {
         return () => { cancelled = true; };
     }, [cartItems.length]);
 
-    return (<><Header /><main className="checkout-page"><section className="checkout-hero"><div className="checkout-hero__background"><img src="/images/cart/cart-hero-background.jpg" alt="Magic Touch Designs" /></div><div className="checkout-hero__overlay" /><div className="checkout-hero__content"><span>SECURE CHECKOUT</span><h1>Complete Your Order</h1><p>Enter your delivery information and choose your secure payment method.</p></div></section><section className="checkout-container"><form ref={formRef} className="checkout-grid" autoComplete="on" onSubmit={submit}><div className="checkout-form"><div className="checkout-section"><span className="checkout-section__eyebrow">CUSTOMER INFORMATION</span><h2>Your Details</h2><div className="checkout-fields"><label><span>First Name</span><input required name="firstName" defaultValue={form.firstName} onChange={(e) => update("firstName", e.target.value)} onInput={(e) => update("firstName", e.currentTarget.value)} autoComplete="given-name" /></label><label><span>Last Name</span><input required name="lastName" defaultValue={form.lastName} onChange={(e) => update("lastName", e.target.value)} onInput={(e) => update("lastName", e.currentTarget.value)} autoComplete="family-name" /></label><label className="checkout-field--full"><span>Email Address</span><input required name="email" type="email" defaultValue={form.email} onChange={(e) => update("email", e.target.value)} onInput={(e) => update("email", e.currentTarget.value)} autoComplete="email" /></label><label className="checkout-field--full"><span>Phone Number</span><input name="phone" defaultValue={form.phone} onChange={(e) => update("phone", e.target.value)} onInput={(e) => update("phone", e.currentTarget.value)} autoComplete="tel" /></label></div></div><div className="checkout-section"><span className="checkout-section__eyebrow">DELIVERY</span><h2>Shipping Address</h2><div className="checkout-address-types"><button type="button" className={`checkout-address-type ${form.deliveryType === "house" ? "checkout-address-type--active" : ""}`} onClick={() => update("deliveryType", "house")}><span className="checkout-address-type__icon">⌂</span><span><strong>House</strong><small>Residential home</small></span></button><button type="button" className={`checkout-address-type ${form.deliveryType === "apartment" ? "checkout-address-type--active" : ""}`} onClick={() => update("deliveryType", "apartment")}><span className="checkout-address-type__icon">⌂</span><span><strong>Apartment</strong><small>Apartment or unit</small></span></button></div><div className="checkout-fields"><label className="checkout-field--full"><span>Street Address</span><input required name="address" defaultValue={form.address} onChange={(e) => update("address", e.target.value)} onInput={(e) => update("address", e.currentTarget.value)} autoComplete="address-line1" /></label>{form.deliveryType === "apartment" && <label className="checkout-field--full"><span>Apartment / Unit Number</span><input required name="apartment" defaultValue={form.apartment} onChange={(e) => update("apartment", e.target.value)} onInput={(e) => update("apartment", e.currentTarget.value)} autoComplete="address-line2" /></label>}<label><span>City</span><input required name="city" defaultValue={form.city} onChange={(e) => update("city", e.target.value)} onInput={(e) => update("city", e.currentTarget.value)} autoComplete="address-level2" /></label><label><span>State</span><input required name="state" defaultValue={form.state} onChange={(e) => update("state", e.target.value)} onInput={(e) => update("state", e.currentTarget.value)} autoComplete="address-level1" /></label><label><span>ZIP Code</span><input required name="zip" defaultValue={form.zip} onChange={(e) => update("zip", e.target.value)} onInput={(e) => update("zip", e.currentTarget.value)} autoComplete="postal-code" /></label></div></div><div className="checkout-section"><span className="checkout-section__eyebrow">PAYMENT</span><h2>Choose Payment Method</h2><div className="checkout-payment-content"><div className="checkout-provider-heading"><strong>Credit or Debit Card</strong><span>Securely processed by Stripe</span></div>{!addressReady && <p className="checkout-payment-loading">Enter your delivery information to securely initialize the payment form and calculate shipping and tax.</p>}<div ref={stripePaymentRef} className="checkout-stripe-payment-element" />{error && <p className="checkout-error" role="alert">{error}</p>}<button className="checkout-payment-action" type="submit" disabled={loading || !stripeReady}>{loading ? "Processing…" : "Pay Securely with Card"}<span>→</span></button></div><div className="checkout-payment-content"><div className="checkout-provider-heading"><strong>Apple Pay</strong><span>Securely processed by Stripe</span></div><div ref={stripeAppleRef} className="checkout-stripe-apple-element" style={{ display: stripeReady && appleAvailable === false ? "none" : "block" }} />{!addressReady && <p className="checkout-payment-loading">Enter your delivery information to initialize Apple Pay.</p>}{stripeReady && appleAvailable === false && <p className="checkout-payment-loading">Apple Pay is not available on this device or browser.</p>}{stripeReady && appleAvailable === null && <p className="checkout-payment-loading">Checking Apple Pay availability…</p>}</div><div className="checkout-payment-content"><div className="checkout-provider-heading"><strong>PayPal</strong><span>Secure payment</span></div>{paypalLoading && <p className="checkout-payment-loading">Loading PayPal…</p>}<div ref={paypalContainerRef} className="checkout-paypal-button" />{!paypalLoading && !paypalEnabled && !paypalError && <p className="checkout-payment-loading">PayPal is not enabled in production yet.</p>}{paypalError && <p className="checkout-error" role="alert">{paypalError}</p>}</div><p className="checkout-security-note">Your card details are entered directly into Stripe's secure payment field. Magic Touch Designs does not store full card details.</p></div></div><aside className="checkout-summary"><div className="checkout-summary__header"><span>YOUR ORDER</span><h2>Order Summary</h2></div><div className="checkout-summary__items">{cartItems.map((item) => <div className="checkout-summary__item" key={`${item.id}-${item.model}-${item.size}-${item.color}-${item.customizationId || "standard"}`}><div className="checkout-summary__image"><img src={item.customizationId ? getCustomizationSession(item.customizationId)?.designDataUrl || item.image : item.image} alt={item.name} /></div><div className="checkout-summary__details"><strong>{item.name}</strong><span>{item.customizationId ? "Custom mug" : "Mug"} · Qty: {item.quantity}</span></div><strong>${(item.price * item.quantity).toFixed(2)}</strong></div>)}</div><div className="checkout-summary__totals"><div><span>Subtotal</span><strong>${subtotal.toFixed(2)}</strong></div><div><span>Shipping</span><strong>{quoteLoading ? "Calculating…" : `$${shipping.toFixed(2)}`}</strong></div><div><span>Sales Tax</span><strong>{quoteLoading ? "Calculating…" : tax === null ? "Enter address" : `$${tax.toFixed(2)}`}</strong></div><div className="checkout-summary__total"><span>Total</span><strong>{quoteLoading ? "Calculating…" : `$${baseTotal.toFixed(2)}`}</strong></div></div>{quote?.shippingCarrier && <p className="checkout-summary__note">Shipping: {quote.shippingCarrier}{quote.shippingService ? ` · ${quote.shippingService}` : ""}{quote.shippingDeliveryDays ? ` · ${quote.shippingDeliveryDays} business days` : ""}</p>}{quoteError && <p className="checkout-error" role="alert">{quoteError}</p>}<p className="checkout-summary__note">Shipping and applicable sales tax are calculated from the delivery destination. Final payment totals are recalculated securely by the server.</p><Link to="/cart">← Back to Cart</Link></aside></form></section></main><Footer /></>);
+    return (<><Header /><main className="checkout-page"><section className="checkout-hero"><div className="checkout-hero__background"><img src="/images/cart/cart-hero-background.jpg" alt="Magic Touch Designs" /></div><div className="checkout-hero__overlay" /><div className="checkout-hero__content"><span>SECURE CHECKOUT</span><h1>Complete Your Order</h1><p>Enter your delivery information and choose your secure payment method.</p></div></section><section className="checkout-container"><form ref={formRef} className="checkout-grid" autoComplete="on" onSubmit={submit}><div className="checkout-form"><div className="checkout-section"><span className="checkout-section__eyebrow">CUSTOMER INFORMATION</span><h2>Your Details</h2><div className="checkout-fields"><label><span>First Name</span><input required name="firstName" defaultValue={form.firstName} onChange={(e) => update("firstName", e.target.value)} onInput={(e) => update("firstName", e.currentTarget.value)} autoComplete="given-name" /></label><label><span>Last Name</span><input required name="lastName" defaultValue={form.lastName} onChange={(e) => update("lastName", e.target.value)} onInput={(e) => update("lastName", e.currentTarget.value)} autoComplete="family-name" /></label><label className="checkout-field--full"><span>Email Address</span><input required name="email" type="email" defaultValue={form.email} onChange={(e) => update("email", e.target.value)} onInput={(e) => update("email", e.currentTarget.value)} autoComplete="email" /></label><label className="checkout-field--full"><span>Phone Number</span><input name="phone" defaultValue={form.phone} onChange={(e) => update("phone", e.target.value)} onInput={(e) => update("phone", e.currentTarget.value)} autoComplete="tel" /></label></div></div><div className="checkout-section"><span className="checkout-section__eyebrow">DELIVERY</span><h2>Shipping Address</h2><div className="checkout-address-types"><button type="button" className={`checkout-address-type ${form.deliveryType === "house" ? "checkout-address-type--active" : ""}`} onClick={() => update("deliveryType", "house")}><span className="checkout-address-type__icon">⌂</span><span><strong>House</strong><small>Residential home</small></span></button><button type="button" className={`checkout-address-type ${form.deliveryType === "apartment" ? "checkout-address-type--active" : ""}`} onClick={() => update("deliveryType", "apartment")}><span className="checkout-address-type__icon">⌂</span><span><strong>Apartment</strong><small>Apartment or unit</small></span></button></div><div className="checkout-fields"><label className="checkout-field--full"><span>Street Address</span><input required name="address" defaultValue={form.address} onChange={(e) => update("address", e.target.value)} onInput={(e) => update("address", e.currentTarget.value)} autoComplete="address-line1" /></label>{form.deliveryType === "apartment" && <label className="checkout-field--full"><span>Apartment / Unit Number</span><input required name="apartment" defaultValue={form.apartment} onChange={(e) => update("apartment", e.target.value)} onInput={(e) => update("apartment", e.currentTarget.value)} autoComplete="address-line2" /></label>}<label><span>City</span><input required name="city" defaultValue={form.city} onChange={(e) => update("city", e.target.value)} onInput={(e) => update("city", e.currentTarget.value)} autoComplete="address-level2" /></label><label><span>State</span><input required name="state" defaultValue={form.state} onChange={(e) => update("state", e.target.value)} onInput={(e) => update("state", e.currentTarget.value)} autoComplete="address-level1" /></label><label><span>ZIP Code</span><input required name="zip" defaultValue={form.zip} onChange={(e) => update("zip", e.target.value)} onInput={(e) => update("zip", e.currentTarget.value)} autoComplete="postal-code" /></label></div></div><div className="checkout-section"><span className="checkout-section__eyebrow">PAYMENT</span><h2>Choose Payment Method</h2><div className="checkout-payment-content"><div className="checkout-provider-heading"><strong>Credit or Debit Card</strong><span>Securely processed by Stripe</span></div>{!addressReady && <p className="checkout-payment-loading">Enter your delivery information to securely initialize the payment form and calculate shipping and tax.</p>}<div ref={stripePaymentRef} className="checkout-stripe-payment-element" />{error && <p className="checkout-error" role="alert">{error}</p>}<button className="checkout-payment-action" type="submit" disabled={loading || !stripeReady}>{loading ? "Processing…" : "Pay Securely with Card"}<span>→</span></button></div><div className="checkout-payment-content"><div className="checkout-provider-heading"><strong>Apple Pay</strong><span>Securely processed by Stripe</span></div><div ref={stripeAppleRef} className="checkout-stripe-apple-element" style={{ display: appleReady && appleAvailable === false ? "none" : "block" }} />{!appleReady && !error && <p className="checkout-payment-loading">Initializing Apple Pay securely…</p>}{appleReady && appleAvailable === false && <p className="checkout-payment-loading">Apple Pay is not available on this device or browser.</p>}{appleReady && appleAvailable === null && <p className="checkout-payment-loading">Checking Apple Pay availability…</p>}</div><div className="checkout-payment-content"><div className="checkout-provider-heading"><strong>PayPal</strong><span>Secure payment</span></div>{paypalLoading && <p className="checkout-payment-loading">Loading PayPal…</p>}<div ref={paypalContainerRef} className="checkout-paypal-button" />{!paypalLoading && !paypalEnabled && !paypalError && <p className="checkout-payment-loading">PayPal is not enabled in production yet.</p>}{paypalError && <p className="checkout-error" role="alert">{paypalError}</p>}</div><p className="checkout-security-note">Your card details are entered directly into Stripe's secure payment field. Magic Touch Designs does not store full card details.</p></div></div><aside className="checkout-summary"><div className="checkout-summary__header"><span>YOUR ORDER</span><h2>Order Summary</h2></div><div className="checkout-summary__items">{cartItems.map((item) => <div className="checkout-summary__item" key={`${item.id}-${item.model}-${item.size}-${item.color}-${item.customizationId || "standard"}`}><div className="checkout-summary__image"><img src={item.customizationId ? getCustomizationSession(item.customizationId)?.designDataUrl || item.image : item.image} alt={item.name} /></div><div className="checkout-summary__details"><strong>{item.name}</strong><span>{item.customizationId ? "Custom mug" : "Mug"} · Qty: {item.quantity}</span></div><strong>${(item.price * item.quantity).toFixed(2)}</strong></div>)}</div><div className="checkout-summary__totals"><div><span>Subtotal</span><strong>${subtotal.toFixed(2)}</strong></div><div><span>Shipping</span><strong>{quoteLoading ? "Calculating…" : `$${shipping.toFixed(2)}`}</strong></div><div><span>Sales Tax</span><strong>{quoteLoading ? "Calculating…" : tax === null ? "Enter address" : `$${tax.toFixed(2)}`}</strong></div><div className="checkout-summary__total"><span>Total</span><strong>{quoteLoading ? "Calculating…" : `$${baseTotal.toFixed(2)}`}</strong></div></div>{quote?.shippingCarrier && <p className="checkout-summary__note">Shipping: {quote.shippingCarrier}{quote.shippingService ? ` · ${quote.shippingService}` : ""}{quote.shippingDeliveryDays ? ` · ${quote.shippingDeliveryDays} business days` : ""}</p>}{quoteError && <p className="checkout-error" role="alert">{quoteError}</p>}<p className="checkout-summary__note">Shipping and applicable sales tax are calculated from the delivery destination. Final payment totals are recalculated securely by the server.</p><Link to="/cart">← Back to Cart</Link></aside></form></section></main><Footer /></>);
 }
 export default CheckoutPage;
