@@ -255,7 +255,7 @@ function CheckoutPage() {
                 buttonType: { applePay: "check-out" },
                 buttonTheme: { applePay: "black" },
                 paymentMethods: {
-                    applePay: "auto",
+                    applePay: "always",
                     googlePay: "never",
                     link: "never",
                     paypal: "never",
