@@ -78,6 +78,9 @@ const buildParcel = (items: ShippingItem[]): ParcelProfile => {
 
 export const getShippingQuote = async (destination: ShippingAddress, items: ShippingItem[]) => {
     const apiKey = requiredEnv("EASYPOST_API_KEY");
+    // JQYDDesigns uses UPS exclusively for customer shipping quotes.
+    // EasyPost supports restricting a Shipment to specific CarrierAccount IDs.
+    const upsCarrierAccountId = requiredEnv("EASYPOST_UPS_CARRIER_ACCOUNT_ID");
     const origin = parseOrigin();
     const parcel = buildParcel(items);
     const country = destination.country || "US";
@@ -97,6 +100,7 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
                 country,
             },
             parcel,
+            carrier_accounts: [upsCarrierAccountId],
         },
     };
 
