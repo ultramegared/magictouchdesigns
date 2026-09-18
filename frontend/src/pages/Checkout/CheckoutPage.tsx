@@ -67,7 +67,7 @@ function CheckoutPage() {
     useEffect(() => () => stripeCleanupRef.current?.(), []);
 
     const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shipping = quote?.shipping ?? (subtotal ? 5.99 : 0);
+    const shipping = quote?.shipping ?? 0;
     const tax = quote?.tax ?? null;
     const baseTotal = quote?.total ?? subtotal + shipping;
     const update = (key: keyof typeof form, value: string) => {
