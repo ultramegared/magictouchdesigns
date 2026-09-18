@@ -188,97 +188,48 @@ function CheckoutPage() {
             if (actions.type !== "success") throw new Error(actions.error.message || "Stripe checkout could not initialize.");
             stripeActionsRef.current = actions.actions; stripeSessionRef.current = { id: d.sessionId, code: d.orderCode };
             const payment = checkout.createPaymentElement({ layout: "tabs", fields: { billingDetails: { name: "always" } }, wallets: { applePay: "never", googlePay: "never", link: "never" } });
-            const express = checkout.createExpressCheckoutElement({ buttonHeight: 52, buttonType: { applePay: "check-out" }, buttonTheme: { applePay: "black" }, paymentMethods: { applePay: "always", googlePay: "never", link: "never", paypal: "never", amazonPay: "never", klarna: "never" }, paymentMethodOrder: ["applePay"] });
-            if (!stripePaymentRef.current || !stripeAppleRef.current) throw new Error("Payment area is unavailable.");
-            stripePaymentRef.current.replaceChildren(); stripeAppleRef.current.replaceChildren(); payment.mount(stripePaymentRef.current); express.mount(stripeAppleRef.current);
-            express.on("availablepaymentmethodschange", (e: any) => { const methods = e?.paymentMethods ?? e?.availablePaymentMethods ?? null; setAppleAvailable(Boolean(methods?.applePay)); });
-            express.on("confirm", async (e: any) => { setLoading(true); try { const result = await actions.actions.confirm({ expressCheckoutConfirmEvent: e }); if (result?.type === "error") { setError(result.error?.message || "Apple Pay payment could not be completed."); setLoading(false); } } catch (x) { setError(x instanceof Error ? x.message : "Apple Pay payment could not be completed."); setLoading(false); } });
-            stripeCleanupRef.current = () => { payment.unmount?.(); express.unmount?.(); stripePaymentRef.current?.replaceChildren(); stripeAppleRef.current?.replaceChildren(); stripeActionsRef.current = null; };
-            setStripeReady(true);
-        } catch (x) { stripeStartingRef.current = false; setError(x instanceof Error ? x.message : "Unable to load secure card payment."); }
-        finally { setLoading(false); }
-    };
-
-    const prepareApplePay = async () => {
-        if (!cartItems.length || appleReady) return;
-        try {
-            const cfg = (await (await fetch(`${API_URL}/orders/stripe/config`)).json()) as { enabled?: boolean; publishableKey?: string };
-            if (!cfg.enabled || !cfg.publishableKey) throw new Error("Apple Pay is not configured in Stripe.");
-            await loadScript("stripe-js-clover", "https://js.stripe.com/clover/stripe.js");
-            if (!window.Stripe) throw new Error("Stripe could not be loaded.");
-            const r = await fetch(`${API_URL}/orders/stripe/apple-pay`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload()),
-            });
-            const d = (await r.json()) as { clientSecret?: string; orderCode?: string; sessionId?: string; message?: string };
-            if (!r.ok || !d.clientSecret || !d.orderCode || !d.sessionId) throw new Error(d.message || "Unable to initialize Apple Pay.");
-
-            const checkout = window.Stripe(cfg.publishableKey).initCheckout({
-                clientSecret: d.clientSecret,
-                elementsOptions: {
-                    appearance: {
-                        theme: "night",
-                        variables: {
-                            colorPrimary: "#E0AD43",
-                            colorBackground: "#111111",
-                            colorText: "#F5F5F5",
-                            colorTextSecondary: "#C9C9C9",
-                            colorDanger: "#F36B6B",
-                            borderRadius: "10px",
-                            fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
-                        }
-                    }
-                },
-                defaultValues: {
-                    email: readCustomerForm().email.trim().toLowerCase(),
-                    phoneNumber: readCustomerForm().phone.trim(),
-                    shippingAddress: {
-                        name: `${readCustomerForm().firstName} ${readCustomerForm().lastName}`.trim(),
-                        address: {
-                            country: "US",
-                            line1: readCustomerForm().address,
-                            line2: readCustomerForm().apartment || undefined,
-                            city: readCustomerForm().city,
-                            state: readCustomerForm().state.toUpperCase(),
-                            postal_code: readCustomerForm().zip
-                        }
-                    }
-                }
-            });
-
-            const actions = await checkout.loadActions();
-            if (actions.type !== "success") throw new Error(actions.error.message || "Apple Pay could not initialize.");
-            stripeSessionRef.current = { id: d.sessionId, code: d.orderCode };
             const express = checkout.createExpressCheckoutElement({
                 buttonHeight: 52,
                 buttonType: { applePay: "check-out" },
                 buttonTheme: { applePay: "black" },
+                emailRequired: true,
+                phoneNumberRequired: Boolean(customer.phone.trim()),
+                shippingAddressRequired: true,
                 paymentMethods: {
                     applePay: "always",
                     googlePay: "never",
                     link: "never",
                     paypal: "never",
                     amazonPay: "never",
-                    klarna: "never"
+                    klarna: "never",
                 },
                 paymentMethodOrder: ["applePay"],
-            } as any);
-
-            if (!stripeAppleRef.current) throw new Error("Apple Pay area is unavailable.");
+            });
+            if (!stripePaymentRef.current || !stripeAppleRef.current) throw new Error("Payment area is unavailable.");
 
             const updateAppleAvailability = (e: any) => {
                 const methods = e?.paymentMethods ?? e?.availablePaymentMethods ?? {};
                 setAppleAvailable(Boolean(methods?.applePay));
             };
 
-            // Register availability listeners before mounting so we don't miss Stripe's
-            // initial event on fast-loading Safari sessions.
             express.on("ready", updateAppleAvailability);
             express.on("availablepaymentmethodschange", updateAppleAvailability);
-
-            stripeAppleRef.current.replaceChildren();
-            express.mount(stripeAppleRef.current);
+            express.on("shippingaddresschange", async (e: any) => {
+                try {
+                    const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sessionId: d.sessionId, shippingDetails: e?.address || {} }),
+                    });
+                    if (!response.ok) {
+                        e?.reject?.();
+                        return;
+                    }
+                    e?.resolve?.();
+                } catch {
+                    e?.reject?.();
+                }
+            });
             express.on("confirm", async (e: any) => {
                 setLoading(true);
                 try {
@@ -293,23 +244,31 @@ function CheckoutPage() {
                 }
             });
 
+            stripePaymentRef.current.replaceChildren();
+            stripeAppleRef.current.replaceChildren();
+            payment.mount(stripePaymentRef.current);
+            express.mount(stripeAppleRef.current);
+
             stripeCleanupRef.current = () => {
+                payment.unmount?.();
                 express.unmount?.();
+                stripePaymentRef.current?.replaceChildren();
                 stripeAppleRef.current?.replaceChildren();
                 stripeActionsRef.current = null;
             };
-            setAppleReady(true);
-        } catch (x) {
             setAppleReady(false);
-            setError(x instanceof Error ? x.message : "Unable to initialize Apple Pay.");
-        }
+            setStripeReady(true);
+        } catch (x) { stripeStartingRef.current = false; setError(x instanceof Error ? x.message : "Unable to load secure card payment."); }
+        finally { setLoading(false); }
     };
 
-    // Apple Pay has its own Stripe Checkout Session and does not wait for EasyPost
-    // to mount. Shipping is recalculated from the destination during the wallet flow.
+    // Apple Pay and card share one Checkout Session so shipping, tax, and order state
+    // stay synchronized. The session is created only after the customer's address is complete.
     useEffect(() => {
-        if (cartItems.length) void prepareApplePay();
-    }, [cartItems.length]);
+        if (!cartItems.length || !addressReady) return;
+        const timer = window.setTimeout(() => { void prepareStripe(readCustomerForm()); }, 250);
+        return () => window.clearTimeout(timer);
+    }, [cartItems.length, addressReady]);
 
     const submit = async (e: FormEvent<HTMLFormElement>) => { e.preventDefault(); const customer = syncAutofilledFields(); if (!valid()) return; if (!stripeReady) await prepareStripe(customer); const actions = stripeActionsRef.current; if (!actions) return setError("Secure card payment is not ready."); setLoading(true); setError(""); try { const r = await actions.confirm({ redirect: "if_required" }); if (r?.type === "error") { setError(r.error?.message || "Card payment could not be completed."); setLoading(false); } else if (r?.type === "success") window.location.assign(`/checkout/success?session_id=${encodeURIComponent(stripeSessionRef.current.id)}&order_code=${encodeURIComponent(stripeSessionRef.current.code)}`); } catch (x) { setError(x instanceof Error ? x.message : "Card payment could not be completed."); setLoading(false); } };
 
