@@ -123,7 +123,6 @@ export const createStripeApplePayCheckout = async (
     params.set("shipping_options[0][shipping_rate_data][display_name]", "Shipping calculated from your delivery address");
     params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
     params.set("automatic_tax[enabled]", "true");
-    params.set("permissions[update_shipping_details]", "server_only");
     params.set("metadata[order_id]", snapshot.orderId);
     params.set("metadata[order_code]", snapshot.orderCode);
 
