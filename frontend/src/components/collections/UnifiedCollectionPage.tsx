@@ -5,7 +5,6 @@ import Header from "../layout/Header";
 import Footer from "../home/Footer";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { addToCart } from "../../utils/cart";
-import { apiRequest } from "../../services/api";
 import "./UnifiedCollectionPage.css";
 
 type ProductFeatureOption = { id?: string; label?: string };
@@ -116,7 +115,18 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
             setLoading(true);
             setError(false);
             try {
-                const data = await apiRequest<{ products?: CollectionProduct[] }>(`/api/collections/${slug}/products`, { cache: "no-store" });
+                const response = await fetch(`https://api.jqydesigns.com/api/collections/${slug}/products`, {
+                    method: "GET",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                    cache: "no-store",
+                    credentials: "omit",
+                });
+                if (!response.ok) {
+                    throw new Error(`Collection products request failed (${response.status})`);
+                }
+                const data = await response.json() as { products?: CollectionProduct[] };
                 if (!cancelled) {
                     setProducts((data.products || []).filter((product: CollectionProduct) => product.is_active));
                     setCurrentPage(1);
