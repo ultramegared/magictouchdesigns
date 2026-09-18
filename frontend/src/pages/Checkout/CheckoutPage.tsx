@@ -256,7 +256,7 @@ function CheckoutPage() {
                 stripeAppleRef.current?.replaceChildren();
                 stripeActionsRef.current = null;
             };
-            setAppleReady(false);
+            setAppleReady(true);
             setStripeReady(true);
         } catch (x) { stripeStartingRef.current = false; setError(x instanceof Error ? x.message : "Unable to load secure card payment."); }
         finally { setLoading(false); }
