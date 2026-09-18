@@ -263,17 +263,6 @@ function CheckoutPage() {
                     klarna: "never"
                 },
                 paymentMethodOrder: ["applePay"],
-                shippingAddressRequired: true,
-                allowedShippingCountries: ["US"],
-                shippingRates: [{
-                    id: "pending-shipping",
-                    displayName: "Shipping calculated from your delivery ZIP",
-                    amount: 0,
-                    deliveryEstimate: {
-                        minimum: { unit: "day", value: 5 },
-                        maximum: { unit: "day", value: 10 }
-                    }
-                }]
             } as any);
 
             if (!stripeAppleRef.current) throw new Error("Apple Pay area is unavailable.");
