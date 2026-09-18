@@ -188,7 +188,7 @@ function CheckoutPage() {
             if (actions.type !== "success") throw new Error(actions.error.message || "Stripe checkout could not initialize.");
             stripeActionsRef.current = actions.actions; stripeSessionRef.current = { id: d.sessionId, code: d.orderCode };
             const payment = checkout.createPaymentElement({ layout: "tabs", fields: { billingDetails: { name: "always" } }, wallets: { applePay: "never", googlePay: "never", link: "never" } });
-            const express = checkout.createExpressCheckoutElement({ buttonHeight: 52, buttonType: { applePay: "check-out" }, buttonTheme: { applePay: "black" }, paymentMethods: { applePay: "auto", googlePay: "never", link: "never", paypal: "never", amazonPay: "never", klarna: "never" }, paymentMethodOrder: ["applePay"] });
+            const express = checkout.createExpressCheckoutElement({ buttonHeight: 52, buttonType: { applePay: "check-out" }, buttonTheme: { applePay: "black" }, paymentMethods: { applePay: "always", googlePay: "never", link: "never", paypal: "never", amazonPay: "never", klarna: "never" }, paymentMethodOrder: ["applePay"] });
             if (!stripePaymentRef.current || !stripeAppleRef.current) throw new Error("Payment area is unavailable.");
             stripePaymentRef.current.replaceChildren(); stripeAppleRef.current.replaceChildren(); payment.mount(stripePaymentRef.current); express.mount(stripeAppleRef.current);
             express.on("availablepaymentmethodschange", (e: any) => { const methods = e?.paymentMethods ?? e?.availablePaymentMethods ?? null; setAppleAvailable(Boolean(methods?.applePay)); });
@@ -269,49 +269,9 @@ function CheckoutPage() {
             stripeAppleRef.current.replaceChildren();
             express.mount(stripeAppleRef.current);
 
-            express.on("shippingaddresschange", async (event: any) => {
-                try {
-                    const current = readCustomerForm();
-                    const walletAddress = event?.address || {};
-                    const walletZip = String(walletAddress.postal_code || "").trim();
-                    const walletCity = String(walletAddress.city || "").trim();
-                    const walletState = String(walletAddress.state || "").trim();
-                    if (!walletZip || !walletCity || !walletState) throw new Error("Apple Pay needs your ZIP code, city, and state.");
-                    if (current.zip.trim() && current.zip.trim() !== walletZip) throw new Error("The Apple Pay delivery ZIP must match the ZIP entered in checkout.");
-                    const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            sessionId: d.sessionId,
-                            shippingDetails: {
-                                name: `${current.firstName} ${current.lastName}`.trim(),
-                                address: {
-                                    country: "US",
-                                    line1: current.address,
-                                    line2: current.apartment || undefined,
-                                    city: walletCity,
-                                    state: walletState,
-                                    postal_code: walletZip
-                                }
-                            }
-                        })
-                    });
-                    const result = (await response.json()) as { message?: string };
-                    if (!response.ok) throw new Error(result.message || "Unable to calculate Apple Pay shipping.");
-                    event.resolve();
-                } catch (x) {
-                    event.reject();
-                    setError(x instanceof Error ? x.message : "Unable to calculate Apple Pay shipping.");
-                }
-            });
-
-            express.on("availablepaymentmethodschange", (e: any) => {
-                const methods = e?.paymentMethods ?? e?.availablePaymentMethods ?? null;
-                setAppleAvailable(Boolean(methods?.applePay));
-            });
             express.on("ready", (e: any) => {
                 const methods = e?.availablePaymentMethods;
-                if (methods) setAppleAvailable(Boolean(methods.applePay));
+                if (methods) setAppleAvailable(Boolean(methods?.applePay));
             });
             express.on("confirm", async (e: any) => {
                 setLoading(true);
