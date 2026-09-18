@@ -5,6 +5,7 @@ import Header from "../layout/Header";
 import Footer from "../home/Footer";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { addToCart } from "../../utils/cart";
+import { apiRequest } from "../../services/api";
 import "./UnifiedCollectionPage.css";
 
 type ProductFeatureOption = { id?: string; label?: string };
@@ -115,10 +116,7 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
             setLoading(true);
             setError(false);
             try {
-                const apiBase = import.meta.env.VITE_API_URL || "https://api.magictouchdesigns.com";
-                const response = await fetch(`${apiBase}/api/collections/${slug}/products`);
-                if (!response.ok) throw new Error("Unable to load collection products");
-                const data = await response.json();
+                const data = await apiRequest<{ products?: CollectionProduct[] }>(`/api/collections/${slug}/products`, { cache: "no-store" });
                 if (!cancelled) {
                     setProducts((data.products || []).filter((product: CollectionProduct) => product.is_active));
                     setCurrentPage(1);
