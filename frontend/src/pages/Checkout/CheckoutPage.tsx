@@ -266,13 +266,14 @@ function CheckoutPage() {
             } as any);
 
             if (!stripeAppleRef.current) throw new Error("Apple Pay area is unavailable.");
-            stripeAppleRef.current.replaceChildren();
-            express.mount(stripeAppleRef.current);
 
             express.on("ready", (e: any) => {
                 const methods = e?.availablePaymentMethods;
-                if (methods) setAppleAvailable(Boolean(methods?.applePay));
+                setAppleAvailable(Boolean(methods?.applePay));
             });
+
+            stripeAppleRef.current.replaceChildren();
+            express.mount(stripeAppleRef.current);
             express.on("confirm", async (e: any) => {
                 setLoading(true);
                 try {
