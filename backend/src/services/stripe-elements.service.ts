@@ -53,11 +53,11 @@ export const createStripeElementsCheckout = async (
     params.set("mode", "payment");
     params.set("ui_mode", "custom");
     params.set("managed_payments[enabled]", "false");
-    params.set("payment_method_types[0]", "card");
     params.set("return_url", `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
     params.set("billing_address_collection", "auto");
     params.set("phone_number_collection[enabled]", "true");
     params.set("shipping_address_collection[allowed_countries][0]", "US");
+    params.set("permissions[update_shipping_details]", "server_only");
     params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents));
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
@@ -191,11 +191,11 @@ export const updateStripeApplePayShipping = async (
     }));
 
     const currentAddress = order.shipping_address || {};
-    const street = String(currentAddress.address || "").trim();
-    const apartment = String(currentAddress.apartment || "").trim();
+    const street = String(address.line1 || currentAddress.address || "").trim();
+    const apartment = String(address.line2 || currentAddress.apartment || "").trim();
 
     if (!street) {
-        throw new Error("Enter your street address in checkout before using Apple Pay.");
+        throw new Error("A street address is required for shipping.");
     }
 
     const shippingQuote = await getShippingQuote(
