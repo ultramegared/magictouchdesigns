@@ -267,10 +267,15 @@ function CheckoutPage() {
 
             if (!stripeAppleRef.current) throw new Error("Apple Pay area is unavailable.");
 
-            express.on("ready", (e: any) => {
-                const methods = e?.availablePaymentMethods;
+            const updateAppleAvailability = (e: any) => {
+                const methods = e?.paymentMethods ?? e?.availablePaymentMethods ?? {};
                 setAppleAvailable(Boolean(methods?.applePay));
-            });
+            };
+
+            // Register availability listeners before mounting so we don't miss Stripe's
+            // initial event on fast-loading Safari sessions.
+            express.on("ready", updateAppleAvailability);
+            express.on("availablepaymentmethodschange", updateAppleAvailability);
 
             stripeAppleRef.current.replaceChildren();
             express.mount(stripeAppleRef.current);
