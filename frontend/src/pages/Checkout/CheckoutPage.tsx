@@ -192,7 +192,6 @@ function CheckoutPage() {
                 buttonHeight: 52,
                 buttonType: { applePay: "check-out" },
                 buttonTheme: { applePay: "black" },
-                shippingAddressRequired: true,
                 paymentMethods: {
                     applePay: "always",
                     googlePay: "never",
