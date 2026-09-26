@@ -8,6 +8,7 @@
 import crypto from "crypto";
 import { pool } from "../config/database";
 import { buildOrderSnapshot, ensureOrderTables, type CheckoutCustomerInput, type CheckoutItemInput } from "./order.service";
+import { calculateDestinationTax } from "./tax.service";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://jqydesigns.com";
 
@@ -50,26 +51,6 @@ export const getPayPalBrowserClientToken = async (): Promise<string> => {
     return String(data.access_token);
 };
 
-const calculateTax = async (customer: CheckoutCustomerInput, items: Array<{ unit_price: number; quantity: number; product_id: string }>, shipping: number): Promise<number> => {
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is required for destination-based tax calculation.");
-    const params = new URLSearchParams();
-    params.set("currency", "usd");
-    params.set("customer_details[address][line1]", customer.address || "");
-    if (customer.apartment) params.set("customer_details[address][line2]", customer.apartment);
-    params.set("customer_details[address][city]", customer.city || "");
-    params.set("customer_details[address][state]", (customer.state || "").toUpperCase());
-    params.set("customer_details[address][postal_code]", customer.zip || "");
-    params.set("customer_details[address][country]", "US");
-    params.set("customer_details[address_source]", "shipping");
-    params.set("shipping_cost[amount]", String(Math.round(shipping * 100)));
-    items.forEach((item, index) => { params.set(`line_items[${index}][amount]`, String(Math.round(item.unit_price * item.quantity * 100))); params.set(`line_items[${index}][quantity]`, String(item.quantity)); params.set(`line_items[${index}][reference]`, item.product_id); });
-    const response = await fetch("https://api.stripe.com/v1/tax/calculations", { method: "POST", headers: { Authorization: `Bearer ${stripeKey}`, "Content-Type": "application/x-www-form-urlencoded" }, body: params });
-    const data = await response.json() as any;
-    if (!response.ok) throw new Error(data?.error?.message || "Unable to calculate sales tax.");
-    return Number(data?.tax_amount_exclusive || 0) / 100;
-};
-
 const formatMoney = (amount: number): string => amount.toFixed(2);
 
 export const getPayPalPublicConfig = () => {
@@ -81,7 +62,8 @@ export const getPayPalPublicConfig = () => {
 export const createPayPalOrder = async (customer: CheckoutCustomerInput, items: CheckoutItemInput[]) => {
     await ensureOrderTables();
     const snapshot = await buildOrderSnapshot(customer, items);
-    const tax = await calculateTax(customer, snapshot.normalizedItems, snapshot.shipping);
+    const taxResult = await calculateDestinationTax(customer, snapshot.normalizedItems, Math.round(snapshot.shipping * 100));
+    const tax = taxResult.tax;
     const total = snapshot.subtotal + snapshot.shipping + tax;
     await pool.query(`UPDATE orders SET tax = $1, total = $2, payment_provider = 'paypal', payment_method = 'paypal', updated_at = NOW() WHERE id = $3`, [tax, total, snapshot.orderId]);
     try {
