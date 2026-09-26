@@ -7,7 +7,7 @@
 
 import crypto from "crypto";
 import { pool } from "../config/database";
-import { buildOrderSnapshot, ensureOrderTables, type CheckoutCustomerInput, type CheckoutItemInput } from "./order.service";
+import { buildOrderSnapshot, createCheckoutAttempt, ensureOrderTables, materializePaidOrder, type CheckoutCustomerInput, type CheckoutItemInput } from "./order.service";
 import { calculateDestinationTax } from "./tax.service";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://jqydesigns.com";
@@ -62,38 +62,50 @@ export const getPayPalPublicConfig = () => {
 export const createPayPalOrder = async (customer: CheckoutCustomerInput, items: CheckoutItemInput[]) => {
     await ensureOrderTables();
     const snapshot = await buildOrderSnapshot(customer, items);
+    const attempt = await createCheckoutAttempt(customer, snapshot, "paypal");
     const taxResult = await calculateDestinationTax(customer, snapshot.normalizedItems, Math.round(snapshot.shipping * 100));
     const tax = taxResult.tax;
     const total = snapshot.subtotal + snapshot.shipping + tax;
-    await pool.query(`UPDATE orders SET tax = $1, total = $2, payment_provider = 'paypal', payment_method = 'paypal', updated_at = NOW() WHERE id = $3`, [tax, total, snapshot.orderId]);
+    await pool.query(`UPDATE checkout_attempts SET tax = $1, total = $2, updated_at = NOW() WHERE id = $3`, [tax, total, attempt.attemptId]);
     try {
         const token = await getPayPalAccessToken();
         const paypalOrder = await paypalJsonRequest("/v2/checkout/orders", "POST", token, {
             intent: "CAPTURE",
-            purchase_units: [{ reference_id: "default", invoice_id: snapshot.orderCode.replace(/^#/, ""), custom_id: snapshot.orderId, amount: { currency_code: "USD", value: formatMoney(total), breakdown: { item_total: { currency_code: "USD", value: formatMoney(snapshot.subtotal) }, shipping: { currency_code: "USD", value: formatMoney(snapshot.shipping) }, tax_total: { currency_code: "USD", value: formatMoney(tax) } } }, items: snapshot.normalizedItems.map((item) => ({ name: item.name.slice(0, 127), unit_amount: { currency_code: "USD", value: formatMoney(item.unit_price) }, quantity: String(item.quantity), category: "PHYSICAL_GOODS", ...(item.image_url ? { image_url: item.image_url } : {}) })), shipping: { name: { full_name: `${customer.firstName.trim()} ${customer.lastName.trim()}`.trim() }, address: { address_line_1: customer.address, ...(customer.apartment ? { address_line_2: customer.apartment } : {}), admin_area_2: customer.city, admin_area_1: customer.state?.toUpperCase(), postal_code: customer.zip, country_code: "US" } } }],
-            payment_source: { paypal: { experience_context: { brand_name: "JQYD", user_action: "PAY_NOW", shipping_preference: "SET_PROVIDED_ADDRESS", return_url: `${FRONTEND_URL}/checkout/success?paypal=1&order_code=${encodeURIComponent(snapshot.orderCode)}`, cancel_url: `${FRONTEND_URL}/checkout?paypal=cancelled` } } }
+            purchase_units: [{ reference_id: "default", invoice_id: attempt.checkoutCode.replace(/^#/, ""), custom_id: attempt.attemptId, amount: { currency_code: "USD", value: formatMoney(total), breakdown: { item_total: { currency_code: "USD", value: formatMoney(snapshot.subtotal) }, shipping: { currency_code: "USD", value: formatMoney(snapshot.shipping) }, tax_total: { currency_code: "USD", value: formatMoney(tax) } } }, items: snapshot.normalizedItems.map((item) => ({ name: item.name.slice(0, 127), unit_amount: { currency_code: "USD", value: formatMoney(item.unit_price) }, quantity: String(item.quantity), category: "PHYSICAL_GOODS", ...(item.image_url ? { image_url: item.image_url } : {}) })), shipping: { name: { full_name: `${customer.firstName.trim()} ${customer.lastName.trim()}`.trim() }, address: { address_line_1: customer.address, ...(customer.apartment ? { address_line_2: customer.apartment } : {}), admin_area_2: customer.city, admin_area_1: customer.state?.toUpperCase(), postal_code: customer.zip, country_code: "US" } } }],
+            payment_source: { paypal: { experience_context: { brand_name: "JQYD", user_action: "PAY_NOW", shipping_preference: "SET_PROVIDED_ADDRESS", return_url: `${FRONTEND_URL}/checkout/success?paypal=1&order_code=${encodeURIComponent(attempt.checkoutCode)}`, cancel_url: `${FRONTEND_URL}/checkout?paypal=cancelled` } } }
         });
-        await pool.query(`UPDATE orders SET paypal_order_id = $1, updated_at = NOW() WHERE id = $2`, [paypalOrder.id, snapshot.orderId]);
-        return { orderCode: snapshot.orderCode, orderId: snapshot.orderId, paypalOrderId: paypalOrder.id, approvalUrl: paypalOrder.links?.find((link: any) => link.rel === "payer-action" || link.rel === "approve")?.href || null };
+        await pool.query(`UPDATE checkout_attempts SET paypal_order_id = $1, updated_at = NOW() WHERE id = $2`, [paypalOrder.id, attempt.attemptId]);
+        return { orderCode: attempt.checkoutCode, checkoutAttemptId: attempt.attemptId, paypalOrderId: paypalOrder.id, approvalUrl: paypalOrder.links?.find((link: any) => link.rel === "payer-action" || link.rel === "approve")?.href || null };
     } catch (error) {
-        await pool.query(`UPDATE orders SET status = 'payment_setup_failed', updated_at = NOW() WHERE id = $1`, [snapshot.orderId]);
+        await pool.query(`UPDATE checkout_attempts SET status = 'failed', updated_at = NOW() WHERE id = $1`, [attempt.attemptId]);
         throw error;
     }
 };
 
 export const capturePayPalOrder = async (paypalOrderId: string) => {
     await ensureOrderTables();
-    const orderResult = await pool.query(`SELECT * FROM orders WHERE paypal_order_id = $1 LIMIT 1`, [paypalOrderId]);
-    const order = orderResult.rows[0];
-    if (!order) throw new Error("Magic Touch Designs order not found for this PayPal payment.");
-    if (order.payment_status === "paid") return { orderCode: order.order_code, status: "COMPLETED", alreadyCaptured: true };
+    const attemptResult = await pool.query(`SELECT * FROM checkout_attempts WHERE paypal_order_id = $1 LIMIT 1`, [paypalOrderId]);
+    const attempt = attemptResult.rows[0];
+    if (!attempt) throw new Error("PayPal checkout attempt not found.");
+    const existing = await pool.query(`SELECT order_code FROM orders WHERE paypal_order_id = $1 LIMIT 1`, [paypalOrderId]);
+    if (existing.rows[0]) return { orderCode: existing.rows[0].order_code, status: "COMPLETED", alreadyCaptured: true };
     const token = await getPayPalAccessToken();
     const captured = await paypalJsonRequest(`/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/capture`, "POST", token);
     const capture = captured?.purchase_units?.[0]?.payments?.captures?.[0];
     if (capture?.status !== "COMPLETED") throw new Error(`PayPal payment was not completed (${capture?.status || "unknown"}).`);
     const capturedAmount = Number(capture?.amount?.value || 0);
-    const expectedAmount = Number(order.total);
-    if (!Number.isFinite(capturedAmount) || Math.abs(capturedAmount - expectedAmount) > 0.01) throw new Error("PayPal captured amount does not match the Magic Touch Designs order total.");
-    await pool.query(`UPDATE orders SET paypal_capture_id = $1, payment_status = 'paid', status = 'paid', payment_provider = 'paypal', payment_method = 'paypal', updated_at = NOW() WHERE id = $2`, [capture.id || null, order.id]);
-    return { orderCode: order.order_code, status: capture.status, captureId: capture.id || null };
+    const expectedAmount = Number(attempt.total);
+    if (!Number.isFinite(capturedAmount) || Math.abs(capturedAmount - expectedAmount) > 0.01) throw new Error("PayPal captured amount does not match the Magic Touch Designs checkout total.");
+    const result = await materializePaidOrder({
+        attemptId: String(attempt.id),
+        paymentProvider: "paypal",
+        paymentMethod: "paypal",
+        paypalOrderId,
+        paypalCaptureId: capture.id ? String(capture.id) : null,
+        subtotal: Number(attempt.subtotal),
+        shipping: Number(attempt.shipping),
+        tax: Number(attempt.tax),
+        total: Number(attempt.total),
+    });
+    return { orderCode: result.orderCode, status: capture.status, captureId: capture.id || null };
 };

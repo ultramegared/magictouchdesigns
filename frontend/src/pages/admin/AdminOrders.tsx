@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, ChevronDown, Filter, Package, RefreshCw, Search, Trash2, Truck } from "lucide-react";
+import { CheckCircle2, ChevronDown, Filter, Package, RefreshCw, Search, Trash2, Truck, ShieldCheck } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import { apiRequest } from "../../services/api";
 import "./AdminOrders.css";
@@ -46,6 +46,7 @@ function AdminOrders() {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [paymentFilter, setPaymentFilter] = useState("all");
+    const [purging, setPurging] = useState(false);
 
     const loadOrders = useCallback(async () => {
         try {
@@ -62,6 +63,25 @@ function AdminOrders() {
     }, []);
 
     useEffect(() => { loadOrders(); }, [loadOrders]);
+
+    const purgeUnpaid = async () => {
+        if (purging) return;
+        const confirmed = window.confirm(
+            "Clean abandoned checkout records?\\n\\nThis removes only orders that are not paid or refunded. Paid and refunded orders are protected. This is safe to use when legacy checkout records need cleanup.",
+        );
+        if (!confirmed) return;
+        try {
+            setPurging(true);
+            setError(null);
+            const result = await apiRequest<{ count: number }>("/api/admin/orders/purge-unpaid", { method: "POST" });
+            await loadOrders();
+            window.alert(result.count ? `Cleaned ${result.count} unpaid checkout record${result.count === 1 ? "" : "s"}.` : "No unpaid checkout records needed cleanup.");
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Unable to clean unpaid checkout records.");
+        } finally {
+            setPurging(false);
+        }
+    };
 
     const updateOrder = async (order: Order, patch: Record<string, string>) => {
         try {
@@ -162,7 +182,10 @@ function AdminOrders() {
             <main className="admin-orders">
                 <header className="admin-orders__header">
                     <div><div className="admin-orders__eyebrow"><Package size={16} /> Order Management</div><h1>Orders</h1><p>Manage confirmed paid orders, fulfillment, payment status, and shipment tracking from one operational workspace.</p></div>
-                    <button className="admin-orders__refresh" onClick={loadOrders} disabled={loading || deleting !== null}><RefreshCw size={17} className={loading ? "spin" : ""} /> Refresh</button>
+                    <div className="admin-orders__header-actions">
+                        <button className="admin-orders__cleanup" onClick={purgeUnpaid} disabled={loading || deleting !== null || purging}><ShieldCheck size={17} /> {purging ? "Cleaning..." : "Clean unpaid checkouts"}</button>
+                        <button className="admin-orders__refresh" onClick={loadOrders} disabled={loading || deleting !== null || purging}><RefreshCw size={17} className={loading ? "spin" : ""} /> Refresh</button>
+                    </div>
                 </header>
                 {error && <div className="admin-orders__alert">{error}</div>}
                 <section className="admin-orders__stats" aria-label="Order summary">

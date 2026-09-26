@@ -33,6 +33,21 @@ export const updateAdminOrder = async (req: Request, res: Response): Promise<voi
     }
 };
 
+export const purgeUnpaidOrders = async (_req: Request, res: Response): Promise<void> => {
+    try {
+        await ensureOrderTables();
+        const result = await pool.query(
+            `DELETE FROM orders
+             WHERE payment_status NOT IN ('paid', 'refunded')
+             RETURNING id, order_code`,
+        );
+        res.json({ deleted: true, count: result.rows.length, orderCodes: result.rows.map((row: { order_code: string }) => row.order_code) });
+    } catch (error) {
+        console.error("Purge unpaid orders error:", error);
+        res.status(500).json({ message: "Unable to clean unpaid checkout records." });
+    }
+};
+
 export const deleteAdminOrder = async (req: Request, res: Response): Promise<void> => {
     try {
         await ensureOrderTables();
