@@ -21,7 +21,7 @@ type Order = {
     item_count: number;
 };
 
-const STATUSES = ["pending_payment", "paid", "processing", "shipped", "delivered", "cancelled", "refunded"];
+const STATUSES = ["paid", "processing", "shipped", "delivered", "cancelled", "refunded"];
 const CARRIERS = ["USPS", "UPS", "FedEx", "DHL"];
 
 function money(value: number) {
@@ -161,7 +161,7 @@ function AdminOrders() {
             <AdminSidebar />
             <main className="admin-orders">
                 <header className="admin-orders__header">
-                    <div><div className="admin-orders__eyebrow"><Package size={16} /> Order Management</div><h1>Orders</h1><p>Manage fulfillment, payment status, and shipment tracking from one operational workspace.</p></div>
+                    <div><div className="admin-orders__eyebrow"><Package size={16} /> Order Management</div><h1>Orders</h1><p>Manage confirmed paid orders, fulfillment, payment status, and shipment tracking from one operational workspace.</p></div>
                     <button className="admin-orders__refresh" onClick={loadOrders} disabled={loading || deleting !== null}><RefreshCw size={17} className={loading ? "spin" : ""} /> Refresh</button>
                 </header>
                 {error && <div className="admin-orders__alert">{error}</div>}
@@ -175,7 +175,7 @@ function AdminOrders() {
                     <div className="admin-orders__toolbar">
                         <div className="admin-orders__search"><Search size={17} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search order, customer, email or tracking" aria-label="Search orders" /></div>
                         <label className="admin-orders__filter"><Filter size={15} /><span>Status</span><select value={statusFilter} onChange={event => setStatusFilter(event.target.value)}><option value="all">All statuses</option>{STATUSES.map(status => <option key={status} value={status}>{statusLabel(status)}</option>)}</select><ChevronDown size={14} /></label>
-                        <label className="admin-orders__filter"><span>Payment</span><select value={paymentFilter} onChange={event => setPaymentFilter(event.target.value)}><option value="all">All payments</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option><option value="pending">Pending</option><option value="failed">Failed</option><option value="refunded">Refunded</option></select><ChevronDown size={14} /></label>
+                        <label className="admin-orders__filter"><span>Payment</span><select value={paymentFilter} onChange={event => setPaymentFilter(event.target.value)}><option value="all">All payments</option><option value="paid">Paid</option><option value="refunded">Refunded</option></select><ChevronDown size={14} /></label>
                     </div>
                     <div className="admin-orders__toolbar-meta"><span><strong>{filteredOrders.length}</strong> of {orders.length} orders shown</span>{(search || statusFilter !== "all" || paymentFilter !== "all") && <button type="button" onClick={() => { setSearch(""); setStatusFilter("all"); setPaymentFilter("all"); }}>Clear filters</button>}</div>
                     {selectedOrderIds.size > 0 && <div className="admin-orders__selection-bar"><strong>{selectedOrderIds.size} selected</strong><span>{deletableSelectedCount} deletable</span><button type="button" onClick={bulkDeleteOrders} disabled={deleting !== null || deletableSelectedCount === 0}><Trash2 size={15} /> {deleting === "bulk" ? "Deleting..." : "Delete selected"}</button></div>}
