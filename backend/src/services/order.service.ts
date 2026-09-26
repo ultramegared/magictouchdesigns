@@ -44,6 +44,9 @@ export const ensureOrderTables = async (): Promise<void> => {
             payment_status VARCHAR(32) NOT NULL DEFAULT 'pending',
             status VARCHAR(32) NOT NULL DEFAULT 'pending_payment',
             carrier VARCHAR(40),
+            shipping_service VARCHAR(80),
+            shipping_delivery_days INTEGER,
+            shipping_rate_id TEXT,
             tracking_number VARCHAR(120),
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -84,12 +87,21 @@ export const ensureOrderTables = async (): Promise<void> => {
             tax NUMERIC(12,2) NOT NULL DEFAULT 0,
             total NUMERIC(12,2) NOT NULL DEFAULT 0,
             carrier VARCHAR(40),
+            shipping_service VARCHAR(80),
+            shipping_delivery_days INTEGER,
+            shipping_rate_id TEXT,
             status VARCHAR(32) NOT NULL DEFAULT 'pending',
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
         CREATE INDEX IF NOT EXISTS idx_checkout_attempts_created_at ON checkout_attempts(created_at DESC);
         CREATE INDEX IF NOT EXISTS idx_checkout_attempts_status ON checkout_attempts(status);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_service VARCHAR(80);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_delivery_days INTEGER;
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_rate_id TEXT;
+        ALTER TABLE checkout_attempts ADD COLUMN IF NOT EXISTS shipping_service VARCHAR(80);
+        ALTER TABLE checkout_attempts ADD COLUMN IF NOT EXISTS shipping_delivery_days INTEGER;
+        ALTER TABLE checkout_attempts ADD COLUMN IF NOT EXISTS shipping_rate_id TEXT;
     `);
     initialized = true;
 };
@@ -188,8 +200,8 @@ export const createCheckoutAttempt = async (
     const result = await pool.query(
         `INSERT INTO checkout_attempts
             (checkout_code, provider, customer_first_name, customer_last_name, customer_email, customer_phone,
-             shipping_address, items, subtotal, shipping, tax, total, carrier, status)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,0,$11,$12,'pending')
+             shipping_address, items, subtotal, shipping, tax, total, carrier, shipping_service, shipping_delivery_days, shipping_rate_id, status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,0,$11,$12,$13,$14,$15,'pending')
          RETURNING id, checkout_code`,
         [
             snapshot.checkoutCode,
@@ -204,6 +216,9 @@ export const createCheckoutAttempt = async (
             snapshot.shipping,
             snapshot.subtotal + snapshot.shipping,
             snapshot.shippingCarrier || null,
+            snapshot.shippingService || null,
+            snapshot.shippingDeliveryDays || null,
+            snapshot.shippingRateId || null,
         ],
     );
     return { attemptId: String(result.rows[0].id), checkoutCode: String(result.rows[0].checkout_code) };
@@ -269,7 +284,9 @@ export const sendCustomerOrderConfirmation = async (orderIdOrCode: string): Prom
     const itemsResult = await pool.query(`SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC`, [order.id]);
     const shippingAddress = order.shipping_address || {};
     const itemRows = itemsResult.rows.map((item: any) => `<tr><td style="padding:10px;border-bottom:1px solid #eee"><strong>${escapeHtml(item.product_name)}</strong></td><td style="padding:10px;border-bottom:1px solid #eee;text-align:center">${item.quantity}</td><td style="padding:10px;border-bottom:1px solid #eee;text-align:right">${Number(item.unit_price).toFixed(2)}</td></tr>`).join("");
-    const html = `<div style="font-family:Arial,sans-serif;color:#202020;max-width:680px;margin:auto"><h1 style="color:#b8872c">Thank you for your order!</h1><p>Hi ${escapeHtml(order.customer_first_name)}, your payment was successfully received and your order is confirmed.</p><p><strong>Order:</strong> ${escapeHtml(order.order_code)}<br><strong>Total paid:</strong> ${Number(order.total).toFixed(2)} USD</p><h2>Order details</h2><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:10px;border-bottom:2px solid #222">Item</th><th style="padding:10px;border-bottom:2px solid #222">Qty</th><th style="text-align:right;padding:10px;border-bottom:2px solid #222">Unit</th></tr></thead><tbody>${itemRows}</tbody></table><p style="margin-top:18px"><strong>Subtotal:</strong> ${Number(order.subtotal).toFixed(2)}<br><strong>Shipping:</strong> ${Number(order.shipping).toFixed(2)}<br><strong>Sales tax:</strong> ${Number(order.tax).toFixed(2)}<br><strong>Total:</strong> ${Number(order.total).toFixed(2)}</p><h2>Shipping to</h2><p>${escapeHtml(order.customer_first_name)} ${escapeHtml(order.customer_last_name)}<br>${escapeHtml(shippingAddress.address)}${shippingAddress.apartment ? `<br>${escapeHtml(shippingAddress.apartment)}` : ""}<br>${escapeHtml(shippingAddress.city)}, ${escapeHtml(shippingAddress.state)} ${escapeHtml(shippingAddress.zip)}</p><p style="margin-top:24px;color:#666">We will send another update when your order ships.</p></div>`;
+    const trackOrderUrl = `https://www.jqydesigns.com/track-order?order=${encodeURIComponent(String(order.order_code))}`;
+    const estimatedDays = Number(order.shipping_delivery_days || 0);
+    const html = `<div style="font-family:Arial,sans-serif;color:#202020;max-width:680px;margin:auto"><h1 style="color:#b8872c">Thank you for your order!</h1><p>Hi ${escapeHtml(order.customer_first_name)}, your payment was successfully received and your order is confirmed.</p><p><strong>Order:</strong> ${escapeHtml(order.order_code)}<br><strong>Total paid:</strong> ${Number(order.total).toFixed(2)} USD</p><p style="padding:14px 16px;background:#f7f3e8;border-radius:8px"><strong>Shipping:</strong> ${escapeHtml(order.shipping_service || order.carrier || "USPS Ground Advantage")}${estimatedDays ? `<br><strong>Carrier transit estimate:</strong> up to ${estimatedDays} business days after acceptance` : ""}</p><p><a href="${trackOrderUrl}" style="display:inline-block;padding:12px 18px;background:#111;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">Track your order</a></p><h2>Order details</h2><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:10px;border-bottom:2px solid #222">Item</th><th style="padding:10px;border-bottom:2px solid #222">Qty</th><th style="text-align:right;padding:10px;border-bottom:2px solid #222">Unit</th></tr></thead><tbody>${itemRows}</tbody></table><p style="margin-top:18px"><strong>Subtotal:</strong> ${Number(order.subtotal).toFixed(2)}<br><strong>Shipping:</strong> ${Number(order.shipping).toFixed(2)}<br><strong>Sales tax:</strong> ${Number(order.tax).toFixed(2)}<br><strong>Total:</strong> ${Number(order.total).toFixed(2)}</p><h2>Shipping to</h2><p>${escapeHtml(order.customer_first_name)} ${escapeHtml(order.customer_last_name)}<br>${escapeHtml(shippingAddress.address)}${shippingAddress.apartment ? `<br>${escapeHtml(shippingAddress.apartment)}` : ""}<br>${escapeHtml(shippingAddress.city)}, ${escapeHtml(shippingAddress.state)} ${escapeHtml(shippingAddress.zip)}</p><p style="margin-top:24px;color:#666">We will send another update when your order ships.</p></div>`;
     const text = `Thank you for your order!\nOrder: ${order.order_code}\nTotal paid: ${Number(order.total).toFixed(2)} USD\nYour order has been confirmed.`;
     await sendEmail({ to: order.customer_email, subject: `Order confirmed ${order.order_code} — Magic Touch Designs`, html, text, idempotencyKey: `customer-order-confirmation/${order.id}` });
 };
@@ -318,8 +335,8 @@ export const materializePaidOrder = async (input: {
             `INSERT INTO orders
                 (order_code, stripe_checkout_session_id, stripe_payment_intent_id, paypal_order_id, paypal_capture_id,
                  payment_provider, payment_method, customer_first_name, customer_last_name, customer_email, customer_phone,
-                 shipping_address, subtotal, shipping, tax, total, status, payment_status)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,'paid','paid')
+                 shipping_address, subtotal, shipping, tax, total, carrier, shipping_service, shipping_delivery_days, shipping_rate_id, status, payment_status)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,'paid','paid')
              RETURNING id, order_code`,
             [
                 attempt.checkout_code,
@@ -338,6 +355,10 @@ export const materializePaidOrder = async (input: {
                 input.shipping,
                 input.tax,
                 input.total,
+                attempt.carrier || null,
+                attempt.shipping_service || null,
+                attempt.shipping_delivery_days || null,
+                attempt.shipping_rate_id || null,
             ],
         );
         const orderId = String(orderResult.rows[0].id);
@@ -350,8 +371,8 @@ export const materializePaidOrder = async (input: {
             );
         }
         await client.query(
-            `UPDATE checkout_attempts SET status='completed', subtotal=$1, shipping=$2, tax=$3, total=$4, updated_at=NOW() WHERE id=$5`,
-            [input.subtotal, input.shipping, input.tax, input.total, input.attemptId],
+            `UPDATE checkout_attempts SET status='completed', subtotal=$1, shipping=$2, tax=$3, total=$4, carrier=$6, shipping_service=$7, shipping_delivery_days=$8, shipping_rate_id=$9, updated_at=NOW() WHERE id=$5`,
+            [input.subtotal, input.shipping, input.tax, input.total, input.attemptId, attempt.carrier || null, attempt.shipping_service || null, attempt.shipping_delivery_days || null, attempt.shipping_rate_id || null],
         );
         await client.query("COMMIT");
         return { orderId, orderCode: String(orderResult.rows[0].order_code), created: true };
