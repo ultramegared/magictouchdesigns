@@ -8,6 +8,7 @@
 import { pool } from "../config/database";
 import {
     buildOrderSnapshot,
+    createCheckoutAttempt,
     type CheckoutCustomerInput,
     type CheckoutItemInput,
 } from "./order.service";
@@ -49,6 +50,7 @@ export const createStripeElementsCheckout = async (
     items: CheckoutItemInput[],
 ) => {
     const snapshot = await buildOrderSnapshot(customer, items);
+    const attempt = await createCheckoutAttempt(customer, snapshot, "stripe");
     const params = new URLSearchParams();
 
     params.set("mode", "payment");
@@ -64,8 +66,8 @@ export const createStripeElementsCheckout = async (
     params.set("shipping_options[0][shipping_rate_data][display_name]", "Standard Shipping");
     params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
     params.set("automatic_tax[enabled]", "true");
-    params.set("metadata[order_id]", snapshot.orderId);
-    params.set("metadata[order_code]", snapshot.orderCode);
+    params.set("metadata[checkout_attempt_id]", attempt.attemptId);
+    params.set("metadata[checkout_code]", attempt.checkoutCode);
 
     snapshot.normalizedItems.forEach((item, index) => {
         params.set(`line_items[${index}][price_data][currency]`, "usd");
@@ -84,22 +86,17 @@ export const createStripeElementsCheckout = async (
             throw new Error("Stripe did not return a checkout client secret.");
         }
 
-        await pool.query(
-            `UPDATE orders SET stripe_checkout_session_id = $1, payment_provider = 'stripe', payment_method = 'card_or_apple_pay', updated_at = NOW() WHERE id = $2`,
-            [session.id, snapshot.orderId],
-        );
+        await pool.query(`UPDATE checkout_attempts SET stripe_checkout_session_id = $1, updated_at = NOW() WHERE id = $2`, [session.id, attempt.attemptId]);
 
         return {
-            orderCode: snapshot.orderCode,
+            orderCode: attempt.checkoutCode,
+            checkoutAttemptId: attempt.attemptId,
             sessionId: session.id,
             clientSecret: session.client_secret,
             shipping: snapshot.shipping,
         };
     } catch (error) {
-        await pool.query(
-            `UPDATE orders SET status = 'payment_setup_failed', updated_at = NOW() WHERE id = $1`,
-            [snapshot.orderId],
-        );
+        await pool.query(`UPDATE checkout_attempts SET status = 'failed', updated_at = NOW() WHERE id = $1`, [attempt.attemptId]);
         throw error;
     }
 };
@@ -109,6 +106,7 @@ export const createStripeApplePayCheckout = async (
     items: CheckoutItemInput[],
 ) => {
     const snapshot = await buildOrderSnapshot(customer, items, { skipShipping: true });
+    const attempt = await createCheckoutAttempt(customer, snapshot, "stripe");
     const params = new URLSearchParams();
 
     params.set("mode", "payment");
@@ -125,8 +123,8 @@ export const createStripeApplePayCheckout = async (
     params.set("shipping_options[0][shipping_rate_data][display_name]", "Shipping calculated from your delivery address");
     params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
     params.set("automatic_tax[enabled]", "true");
-    params.set("metadata[order_id]", snapshot.orderId);
-    params.set("metadata[order_code]", snapshot.orderCode);
+    params.set("metadata[checkout_attempt_id]", attempt.attemptId);
+    params.set("metadata[checkout_code]", attempt.checkoutCode);
 
     snapshot.normalizedItems.forEach((item, index) => {
         params.set(`line_items[${index}][price_data][currency]`, "usd");
@@ -141,21 +139,16 @@ export const createStripeApplePayCheckout = async (
         const session = await stripeRequest(params);
         if (!session.id || !session.client_secret) throw new Error("Stripe did not return an Apple Pay checkout client secret.");
 
-        await pool.query(
-            `UPDATE orders SET stripe_checkout_session_id = $1, payment_provider = 'stripe', payment_method = 'apple_pay', updated_at = NOW() WHERE id = $2`,
-            [session.id, snapshot.orderId],
-        );
+        await pool.query(`UPDATE checkout_attempts SET stripe_checkout_session_id = $1, updated_at = NOW() WHERE id = $2`, [session.id, attempt.attemptId]);
 
         return {
-            orderCode: snapshot.orderCode,
+            orderCode: attempt.checkoutCode,
+            checkoutAttemptId: attempt.attemptId,
             sessionId: session.id,
             clientSecret: session.client_secret,
         };
     } catch (error) {
-        await pool.query(
-            `UPDATE orders SET status = 'payment_setup_failed', updated_at = NOW() WHERE id = $1`,
-            [snapshot.orderId],
-        );
+        await pool.query(`UPDATE checkout_attempts SET status = 'failed', updated_at = NOW() WHERE id = $1`, [attempt.attemptId]);
         throw error;
     }
 };
@@ -177,23 +170,19 @@ export const updateStripeApplePayShipping = async (
         throw new Error("A complete US delivery destination is required.");
     }
 
-    const orderResult = await pool.query(
-        `SELECT * FROM orders WHERE stripe_checkout_session_id = $1 LIMIT 1`,
-        [normalizedSessionId],
-    );
-    const order = orderResult.rows[0];
-    if (!order) throw new Error("Apple Pay checkout order was not found.");
+    const attemptResult = await pool.query(`SELECT * FROM checkout_attempts WHERE stripe_checkout_session_id = $1 LIMIT 1`, [normalizedSessionId]);
+    const attempt = attemptResult.rows[0];
+    if (!attempt) throw new Error("Apple Pay checkout attempt was not found.");
 
     const itemResult = await pool.query(
-        `SELECT product_id, product_name, quantity FROM order_items WHERE order_id = $1 ORDER BY id ASC`,
-        [order.id],
+        `SELECT value->>'product_id' AS product_id, value->>'name' AS product_name, (value->>'quantity')::int AS quantity FROM jsonb_array_elements(items) AS value`,
     );
     const items = itemResult.rows.map((item: any) => ({
         productId: String(item.product_id),
         quantity: Number(item.quantity),
     }));
 
-    const currentAddress = order.shipping_address || {};
+    const currentAddress = attempt.shipping_address || {};
     const street = String(address.line1 || currentAddress.address || "").trim();
     const apartment = String(address.line2 || currentAddress.apartment || "").trim();
 
@@ -203,10 +192,10 @@ export const updateStripeApplePayShipping = async (
 
     const shippingQuote = await getShippingQuote(
         {
-            firstName: String(order.customer_first_name || ""),
-            lastName: String(order.customer_last_name || ""),
-            email: String(order.customer_email || ""),
-            phone: String(order.customer_phone || ""),
+            firstName: String(attempt.customer_first_name || ""),
+            lastName: String(attempt.customer_last_name || ""),
+            email: String(attempt.customer_email || ""),
+            phone: String(attempt.customer_phone || ""),
             address: street,
             apartment,
             city,
@@ -218,7 +207,7 @@ export const updateStripeApplePayShipping = async (
     );
 
     const params = new URLSearchParams();
-    params.set("collected_information[shipping_details][name]", `${order.customer_first_name || ""} ${order.customer_last_name || ""}`.trim() || "Customer");
+    params.set("collected_information[shipping_details][name]", `${attempt.customer_first_name || ""} ${attempt.customer_last_name || ""}`.trim() || "Customer");
     params.set("collected_information[shipping_details][address][country]", country);
     params.set("collected_information[shipping_details][address][line1]", street);
     if (apartment) params.set("collected_information[shipping_details][address][line2]", apartment);
@@ -259,11 +248,11 @@ export const updateStripeApplePayShipping = async (
     };
 
     await pool.query(
-        `UPDATE orders SET customer_first_name = COALESCE(NULLIF($1, ''), customer_first_name), customer_last_name = COALESCE(NULLIF($2, ''), customer_last_name), customer_email = COALESCE(NULLIF($3, ''), customer_email), shipping_address = $4, shipping = $5, total = subtotal + $5, carrier = $6, updated_at = NOW() WHERE stripe_checkout_session_id = $7`,
+        `UPDATE checkout_attempts SET customer_first_name = COALESCE(NULLIF($1, ''), customer_first_name), customer_last_name = COALESCE(NULLIF($2, ''), customer_last_name), shipping_address = $4, shipping = $5, total = subtotal + tax + $5, carrier = $6, updated_at = NOW() WHERE stripe_checkout_session_id = $7`,
         [
-            String(shippingDetails?.name || "").trim().split(/\s+/)[0] || String(order.customer_first_name || ""),
-            String(shippingDetails?.name || "").trim().split(/\s+/).slice(1).join(" ") || String(order.customer_last_name || ""),
-            String(order.customer_email || "").trim().toLowerCase(),
+            String(shippingDetails?.name || "").trim().split(/\s+/)[0] || String(attempt.customer_first_name || ""),
+            String(shippingDetails?.name || "").trim().split(/\s+/).slice(1).join(" ") || String(attempt.customer_last_name || ""),
+            String(attempt.customer_email || "").trim().toLowerCase(),
             JSON.stringify(shippingAddress),
             shippingQuote.shipping,
             shippingQuote.carrier,

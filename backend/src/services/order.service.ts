@@ -17,15 +17,211 @@ export interface CheckoutItemInput { productId: string; quantity: number; model?
 export interface CheckoutCustomerInput { firstName: string; lastName: string; email: string; phone?: string; deliveryType?: "house" | "apartment"; address?: string; apartment?: string; city?: string; state?: string; zip?: string; }
 export interface OrderItemSnapshot { product_id: string; name: string; image_url: string | null; unit_price: number; quantity: number; variant: Record<string, string>; }
 let initialized = false;
-export const ensureOrderTables = async (): Promise<void> => { if (initialized) return; await pool.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto; CREATE SEQUENCE IF NOT EXISTS mtd_order_sequence START 1; CREATE TABLE IF NOT EXISTS orders (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), order_code VARCHAR(32) NOT NULL UNIQUE, stripe_checkout_session_id VARCHAR(255) UNIQUE, stripe_payment_intent_id VARCHAR(255), paypal_order_id VARCHAR(255) UNIQUE, paypal_capture_id VARCHAR(255), payment_provider VARCHAR(32), payment_method VARCHAR(64), customer_first_name VARCHAR(120) NOT NULL, customer_last_name VARCHAR(120) NOT NULL, customer_email VARCHAR(320) NOT NULL, customer_phone VARCHAR(40), shipping_address JSONB NOT NULL DEFAULT '{}'::jsonb, subtotal NUMERIC(12,2) NOT NULL DEFAULT 0, shipping NUMERIC(12,2) NOT NULL DEFAULT 0, tax NUMERIC(12,2) NOT NULL DEFAULT 0, total NUMERIC(12,2) NOT NULL DEFAULT 0, currency VARCHAR(3) NOT NULL DEFAULT 'USD', payment_status VARCHAR(32) NOT NULL DEFAULT 'pending', status VARCHAR(32) NOT NULL DEFAULT 'pending_payment', carrier VARCHAR(40), tracking_number VARCHAR(120), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()); ALTER TABLE orders ADD COLUMN IF NOT EXISTS paypal_order_id VARCHAR(255); ALTER TABLE orders ADD COLUMN IF NOT EXISTS paypal_capture_id VARCHAR(255); ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_provider VARCHAR(32); ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(64); CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_paypal_order_id ON orders(paypal_order_id) WHERE paypal_order_id IS NOT NULL; CREATE TABLE IF NOT EXISTS order_items (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE, product_id VARCHAR(120) NOT NULL, product_name VARCHAR(255) NOT NULL, image_url TEXT, unit_price NUMERIC(12,2) NOT NULL, quantity INTEGER NOT NULL CHECK (quantity > 0), variant JSONB NOT NULL DEFAULT '{}'::jsonb); CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC); CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status); CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email); CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);`); initialized = true; };
+export const ensureOrderTables = async (): Promise<void> => {
+    if (initialized) return;
+    await pool.query(`
+        CREATE EXTENSION IF NOT EXISTS pgcrypto;
+        CREATE SEQUENCE IF NOT EXISTS mtd_order_sequence START 1;
+        CREATE TABLE IF NOT EXISTS orders (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            order_code VARCHAR(32) NOT NULL UNIQUE,
+            stripe_checkout_session_id VARCHAR(255) UNIQUE,
+            stripe_payment_intent_id VARCHAR(255),
+            paypal_order_id VARCHAR(255) UNIQUE,
+            paypal_capture_id VARCHAR(255),
+            payment_provider VARCHAR(32),
+            payment_method VARCHAR(64),
+            customer_first_name VARCHAR(120) NOT NULL,
+            customer_last_name VARCHAR(120) NOT NULL,
+            customer_email VARCHAR(320) NOT NULL,
+            customer_phone VARCHAR(40),
+            shipping_address JSONB NOT NULL DEFAULT '{}'::jsonb,
+            subtotal NUMERIC(12,2) NOT NULL DEFAULT 0,
+            shipping NUMERIC(12,2) NOT NULL DEFAULT 0,
+            tax NUMERIC(12,2) NOT NULL DEFAULT 0,
+            total NUMERIC(12,2) NOT NULL DEFAULT 0,
+            currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+            payment_status VARCHAR(32) NOT NULL DEFAULT 'pending',
+            status VARCHAR(32) NOT NULL DEFAULT 'pending_payment',
+            carrier VARCHAR(40),
+            tracking_number VARCHAR(120),
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS paypal_order_id VARCHAR(255);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS paypal_capture_id VARCHAR(255);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_provider VARCHAR(32);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(64);
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_paypal_order_id ON orders(paypal_order_id) WHERE paypal_order_id IS NOT NULL;
+        CREATE TABLE IF NOT EXISTS order_items (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+            product_id VARCHAR(120) NOT NULL,
+            product_name VARCHAR(255) NOT NULL,
+            image_url TEXT,
+            unit_price NUMERIC(12,2) NOT NULL,
+            quantity INTEGER NOT NULL CHECK (quantity > 0),
+            variant JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+        CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+        CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
+        CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+        CREATE TABLE IF NOT EXISTS checkout_attempts (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            checkout_code VARCHAR(32) NOT NULL UNIQUE,
+            provider VARCHAR(32) NOT NULL,
+            stripe_checkout_session_id VARCHAR(255) UNIQUE,
+            paypal_order_id VARCHAR(255) UNIQUE,
+            customer_first_name VARCHAR(120) NOT NULL,
+            customer_last_name VARCHAR(120) NOT NULL,
+            customer_email VARCHAR(320) NOT NULL,
+            customer_phone VARCHAR(40),
+            shipping_address JSONB NOT NULL DEFAULT '{}'::jsonb,
+            items JSONB NOT NULL DEFAULT '[]'::jsonb,
+            subtotal NUMERIC(12,2) NOT NULL DEFAULT 0,
+            shipping NUMERIC(12,2) NOT NULL DEFAULT 0,
+            tax NUMERIC(12,2) NOT NULL DEFAULT 0,
+            total NUMERIC(12,2) NOT NULL DEFAULT 0,
+            carrier VARCHAR(40),
+            status VARCHAR(32) NOT NULL DEFAULT 'pending',
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS idx_checkout_attempts_created_at ON checkout_attempts(created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_checkout_attempts_status ON checkout_attempts(status);
+    `);
+    initialized = true;
+};
 const requireStripeKey = (): string => { const key = process.env.STRIPE_SECRET_KEY; if (!key) throw new Error("STRIPE_SECRET_KEY is not configured."); return key; };
 const stripeRequest = async (path: string, body: URLSearchParams): Promise<any> => { const response = await fetch(`${STRIPE_API}${path}`, { method: "POST", headers: { Authorization: `Bearer ${requireStripeKey()}`, "Content-Type": "application/x-www-form-urlencoded" }, body }); const data = await response.json() as any; if (!response.ok) throw new Error(data?.error?.message || "Stripe request failed."); return data; };
 const makeOrderCode = async (): Promise<string> => { const result = await pool.query<{ sequence: string }>("SELECT nextval('mtd_order_sequence')::text AS sequence"); const date = new Date().toISOString().slice(0, 10).replace(/-/g, ""); return `#MTD-${date}-${result.rows[0].sequence.padStart(4, "0")}`; };
 const isSafeImageDataUrl = (value: string): boolean => /^data:image\/(png|jpeg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(value) && value.length <= 4.2 * 1024 * 1024;
-export const buildOrderSnapshot = async (customer: CheckoutCustomerInput, items: CheckoutItemInput[], options: { skipShipping?: boolean } = {}) => { await ensureOrderTables(); if (!items.length) throw new Error("Your cart is empty."); const normalizedItems: OrderItemSnapshot[] = []; for (const input of items) { const quantity = Math.floor(Number(input.quantity)); if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item."); const product = await getProductById(input.productId); if (!product || !product.is_active) throw new Error("One of the products is no longer available."); const variant: Record<string, string> = { ...(input.model ? { model: input.model } : {}), ...(input.size ? { size: input.size } : {}), ...(input.color ? { color: input.color } : {}) }; if (input.customizationId) { const customization = input.customization; if (!customization || customization.productId !== String(product.product_id) || !isSafeImageDataUrl(customization.designDataUrl)) throw new Error("The custom mug artwork is missing or invalid. Please return to Customize and upload it again."); variant.customizationId = input.customizationId; variant.designDataUrl = customization.designDataUrl; if (customization.designFileName) variant.designFileName = customization.designFileName.slice(0, 180); if (customization.designScale !== undefined) variant.designScale = String(customization.designScale); if (customization.designX !== undefined) variant.designX = String(customization.designX); if (customization.designY !== undefined) variant.designY = String(customization.designY); if (customization.designRotation !== undefined) variant.designRotation = String(customization.designRotation); if (customization.mugRotation !== undefined) variant.mugRotation = String(customization.mugRotation); } normalizedItems.push({ product_id: String(product.product_id), name: String(product.name), image_url: product.image_url || null, unit_price: Number(product.price), quantity, variant }); } const subtotal = normalizedItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0); const shippingQuote = options.skipShipping
+export const buildOrderSnapshot = async (
+    customer: CheckoutCustomerInput,
+    items: CheckoutItemInput[],
+    options: { skipShipping?: boolean } = {},
+) => {
+    await ensureOrderTables();
+    if (!items.length) throw new Error("Your cart is empty.");
+    const normalizedItems: OrderItemSnapshot[] = [];
+    for (const input of items) {
+        const quantity = Math.floor(Number(input.quantity));
+        if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item.");
+        const product = await getProductById(input.productId);
+        if (!product || !product.is_active) throw new Error("One of the products is no longer available.");
+        const variant: Record<string, string> = {
+            ...(input.model ? { model: input.model } : {}),
+            ...(input.size ? { size: input.size } : {}),
+            ...(input.color ? { color: input.color } : {}),
+        };
+        if (input.customizationId) {
+            const customization = input.customization;
+            if (!customization || customization.productId !== String(product.product_id) || !isSafeImageDataUrl(customization.designDataUrl)) {
+                throw new Error("The custom mug artwork is missing or invalid. Please return to Customize and upload it again.");
+            }
+            variant.customizationId = input.customizationId;
+            variant.designDataUrl = customization.designDataUrl;
+            if (customization.designFileName) variant.designFileName = customization.designFileName.slice(0, 180);
+            if (customization.designScale !== undefined) variant.designScale = String(customization.designScale);
+            if (customization.designX !== undefined) variant.designX = String(customization.designX);
+            if (customization.designY !== undefined) variant.designY = String(customization.designY);
+            if (customization.designRotation !== undefined) variant.designRotation = String(customization.designRotation);
+            if (customization.mugRotation !== undefined) variant.mugRotation = String(customization.mugRotation);
+        }
+        normalizedItems.push({
+            product_id: String(product.product_id),
+            name: String(product.name),
+            image_url: product.image_url || null,
+            unit_price: Number(product.price),
+            quantity,
+            variant,
+        });
+    }
+    const subtotal = normalizedItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+    const shippingQuote = options.skipShipping
         ? { shippingCents: 0, shipping: 0, carrier: "", service: "", deliveryDays: null, currency: "USD", shipmentId: "", rateId: "" }
-        : await getShippingQuote({ firstName: customer.firstName, lastName: customer.lastName, email: customer.email, phone: customer.phone, address: customer.address || "", apartment: customer.apartment, city: customer.city || "", state: customer.state || "", zip: customer.zip || "", country: "US" }, normalizedItems); const shippingCents = shippingQuote.shippingCents; const shipping = shippingCents / 100; const orderCode = await makeOrderCode(); const shippingAddress = { deliveryType: customer.deliveryType || "house", address: customer.address || "", apartment: customer.apartment || "", city: customer.city || "", state: customer.state || "", zip: customer.zip || "" }; const orderResult = await pool.query(`INSERT INTO orders (order_code, customer_first_name, customer_last_name, customer_email, customer_phone, shipping_address, subtotal, shipping, tax, total, status, payment_status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,$9,'pending_payment','pending') RETURNING id, order_code`, [orderCode, customer.firstName.trim(), customer.lastName.trim(), customer.email.trim().toLowerCase(), customer.phone?.trim() || null, JSON.stringify(shippingAddress), subtotal, shipping, subtotal + shipping]); const orderId = orderResult.rows[0].id as string; for (const item of normalizedItems) await pool.query(`INSERT INTO order_items (order_id, product_id, product_name, image_url, unit_price, quantity, variant) VALUES ($1,$2,$3,$4,$5,$6,$7)`, [orderId, item.product_id, item.name, item.image_url, item.unit_price, item.quantity, JSON.stringify(item.variant)]); return { orderId, orderCode, normalizedItems, subtotal, shipping, shippingCents, shippingAddress, shippingCarrier: shippingQuote.carrier, shippingService: shippingQuote.service, shippingDeliveryDays: shippingQuote.deliveryDays, shippingShipmentId: shippingQuote.shipmentId, shippingRateId: shippingQuote.rateId }; };
-export const createCheckoutSession = async (customer: CheckoutCustomerInput, items: CheckoutItemInput[]) => { const snapshot = await buildOrderSnapshot(customer, items); const { orderId, orderCode, normalizedItems, shippingCents } = snapshot; const params = new URLSearchParams(); params.set("mode", "payment"); params.set("success_url", `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`); params.set("cancel_url", `${FRONTEND_URL}/checkout`); params.set("customer_email", customer.email.trim().toLowerCase()); params.set("payment_intent_data[receipt_email]", customer.email.trim().toLowerCase()); params.set("billing_address_collection", "auto"); params.set("shipping_address_collection[allowed_countries][0]", "US"); params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount"); params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(shippingCents)); params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd"); params.set("shipping_options[0][shipping_rate_data][display_name]", "Standard Shipping"); params.set("automatic_tax[enabled]", "true"); params.set("metadata[order_id]", orderId); params.set("metadata[order_code]", orderCode); normalizedItems.forEach((item, index) => { params.set(`line_items[${index}][price_data][currency]`, "usd"); params.set(`line_items[${index}][price_data][product_data][name]`, item.name); if (item.image_url) params.set(`line_items[${index}][price_data][product_data][images][0]`, item.image_url); params.set(`line_items[${index}][price_data][unit_amount]`, String(Math.round(item.unit_price * 100))); params.set(`line_items[${index}][quantity]`, String(item.quantity)); }); try { const session = await stripeRequest("/checkout/sessions", params); await pool.query(`UPDATE orders SET stripe_checkout_session_id = $1, payment_provider = 'stripe', payment_method = 'card_or_wallet', updated_at = NOW() WHERE id = $2`, [session.id, orderId]); return { orderCode, checkoutUrl: session.url }; } catch (error) { await pool.query(`UPDATE orders SET status = 'payment_setup_failed', updated_at = NOW() WHERE id = $1`, [orderId]); throw error; } };
+        : await getShippingQuote({
+            firstName: customer.firstName,
+            lastName: customer.lastName,
+            email: customer.email,
+            phone: customer.phone,
+            address: customer.address || "",
+            apartment: customer.apartment,
+            city: customer.city || "",
+            state: customer.state || "",
+            zip: customer.zip || "",
+            country: "US",
+        }, normalizedItems);
+    const shippingCents = shippingQuote.shippingCents;
+    const shipping = shippingCents / 100;
+    const shippingAddress = {
+        deliveryType: customer.deliveryType || "house",
+        address: customer.address || "",
+        apartment: customer.apartment || "",
+        city: customer.city || "",
+        state: customer.state || "",
+        zip: customer.zip || "",
+    };
+    const checkoutCode = await makeOrderCode();
+    return {
+        checkoutCode,
+        normalizedItems,
+        subtotal,
+        shipping,
+        shippingCents,
+        shippingAddress,
+        shippingCarrier: shippingQuote.carrier,
+        shippingService: shippingQuote.service,
+        shippingDeliveryDays: shippingQuote.deliveryDays,
+        shippingShipmentId: shippingQuote.shipmentId,
+        shippingRateId: shippingQuote.rateId,
+    };
+};
+
+export const createCheckoutAttempt = async (
+    customer: CheckoutCustomerInput,
+    snapshot: Awaited<ReturnType<typeof buildOrderSnapshot>>,
+    provider: "stripe" | "paypal",
+) => {
+    await ensexport const createCheckoutSession = async (customer: CheckoutCustomerInput, items: CheckoutItemInput[]) => {
+    const snapshot = await buildOrderSnapshot(customer, items);
+    const attempt = await createCheckoutAttempt(customer, snapshot, "stripe");
+    const params = new URLSearchParams();
+    params.set("mode", "payment");
+    params.set("success_url", `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
+    params.set("cancel_url", `${FRONTEND_URL}/checkout`);
+    params.set("customer_email", customer.email.trim().toLowerCase());
+    params.set("payment_intent_data[receipt_email]", customer.email.trim().toLowerCase());
+    params.set("billing_address_collection", "auto");
+    params.set("shipping_address_collection[allowed_countries][0]", "US");
+    params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
+    params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents));
+    params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
+    params.set("shipping_options[0][shipping_rate_data][display_name]", "Standard Shipping");
+    params.set("automatic_tax[enabled]", "true");
+    params.set("metadata[checkout_attempt_id]", attempt.attemptId);
+    params.set("metadata[checkout_code]", attempt.checkoutCode);
+    snapshot.normalizedItems.forEach((item, index) => {
+        params.set(`line_items[${index}][price_data][currency]`, "usd");
+        params.set(`line_items[${index}][price_data][product_data][name]`, item.name);
+        if (item.image_url) params.set(`line_items[${index}][price_data][product_data][images][0]`, item.image_url);
+        params.set(`line_items[${index}][price_data][unit_amount]`, String(Math.round(item.unit_price * 100)));
+        params.set(`line_items[${index}][quantity]`, String(item.quantity));
+    });
+    try {
+        const session = await stripeRequest("/checkout/sessions", params);
+        await pool.query(
+            `UPDATE checkout_attempts SET stripe_checkout_session_id = $1, updated_at = NOW() WHERE id = $2`,
+            [session.id, attempt.attemptId],
+        );
+        return { orderCode: attempt.checkoutCode, checkoutCode: attempt.checkoutCode, checkoutAttemptId: attempt.attemptId, checkoutUrl: session.url };
+    } catch (error) {
+        await pool.query(`UPDATE checkout_attempts SET status = 'failed', updated_at = NOW() WHERE id = $1`, [attempt.attemptId]);
+        throw error;
+    }
+};
+
 const getOrderWithItems = async (where: string, values: unknown[]) => { const orderResult = await pool.query(`SELECT * FROM orders ${where}`, values); if (!orderResult.rows[0]) return null; const items = await pool.query(`SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC`, [orderResult.rows[0].id]); return { ...orderResult.rows[0], items: items.rows }; };
 export const getOrderByCode = async (orderCode: string) => { await ensureOrderTables(); return getOrderWithItems("WHERE order_code = $1", [orderCode]); };
 export const getOrderBySessionId = async (sessionId: string) => { await ensureOrderTables(); return getOrderWithItems("WHERE stripe_checkout_session_id = $1", [sessionId]); };
@@ -52,4 +248,143 @@ export const sendCustomerOrderConfirmation = async (orderIdOrCode: string): Prom
     const text = `Thank you for your order!\nOrder: ${order.order_code}\nTotal paid: ${Number(order.total).toFixed(2)} USD\nYour order has been confirmed.`;
     await sendEmail({ to: order.customer_email, subject: `Order confirmed ${order.order_code} — Magic Touch Designs`, html, text, idempotencyKey: `customer-order-confirmation/${order.id}` });
 };
-export const handleStripeWebhook = async (event: any): Promise<void> => { await ensureOrderTables(); if (event?.type !== "checkout.session.completed" && event?.type !== "checkout.session.async_payment_succeeded") return; const session = event.data?.object; const orderId = session?.metadata?.order_id; if (!orderId) return; const amountSubtotal = Number(session.amount_subtotal || 0) / 100; const amountTotal = Number(session.amount_total || 0) / 100; const amountTax = Number(session.total_details?.amount_tax || 0) / 100; const amountShipping = Number(session.total_details?.amount_shipping || 0) / 100; await pool.query(`UPDATE orders SET stripe_payment_intent_id = $1, subtotal = $2, shipping = $3, tax = $4, total = $5, payment_status = 'paid', status = 'paid', payment_provider = 'stripe', updated_at = NOW() WHERE id = $6`, [session.payment_intent || null, amountSubtotal, amountShipping, amountTax, amountTotal, orderId]); await sendCustomerOrderConfirmation(orderId); await sendCustomOrderNotification(orderId); };
+export const materializePaidOrder = async (input: {
+    attemptId: string;
+    paymentProvider: "stripe" | "paypal";
+    paymentMethod: string;
+    stripeCheckoutSessionId?: string | null;
+    stripePaymentIntentId?: string | null;
+    paypalOrderId?: string | null;
+    paypalCaptureId?: string | null;
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    total: number;
+    customer?: Partial<CheckoutCustomerInput> & { shippingAddress?: Record<string, string> };
+}) => {
+    await ensureOrderTables();
+    const client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+        const attemptResult = await client.query(`SELECT * FROM checkout_attempts WHERE id = $1 FOR UPDATE`, [input.attemptId]);
+        const attempt = attemptResult.rows[0];
+        if (!attempt) throw new Error("Checkout attempt not found.");
+        const existing = await client.query(
+            `SELECT id, order_code FROM orders
+             WHERE ($1::text IS NOT NULL AND stripe_checkout_session_id = $1)
+                OR ($2::text IS NOT NULL AND paypal_order_id = $2)
+             LIMIT 1`,
+            [input.stripeCheckoutSessionId || null, input.paypalOrderId || null],
+        );
+        if (existing.rows[0]) {
+            await client.query(`UPDATE checkout_attempts SET status='completed', updated_at=NOW() WHERE id=$1`, [input.attemptId]);
+            await client.query("COMMIT");
+            return { orderId: String(existing.rows[0].id), orderCode: String(existing.rows[0].order_code), created: false };
+        }
+
+        const customer = input.customer || {};
+        const shippingAddress = customer.shippingAddress || attempt.shipping_address || {};
+        const firstName = String(customer.firstName || attempt.customer_first_name || "").trim();
+        const lastName = String(customer.lastName || attempt.customer_last_name || "").trim();
+        const email = String(customer.email || attempt.customer_email || "").trim().toLowerCase();
+        const phone = String(customer.phone || attempt.customer_phone || "").trim() || null;
+
+        const orderResult = await client.query(
+            `INSERT INTO orders
+                (order_code, stripe_checkout_session_id, stripe_payment_intent_id, paypal_order_id, paypal_capture_id,
+                 payment_provider, payment_method, customer_first_name, customer_last_name, customer_email, customer_phone,
+                 shipping_address, subtotal, shipping, tax, total, status, payment_status)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,'paid','paid')
+             RETURNING id, order_code`,
+            [
+                attempt.checkout_code,
+                input.stripeCheckoutSessionId || null,
+                input.stripePaymentIntentId || null,
+                input.paypalOrderId || null,
+                input.paypalCaptureId || null,
+                input.paymentProvider,
+                input.paymentMethod,
+                firstName,
+                lastName,
+                email,
+                phone,
+                JSON.stringify(shippingAddress),
+                input.subtotal,
+                input.shipping,
+                input.tax,
+                input.total,
+            ],
+        );
+        const orderId = String(orderResult.rows[0].id);
+        const items = Array.isArray(attempt.items) ? attempt.items : [];
+        for (const item of items) {
+            await client.query(
+                `INSERT INTO order_items (order_id, product_id, product_name, image_url, unit_price, quantity, variant)
+                 VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+                [orderId, String(item.product_id), String(item.name), item.image_url || null, Number(item.unit_price), Number(item.quantity), JSON.stringify(item.variant || {})],
+            );
+        }
+        await client.query(
+            `UPDATE checkout_attempts SET status='completed', subtotal=$1, shipping=$2, tax=$3, total=$4, updated_at=NOW() WHERE id=$5`,
+            [input.subtotal, input.shipping, input.tax, input.total, input.attemptId],
+        );
+        await client.query("COMMIT");
+        return { orderId, orderCode: String(orderResult.rows[0].order_code), created: true };
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
+export const handleStripeWebhook = async (event: any): Promise<void> => {
+    await ensureOrderTables();
+    if (event?.type !== "checkout.session.completed" && event?.type !== "checkout.session.async_payment_succeeded") return;
+    const session = event.data?.object;
+    const attemptId = session?.metadata?.checkout_attempt_id;
+    if (!attemptId) throw new Error("Stripe checkout attempt metadata is missing.");
+    if (session?.payment_status !== "paid" && event?.type === "checkout.session.completed") return;
+    const amountSubtotal = Number(session.amount_subtotal || 0) / 100;
+    const amountTotal = Number(session.amount_total || 0) / 100;
+    const amountTax = Number(session.total_details?.amount_tax || 0) / 100;
+    const amountShipping = Number(session.total_details?.amount_shipping || 0) / 100;
+    const customerDetails = session?.customer_details || {};
+    const shippingDetails = session?.shipping_details || {};
+    const shippingAddress = shippingDetails?.address || {};
+    const name = String(shippingDetails?.name || customerDetails?.name || "").trim();
+    const nameParts = name.split(/\s+/).filter(Boolean);
+    const firstName = nameParts.shift() || "";
+    const lastName = nameParts.join(" ") || "";
+    const email = String(customerDetails?.email || "").trim().toLowerCase();
+    const phone = String(customerDetails?.phone || "").trim();
+    const result = await materializePaidOrder({
+        attemptId,
+        paymentProvider: "stripe",
+        paymentMethod: "card_or_wallet",
+        stripeCheckoutSessionId: String(session.id),
+        stripePaymentIntentId: session.payment_intent ? String(session.payment_intent) : null,
+        subtotal: amountSubtotal,
+        shipping: amountShipping,
+        tax: amountTax,
+        total: amountTotal,
+        customer: {
+            firstName,
+            lastName,
+            email,
+            phone,
+            shippingAddress: shippingDetails?.address ? {
+                deliveryType: "house",
+                address: String(shippingAddress?.line1 || ""),
+                apartment: String(shippingAddress?.line2 || ""),
+                city: String(shippingAddress?.city || ""),
+                state: String(shippingAddress?.state || ""),
+                zip: String(shippingAddress?.postal_code || ""),
+            } : undefined,
+        },
+    });
+    if (result.created) {
+        await sendCustomerOrderConfirmation(result.orderId);
+        await sendCustomOrderNotification(result.orderId);
+    }
+};

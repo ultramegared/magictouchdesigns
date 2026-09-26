@@ -9,6 +9,7 @@ import {
     listAdminOrders,
     updateAdminOrder,
     deleteAdminOrder,
+    purgeUnpaidOrders,
 } from "../controllers/order.admin.controller";
 
 const router = Router();
@@ -17,6 +18,7 @@ router.use(authenticateToken);
 router.use(requireAdmin);
 
 router.get("/", listAdminOrders);
+router.post("/purge-unpaid", purgeUnpaidOrders);
 router.patch("/:id", updateAdminOrder);
 router.delete("/:id", deleteAdminOrder);
 
