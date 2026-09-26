@@ -204,6 +204,52 @@ const quotePackage = async (
     return extractGroundRate(payload);
 };
 
+export type UspsTrackingSnapshot = {
+    trackingNumber: string;
+    status: string | null;
+    statusCategory: string | null;
+    statusSummary: string | null;
+    trackingEvents: Array<{
+        eventType?: string | null;
+        eventTimestamp?: string | null;
+        eventCity?: string | null;
+        eventState?: string | null;
+        eventZIP?: string | null;
+    }>;
+};
+
+export const getUspsTracking = async (trackingNumber: string): Promise<UspsTrackingSnapshot | null> => {
+    const normalized = String(trackingNumber || "").replace(/[^A-Za-z0-9]/g, "");
+    if (!normalized) return null;
+
+    const encodedTracking = encodeURIComponent(normalized);
+    try {
+        const payload = await uspsJson<any>(
+            `${USPS_API_BASE}/tracking/v3/tracking/${encodedTracking}?expand=DETAIL`,
+            { method: "GET" },
+        );
+
+        return {
+            trackingNumber: String(payload?.trackingNumber || normalized),
+            status: payload?.status ? String(payload.status) : null,
+            statusCategory: payload?.statusCategory ? String(payload.statusCategory) : null,
+            statusSummary: payload?.statusSummary ? String(payload.statusSummary) : null,
+            trackingEvents: Array.isArray(payload?.trackingEvents)
+                ? payload.trackingEvents.slice(0, 10).map((event: any) => ({
+                    eventType: event?.eventType ? String(event.eventType) : null,
+                    eventTimestamp: event?.eventTimestamp ? String(event.eventTimestamp) : null,
+                    eventCity: event?.eventCity ? String(event.eventCity) : null,
+                    eventState: event?.eventState ? String(event.eventState) : null,
+                    eventZIP: event?.eventZIP ? String(event.eventZIP) : null,
+                }))
+                : [],
+        };
+    } catch (error) {
+        console.warn("USPS tracking lookup failed; keeping carrier tracking link:", error);
+        return null;
+    }
+};
+
 export const getShippingQuote = async (destination: ShippingAddress, items: ShippingItem[]) => {
     const country = String(destination.country || "US").trim().toUpperCase();
     if (country !== "US") {
