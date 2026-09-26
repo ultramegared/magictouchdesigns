@@ -9,7 +9,7 @@ import { ensureOrderTables } from "../services/order.service";
 export const listAdminOrders = async (_req: Request, res: Response): Promise<void> => {
     try {
         await ensureOrderTables();
-        const result = await pool.query(`SELECT o.*, COUNT(oi.id)::int AS item_count FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id GROUP BY o.id ORDER BY o.created_at DESC`);
+        const result = await pool.query(`SELECT o.*, COUNT(oi.id)::int AS item_count FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id WHERE o.payment_status IN ('paid', 'refunded') GROUP BY o.id ORDER BY o.created_at DESC`);
         res.json(result.rows);
     } catch (error) {
         console.error("List admin orders error:", error);
