@@ -5,7 +5,7 @@ import Footer from "../../components/home/Footer";
 import { clearCart, getCartItems } from "../../utils/cart";
 import { removeCustomizationSession } from "../../utils/customization";
 import "./CheckoutSuccessPage.css";
-const API_URL = "https://api.magictouchdesigns.com/api";
+const API_URL = "https://api.jqydesigns.com/api";
 const PAYPAL_CONFIRMATION_KEY = "mtd-paypal-confirmation";
 type Order = { order_code: string; payment_status: string; status: string; total: string | number; customer_first_name: string; customer_last_name: string };
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
