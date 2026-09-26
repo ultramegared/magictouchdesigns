@@ -73,9 +73,10 @@ function AdminOrders() {
         try {
             setPurging(true);
             setError(null);
-            const result = await apiRequest<{ count: number }>("/api/admin/orders/purge-unpaid", { method: "POST" });
+            const result = await apiRequest<{ count: number; attemptsDeleted?: number }>("/api/admin/orders/purge-unpaid", { method: "POST" });
             await loadOrders();
-            window.alert(result.count ? `Cleaned ${result.count} unpaid checkout record${result.count === 1 ? "" : "s"}.` : "No unpaid checkout records needed cleanup.");
+            const total = Number(result.count || 0) + Number(result.attemptsDeleted || 0);
+            window.alert(total ? `Cleaned ${total} legacy checkout record${total === 1 ? "" : "s"}.` : "No legacy checkout records needed cleanup.");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Unable to clean unpaid checkout records.");
         } finally {

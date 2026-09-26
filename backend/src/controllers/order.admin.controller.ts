@@ -36,12 +36,34 @@ export const updateAdminOrder = async (req: Request, res: Response): Promise<voi
 export const purgeUnpaidOrders = async (_req: Request, res: Response): Promise<void> => {
     try {
         await ensureOrderTables();
-        const result = await pool.query(
-            `DELETE FROM orders
-             WHERE payment_status NOT IN ('paid', 'refunded')
-             RETURNING id, order_code`,
-        );
-        res.json({ deleted: true, count: result.rows.length, orderCodes: result.rows.map((row: { order_code: string }) => row.order_code) });
+        const client = await pool.connect();
+        try {
+            await client.query("BEGIN");
+            const ordersResult = await client.query(
+                `DELETE FROM orders
+                 WHERE payment_status NOT IN ('paid', 'refunded')
+                 RETURNING id, order_code`,
+            );
+            const attemptsResult = await client.query(
+                `DELETE FROM checkout_attempts
+                 WHERE status = 'failed'
+                    OR (status = 'pending' AND created_at < NOW() - INTERVAL '7 days')
+                 RETURNING id, checkout_code`,
+            );
+            await client.query("COMMIT");
+            res.json({
+                deleted: true,
+                count: ordersResult.rows.length,
+                ordersDeleted: ordersResult.rows.length,
+                attemptsDeleted: attemptsResult.rows.length,
+                orderCodes: ordersResult.rows.map((row: { order_code: string }) => row.order_code),
+            });
+        } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+        } finally {
+            client.release();
+        }
     } catch (error) {
         console.error("Purge unpaid orders error:", error);
         res.status(500).json({ message: "Unable to clean unpaid checkout records." });
