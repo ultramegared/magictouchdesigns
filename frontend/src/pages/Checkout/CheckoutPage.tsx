@@ -192,7 +192,6 @@ function CheckoutPage() {
                 buttonHeight: 52,
                 buttonType: { applePay: "check-out" },
                 buttonTheme: { applePay: "black" },
-                emailRequired: true,
                 phoneNumberRequired: Boolean(customer.phone.trim()),
                 shippingAddressRequired: true,
                 paymentMethods: {
@@ -289,7 +288,7 @@ function CheckoutPage() {
                 const session = sdk.createPayPalOneTimePaymentSession({ onApprove: async ({ orderId }: { orderId: string }) => { const r = await fetch(`${API_URL}/orders/paypal/${encodeURIComponent(orderId)}/capture`, { method: "POST" }); const d = (await r.json()) as { orderCode?: string; message?: string }; if (!r.ok || !d.orderCode) throw new Error(d.message || "PayPal payment failed."); window.location.assign(`/checkout/success?paypal=1&order_code=${encodeURIComponent(d.orderCode)}`); }, onCancel: () => setPaypalError("PayPal checkout was cancelled."), onError: (x: Error) => setPaypalError(x.message || "PayPal payment failed.") });
                 const c = paypalContainerRef.current; if (!c) return;
                 c.replaceChildren(); const b = document.createElement("paypal-button"); b.setAttribute("type", "pay"); b.setAttribute("hidden", "");
-                b.addEventListener("click", async () => { if (!valid()) return; try { await session.start({ presentationMode: "auto" }, (async () => { const r = await fetch(`${API_URL}/orders/paypal/create`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload()) }); const d = (await r.json()) as { paypalOrderId?: string; message?: string }; if (!r.ok || !d.paypalOrderId) throw new Error(d.message || "Unable to create PayPal payment."); return d.paypalOrderId; })()); } catch (x) { setPaypalError(x instanceof Error ? x.message : "PayPal payment failed."); } });
+                b.addEventListener("click", async () => { if (!valid()) return; try { await session.start({ presentationMode: "auto" }, (async () => { const r = await fetch(`${API_URL}/orders/paypal/create`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload()) }); const d = (await r.json()) as { paypalOrderId?: string; message?: string }; if (!r.ok || !d.paypalOrderId) throw new Error(d.message || "Unable to create PayPal payment."); return { orderId: String(d.paypalOrderId) }; })()); } catch (x) { setPaypalError(x instanceof Error ? x.message : "PayPal payment failed."); } });
                 c.appendChild(b); b.removeAttribute("hidden"); setPaypalEnabled(true); setPaypalLoading(false);
             } catch (x) { if (!cancelled) { console.error("PayPal initialization error:", x); setPaypalLoading(false); setPaypalError(x instanceof Error ? x.message : "PayPal is temporarily unavailable."); } }
         })();
