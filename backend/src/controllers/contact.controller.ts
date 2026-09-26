@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import { sendEmail } from "../services/email.service";
+import { getSettings } from "../services/settings.service";
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -42,10 +43,6 @@ export const contactUpload = (
         next();
     });
 };
-
-const recipient =
-    process.env.CONTACT_RECIPIENT_EMAIL ||
-    "JQYDesigns@gmail.com";
 
 const escapeHtml = (value: string): string =>
     value
@@ -152,6 +149,18 @@ export const submitCustomRequest = async (
             `Additional details: ${notes || "None"}`,
             `Estimated merchandise total: $${(24.99 * quantity).toFixed(2)}`,
         ].join("\n");
+
+        const settings = await getSettings();
+        const recipient = settings.supportEmail.trim();
+        if (!recipient) {
+            throw new Error("Contact recipient email is not configured in Admin Settings.");
+        }
+
+        const settings = await getSettings();
+        const recipient = settings.supportEmail.trim();
+        if (!recipient) {
+            throw new Error("Contact recipient email is not configured in Admin Settings.");
+        }
 
         await sendEmail({
             to: recipient,
