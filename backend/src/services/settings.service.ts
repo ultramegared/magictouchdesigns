@@ -24,6 +24,7 @@ export interface SiteConfig {
 }
 
 const localized = (en: string, es = ""): LocalizedText => ({ en, es });
+const isValidEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const id = (prefix: string, n: number) => `${prefix}-${n}`;
 
 const DEFAULT_CONFIG: SiteConfig = {
@@ -172,6 +173,9 @@ export const updateSettings = async (data: any) => {
     const requestedLogo = data.logoUrl !== undefined ? data.logoUrl : current.logoUrl;
     const logoChanged = requestedLogo !== current.logoUrl;
     const requestedSupportEmail = String(data.supportEmail ?? current.supportEmail).trim();
+    if (requestedSupportEmail && !isValidEmail(requestedSupportEmail)) {
+        throw new Error("A valid contact recipient email is required.");
+    }
     const notificationsChanged = data.notificationsEnabled !== undefined && data.notificationsEnabled !== current.notificationsEnabled;
     const textConfigChanged =
         incomingConfig.websiteName.en !== current.config.websiteName.en ||
