@@ -131,6 +131,7 @@ export const createStripeApplePayCheckout = async (
     snapshot.normalizedItems.forEach((item, index) => {
         params.set(`line_items[${index}][price_data][currency]`, "usd");
         params.set(`line_items[${index}][price_data][product_data][name]`, item.name);
+        params.set(`line_items[${index}][price_data][product_data][tax_code]`, GENERAL_PHYSICAL_GOODS_TAX_CODE);
         if (item.image_url) params.set(`line_items[${index}][price_data][product_data][images][0]`, item.image_url);
         params.set(`line_items[${index}][price_data][unit_amount]`, String(Math.round(item.unit_price * 100)));
         params.set(`line_items[${index}][quantity]`, String(item.quantity));
