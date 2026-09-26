@@ -57,7 +57,6 @@ export const createStripeElementsCheckout = async (
     params.set("billing_address_collection", "auto");
     params.set("phone_number_collection[enabled]", "true");
     params.set("shipping_address_collection[allowed_countries][0]", "US");
-    params.set("permissions[update_shipping_details]", "server_only");
     params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents));
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
