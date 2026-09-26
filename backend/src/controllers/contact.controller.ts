@@ -8,21 +8,40 @@ const upload = multer({
         fileSize: 10 * 1024 * 1024,
         files: 1,
     },
-    fileFilter: (_req, file, callback) => {
-        const allowed = [
-            "image/jpeg",
-            "image/png",
-            "image/webp",
-        ];
-
-        callback(
-            allowed.includes(file.mimetype)
-                ? null
-                : new Error("Only JPG, PNG, and WebP images are allowed."),
-            allowed.includes(file.mimetype)
-        );
-    },
 });
+
+export const contactUpload = (
+    req: Request,
+    res: Response,
+    next: () => void
+): void => {
+    upload.single("image")(req, res, (error: unknown) => {
+        if (error instanceof multer.MulterError) {
+            res.status(
+                error.code === "LIMIT_FILE_SIZE"
+                    ? 413
+                    : 400
+            ).json({
+                status: "error",
+                message:
+                    error.code === "LIMIT_FILE_SIZE"
+                        ? "The image must be 10 MB or smaller."
+                        : "Invalid image upload.",
+            });
+            return;
+        }
+
+        if (error instanceof Error) {
+            res.status(400).json({
+                status: "error",
+                message: error.message,
+            });
+            return;
+        }
+
+        next();
+    });
+};
 
 const recipient =
     process.env.CONTACT_RECIPIENT_EMAIL ||
@@ -57,8 +76,6 @@ const sendError = (
         message,
     });
 };
-
-export const contactUpload = upload.single("image");
 
 export const submitCustomRequest = async (
     req: Request,
@@ -197,7 +214,7 @@ export const submitSupportRequest = async (
             <p><strong>Name:</strong> ${escapeHtml(name)}</p>
             <p><strong>Email:</strong> ${escapeHtml(email)}</p>
             <p><strong>Order number:</strong> ${escapeHtml(orderNumber || "Not provided")}</p>
-            <p><strong>Message:</strong><br>${escapeHtml(message).replaceAll("\\n", "<br>")}</p>
+            <p><strong>Message:</strong><br>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
         `;
 
         const text = [
