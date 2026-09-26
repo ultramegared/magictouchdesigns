@@ -5,6 +5,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../config/database";
 import { ensureOrderTables } from "../services/order.service";
+import { sendShipmentUpdate } from "../services/shipment.service";
 
 export const listAdminOrders = async (_req: Request, res: Response): Promise<void> => {
     try {
@@ -24,8 +25,35 @@ export const updateAdminOrder = async (req: Request, res: Response): Promise<voi
         const { status, carrier, trackingNumber } = req.body || {};
         const allowedStatuses = ["pending_payment", "paid", "processing", "shipped", "delivered", "cancelled", "refunded"];
         if (status !== undefined && !allowedStatuses.includes(status)) { res.status(400).json({ message: "Invalid order status." }); return; }
-        const result = await pool.query(`UPDATE orders SET status = COALESCE($1, status), carrier = COALESCE($2, carrier), tracking_number = COALESCE($3, tracking_number), updated_at = NOW() WHERE id = $4 RETURNING *`, [status ?? null, carrier?.trim() || null, trackingNumber?.trim() || null, orderId]);
-        if (!result.rows[0]) { res.status(404).json({ message: "Order not found." }); return; }
+        const beforeResult = await pool.query(
+            `SELECT status, carrier, tracking_number, payment_status FROM orders WHERE id = $1 LIMIT 1`,
+            [orderId],
+        );
+        if (!beforeResult.rows[0]) { res.status(404).json({ message: "Order not found." }); return; }
+        if (beforeResult.rows[0].payment_status !== "paid" && beforeResult.rows[0].payment_status !== "refunded") {
+            res.status(409).json({ message: "Only paid or refunded orders can be updated from the fulfillment workspace." });
+            return;
+        }
+
+        const nextStatus = status !== undefined ? status : beforeResult.rows[0].status;
+        const nextCarrier = carrier !== undefined ? (carrier?.trim() || null) : beforeResult.rows[0].carrier;
+        const nextTracking = trackingNumber !== undefined ? (trackingNumber?.trim() || null) : beforeResult.rows[0].tracking_number;
+        const result = await pool.query(
+            `UPDATE orders SET status = $1, carrier = $2, tracking_number = $3, updated_at = NOW() WHERE id = $4 RETURNING *`,
+            [nextStatus, nextCarrier, nextTracking, orderId],
+        );
+        const before = beforeResult.rows[0];
+        const shipmentChanged =
+            (nextCarrier || "") !== (before.carrier || "") ||
+            (nextTracking || "") !== (before.tracking_number || "") ||
+            (nextStatus === "shipped" && before.status !== "shipped");
+        if (shipmentChanged && nextTracking) {
+            try {
+                await sendShipmentUpdate(orderId);
+            } catch (emailError) {
+                console.error("Shipment update email error:", emailError);
+            }
+        }
         res.json(result.rows[0]);
     } catch (error) {
         console.error("Update admin order error:", error);
