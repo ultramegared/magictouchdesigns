@@ -39,7 +39,7 @@ type MugProfile = {
 const USPS_API_BASE = "https://apis.usps.com";
 const TOKEN_URL = `${USPS_API_BASE}/oauth2/v3/token`;
 const SHIPPING_OPTIONS_URL = `${USPS_API_BASE}/shipments/v3/options/search`;
-const SERVICE_STANDARDS_URL = `${USPS_API_BASE}/service-standards/v3/estimates`;
+
 
 let cachedToken: { value: string; expiresAt: number } | null = null;
 
@@ -204,28 +204,6 @@ const quotePackage = async (
     return extractGroundRate(payload);
 };
 
-const getDeliveryDays = async (originZip: string, destinationZip: string): Promise<number | null> => {
-    const params = new URLSearchParams({
-        originZIPCode: originZip,
-        destinationZIPCode: destinationZip,
-        mailClass: "USPS_GROUND_ADVANTAGE",
-    });
-
-    try {
-        const payload = await uspsJson<any[]>(
-            `${SERVICE_STANDARDS_URL}?${params.toString()}`,
-            { method: "GET" },
-        );
-        const values = payload
-            .map(item => Number(item?.serviceStandard ?? item?.days))
-            .filter(value => Number.isFinite(value) && value > 0);
-        return values.length ? Math.max(...values) : null;
-    } catch (error) {
-        console.warn("USPS service-standard lookup failed; keeping rate quote:", error);
-        return null;
-    }
-};
-
 export const getShippingQuote = async (destination: ShippingAddress, items: ShippingItem[]) => {
     const country = String(destination.country || "US").trim().toUpperCase();
     if (country !== "US") {
@@ -261,9 +239,6 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
             if (quote.sku) rateIds.push(quote.sku);
         }
     }
-
-    const standardDays = await getDeliveryDays(originZip, destinationZip);
-    if (standardDays) maxTransitDays = Math.max(maxTransitDays, standardDays);
 
     return {
         shippingCents,
