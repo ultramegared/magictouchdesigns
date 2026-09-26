@@ -39,7 +39,9 @@ function ContactPage() {
 
     const { language } = useLanguage();
 
-const t = translations[language].contact;
+    const t = translations[language].contact;
+
+    const [contactRecipientEmail, setContactRecipientEmail] = useState("");
 
     const [imageName, setImageName] = useState("");
 
@@ -58,6 +60,19 @@ const t = translations[language].contact;
     const [supportStatus, setSupportStatus] = useState<
         "idle" | "sending" | "success" | "error"
     >("idle");
+
+    useState(() => {
+        apiRequest<{ status: string; settings: { supportEmail: string } }>(
+            `/api/settings?contact_email_refresh=\${Date.now()}`,
+            { cache: "no-store" }
+        )
+            .then((response) => {
+                setContactRecipientEmail(response.settings.supportEmail || "");
+            })
+            .catch(() => {
+                setContactRecipientEmail("");
+            });
+    });
 
 
     const estimatedTotal =
@@ -741,7 +756,7 @@ const t = translations[language].contact;
                                     </strong>
 
                                     <span>
-                                        business.magic.t.d@gmail.com
+                                        {contactRecipientEmail || "Contact us through the form"}
                                     </span>
 
                                 </div>
