@@ -6,7 +6,7 @@ import { getSettings } from "../services/settings.service";
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
-        fileSize: 10 * 1024 * 1024,
+        fileSize: 3 * 1024 * 1024,
         files: 1,
     },
 });
@@ -26,7 +26,7 @@ export const contactUpload = (
                 status: "error",
                 message:
                     error.code === "LIMIT_FILE_SIZE"
-                        ? "The image must be 10 MB or smaller."
+                        ? "The image must be 3 MB or smaller."
                         : "Invalid image upload.",
             });
             return;
@@ -156,12 +156,6 @@ export const submitCustomRequest = async (
             throw new Error("Contact recipient email is not configured in Admin Settings.");
         }
 
-        const settings = await getSettings();
-        const recipient = settings.supportEmail.trim();
-        if (!recipient) {
-            throw new Error("Contact recipient email is not configured in Admin Settings.");
-        }
-
         await sendEmail({
             to: recipient,
             replyTo: email,
@@ -233,6 +227,12 @@ export const submitSupportRequest = async (
             `Order number: ${orderNumber || "Not provided"}`,
             `Message: ${message}`,
         ].join("\n");
+
+        const settings = await getSettings();
+        const recipient = settings.supportEmail.trim();
+        if (!recipient) {
+            throw new Error("Contact recipient email is not configured in Admin Settings.");
+        }
 
         await sendEmail({
             to: recipient,
