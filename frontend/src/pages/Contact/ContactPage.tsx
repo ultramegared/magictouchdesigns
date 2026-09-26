@@ -34,7 +34,7 @@ const ALLOWED_IMAGE_TYPES = [
     "image/webp",
 ];
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 3 * 1024 * 1024;
 
 function ContactPage() {
 
@@ -64,7 +64,7 @@ function ContactPage() {
 
     useEffect(() => {
         apiRequest<{ status: string; settings: { supportEmail: string } }>(
-            `/api/settings?contact_email_refresh=\${Date.now()}`,
+            `/api/settings?contact_email_refresh=${Date.now()}`,
             { cache: "no-store" }
         )
             .then((response) => {
