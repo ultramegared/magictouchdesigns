@@ -12,6 +12,7 @@
 
 import {
     useState,
+    useEffect,
     type ChangeEvent,
     type FormEvent,
 } from "react";
@@ -61,7 +62,7 @@ function ContactPage() {
         "idle" | "sending" | "success" | "error"
     >("idle");
 
-    useState(() => {
+    useEffect(() => {
         apiRequest<{ status: string; settings: { supportEmail: string } }>(
             `/api/settings?contact_email_refresh=\${Date.now()}`,
             { cache: "no-store" }
@@ -72,7 +73,7 @@ function ContactPage() {
             .catch(() => {
                 setContactRecipientEmail("");
             });
-    });
+    }, []);
 
 
     const estimatedTotal =
