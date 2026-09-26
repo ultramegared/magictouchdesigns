@@ -12,6 +12,7 @@ import {
     type CheckoutItemInput,
 } from "./order.service";
 import { getShippingQuote } from "./shipping.service";
+import { GENERAL_PHYSICAL_GOODS_TAX_CODE } from "./tax.service";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://jqydesigns.com";
 const STRIPE_API = "https://api.stripe.com/v1";
@@ -61,6 +62,7 @@ export const createStripeElementsCheckout = async (
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents));
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
     params.set("shipping_options[0][shipping_rate_data][display_name]", "Standard Shipping");
+    params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
     params.set("automatic_tax[enabled]", "true");
     params.set("metadata[order_id]", snapshot.orderId);
     params.set("metadata[order_code]", snapshot.orderCode);
@@ -68,6 +70,7 @@ export const createStripeElementsCheckout = async (
     snapshot.normalizedItems.forEach((item, index) => {
         params.set(`line_items[${index}][price_data][currency]`, "usd");
         params.set(`line_items[${index}][price_data][product_data][name]`, item.name);
+        params.set(`line_items[${index}][price_data][product_data][tax_code]`, GENERAL_PHYSICAL_GOODS_TAX_CODE);
         if (item.image_url) {
             params.set(`line_items[${index}][price_data][product_data][images][0]`, item.image_url);
         }
