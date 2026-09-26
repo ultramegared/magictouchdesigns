@@ -36,22 +36,26 @@ export const sendShipmentUpdate = async (orderId: string): Promise<void> => {
     const customerName = escapeHtml(order.customer_first_name || "Customer");
     const safeCarrier = escapeHtml(carrier || "carrier");
     const safeTracking = escapeHtml(trackingNumber);
-    const trackButton = url
-        ? `<p style="margin:24px 0"><a href="${url}" style="display:inline-block;padding:12px 18px;background:#111;color:#fff;text-decoration:none;border-radius:8px">Track shipment</a></p>`
+    const carrierTrackButton = url
+        ? `<p style="margin:24px 0"><a href="${url}" style="display:inline-block;padding:12px 18px;background:#111;color:#fff;text-decoration:none;border-radius:8px">Track shipment with ${safeCarrier}</a></p>`
         : "";
+    const siteTrackUrl = `https://www.jqydesigns.com/track-order?order=${encodeURIComponent(String(order.order_code))}`;
+    const siteTrackButton = `<p style="margin:14px 0"><a href="${siteTrackUrl}" style="display:inline-block;padding:12px 18px;background:#d4a33d;color:#111;text-decoration:none;border-radius:8px;font-weight:700">Track your order on JQYDesigns</a></p>`;
 
     const html = `<div style="font-family:Arial,sans-serif;color:#202020;max-width:680px;margin:auto">
         <h1>Your order has shipped</h1>
         <p>Hi ${customerName}, your Magic Touch Designs order <strong>${escapeHtml(order.order_code)}</strong> is on its way.</p>
         <p><strong>Carrier:</strong> ${safeCarrier}<br><strong>Tracking number:</strong> ${safeTracking}</p>
-        ${trackButton}
-        <p style="color:#666">Tracking updates are provided by the carrier and may take some time to appear.</p>
+        ${carrierTrackButton}
+        ${siteTrackButton}
+        <p style="color:#666">You can also use your order number <strong>${escapeHtml(order.order_code)}</strong> and the email used at checkout on our Track Order page. Carrier tracking updates may take some time to appear.</p>
     </div>`;
     const text = [
         `Your order ${order.order_code} has shipped.`,
         `Carrier: ${carrier || "carrier"}`,
         `Tracking number: ${trackingNumber}`,
-        url ? `Track shipment: ${url}` : "",
+        url ? `Track shipment with ${carrier}: ${url}` : "",
+        `Track your order: ${siteTrackUrl}`,
     ].filter(Boolean).join("\n");
 
     await sendEmail({
