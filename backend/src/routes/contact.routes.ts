@@ -15,6 +15,7 @@ router.post(
 
 router.post(
     "/support",
+    contactUpload,
     submitSupportRequest
 );
 
