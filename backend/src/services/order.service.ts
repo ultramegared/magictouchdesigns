@@ -184,7 +184,32 @@ export const createCheckoutAttempt = async (
     snapshot: Awaited<ReturnType<typeof buildOrderSnapshot>>,
     provider: "stripe" | "paypal",
 ) => {
-    await ensexport const createCheckoutSession = async (customer: CheckoutCustomerInput, items: CheckoutItemInput[]) => {
+    await ensureOrderTables();
+    const result = await pool.query(
+        `INSERT INTO checkout_attempts
+            (checkout_code, provider, customer_first_name, customer_last_name, customer_email, customer_phone,
+             shipping_address, items, subtotal, shipping, tax, total, carrier, status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,0,$11,$12,'pending')
+         RETURNING id, checkout_code`,
+        [
+            snapshot.checkoutCode,
+            provider,
+            customer.firstName.trim(),
+            customer.lastName.trim(),
+            customer.email.trim().toLowerCase(),
+            customer.phone?.trim() || null,
+            JSON.stringify(snapshot.shippingAddress),
+            JSON.stringify(snapshot.normalizedItems),
+            snapshot.subtotal,
+            snapshot.shipping,
+            snapshot.subtotal + snapshot.shipping,
+            snapshot.shippingCarrier || null,
+        ],
+    );
+    return { attemptId: String(result.rows[0].id), checkoutCode: String(result.rows[0].checkout_code) };
+};
+
+export const createCheckoutSession = async (customer: CheckoutCustomerInput, items: CheckoutItemInput[]) => {
     const snapshot = await buildOrderSnapshot(customer, items);
     const attempt = await createCheckoutAttempt(customer, snapshot, "stripe");
     const params = new URLSearchParams();
