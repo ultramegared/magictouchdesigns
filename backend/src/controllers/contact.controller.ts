@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import { sendEmail } from "../services/email.service";
 
@@ -13,7 +13,7 @@ const upload = multer({
 export const contactUpload = (
     req: Request,
     res: Response,
-    next: () => void
+    next: NextFunction
 ): void => {
     upload.single("image")(req, res, (error: unknown) => {
         if (error instanceof multer.MulterError) {
