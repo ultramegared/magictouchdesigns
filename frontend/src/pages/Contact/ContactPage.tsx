@@ -23,6 +23,7 @@ import Footer from "../../components/home/Footer";
 
 import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
+import { apiRequest } from "../../services/api";
 
 const PRICE_PER_MUG = 24.99;
 
@@ -110,7 +111,7 @@ const t = translations[language].contact;
        CUSTOM MUG REQUEST
        ============================================================ */
 
-    const handleCustomRequestSubmit = (
+    const handleCustomRequestSubmit = async (
         event: FormEvent<HTMLFormElement>
     ) => {
 
@@ -122,16 +123,37 @@ const t = translations[language].contact;
 
         setCustomStatus("sending");
 
-        /*
-         * Email / backend integration will be connected later.
-         * Frontend structure remains ready for the backend.
-         */
+        try {
+            const formData = new FormData(
+                event.currentTarget
+            );
 
-        window.setTimeout(() => {
+            formData.set(
+                "quantity",
+                String(quantity)
+            );
+
+            await apiRequest(
+                "/api/contact/custom-request",
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
 
             setCustomStatus("success");
-
-        }, 800);
+            event.currentTarget.reset();
+            setImageName("");
+            setQuantity(1);
+            setMugSize("15 oz");
+            setMugColor("Black");
+        } catch (error) {
+            console.error(
+                "Custom request submission error:",
+                error
+            );
+            setCustomStatus("error");
+        }
     };
 
 
@@ -139,23 +161,36 @@ const t = translations[language].contact;
        SUPPORT
        ============================================================ */
 
-    const handleSupportSubmit = (
+    const handleSupportSubmit = async (
         event: FormEvent<HTMLFormElement>
     ) => {
 
         event.preventDefault();
 
-        /*
-         * Email / backend integration will be connected later.
-         */
-
         setSupportStatus("sending");
 
-        window.setTimeout(() => {
+        try {
+            const formData = new FormData(
+                event.currentTarget
+            );
+
+            await apiRequest(
+                "/api/contact/support",
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
 
             setSupportStatus("success");
-
-        }, 800);
+            event.currentTarget.reset();
+        } catch (error) {
+            console.error(
+                "Support message submission error:",
+                error
+            );
+            setSupportStatus("error");
+        }
     };
 
 
@@ -237,6 +272,15 @@ const t = translations[language].contact;
                             handleCustomRequestSubmit
                         }
                     >
+
+                        <input
+                            type="text"
+                            name="website"
+                            tabIndex={-1}
+                            autoComplete="off"
+                            aria-hidden="true"
+                            style={{ display: "none" }}
+                        />
 
                         <div className="contact-form-grid">
 
@@ -483,6 +527,12 @@ const t = translations[language].contact;
                                 <label htmlFor="mug-quantity">
                                     {t.customRequest.quantity}
                                 </label>
+
+                                <input
+                                    type="hidden"
+                                    name="quantity"
+                                    value={quantity}
+                                />
 
                                 <div className="contact-quantity">
 
@@ -753,6 +803,15 @@ const t = translations[language].contact;
                             handleSupportSubmit
                         }
                     >
+
+                        <input
+                            type="text"
+                            name="website"
+                            tabIndex={-1}
+                            autoComplete="off"
+                            aria-hidden="true"
+                            style={{ display: "none" }}
+                        />
 
 
                         {/* FULL NAME */}
