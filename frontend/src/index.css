@@ -278,3 +278,233 @@ html[data-jqy-theme="corporate"] .header__link--active{color:var(--skin-primary)
 html[data-jqy-theme="corporate"] .header__icon,
 html[data-jqy-theme="corporate"] .header__account-trigger{background:#f4f6f8!important;color:var(--skin-secondary)!important}
 html[data-jqy-theme="corporate"] .header__cart span{background:var(--skin-accent)!important;color:#fff!important}
+
+
+/* ================================================================
+   CORPORATE THEME — COMPLETE LEGACY COMPONENT OVERRIDES
+   The original home/contact components contain intentional dark/gold
+   literals. Corporate must override those literals without changing
+   layout, content, or functionality.
+================================================================ */
+html[data-jqy-theme="corporate"] .portfolio{
+    background:linear-gradient(180deg,#ffffff 0%,#f7f9fb 50%,#ffffff 100%)!important;
+    color:var(--skin-text)!important;
+}
+html[data-jqy-theme="corporate"] .portfolio::before,
+html[data-jqy-theme="corporate"] .portfolio__eyebrow::before,
+html[data-jqy-theme="corporate"] .portfolio__eyebrow::after,
+html[data-jqy-theme="corporate"] .portfolio__ornament span{
+    background:linear-gradient(90deg,transparent,var(--skin-primary),transparent)!important;
+}
+html[data-jqy-theme="corporate"] .portfolio__eyebrow,
+html[data-jqy-theme="corporate"] .portfolio__eyebrow::before,
+html[data-jqy-theme="corporate"] .portfolio__eyebrow::after,
+html[data-jqy-theme="corporate"] .portfolio__ornament b,
+html[data-jqy-theme="corporate"] .portfolio__hint span:first-child,
+html[data-jqy-theme="corporate"] .portfolio__hint span:last-child{
+    color:var(--skin-primary)!important;
+}
+html[data-jqy-theme="corporate"] .portfolio__header h2{
+    color:var(--skin-secondary)!important;
+    text-shadow:none!important;
+}
+html[data-jqy-theme="corporate"] .portfolio__stage::before{
+    background:radial-gradient(ellipse,rgba(23,74,139,.07),transparent 67%)!important;
+}
+html[data-jqy-theme="corporate"] .portfolio__frame{
+    border-color:var(--skin-primary)!important;
+    background:linear-gradient(145deg,#ffffff,#eef2f6)!important;
+    box-shadow:0 30px 65px rgba(17,24,39,.18),0 0 0 1px rgba(23,74,139,.08),inset 0 1px 0 #fff!important;
+}
+html[data-jqy-theme="corporate"] .portfolio__frame::before{
+    border-color:rgba(23,74,139,.18)!important;
+}
+html[data-jqy-theme="corporate"] .portfolio__floor{
+    background:radial-gradient(ellipse,rgba(17,24,39,.20),rgba(23,74,139,.05) 25%,transparent 68%)!important;
+}
+html[data-jqy-theme="corporate"] .portfolio__hint{color:var(--skin-text-muted)!important}
+html[data-jqy-theme="corporate"] .portfolio__cta p{color:var(--skin-text-muted)!important}
+html[data-jqy-theme="corporate"] .portfolio__cta-button{
+    border-color:var(--skin-primary)!important;
+    background:linear-gradient(180deg,#245fa7,var(--skin-primary))!important;
+    color:#fff!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 9px 22px rgba(17,24,39,.20)!important;
+}
+html[data-jqy-theme="corporate"] .portfolio__zoom{
+    border-color:var(--skin-primary)!important;
+    background:rgba(17,24,39,.86)!important;
+    color:#fff!important;
+}
+
+html[data-jqy-theme="corporate"] .newsletter{
+    background:#ffffff!important;
+    color:var(--skin-text)!important;
+}
+html[data-jqy-theme="corporate"] .newsletter__card{
+    background:linear-gradient(145deg,#ffffff 0%,#f4f6f8 100%)!important;
+    border-color:var(--skin-border)!important;
+    box-shadow:0 20px 45px rgba(17,24,39,.14)!important;
+}
+html[data-jqy-theme="corporate"] .newsletter__eyebrow,
+html[data-jqy-theme="corporate"] .newsletter__eyebrow-line{
+    color:var(--skin-primary)!important;
+}
+html[data-jqy-theme="corporate"] .newsletter__title-white,
+html[data-jqy-theme="corporate"] .newsletter__title-gold{
+    color:var(--skin-secondary)!important;
+    text-shadow:none!important;
+}
+html[data-jqy-theme="corporate"] .newsletter__content p,
+html[data-jqy-theme="corporate"] .newsletter__privacy{
+    color:var(--skin-text-muted)!important;
+}
+html[data-jqy-theme="corporate"] .newsletter__input-wrap{
+    background:#fff!important;
+    border-color:var(--skin-border)!important;
+}
+html[data-jqy-theme="corporate"] .newsletter__input-wrap input{
+    background:#fff!important;
+    color:var(--skin-text)!important;
+}
+html[data-jqy-theme="corporate"] .newsletter__input-wrap input::placeholder{
+    color:#7a8491!important;
+}
+html[data-jqy-theme="corporate"] .newsletter__input-icon,
+html[data-jqy-theme="corporate"] .newsletter__privacy-icon{
+    color:var(--skin-primary)!important;
+}
+html[data-jqy-theme="corporate"] .newsletter__form button{
+    background:var(--skin-primary)!important;
+    color:#fff!important;
+    border-color:var(--skin-primary)!important;
+}
+
+html[data-jqy-theme="corporate"] .customer-gallery{
+    background:#ffffff!important;
+    color:var(--skin-text)!important;
+}
+html[data-jqy-theme="corporate"] .customer-gallery__eyebrow{
+    color:var(--skin-primary)!important;
+}
+html[data-jqy-theme="corporate"] .customer-gallery__header h2,
+html[data-jqy-theme="corporate"] .customer-gallery__name{
+    color:var(--skin-secondary)!important;
+    text-shadow:none!important;
+}
+html[data-jqy-theme="corporate"] .customer-gallery__social{
+    color:var(--skin-text-muted)!important;
+}
+html[data-jqy-theme="corporate"] .customer-gallery__card{
+    background:#fff!important;
+    border-color:var(--skin-border)!important;
+    box-shadow:0 12px 30px rgba(17,24,39,.10)!important;
+}
+html[data-jqy-theme="corporate"] .customer-gallery__zoom{
+    background:var(--skin-primary)!important;
+    color:#fff!important;
+    border-color:var(--skin-primary)!important;
+}
+
+html[data-jqy-theme="corporate"] .collections-preview{
+    background:#fff!important;
+    color:var(--skin-text)!important;
+}
+html[data-jqy-theme="corporate"] .collections-preview__eyebrow{
+    color:var(--skin-primary)!important;
+}
+html[data-jqy-theme="corporate"] .collections-preview__header h2,
+html[data-jqy-theme="corporate"] .collections-preview__body h3{
+    color:var(--skin-secondary)!important;
+    text-shadow:none!important;
+}
+html[data-jqy-theme="corporate"] .collections-preview__body p{
+    color:var(--skin-text-muted)!important;
+}
+html[data-jqy-theme="corporate"] .collections-preview__card{
+    background:#fff!important;
+    border-color:var(--skin-border)!important;
+}
+
+html[data-jqy-theme="corporate"] .contact-page{
+    background:#fff!important;
+    color:var(--skin-text)!important;
+}
+html[data-jqy-theme="corporate"] .contact-intro p,
+html[data-jqy-theme="corporate"] .contact-section-heading p,
+html[data-jqy-theme="corporate"] .contact-field small,
+html[data-jqy-theme="corporate"] .contact-price span,
+html[data-jqy-theme="corporate"] .contact-price small{
+    color:var(--skin-text-muted)!important;
+}
+html[data-jqy-theme="corporate"] .contact-section-heading h2,
+html[data-jqy-theme="corporate"] .contact-support h2,
+html[data-jqy-theme="corporate"] .contact-field label,
+html[data-jqy-theme="corporate"] .contact-field strong{
+    color:var(--skin-secondary)!important;
+}
+html[data-jqy-theme="corporate"] .contact-section-label{
+    color:var(--skin-accent)!important;
+}
+html[data-jqy-theme="corporate"] .contact-custom,
+html[data-jqy-theme="corporate"] .contact-support{
+    background:#fff!important;
+    border-color:var(--skin-border)!important;
+    box-shadow:0 18px 42px rgba(17,24,39,.10)!important;
+}
+html[data-jqy-theme="corporate"] .contact-field input,
+html[data-jqy-theme="corporate"] .contact-field select,
+html[data-jqy-theme="corporate"] .contact-field textarea,
+html[data-jqy-theme="corporate"] .contact-quantity{
+    background:#fff!important;
+    color:var(--skin-text)!important;
+    border-color:var(--skin-border)!important;
+}
+html[data-jqy-theme="corporate"] .contact-field input::placeholder,
+html[data-jqy-theme="corporate"] .contact-field textarea::placeholder{
+    color:#7a8491!important;
+}
+html[data-jqy-theme="corporate"] .contact-upload{
+    background:#f8fafc!important;
+    color:var(--skin-primary)!important;
+    border-color:var(--skin-primary)!important;
+}
+html[data-jqy-theme="corporate"] .contact-upload small{color:var(--skin-text-muted)!important}
+html[data-jqy-theme="corporate"] .contact-quantity button,
+html[data-jqy-theme="corporate"] .contact-quantity strong{
+    color:var(--skin-text)!important;
+}
+html[data-jqy-theme="corporate"] .contact-price{
+    border-color:var(--skin-border)!important;
+}
+html[data-jqy-theme="corporate"] .contact-price strong{
+    color:var(--skin-primary)!important;
+    text-shadow:none!important;
+}
+html[data-jqy-theme="corporate"] .contact-primary-button{
+    background:linear-gradient(135deg,#245fa7,var(--skin-primary))!important;
+    color:#fff!important;
+    border-color:var(--skin-primary)!important;
+}
+html[data-jqy-theme="corporate"] .contact-secondary-button{
+    background:#fff!important;
+    color:var(--skin-primary)!important;
+    border-color:var(--skin-primary)!important;
+}
+html[data-jqy-theme="corporate"] .contact-support__content > p,
+html[data-jqy-theme="corporate"] .contact-info__item div span{
+    color:var(--skin-text-muted)!important;
+    text-shadow:none!important;
+}
+html[data-jqy-theme="corporate"] .contact-info__item strong{
+    color:var(--skin-secondary)!important;
+    text-shadow:none!important;
+}
+html[data-jqy-theme="corporate"] .contact-info__icon{
+    color:var(--skin-primary)!important;
+    border-color:var(--skin-primary)!important;
+    background:#f4f6f8!important;
+}
+html[data-jqy-theme="corporate"] .contact-support__form{
+    background:#f7f9fb!important;
+    border-top-color:var(--skin-border)!important;
+}
