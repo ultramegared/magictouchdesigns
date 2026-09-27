@@ -7,7 +7,32 @@ export interface NavLinkConfig { id: string; label: LocalizedText; path: string;
 export interface FooterSectionConfig { id: string; title: LocalizedText; links: NavLinkConfig[]; active: boolean; order: number; }
 export interface SocialLinkConfig { id: string; name: string; url: string; active: boolean; order: number; }
 export interface SitePageConfig { id: string; title: LocalizedText; slug: string; body: LocalizedText; active: boolean; }
+export interface ThemePalette {
+    primary: string;
+    secondary: string;
+    accent: string;
+    surface: string;
+    surfaceAlt: string;
+    text: string;
+    textMuted: string;
+    border: string;
+    buttonText: string;
+    buttonHover: string;
+    buttonHoverText: string;
+    shadow: string;
+    radius: number;
+    depth: number;
+}
+export interface SiteThemeConfig {
+    id: string;
+    name: string;
+    description: string;
+    palette: ThemePalette;
+    effects: { enabled: boolean; depth: number; glow: number; };
+    locked: boolean;
+}
 export interface SiteConfig {
+    theme: SiteThemeConfig;
     websiteName: LocalizedText;
     browserTitle: LocalizedText;
     slogan: LocalizedText;
@@ -28,6 +53,30 @@ const isValidEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.te
 const id = (prefix: string, n: number) => `${prefix}-${n}`;
 
 const DEFAULT_CONFIG: SiteConfig = {
+    theme: {
+        id: "default",
+        name: "JQYDesigns Original",
+        description: "Restores the current visual baseline.",
+        palette: {
+            primary: "#C89B3C",
+            secondary: "#15171A",
+            accent: "#E5B84B",
+            surface: "#FFFFFF",
+            surfaceAlt: "#F7F8FA",
+            text: "#15171A",
+            textMuted: "#666666",
+            border: "#E3E6EB",
+            buttonText: "#FFFFFF",
+            buttonHover: "#A87F28",
+            buttonHoverText: "#FFFFFF",
+            shadow: "rgba(0,0,0,0.12)",
+            radius: 10,
+            depth: 0.55
+        },
+        effects: { enabled: true, depth: 0.55, glow: 0.08 },
+        locked: true
+    },
+
     websiteName: localized("Magic Touch Designs", "Magic Touch Designs"),
     browserTitle: localized("Magic Touch Designs | Personalized Gifts & Designs", "Magic Touch Designs | Regalos y diseños personalizados"),
     slogan: localized("Personalized Gifts & Designs", "Regalos y diseños personalizados"),
@@ -93,6 +142,7 @@ const mergeConfig = (raw: unknown): SiteConfig => {
     return {
         ...DEFAULT_CONFIG,
         ...value,
+        theme,
         websiteName: value.websiteName && typeof value.websiteName === "object" ? value.websiteName : DEFAULT_CONFIG.websiteName,
         browserTitle: value.browserTitle && typeof value.browserTitle === "object" ? value.browserTitle : DEFAULT_CONFIG.browserTitle,
         heroSlides: Array.isArray(value.heroSlides) && value.heroSlides.length ? value.heroSlides : DEFAULT_CONFIG.heroSlides,
