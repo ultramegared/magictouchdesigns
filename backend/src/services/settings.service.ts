@@ -227,6 +227,7 @@ export const updateSettings = async (data: any) => {
         throw new Error("A valid contact recipient email is required.");
     }
     const notificationsChanged = data.notificationsEnabled !== undefined && data.notificationsEnabled !== current.notificationsEnabled;
+    const themeChanged = JSON.stringify(incomingConfig.theme) !== JSON.stringify(current.config.theme);
     const textConfigChanged =
         incomingConfig.websiteName.en !== current.config.websiteName.en ||
         incomingConfig.browserTitle.en !== current.config.browserTitle.en ||
@@ -240,7 +241,7 @@ export const updateSettings = async (data: any) => {
         JSON.stringify(incomingConfig.pages) !== JSON.stringify(current.config.pages);
 
     // Images/logos are not translatable. A logo-only/settings-only save must never depend on the translator.
-    const config = textConfigChanged
+    const config = (textConfigChanged || themeChanged)
         ? await translateConfig(incomingConfig, current.config)
         : current.config;
 
