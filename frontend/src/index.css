@@ -593,25 +593,14 @@ html[data-jqy-theme="corporate"] .footer__designer{
 
 
 /* ================================================================
-   CORPORATE FINAL POLISH — HERO + SOCIAL ICON TILES
-   The hero image remains the hero image. Corporate only changes
-   typography, controls and surrounding UI accents.
+   CORPORATE FINAL POLISH — UI ONLY
+   IMPORTANT: photographic/product images are never recolored, filtered,
+   brightened, saturated, or replaced by the Corporate skin.
 ================================================================ */
 
-/* HERO: never wash out or replace the photographic background */
+/* HERO: image untouched. Corporate changes UI elements only. */
 html[data-jqy-theme="corporate"] .hero-slider{
-    background:#080808!important;
-}
-html[data-jqy-theme="corporate"] .hero-slider__background-image{
-    filter:saturate(.94) contrast(1.04) brightness(.86)!important;
-}
-html[data-jqy-theme="corporate"] .hero-slider__overlay{
-    background:
-        linear-gradient(90deg,rgba(0,0,0,.84) 0%,rgba(0,0,0,.58) 30%,rgba(0,0,0,.16) 62%,rgba(0,0,0,.22) 100%),
-        linear-gradient(180deg,rgba(0,0,0,.12),transparent 45%,rgba(0,0,0,.62) 100%)!important;
-}
-html[data-jqy-theme="corporate"] .hero-slider__glow{
-    background:radial-gradient(circle,rgba(23,74,139,.13),rgba(198,40,40,.045) 32%,transparent 70%)!important;
+    border-bottom:1px solid rgba(198,40,40,.42)!important;
 }
 html[data-jqy-theme="corporate"] .hero-slider__eyebrow{
     background:linear-gradient(90deg,#c62828,#e04444,#c62828)!important;
@@ -669,10 +658,7 @@ html[data-jqy-theme="corporate"] .footer__social-card{
     border-radius:24px!important;
     background:linear-gradient(145deg,#ffffff 0%,#e8edf3 100%)!important;
     color:#172033!important;
-    box-shadow:
-        0 9px 18px rgba(17,24,39,.14),
-        inset 0 1px 0 rgba(255,255,255,.95),
-        inset 0 -2px 4px rgba(17,24,39,.05)!important;
+    box-shadow:0 9px 18px rgba(17,24,39,.14),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -2px 4px rgba(17,24,39,.05)!important;
 }
 html[data-jqy-theme="corporate"] .footer__social-card>svg,
 html[data-jqy-theme="corporate"] .footer__social-card .footer__social-fallback{
@@ -681,15 +667,11 @@ html[data-jqy-theme="corporate"] .footer__social-card .footer__social-fallback{
     border:1px solid #d6dee8!important;
     border-radius:50%!important;
     background:radial-gradient(circle at 32% 24%,#ffffff 0%,#f5f7fa 58%,#e2e7ed 100%)!important;
-    box-shadow:
-        0 5px 12px rgba(17,24,39,.15),
-        inset 0 1px 1px rgba(255,255,255,.95)!important;
+    box-shadow:0 5px 12px rgba(17,24,39,.15),inset 0 1px 1px rgba(255,255,255,.95)!important;
 }
 html[data-jqy-theme="corporate"] .footer__social-card:hover{
     transform:translateY(-4px)!important;
-    box-shadow:
-        0 14px 25px rgba(17,24,39,.18),
-        inset 0 1px 0 rgba(255,255,255,.95)!important;
+    box-shadow:0 14px 25px rgba(17,24,39,.18),inset 0 1px 0 rgba(255,255,255,.95)!important;
 }
 html[data-jqy-theme="corporate"] .footer__social-card:hover>svg,
 html[data-jqy-theme="corporate"] .footer__social-card:hover .footer__social-fallback{
@@ -697,35 +679,20 @@ html[data-jqy-theme="corporate"] .footer__social-card:hover .footer__social-fall
     box-shadow:0 6px 15px rgba(198,40,40,.16),inset 0 1px 1px #fff!important;
 }
 @media(max-width:900px){
-    html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__social-grid{
-        gap:10px!important;
-    }
+    html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__social-grid{gap:10px!important}
     html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__social-card{
-        flex:0 0 78px!important;
-        width:78px!important;
-        min-width:78px!important;
-        max-width:78px!important;
-        min-height:78px!important;
-        border-radius:22px!important;
+        flex:0 0 78px!important;width:78px!important;min-width:78px!important;max-width:78px!important;
+        min-height:78px!important;border-radius:22px!important;
     }
 }
 @media(max-width:460px){
-    html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__social-grid{
-        gap:7px!important;
-    }
+    html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__social-grid{gap:7px!important}
     html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__social-card{
-        flex:0 0 72px!important;
-        width:72px!important;
-        min-width:72px!important;
-        max-width:72px!important;
-        min-height:72px!important;
-        padding:6px 5px!important;
-        border-radius:20px!important;
-        font-size:.58rem!important;
+        flex:0 0 72px!important;width:72px!important;min-width:72px!important;max-width:72px!important;
+        min-height:72px!important;padding:6px 5px!important;border-radius:20px!important;font-size:.58rem!important;
     }
     html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__social-card>svg,
     html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__social-card .footer__social-fallback{
-        width:40px!important;
-        height:40px!important;
+        width:40px!important;height:40px!important;
     }
 }
