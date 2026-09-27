@@ -149,3 +149,18 @@ body{background:var(--skin-surface);color:var(--skin-text);transition:background
 button:not([data-status="error"]):not([data-status="success"]):hover{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
 [data-jqy-depth="1"]{box-shadow:0 calc(5px * var(--skin-depth)) calc(18px * var(--skin-depth)) var(--skin-shadow)}
 @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* Corporate skin: white canvas, blue primary typography, black body text, red accents. */
+html[data-jqy-theme="corporate"] body{background:var(--skin-surface)!important;color:var(--skin-text)!important}
+html[data-jqy-theme="corporate"] .header{background:#fff!important;color:var(--skin-text)!important;box-shadow:0 2px 14px rgba(17,24,39,.07)}
+html[data-jqy-theme="corporate"] .header__link,html[data-jqy-theme="corporate"] .header__brand-name{color:var(--skin-secondary)!important}
+html[data-jqy-theme="corporate"] .header__brand-subtitle,html[data-jqy-theme="corporate"] .header__link:hover,html[data-jqy-theme="corporate"] .header__link--active{color:var(--skin-primary)!important}
+html[data-jqy-theme="corporate"] .header__link--cta{background:var(--skin-primary)!important;color:#fff!important}
+html[data-jqy-theme="corporate"] .footer{background:linear-gradient(180deg,#111827,#0b1220)!important;color:#fff!important}
+html[data-jqy-theme="corporate"] .hero,html[data-jqy-theme="corporate"] .products-page,html[data-jqy-theme="corporate"] .collections-page,html[data-jqy-theme="corporate"] .cart-page,html[data-jqy-theme="corporate"] .checkout-page,html[data-jqy-theme="corporate"] .contact-page,html[data-jqy-theme="corporate"] .faq-page,html[data-jqy-theme="corporate"] .track-order-page,html[data-jqy-theme="corporate"] .privacy-page,html[data-jqy-theme="corporate"] .terms-page{background:var(--skin-surface)!important;color:var(--skin-text)!important}
+html[data-jqy-theme="corporate"] .hero__content h1,html[data-jqy-theme="corporate"] .products-hero h1,html[data-jqy-theme="corporate"] .collections-hero h1,html[data-jqy-theme="corporate"] .contact-intro h1,html[data-jqy-theme="corporate"] .faq-page__hero h1,html[data-jqy-theme="corporate"] .track-order-page__hero h1,html[data-jqy-theme="corporate"] .privacy-page__hero h1,html[data-jqy-theme="corporate"] .terms-page__hero h1{color:var(--skin-primary)!important}
+html[data-jqy-theme="corporate"] .contact-eyebrow,html[data-jqy-theme="corporate"] .contact-section-heading>span,html[data-jqy-theme="corporate"] .contact-section-label,html[data-jqy-theme="corporate"] .customize-heading__eyebrow{color:var(--skin-accent)!important}
+html[data-jqy-theme="corporate"] .footer__brand-name strong,html[data-jqy-theme="corporate"] .footer__connect-heading span,html[data-jqy-theme="corporate"] .footer__section-title{color:var(--skin-accent)!important}
+html[data-jqy-theme="corporate"] .footer__link:hover{color:#fff!important}
+html[data-jqy-theme="corporate"] .footer__whatsapp-button{background:var(--skin-accent)!important;color:#fff!important}
+html[data-jqy-theme="corporate"] .products-page button,html[data-jqy-theme="corporate"] .collections-page button,html[data-jqy-theme="corporate"] .cart-page button,html[data-jqy-theme="corporate"] .checkout-page button,html[data-jqy-theme="corporate"] .contact-page button{--skin-button-depth:calc(var(--skin-depth) * 7px)}
