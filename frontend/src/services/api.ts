@@ -113,6 +113,13 @@ export async function apiRequest<T = unknown>(
     */
 
     let response: Response;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+    const requestOptions: RequestInit = {
+        ...options,
+        headers,
+        signal: options.signal ?? controller.signal,
+    };
 
 
     try {
@@ -122,13 +129,7 @@ export async function apiRequest<T = unknown>(
 
                 `${API_BASE_URL}${endpoint}`,
 
-                {
-
-                    ...options,
-
-                    headers,
-
-                }
+                requestOptions
 
             );
 
@@ -140,10 +141,16 @@ export async function apiRequest<T = unknown>(
         );
 
 
+        if (error instanceof DOMException && error.name === "AbortError") {
+            throw new Error("The server took too long to respond. Please try again.");
+        }
+
         throw new Error(
             "Unable to connect to the server."
         );
 
+    } finally {
+        window.clearTimeout(timeoutId);
     }
 
 
