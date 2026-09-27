@@ -139,6 +139,15 @@ const mergeConfig = (raw: unknown): SiteConfig => {
     const socialLinks = configuredSocials.length
         ? [...configuredSocials, ...DEFAULT_CONFIG.socialLinks.filter(defaultSocial => !configuredSocials.some(currentSocial => String(currentSocial.name).trim().toLowerCase() === String(defaultSocial.name).trim().toLowerCase()))]
         : DEFAULT_CONFIG.socialLinks;
+    const rawTheme = value.theme && typeof value.theme === "object" ? value.theme as Partial<SiteThemeConfig> : {};
+    const rawPalette = rawTheme.palette && typeof rawTheme.palette === "object" ? rawTheme.palette as Partial<ThemePalette> : {};
+    const rawEffects = rawTheme.effects && typeof rawTheme.effects === "object" ? rawTheme.effects as Partial<SiteThemeConfig["effects"]> : {};
+    const theme: SiteThemeConfig = {
+        ...DEFAULT_CONFIG.theme,
+        ...rawTheme,
+        palette: { ...DEFAULT_CONFIG.theme.palette, ...rawPalette },
+        effects: { ...DEFAULT_CONFIG.theme.effects, ...rawEffects },
+    };
     return {
         ...DEFAULT_CONFIG,
         ...value,
