@@ -77,3 +77,66 @@ ul{
     min-height:100vh;
 
 }
+/* ================================================================
+   JQYDESIGNS GLOBAL SKIN ENGINE
+   Runtime variables are injected by App.tsx from Admin > Settings.
+   Functional/status colors intentionally remain outside this layer.
+================================================================ */
+:root{
+    --skin-primary:#C89B3C;
+    --skin-secondary:#111111;
+    --skin-accent:#E5B84B;
+    --skin-surface:#0B0B0C;
+    --skin-surface-alt:#171717;
+    --skin-text:#FFFFFF;
+    --skin-text-muted:#9A9A9A;
+    --skin-border:rgba(200,155,60,.28);
+    --skin-button-text:#111111;
+    --skin-button-hover:#8F6924;
+    --skin-button-hover-text:#FFFFFF;
+    --skin-shadow:rgba(0,0,0,.42);
+    --skin-radius:10;
+    --skin-depth:.55;
+    --skin-glow:.08;
+    --skin-effects:1;
+}
+body{background:var(--skin-surface);color:var(--skin-text);transition:background-color .28s ease,color .28s ease}
+.header{background:color-mix(in srgb,var(--skin-secondary) 96%,transparent)!important;border-bottom-color:var(--skin-border)!important}
+.header__brand-subtitle,.header__link:hover,.header__link--active,.header__language--active{color:var(--skin-primary)!important}
+.header__link--cta,.header__icon:hover,.header__account-trigger:hover,.header__cart span{background:var(--skin-primary)!important;color:var(--skin-button-text)!important}
+.header__link::after{background:var(--skin-primary)!important}
+.header__icon,.header__account-trigger{background:var(--skin-surface-alt)!important;color:var(--skin-text)!important}
+.header__search input{border-color:var(--skin-primary)!important;background:var(--skin-surface)!important;color:var(--skin-text)!important}
+.footer{border-top-color:var(--skin-primary)!important;background:radial-gradient(circle at 50% -20%,color-mix(in srgb,var(--skin-primary) 18%,transparent),transparent 36%),linear-gradient(180deg,var(--skin-secondary),var(--skin-surface))!important;color:var(--skin-text)!important}
+.footer__brand-name strong,.footer__connect-heading span,.footer__link::before,.footer__section-title,.footer__language--active{color:var(--skin-primary)!important}
+.footer__link:hover{color:var(--skin-accent)!important}
+.footer__whatsapp-button{background:linear-gradient(135deg,var(--skin-accent),var(--skin-primary))!important;color:var(--skin-button-text)!important}
+.footer__whatsapp-card,.footer__qr-wrap img{border-color:var(--skin-primary)!important}
+.hero,.products-page,.collections-page,.cart-page,.checkout-page,.contact-page,.faq-page,.track-order-page,.privacy-page,.terms-page,.account-v2{
+    --local-primary:var(--skin-primary);
+    --local-accent:var(--skin-accent);
+}
+.products-page,.collections-page,.cart-page,.checkout-page,.contact-page,.faq-page,.track-order-page,.privacy-page,.terms-page,.account-v2{
+    color:var(--skin-text)!important;
+}
+.products-page,.collections-page,.cart-page,.checkout-page,.contact-page,.faq-page,.track-order-page,.privacy-page,.terms-page{
+    background:radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--skin-primary) 10%,transparent),transparent 35%),linear-gradient(180deg,var(--skin-surface),var(--skin-secondary))!important;
+}
+.products-hero,.collections-hero{border-bottom-color:var(--skin-border)!important}
+.hero__content h1,.products-hero h1,.collections-hero h1,.contact-intro h1,.faq-page__hero h1,.track-order-page__hero h1,.privacy-page__hero h1,.terms-page__hero h1{color:var(--skin-text)!important}
+.hero button,.products-page button,.collections-page button,.cart-page button,.checkout-page button,.contact-page button,.faq-page button,.track-order-page button,.privacy-page button,.terms-page button{
+    --skin-button-depth:calc(var(--skin-depth) * 7px);
+}
+.hero a[class*="button"],.products-page a[class*="button"],.collections-page a[class*="button"],.cart-page a[class*="button"],.checkout-page a[class*="button"],.contact-page a[class*="button"]{
+    border-color:var(--skin-primary)!important;
+}
+.contact-eyebrow,.contact-section-heading>span,.contact-section-label{color:var(--skin-primary)!important}
+.contact-custom,.contact-support{border-color:var(--skin-border)!important}
+.customize-page{--customize-primary:var(--skin-primary);--customize-accent:var(--skin-accent)}
+.customize-heading__eyebrow,.customize-reset:hover{color:var(--skin-primary)!important}
+.customize-step__number{background:linear-gradient(145deg,var(--skin-accent),var(--skin-button-hover))!important}
+.customize-select:focus,.customize-choice:hover,.customize-choice--active,.customize-color:hover,.customize-color--active{border-color:var(--skin-primary)!important}
+.customize-range{accent-color:var(--skin-primary)!important}
+button:not([data-status="error"]):not([data-status="success"]):hover{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+[data-jqy-depth="1"]{box-shadow:0 calc(5px * var(--skin-depth)) calc(18px * var(--skin-depth)) var(--skin-shadow)}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
