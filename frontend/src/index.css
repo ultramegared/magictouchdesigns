@@ -492,3 +492,101 @@ html[data-jqy-theme="corporate"] .footer__section-title{color:var(--skin-accent)
 html[data-jqy-theme="corporate"] .footer__whatsapp-button{background:linear-gradient(180deg,#245fa7,#174a8b)!important}
 html[data-jqy-theme="corporate"] .footer__whatsapp-title,
 html[data-jqy-theme="corporate"] .footer__whatsapp-phone{color:var(--skin-text)!important}
+
+
+/* ================================================================
+   CORPORATE FOOTER — NATURAL MOBILE COMPOSITION
+   Keep the footer visually connected to the corporate skin instead
+   of mixing the old gold/dark palette with the new light palette.
+================================================================ */
+html[data-jqy-theme="corporate"] .footer{
+    background:linear-gradient(180deg,#f3f6f9 0%,#e9eef4 100%)!important;
+    color:var(--skin-text)!important;
+    border-top:1px solid #d2dbe5!important;
+}
+html[data-jqy-theme="corporate"] .footer::before{display:none!important}
+
+html[data-jqy-theme="corporate"] .footer__mobile-sections{
+    background:transparent!important;
+}
+html[data-jqy-theme="corporate"] .footer__section-title{
+    color:var(--skin-secondary)!important;
+    background:rgba(255,255,255,.82)!important;
+    border-bottom:1px solid #d8e0e8!important;
+}
+html[data-jqy-theme="corporate"] .footer__mobile-sections .footer__section:first-child .footer__section-title{
+    border-top:1px solid #d8e0e8!important;
+}
+html[data-jqy-theme="corporate"] .footer__section-icon{
+    color:var(--skin-accent)!important;
+}
+html[data-jqy-theme="corporate"] .footer__section-content{
+    background:#f8fafc!important;
+}
+html[data-jqy-theme="corporate"] .footer__link{
+    color:var(--skin-text-muted)!important;
+}
+html[data-jqy-theme="corporate"] .footer__link::before{
+    color:var(--skin-primary)!important;
+}
+html[data-jqy-theme="corporate"] .footer__mobile-connect{
+    background:linear-gradient(145deg,#17263b 0%,#0f1b2d 100%)!important;
+    border-color:rgba(23,74,139,.55)!important;
+    box-shadow:0 18px 40px rgba(17,24,39,.18),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__connect-heading{
+    color:#fff!important;
+}
+html[data-jqy-theme="corporate"] .footer__mobile-connect .footer__connect-heading span{
+    color:#d22f2f!important;
+}
+html[data-jqy-theme="corporate"] .footer__mobile-connect>p{
+    color:rgba(255,255,255,.72)!important;
+}
+html[data-jqy-theme="corporate"] .footer__social-card{
+    color:#172033!important;
+}
+html[data-jqy-theme="corporate"] .footer__social-card>svg,
+html[data-jqy-theme="corporate"] .footer__social-fallback{
+    background:#fff!important;
+    border-color:#d5dde6!important;
+    box-shadow:0 8px 18px rgba(17,24,39,.13)!important;
+}
+html[data-jqy-theme="corporate"] .footer__whatsapp-card{
+    background:linear-gradient(145deg,#ffffff,#eef3f7)!important;
+    border-color:#d2dae4!important;
+    box-shadow:0 12px 30px rgba(17,24,39,.14)!important;
+}
+html[data-jqy-theme="corporate"] .footer__whatsapp-title{
+    color:var(--skin-secondary)!important;
+}
+html[data-jqy-theme="corporate"] .footer__whatsapp-title strong{
+    color:#c62828!important;
+}
+html[data-jqy-theme="corporate"] .footer__whatsapp-copy p{
+    color:var(--skin-text-muted)!important;
+}
+html[data-jqy-theme="corporate"] .footer__whatsapp-button{
+    background:linear-gradient(180deg,#245fa7,#174a8b)!important;
+    color:#fff!important;
+    box-shadow:0 8px 20px rgba(23,74,139,.22)!important;
+}
+html[data-jqy-theme="corporate"] .footer__qr-wrap img{
+    border-color:#cbd5e1!important;
+    box-shadow:0 8px 20px rgba(17,24,39,.10)!important;
+}
+html[data-jqy-theme="corporate"] .footer__qr-wrap span{
+    color:#174a8b!important;
+}
+html[data-jqy-theme="corporate"] .footer__whatsapp-phone{
+    color:var(--skin-secondary)!important;
+}
+html[data-jqy-theme="corporate"] .footer__bottom{
+    border-top-color:#d2dae4!important;
+}
+html[data-jqy-theme="corporate"] .footer__copyright{
+    color:#687586!important;
+}
+html[data-jqy-theme="corporate"] .footer__designer{
+    color:#174a8b!important;
+}
