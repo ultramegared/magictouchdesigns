@@ -2508,3 +2508,100 @@ html[data-jqy-theme="corporate"] .marketing-main .result.fail{border-color:#e2aa
   html[data-jqy-theme="corporate"] .marketing-main .channels{grid-template-columns:1fr!important}
   html[data-jqy-theme="corporate"] .marketing-main .stats{grid-template-columns:1fr!important}
 }
+
+
+/* ================================================================
+   ADMIN COLLECTIONS — CORPORATE SKIN
+================================================================ */
+html[data-jqy-theme="corporate"] .admin-collections-hub{
+  background:linear-gradient(180deg,#f8fafc 0%,#eef3f8 100%)!important;
+  color:#111827!important;
+}
+html[data-jqy-theme="corporate"] .collections-hub__eyebrow{color:#174a8b!important}
+html[data-jqy-theme="corporate"] .collections-hub__hero h1{color:#111827!important}
+html[data-jqy-theme="corporate"] .collections-hub__hero p{color:#5b6573!important}
+html[data-jqy-theme="corporate"] .collections-hub__refresh{
+  background:linear-gradient(145deg,#fff,#f1f5f8)!important;
+  border-color:#cbd5e1!important;
+  color:#174a8b!important;
+  box-shadow:0 7px 18px rgba(17,24,39,.08)!important;
+}
+html[data-jqy-theme="corporate"] .collections-hub__refresh:hover{
+  border-color:#174a8b!important;
+  box-shadow:0 9px 22px rgba(23,74,139,.12)!important;
+}
+html[data-jqy-theme="corporate"] .collections-hub__stats article{
+  background:linear-gradient(145deg,#fff,#f1f5f8)!important;
+  border-color:#cbd5e1!important;
+  box-shadow:0 12px 28px rgba(17,24,39,.08),inset 0 1px 0 #fff!important;
+}
+html[data-jqy-theme="corporate"] .collections-hub__stats strong{color:#111827!important}
+html[data-jqy-theme="corporate"] .collections-hub__stats article div span{color:#687585!important}
+html[data-jqy-theme="corporate"] .stat-icon--gold{background:#e8f0f9!important;color:#174a8b!important}
+html[data-jqy-theme="corporate"] .stat-icon--green{background:#e7f5ed!important;color:#167447!important}
+html[data-jqy-theme="corporate"] .stat-icon--red{background:#fff0f0!important;color:#c62828!important}
+html[data-jqy-theme="corporate"] .stat-icon--purple{background:#e8f0f9!important;color:#245fa7!important}
+html[data-jqy-theme="corporate"] .collections-hub__search{
+  background:#fff!important;
+  border-color:#cbd5e1!important;
+  color:#687585!important;
+  box-shadow:0 7px 18px rgba(17,24,39,.05)!important;
+}
+html[data-jqy-theme="corporate"] .collections-hub__search:focus-within{
+  border-color:#174a8b!important;
+  box-shadow:0 0 0 3px rgba(23,74,139,.10)!important;
+}
+html[data-jqy-theme="corporate"] .collections-hub__search input{color:#111827!important}
+html[data-jqy-theme="corporate"] .collections-hub__hint{color:#687585!important}
+html[data-jqy-theme="corporate"] .collection-admin-card{
+  background:linear-gradient(145deg,#fff,#f1f5f8)!important;
+  border-color:#c3ceda!important;
+  box-shadow:0 16px 34px rgba(17,24,39,.10),inset 0 1px 0 #fff!important;
+}
+html[data-jqy-theme="corporate"] .collection-admin-card:hover{
+  border-color:#174a8b!important;
+  box-shadow:0 22px 42px rgba(17,24,39,.13),0 0 22px rgba(23,74,139,.06),inset 0 1px 0 #fff!important;
+}
+html[data-jqy-theme="corporate"] .collection-admin-card__image{background:#e8edf2!important}
+html[data-jqy-theme="corporate"] .collection-admin-card__order{
+  background:rgba(23,74,139,.94)!important;
+  color:#fff!important;
+  box-shadow:0 6px 14px rgba(17,24,39,.18)!important;
+}
+html[data-jqy-theme="corporate"] .collection-admin-card__heading span:first-child,
+html[data-jqy-theme="corporate"] .collection-admin-card__heading div>span{color:#174a8b!important}
+html[data-jqy-theme="corporate"] .collection-admin-card h2{color:#111827!important}
+html[data-jqy-theme="corporate"] .collection-admin-card__status{background:#e7f5ed!important;color:#167447!important}
+html[data-jqy-theme="corporate"] .collection-admin-card p{color:#5b6573!important}
+html[data-jqy-theme="corporate"] .collection-admin-card__metrics span{
+  background:#eef3f8!important;
+  color:#445166!important;
+  border:1px solid #dbe2e9!important;
+}
+html[data-jqy-theme="corporate"] .collection-admin-card__metrics .is-inactive{
+  background:#fff0f0!important;
+  color:#b23b3b!important;
+  border-color:#efd0d0!important;
+}
+html[data-jqy-theme="corporate"] .collection-admin-card__error{color:#b23b3b!important}
+html[data-jqy-theme="corporate"] .collection-admin-card__button{
+  background:linear-gradient(135deg,#245fa7,#174a8b)!important;
+  color:#fff!important;
+  box-shadow:0 8px 18px rgba(23,74,139,.18)!important;
+}
+html[data-jqy-theme="corporate"] .collection-admin-card__button:hover{background:linear-gradient(135deg,#174a8b,#123a6d)!important}
+html[data-jqy-theme="corporate"] .collection-admin-card__button span{color:#fff!important}
+html[data-jqy-theme="corporate"] .collections-hub__empty{
+  background:linear-gradient(145deg,#fff,#f1f5f8)!important;
+  border-color:#cbd5e1!important;
+  color:#687585!important;
+  box-shadow:0 12px 28px rgba(17,24,39,.07)!important;
+}
+html[data-jqy-theme="corporate"] .collections-hub__empty h2{color:#111827!important}
+html[data-jqy-theme="corporate"] .collections-hub__footer{
+  border-top-color:#d7dee7!important;
+  color:#7a8593!important;
+}
+@media(max-width:820px){
+  html[data-jqy-theme="corporate"] .admin-collections-hub{background:linear-gradient(180deg,#f8fafc 0%,#eef3f8 100%)!important}
+}
