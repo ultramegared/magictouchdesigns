@@ -1342,3 +1342,162 @@ html[data-jqy-theme="corporate"] .about-page__button--secondary:hover{
 html[data-jqy-theme="corporate"] .about-page__social-thanks{
     color:#c62828!important;
 }
+
+
+/* ================================================================
+   TERMS OF SERVICE — CORPORATE SKIN
+   Keep the legal page structured, readable and consistent with the
+   active Corporate skin. Content and functionality remain unchanged.
+================================================================ */
+html[data-jqy-theme="corporate"] .terms-page{
+    background:linear-gradient(180deg,#eef3f8 0%,#f8fafc 46%,#eef3f8 100%)!important;
+    color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__hero{
+    background:
+        radial-gradient(circle at 50% 0%,rgba(36,95,167,.28),transparent 42%),
+        linear-gradient(145deg,#0b1728 0%,#172f4e 52%,#0f2138 100%)!important;
+    color:#fff!important;
+    border-bottom:1px solid #294e76!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__hero::before{
+    border-color:rgba(255,255,255,.12)!important;
+    box-shadow:0 0 90px rgba(23,74,139,.12)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__hero-glow{
+    background:radial-gradient(ellipse,rgba(36,95,167,.22),transparent 68%)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__eyebrow{
+    color:#d7e7fa!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__eyebrow span{
+    background:linear-gradient(90deg,transparent,#8ebcf0)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__eyebrow span:last-child{
+    background:linear-gradient(90deg,#8ebcf0,transparent)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page h1{
+    color:#fff!important;
+    text-shadow:0 5px 20px rgba(0,0,0,.32)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page h1 span{
+    color:#9fc8f4!important;
+    text-shadow:0 0 24px rgba(23,74,139,.22),0 8px 24px rgba(0,0,0,.35)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__divider{
+    background:linear-gradient(90deg,transparent,#8ebcf0,#c62828,#8ebcf0,transparent)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__divider span{
+    background:#c62828!important;
+    box-shadow:0 0 16px rgba(198,40,40,.35)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__intro{
+    color:rgba(255,255,255,.80)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__content{
+    background:
+        radial-gradient(circle at 8% 20%,rgba(23,74,139,.055),transparent 25%),
+        radial-gradient(circle at 92% 75%,rgba(198,40,40,.035),transparent 25%)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__index-card{
+    background:linear-gradient(145deg,#ffffff,#f1f5f8)!important;
+    border-color:#cbd5e1!important;
+    box-shadow:
+        0 18px 38px rgba(17,24,39,.10),
+        inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__index-card::before{
+    background:linear-gradient(90deg,transparent,#174a8b,#c62828,#174a8b,transparent)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__index-label{
+    color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__index-line{
+    background:#c62828!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__index nav a{
+    color:#4b5563!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__index nav a span{
+    color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__index nav a:hover{
+    color:#174a8b!important;
+    background:#e8f0f9!important;
+    transform:translateX(4px);
+}
+
+html[data-jqy-theme="corporate"] .terms-page__index nav a:hover span{
+    color:#c62828!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__section{
+    border-bottom-color:#d7dee7!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__section-number{
+    color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__section-content{
+    background:
+        radial-gradient(circle at 100% 0%,rgba(23,74,139,.06),transparent 30%),
+        linear-gradient(145deg,#ffffff 0%,#f3f6f9 100%)!important;
+    border-color:#cbd5e1!important;
+    color:#111827!important;
+    box-shadow:
+        0 18px 38px rgba(17,24,39,.09),
+        inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__section-content::after{
+    background:radial-gradient(circle,rgba(23,74,139,.07),transparent 70%)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__section-content:hover{
+    border-color:#174a8b!important;
+    box-shadow:
+        0 24px 48px rgba(17,24,39,.13),
+        0 0 24px rgba(23,74,139,.07),
+        inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__section h2{
+    color:#111827!important;
+    text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__section-divider{
+    background:linear-gradient(90deg,#174a8b,#c62828,transparent)!important;
+}
+
+html[data-jqy-theme="corporate"] .terms-page__section p{
+    color:#5b6573!important;
+}
+
+@media(max-width:600px){
+    html[data-jqy-theme="corporate"] .terms-page__section-content{
+        background:
+            radial-gradient(circle at 100% 0%,rgba(23,74,139,.055),transparent 34%),
+            linear-gradient(145deg,#ffffff 0%,#f3f6f9 100%)!important;
+    }
+}
