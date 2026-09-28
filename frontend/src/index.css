@@ -1120,3 +1120,225 @@ html[data-jqy-theme="corporate"] .collection-benefit__divider{
         border-right:0!important;
     }
 }
+
+
+/* ================================================================
+   ABOUT US — CORPORATE SKIN
+   Keep the page visually structured instead of inheriting the
+   global light canvas as a flat white surface.
+================================================================ */
+html[data-jqy-theme="corporate"] .about-page{
+    background:#eef3f8!important;
+    color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__hero{
+    background:
+        radial-gradient(circle at 50% 0%,rgba(36,95,167,.28),transparent 42%),
+        linear-gradient(145deg,#0b1728 0%,#172f4e 52%,#0f2138 100%)!important;
+    color:#fff!important;
+    border-bottom:1px solid #244f7f!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__gold-orbit{
+    border-color:rgba(255,255,255,.14)!important;
+    box-shadow:0 0 24px rgba(23,74,139,.16)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__eyebrow{
+    color:#d7e7fa!important;
+    text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__hero h1,
+html[data-jqy-theme="corporate"] .about-page__hero h1 span{
+    color:#fff!important;
+    text-shadow:0 4px 18px rgba(0,0,0,.28)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__hero h1 span{
+    color:#9fc8f4!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__intro{
+    color:rgba(255,255,255,.82)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__divider{
+    background:linear-gradient(90deg,transparent,#8ebcf0,#c62828,#8ebcf0,transparent)!important;
+    box-shadow:0 0 14px rgba(23,74,139,.28)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__story,
+html[data-jqy-theme="corporate"] .about-page__services,
+html[data-jqy-theme="corporate"] .about-page__social{
+    background:#fff!important;
+    color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__mission,
+html[data-jqy-theme="corporate"] .about-page__values,
+html[data-jqy-theme="corporate"] .about-page__audience{
+    background:#f4f6f8!important;
+    color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__story h2,
+html[data-jqy-theme="corporate"] .about-page__mission h2,
+html[data-jqy-theme="corporate"] .about-page__services h2,
+html[data-jqy-theme="corporate"] .about-page__audience h2,
+html[data-jqy-theme="corporate"] .about-page__values h2,
+html[data-jqy-theme="corporate"] .about-page__social h2{
+    color:#111827!important;
+    text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__story h2 span,
+html[data-jqy-theme="corporate"] .about-page__mission h2 span,
+html[data-jqy-theme="corporate"] .about-page__services h2 span,
+html[data-jqy-theme="corporate"] .about-page__audience h2 span,
+html[data-jqy-theme="corporate"] .about-page__values h2 span,
+html[data-jqy-theme="corporate"] .about-page__social h2 span{
+    color:#174a8b!important;
+    text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__content > p,
+html[data-jqy-theme="corporate"] .about-page__story-card p,
+html[data-jqy-theme="corporate"] .about-page__mission-card p,
+html[data-jqy-theme="corporate"] .about-page__service-card p,
+html[data-jqy-theme="corporate"] .about-page__audience-card p,
+html[data-jqy-theme="corporate"] .about-page__card p,
+html[data-jqy-theme="corporate"] .about-page__brand > .about-page__container > p,
+html[data-jqy-theme="corporate"] .about-page__social > .about-page__container > p,
+html[data-jqy-theme="corporate"] .about-page__cta-description{
+    color:#5b6573!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__gold-line{
+    background:linear-gradient(90deg,transparent,#174a8b,#c62828,#174a8b,transparent)!important;
+    box-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__story-card,
+html[data-jqy-theme="corporate"] .about-page__mission-card,
+html[data-jqy-theme="corporate"] .about-page__service-card,
+html[data-jqy-theme="corporate"] .about-page__audience-card,
+html[data-jqy-theme="corporate"] .about-page__card{
+    background:linear-gradient(145deg,#ffffff,#f4f7fa)!important;
+    border-color:#cbd5e1!important;
+    box-shadow:
+        0 18px 38px rgba(17,24,39,.10),
+        inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__story-card:hover,
+html[data-jqy-theme="corporate"] .about-page__mission-card:hover,
+html[data-jqy-theme="corporate"] .about-page__service-card:hover,
+html[data-jqy-theme="corporate"] .about-page__audience-card:hover,
+html[data-jqy-theme="corporate"] .about-page__card:hover{
+    border-color:#174a8b!important;
+    box-shadow:
+        0 24px 48px rgba(17,24,39,.14),
+        0 0 24px rgba(23,74,139,.08)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__story-card h3,
+html[data-jqy-theme="corporate"] .about-page__mission-card h3,
+html[data-jqy-theme="corporate"] .about-page__service-card h3,
+html[data-jqy-theme="corporate"] .about-page__audience-card h3,
+html[data-jqy-theme="corporate"] .about-page__card h3{
+    color:#111827!important;
+    text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__story-number,
+html[data-jqy-theme="corporate"] .about-page__mission-number,
+html[data-jqy-theme="corporate"] .about-page__card-number{
+    color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__story-label{
+    color:#5b6573!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__story-card-line{
+    background:#174a8b!important;
+    box-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__mission-icon,
+html[data-jqy-theme="corporate"] .about-page__service-icon,
+html[data-jqy-theme="corporate"] .about-page__card-icon{
+    color:#174a8b!important;
+    border-color:#9fb5cc!important;
+    background:linear-gradient(145deg,#edf4fb,#fff)!important;
+    box-shadow:0 10px 22px rgba(23,74,139,.10),inset 0 1px 0 #fff!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__brand{
+    background:
+        radial-gradient(circle at 50% 45%,rgba(36,95,167,.22),transparent 38%),
+        linear-gradient(145deg,#0d1a2b,#162f4d,#0c1828)!important;
+    border-color:#294e76!important;
+    color:#fff!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__brand h2{
+    color:#fff!important;
+    text-shadow:0 5px 18px rgba(0,0,0,.45)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__brand h2 span,
+html[data-jqy-theme="corporate"] .about-page__brand-signature span{
+    color:#9fc8f4!important;
+    text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__brand > .about-page__container > p{
+    color:rgba(255,255,255,.78)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__cta{
+    background:
+        radial-gradient(circle at 50% 35%,rgba(23,74,139,.12),transparent 38%),
+        linear-gradient(180deg,#fff,#f4f6f8)!important;
+    color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__cta h2{
+    color:#111827!important;
+    text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__cta h2 span{
+    color:#174a8b!important;
+    text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__cta-glow{
+    background:radial-gradient(ellipse,rgba(23,74,139,.10),transparent 70%)!important;
+    filter:blur(28px)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__button--primary{
+    color:#fff!important;
+    background:linear-gradient(180deg,#245fa7,#174a8b)!important;
+    border-color:#174a8b!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 10px 24px rgba(23,74,139,.22)!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__button--secondary{
+    color:#174a8b!important;
+    background:linear-gradient(145deg,#fff,#eef3f7)!important;
+    border-color:#9fb5cc!important;
+    box-shadow:0 10px 24px rgba(17,24,39,.09),inset 0 1px 0 #fff!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__button--secondary:hover{
+    background:#e8f0f9!important;
+}
+
+html[data-jqy-theme="corporate"] .about-page__social-thanks{
+    color:#c62828!important;
+}
