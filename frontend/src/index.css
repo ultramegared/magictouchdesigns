@@ -747,25 +747,24 @@ html[data-jqy-theme="corporate"] .unified-section-heading h2 strong{
     color:#c62828!important;
 }
 html[data-jqy-theme="corporate"] .unified-product{
-    /* Premium Frosted White: subtle depth without touching product photography. */
+    /* Premium Frosted White: visibly dimensional, while photography stays untouched. */
     background:
-        radial-gradient(circle at 50% 0%,rgba(255,255,255,.98) 0%,rgba(255,255,255,.56) 34%,transparent 68%),
-        linear-gradient(145deg,#f7f9fb 0%,#eef2f6 52%,#f9fbfc 100%)!important;
-    border:1px solid #cbd5df!important;
+        radial-gradient(circle at 50% 0%,rgba(255,255,255,.98) 0%,rgba(255,255,255,.48) 30%,transparent 64%),
+        linear-gradient(155deg,#e7edf3 0%,#f8fafc 28%,#eef2f6 72%,#f9fbfc 100%)!important;
+    border:1px solid #c3ceda!important;
     box-shadow:
-        0 18px 36px rgba(17,24,39,.11),
-        0 4px 10px rgba(23,74,139,.05),
-        inset 0 1px 0 rgba(255,255,255,.98),
-        inset 0 -1px 0 rgba(207,216,227,.55)!important;
+        0 18px 36px rgba(17,24,39,.13),
+        0 5px 12px rgba(23,74,139,.07),
+        inset 0 1px 0 rgba(255,255,255,1),
+        inset 0 -1px 0 rgba(174,185,198,.45)!important;
     color:#111827!important;
-    backdrop-filter:blur(2px)!important;
 }
 html[data-jqy-theme="corporate"] .unified-product:hover{
     box-shadow:
-        0 22px 42px rgba(17,24,39,.14),
-        0 6px 14px rgba(23,74,139,.07),
+        0 22px 42px rgba(17,24,39,.16),
+        0 7px 16px rgba(23,74,139,.09),
         inset 0 1px 0 rgba(255,255,255,1),
-        inset 0 -1px 0 rgba(207,216,227,.62)!important;
+        inset 0 -1px 0 rgba(174,185,198,.52)!important;
     transform:translateY(-2px);
 }
 html[data-jqy-theme="corporate"] .unified-product__image{
