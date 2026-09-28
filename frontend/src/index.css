@@ -152,7 +152,7 @@ button:not([data-status="error"]):not([data-status="success"]):hover{transition:
 
 /* Corporate skin: white canvas, blue primary typography, black body text, red accents. */
 html[data-jqy-theme="corporate"] body{background:var(--skin-surface)!important;color:var(--skin-text)!important}
-html[data-jqy-theme="corporate"] .header{background:#fff!important;color:var(--skin-text)!important;box-shadow:0 2px 14px rgba(17,24,39,.07)}
+html[data-jqy-theme="corporate"] .header{background:linear-gradient(180deg,#f8fafc 0%,#eef3f8 100%)!important;color:var(--skin-text)!important;box-shadow:0 6px 20px rgba(17,24,39,.14),0 1px 0 rgba(255,255,255,.96) inset!important;border-bottom:1px solid #d7e0ea!important}
 html[data-jqy-theme="corporate"] .header__link,html[data-jqy-theme="corporate"] .header__brand-name{color:var(--skin-secondary)!important}
 html[data-jqy-theme="corporate"] .header__brand-subtitle,html[data-jqy-theme="corporate"] .header__link:hover,html[data-jqy-theme="corporate"] .header__link--active{color:var(--skin-primary)!important}
 html[data-jqy-theme="corporate"] .header__link--cta{background:var(--skin-primary)!important;color:#fff!important}
