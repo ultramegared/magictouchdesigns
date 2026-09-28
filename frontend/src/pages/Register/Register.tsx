@@ -59,9 +59,19 @@ function Register() {
 
         const formData = new FormData(event.currentTarget);
 
-        const username = String(
+        const usernameField = String(
             formData.get("username") || ""
         ).trim();
+
+        const email = String(
+            formData.get("email") || ""
+        ).trim();
+
+        // Safari and other browsers may autofill profile fields
+        // without populating a separate username field on sign-up.
+        // When that happens, use the email local-part as the initial
+        // username so the required backend field is still populated.
+        const username = usernameField || email.split("@")[0].trim();
 
         const firstName = String(
             formData.get("firstName") || ""
@@ -69,10 +79,6 @@ function Register() {
 
         const lastName = String(
             formData.get("lastName") || ""
-        ).trim();
-
-        const email = String(
-            formData.get("email") || ""
         ).trim();
 
         const password = String(
