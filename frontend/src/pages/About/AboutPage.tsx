@@ -450,7 +450,7 @@ function AboutPage() {
                         </p>
 
                         <div className="about-page__brand-signature">
-                            <span>José &amp; Yafira</span>
+                            <span>José &amp; Yadira</span>
                         </div>
 
                     </div>
