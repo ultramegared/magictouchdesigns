@@ -253,11 +253,11 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
             <section className="unified-collection-hero">
                 <img src={config.hero} alt={config.name[language]} />
                 <div className="unified-collection-hero__overlay" />
+                <Link className="unified-back-button" to="/collections">
+                    <span aria-hidden="true">←</span>
+                    {language === "es" ? "VOLVER" : "BACK"}
+                </Link>
                 <div className="unified-collection-hero__content">
-                    <Link className="unified-back-button" to="/collections">
-                        <span aria-hidden="true">←</span>
-                        {language === "es" ? "VOLVER" : "BACK"}
-                    </Link>
                     <h1>{config.name[language]}</h1>
                     <div className="unified-ornament"><i /><b>♥</b><i /></div>
                     <p>{config.description[language]}</p>

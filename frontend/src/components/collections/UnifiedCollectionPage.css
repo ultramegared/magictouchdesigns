@@ -62,7 +62,7 @@ html[data-jqy-theme="corporate"] .unified-collection-hero__content{
     flex-direction:column!important;
     align-items:center!important;
     justify-content:center!important;
-    transform:translateY(clamp(24px,7vw,44px))!important;
+    transform:translateY(clamp(50px,12vw,80px))!important;
     overflow:visible!important;
     z-index:5!important;
 }
@@ -76,7 +76,7 @@ html[data-jqy-theme="corporate"] .unified-back-button{
     width:max-content!important;
     height:auto!important;
     z-index:10000!important;
-    transform:translateY(clamp(-44px,-7vw,-24px))!important;
+    transform:none!important;
     border-color:#d5dde6!important;
     background:linear-gradient(145deg,#ffffff,#edf2f6)!important;
     color:#174a8b!important;
