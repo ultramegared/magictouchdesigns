@@ -762,7 +762,7 @@ html[data-jqy-theme="corporate"] .unified-lightbox__image-wrap>img{
 }
 html[data-jqy-theme="corporate"] .unified-product__gradient,
 html[data-jqy-theme="corporate"] .unified-lightbox__gradient{
-    background:linear-gradient(to top,rgba(0,0,0,.58),rgba(0,0,0,.20) 38%,rgba(0,0,0,0) 100%)!important;
+    background:transparent!important;
 }
 html[data-jqy-theme="corporate"] .unified-product__number{
     background:rgba(23,74,139,.88)!important;
