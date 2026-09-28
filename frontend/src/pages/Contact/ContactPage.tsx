@@ -140,9 +140,8 @@ function ContactPage() {
         setCustomStatus("sending");
 
         try {
-            const formData = new FormData(
-                event.currentTarget
-            );
+            const form = event.currentTarget;
+            const formData = new FormData(form);
 
             formData.set(
                 "quantity",
@@ -158,7 +157,7 @@ function ContactPage() {
             );
 
             setCustomStatus("success");
-            event.currentTarget.reset();
+            form.reset();
             setImageName("");
             setQuantity(1);
             setMugSize("15 oz");
@@ -186,9 +185,8 @@ function ContactPage() {
         setSupportStatus("sending");
 
         try {
-            const formData = new FormData(
-                event.currentTarget
-            );
+            const form = event.currentTarget;
+            const formData = new FormData(form);
 
             await apiRequest(
                 "/api/contact/support",
@@ -199,7 +197,7 @@ function ContactPage() {
             );
 
             setSupportStatus("success");
-            event.currentTarget.reset();
+            form.reset();
         } catch (error) {
             console.error(
                 "Support message submission error:",
