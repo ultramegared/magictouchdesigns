@@ -34,6 +34,34 @@
 /* ================================================================
    CORPORATE — COLLECTION BACK BUTTON
    ================================================================ */
+/* Corporate collection hero: show the complete source image on tablet/desktop.
+   The image stays in normal aspect ratio; no crop, filter, tint, or color processing. */
+html[data-jqy-theme="corporate"] .unified-collection-hero{
+    min-height:0!important;
+    height:auto!important;
+    overflow:hidden!important;
+}
+html[data-jqy-theme="corporate"] .unified-collection-hero>img{
+    position:relative!important;
+    inset:auto!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    object-fit:contain!important;
+    display:block!important;
+}
+html[data-jqy-theme="corporate"] .unified-collection-hero__content{
+    position:absolute!important;
+    inset:0!important;
+    width:92%!important;
+    height:100%!important;
+    margin:0 auto!important;
+    padding:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+}
 html[data-jqy-theme="corporate"] .unified-back-button{
     border-color:#d5dde6!important;
     background:linear-gradient(145deg,#ffffff,#edf2f6)!important;
@@ -51,10 +79,8 @@ html[data-jqy-theme="corporate"] .unified-back-button:hover{
 
 /* Responsive hero sizing: keep the full collection page naturally scrollable and show the product section sooner on wider screens. */
 @media(min-width:1101px){
-    .unified-collection-hero{min-height:52vh}
-    .unified-collection-hero__content{padding:82px 0 54px}
+    html[data-jqy-theme="corporate"] .unified-back-button{top:24px;left:24px}
 }
 @media(min-width:761px) and (max-width:1100px){
-    .unified-collection-hero{min-height:54vh}
-    .unified-collection-hero__content{padding:88px 0 58px}
+    html[data-jqy-theme="corporate"] .unified-back-button{top:20px;left:20px}
 }
