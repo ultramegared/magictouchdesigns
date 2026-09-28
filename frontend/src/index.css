@@ -863,3 +863,152 @@ html[data-jqy-theme="corporate"] .unified-state{
 html[data-jqy-theme="corporate"] .unified-state--error{
     color:#c62828!important;
 }
+
+
+/* ================================================================
+   CORPORATE — COLLECTIONS LANDING PAGE
+   UI only. All collection photography remains untouched.
+================================================================ */
+html[data-jqy-theme="corporate"] .collections-page{
+    background:linear-gradient(180deg,#f7f9fb 0%,#ffffff 48%,#eef3f7 100%)!important;
+    color:#111827!important;
+}
+/* Never color-process or tint collection photography. */
+html[data-jqy-theme="corporate"] .collections-hero__overlay,
+html[data-jqy-theme="corporate"] .collection-card__fade,
+html[data-jqy-theme="corporate"] .love-edition__overlay{
+    background:transparent!important;
+}
+html[data-jqy-theme="corporate"] .collections-hero,
+html[data-jqy-theme="corporate"] .love-edition{
+    border-color:#cfd8e3!important;
+}
+html[data-jqy-theme="corporate"] .collections-hero__image img,
+html[data-jqy-theme="corporate"] .collection-card__visual img,
+html[data-jqy-theme="corporate"] .love-edition__visual img{
+    filter:none!important;
+}
+html[data-jqy-theme="corporate"] .collections-hero__eyebrow,
+html[data-jqy-theme="corporate"] .collections-hero__content h1 span,
+html[data-jqy-theme="corporate"] .collections-hero__ornament span,
+html[data-jqy-theme="corporate"] .collections-hero__ornament b,
+html[data-jqy-theme="corporate"] .collections-heading__ornament b,
+html[data-jqy-theme="corporate"] .collections-heading__ornament h2{
+    color:#c62828!important;
+}
+html[data-jqy-theme="corporate"] .collections-hero__content h1{
+    color:#fff!important;
+    text-shadow:0 3px 12px rgba(0,0,0,.55)!important;
+}
+html[data-jqy-theme="corporate"] .collections-hero__content p{
+    color:#fff!important;
+    text-shadow:0 2px 10px rgba(0,0,0,.55)!important;
+}
+html[data-jqy-theme="corporate"] .collections-hero__bottom-curve{
+    border-top-color:#c62828!important;
+    box-shadow:0 -5px 0 rgba(198,40,40,.14)!important;
+}
+html[data-jqy-theme="corporate"] .collections-hero__bottom-curve span{
+    background:#174a8b!important;
+    border-color:#fff!important;
+    box-shadow:0 7px 18px rgba(17,24,39,.22)!important;
+}
+html[data-jqy-theme="corporate"] .collections-hero__bottom-curve span::after{
+    color:#fff!important;
+}
+html[data-jqy-theme="corporate"] .collections-heading__ornament > span{
+    background:linear-gradient(90deg,transparent,#174a8b)!important;
+}
+html[data-jqy-theme="corporate"] .collections-heading__ornament > span:last-child{
+    background:linear-gradient(90deg,#174a8b,transparent)!important;
+}
+html[data-jqy-theme="corporate"] .collection-card{
+    background:linear-gradient(145deg,#fff,#f1f5f8)!important;
+    border-color:#cfd8e3!important;
+    color:#111827!important;
+    box-shadow:0 14px 30px rgba(17,24,39,.10),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+html[data-jqy-theme="corporate"] .collection-card__body{
+    background:linear-gradient(180deg,rgba(255,255,255,.98),#f5f8fa)!important;
+}
+html[data-jqy-theme="corporate"] .collection-card__icon{
+    background:radial-gradient(circle at 32% 24%,#245fa7,#174a8b 72%,#0f315c 100%)!important;
+    border-color:#fff!important;
+    color:#fff!important;
+    box-shadow:0 8px 20px rgba(23,74,139,.25),inset 0 1px 0 rgba(255,255,255,.35)!important;
+}
+html[data-jqy-theme="corporate"] .collection-card__body h3{
+    color:#111827!important;
+    text-shadow:none!important;
+}
+html[data-jqy-theme="corporate"] .collection-card__body p{
+    color:#5b6573!important;
+}
+html[data-jqy-theme="corporate"] .collection-card__button{
+    background:linear-gradient(180deg,#245fa7,#174a8b)!important;
+    color:#fff!important;
+    border-color:#174a8b!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 8px 18px rgba(23,74,139,.20)!important;
+}
+html[data-jqy-theme="corporate"] .collection-card__button:hover{
+    background:linear-gradient(180deg,#2f6fbd,#123a6d)!important;
+}
+html[data-jqy-theme="corporate"] .love-edition{
+    background:#f4f6f8!important;
+    box-shadow:0 16px 34px rgba(17,24,39,.10)!important;
+}
+html[data-jqy-theme="corporate"] .love-edition__content{
+    background:rgba(255,255,255,.88)!important;
+    border-right:1px solid rgba(207,216,227,.65)!important;
+}
+html[data-jqy-theme="corporate"] .love-edition__eyebrow{
+    color:#174a8b!important;
+}
+html[data-jqy-theme="corporate"] .love-edition__ornament span{
+    background:#c62828!important;
+}
+html[data-jqy-theme="corporate"] .love-edition__ornament b{
+    color:#c62828!important;
+}
+html[data-jqy-theme="corporate"] .love-edition__content h2{
+    color:#111827!important;
+}
+html[data-jqy-theme="corporate"] .love-edition__content p{
+    color:#4b5563!important;
+}
+html[data-jqy-theme="corporate"] .love-edition__button{
+    background:linear-gradient(180deg,#245fa7,#174a8b)!important;
+    color:#fff!important;
+    border-color:#174a8b!important;
+    box-shadow:0 8px 18px rgba(23,74,139,.20)!important;
+}
+html[data-jqy-theme="corporate"] .collections-benefits{
+    background:linear-gradient(145deg,#17263b,#0f1b2d)!important;
+    border-color:rgba(23,74,139,.55)!important;
+}
+html[data-jqy-theme="corporate"] .collection-benefit{
+    background:transparent!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+html[data-jqy-theme="corporate"] .collection-benefit__icon{
+    color:#fff!important;
+    border-color:#fff!important;
+    background:radial-gradient(circle at 32% 24%,#245fa7,#174a8b 72%,#0f315c 100%)!important;
+    box-shadow:0 8px 20px rgba(23,74,139,.28),inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+html[data-jqy-theme="corporate"] .collection-benefit__text h3{
+    color:#fff!important;
+    text-shadow:none!important;
+}
+html[data-jqy-theme="corporate"] .collection-benefit__text p{
+    color:rgba(255,255,255,.72)!important;
+}
+html[data-jqy-theme="corporate"] .collection-benefit__divider{
+    background:linear-gradient(180deg,transparent,rgba(255,255,255,.32),transparent)!important;
+}
+@media(max-width:767px){
+    html[data-jqy-theme="corporate"] .love-edition__content{
+        background:rgba(255,255,255,.90)!important;
+        border-right:0!important;
+    }
+}
