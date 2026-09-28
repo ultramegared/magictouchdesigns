@@ -56,20 +56,26 @@ html[data-jqy-theme="corporate"] .unified-collection-hero__content{
     width:92%!important;
     height:100%!important;
     margin:0 auto!important;
-    padding:clamp(76px,15vw,120px) 0 28px!important;
+    padding:0!important;
     box-sizing:border-box!important;
     display:flex!important;
     flex-direction:column!important;
     align-items:center!important;
-    justify-content:flex-start!important;
+    justify-content:center!important;
+    transform:translateY(clamp(0px,2vw,18px))!important;
     overflow:visible!important;
     z-index:5!important;
 }
 html[data-jqy-theme="corporate"] .unified-back-button{
+    position:absolute!important;
+    top:clamp(16px,3vw,24px)!important;
+    left:clamp(16px,3vw,24px)!important;
     display:inline-flex!important;
     visibility:visible!important;
     opacity:1!important;
-    z-index:1000!important;
+    width:max-content!important;
+    height:auto!important;
+    z-index:10000!important;
     border-color:#d5dde6!important;
     background:linear-gradient(145deg,#ffffff,#edf2f6)!important;
     color:#174a8b!important;
