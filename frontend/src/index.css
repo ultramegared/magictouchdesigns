@@ -279,6 +279,77 @@ html[data-jqy-theme="corporate"] .header__icon,
 html[data-jqy-theme="corporate"] .header__account-trigger{background:#f4f6f8!important;color:var(--skin-secondary)!important}
 html[data-jqy-theme="corporate"] .header__cart span{background:var(--skin-accent)!important;color:#fff!important}
 
+/* Corporate mobile menu: inherit the active skin instead of the legacy dark menu. */
+html[data-jqy-theme="corporate"] .header__mobile{
+    background:linear-gradient(180deg,#f8fafc 0%,#eef3f8 100%)!important;
+    border-top:1px solid #cbd5e1!important;
+    box-shadow:0 16px 30px rgba(17,24,39,.14)!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-link{
+    color:#174a8b!important;
+    background:transparent!important;
+    border-bottom:1px solid #d7dee7!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-link:hover,
+html[data-jqy-theme="corporate"] .header__mobile-link:focus-visible{
+    background:#e8f0f9!important;
+    color:#c62828!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-link.active,
+html[data-jqy-theme="corporate"] .header__mobile-link[aria-current="page"]{
+    color:#c62828!important;
+    background:#f1f5f9!important;
+    box-shadow:inset 4px 0 0 #c62828!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-language{
+    border-top-color:#cbd5e1!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-language span{
+    color:#94a3b8!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-language button{
+    color:#111827!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-language button:hover,
+html[data-jqy-theme="corporate"] .header__mobile-language button.header__language--active{
+    color:#174a8b!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-account{
+    background:linear-gradient(145deg,#ffffff,#eef3f7)!important;
+    border-color:#cbd5e1!important;
+    box-shadow:0 8px 20px rgba(17,24,39,.08)!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-account-user{
+    color:#111827!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-account-user svg:first-child,
+html[data-jqy-theme="corporate"] .header__mobile-account-menu button svg{
+    color:#174a8b!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-account-menu{
+    border-top-color:#d7dee7!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-account-menu button{
+    color:#374151!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-account-menu button:hover{
+    background:#e8f0f9!important;
+    color:#174a8b!important;
+}
+html[data-jqy-theme="corporate"] .header__mobile-account-menu .header__mobile-account-logout{
+    border-top-color:#d7dee7!important;
+    color:#c62828!important;
+}
+html[data-jqy-theme="corporate"] .header__menu{
+    background:linear-gradient(145deg,#245fa7,#174a8b)!important;
+    color:#fff!important;
+    box-shadow:0 7px 16px rgba(23,74,139,.24),inset 0 1px 0 rgba(255,255,255,.25)!important;
+}
+html[data-jqy-theme="corporate"] .header__menu:hover{
+    background:linear-gradient(145deg,#c62828,#a91f1f)!important;
+    color:#fff!important;
+}
+
 
 /* ================================================================
    CORPORATE THEME — COMPLETE LEGACY COMPONENT OVERRIDES
