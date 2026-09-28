@@ -1,0 +1,200 @@
+/* CORPORATE SKIN — ADMIN LOGIN
+   Visual-only adaptation. Authentication, routes, API calls and images remain untouched.
+*/
+html[data-jqy-theme="corporate"] .admin-login{
+  background:#eef3f8!important;
+  color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login::before{
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.10))!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login::after{
+  background:repeating-linear-gradient(112deg,transparent 0 84px,rgba(23,74,139,.035) 85px 87px)!important;
+  opacity:.55!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__ambient--left,
+html[data-jqy-theme="corporate"] .admin-login__ambient--right{
+  background:none!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__ambient--left::before,
+html[data-jqy-theme="corporate"] .admin-login__ambient--right::before,
+html[data-jqy-theme="corporate"] .admin-login__ambient--right::after{
+  filter:none!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__side-copy{
+  color:#174a8b!important;
+  text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__side-copy i{
+  background:linear-gradient(90deg,#174a8b,transparent)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__card{
+  border:1px solid #c5d0dc!important;
+  border-radius:20px!important;
+  background:linear-gradient(145deg,#ffffff 0%,#f7f9fb 58%,#eef3f7 100%)!important;
+  box-shadow:0 30px 70px rgba(17,24,39,.20),0 8px 22px rgba(23,74,139,.08),inset 0 1px 0 #fff!important;
+  color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__card::before{
+  border-color:rgba(23,74,139,.10)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__card::after{
+  background:linear-gradient(90deg,transparent,#174a8b,transparent)!important;
+  box-shadow:0 0 18px rgba(23,74,139,.20)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__card-glow{
+  background:radial-gradient(circle,rgba(36,95,167,.12),transparent 67%)!important;
+  filter:blur(18px)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__edge-glow--top{
+  background:#dcecff!important;
+  box-shadow:0 0 18px 4px rgba(36,95,167,.30)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__private{
+  color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__private svg{
+  color:#174a8b!important;
+  filter:none!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__private strong{
+  color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__private span{
+  color:#687585!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__logo{
+  filter:none!important;
+  mix-blend-mode:normal!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__brand-name{
+  color:#111827!important;
+  text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__eyebrow{
+  color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__mini-line{
+  background:linear-gradient(90deg,transparent,#174a8b,transparent)!important;
+  box-shadow:0 0 8px rgba(23,74,139,.18)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__input{
+  border-color:#cbd5e1!important;
+  background:linear-gradient(180deg,#ffffff,#f3f6f9)!important;
+  box-shadow:inset 0 1px 0 #fff,0 6px 16px rgba(17,24,39,.05)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__input:focus-within{
+  border-color:#174a8b!important;
+  box-shadow:0 0 0 3px rgba(23,74,139,.10),0 8px 20px rgba(17,24,39,.07)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__input svg{
+  color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__input input{
+  color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__input input::placeholder{
+  color:#7b8794!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__password-toggle{
+  color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__options{
+  color:#5b6573!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__options input{
+  accent-color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__options button{
+  color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__message{
+  background:#fff4f4!important;
+  border-color:#edcaca!important;
+  color:#a33a3a!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__submit{
+  border-color:#174a8b!important;
+  background:linear-gradient(135deg,#245fa7,#174a8b)!important;
+  color:#fff!important;
+  box-shadow:0 10px 24px rgba(23,74,139,.20),inset 0 1px 0 rgba(255,255,255,.25)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__submit:hover:not(:disabled){
+  background:linear-gradient(135deg,#174a8b,#123a6d)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__brand-footer{
+  color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__brand-footer>div{
+  color:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__brand-footer>div span{
+  background:linear-gradient(90deg,transparent,rgba(23,74,139,.45))!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__brand-footer>div span:last-child{
+  transform:scaleX(-1);
+}
+
+html[data-jqy-theme="corporate"] .admin-login__brand-footer em{
+  color:#c62828!important;
+  text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__brand-footer>i{
+  background:linear-gradient(90deg,transparent,#c62828,transparent)!important;
+}
+
+html[data-jqy-theme="corporate"] .admin-login__footer{
+  color:#5b6573!important;
+}
+
+@media(max-width:760px){
+  html[data-jqy-theme="corporate"] .admin-login{
+    background:linear-gradient(180deg,#f8fafc 0%,#eef3f8 100%)!important;
+  }
+
+  html[data-jqy-theme="corporate"] .admin-login__card{
+    box-shadow:0 22px 48px rgba(17,24,39,.16),0 6px 18px rgba(23,74,139,.07),inset 0 1px 0 #fff!important;
+  }
+}
+
+@media(min-width:761px){
+  html[data-jqy-theme="corporate"] .admin-login{
+    background:#eef3f8 url('/images/admin/admin-login-pc.jpg') center center / cover no-repeat!important;
+  }
+}
