@@ -312,3 +312,28 @@ html[data-jqy-theme="corporate"] .admin-settings__hero-image-preview img{
   transform:none!important;
   opacity:1!important;
 }
+
+
+/* Keep section add actions inside the expanded section, not in the header. */
+.admin-settings__body-add{
+  display:flex;
+  justify-content:flex-end;
+  padding:16px 0 2px;
+}
+.admin-settings__body-add .admin-settings__add{
+  font-size:12px;
+  padding:10px 14px;
+}
+html[data-jqy-theme="corporate"] .admin-settings__body-add{
+  border-bottom:1px solid #e1e7ed;
+  margin-bottom:16px;
+  padding-bottom:14px;
+}
+@media(max-width:560px){
+  .admin-settings__body-add{
+    justify-content:stretch;
+  }
+  .admin-settings__body-add .admin-settings__add{
+    width:100%;
+  }
+}
