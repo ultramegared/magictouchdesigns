@@ -2051,3 +2051,79 @@ html[data-jqy-theme="corporate"] .visual-cloud{background:linear-gradient(145deg
 html[data-jqy-theme="corporate"] .visual-truck__cab span{background:linear-gradient(145deg,#dbeafe,#8fa9c3)!important}
 html[data-jqy-theme="corporate"] .visual-truck__wheel{background:#17263b!important}
 @media(max-width:700px){html[data-jqy-theme="corporate"] .how-it-works__card{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.98),rgba(255,255,255,.50) 32%,transparent 66%),linear-gradient(145deg,#fff,#f3f6f9)!important}}
+
+
+/* FORGOT PASSWORD — CORPORATE SKIN */
+html[data-jqy-theme="corporate"] .login{
+  background:
+    radial-gradient(ellipse at 50% 8%,rgba(23,74,139,.10),transparent 38%),
+    radial-gradient(ellipse at 10% 80%,rgba(23,74,139,.06),transparent 45%),
+    radial-gradient(ellipse at 90% 70%,rgba(198,40,40,.045),transparent 42%),
+    linear-gradient(145deg,#eef3f8 0%,#ffffff 50%,#e8eef4 100%)!important;
+}
+html[data-jqy-theme="corporate"] .login__glow--one{
+  background:radial-gradient(circle,rgba(36,95,167,.12),transparent 68%)!important;
+}
+html[data-jqy-theme="corporate"] .login__glow--two{
+  background:radial-gradient(circle,rgba(198,40,40,.06),transparent 68%)!important;
+}
+html[data-jqy-theme="corporate"] .login__spark{
+  color:#174a8b!important;
+  text-shadow:0 0 6px rgba(23,74,139,.30),0 0 18px rgba(23,74,139,.16)!important;
+}
+html[data-jqy-theme="corporate"] .login__card{
+  border-color:#c3ceda!important;
+  border-radius:22px!important;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.98),transparent 44%),
+    linear-gradient(145deg,#ffffff 0%,#f0f4f7 100%)!important;
+  box-shadow:
+    0 30px 70px rgba(17,24,39,.16),
+    0 0 30px rgba(23,74,139,.05),
+    inset 0 1px 0 rgba(255,255,255,.98),
+    inset 0 -24px 42px rgba(17,24,39,.035)!important;
+}
+html[data-jqy-theme="corporate"] .login__card::before{
+  background:linear-gradient(125deg,transparent 8%,rgba(23,74,139,.16) 22%,transparent 38%,transparent 64%,rgba(198,40,40,.10) 80%,transparent 94%)!important;
+}
+html[data-jqy-theme="corporate"] .login__card::after{
+  background:radial-gradient(circle,rgba(23,74,139,.08),transparent 68%)!important;
+}
+html[data-jqy-theme="corporate"] .login__card-shine{
+  background:linear-gradient(90deg,transparent,rgba(23,74,139,.025),rgba(255,255,255,.65),rgba(23,74,139,.025),transparent)!important;
+}
+html[data-jqy-theme="corporate"] .login__brand-name{color:#111827!important}
+html[data-jqy-theme="corporate"] .login__brand-name span{color:#174a8b!important}
+html[data-jqy-theme="corporate"] .login__brand-mark{
+  border-color:#c3ceda!important;
+  box-shadow:0 8px 18px rgba(17,24,39,.08)!important;
+}
+html[data-jqy-theme="corporate"] .login__eyebrow{color:#174a8b!important;text-shadow:none!important}
+html[data-jqy-theme="corporate"] .login__header h1{color:#111827!important;text-shadow:none!important}
+html[data-jqy-theme="corporate"] .login__header p{color:#5b6573!important}
+html[data-jqy-theme="corporate"] .login__field label{color:#374151!important}
+html[data-jqy-theme="corporate"] .login__input{
+  border-color:#cbd5e1!important;
+  background:linear-gradient(145deg,#fff,#f1f5f8)!important;
+  box-shadow:inset 0 2px 7px rgba(17,24,39,.055),inset 0 1px 0 #fff!important;
+}
+html[data-jqy-theme="corporate"] .login__input:focus-within{
+  border-color:#174a8b!important;
+  box-shadow:0 0 0 2px rgba(23,74,139,.08),0 0 22px rgba(23,74,139,.08),inset 0 2px 7px rgba(17,24,39,.06)!important;
+}
+html[data-jqy-theme="corporate"] .login__input>svg{color:#174a8b!important;filter:none!important}
+html[data-jqy-theme="corporate"] .login__input input{color:#111827!important}
+html[data-jqy-theme="corporate"] .login__input input::placeholder{color:#8a94a1!important}
+html[data-jqy-theme="corporate"] .login__submit{
+  border-color:#174a8b!important;
+  background:linear-gradient(135deg,#245fa7 0%,#174a8b 52%,#123a6d 100%)!important;
+  color:#fff!important;
+  box-shadow:0 10px 26px rgba(23,74,139,.22),0 0 24px rgba(23,74,139,.08),inset 0 2px 0 rgba(255,255,255,.24),inset 0 -5px 9px rgba(10,35,65,.18)!important;
+}
+html[data-jqy-theme="corporate"] .login__submit:hover{
+  filter:brightness(1.06);
+  box-shadow:0 14px 32px rgba(23,74,139,.28),0 0 30px rgba(23,74,139,.12),inset 0 2px 0 rgba(255,255,255,.30)!important;
+}
+html[data-jqy-theme="corporate"] .login__register{color:#6b7280!important}
+html[data-jqy-theme="corporate"] .login__register button{color:#174a8b!important}
+html[data-jqy-theme="corporate"] .login__register button:hover{color:#c62828!important;text-shadow:none!important}
