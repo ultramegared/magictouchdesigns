@@ -1750,131 +1750,72 @@
 
 /* ================================================================
    CORPORATE SKIN — NEWSLETTER
-   Corporate depth only. Newsletter artwork remains untouched.
+   Clean corporate depth. Artwork remains untouched.
    ================================================================ */
 
 [data-jqy-theme="corporate"] .newsletter {
     background:
         linear-gradient(
-            145deg,
+            180deg,
             #ffffff 0%,
-            #f4f6f8 52%,
-            #e9eef4 100%
-        ) !important;
-    border-color: rgba(23, 74, 139, 0.42) !important;
-    box-shadow:
-        0 24px 55px rgba(17, 24, 39, 0.16),
-        0 6px 0 rgba(23, 74, 139, 0.08),
-        0 0 0 1px rgba(255, 255, 255, 0.95) inset !important;
+            #f5f7fa 100%
+        );
 }
 
-[data-jqy-theme="corporate"] .newsletter::before {
-    background:
-        radial-gradient(
-            circle,
-            rgba(23, 74, 139, 0.10),
-            transparent 68%
-        ) !important;
-}
-
-[data-jqy-theme="corporate"] .newsletter__content h2,
-[data-jqy-theme="corporate"] .newsletter h2 {
-    color: #111827 !important;
-    text-shadow: 0 3px 16px rgba(17, 24, 39, 0.10);
-}
-
-[data-jqy-theme="corporate"] .newsletter__content p,
-[data-jqy-theme="corporate"] .newsletter p {
-    color: rgba(17, 24, 39, 0.66) !important;
-}
-
-[data-jqy-theme="corporate"] .newsletter__eyebrow,
-[data-jqy-theme="corporate"] .newsletter .newsletter-eyebrow {
-    color: #174A8B !important;
-}
-
-[data-jqy-theme="corporate"] .newsletter input,
-[data-jqy-theme="corporate"] .newsletter__input {
-    border-color: rgba(23, 74, 139, 0.28) !important;
-    background: #ffffff !important;
-    color: #111827 !important;
-    box-shadow:
-        0 5px 16px rgba(17, 24, 39, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
-}
-
-[data-jqy-theme="corporate"] .newsletter input:focus,
-[data-jqy-theme="corporate"] .newsletter__input:focus {
-    border-color: rgba(23, 74, 139, 0.65) !important;
-    box-shadow:
-        0 0 0 3px rgba(23, 74, 139, 0.10),
-        0 7px 18px rgba(17, 24, 39, 0.10) !important;
-}
-
-[data-jqy-theme="corporate"] .newsletter button,
-[data-jqy-theme="corporate"] .newsletter__button {
-    border-color: #174A8B !important;
-    background:
-        linear-gradient(
-            180deg,
-            #2d68ad 0%,
-            #174A8B 100%
-        ) !important;
-    color: #ffffff !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.34),
-        0 8px 20px rgba(23, 74, 139, 0.22) !important;
-}
-
-[data-jqy-theme="corporate"] .newsletter button:hover,
-[data-jqy-theme="corporate"] .newsletter__button:hover {
-    background:
-        linear-gradient(
-            180deg,
-            #3a75b8 0%,
-            #123A6D 100%
-        ) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.40),
-        0 12px 26px rgba(23, 74, 139, 0.28) !important;
-}
-
-[data-jqy-theme="corporate"] .newsletter svg {
-    color: #174A8B;
-}
-
-
-/* ================================================================
-   CORPORATE SKIN — NEWSLETTER
-   Adds clean corporate depth while preserving the artwork.
-   ================================================================ */
-
-[data-jqy-theme="corporate"] .newsletter {
+[data-jqy-theme="corporate"] .newsletter__container {
+    border-color: rgba(23, 74, 139, 0.32);
     background:
         linear-gradient(
             145deg,
             #ffffff 0%,
-            #f5f7fa 52%,
+            #f6f8fb 58%,
             #edf2f7 100%
         );
-    border-color: rgba(23, 74, 139, 0.34);
     box-shadow:
-        0 18px 42px rgba(17, 24, 39, 0.13),
+        0 24px 52px rgba(17, 24, 39, 0.14),
         0 5px 0 rgba(23, 74, 139, 0.07),
         0 0 0 1px rgba(255, 255, 255, 0.96) inset;
 }
 
-[data-jqy-theme="corporate"] .newsletter::before {
-    border-color: rgba(23, 74, 139, 0.13);
+[data-jqy-theme="corporate"] .newsletter__container::before {
+    background:
+        linear-gradient(
+            115deg,
+            transparent 15%,
+            rgba(23, 74, 139, 0.13) 32%,
+            transparent 43%,
+            transparent 68%,
+            rgba(198, 40, 40, 0.08) 82%,
+            transparent 94%
+        );
+    opacity: 1;
 }
 
-[data-jqy-theme="corporate"] .newsletter::after {
+[data-jqy-theme="corporate"] .newsletter__container::after {
     background:
         radial-gradient(
-            ellipse,
-            rgba(23, 74, 139, 0.10),
-            transparent 70%
+            circle,
+            rgba(23, 74, 139, 0.08) 0%,
+            rgba(23, 74, 139, 0.025) 34%,
+            transparent 68%
         );
+}
+
+[data-jqy-theme="corporate"] .newsletter__icon {
+    color: #174A8B;
+}
+
+[data-jqy-theme="corporate"] .newsletter__icon-ring {
+    border-color: rgba(23, 74, 139, 0.55);
+    background:
+        radial-gradient(
+            circle,
+            rgba(23, 74, 139, 0.09),
+            #ffffff 68%
+        );
+    box-shadow:
+        0 0 0 5px rgba(23, 74, 139, 0.045),
+        0 8px 22px rgba(23, 74, 139, 0.15);
 }
 
 [data-jqy-theme="corporate"] .newsletter__eyebrow {
@@ -1882,32 +1823,60 @@
     text-shadow: none;
 }
 
-[data-jqy-theme="corporate"] .newsletter__title {
+[data-jqy-theme="corporate"] .newsletter__eyebrow-line {
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #174A8B
+        );
+    box-shadow: none;
+}
+
+[data-jqy-theme="corporate"] .newsletter__eyebrow-line:last-child {
+    background:
+        linear-gradient(
+            90deg,
+            #174A8B,
+            transparent
+        );
+}
+
+[data-jqy-theme="corporate"] .newsletter__content h2 {
     color: #111827;
     text-shadow: 0 4px 18px rgba(17, 24, 39, 0.08);
 }
 
-[data-jqy-theme="corporate"] .newsletter__description,
-[data-jqy-theme="corporate"] .newsletter__note {
+[data-jqy-theme="corporate"] .newsletter__content p {
     color: rgba(17, 24, 39, 0.64);
 }
 
-[data-jqy-theme="corporate"] .newsletter__input-wrap {
-    border-color: rgba(23, 74, 139, 0.25);
+[data-jqy-theme="corporate"] .newsletter__form input {
+    border-color: rgba(23, 74, 139, 0.24);
     background: #ffffff;
+    color: #111827;
     box-shadow:
         0 5px 16px rgba(17, 24, 39, 0.10),
-        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        inset 0 1px 0 rgba(255, 255, 255, 0.96);
 }
 
-[data-jqy-theme="corporate"] .newsletter__input-wrap:focus-within {
+[data-jqy-theme="corporate"] .newsletter__form input::placeholder {
+    color: #737d8b;
+}
+
+[data-jqy-theme="corporate"] .newsletter__form input:focus {
     border-color: rgba(23, 74, 139, 0.58);
     box-shadow:
         0 7px 20px rgba(17, 24, 39, 0.12),
         0 0 0 3px rgba(23, 74, 139, 0.08);
 }
 
-[data-jqy-theme="corporate"] .newsletter__button {
+[data-jqy-theme="corporate"] .newsletter__input-icon {
+    stroke: #174A8B;
+    filter: none;
+}
+
+[data-jqy-theme="corporate"] .newsletter__form button {
     border-color: #174A8B;
     background:
         linear-gradient(
@@ -1921,17 +1890,43 @@
         0 8px 20px rgba(23, 74, 139, 0.22);
 }
 
-[data-jqy-theme="corporate"] .newsletter__button:hover {
+[data-jqy-theme="corporate"] .newsletter__form button:hover {
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.40),
         0 11px 25px rgba(23, 74, 139, 0.28);
 }
 
-[data-jqy-theme="corporate"] .newsletter__icon {
-    color: #174A8B;
+[data-jqy-theme="corporate"] .newsletter__privacy {
+    color: rgba(17, 24, 39, 0.56);
 }
 
-[data-jqy-theme="corporate"] .newsletter__decor {
-    color: #C62828;
-    opacity: 0.72;
+[data-jqy-theme="corporate"] .newsletter__privacy-icon {
+    border-color: rgba(23, 74, 139, 0.48);
+    color: #174A8B;
+    box-shadow: none;
+}
+
+[data-jqy-theme="corporate"] .newsletter__light--one {
+    background:
+        radial-gradient(
+            circle,
+            rgba(23, 74, 139, 0.10),
+            transparent 68%
+        );
+}
+
+[data-jqy-theme="corporate"] .newsletter__light--two {
+    background:
+        radial-gradient(
+            circle,
+            rgba(198, 40, 40, 0.07),
+            transparent 68%
+        );
+}
+
+[data-jqy-theme="corporate"] .newsletter__spark {
+    color: #174A8B;
+    text-shadow:
+        0 0 6px rgba(23, 74, 139, 0.25),
+        0 0 16px rgba(23, 74, 139, 0.12);
 }
