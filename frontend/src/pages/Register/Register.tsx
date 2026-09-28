@@ -10,7 +10,7 @@
  * ================================================================
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { FormEvent } from "react";
 
@@ -34,6 +34,23 @@ function Register() {
 
     const [showConfirmPassword, setShowConfirmPassword] =
         useState(false);
+
+    const [logoUrl, setLogoUrl] = useState("");
+
+    useEffect(() => {
+        let cancelled = false;
+        apiRequest<{ status: string; settings: { logoUrl?: string | null } }>(
+            `/api/settings?public_refresh=${Date.now()}`,
+            { cache: "no-store" }
+        )
+            .then(result => {
+                if (!cancelled) setLogoUrl(result.settings?.logoUrl || "");
+            })
+            .catch(() => {});
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const handleSubmit = async (
         event: FormEvent<HTMLFormElement>
@@ -172,14 +189,11 @@ function Register() {
 
                 <div className="login__brand">
 
-                    <div className="login__brand-mark">
-                        MTD
-                    </div>
-
-                    <div className="login__brand-name">
-                        MAGIC TOUCH
-                        <span>DESIGNS</span>
-                    </div>
+                    <img
+                        src={logoUrl || "/images/logo/jqyd-logo-256.png"}
+                        alt="JQ & YD"
+                        className="login__brand-logo"
+                    />
 
                 </div>
 
