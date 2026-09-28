@@ -462,7 +462,7 @@ function Register() {
                     <button
                         type="button"
                         onClick={() => {
-                            window.location.href = "/login";
+                            window.location.href = "/";
                         }}
                     >
                         {t.signIn}
