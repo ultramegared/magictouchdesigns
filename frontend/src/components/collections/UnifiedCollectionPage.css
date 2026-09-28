@@ -1,8 +1,8 @@
-.unified-collection-page{background:#090909;color:#f6f2e8;min-height:100vh}.unified-collection-hero{position:relative;min-height:62vh;display:grid;place-items:center;overflow:hidden;border-bottom:1px solid rgba(216,168,45,.35);isolation:isolate}.unified-collection-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.unified-collection-hero__overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.32),rgba(0,0,0,.55) 58%,#090909 100%)}.unified-collection-hero__content{position:relative;z-index:1;width:min(920px,92%);text-align:center;padding:120px 0 70px}.unified-back-button{
+.unified-collection-page{background:#090909;color:#f6f2e8;min-height:100vh}.unified-collection-hero{position:relative;min-height:62vh;display:grid;place-items:center;overflow:hidden;border-bottom:1px solid rgba(216,168,45,.35);isolation:isolate}.unified-collection-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.unified-collection-hero__overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.32),rgba(0,0,0,.55) 58%,#090909 100%)}.unified-collection-hero__content{position:relative;z-index:5;width:min(920px,92%);text-align:center;padding:120px 0 70px}.unified-back-button{
     position:absolute;
-    top:24px;
-    left:24px;
-    z-index:10;
+    top:clamp(16px,3vw,24px);
+    left:clamp(16px,3vw,24px);
+    z-index:1000;
     display:inline-flex;
     align-items:center;
     justify-content:center;
@@ -56,13 +56,20 @@ html[data-jqy-theme="corporate"] .unified-collection-hero__content{
     width:92%!important;
     height:100%!important;
     margin:0 auto!important;
-    padding:0!important;
+    padding:clamp(76px,15vw,120px) 0 28px!important;
+    box-sizing:border-box!important;
     display:flex!important;
     flex-direction:column!important;
     align-items:center!important;
-    justify-content:center!important;
+    justify-content:flex-start!important;
+    overflow:visible!important;
+    z-index:5!important;
 }
 html[data-jqy-theme="corporate"] .unified-back-button{
+    display:inline-flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    z-index:1000!important;
     border-color:#d5dde6!important;
     background:linear-gradient(145deg,#ffffff,#edf2f6)!important;
     color:#174a8b!important;
