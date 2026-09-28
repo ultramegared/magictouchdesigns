@@ -2,3 +2,320 @@
 @media(max-width:1100px){.admin-reports{padding-left:22px;padding-right:22px}.admin-reports__cards{grid-template-columns:repeat(3,1fr)}.admin-reports__grid--three{grid-template-columns:1fr 1fr}.admin-reports__grid--three>.admin-reports__panel:first-child{grid-column:1/-1}.admin-reports__toolbar{align-items:flex-start;flex-wrap:wrap}.admin-reports__date-fields{margin-left:0}}
 @media(max-width:760px){.admin-reports{padding:0 14px 45px}.admin-reports__hero{padding:27px 0 20px;align-items:flex-start;flex-direction:column}.admin-reports__hero h1{font-size:32px}.admin-reports__hero-actions{width:100%}.admin-reports__hero-actions button{flex:1}.admin-reports__toolbar{flex-direction:column}.admin-reports__date-icon{display:none}.admin-reports__preset-group{width:100%}.admin-reports__preset-group button{flex:1;padding-left:6px;padding-right:6px}.admin-reports__date-fields{width:100%;display:grid;grid-template-columns:1fr auto 1fr auto}.admin-reports__date-fields input{width:100%;box-sizing:border-box}.admin-reports__cards{grid-template-columns:1fr 1fr}.admin-reports__grid--main,.admin-reports__grid--three{grid-template-columns:1fr}.admin-reports__grid--three>.admin-reports__panel:first-child{grid-column:auto}.admin-reports__period-line{flex-direction:column}.admin-reports__panel{padding:16px}.admin-reports__chart{height:205px}}
 @media(max-width:480px){.admin-reports__hero-actions{flex-direction:column}.admin-reports__cards,.admin-reports__section-stack>.admin-reports__cards{grid-template-columns:1fr}.admin-reports__date-fields{grid-template-columns:1fr;gap:7px}.admin-reports__date-fields>span{display:none}.admin-reports__apply{width:100%}.admin-reports__tabs button{padding-left:10px;padding-right:10px}.admin-reports__chart-x{padding-left:45px}}
+
+
+/* ================================================================
+   CORPORATE SKIN — ADMIN REPORTS
+   Reports remain fully functional; this only adapts presentation.
+   ================================================================ */
+
+[data-jqy-theme="corporate"] .admin-reports {
+    background:
+        linear-gradient(180deg, #f8fafc 0%, #ffffff 34%, #f4f6f8 100%);
+    color: #111827;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__hero {
+    border-bottom-color: #dfe4ea;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__eyebrow {
+    color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__hero h1 {
+    color: #111827;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__hero p {
+    color: #5b6573;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__secondary {
+    border-color: #d6dce3;
+    background: #ffffff;
+    color: #174a8b;
+    box-shadow:
+        0 5px 14px rgba(17, 24, 39, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.98);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__secondary:hover:not(:disabled) {
+    border-color: #174a8b;
+    background: #f5f8fc;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__primary {
+    border-color: #174a8b;
+    background: linear-gradient(145deg, #2d68ad, #174a8b);
+    color: #ffffff;
+    box-shadow:
+        0 4px 0 #123a6d,
+        0 10px 20px rgba(23, 74, 139, 0.18);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__primary:hover:not(:disabled) {
+    box-shadow:
+        0 5px 0 #123a6d,
+        0 13px 24px rgba(23, 74, 139, 0.22);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__error {
+    border-color: rgba(198, 40, 40, 0.28);
+    background: #fff5f5;
+    color: #a61b1b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__toolbar {
+    border-color: #d6dce3;
+    background: #ffffff;
+    box-shadow:
+        0 10px 24px rgba(17, 24, 39, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.98);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__date-icon {
+    background: #eef4fb;
+    color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__preset-group button {
+    color: #5b6573;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__preset-group button:hover {
+    background: #f1f5f9;
+    color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__preset-group button.active {
+    background: #174a8b;
+    color: #ffffff;
+    box-shadow: 0 3px 8px rgba(23, 74, 139, 0.18);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__date-fields label {
+    color: #6b7480;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__date-fields input {
+    border-color: #cfd6df;
+    background: #ffffff;
+    color: #111827;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__date-fields input:focus {
+    outline: none;
+    border-color: #174a8b;
+    box-shadow: 0 0 0 3px rgba(23, 74, 139, 0.10);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__apply {
+    border: 1px solid #174a8b;
+    background: #eef4fb;
+    color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__apply:hover {
+    background: #174a8b;
+    color: #ffffff;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__tabs {
+    border-bottom-color: #dfe4ea;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__tabs button {
+    color: #68727e;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__tabs button:hover {
+    color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__tabs button.active {
+    color: #174a8b;
+    border-bottom-color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__period-line {
+    color: #68727e;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__period-line strong {
+    color: #111827;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__cards article,
+[data-jqy-theme="corporate"] .admin-reports__panel,
+[data-jqy-theme="corporate"] .admin-reports__customer-callout {
+    border-color: #d6dce3;
+    background: #ffffff;
+    box-shadow:
+        0 12px 28px rgba(17, 24, 39, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.98);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__cards article.is-primary {
+    border-color: #174a8b;
+    background: linear-gradient(145deg, #2d68ad, #174a8b);
+    color: #ffffff;
+    box-shadow:
+        0 12px 28px rgba(23, 74, 139, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__cards span {
+    color: #5b6573;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__cards .is-primary span,
+[data-jqy-theme="corporate"] .admin-reports__cards .is-primary small {
+    color: rgba(255, 255, 255, 0.82);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__cards small {
+    color: #6b7480;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__cards strong {
+    color: #111827;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__cards .is-primary strong {
+    color: #ffffff;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__panel-head > div span {
+    color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__panel-head h2,
+[data-jqy-theme="corporate"] .admin-reports__panel-head > strong {
+    color: #111827;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__panel-head > svg {
+    color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__chart {
+    border-bottom-color: #e1e5ea;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__bars {
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 32%,
+        #e9edf2 32.4%,
+        transparent 33%
+    );
+}
+
+[data-jqy-theme="corporate"] .admin-reports__bar {
+    background: linear-gradient(180deg, #2d68ad, #174a8b);
+    box-shadow: 0 3px 8px rgba(23, 74, 139, 0.16);
+}
+
+[data-jqy-theme="corporate"] .admin-reports__chart-y,
+[data-jqy-theme="corporate"] .admin-reports__chart-x {
+    color: #7b8491;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__payment,
+[data-jqy-theme="corporate"] .admin-reports__rank,
+[data-jqy-theme="corporate"] .admin-reports__stat-stack > div,
+[data-jqy-theme="corporate"] .admin-reports__table-wrap td,
+[data-jqy-theme="corporate"] .admin-reports th,
+[data-jqy-theme="corporate"] .admin-reports td {
+    border-bottom-color: #e5e9ee;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__payment strong,
+[data-jqy-theme="corporate"] .admin-reports__rank strong,
+[data-jqy-theme="corporate"] .admin-reports__stat-stack strong {
+    color: #111827;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__payment span,
+[data-jqy-theme="corporate"] .admin-reports__rank div span,
+[data-jqy-theme="corporate"] .admin-reports__stat-stack span,
+[data-jqy-theme="corporate"] .admin-reports th,
+[data-jqy-theme="corporate"] .admin-reports .table-sub {
+    color: #68727e;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__rank > b {
+    color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__note,
+[data-jqy-theme="corporate"] .admin-reports__tax-warning {
+    background: #f5f8fb;
+    color: #5b6573;
+    border: 1px solid #e1e6ec;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__tax-warning {
+    background: #fff8ed;
+    border-color: #f0dfbd;
+    color: #765e30;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__status.paid {
+    background: #edf8f1;
+    color: #237042;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__status.pending {
+    background: #fff6df;
+    color: #876516;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__status.inactive {
+    background: #f0f1f3;
+    color: #71767e;
+}
+
+[data-jqy-theme="corporate"] .admin-reports tbody tr:hover {
+    background: #f7f9fb;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__empty {
+    color: #68727e;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__customer-callout {
+    background: #f8fafc;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__customer-callout > svg {
+    color: #174a8b;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__customer-callout strong {
+    color: #111827;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__customer-callout span {
+    color: #68727e;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__loading {
+    color: #68727e;
+}
+
+[data-jqy-theme="corporate"] .admin-reports__loading strong {
+    color: #111827;
+}
+
+@media (max-width: 760px) {
+    [data-jqy-theme="corporate"] .admin-reports__hero {
+        padding-top: 27px;
+    }
+
+    [data-jqy-theme="corporate"] .admin-reports__panel {
+        border-radius: 14px;
+    }
+}
