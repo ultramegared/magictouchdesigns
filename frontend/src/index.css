@@ -2012,3 +2012,42 @@ html[data-jqy-theme="corporate"] .faq-page__answer p{
             linear-gradient(145deg,#ffffff,#f3f6f9)!important;
     }
 }
+
+
+/* HOW IT WORKS — CORPORATE SKIN */
+html[data-jqy-theme="corporate"] .how-it-works{
+  background:linear-gradient(180deg,#f8fafc 0%,#fff 52%,#eef3f8 100%)!important;
+  color:#111827!important;
+}
+html[data-jqy-theme="corporate"] .how-it-works__eyebrow{color:#174a8b!important;text-shadow:none!important}
+html[data-jqy-theme="corporate"] .how-it-works__eyebrow span{background:linear-gradient(90deg,transparent,#8ebcf0)!important}
+html[data-jqy-theme="corporate"] .how-it-works__eyebrow span:last-child{background:linear-gradient(90deg,#8ebcf0,transparent)!important}
+html[data-jqy-theme="corporate"] .how-it-works__header h2{color:#111827!important;text-shadow:none!important}
+html[data-jqy-theme="corporate"] .how-it-works__header h2 em{color:#174a8b!important;text-shadow:none!important}
+html[data-jqy-theme="corporate"] .how-it-works__header p{color:#5b6573!important}
+html[data-jqy-theme="corporate"] .how-it-works__header p strong{color:#c62828!important}
+html[data-jqy-theme="corporate"] .how-it-works__card{
+  background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.98),rgba(255,255,255,.50) 30%,transparent 64%),linear-gradient(145deg,#fff,#eef3f7)!important;
+  border-color:#c3ceda!important;border-radius:16px!important;
+  box-shadow:0 18px 38px rgba(17,24,39,.10),0 5px 12px rgba(23,74,139,.06),inset 0 1px 0 #fff,inset 0 -1px 0 rgba(174,185,198,.38)!important;
+}
+html[data-jqy-theme="corporate"] .how-it-works__card:hover{border-color:#174a8b!important;box-shadow:0 24px 48px rgba(17,24,39,.14),0 0 26px rgba(23,74,139,.08),inset 0 1px 0 #fff!important}
+html[data-jqy-theme="corporate"] .how-it-works__number{
+  color:#fff!important;background:radial-gradient(circle at 34% 27%,#4d83bd,#245fa7 38%,#174a8b 100%)!important;
+  border-color:#174a8b!important;box-shadow:0 0 0 5px #fff,0 0 0 6px rgba(23,74,139,.28),0 9px 22px rgba(17,24,39,.20)!important;
+}
+html[data-jqy-theme="corporate"] .how-it-works__content h3{color:#111827!important;text-shadow:none!important}
+html[data-jqy-theme="corporate"] .how-it-works__divider{background:linear-gradient(90deg,transparent,#174a8b,#c62828,#174a8b,transparent)!important}
+html[data-jqy-theme="corporate"] .how-it-works__content p{color:#5b6573!important}
+html[data-jqy-theme="corporate"] .how-it-works__connector{color:#174a8b!important;text-shadow:none!important}
+html[data-jqy-theme="corporate"] .visual-platform{background:radial-gradient(ellipse at center,rgba(23,74,139,.30),rgba(23,74,139,.13) 42%,transparent 72%)!important}
+html[data-jqy-theme="corporate"] .visual-mug__body,html[data-jqy-theme="corporate"] .visual-mug__handle,html[data-jqy-theme="corporate"] .visual-design,html[data-jqy-theme="corporate"] .visual-printer__top,html[data-jqy-theme="corporate"] .visual-printer__body,html[data-jqy-theme="corporate"] .visual-printer__slot,html[data-jqy-theme="corporate"] .visual-truck__cargo,html[data-jqy-theme="corporate"] .visual-truck__cab,html[data-jqy-theme="corporate"] .visual-truck__wheel{border-color:#174a8b!important}
+html[data-jqy-theme="corporate"] .visual-mug__body span,html[data-jqy-theme="corporate"] .visual-cloud span,html[data-jqy-theme="corporate"] .visual-design__corner,html[data-jqy-theme="corporate"] .visual-design__pen,html[data-jqy-theme="corporate"] .visual-truck__cargo span{color:#c62828!important}
+html[data-jqy-theme="corporate"] .visual-design{background:linear-gradient(145deg,#e8f0f9,#fff)!important}
+html[data-jqy-theme="corporate"] .visual-design strong{color:#111827!important;text-shadow:none!important}
+html[data-jqy-theme="corporate"] .visual-design::after{border-color:rgba(23,74,139,.42)!important}
+html[data-jqy-theme="corporate"] .visual-printer__top,html[data-jqy-theme="corporate"] .visual-printer__body,html[data-jqy-theme="corporate"] .visual-truck__cargo,html[data-jqy-theme="corporate"] .visual-truck__cab{background:linear-gradient(145deg,#edf3f8,#cfd9e3)!important}
+html[data-jqy-theme="corporate"] .visual-cloud{background:linear-gradient(145deg,#fff,#e6edf4)!important;box-shadow:0 10px 24px rgba(17,24,39,.16)!important}
+html[data-jqy-theme="corporate"] .visual-truck__cab span{background:linear-gradient(145deg,#dbeafe,#8fa9c3)!important}
+html[data-jqy-theme="corporate"] .visual-truck__wheel{background:#17263b!important}
+@media(max-width:700px){html[data-jqy-theme="corporate"] .how-it-works__card{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.98),rgba(255,255,255,.50) 32%,transparent 66%),linear-gradient(145deg,#fff,#f3f6f9)!important}}
