@@ -2386,3 +2386,125 @@ html[data-jqy-theme="corporate"] .admin-products__hero,
 html[data-jqy-theme="corporate"] .admin-reviews__hero{
   background:linear-gradient(135deg,#0b1728,#174a8b)!important;
 }
+
+
+/* ================================================================
+   ADMIN MARKETING — CORPORATE SKIN
+   Visual layer only. Marketing integrations and publishing logic
+   remain unchanged.
+================================================================ */
+html[data-jqy-theme="corporate"] .marketing-page{
+  background:linear-gradient(180deg,#f8fafc 0%,#eef3f8 100%)!important;
+  color:#111827!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main{
+  background:transparent!important;
+  color:#111827!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .hero{
+  background:
+    radial-gradient(circle at 82% 18%,rgba(36,95,167,.30),transparent 34%),
+    linear-gradient(135deg,#0b1728 0%,#17365b 58%,#10243b 100%)!important;
+  border-color:#294e76!important;
+  box-shadow:0 16px 34px rgba(17,24,39,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .eyebrow{color:#9fc8f4!important}
+html[data-jqy-theme="corporate"] .marketing-main .hero h1{color:#fff!important}
+html[data-jqy-theme="corporate"] .marketing-main .hero h1 span{color:#9fc8f4!important}
+html[data-jqy-theme="corporate"] .marketing-main .hero p{color:rgba(255,255,255,.78)!important}
+html[data-jqy-theme="corporate"] .marketing-main .btn{
+  background:linear-gradient(145deg,#fff,#eef3f7)!important;
+  border-color:#cbd5e1!important;
+  color:#174a8b!important;
+  box-shadow:0 6px 16px rgba(17,24,39,.08)!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .btn.primary{
+  background:linear-gradient(135deg,#245fa7,#174a8b)!important;
+  border-color:#174a8b!important;
+  color:#fff!important;
+  box-shadow:0 9px 20px rgba(23,74,139,.20)!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .btn:hover{border-color:#174a8b!important}
+html[data-jqy-theme="corporate"] .marketing-main .stats .stat,
+html[data-jqy-theme="corporate"] .marketing-main .card,
+html[data-jqy-theme="corporate"] .marketing-main .stat{
+  background:linear-gradient(145deg,#fff,#f1f5f8)!important;
+  border-color:#cbd5e1!important;
+  color:#111827!important;
+  box-shadow:0 12px 28px rgba(17,24,39,.08),inset 0 1px 0 #fff!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .stat-top{color:#687585!important}
+html[data-jqy-theme="corporate"] .marketing-main .stat strong{color:#111827!important}
+html[data-jqy-theme="corporate"] .marketing-main .stat small{color:#174a8b!important}
+html[data-jqy-theme="corporate"] .marketing-main .range{background:linear-gradient(145deg,#fff,#f1f5f8)!important}
+html[data-jqy-theme="corporate"] .marketing-main .select,
+html[data-jqy-theme="corporate"] .marketing-main .input,
+html[data-jqy-theme="corporate"] .marketing-main .textarea{
+  background:#fff!important;
+  border-color:#cbd5e1!important;
+  color:#111827!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .section-title h2,
+html[data-jqy-theme="corporate"] .marketing-main .integration-head h3,
+html[data-jqy-theme="corporate"] .marketing-main .channel strong,
+html[data-jqy-theme="corporate"] .marketing-main .quick strong{color:#111827!important}
+html[data-jqy-theme="corporate"] .marketing-main .section-title p,
+html[data-jqy-theme="corporate"] .marketing-main .integration p,
+html[data-jqy-theme="corporate"] .marketing-main .channel small,
+html[data-jqy-theme="corporate"] .marketing-main .quick small{color:#687585!important}
+html[data-jqy-theme="corporate"] .marketing-main .metric{
+  background:#eef3f8!important;
+  border-color:#d6dee7!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .metric b{color:#111827!important}
+html[data-jqy-theme="corporate"] .marketing-main .metric span{color:#687585!important}
+html[data-jqy-theme="corporate"] .marketing-main .channel-icon{
+  background:#e8f0f9!important;
+  border:1px solid #d2deeb!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .channel-icon svg{color:#174a8b!important}
+html[data-jqy-theme="corporate"] .marketing-main .status{
+  background:#eef3f8!important;
+  color:#687585!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .status.connected{
+  background:#e7f5ed!important;
+  color:#167447!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .account{color:#445166!important}
+html[data-jqy-theme="corporate"] .marketing-main .notice{
+  background:#eef3f8!important;
+  border-color:#cbd5e1!important;
+  color:#4b5563!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .check{
+  background:#f8fafc!important;
+  border-color:#d6dee7!important;
+  color:#111827!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .check.selected{
+  background:#e8f0f9!important;
+  border-color:#174a8b!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .check input{accent-color:#174a8b!important}
+html[data-jqy-theme="corporate"] .marketing-main .modal-bg{background:rgba(7,18,31,.62)!important}
+html[data-jqy-theme="corporate"] .marketing-main .modal{
+  background:linear-gradient(145deg,#fff,#f1f5f8)!important;
+  border-color:#cbd5e1!important;
+  color:#111827!important;
+  box-shadow:0 24px 60px rgba(17,24,39,.22)!important;
+}
+html[data-jqy-theme="corporate"] .marketing-main .modal h2{color:#111827!important}
+html[data-jqy-theme="corporate"] .marketing-main .modal p{color:#5b6573!important}
+html[data-jqy-theme="corporate"] .marketing-main .close{color:#5b6573!important}
+html[data-jqy-theme="corporate"] .marketing-main .result{border-color:#cbd5e1!important;background:#f8fafc!important;color:#4b5563!important}
+html[data-jqy-theme="corporate"] .marketing-main .result.ok{border-color:#9ed3b8!important;background:#edf9f2!important;color:#167447!important}
+html[data-jqy-theme="corporate"] .marketing-main .result.fail{border-color:#e2aaaa!important;background:#fff2f2!important;color:#a33a3a!important}
+@media(max-width:1100px){
+  html[data-jqy-theme="corporate"] .marketing-main{margin-left:0!important;padding-top:79px!important}
+}
+@media(max-width:600px){
+  html[data-jqy-theme="corporate"] .marketing-main{padding:79px 15px 30px!important}
+  html[data-jqy-theme="corporate"] .marketing-main .channels{grid-template-columns:1fr!important}
+  html[data-jqy-theme="corporate"] .marketing-main .stats{grid-template-columns:1fr!important}
+}
