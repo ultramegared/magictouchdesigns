@@ -581,6 +581,24 @@ html[data-jqy-theme="corporate"] .footer__qr-wrap span{
 html[data-jqy-theme="corporate"] .footer__whatsapp-phone{
     color:var(--skin-secondary)!important;
 }
+
+/* Corporate footer payment/language controls: keep labels visible on the light skin. */
+html[data-jqy-theme="corporate"] .footer__payments span{
+    background:linear-gradient(145deg,#ffffff,#eef3f7)!important;
+    color:#174a8b!important;
+    border-color:#c7d2df!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 5px 12px rgba(17,24,39,.07)!important;
+}
+html[data-jqy-theme="corporate"] .footer__language{
+    background:#fff!important;
+    color:#111827!important;
+    border-color:#c7d2df!important;
+}
+html[data-jqy-theme="corporate"] .footer__language--active{
+    color:#174a8b!important;
+    border-color:#174a8b!important;
+    box-shadow:0 4px 12px rgba(23,74,139,.10)!important;
+}
 html[data-jqy-theme="corporate"] .footer__bottom{
     border-top-color:#d2dae4!important;
 }
