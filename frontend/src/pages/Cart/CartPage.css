@@ -1791,3 +1791,35 @@
         border-top-color: rgba(17, 24, 39, 0.09);
     }
 }
+
+
+/* ================================================================
+   CORPORATE HERO TEXT CONTRAST
+   The hero artwork itself remains untouched.
+   ================================================================ */
+
+[data-jqy-theme="corporate"] .cart-hero__overlay {
+    background: transparent;
+}
+
+[data-jqy-theme="corporate"] .cart-eyebrow {
+    color: #2d68ad;
+    text-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.82),
+        0 0 18px rgba(255, 255, 255, 0.24);
+}
+
+[data-jqy-theme="corporate"] .cart-hero h1 {
+    color: #ffffff;
+    text-shadow:
+        0 3px 4px rgba(0, 0, 0, 0.92),
+        0 7px 22px rgba(0, 0, 0, 0.88),
+        0 0 28px rgba(255, 255, 255, 0.16);
+}
+
+[data-jqy-theme="corporate"] .cart-hero p {
+    color: #ffffff;
+    text-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.92),
+        0 5px 16px rgba(0, 0, 0, 0.82);
+}
