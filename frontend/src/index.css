@@ -1875,3 +1875,140 @@ html[data-jqy-theme="corporate"] .track-order-page__help p{
             linear-gradient(145deg,#ffffff,#f3f6f9)!important;
     }
 }
+
+
+/* ================================================================
+   FAQ — CORPORATE SKIN
+   Visual adaptation only. FAQ content and accordion behavior remain
+   unchanged.
+================================================================ */
+html[data-jqy-theme="corporate"] .faq-page{
+    background:linear-gradient(180deg,#eef3f8 0%,#f8fafc 48%,#eef3f8 100%)!important;
+    color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__hero{
+    background:
+        radial-gradient(circle at 50% 0%,rgba(36,95,167,.28),transparent 42%),
+        linear-gradient(145deg,#0b1728 0%,#172f4e 52%,#0f2138 100%)!important;
+    border-bottom:1px solid #294e76!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__hero-glow{
+    background:radial-gradient(ellipse,rgba(36,95,167,.22),transparent 70%)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__eyebrow{
+    color:#d7e7fa!important;
+    text-shadow:none!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__eyebrow span{
+    background:linear-gradient(90deg,transparent,#8ebcf0)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__eyebrow span:last-child{
+    background:linear-gradient(90deg,#8ebcf0,transparent)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__hero h1{
+    color:#fff!important;
+    text-shadow:0 5px 20px rgba(0,0,0,.32)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__hero h1 span{
+    color:#9fc8f4!important;
+    text-shadow:0 0 24px rgba(23,74,139,.22),0 8px 24px rgba(0,0,0,.35)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__divider{
+    background:linear-gradient(90deg,transparent,#8ebcf0,#c62828,#8ebcf0,transparent)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__divider span{
+    background:#c62828!important;
+    box-shadow:0 0 16px rgba(198,40,40,.35)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__intro{
+    color:rgba(255,255,255,.80)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__content{
+    background:
+        radial-gradient(circle at 10% 15%,rgba(23,74,139,.055),transparent 28%),
+        radial-gradient(circle at 92% 75%,rgba(198,40,40,.035),transparent 25%)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__item{
+    background:
+        radial-gradient(circle at 50% 0%,rgba(255,255,255,.98) 0%,rgba(255,255,255,.50) 30%,transparent 64%),
+        linear-gradient(145deg,#ffffff 0%,#eef3f7 100%)!important;
+    border-color:#c3ceda!important;
+    box-shadow:
+        0 18px 38px rgba(17,24,39,.10),
+        0 5px 12px rgba(23,74,139,.06),
+        inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__item:hover{
+    border-color:#174a8b!important;
+    box-shadow:
+        0 24px 46px rgba(17,24,39,.13),
+        0 0 24px rgba(23,74,139,.07),
+        inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__item--open{
+    border-color:#174a8b!important;
+    box-shadow:
+        0 24px 48px rgba(17,24,39,.14),
+        0 0 26px rgba(23,74,139,.08),
+        inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__question{
+    color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__number{
+    color:#fff!important;
+    background:radial-gradient(circle at 35% 25%,#4d83bd,#174a8b 72%)!important;
+    border-color:#174a8b!important;
+    box-shadow:
+        0 0 0 4px #fff,
+        0 0 0 5px rgba(23,74,139,.28),
+        0 7px 16px rgba(17,24,39,.18)!important;
+    text-shadow:0 2px 3px rgba(0,0,0,.30)!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__question-text{
+    color:#111827!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__icon{
+    border-color:#174a8b!important;
+    color:#174a8b!important;
+    background:#fff!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__item--open .faq-page__icon{
+    color:#fff!important;
+    background:#174a8b!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__answer{
+    border-top:1px solid #d7dee7!important;
+}
+
+html[data-jqy-theme="corporate"] .faq-page__answer p{
+    color:#5b6573!important;
+}
+
+@media(max-width:700px){
+    html[data-jqy-theme="corporate"] .faq-page__item{
+        background:
+            radial-gradient(circle at 50% 0%,rgba(255,255,255,.98),rgba(255,255,255,.50) 32%,transparent 66%),
+            linear-gradient(145deg,#ffffff,#f3f6f9)!important;
+    }
+}
