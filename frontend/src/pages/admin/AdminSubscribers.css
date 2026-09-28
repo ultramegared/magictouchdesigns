@@ -1188,6 +1188,12 @@
     max-width: 720px
 ) {
 
+    /* The mobile admin header is fixed and this page uses .admin-page
+       instead of .admin-layout, so reserve the same header height here. */
+    .admin-page {
+        padding-top: 64px;
+    }
+
     .admin-subscribers {
         padding: 22px 15px 32px;
     }
