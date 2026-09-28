@@ -1747,3 +1747,98 @@
         right: 17%;
     }
 }
+
+/* ================================================================
+   CORPORATE SKIN — NEWSLETTER
+   Corporate depth only. Newsletter artwork remains untouched.
+   ================================================================ */
+
+[data-jqy-theme="corporate"] .newsletter {
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff 0%,
+            #f4f6f8 52%,
+            #e9eef4 100%
+        ) !important;
+    border-color: rgba(23, 74, 139, 0.42) !important;
+    box-shadow:
+        0 24px 55px rgba(17, 24, 39, 0.16),
+        0 6px 0 rgba(23, 74, 139, 0.08),
+        0 0 0 1px rgba(255, 255, 255, 0.95) inset !important;
+}
+
+[data-jqy-theme="corporate"] .newsletter::before {
+    background:
+        radial-gradient(
+            circle,
+            rgba(23, 74, 139, 0.10),
+            transparent 68%
+        ) !important;
+}
+
+[data-jqy-theme="corporate"] .newsletter__content h2,
+[data-jqy-theme="corporate"] .newsletter h2 {
+    color: #111827 !important;
+    text-shadow: 0 3px 16px rgba(17, 24, 39, 0.10);
+}
+
+[data-jqy-theme="corporate"] .newsletter__content p,
+[data-jqy-theme="corporate"] .newsletter p {
+    color: rgba(17, 24, 39, 0.66) !important;
+}
+
+[data-jqy-theme="corporate"] .newsletter__eyebrow,
+[data-jqy-theme="corporate"] .newsletter .newsletter-eyebrow {
+    color: #174A8B !important;
+}
+
+[data-jqy-theme="corporate"] .newsletter input,
+[data-jqy-theme="corporate"] .newsletter__input {
+    border-color: rgba(23, 74, 139, 0.28) !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    box-shadow:
+        0 5px 16px rgba(17, 24, 39, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-jqy-theme="corporate"] .newsletter input:focus,
+[data-jqy-theme="corporate"] .newsletter__input:focus {
+    border-color: rgba(23, 74, 139, 0.65) !important;
+    box-shadow:
+        0 0 0 3px rgba(23, 74, 139, 0.10),
+        0 7px 18px rgba(17, 24, 39, 0.10) !important;
+}
+
+[data-jqy-theme="corporate"] .newsletter button,
+[data-jqy-theme="corporate"] .newsletter__button {
+    border-color: #174A8B !important;
+    background:
+        linear-gradient(
+            180deg,
+            #2d68ad 0%,
+            #174A8B 100%
+        ) !important;
+    color: #ffffff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.34),
+        0 8px 20px rgba(23, 74, 139, 0.22) !important;
+}
+
+[data-jqy-theme="corporate"] .newsletter button:hover,
+[data-jqy-theme="corporate"] .newsletter__button:hover {
+    background:
+        linear-gradient(
+            180deg,
+            #3a75b8 0%,
+            #123A6D 100%
+        ) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.40),
+        0 12px 26px rgba(23, 74, 139, 0.28) !important;
+}
+
+[data-jqy-theme="corporate"] .newsletter svg {
+    color: #174A8B;
+}
