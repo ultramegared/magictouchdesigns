@@ -730,8 +730,8 @@ html[data-jqy-theme="corporate"] .unified-collection-hero{
 html[data-jqy-theme="corporate"] .unified-collection-hero__overlay{
     background:transparent!important;
 }
-html[data-jqy-theme="corporate"] .unified-collection-hero__content>a{
-    color:#c62828!important;
+html[data-jqy-theme="corporate"] .unified-back-button{
+    color:#174a8b!important;
 }
 html[data-jqy-theme="corporate"] .unified-collection-hero__content>span,
 html[data-jqy-theme="corporate"] .unified-section-heading>span,
