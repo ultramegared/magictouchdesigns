@@ -1108,8 +1108,9 @@
         margin-left:
             0;
 
+        /* .admin-layout already reserves the fixed mobile admin header. */
         padding-top:
-            64px;
+            0;
 
     }
 
