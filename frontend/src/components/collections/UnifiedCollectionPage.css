@@ -35,12 +35,26 @@
    CORPORATE — COLLECTION BACK BUTTON
    ================================================================ */
 html[data-jqy-theme="corporate"] .unified-back-button{
-    border-color:rgba(255,255,255,.9)!important;
-    background:linear-gradient(180deg,#245fa7,#174a8b)!important;
-    color:#fff!important;
-    box-shadow:0 9px 20px rgba(23,74,139,.28),inset 0 1px 0 rgba(255,255,255,.35)!important;
+    border-color:#d5dde6!important;
+    background:linear-gradient(145deg,#ffffff,#edf2f6)!important;
+    color:#174a8b!important;
+    box-shadow:0 9px 22px rgba(17,24,39,.16),inset 0 1px 0 rgba(255,255,255,1),inset 0 -1px 0 rgba(190,201,213,.5)!important;
+}
+html[data-jqy-theme="corporate"] .unified-back-button span{
+    color:#c62828!important;
 }
 html[data-jqy-theme="corporate"] .unified-back-button:hover{
-    background:linear-gradient(180deg,#2f6fbd,#123a6d)!important;
-    box-shadow:0 12px 25px rgba(23,74,139,.32),inset 0 1px 0 rgba(255,255,255,.4)!important;
+    background:linear-gradient(145deg,#ffffff,#e5edf5)!important;
+    color:#123a6d!important;
+    box-shadow:0 12px 26px rgba(17,24,39,.20),inset 0 1px 0 rgba(255,255,255,1),inset 0 -1px 0 rgba(190,201,213,.55)!important;
+}
+
+/* Responsive hero sizing: keep the full collection page naturally scrollable and show the product section sooner on wider screens. */
+@media(min-width:1101px){
+    .unified-collection-hero{min-height:52vh}
+    .unified-collection-hero__content{padding:82px 0 54px}
+}
+@media(min-width:761px) and (max-width:1100px){
+    .unified-collection-hero{min-height:54vh}
+    .unified-collection-hero__content{padding:88px 0 58px}
 }
