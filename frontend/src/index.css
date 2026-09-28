@@ -2127,3 +2127,25 @@ html[data-jqy-theme="corporate"] .login__submit:hover{
 html[data-jqy-theme="corporate"] .login__register{color:#6b7280!important}
 html[data-jqy-theme="corporate"] .login__register button{color:#174a8b!important}
 html[data-jqy-theme="corporate"] .login__register button:hover{color:#c62828!important;text-shadow:none!important}
+
+
+/* REGISTER / AUTH BRAND — reuse the exact logo configured for Header */
+html[data-jqy-theme="corporate"] .login__brand{
+  margin-bottom:32px!important;
+  gap:0!important;
+}
+html[data-jqy-theme="corporate"] .login__brand-logo{
+  display:block!important;
+  width:60px!important;
+  height:60px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  flex:0 0 60px!important;
+}
+@media(max-width:576px){
+  html[data-jqy-theme="corporate"] .login__brand-logo{
+    width:56px!important;
+    height:56px!important;
+    flex-basis:56px!important;
+  }
+}
