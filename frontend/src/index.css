@@ -958,8 +958,12 @@ html[data-jqy-theme="corporate"] .love-edition{
     box-shadow:0 16px 34px rgba(17,24,39,.10)!important;
 }
 html[data-jqy-theme="corporate"] .love-edition__content{
-    background:rgba(255,255,255,.88)!important;
-    border-right:1px solid rgba(207,216,227,.65)!important;
+    /* Keep the photography fully visible: no white panel over the image. */
+    background:transparent!important;
+    border-right:0!important;
+}
+html[data-jqy-theme="corporate"] .love-edition__visual img{
+    opacity:1!important;
 }
 html[data-jqy-theme="corporate"] .love-edition__eyebrow{
     color:#174a8b!important;
@@ -1008,7 +1012,7 @@ html[data-jqy-theme="corporate"] .collection-benefit__divider{
 }
 @media(max-width:767px){
     html[data-jqy-theme="corporate"] .love-edition__content{
-        background:rgba(255,255,255,.90)!important;
+        background:transparent!important;
         border-right:0!important;
     }
 }
