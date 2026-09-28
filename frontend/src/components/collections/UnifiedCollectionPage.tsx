@@ -254,8 +254,10 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
                 <img src={config.hero} alt={config.name[language]} />
                 <div className="unified-collection-hero__overlay" />
                 <div className="unified-collection-hero__content">
-                    <Link to="/collections">← {language === "es" ? "VOLVER A COLECCIONES" : "BACK TO COLLECTIONS"}</Link>
-                    <span>{config.eyebrow[language]}</span>
+                    <Link className="unified-back-button" to="/collections">
+                        <span aria-hidden="true">←</span>
+                        {language === "es" ? "VOLVER" : "BACK"}
+                    </Link>
                     <h1>{config.name[language]}</h1>
                     <div className="unified-ornament"><i /><b>♥</b><i /></div>
                     <p>{config.description[language]}</p>
@@ -264,7 +266,6 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
 
             <section className="unified-products-section">
                 <div className="unified-section-heading">
-                    <span>{config.eyebrow[language]}</span>
                     <h2>{language === "es" ? "DISEÑOS PARA" : "DESIGNS FOR"} <strong>{language === "es" ? "TI" : "YOU"}</strong></h2>
                 </div>
 
@@ -318,7 +319,6 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
                         <div className="unified-lightbox__gradient" />
                     </div>
                     <div className="unified-lightbox__details">
-                        <span className="unified-lightbox__eyebrow">{config.eyebrow[language]}</span>
                         <h2>{selectedProduct.name}</h2>
                         <div className="unified-rating">★★★★★</div>
                         <div className="unified-divider"><span>♥</span></div>
