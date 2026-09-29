@@ -125,6 +125,9 @@ export const addProductToCollection = async (request: Request, response: Respons
         if (typeof is_active !== "undefined" && typeof is_active !== "boolean") {
             return response.status(400).json({ status: "error", message: "is_active must be a boolean value." });
         }
+        if (typeof image_urls !== "undefined" && (!Array.isArray(image_urls) || image_urls.length > 3 || image_urls.some((value: unknown) => typeof value !== "string"))) {
+            return response.status(400).json({ status: "error", message: "A product can have a maximum of 3 images." });
+        }
         if (typeof features !== "undefined" && !Array.isArray(features)) {
             return response.status(400).json({ status: "error", message: "features must be an array." });
         }
@@ -135,6 +138,7 @@ export const addProductToCollection = async (request: Request, response: Respons
             description: typeof description === "string" ? description.trim() : "",
             price: normalizedPrice,
             image_url: typeof image_url === "string" ? image_url.trim() : "",
+            image_urls: Array.isArray(image_urls) ? image_urls.slice(0, 3) : undefined,
             features: Array.isArray(features) ? features : [],
             is_active: typeof is_active === "boolean" ? is_active : true,
         });
@@ -179,8 +183,11 @@ export const getCollectionProductForAdmin = async (request: Request, response: R
 export const updateCollectionProduct = async (request: Request, response: Response) => {
     try {
         const { slug, product_id } = request.params;
-        const { name, slug: productSlug, description, price, image_url, features, is_active } = request.body;
-        const product = await updateCollectionProductService(slug, product_id, { name, slug: productSlug, description, price, image_url, features, is_active });
+        const { name, slug: productSlug, description, price, image_url, image_urls, features, is_active } = request.body;
+        if (typeof image_urls !== "undefined" && (!Array.isArray(image_urls) || image_urls.length > 3 || image_urls.some((value: unknown) => typeof value !== "string"))) {
+            return response.status(400).json({ status: "error", message: "A product can have a maximum of 3 images." });
+        }
+        const product = await updateCollectionProductService(slug, product_id, { name, slug: productSlug, description, price, image_url, image_urls: Array.isArray(image_urls) ? image_urls.slice(0, 3) : undefined, features, is_active });
         if (!product) {
             return response.status(404).json({ status: "error", message: "Product was not found in this collection." });
         }
