@@ -85,6 +85,18 @@ function CheckoutPage() {
                         quantity: data.request.quantity,
                         image: "",
                     }]);
+                    const nameParts = data.request.name.trim().split(/\\s+/).filter(Boolean);
+                    const firstName = nameParts.shift() || "";
+                    const lastName = nameParts.join(" ");
+                    setForm((currentForm) => ({ ...currentForm, firstName, lastName, email: data.request.email }));
+                    window.setTimeout(() => {
+                        const firstNameInput = formRef.current?.elements.namedItem("firstName") as HTMLInputElement | null;
+                        const lastNameInput = formRef.current?.elements.namedItem("lastName") as HTMLInputElement | null;
+                        const emailInput = formRef.current?.elements.namedItem("email") as HTMLInputElement | null;
+                        if (firstNameInput) firstNameInput.value = firstName;
+                        if (lastNameInput) lastNameInput.value = lastName;
+                        if (emailInput) emailInput.value = data.request.email;
+                    }, 0);
                 } catch (error) {
                     if (!cancelled) {
                         console.error("Custom request checkout load error:", error);
