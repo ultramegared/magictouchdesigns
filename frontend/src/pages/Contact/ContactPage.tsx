@@ -25,8 +25,11 @@ import Footer from "../../components/home/Footer";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
 import { apiRequest } from "../../services/api";
+import { useNavigate } from "react-router-dom";
 
-const PRICE_PER_MUG = 24.99;
+const BASE_PRICES: Record<string, Record<string, number>> = { Classic: { "11 oz": 13, "15 oz": 15 }, Premium: { "11 oz": 17, "15 oz": 17 } };
+const COLORED_HANDLE_SURCHARGE = 2;
+const SECOND_SIDE_SURCHARGE = 2;
 
 const ALLOWED_IMAGE_TYPES = [
     "image/jpeg",
@@ -34,11 +37,12 @@ const ALLOWED_IMAGE_TYPES = [
     "image/webp",
 ];
 
-const MAX_IMAGE_SIZE = 3 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 
 function ContactPage() {
 
     const { language } = useLanguage();
+    const navigate = useNavigate();
 
     const t = translations[language].contact;
 
@@ -46,7 +50,9 @@ function ContactPage() {
 
     const [imageName, setImageName] = useState("");
 
+    const [mugModel, setMugModel] = useState("Classic");
     const [mugSize, setMugSize] = useState("15 oz");
+    const [printSides, setPrintSides] = useState("1");
 
     const [mugColor, setMugColor] = useState("Black");
 
@@ -440,7 +446,8 @@ function ContactPage() {
                                 <select
                                     id="mug-model"
                                     name="model"
-                                    defaultValue="Classic"
+                                    value={mugModel}
+                                    onChange={(event) => setMugModel(event.target.value)}
                                 >
 
                                     <option value="Classic">
@@ -511,24 +518,44 @@ function ContactPage() {
                                     }
                                 >
 
-                                    <option value="Black">
-                                        {t.customRequest.black}
-                                    </option>
-
                                     <option value="White">
                                         {t.customRequest.white}
                                     </option>
 
-                                    <option value="Magic Black">
-                                        {t.customRequest.magicBlack}
+                                    <option value="White + Red Handle">
+                                        {t.customRequest.whiteRedHandle}
                                     </option>
 
-                                    <option value="Red">
-                                        {t.customRequest.red}
+                                    <option value="White + Black Handle">
+                                        {t.customRequest.whiteBlackHandle}
+                                    </option>
+
+                                    <option value="White + Blue Handle">
+                                        {t.customRequest.whiteBlueHandle}
                                     </option>
 
                                 </select>
 
+                            </div>
+
+
+                            {/* ==================================================
+                               PRINT SIDES
+                               ================================================== */}
+
+                            <div className="contact-field">
+                                <label htmlFor="print-sides">
+                                    {t.customRequest.printSides}
+                                </label>
+                                <select
+                                    id="print-sides"
+                                    name="printSides"
+                                    value={printSides}
+                                    onChange={(event) => setPrintSides(event.target.value)}
+                                >
+                                    <option value="1">{t.customRequest.oneSide}</option>
+                                    <option value="2">{t.customRequest.twoSides}</option>
+                                </select>
                             </div>
 
 
