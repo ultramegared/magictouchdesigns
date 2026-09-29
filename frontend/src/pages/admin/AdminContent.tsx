@@ -92,7 +92,7 @@ const AdminContent = () => {
     const saveBenefits = async () => {
         setBenefitsSaving(true);
         try {
-            const settingsResponse = await apiRequest<{ settings: { config?: Record<string, unknown> }; websiteName: string; browserTitle: string }>(
+            const settingsResponse = await apiRequest<{ settings: { config?: Record<string, unknown>; websiteName?: string; browserTitle?: string } }>(
                 "/api/settings?app_refresh=" + Date.now(),
                 { cache: "no-store" }
             );
