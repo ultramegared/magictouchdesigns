@@ -98,3 +98,18 @@ html[data-jqy-theme="corporate"] .unified-back-button:hover{
 @media(min-width:761px) and (max-width:1100px){
     html[data-jqy-theme="corporate"] .unified-back-button{top:20px;left:20px}
 }
+
+
+/* Product gallery controls */
+.unified-lightbox__image-wrap{position:relative}
+.unified-lightbox__nav{position:absolute;top:50%;z-index:4;transform:translateY(-50%);width:44px;height:44px;border:1px solid rgba(255,255,255,.55);border-radius:50%;background:rgba(0,0,0,.48);color:#fff;font-size:34px;line-height:36px;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(8px)}
+.unified-lightbox__nav:hover{background:rgba(0,0,0,.72)}
+.unified-lightbox__nav--prev{left:14px}
+.unified-lightbox__nav--next{right:14px}
+.unified-lightbox__counter{position:absolute;right:16px;bottom:16px;z-index:5;padding:7px 11px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:13px;font-weight:800;letter-spacing:.08em}
+.admin-image-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0 4px}
+.admin-gallery-item{overflow:hidden;border:1px solid #dfe4e8;border-radius:12px;background:#f7f8f9}
+.admin-gallery-item img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
+.admin-gallery-item__footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 9px;font-size:10px;font-weight:800;letter-spacing:.08em;color:#56606a}
+.admin-gallery-item__footer button{width:28px;height:28px;border:0;border-radius:8px;background:#fff;color:#7a838c;display:grid;place-items:center;cursor:pointer}
+@media(max-width:650px){.unified-lightbox__nav{width:40px;height:40px}.unified-lightbox__nav--prev{left:10px}.unified-lightbox__nav--next{right:10px}.admin-image-gallery{gap:8px}}
