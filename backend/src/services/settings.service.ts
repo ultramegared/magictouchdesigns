@@ -263,6 +263,7 @@ export const updateSettings = async (data: any) => {
         JSON.stringify(incomingConfig.heroSlides) !== JSON.stringify(current.config.heroSlides) ||
         JSON.stringify(incomingConfig.headerLinks) !== JSON.stringify(current.config.headerLinks) ||
         JSON.stringify(incomingConfig.footerSections) !== JSON.stringify(current.config.footerSections) ||
+        JSON.stringify(incomingConfig.benefits) !== JSON.stringify(current.config.benefits) ||
         JSON.stringify(incomingConfig.pages) !== JSON.stringify(current.config.pages);
 
     // Images/logos are not translatable. A logo-only/settings-only save must never depend on the translator.
