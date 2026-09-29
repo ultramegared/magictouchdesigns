@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import "./CheckoutPage.css";
 import "./CheckoutMobileFix.css";
 import Header from "../../components/layout/Header";
@@ -19,6 +19,7 @@ type StripeCheckout = {
 type StripeInstance = { initCheckout: (options: any) => StripeCheckout };
 type PayPalSdk = { createInstance: (options: { clientToken: string; components: string[]; pageType?: string; locale?: string }) => Promise<any> };
 type CheckoutQuote = { subtotal: number; shipping: number; tax: number; total: number; shippingCents?: number; shippingCarrier?: string; shippingService?: string; shippingDeliveryDays?: number | null };
+type CustomRequestView = { id: string; requestCode: string; name: string; email: string; model: string; size: string; color: string; printSides: string; quantity: number; unitPrice: number; subtotal: number };
 
 declare global { interface Window { Stripe?: (key: string) => StripeInstance; paypal?: PayPalSdk } }
 
@@ -40,6 +41,8 @@ const loadScript = (id: string, src: string) => new Promise<void>((resolve, reje
 
 function CheckoutPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const customRequestId = searchParams.get("custom_request") || "";
     const formRef = useRef<HTMLFormElement>(null);
     const stripePaymentRef = useRef<HTMLDivElement>(null);
     const stripeAppleRef = useRef<HTMLDivElement>(null);
@@ -50,6 +53,7 @@ function CheckoutPage() {
     const paypalContainerRef = useRef<HTMLDivElement>(null);
 
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [customRequest, setCustomRequest] = useState<CustomRequestView | null>(null);
     const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", deliveryType: "house" as "house" | "apartment", address: "", apartment: "", city: "", state: "", zip: "" });
         const [stripeReady, setStripeReady] = useState(false);
     const [appleReady, setAppleReady] = useState(false);
@@ -63,7 +67,41 @@ function CheckoutPage() {
     const [quoteLoading, setQuoteLoading] = useState(false);
     const [quoteError, setQuoteError] = useState("");
 
-    useEffect(() => { const items = getCartItems(); setCartItems(items); if (!items.length) navigate("/cart", { replace: true }); }, [navigate]);
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            if (customRequestId) {
+                try {
+                    const response = await fetch(`${API_URL}/contact/custom-request/${encodeURIComponent(customRequestId)}`);
+                    const data = await response.json() as { request?: CustomRequestView; message?: string };
+                    if (!response.ok || !data.request) throw new Error(data.message || "Custom request could not be loaded.");
+                    if (cancelled) return;
+                    setCustomRequest(data.request);
+                    setCartItems([{
+                        id: `custom-request:${data.request.id}`,
+                        name: `Custom Mug — ${data.request.model} ${data.request.size}`,
+                        model: data.request.model,
+                        size: data.request.size,
+                        color: data.request.color,
+                        price: data.request.unitPrice,
+                        quantity: data.request.quantity,
+                        image: "",
+                    }]);
+                } catch (error) {
+                    if (!cancelled) {
+                        console.error("Custom request checkout load error:", error);
+                        navigate("/contact", { replace: true });
+                    }
+                }
+                return;
+            }
+            const items = getCartItems();
+            if (cancelled) return;
+            setCartItems(items);
+            if (!items.length) navigate("/cart", { replace: true });
+        })();
+        return () => { cancelled = true; };
+    }, [navigate, customRequestId]);
     useEffect(() => () => stripeCleanupRef.current?.(), []);
 
     const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -147,13 +185,14 @@ function CheckoutPage() {
         return Boolean(formRef.current?.reportValidity()) && isCustomerReady(customer);
     };
 
-    const payload = (customer = readCustomerForm()) => ({ customer, items: cartItems.map((item) => {
+    const payload = (customer = readCustomerForm()) => ({ customer, ...(customRequestId ? { customRequestId } : {}), items: cartItems.map((item) => {
         const session = item.customizationId ? getCustomizationSession(item.customizationId) : null;
         if (item.customizationId && (!session?.designDataUrl || session.productId !== String(item.id))) throw new Error("Your custom design session expired. Please return to Customize and upload the artwork again.");
         return { productId: String(item.id), quantity: item.quantity, model: item.model, size: item.size, color: item.color, ...(item.customizationId && session ? { customizationId: item.customizationId, customization: { productId: session.productId, productName: session.productName, size: session.size, color: session.color, designDataUrl: session.designDataUrl, designFileName: session.designFileName, designScale: session.designScale, designX: session.designX, designY: session.designY, designRotation: session.designRotation, mugRotation: session.mugRotation } } : {}) };
     }) });
 
     const addressReady = isCustomerReady(form);
+    const orderLabel = customRequest ? `Custom Mug Request ${customRequest.requestCode}` : "Your Order";
 
     useEffect(() => {
         if (!cartItems.length || !addressReady) { setQuote(null); setQuoteError(""); setQuoteLoading(false); return; }
