@@ -31,6 +31,17 @@ const BASE_PRICES: Record<string, Record<string, number>> = { Classic: { "11 oz"
 const COLORED_HANDLE_SURCHARGE = 2;
 const SECOND_SIDE_SURCHARGE = 2;
 
+const FONT_OPTIONS = [
+    { id: "modern", name: "Montserrat", label: "Modern", family: '"Montserrat", Arial, sans-serif' },
+    { id: "elegant", name: "Playfair Display", label: "Elegant", family: '"Playfair Display", Georgia, serif' },
+    { id: "script", name: "Dancing Script", label: "Script", family: '"Dancing Script", cursive' },
+    { id: "handwritten", name: "Great Vibes", label: "Handwritten", family: '"Great Vibes", cursive' },
+    { id: "bold", name: "Bebas Neue", label: "Bold", family: '"Bebas Neue", Impact, sans-serif' },
+    { id: "classic", name: "Cormorant Garamond", label: "Classic", family: '"Cormorant Garamond", Georgia, serif' },
+    { id: "playful", name: "Pacifico", label: "Playful", family: '"Pacifico", cursive' },
+    { id: "luxury", name: "Cinzel", label: "Luxury", family: '"Cinzel", Georgia, serif' },
+] as const;
+
 const ALLOWED_IMAGE_TYPES = [
     "image/jpeg",
     "image/png",
@@ -55,6 +66,7 @@ function ContactPage() {
     const [printSides, setPrintSides] = useState("1");
 
     const [mugColor, setMugColor] = useState("White");
+    const [fontStyle, setFontStyle] = useState("modern");
 
     const [quantity, setQuantity] = useState(1);
 
@@ -158,6 +170,8 @@ function ContactPage() {
             formData.set("size", mugSize);
             formData.set("color", mugColor);
             formData.set("printSides", printSides);
+            formData.set("fontStyle", fontStyle);
+            formData.set("fontName", FONT_OPTIONS.find((font) => font.id === fontStyle)?.name || "Montserrat");
 
             const response = await apiRequest<{ checkoutRequestId: string }>(
                 "/api/contact/custom-request",
@@ -179,6 +193,7 @@ function ContactPage() {
             setMugSize("15 oz");
             setMugColor("White");
             setPrintSides("1");
+            setFontStyle("modern");
 
             navigate(`/checkout?custom_request=${encodeURIComponent(response.checkoutRequestId)}`);
         } catch (error) {
@@ -447,6 +462,49 @@ function ContactPage() {
 
 
                             {/* ==================================================
+                               FONT STYLE
+                               ================================================== */}
+
+                            <div className="contact-field contact-field--full">
+                                <label htmlFor="font-style">
+                                    {t.customRequest.fontStyle}
+                                </label>
+
+                                <div className="contact-font-grid" role="radiogroup" aria-label={t.customRequest.fontStyle}>
+                                    {FONT_OPTIONS.map((font) => (
+                                        <label
+                                            key={font.id}
+                                            className={"contact-font-option" + (fontStyle === font.id ? " is-selected" : "")}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="fontStyleChoice"
+                                                value={font.id}
+                                                checked={fontStyle === font.id}
+                                                onChange={() => setFontStyle(font.id)}
+                                            />
+                                            <span className="contact-font-option__preview" style={{ fontFamily: font.family }}>
+                                                {t.customRequest.fontSample}
+                                            </span>
+                                            <span className="contact-font-option__name">{font.label}</span>
+                                            <small>{font.name}</small>
+                                        </label>
+                                    ))}
+                                </div>
+
+                                <input type="hidden" name="fontStyle" value={fontStyle} />
+                                <input
+                                    type="hidden"
+                                    name="fontName"
+                                    value={FONT_OPTIONS.find((font) => font.id === fontStyle)?.name || "Montserrat"}
+                                />
+                                <small className="contact-font-help">
+                                    {t.customRequest.fontStyleHelp}
+                                </small>
+                            </div>
+
+
+                            {/* ==================================================
                                MUG MODEL
                                ================================================== */}
 
@@ -558,7 +616,7 @@ function ContactPage() {
 
                             <div className="contact-field">
                                 <label htmlFor="print-sides">
-                                    {t.customRequest.printSides}
+                                    {t.customRequest.designViews}
                                 </label>
                                 <select
                                     id="print-sides"
@@ -566,8 +624,8 @@ function ContactPage() {
                                     value={printSides}
                                     onChange={(event) => setPrintSides(event.target.value)}
                                 >
-                                    <option value="1">{t.customRequest.oneSide}</option>
-                                    <option value="2">{t.customRequest.twoSides}</option>
+                                    <option value="1">{t.customRequest.viewFront}</option>
+                                    <option value="2">{t.customRequest.viewFrontBack}</option>
                                 </select>
                             </div>
 
