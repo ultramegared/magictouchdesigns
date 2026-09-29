@@ -53,7 +53,6 @@ function CheckoutPage() {
     const paypalContainerRef = useRef<HTMLDivElement>(null);
 
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
-    const [customRequest, setCustomRequest] = useState<CustomRequestView | null>(null);
     const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", deliveryType: "house" as "house" | "apartment", address: "", apartment: "", city: "", state: "", zip: "" });
         const [stripeReady, setStripeReady] = useState(false);
     const [appleReady, setAppleReady] = useState(false);
@@ -76,7 +75,6 @@ function CheckoutPage() {
                     const data = await response.json() as { request?: CustomRequestView; message?: string };
                     if (!response.ok || !data.request) throw new Error(data.message || "Custom request could not be loaded.");
                     if (cancelled) return;
-                    setCustomRequest(data.request);
                     setCartItems([{
                         id: `custom-request:${data.request.id}`,
                         name: `Custom Mug — ${data.request.model} ${data.request.size}`,
