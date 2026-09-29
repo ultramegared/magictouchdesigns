@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@500;600&family=Dancing+Script:wght@500;600&family=Great+Vibes&family=Montserrat:wght@500;600&family=Pacifico&family=Playfair+Display:wght@500;600&display=swap');
+
 /**
  * ================================================================
  * Author: ultramegared
@@ -1986,4 +1988,108 @@
 
     }
 
+}
+
+/* ================================================================
+   CUSTOM MUG FONT STYLE PICKER
+================================================================ */
+
+.contact-font-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.contact-font-option {
+    position: relative;
+    display: flex;
+    min-height: 112px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 14px 10px 12px;
+    border: 1px solid rgba(216, 173, 85, 0.20);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.035);
+    cursor: pointer;
+    text-align: center;
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.contact-font-option:hover {
+    transform: translateY(-2px);
+    border-color: rgba(216, 173, 85, 0.55);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.contact-font-option.is-selected {
+    border-color: #d8ad55;
+    background: rgba(216, 173, 85, 0.09);
+    box-shadow: 0 0 0 1px rgba(216, 173, 85, 0.16), 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.contact-font-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.contact-font-option__preview {
+    display: block;
+    color: #fff8e8;
+    font-size: 27px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.contact-font-option__name {
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+}
+
+.contact-font-option small {
+    color: rgba(255, 247, 232, 0.48);
+    font-size: 9px;
+    line-height: 1.2;
+}
+
+.contact-font-help {
+    display: block;
+    margin-top: 9px;
+    color: rgba(255, 247, 232, 0.50);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+    .contact-font-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .contact-font-option {
+        min-height: 104px;
+        padding: 12px 7px 10px;
+    }
+
+    .contact-font-option__preview {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 390px) {
+    .contact-font-option__preview {
+        font-size: 21px;
+    }
+
+    .contact-font-option__name {
+        font-size: 10px;
+    }
 }
