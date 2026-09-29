@@ -25,16 +25,19 @@ const icons = { truck: Truck, flag: Flag, gem: Gem, "shield-check": ShieldCheck 
 function Benefits() {
     const { language } = useLanguage();
     const [items, setItems] = useState<BenefitConfig[]>(fallbackBenefits);
+    const [enabled, setEnabled] = useState(true);
 
     useEffect(() => {
         let cancelled = false;
         const load = async () => {
             try {
-                const response = await apiRequest<{ settings?: { config?: { benefits?: BenefitConfig[] } } }>(
+                const response = await apiRequest<{ settings?: { config?: { benefits?: BenefitConfig[]; benefitsEnabled?: boolean } } }>(
                     "/api/settings?app_refresh=" + Date.now(),
                     { cache: "no-store" }
                 );
                 const configured = response.settings?.config?.benefits;
+                const configuredEnabled = response.settings?.config?.benefitsEnabled;
+                if (!cancelled && typeof configuredEnabled === "boolean") setEnabled(configuredEnabled);
                 if (!cancelled && Array.isArray(configured) && configured.length) {
                     setItems(configured);
                 }
@@ -42,6 +45,7 @@ function Benefits() {
                 try {
                     const cached = localStorage.getItem("mtd_site_config");
                     const config = cached ? JSON.parse(cached) : null;
+                    if (!cancelled && typeof config?.benefitsEnabled === "boolean") setEnabled(config.benefitsEnabled);
                     if (!cancelled && Array.isArray(config?.benefits) && config.benefits.length) {
                         setItems(config.benefits);
                     }
@@ -55,6 +59,7 @@ function Benefits() {
             try {
                 const cached = localStorage.getItem("mtd_site_config");
                 const config = cached ? JSON.parse(cached) : null;
+                if (typeof config?.benefitsEnabled === "boolean") setEnabled(config.benefitsEnabled);
                 if (Array.isArray(config?.benefits) && config.benefits.length) setItems(config.benefits);
             } catch {
                 // Ignore malformed local cache.
@@ -66,6 +71,8 @@ function Benefits() {
             window.removeEventListener("mtd-site-config-updated", onUpdate);
         };
     }, []);
+
+    if (!enabled) return null;
 
     return (
         <section className="benefits">
