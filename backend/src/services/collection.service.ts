@@ -33,6 +33,8 @@ interface CreateCollectionProductData {
 
     image_url?: string;
 
+    image_urls?: string[];
+
     features?: string[];
 
     is_active?: boolean;
@@ -139,6 +141,7 @@ export const getProductsByCollectionSlug =
                     p.description,
                     p.price,
                     p.image_url,
+                    p.image_urls,
                     p.is_active,
                     p.sort_order,
                     p.features,
@@ -581,6 +584,8 @@ export const addProductToCollection =
 
                                 image_url,
 
+                                image_urls,
+
                                 features,
 
                                 is_active,
@@ -604,6 +609,8 @@ export const addProductToCollection =
                             $6,
 
                             $7,
+
+                            $8,
 
                             0
 
@@ -648,6 +655,8 @@ export const addProductToCollection =
 
                             data.image_url
                             ?? "",
+
+                            JSON.stringify(data.image_urls ?? (data.image_url ? [data.image_url] : [])),
 
                             data.features
                             ?? [],
@@ -1172,9 +1181,15 @@ export const updateCollectionProduct =
                             image_url
                         ),
 
-                    features =
+                    image_urls =
                         COALESCE(
                             $6,
+                            image_urls
+                        ),
+
+                    features =
+                        COALESCE(
+                            $7,
                             features
                         ),
 
@@ -1197,6 +1212,7 @@ export const updateCollectionProduct =
                     description,
                     price,
                     image_url,
+                    image_urls,
                     is_active,
                     sort_order,
                     features,
@@ -1218,6 +1234,10 @@ export const updateCollectionProduct =
 
                     data.image_url
                     ?? null,
+
+                    data.image_urls !== undefined
+                        ? JSON.stringify(data.image_urls)
+                        : null,
 
                     data.features
                     ?? null,
