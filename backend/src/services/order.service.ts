@@ -331,7 +331,7 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
         escapeHtml(item.variant?.model || "Mug") + " · " +
         escapeHtml(item.variant?.size || "") + " · " +
         escapeHtml(item.variant?.color || "") +
-        (item.variant?.printSides ? " · " + escapeHtml(item.variant.printSides) + " view(s)" : "") +
+        (item.variant?.printSides ? " · " + (item.variant.printSides === "2" ? "View Front + View Back" : "View Front") : "") +
         (item.variant?.fontName ? " · Font: " + escapeHtml(item.variant.fontName) : "") +
         "</span></td><td style='padding:8px;border-bottom:1px solid #eee;text-align:center'>" +
         item.quantity +
