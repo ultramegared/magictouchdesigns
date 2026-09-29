@@ -54,7 +54,9 @@ interface UpdateCollectionProductData {
 
     image_url?: string;
 
-    features?: string[];
+    image_urls?: string[];
+
+    features?: unknown[] | Record<string, unknown>;
 
     is_active?: boolean;
 
@@ -197,6 +199,7 @@ export const getCollectionProductsForAdmin =
                     p.description,
                     p.price,
                     p.image_url,
+                    p.image_urls,
                     p.is_active,
                     p.sort_order,
                     p.features,
@@ -251,6 +254,7 @@ export const getCollectionProductForAdmin =
                     p.description,
                     p.price,
                     p.image_url,
+                    p.image_urls,
                     p.is_active,
                     p.sort_order,
                     p.features,
@@ -660,8 +664,7 @@ export const addProductToCollection =
 
                             JSON.stringify(data.image_urls ?? (data.image_url ? [data.image_url] : [])),
 
-                            data.features
-                            ?? [],
+                            JSON.stringify(data.features ?? []),
 
                             data.is_active
                             ?? true,
@@ -1205,7 +1208,7 @@ export const updateCollectionProduct =
                         NOW()
 
                 WHERE
-                    product_id = $8
+                    product_id = $9
 
                 RETURNING
                     product_id,
@@ -1241,8 +1244,9 @@ export const updateCollectionProduct =
                         ? JSON.stringify(data.image_urls)
                         : null,
 
-                    data.features
-                    ?? null,
+                    data.features !== undefined
+                        ? JSON.stringify(data.features)
+                        : null,
 
                     data.is_active
                     ?? null,
