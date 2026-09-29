@@ -334,6 +334,18 @@ export const createProductController =
 
             /*
             --------------------------------------------------------
+            IMAGE GALLERY VALIDATION
+            --------------------------------------------------------
+            */
+
+            if (image_urls !== undefined && (!Array.isArray(image_urls) || image_urls.length > 3)) {
+                res.status(400).json({ status:"error", message:"A product can have a maximum of 3 images." });
+                return;
+            }
+
+
+            /*
+            --------------------------------------------------------
             REQUIRED FIELD VALIDATION
             --------------------------------------------------------
             */
