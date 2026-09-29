@@ -300,14 +300,102 @@ export const getOrderBySessionId = async (sessionId: string) => { await ensureOr
 export const verifyStripeSignature = (payload: Buffer, signature: string): boolean => { const secret = process.env.STRIPE_WEBHOOK_SECRET; if (!secret || !signature) return false; const parts = signature.split(","); const timestamp = parts.find((part) => part.startsWith("t="))?.slice(2); const signatureValue = parts.find((part) => part.startsWith("v1="))?.slice(3); if (!timestamp || !signatureValue) return false; const age = Math.abs(Date.now() / 1000 - Number(timestamp)); if (!Number.isFinite(age) || age > 300) return false; const expectedBuffer = crypto.createHmac("sha256", secret).update(`${timestamp}.${payload.toString("utf8")}`).digest(); const receivedBuffer = Buffer.from(signatureValue, "hex"); if (expectedBuffer.length !== receivedBuffer.length) return false; return crypto.timingSafeEqual(expectedBuffer, receivedBuffer); };
 const escapeHtml = (value: unknown): string => String(value ?? "").replace(/[&<>\"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[character] || character));
 const dataUrlToAttachment = (dataUrl: string, fileName: string | undefined, index: number) => { const match = dataUrl.match(/^data:(image\/(?:png|jpeg|gif|webp));base64,(.+)$/); if (!match) throw new Error("Invalid customization image data."); const safeName = (fileName || `custom-mug-design-${index + 1}.png`).replace(/[^a-zA-Z0-9._-]/g, "_"); return { filename: safeName, content: match[2], contentType: match[1] }; };
-export const sendCustomOrderNotification = async (orderIdOrCode: string): Promise<void> => { await ensureOrderTables(); const orderResult = await pool.query(`SELECT * FROM orders WHERE id::text = $1 OR order_code = $1 LIMIT 1`, [orderIdOrCode]); const order = orderResult.rows[0]; if (!order) throw new Error("Order not found for customization email."); const itemsResult = await pool.query(`SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC`, [order.id]); const customItems = itemsResult.rows.filter((item: any) => item.variant?.designDataUrl); if (!customItems.length) return; const attachments = customItems.map((item: any, index: number) => dataUrlToAttachment(item.variant.designDataUrl, item.variant.designFileName, index)); const itemRows = itemsResult.rows.map((item: any) => `<tr><td style="padding:8px;border-bottom:1px solid #eee"><strong>${escapeHtml(item.product_name)}</strong><br><span>${escapeHtml(item.variant?.model || "Mug")} · ${escapeHtml(item.variant?.size || "")} · ${escapeHtml(item.variant?.color || "")}</span></td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${item.quantity}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">$${Number(item.unit_price).toFixed(2)}</td></tr>`).join(""); const shippingAddress = order.shipping_address || {}; const html = `<div style="font-family:Arial,sans-serif;color:#202020;max-width:760px"><h1 style="margin-bottom:4px">New Custom Mug Order ${escapeHtml(order.order_code)}</h1><p style="color:#666">Payment confirmed. Production information is below.</p><h2>Customer</h2><p><strong>${escapeHtml(order.customer_first_name)} ${escapeHtml(order.customer_last_name)}</strong><br>${escapeHtml(order.customer_email)}${order.customer_phone ? `<br>${escapeHtml(order.customer_phone)}` : ""}</p><h2>Shipping</h2><p>${escapeHtml(shippingAddress.address)}${shippingAddress.apartment ? `<br>${escapeHtml(shippingAddress.apartment)}` : ""}<br>${escapeHtml(shippingAddress.city)}, ${escapeHtml(shippingAddress.state)} ${escapeHtml(shippingAddress.zip)}<br>Shipping charged: <strong>$${Number(order.shipping).toFixed(2)}</strong></p><h2>Production / Order Details</h2><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px;border-bottom:2px solid #222">Item</th><th style="padding:8px;border-bottom:2px solid #222">Qty</th><th style="text-align:right;padding:8px;border-bottom:2px solid #222">Unit</th></tr></thead><tbody>${itemRows}</tbody></table><p style="margin-top:18px"><strong>Subtotal:</strong> $${Number(order.subtotal).toFixed(2)}<br><strong>Sales tax:</strong> $${Number(order.tax).toFixed(2)}<br><strong>Shipping:</strong> $${Number(order.shipping).toFixed(2)}<br><strong>Total paid:</strong> $${Number(order.total).toFixed(2)}<br><strong>Payment:</strong> ${escapeHtml(order.payment_provider)} / ${escapeHtml(order.payment_method)}</p><p style="margin-top:20px;padding:12px;background:#f6f6f6;border-radius:8px"><strong>Artwork attached:</strong> ${attachments.length} file(s). The uploaded artwork was kept temporarily only for order processing and is removed from the order record after this email is sent.</p></div>`; const text = `New Custom Mug Order ${order.order_code}\
-Customer: ${order.customer_first_name} ${order.customer_last_name} <${order.customer_email}>\
-Shipping: ${shippingAddress.address}, ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zip}\
-Subtotal: $${Number(order.subtotal).toFixed(2)}\
-Tax: $${Number(order.tax).toFixed(2)}\
-Shipping: $${Number(order.shipping).toFixed(2)}\
-Total: $${Number(order.total).toFixed(2)}\
-Custom artwork files are attached.`; const recipient = process.env.ORDER_NOTIFICATION_EMAIL || process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com"; await sendEmail({ to: recipient, subject: `New Custom Mug Order ${order.order_code}`, html, text, attachments, idempotencyKey: `custom-order/${order.id}` }); for (const item of customItems) await pool.query(`UPDATE order_items SET variant = variant - 'designDataUrl' - 'designFileName' - 'designScale' - 'designX' - 'designY' - 'designRotation' - 'mugRotation' WHERE id = $1`, [item.id]); };
+
+export const sendCustomOrderNotification = async (orderIdOrCode: string): Promise<void> => {
+    await ensureOrderTables();
+    const orderResult = await pool.query("SELECT * FROM orders WHERE id::text = $1 OR order_code = $1 LIMIT 1", [orderIdOrCode]);
+    const order = orderResult.rows[0];
+    if (!order) throw new Error("Order not found for customization email.");
+    const itemsResult = await pool.query("SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC", [order.id]);
+    const customItems = itemsResult.rows.filter((item: any) => item.variant?.designDataUrl || item.variant?.customRequestId);
+    if (!customItems.length) return;
+
+    const attachments: Array<{ filename: string; content: string; contentType?: string }> = [];
+    for (const item of customItems) {
+        if (item.variant?.designDataUrl) {
+            attachments.push(dataUrlToAttachment(item.variant.designDataUrl, item.variant.designFileName, attachments.length));
+        }
+        if (item.variant?.customRequestId) {
+            const attachment = await getCustomMugArtworkAttachment(String(item.variant.customRequestId));
+            if (attachment) attachments.push(attachment);
+        }
+    }
+
+    const itemRows = itemsResult.rows.map((item: any) =>
+        "<tr><td style='padding:8px;border-bottom:1px solid #eee'><strong>" +
+        escapeHtml(item.product_name) +
+        "</strong><br><span>" +
+        escapeHtml(item.variant?.model || "Mug") + " · " +
+        escapeHtml(item.variant?.size || "") + " · " +
+        escapeHtml(item.variant?.color || "") +
+        (item.variant?.printSides ? " · " + escapeHtml(item.variant.printSides) + " side(s)" : "") +
+        "</span></td><td style='padding:8px;border-bottom:1px solid #eee;text-align:center'>" +
+        item.quantity +
+        "</td><td style='padding:8px;border-bottom:1px solid #eee;text-align:right'>$" +
+        Number(item.unit_price).toFixed(2) +
+        "</td></tr>"
+    ).join("");
+
+    const shippingAddress = order.shipping_address || {};
+    const html =
+        "<div style='font-family:Arial,sans-serif;color:#202020;max-width:760px'>" +
+        "<h1>New Custom Mug Order " + escapeHtml(order.order_code) + "</h1>" +
+        "<p>Payment confirmed. Production information is below.</p>" +
+        "<h2>Customer</h2><p><strong>" +
+        escapeHtml(order.customer_first_name) + " " + escapeHtml(order.customer_last_name) +
+        "</strong><br>" + escapeHtml(order.customer_email) +
+        (order.customer_phone ? "<br>" + escapeHtml(order.customer_phone) : "") +
+        "</p><h2>Shipping</h2><p>" +
+        escapeHtml(shippingAddress.address) +
+        (shippingAddress.apartment ? "<br>" + escapeHtml(shippingAddress.apartment) : "") +
+        "<br>" + escapeHtml(shippingAddress.city) + ", " +
+        escapeHtml(shippingAddress.state) + " " + escapeHtml(shippingAddress.zip) +
+        "<br>Shipping charged: <strong>$" + Number(order.shipping).toFixed(2) +
+        "</strong></p><h2>Production / Order Details</h2>" +
+        "<table style='width:100%;border-collapse:collapse'><tbody>" + itemRows +
+        "</tbody></table><p><strong>Subtotal:</strong> $" +
+        Number(order.subtotal).toFixed(2) +
+        "<br><strong>Sales tax:</strong> $" + Number(order.tax).toFixed(2) +
+        "<br><strong>Shipping:</strong> $" + Number(order.shipping).toFixed(2) +
+        "<br><strong>Total paid:</strong> $" + Number(order.total).toFixed(2) +
+        "<br><strong>Payment:</strong> " + escapeHtml(order.payment_provider) +
+        " / " + escapeHtml(order.payment_method) +
+        "</p><p><strong>Artwork attached:</strong> " + attachments.length + " file(s).</p></div>";
+
+    const text = [
+        "New Custom Mug Order " + order.order_code,
+        "Customer: " + order.customer_first_name + " " + order.customer_last_name + " <" + order.customer_email + ">",
+        "Shipping: " + shippingAddress.address + ", " + shippingAddress.city + ", " + shippingAddress.state + " " + shippingAddress.zip,
+        "Subtotal: $" + Number(order.subtotal).toFixed(2),
+        "Tax: $" + Number(order.tax).toFixed(2),
+        "Shipping: $" + Number(order.shipping).toFixed(2),
+        "Total: $" + Number(order.total).toFixed(2),
+        "Custom artwork files are attached.",
+    ].join("\n");
+
+    const recipient = process.env.ORDER_NOTIFICATION_EMAIL || process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com";
+    await sendEmail({
+        to: recipient,
+        subject: "New Custom Mug Order " + order.order_code,
+        html,
+        text,
+        attachments,
+        idempotencyKey: "custom-order/" + order.id,
+    });
+
+    for (const item of customItems) {
+        if (item.variant?.customRequestId) {
+            await markCustomMugRequestPaid(String(item.variant.customRequestId));
+        }
+        if (item.variant?.designDataUrl) {
+            await pool.query(
+                "UPDATE order_items SET variant = variant - 'designDataUrl' - 'designFileName' - 'designScale' - 'designX' - 'designY' - 'designRotation' - 'mugRotation' WHERE id = $1",
+                [item.id],
+            );
+        }
+    }
+};
+
 export const sendCustomerOrderConfirmation = async (orderIdOrCode: string): Promise<void> => {
     await ensureOrderTables();
     const orderResult = await pool.query(`SELECT * FROM orders WHERE id::text = $1 OR order_code = $1 LIMIT 1`, [orderIdOrCode]);
