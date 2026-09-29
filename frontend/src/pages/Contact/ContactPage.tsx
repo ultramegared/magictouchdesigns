@@ -473,7 +473,7 @@ function ContactPage() {
                                     {fontText.label}
                                 </label>
 
-                                <div className="contact-font-grid" role="radiogroup" aria-label={t.customRequest.fontStyle}>
+                                <div className="contact-font-grid" role="radiogroup" aria-label={fontText.label}>
                                     {FONT_OPTIONS.map((font) => (
                                         <label
                                             key={font.id}
