@@ -45,7 +45,7 @@ function AdminSidebar({ username }: AdminSidebarProps) {
                     <NavLink to="/admin/users" className={getNavLinkClass} onClick={closeMobileMenu}><Users size={20} /><span>Users</span></NavLink>
                     <NavLink to="/admin/subscribers" className={getNavLinkClass} onClick={closeMobileMenu}><Mail size={20} /><span>Subscribers</span></NavLink>
                     <NavLink to="/admin/reviews" className={getNavLinkClass} onClick={closeMobileMenu}><Star size={20} /><span>Reviews</span></NavLink>
-                    <NavLink to="/admin/content" className={getNavLinkClass} onClick={closeMobileMenu}><Image size={20} /><span>Portfolio</span></NavLink>
+                    <NavLink to="/admin/content" className={getNavLinkClass} onClick={closeMobileMenu}><Image size={20} /><span>Content</span></NavLink>
                     <NavLink to="/admin/reports" className={getNavLinkClass} onClick={closeMobileMenu}><BarChart3 size={20} /><span>Reports</span></NavLink>
                     <NavLink to="/admin/settings" className={getNavLinkClass} onClick={closeMobileMenu}><Settings size={20} /><span>Settings</span></NavLink>
                 </nav>
