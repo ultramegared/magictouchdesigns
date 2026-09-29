@@ -346,7 +346,7 @@ export const createProduct =
 
             image_url,
 
-            image_urls,
+            JSON.stringify(image_urls),
 
             is_active,
 
@@ -542,7 +542,7 @@ export const updateProduct =
             );
 
             values.push(
-                data.image_urls
+                JSON.stringify(data.image_urls)
             );
 
             parameterIndex++;
