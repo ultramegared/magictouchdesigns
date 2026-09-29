@@ -44,6 +44,7 @@ export interface SiteConfig {
     businessAddress: string;
     heroSlides: HeroSlideConfig[];
     benefits: BenefitConfig[];
+    benefitsEnabled: boolean;
     headerLinks: NavLinkConfig[];
     footerSections: FooterSectionConfig[];
     socialLinks: SocialLinkConfig[];
@@ -87,6 +88,7 @@ const DEFAULT_CONFIG: SiteConfig = {
     designerBio: localized("Magic Touch Designs creator and webmaster.", "Creador y webmaster de Magic Touch Designs."),
     businessPhone: "+1 (346) 760-3007",
     businessAddress: "",
+    benefitsEnabled: true,
     benefits: [
         { id: "benefit-1", icon: "truck", title: localized("Fast Shipping", "Envío rápido"), description: localized("2–5 business days directly to your door.", "De 2 a 5 días hábiles directamente hasta tu puerta."), active: true, order: 1 },
         { id: "benefit-2", icon: "flag", title: localized("Made in USA", "Hecho en EE. UU."), description: localized("Proudly designed and printed in the United States.", "Diseñado e impreso con orgullo en Estados Unidos."), active: true, order: 2 },
@@ -163,6 +165,7 @@ const mergeConfig = (raw: unknown): SiteConfig => {
         websiteName: value.websiteName && typeof value.websiteName === "object" ? value.websiteName : DEFAULT_CONFIG.websiteName,
         browserTitle: value.browserTitle && typeof value.browserTitle === "object" ? value.browserTitle : DEFAULT_CONFIG.browserTitle,
         heroSlides: Array.isArray(value.heroSlides) && value.heroSlides.length ? value.heroSlides : DEFAULT_CONFIG.heroSlides,
+        benefitsEnabled: typeof value.benefitsEnabled === "boolean" ? value.benefitsEnabled : DEFAULT_CONFIG.benefitsEnabled,
         benefits: Array.isArray(value.benefits) && value.benefits.length ? value.benefits : DEFAULT_CONFIG.benefits,
         headerLinks: Array.isArray(value.headerLinks) && value.headerLinks.length ? value.headerLinks : DEFAULT_CONFIG.headerLinks,
         footerSections: Array.isArray(value.footerSections) && value.footerSections.length ? value.footerSections : DEFAULT_CONFIG.footerSections,
@@ -183,8 +186,12 @@ const translateIfChanged = async (text: LocalizedText, previous?: LocalizedText)
     const en = String(text?.en ?? "").trim();
     const es = String(text?.es ?? "").trim();
     const previousEn = String(previous?.en ?? "").trim();
+    const previousEs = String(previous?.es ?? "").trim();
     const englishChanged = previous !== undefined && en !== previousEn;
+    const spanishChanged = previous !== undefined && es !== previousEs;
     if (!en) return { en: "", es: "" };
+    // If the administrator explicitly edits Spanish, preserve that manual translation.
+    if (spanishChanged) return { en, es };
     if (englishChanged || !es) {
         try {
             const result = await translateEnglishToSpanish(en);
