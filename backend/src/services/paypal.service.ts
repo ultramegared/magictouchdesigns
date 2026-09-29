@@ -59,9 +59,9 @@ export const getPayPalPublicConfig = () => {
     return { enabled: Boolean(clientId && secret), clientId: clientId || null, currency: "USD", environment: getPayPalBaseUrl().includes("sandbox") ? "sandbox" : "live" };
 };
 
-export const createPayPalOrder = async (customer: CheckoutCustomerInput, items: CheckoutItemInput[]) => {
+export const createPayPalOrder = async (customer: CheckoutCustomerInput, items: CheckoutItemInput[], customRequestId?: string) => {
     await ensureOrderTables();
-    const snapshot = await buildOrderSnapshot(customer, items);
+    const snapshot = await buildOrderSnapshot(customer, items, { customRequestId });
     const attempt = await createCheckoutAttempt(customer, snapshot, "paypal");
     const taxResult = await calculateDestinationTax(customer, snapshot.normalizedItems, Math.round(snapshot.shipping * 100));
     const tax = taxResult.tax;
