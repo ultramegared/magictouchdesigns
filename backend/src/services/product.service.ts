@@ -40,6 +40,9 @@ export interface CreateProductData {
     image_url?:
         string | null;
 
+    image_urls?:
+        string[];
+
     is_active?:
         boolean;
 
@@ -69,6 +72,9 @@ export interface UpdateProductData {
 
     image_url?:
         string | null;
+
+    image_urls?:
+        string[];
 
     is_active?:
         boolean;
@@ -268,6 +274,8 @@ export const createProduct =
 
             image_url = null,
 
+            image_urls = [],
+
             is_active = true,
 
             sort_order = 0,
@@ -289,6 +297,8 @@ export const createProduct =
                 price,
 
                 image_url,
+
+                image_urls,
 
                 is_active,
 
@@ -314,7 +324,9 @@ export const createProduct =
 
                 $7,
 
-                $8
+                $8,
+
+                $9
 
             )
 
@@ -333,6 +345,8 @@ export const createProduct =
             price,
 
             image_url,
+
+            image_urls,
 
             is_active,
 
@@ -507,6 +521,29 @@ export const updateProduct =
                 data.image_url
             );
 
+
+            parameterIndex++;
+
+        }
+
+
+        /*
+        ------------------------------------------------------------
+        IMAGE URLS
+        ------------------------------------------------------------
+        */
+
+        if (
+            data.image_urls !== undefined
+        ) {
+
+            fields.push(
+                `image_urls = ${parameterIndex}`
+            );
+
+            values.push(
+                data.image_urls
+            );
 
             parameterIndex++;
 
