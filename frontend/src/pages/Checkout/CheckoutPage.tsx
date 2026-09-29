@@ -85,7 +85,7 @@ function CheckoutPage() {
                         quantity: data.request.quantity,
                         image: "",
                     }]);
-                    const nameParts = data.request.name.trim().split(/\\s+/).filter(Boolean);
+                    const nameParts = data.request.name.trim().split(/\s+/).filter(Boolean);
                     const firstName = nameParts.shift() || "";
                     const lastName = nameParts.join(" ");
                     setForm((currentForm) => ({ ...currentForm, firstName, lastName, email: data.request.email }));
