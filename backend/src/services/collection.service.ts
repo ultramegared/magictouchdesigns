@@ -35,7 +35,7 @@ interface CreateCollectionProductData {
 
     image_urls?: string[];
 
-    features?: string[];
+    features?: unknown[] | Record<string, unknown>;
 
     is_active?: boolean;
 
