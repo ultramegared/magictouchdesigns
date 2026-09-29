@@ -82,6 +82,17 @@ const sendError = (
 const FRONTEND_URL =
     process.env.FRONTEND_URL || "https://www.jqydesigns.com";
 
+const FONT_CATALOG: Record<string, string> = {
+    modern: "Montserrat",
+    elegant: "Playfair Display",
+    script: "Dancing Script",
+    handwritten: "Great Vibes",
+    bold: "Bebas Neue",
+    classic: "Cormorant Garamond",
+    playful: "Pacifico",
+    luxury: "Cinzel",
+};
+
 export const submitCustomRequest = async (
     req: Request,
     res: Response
@@ -99,7 +110,9 @@ export const submitCustomRequest = async (
         const email = clean(req.body?.email, 254);
         const textForMug = clean(req.body?.text, 500);
         const fontStyle = clean(req.body?.fontStyle, 40) || "modern";
-        const fontName = clean(req.body?.fontName, 120) || "Montserrat";
+        const requestedFontStyle = clean(req.body?.fontStyle, 40) || "modern";
+        const fontStyle = FONT_CATALOG[requestedFontStyle] ? requestedFontStyle : "modern";
+        const fontName = FONT_CATALOG[fontStyle];
         const model = clean(req.body?.model, 20);
         const size = clean(req.body?.size, 10);
         const color = clean(req.body?.color, 80);
