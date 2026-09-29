@@ -74,28 +74,29 @@ function CheckoutPage() {
                     const response = await fetch(`${API_URL}/contact/custom-request/${encodeURIComponent(customRequestId)}`);
                     const data = await response.json() as { request?: CustomRequestView; message?: string };
                     if (!response.ok || !data.request) throw new Error(data.message || "Custom request could not be loaded.");
+                    const request = data.request;
                     if (cancelled) return;
                     setCartItems([{
-                        id: `custom-request:${data.request.id}`,
-                        name: `Custom Mug — ${data.request.model} ${data.request.size}`,
-                        model: data.request.model,
-                        size: data.request.size,
-                        color: data.request.color,
-                        price: data.request.unitPrice,
-                        quantity: data.request.quantity,
+                        id: `custom-request:${request.id}`,
+                        name: `Custom Mug — ${request.model} ${request.size}`,
+                        model: request.model,
+                        size: request.size,
+                        color: request.color,
+                        price: request.unitPrice,
+                        quantity: request.quantity,
                         image: "",
                     }]);
-                    const nameParts = data.request.name.trim().split(/\s+/).filter(Boolean);
+                    const nameParts = request.name.trim().split(/\s+/).filter(Boolean);
                     const firstName = nameParts.shift() || "";
                     const lastName = nameParts.join(" ");
-                    setForm((currentForm) => ({ ...currentForm, firstName, lastName, email: data.request.email }));
+                    setForm((currentForm) => ({ ...currentForm, firstName, lastName, email: request.email }));
                     window.setTimeout(() => {
                         const firstNameInput = formRef.current?.elements.namedItem("firstName") as HTMLInputElement | null;
                         const lastNameInput = formRef.current?.elements.namedItem("lastName") as HTMLInputElement | null;
                         const emailInput = formRef.current?.elements.namedItem("email") as HTMLInputElement | null;
                         if (firstNameInput) firstNameInput.value = firstName;
                         if (lastNameInput) lastNameInput.value = lastName;
-                        if (emailInput) emailInput.value = data.request.email;
+                        if (emailInput) emailInput.value = request.email;
                     }, 0);
                 } catch (error) {
                     if (!cancelled) {
