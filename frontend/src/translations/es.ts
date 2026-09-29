@@ -721,9 +721,15 @@ export const es = {
 
             mugColor: "Color de Taza",
             black: "Negro",
-            white: "Blanco",
+            white: "Blanca — Completa",
+            whiteRedHandle: "Blanca + Asa Roja (+$2)",
+            whiteBlackHandle: "Blanca + Asa Negra (+$2)",
+            whiteBlueHandle: "Blanca + Asa Azul (+$2)",
             magicBlack: "Negro Magic",
             red: "Rojo",
+            printSides: "Caras de impresión",
+            oneSide: "1 Cara",
+            twoSides: "2 Caras (+$2)",
 
             quantity: "Cantidad",
 
