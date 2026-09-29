@@ -321,6 +321,8 @@ export const createProductController =
 
                 image_url,
 
+                image_urls,
+
                 is_active,
 
                 sort_order,
@@ -453,8 +455,13 @@ export const createProductController =
                         numericPrice,
 
                     image_url:
-                        image_url
+                        image_urls?.[0]
+                        ?? image_url
                         ?? null,
+
+                    image_urls:
+                        image_urls
+                        ?? (image_url ? [image_url] : []),
 
                     is_active,
 
@@ -686,7 +693,12 @@ export const updateProductController =
 
                                 : undefined,
 
-                        image_url,
+                        image_url:
+                            image_urls !== undefined
+                                ? (image_urls[0] || null)
+                                : image_url,
+
+                        image_urls,
 
                         is_active,
 
