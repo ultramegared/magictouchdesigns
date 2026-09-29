@@ -19,6 +19,8 @@ export interface CustomMugRequestRecord {
     name: string;
     email: string;
     text_for_mug: string;
+    font_style: string;
+    font_name: string;
     model: CustomMugModel;
     size: CustomMugSize;
     color: string;
@@ -47,6 +49,8 @@ export const ensureCustomMugRequestTable = async (): Promise<void> => {
             name VARCHAR(120) NOT NULL,
             email VARCHAR(320) NOT NULL,
             text_for_mug VARCHAR(500) NOT NULL DEFAULT '',
+            font_style VARCHAR(40) NOT NULL DEFAULT 'modern',
+            font_name VARCHAR(120) NOT NULL DEFAULT 'Montserrat',
             model VARCHAR(20) NOT NULL,
             size VARCHAR(10) NOT NULL,
             color VARCHAR(80) NOT NULL,
@@ -62,6 +66,8 @@ export const ensureCustomMugRequestTable = async (): Promise<void> => {
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+        ALTER TABLE custom_mug_requests ADD COLUMN IF NOT EXISTS font_style VARCHAR(40) NOT NULL DEFAULT 'modern';
+        ALTER TABLE custom_mug_requests ADD COLUMN IF NOT EXISTS font_name VARCHAR(120) NOT NULL DEFAULT 'Montserrat';
         CREATE INDEX IF NOT EXISTS idx_custom_mug_requests_status ON custom_mug_requests(status);
         CREATE INDEX IF NOT EXISTS idx_custom_mug_requests_created_at ON custom_mug_requests(created_at DESC);
     `);
@@ -135,6 +141,8 @@ export const createCustomMugRequest = async (input: {
     name: string;
     email: string;
     textForMug: string;
+    fontStyle: string;
+    fontName: string;
     model: CustomMugModel;
     size: CustomMugSize;
     color: string;
@@ -150,15 +158,17 @@ export const createCustomMugRequest = async (input: {
     const requestCode = await makeRequestCode();
     const result = await pool.query<Pick<CustomMugRequestRecord, "id" | "request_code">>(
         `INSERT INTO custom_mug_requests
-            (request_code, name, email, text_for_mug, model, size, color, print_sides,
+            (request_code, name, email, text_for_mug, font_style, font_name, model, size, color, print_sides,
              quantity, notes, unit_price, subtotal, artwork, artwork_mime, artwork_filename)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
          RETURNING id, request_code`,
         [
             requestCode,
             input.name,
             input.email.toLowerCase(),
             input.textForMug,
+            input.fontStyle,
+            input.fontName,
             input.model,
             input.size,
             input.color,
@@ -200,6 +210,8 @@ export const getCustomMugCheckoutView = async (id: string) => {
         size: request.size,
         color: request.color,
         printSides: request.print_sides,
+        fontStyle: request.font_style,
+        fontName: request.font_name,
         quantity: request.quantity,
         unitPrice: Number(request.unit_price),
         subtotal: Number(request.subtotal),
