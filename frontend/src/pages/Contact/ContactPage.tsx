@@ -32,15 +32,15 @@ const COLORED_HANDLE_SURCHARGE = 2;
 const SECOND_SIDE_SURCHARGE = 2;
 
 const FONT_OPTIONS = [
-    { id: "modern", name: "Montserrat", label: "Modern", family: '"Montserrat", Arial, sans-serif' },
-    { id: "elegant", name: "Playfair Display", label: "Elegant", family: '"Playfair Display", Georgia, serif' },
-    { id: "script", name: "Dancing Script", label: "Script", family: '"Dancing Script", cursive' },
-    { id: "handwritten", name: "Great Vibes", label: "Handwritten", family: '"Great Vibes", cursive' },
-    { id: "bold", name: "Bebas Neue", label: "Bold", family: '"Bebas Neue", Impact, sans-serif' },
-    { id: "classic", name: "Cormorant Garamond", label: "Classic", family: '"Cormorant Garamond", Georgia, serif' },
-    { id: "playful", name: "Pacifico", label: "Playful", family: '"Pacifico", cursive' },
-    { id: "luxury", name: "Cinzel", label: "Luxury", family: '"Cinzel", Georgia, serif' },
-] as const;
+    { id: "modern", name: "Montserrat", label: "Modern", className: "modern" },
+    { id: "elegant", name: "Playfair Display", label: "Elegant", className: "elegant" },
+    { id: "script", name: "Dancing Script", label: "Script", className: "script" },
+    { id: "handwritten", name: "Great Vibes", label: "Handwritten", className: "handwritten" },
+    { id: "bold", name: "Bebas Neue", label: "Bold", className: "bold" },
+    { id: "classic", name: "Cormorant Garamond", label: "Classic", className: "classic" },
+    { id: "playful", name: "Pacifico", label: "Playful", className: "playful" },
+    { id: "luxury", name: "Cinzel", label: "Luxury", className: "luxury" },
+];
 
 const ALLOWED_IMAGE_TYPES = [
     "image/jpeg",
@@ -483,7 +483,7 @@ function ContactPage() {
                                                 checked={fontStyle === font.id}
                                                 onChange={() => setFontStyle(font.id)}
                                             />
-                                            <span className="contact-font-option__preview" style={{ fontFamily: font.family }}>
+                                            <span className={"contact-font-option__preview contact-font-option__preview--" + font.className}>
                                                 {t.customRequest.fontSample}
                                             </span>
                                             <span className="contact-font-option__name">{font.label}</span>
