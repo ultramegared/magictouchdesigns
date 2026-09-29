@@ -98,6 +98,8 @@ export const submitCustomRequest = async (
         const name = clean(req.body?.name, 120);
         const email = clean(req.body?.email, 254);
         const textForMug = clean(req.body?.text, 500);
+        const fontStyle = clean(req.body?.fontStyle, 40) || "modern";
+        const fontName = clean(req.body?.fontName, 120) || "Montserrat";
         const model = clean(req.body?.model, 20);
         const size = clean(req.body?.size, 10);
         const color = clean(req.body?.color, 80);
@@ -136,6 +138,8 @@ export const submitCustomRequest = async (
             name,
             email,
             textForMug,
+            fontStyle,
+            fontName,
             model: model as "Classic" | "Premium",
             size: size as "11 oz" | "15 oz",
             color: color || "White",
@@ -182,7 +186,9 @@ export const submitCustomRequest = async (
                     <strong>Model:</strong> ${escapeHtml(model)}<br>
                     <strong>Size:</strong> ${escapeHtml(size)}<br>
                     <strong>Color:</strong> ${escapeHtml(handleLabel)}<br>
-                    <strong>Print sides:</strong> ${escapeHtml(sideLabel)}<br>
+                    <strong>Design views:</strong> ${escapeHtml(sideLabel)}<br>
+                    <strong>Font style:</strong> ${escapeHtml(fontStyle)}<br>
+                    <strong>Font name:</strong> ${escapeHtml(fontName)}<br>
                     <strong>Quantity:</strong> ${quantity}<br>
                     <strong>Unit price:</strong> $${request.unitPrice.toFixed(2)}<br>
                     <strong>Merchandise subtotal:</strong> $${request.subtotal.toFixed(2)}
@@ -212,7 +218,9 @@ export const submitCustomRequest = async (
             `Model: ${model}`,
             `Size: ${size}`,
             `Color: ${handleLabel}`,
-            `Print sides: ${sideLabel}`,
+            `Design views: ${sideLabel}`,
+            `Font style: ${fontStyle}`,
+            `Font name: ${fontName}`,
             `Quantity: ${quantity}`,
             `Unit price: $${request.unitPrice.toFixed(2)}`,
             `Merchandise subtotal: $${request.subtotal.toFixed(2)}`,
