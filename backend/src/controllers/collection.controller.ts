@@ -98,7 +98,7 @@ export const getAvailableProductsForCollection = async (request: Request, respon
 export const addProductToCollection = async (request: Request, response: Response) => {
     try {
         const { slug } = request.params;
-        const { product_id, name, slug: productSlug, description, price, image_url, features, is_active } = request.body;
+        const { product_id, name, slug: productSlug, description, price, image_url, image_urls, features, is_active } = request.body;
         const normalizedProductId = typeof product_id === "string" ? product_id.trim() : "";
         const hasValidProductId = Boolean(normalizedProductId) && normalizedProductId !== "undefined" && normalizedProductId !== "null";
         const hasNewProductData = (typeof name === "string" && name.trim().length > 0) || (typeof productSlug === "string" && productSlug.trim().length > 0);
