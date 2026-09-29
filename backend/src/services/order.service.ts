@@ -10,6 +10,7 @@ import { pool } from "../config/database";
 import { getProductById } from "./product.service";
 import { sendEmail } from "./email.service";
 import { getShippingQuote } from "./shipping.service";
+import { getSettings } from "./settings.service";
 import { getCustomMugRequest, markCustomMugRequestPaid, getCustomMugArtworkAttachment, ensureCustomMugRequestTable } from "./custom-mug.service";
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://magictouchdesigns.com";
 const STRIPE_API = "https://api.stripe.com/v1";
@@ -378,8 +379,8 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
         "Custom artwork files are attached.",
     ].join("\n");
 
-    const settingsResult = await pool.query<{ support_email: string }>("SELECT support_email FROM site_settings LIMIT 1");
-    const recipient = settingsResult.rows[0]?.support_email?.trim() || process.env.ORDER_NOTIFICATION_EMAIL || process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com";
+    const settings = await getSettings();
+    const recipient = settings.supportEmail.trim() || process.env.ORDER_NOTIFICATION_EMAIL || process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com";
     await sendEmail({
         to: recipient,
         subject: "New Custom Mug Order " + order.order_code,
