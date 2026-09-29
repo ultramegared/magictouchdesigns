@@ -135,6 +135,8 @@ export const buildOrderSnapshot = async (
             size: request.size,
             color: request.color,
             printSides: request.print_sides,
+            fontStyle: request.font_style,
+            fontName: request.font_name,
             customText: request.text_for_mug || "",
             customNotes: request.notes || "",
         };
@@ -328,7 +330,8 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
         escapeHtml(item.variant?.model || "Mug") + " · " +
         escapeHtml(item.variant?.size || "") + " · " +
         escapeHtml(item.variant?.color || "") +
-        (item.variant?.printSides ? " · " + escapeHtml(item.variant.printSides) + " side(s)" : "") +
+        (item.variant?.printSides ? " · " + escapeHtml(item.variant.printSides) + " view(s)" : "") +
+        (item.variant?.fontName ? " · Font: " + escapeHtml(item.variant.fontName) : "") +
         "</span></td><td style='padding:8px;border-bottom:1px solid #eee;text-align:center'>" +
         item.quantity +
         "</td><td style='padding:8px;border-bottom:1px solid #eee;text-align:right'>$" +
@@ -370,10 +373,13 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
         "Tax: $" + Number(order.tax).toFixed(2),
         "Shipping: $" + Number(order.shipping).toFixed(2),
         "Total: $" + Number(order.total).toFixed(2),
+        "Selected font: " + (customItems[0]?.variant?.fontName || "Not specified"),
+        "Design views: " + (customItems[0]?.variant?.printSides === "2" ? "Front + Back" : "Front"),
         "Custom artwork files are attached.",
     ].join("\n");
 
-    const recipient = process.env.ORDER_NOTIFICATION_EMAIL || process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com";
+    const settingsResult = await pool.query<{ support_email: string }>("SELECT support_email FROM site_settings LIMIT 1");
+    const recipient = settingsResult.rows[0]?.support_email?.trim() || process.env.ORDER_NOTIFICATION_EMAIL || process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com";
     await sendEmail({
         to: recipient,
         subject: "New Custom Mug Order " + order.order_code,
