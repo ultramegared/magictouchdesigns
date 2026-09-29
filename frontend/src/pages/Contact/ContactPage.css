@@ -2046,6 +2046,38 @@
     white-space: nowrap;
 }
 
+.contact-font-option__preview--modern {
+    font-family: "Montserrat", Arial, sans-serif;
+}
+
+.contact-font-option__preview--elegant {
+    font-family: "Playfair Display", Georgia, serif;
+}
+
+.contact-font-option__preview--script {
+    font-family: "Dancing Script", cursive;
+}
+
+.contact-font-option__preview--handwritten {
+    font-family: "Great Vibes", cursive;
+}
+
+.contact-font-option__preview--bold {
+    font-family: "Bebas Neue", Impact, sans-serif;
+}
+
+.contact-font-option__preview--classic {
+    font-family: "Cormorant Garamond", Georgia, serif;
+}
+
+.contact-font-option__preview--playful {
+    font-family: "Pacifico", cursive;
+}
+
+.contact-font-option__preview--luxury {
+    font-family: "Cinzel", Georgia, serif;
+}
+
 .contact-font-option__name {
     color: #ffffff;
     font-size: 11px;
