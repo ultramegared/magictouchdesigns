@@ -695,10 +695,6 @@ businessBranding: {
       textPlaceholder:
         "Tell us exactly what text you would like on your mug...",
 
-      fontStyle: "Font Style",
-      fontSample: "Your Name",
-      fontStyleHelp: "Choose the lettering style you prefer. We will use this preference when preparing your design.",
-
       mugModel: "Mug Model",
       classic: "Classic",
       premium: "Premium",
@@ -715,9 +711,9 @@ businessBranding: {
       whiteBlueHandle: "White + Blue Handle (+$2)",
       magicBlack: "Magic Black",
       red: "Red",
-      designViews: "Design Views",
-      viewFront: "View Front",
-      viewFrontBack: "View Front + View Back (+$2)",
+      printSides: "Design Views",
+      oneSide: "View Front",
+      twoSides: "View Front + View Back (+$2)",
 
       quantity: "Quantity",
 
