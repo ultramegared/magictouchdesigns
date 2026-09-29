@@ -440,7 +440,15 @@ export const materializePaidOrder = async (input: {
         );
         if (existing.rows[0]) {
             await client.query(`UPDATE checkout_attempts SET status='completed', updated_at=NOW() WHERE id=$1`, [input.attemptId]);
-            await client.query("COMMIT");
+            for (const item of items) {
+            if (item?.variant?.customRequestId) {
+                await client.query(
+                    "UPDATE custom_mug_requests SET status='paid', updated_at=NOW() WHERE id=$1 AND status='pending'",
+                    [String(item.variant.customRequestId)],
+                );
+            }
+        }
+        await client.query("COMMIT");
             return { orderId: String(existing.rows[0].id), orderCode: String(existing.rows[0].order_code), created: false };
         }
 
