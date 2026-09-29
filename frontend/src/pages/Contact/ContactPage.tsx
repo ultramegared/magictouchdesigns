@@ -32,14 +32,14 @@ const COLORED_HANDLE_SURCHARGE = 2;
 const SECOND_SIDE_SURCHARGE = 2;
 
 const FONT_OPTIONS = [
-    { id: "modern", name: "Montserrat", label: "Modern", className: "modern" },
-    { id: "elegant", name: "Playfair Display", label: "Elegant", className: "elegant" },
-    { id: "script", name: "Dancing Script", label: "Script", className: "script" },
-    { id: "handwritten", name: "Great Vibes", label: "Handwritten", className: "handwritten" },
-    { id: "bold", name: "Bebas Neue", label: "Bold", className: "bold" },
-    { id: "classic", name: "Cormorant Garamond", label: "Classic", className: "classic" },
-    { id: "playful", name: "Pacifico", label: "Playful", className: "playful" },
-    { id: "luxury", name: "Cinzel", label: "Luxury", className: "luxury" },
+    { id: "modern", name: "Montserrat", label: "Modern", className: "modern", fontFamily: "Montserrat, Arial, sans-serif" },
+    { id: "elegant", name: "Playfair Display", label: "Elegant", className: "elegant", fontFamily: "Playfair Display, Georgia, serif" },
+    { id: "script", name: "Dancing Script", label: "Script", className: "script", fontFamily: "Dancing Script, cursive" },
+    { id: "handwritten", name: "Great Vibes", label: "Handwritten", className: "handwritten", fontFamily: "Great Vibes, cursive" },
+    { id: "bold", name: "Bebas Neue", label: "Bold", className: "bold", fontFamily: "Bebas Neue, Impact, sans-serif" },
+    { id: "classic", name: "Cormorant Garamond", label: "Classic", className: "classic", fontFamily: "Cormorant Garamond, Georgia, serif" },
+    { id: "playful", name: "Pacifico", label: "Playful", className: "playful", fontFamily: "Pacifico, cursive" },
+    { id: "luxury", name: "Cinzel", label: "Luxury", className: "luxury", fontFamily: "Cinzel, Georgia, serif" },
 ];
 
 const ALLOWED_IMAGE_TYPES = [
@@ -103,6 +103,7 @@ function ContactPage() {
         (selectedColorIsHandle ? COLORED_HANDLE_SURCHARGE : 0) +
         (printSides === "2" ? SECOND_SIDE_SURCHARGE : 0);
     const estimatedTotal = unitPrice * quantity;
+    const selectedFont = FONT_OPTIONS.find((font) => font.id === fontStyle) || FONT_OPTIONS[0];
 
 
     /* ============================================================
@@ -455,53 +456,98 @@ function ContactPage() {
                                     id="custom-text"
                                     name="text"
                                     rows={4}
-                                    placeholder={
-                                        t.customRequest.textPlaceholder
-                                    }
+                                    placeholder={t.customRequest.textPlaceholder}
                                     maxLength={500}
+                                    style={{
+                                        fontFamily: selectedFont.fontFamily,
+                                        fontSize: "18px",
+                                        lineHeight: 1.55,
+                                    }}
                                 />
 
                             </div>
 
 
                             {/* ==================================================
-                               FONT STYLE
+                               FONT STYLE — COMPACT LIVE SELECTOR
                                ================================================== */}
 
                             <div className="contact-field contact-field--full">
-                                <label htmlFor="font-style">
+
+                                <label>
                                     {fontText.label}
                                 </label>
 
-                                <div className="contact-font-grid" role="radiogroup" aria-label={fontText.label}>
-                                    {FONT_OPTIONS.map((font) => (
-                                        <label
-                                            key={font.id}
-                                            className={"contact-font-option" + (fontStyle === font.id ? " is-selected" : "")}
-                                        >
-                                            <input
-                                                type="radio"
-                                                name="fontStyleChoice"
-                                                value={font.id}
-                                                checked={fontStyle === font.id}
-                                                onChange={() => setFontStyle(font.id)}
-                                            />
-                                            <span className={"contact-font-option__preview contact-font-option__preview--" + font.className}>
-                                                {fontText.sample}
-                                            </span>
-                                            <span className="contact-font-option__name">{font.label}</span>
-                                            <small>{font.name}</small>
-                                        </label>
-                                    ))}
+                                <div
+                                    role="radiogroup"
+                                    aria-label={fontText.label}
+                                    style={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: "7px",
+                                        marginTop: "8px",
+                                    }}
+                                >
+                                    {FONT_OPTIONS.map((font) => {
+                                        const isSelected = fontStyle === font.id;
+
+                                        return (
+                                            <button
+                                                key={font.id}
+                                                type="button"
+                                                role="radio"
+                                                aria-checked={isSelected}
+                                                onClick={() => setFontStyle(font.id)}
+                                                style={{
+                                                    flex: "1 1 86px",
+                                                    minWidth: "82px",
+                                                    minHeight: "36px",
+                                                    padding: "7px 10px",
+                                                    borderRadius: "999px",
+                                                    border: isSelected
+                                                        ? "1px solid var(--skin-primary)"
+                                                        : "1px solid var(--skin-border)",
+                                                    background: isSelected
+                                                        ? "var(--skin-primary)"
+                                                        : "var(--skin-surface-alt)",
+                                                    color: isSelected
+                                                        ? "var(--skin-button-text)"
+                                                        : "var(--skin-text)",
+                                                    fontFamily: font.fontFamily,
+                                                    fontSize: "13px",
+                                                    fontWeight: 600,
+                                                    lineHeight: 1,
+                                                    letterSpacing: "0.1px",
+                                                    cursor: "pointer",
+                                                    boxShadow: isSelected
+                                                        ? "0 4px 12px var(--skin-shadow)"
+                                                        : "none",
+                                                    transition: "transform .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease",
+                                                }}
+                                                title={font.name}
+                                            >
+                                                {font.name}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
 
                                 <input type="hidden" name="fontStyle" value={fontStyle} />
                                 <input
                                     type="hidden"
                                     name="fontName"
-                                    value={FONT_OPTIONS.find((font) => font.id === fontStyle)?.name || "Montserrat"}
+                                    value={selectedFont.name}
                                 />
-                                <small className="contact-font-help">
+
+                                <small
+                                    style={{
+                                        display: "block",
+                                        marginTop: "8px",
+                                        color: "var(--skin-text-muted)",
+                                        fontSize: "10px",
+                                        lineHeight: 1.45,
+                                    }}
+                                >
                                     {fontText.help}
                                 </small>
                             </div>
