@@ -705,9 +705,15 @@ businessBranding: {
 
       mugColor: "Mug Color",
       black: "Black",
-      white: "White",
+      white: "White — Full",
+      whiteRedHandle: "White + Red Handle (+$2)",
+      whiteBlackHandle: "White + Black Handle (+$2)",
+      whiteBlueHandle: "White + Blue Handle (+$2)",
       magicBlack: "Magic Black",
       red: "Red",
+      printSides: "Print Sides",
+      oneSide: "1 Side",
+      twoSides: "2 Sides (+$2)",
 
       quantity: "Quantity",
 
