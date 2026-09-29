@@ -630,6 +630,8 @@ export const addProductToCollection =
 
                             image_url,
 
+                            image_urls,
+
                             is_active,
 
                             sort_order,
@@ -1195,7 +1197,7 @@ export const updateCollectionProduct =
 
                     is_active =
                         COALESCE(
-                            $7,
+                            $8,
                             is_active
                         ),
 
