@@ -745,7 +745,7 @@ export const es = {
             preparingRequest: "Preparando Solicitud...",
 
             successMessage:
-                "Tu solicitud personalizada está lista para conectarse con nuestro sistema de correo.",
+                "Tu solicitud personalizada fue recibida. Continúa al pago seguro.",
 
             errorMessage:
                 "Algo salió mal. Inténtalo nuevamente.",
