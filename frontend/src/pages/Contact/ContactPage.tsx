@@ -54,7 +54,7 @@ function ContactPage() {
     const [mugSize, setMugSize] = useState("15 oz");
     const [printSides, setPrintSides] = useState("1");
 
-    const [mugColor, setMugColor] = useState("Black");
+    const [mugColor, setMugColor] = useState("White");
 
     const [quantity, setQuantity] = useState(1);
 
@@ -82,8 +82,12 @@ function ContactPage() {
     }, []);
 
 
-    const estimatedTotal =
-        PRICE_PER_MUG * quantity;
+    const selectedColorIsHandle = mugColor.startsWith("White + ");
+    const unitPrice =
+        (BASE_PRICES[mugModel]?.[mugSize] || 0) +
+        (selectedColorIsHandle ? COLORED_HANDLE_SURCHARGE : 0) +
+        (printSides === "2" ? SECOND_SIDE_SURCHARGE : 0);
+    const estimatedTotal = unitPrice * quantity;
 
 
     /* ============================================================
@@ -149,12 +153,13 @@ function ContactPage() {
             const form = event.currentTarget;
             const formData = new FormData(form);
 
-            formData.set(
-                "quantity",
-                String(quantity)
-            );
+            formData.set("quantity", String(quantity));
+            formData.set("model", mugModel);
+            formData.set("size", mugSize);
+            formData.set("color", mugColor);
+            formData.set("printSides", printSides);
 
-            await apiRequest(
+            const response = await apiRequest<{ checkoutRequestId: string }>(
                 "/api/contact/custom-request",
                 {
                     method: "POST",
@@ -162,12 +167,20 @@ function ContactPage() {
                 }
             );
 
+            if (!response.checkoutRequestId) {
+                throw new Error("The custom request was created without a payment reference.");
+            }
+
             setCustomStatus("success");
             form.reset();
             setImageName("");
             setQuantity(1);
+            setMugModel("Classic");
             setMugSize("15 oz");
-            setMugColor("Black");
+            setMugColor("White");
+            setPrintSides("1");
+
+            navigate(`/checkout?custom_request=${encodeURIComponent(response.checkoutRequestId)}`);
         } catch (error) {
             console.error(
                 "Custom request submission error:",
@@ -650,7 +663,7 @@ function ContactPage() {
                             </div>
 
                             <small>
-                                ${PRICE_PER_MUG.toFixed(2)}{" "}
+                                ${unitPrice.toFixed(2)}{" "}
                                 {t.customRequest.perMug}
                             </small>
 
