@@ -729,7 +729,7 @@ businessBranding: {
       preparingRequest: "Preparing Request...",
 
       successMessage:
-        "Your custom request is ready to be connected to our email system.",
+        "Your custom request was received. Continue to secure payment.",
 
       errorMessage:
         "Something went wrong. Please try again.",
