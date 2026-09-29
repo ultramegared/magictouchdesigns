@@ -569,6 +569,8 @@ export const updateProductController =
 
                 image_url,
 
+                image_urls,
+
                 is_active,
 
                 sort_order,
@@ -576,6 +578,18 @@ export const updateProductController =
                 features,
 
             } = req.body;
+
+
+            /*
+            --------------------------------------------------------
+            IMAGE GALLERY VALIDATION
+            --------------------------------------------------------
+            */
+
+            if (image_urls !== undefined && (!Array.isArray(image_urls) || image_urls.length > 3)) {
+                res.status(400).json({ status:"error", message:"A product can have a maximum of 3 images." });
+                return;
+            }
 
 
             /*
