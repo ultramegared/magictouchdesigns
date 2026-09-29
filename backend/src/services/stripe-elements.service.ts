@@ -48,8 +48,9 @@ export const getStripeElementsPublicConfig = () => ({
 export const createStripeElementsCheckout = async (
     customer: CheckoutCustomerInput,
     items: CheckoutItemInput[],
+    customRequestId?: string,
 ) => {
-    const snapshot = await buildOrderSnapshot(customer, items);
+    const snapshot = await buildOrderSnapshot(customer, items, { customRequestId });
     const attempt = await createCheckoutAttempt(customer, snapshot, "stripe");
     const params = new URLSearchParams();
 
@@ -104,8 +105,9 @@ export const createStripeElementsCheckout = async (
 export const createStripeApplePayCheckout = async (
     customer: CheckoutCustomerInput,
     items: CheckoutItemInput[],
+    customRequestId?: string,
 ) => {
-    const snapshot = await buildOrderSnapshot(customer, items, { skipShipping: true });
+    const snapshot = await buildOrderSnapshot(customer, items, { skipShipping: true, customRequestId });
     const attempt = await createCheckoutAttempt(customer, snapshot, "stripe");
     const params = new URLSearchParams();
 
