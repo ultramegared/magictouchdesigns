@@ -6,6 +6,7 @@ import { calculateDestinationTax } from "./tax.service";
 export const calculateCheckoutQuote = async (
     customer: CheckoutCustomerInput,
     items: CheckoutItemInput[],
+    customRequestId?: string,
 ) => {
     if (!customer.firstName?.trim() || !customer.lastName?.trim() || !customer.email?.trim()) {
         throw new Error("Customer information is required.");
@@ -16,7 +17,13 @@ export const calculateCheckoutQuote = async (
     if (!items.length) throw new Error("Your cart is empty.");
 
     const normalizedItems: Array<{ product_id: string; name: string; unit_price: number; quantity: number }> = [];
-    for (const input of items) {
+    if (customRequestId) {
+        const { getCustomMugRequest } = await import("./custom-mug.service");
+        const request = await getCustomMugRequest(customRequestId);
+        if (!request || request.status !== "pending") throw new Error("This custom mug request is no longer available.");
+        if (request.email.trim().toLowerCase() !== customer.email.trim().toLowerCase()) throw new Error("The checkout email must match the custom mug request email.");
+        normalizedItems.push({ product_id: "CUSTOM-MUG", name: `Custom Mug — ${request.model} ${request.size}`, unit_price: Number(request.unit_price), quantity: Number(request.quantity) });
+    } else for (const input of items) {
         const quantity = Math.floor(Number(input.quantity));
         if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item.");
         const product = await getProductById(input.productId);
