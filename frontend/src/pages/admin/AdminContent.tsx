@@ -9,6 +9,10 @@ import {
     X,
     Save,
     Upload,
+    Truck,
+    Flag,
+    Gem,
+    ShieldCheck,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import { apiRequest } from "../../services/api";
@@ -26,6 +30,15 @@ interface PortfolioItem {
     characteristics_es: string | null;
     is_active: boolean;
     sort_order: number;
+}
+
+interface BenefitConfig {
+    id: string;
+    icon: string;
+    title: { en: string; es: string };
+    description: { en: string; es: string };
+    active: boolean;
+    order: number;
 }
 
 interface FormState {
@@ -54,19 +67,65 @@ const AdminContent = () => {
     const [imageUrl, setImageUrl] = useState("");
     const [publicId, setPublicId] = useState("");
     const [form, setForm] = useState<FormState>(emptyForm);
+    const [benefits, setBenefits] = useState<BenefitConfig[]>([]);
+    const [benefitsLoading, setBenefitsLoading] = useState(true);
+    const [benefitsSaving, setBenefitsSaving] = useState(false);
 
     const load = async () => {
         setLoading(true);
+        setBenefitsLoading(true);
         try {
-            const response = await apiRequest<{ portfolio: PortfolioItem[] }>(
-                "/api/portfolio/admin"
-            );
-            setItems(response.portfolio || []);
+            const [portfolioResponse, settingsResponse] = await Promise.all([
+                apiRequest<{ portfolio: PortfolioItem[] }>("/api/portfolio/admin"),
+                apiRequest<{ settings: { config?: { benefits?: BenefitConfig[] } } }>("/api/settings?app_refresh=" + Date.now(), { cache: "no-store" }),
+            ]);
+            setItems(portfolioResponse.portfolio || []);
+            setBenefits(settingsResponse.settings?.config?.benefits || []);
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false);
+            setBenefitsLoading(false);
         }
+    };
+
+    const saveBenefits = async () => {
+        setBenefitsSaving(true);
+        try {
+            const settingsResponse = await apiRequest<{ settings: { config?: Record<string, unknown> }; websiteName: string; browserTitle: string }>(
+                "/api/settings?app_refresh=" + Date.now(),
+                { cache: "no-store" }
+            );
+            const currentConfig = settingsResponse.settings?.config || {};
+            await apiRequest("/api/settings", {
+                method: "PUT",
+                body: JSON.stringify({
+                    websiteName: settingsResponse.settings?.websiteName,
+                    browserTitle: settingsResponse.settings?.browserTitle,
+                    config: { ...currentConfig, benefits },
+                }),
+            });
+            const cached = localStorage.getItem("mtd_site_config");
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    localStorage.setItem("mtd_site_config", JSON.stringify({ ...parsed, benefits }));
+                } catch {
+                    // The next page load will hydrate the saved settings from the API.
+                }
+            }
+            window.dispatchEvent(new Event("mtd-site-config-updated"));
+            alert("Benefit cards saved successfully.");
+        } catch (error) {
+            console.error(error);
+            alert(error instanceof Error ? error.message : "Unable to save benefit cards.");
+        } finally {
+            setBenefitsSaving(false);
+        }
+    };
+
+    const updateBenefit = (id: string, patch: Partial<BenefitConfig>) => {
+        setBenefits(current => current.map(item => item.id === id ? { ...item, ...patch } : item));
     };
 
     useEffect(() => {
@@ -212,6 +271,74 @@ const AdminContent = () => {
                         Add creation
                     </button>
                 </header>
+
+                <section className="admin-content-panel admin-benefits-panel">
+                    <div className="admin-content-panel-head">
+                        <div>
+                            <strong>Homepage Benefit Cards</strong>
+                            <span>{benefits.length} fixed cards · shown on the homepage</span>
+                        </div>
+                        <button className="admin-content-primary" onClick={() => void saveBenefits()} disabled={benefitsSaving || benefitsLoading}>
+                            {benefitsSaving ? <LoaderCircle className="spin" size={17} /> : <Save size={17} />}
+                            {benefitsSaving ? "Saving…" : "Save cards"}
+                        </button>
+                    </div>
+                    {benefitsLoading ? (
+                        <div className="admin-content-loading"><LoaderCircle className="spin" /> Loading benefit cards…</div>
+                    ) : (
+                        <div className="admin-benefits-grid">
+                            {benefits.sort((a, b) => a.order - b.order).map((benefit, index) => (
+                                <article className={`admin-benefit-card ${benefit.active ? "" : "is-hidden"}`} key={benefit.id}>
+                                    <div className="admin-benefit-card-head">
+                                        <strong>Card {index + 1}</strong>
+                                        <label className="admin-benefit-toggle">
+                                            <input type="checkbox" checked={benefit.active} onChange={e => updateBenefit(benefit.id, { active: e.target.checked })} />
+                                            <span>{benefit.active ? "Visible" : "Hidden"}</span>
+                                        </label>
+                                    </div>
+                                    <div className="admin-benefit-preview">
+                                        <div className="admin-benefit-preview-icon">
+                                            {benefit.icon === "truck" ? <Truck size={28} /> : benefit.icon === "flag" ? <Flag size={28} /> : benefit.icon === "gem" ? <Gem size={28} /> : <ShieldCheck size={28} />}
+                                        </div>
+                                        <div>
+                                            <strong>{benefit.title.en}</strong>
+                                            <span>{benefit.description.en}</span>
+                                        </div>
+                                    </div>
+                                    <div className="admin-benefit-fields">
+                                        <label>
+                                            <span>Icon</span>
+                                            <select value={benefit.icon} onChange={e => updateBenefit(benefit.id, { icon: e.target.value })}>
+                                                <option value="truck">🚚 Truck</option>
+                                                <option value="flag">🇺🇸 Flag</option>
+                                                <option value="gem">💎 Gem</option>
+                                                <option value="shield-check">🛡️ Shield</option>
+                                            </select>
+                                        </label>
+                                        <label>
+                                            <span>Order</span>
+                                            <input type="number" min="1" max="4" value={benefit.order} onChange={e => updateBenefit(benefit.id, { order: Number(e.target.value) || 1 })} />
+                                        </label>
+                                        <label className="full">
+                                            <span>Title (English)</span>
+                                            <input value={benefit.title.en} onChange={e => updateBenefit(benefit.id, { title: { ...benefit.title, en: e.target.value } })} />
+                                        </label>
+                                        <label className="full">
+                                            <span>Description (English)</span>
+                                            <textarea rows={2} value={benefit.description.en} onChange={e => updateBenefit(benefit.id, { description: { ...benefit.description, en: e.target.value } })} />
+                                        </label>
+                                        <div className="admin-benefit-auto">
+                                            <strong>Spanish</strong>
+                                            <span>{benefit.title.es}</span>
+                                            <small>{benefit.description.es}</small>
+                                            <em>Automatically translated when English content changes.</em>
+                                        </div>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    )}
+                </section>
 
                 <section className="admin-content-panel">
                     <div className="admin-content-panel-head">
