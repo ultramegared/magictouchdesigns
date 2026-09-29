@@ -192,7 +192,6 @@ function CheckoutPage() {
     }) });
 
     const addressReady = isCustomerReady(form);
-    const orderLabel = customRequest ? `Custom Mug Request ${customRequest.requestCode}` : "Your Order";
 
     useEffect(() => {
         if (!cartItems.length || !addressReady) { setQuote(null); setQuoteError(""); setQuoteLoading(false); return; }
