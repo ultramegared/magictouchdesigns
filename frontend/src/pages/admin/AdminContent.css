@@ -227,3 +227,37 @@ html[data-jqy-theme="corporate"] .admin-content-switch i{
     border-radius:16px!important;
   }
 }
+
+
+/* HOMEPAGE BENEFIT CARD MANAGER */
+.admin-benefits-panel{margin-bottom:24px}
+.admin-benefits-panel>.admin-content-panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.admin-benefits-grid{padding:22px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.admin-benefit-card{border:1px solid rgba(0,0,0,.09);border-radius:16px;background:#fff;padding:17px;box-shadow:0 8px 22px rgba(0,0,0,.04)}
+.admin-benefit-card.is-hidden{opacity:.62}
+.admin-benefit-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.admin-benefit-card-head strong{font-size:14px}
+.admin-benefit-toggle{display:inline-flex!important;align-items:center;gap:7px;font-size:11px!important;font-weight:800;cursor:pointer}
+.admin-benefit-toggle input{width:auto!important}
+.admin-benefit-preview{display:flex;align-items:center;gap:14px;padding:14px;border-radius:13px;background:linear-gradient(145deg,#fafafa,#f1f1ef);border:1px solid #e5e5e2;margin-bottom:15px}
+.admin-benefit-preview-icon{width:52px;height:52px;flex:0 0 52px;display:grid;place-items:center;border-radius:50%;background:#fff;border:1px solid #c89b3c;color:#245fa7;box-shadow:0 5px 14px rgba(0,0,0,.07)}
+.admin-benefit-preview>div:last-child{min-width:0}
+.admin-benefit-preview strong{display:block;font-size:14px}
+.admin-benefit-preview span{display:block;margin-top:4px;font-size:11px;line-height:1.4;color:#69727d}
+.admin-benefit-fields{display:grid;grid-template-columns:1fr 110px;gap:13px}
+.admin-benefit-fields label{display:block}
+.admin-benefit-fields label>span{display:block;font-size:11px;font-weight:800;margin-bottom:6px}
+.admin-benefit-fields input,.admin-benefit-fields textarea,.admin-benefit-fields select{width:100%;box-sizing:border-box;border:1px solid #d8d8d5;border-radius:9px;padding:10px 11px;font:inherit;background:#fff;color:#171717}
+.admin-benefit-fields textarea{resize:vertical}
+.admin-benefit-fields input:focus,.admin-benefit-fields textarea:focus,.admin-benefit-fields select:focus{outline:none;border-color:#245fa7;box-shadow:0 0 0 3px rgba(36,95,167,.08)}
+.admin-benefit-fields .full{grid-column:1/-1}
+.admin-benefit-auto{grid-column:1/-1;border:1px solid #e3e6ea;border-radius:10px;background:#f8fafc;padding:11px}
+.admin-benefit-auto strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#174a8b}
+.admin-benefit-auto span{display:block;margin-top:5px;font-size:12px;font-weight:700}
+.admin-benefit-auto small{display:block;margin-top:4px;font-size:11px;color:#687585;line-height:1.4}
+.admin-benefit-auto em{display:block;margin-top:7px;font-size:10px;color:#8a95a3;font-style:normal}
+@media(max-width:800px){
+  .admin-benefits-panel>.admin-content-panel-head{align-items:stretch;flex-direction:column}
+  .admin-benefits-panel>.admin-content-panel-head .admin-content-primary{width:100%}
+  .admin-benefits-grid{padding:14px;grid-template-columns:1fr}
+}
