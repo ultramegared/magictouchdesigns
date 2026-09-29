@@ -47,7 +47,7 @@ function AdminCollectionProducts() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [editing, setEditing] = useState<Product | null>(null);
-    const [form, setForm] = useState<ProductForm>({ name:"", slug:"", description:"", price:"", image_url:"", features:defaultFeatures(), is_active:true });
+    const [form, setForm] = useState<ProductForm>({ name:"", slug:"", description:"", price:"", image_url:"", image_urls:[], features:defaultFeatures(), is_active:true });
     const [modalOpen, setModalOpen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
