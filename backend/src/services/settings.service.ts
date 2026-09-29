@@ -7,6 +7,7 @@ export interface NavLinkConfig { id: string; label: LocalizedText; path: string;
 export interface FooterSectionConfig { id: string; title: LocalizedText; links: NavLinkConfig[]; active: boolean; order: number; }
 export interface SocialLinkConfig { id: string; name: string; url: string; active: boolean; order: number; }
 export interface SitePageConfig { id: string; title: LocalizedText; slug: string; body: LocalizedText; active: boolean; }
+export interface BenefitConfig { id: string; icon: string; title: LocalizedText; description: LocalizedText; active: boolean; order: number; }
 export interface ThemePalette {
     primary: string;
     secondary: string;
@@ -42,6 +43,7 @@ export interface SiteConfig {
     businessPhone: string;
     businessAddress: string;
     heroSlides: HeroSlideConfig[];
+    benefits: BenefitConfig[];
     headerLinks: NavLinkConfig[];
     footerSections: FooterSectionConfig[];
     socialLinks: SocialLinkConfig[];
@@ -85,6 +87,12 @@ const DEFAULT_CONFIG: SiteConfig = {
     designerBio: localized("Magic Touch Designs creator and webmaster.", "Creador y webmaster de Magic Touch Designs."),
     businessPhone: "+1 (346) 760-3007",
     businessAddress: "",
+    benefits: [
+        { id: "benefit-1", icon: "truck", title: localized("Fast Shipping", "Envío rápido"), description: localized("2–5 business days directly to your door.", "De 2 a 5 días hábiles directamente hasta tu puerta."), active: true, order: 1 },
+        { id: "benefit-2", icon: "flag", title: localized("Made in USA", "Hecho en EE. UU."), description: localized("Proudly designed and printed in the United States.", "Diseñado e impreso con orgullo en Estados Unidos."), active: true, order: 2 },
+        { id: "benefit-3", icon: "gem", title: localized("Premium Quality", "Calidad premium"), description: localized("High-quality ceramic with vibrant long-lasting prints.", "Cerámica de alta calidad con impresiones vibrantes y duraderas."), active: true, order: 3 },
+        { id: "benefit-4", icon: "shield-check", title: localized("Secure Checkout", "Pago seguro"), description: localized("100% secure payments with trusted providers.", "Pagos 100% seguros con proveedores de confianza."), active: true, order: 4 },
+    ],
     heroSlides: [
         { id: "hero-1", image: "/images/hero/hero-mug.png", background: "/images/hero/hero-background.jpg", order: 1, active: true, title: localized("YOUR STORY.\nYOUR MUG.", "TU HISTORIA.\nTU TAZA."), subtitle: localized("Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.", "Diseña una taza personalizada premium con tu nombre, logo o foto favorita. Creada para regalos inolvidables y recuerdos que duran."), primaryButton: localized("CREATE YOUR MUG", "CREA TU TAZA"), primaryLink: "/customize", secondaryButton: localized("SHOP MUGS", "COMPRAR TAZAS"), secondaryLink: "/products" },
         { id: "hero-2", image: "/images/hero/hero-cap.png", background: "/images/hero/hero-background.jpg", order: 2, active: true, title: localized("WEAR\nYOUR BRAND.", "LLEVA\nTU MARCA."), subtitle: localized("Create premium custom caps with your logo, business name or team design. Perfect for businesses, events and everyday wear.", "Crea gorras personalizadas premium con tu logo, nombre de negocio o diseño de equipo. Perfectas para negocios, eventos y uso diario."), primaryButton: localized("CREATE YOUR CAP", "CREA TU GORRA"), primaryLink: "/customize", secondaryButton: localized("SHOP CAPS", "COMPRAR GORRAS"), secondaryLink: "/products" },
@@ -155,6 +163,7 @@ const mergeConfig = (raw: unknown): SiteConfig => {
         websiteName: value.websiteName && typeof value.websiteName === "object" ? value.websiteName : DEFAULT_CONFIG.websiteName,
         browserTitle: value.browserTitle && typeof value.browserTitle === "object" ? value.browserTitle : DEFAULT_CONFIG.browserTitle,
         heroSlides: Array.isArray(value.heroSlides) && value.heroSlides.length ? value.heroSlides : DEFAULT_CONFIG.heroSlides,
+        benefits: Array.isArray(value.benefits) && value.benefits.length ? value.benefits : DEFAULT_CONFIG.benefits,
         headerLinks: Array.isArray(value.headerLinks) && value.headerLinks.length ? value.headerLinks : DEFAULT_CONFIG.headerLinks,
         footerSections: Array.isArray(value.footerSections) && value.footerSections.length ? value.footerSections : DEFAULT_CONFIG.footerSections,
         socialLinks,
@@ -194,6 +203,12 @@ const translateConfig = async (config: SiteConfig, previous: SiteConfig): Promis
         const old = previousHero.get(slide.id);
         return { ...slide, title: await translateIfChanged(slide.title, old?.title), subtitle: await translateIfChanged(slide.subtitle, old?.subtitle), primaryButton: await translateIfChanged(slide.primaryButton, old?.primaryButton), secondaryButton: await translateIfChanged(slide.secondaryButton, old?.secondaryButton) };
     }));
+    const previousBenefits = new Map(previous.benefits.map(item => [item.id, item]));
+    const benefits = await Promise.all(config.benefits.map(async item => {
+        const old = previousBenefits.get(item.id);
+        return { ...item, title: await translateIfChanged(item.title, old?.title), description: await translateIfChanged(item.description, old?.description) };
+    }));
+
     const previousHeader = new Map(previous.headerLinks.map(item => [item.id, item]));
     const headerLinks = await Promise.all(config.headerLinks.map(async item => ({ ...item, label: await translateIfChanged(item.label, previousHeader.get(item.id)?.label) })));
     const previousFooter = new Map(previous.footerSections.map(section => [section.id, section]));
@@ -216,6 +231,7 @@ const translateConfig = async (config: SiteConfig, previous: SiteConfig): Promis
         designerTitle: await translateIfChanged(config.designerTitle, previous.designerTitle),
         designerBio: await translateIfChanged(config.designerBio, previous.designerBio),
         heroSlides,
+        benefits,
         headerLinks,
         footerSections,
         pages,
