@@ -711,6 +711,10 @@ export const es = {
             textPlaceholder:
                 "Dinos exactamente qué texto quieres en tu taza...",
 
+            fontStyle: "Estilo de Letra",
+            fontSample: "Tu Nombre",
+            fontStyleHelp: "Elige el estilo de letra que prefieres. Usaremos esta preferencia al preparar tu diseño.",
+
             mugModel: "Modelo de Taza",
             classic: "Clásica",
             premium: "Premium",
@@ -727,9 +731,9 @@ export const es = {
             whiteBlueHandle: "Blanca + Asa Azul (+$2)",
             magicBlack: "Negro Magic",
             red: "Rojo",
-            printSides: "Caras de impresión",
-            oneSide: "1 Cara",
-            twoSides: "2 Caras (+$2)",
+            designViews: "Vistas del Diseño",
+            viewFront: "Vista Frontal",
+            viewFrontBack: "Vista Frontal + Vista Trasera (+$2)",
 
             quantity: "Cantidad",
 
