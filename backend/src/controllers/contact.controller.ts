@@ -182,8 +182,8 @@ export const submitCustomRequest = async (
 
         const sideLabel =
             printSides === "2"
-                ? "2 sides (+$2.00)"
-                : "1 side";
+                ? "View Front + View Back (+$2.00)"
+                : "View Front";
 
         const html = `
             <div style="font-family:Arial,sans-serif;color:#202020;max-width:760px">
