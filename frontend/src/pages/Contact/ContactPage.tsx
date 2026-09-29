@@ -56,6 +56,9 @@ function ContactPage() {
     const navigate = useNavigate();
 
     const t = translations[language].contact;
+    const fontText = language === "es"
+        ? { label: "Estilo de Letra", sample: "Tu Nombre", help: "Elige el estilo de letra que prefieres. Usaremos esta preferencia al preparar tu diseño." }
+        : { label: "Font Style", sample: "Your Name", help: "Choose the lettering style you prefer. We will use this preference when preparing your design." };
 
     const [contactRecipientEmail, setContactRecipientEmail] = useState("");
 
@@ -467,7 +470,7 @@ function ContactPage() {
 
                             <div className="contact-field contact-field--full">
                                 <label htmlFor="font-style">
-                                    {t.customRequest.fontStyle}
+                                    {fontText.label}
                                 </label>
 
                                 <div className="contact-font-grid" role="radiogroup" aria-label={t.customRequest.fontStyle}>
@@ -484,7 +487,7 @@ function ContactPage() {
                                                 onChange={() => setFontStyle(font.id)}
                                             />
                                             <span className={"contact-font-option__preview contact-font-option__preview--" + font.className}>
-                                                {t.customRequest.fontSample}
+                                                {fontText.sample}
                                             </span>
                                             <span className="contact-font-option__name">{font.label}</span>
                                             <small>{font.name}</small>
@@ -499,7 +502,7 @@ function ContactPage() {
                                     value={FONT_OPTIONS.find((font) => font.id === fontStyle)?.name || "Montserrat"}
                                 />
                                 <small className="contact-font-help">
-                                    {t.customRequest.fontStyleHelp}
+                                    {fontText.help}
                                 </small>
                             </div>
 
@@ -616,7 +619,7 @@ function ContactPage() {
 
                             <div className="contact-field">
                                 <label htmlFor="print-sides">
-                                    {t.customRequest.designViews}
+                                    {t.customRequest.printSides}
                                 </label>
                                 <select
                                     id="print-sides"
@@ -624,8 +627,8 @@ function ContactPage() {
                                     value={printSides}
                                     onChange={(event) => setPrintSides(event.target.value)}
                                 >
-                                    <option value="1">{t.customRequest.viewFront}</option>
-                                    <option value="2">{t.customRequest.viewFrontBack}</option>
+                                    <option value="1">{t.customRequest.oneSide}</option>
+                                    <option value="2">{t.customRequest.twoSides}</option>
                                 </select>
                             </div>
 
