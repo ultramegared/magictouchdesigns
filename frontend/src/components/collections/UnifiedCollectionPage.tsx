@@ -16,6 +16,7 @@ type CollectionProduct = {
     description?: string | null;
     price: number | string;
     image_url?: string | null;
+    image_urls?: string[];
     is_active: boolean;
     features?: unknown[] | Record<string, unknown>;
     created_at?: string;
@@ -103,6 +104,7 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
     const config = COLLECTIONS[slug] || COLLECTIONS["love-romance"];
     const [products, setProducts] = useState<CollectionProduct[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<CollectionProduct | null>(null);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [selectedOptions, setSelectedOptions] = useState<Record<string, Record<string, string>>>({});
     const [quantities, setQuantities] = useState<Record<string, number>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -281,7 +283,7 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
                                 <div className="unified-product__image" aria-label={language === "es" ? `Imagen de ${product.name}` : `Image of ${product.name}`}>
                                     <img src={product.image_url || "/images/products/placeholder.jpg"} alt={product.name} />
                                     <span className="unified-product__number">{String(productNumber).padStart(2, "0")}</span>
-                                    <button type="button" className="unified-product__zoom" onClick={() => setSelectedProduct(product)} aria-label={language === "es" ? `Ver ${product.name} en grande` : `View ${product.name} enlarged`}>⌕</button>
+                                    <button type="button" className="unified-product__zoom" onClick={() => { setSelectedProduct(product); setSelectedImageIndex(0); }} aria-label={language === "es" ? `Ver ${product.name} en grande` : `View ${product.name} enlarged`}>⌕</button>
                                     <div className="unified-product__gradient" />
                                 </div>
                                 <div className="unified-product__body">
@@ -315,8 +317,20 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
                 <div className="unified-lightbox__panel" onClick={(event) => event.stopPropagation()}>
                     <button type="button" className="unified-lightbox__close" onClick={() => setSelectedProduct(null)} aria-label={language === "es" ? "Cerrar" : "Close"}><X size={24} /></button>
                     <div className="unified-lightbox__image-wrap">
-                        <img src={selectedProduct.image_url || "/images/products/placeholder.jpg"} alt={selectedProduct.name} />
-                        <div className="unified-lightbox__gradient" />
+                        {(() => {
+                            const images = (selectedProduct.image_urls?.length ? selectedProduct.image_urls : (selectedProduct.image_url ? [selectedProduct.image_url] : [])).slice(0, 3);
+                            const safeIndex = Math.min(selectedImageIndex, Math.max(images.length - 1, 0));
+                            const currentImage = images[safeIndex] || "/images/products/placeholder.jpg";
+                            return <>
+                                <img src={currentImage} alt={selectedProduct.name + " " + (safeIndex + 1)} />
+                                <div className="unified-lightbox__gradient" />
+                                {images.length > 1 && <>
+                                    <button type="button" className="unified-lightbox__nav unified-lightbox__nav--prev" onClick={() => setSelectedImageIndex((index) => (index - 1 + images.length) % images.length)} aria-label={language === "es" ? "Imagen anterior" : "Previous image"}>‹</button>
+                                    <button type="button" className="unified-lightbox__nav unified-lightbox__nav--next" onClick={() => setSelectedImageIndex((index) => (index + 1) % images.length)} aria-label={language === "es" ? "Siguiente imagen" : "Next image"}>›</button>
+                                    <div className="unified-lightbox__counter">{safeIndex + 1}/{images.length}</div>
+                                </>}
+                            </>;
+                        })()}
                     </div>
                     <div className="unified-lightbox__details">
                         <h2>{selectedProduct.name}</h2>
