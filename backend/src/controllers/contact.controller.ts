@@ -514,7 +514,6 @@ export const submitSupportRequest = async (
             `Message: ${message}`,
         ].join("\n");
 
-        const settings = await getSettings();
         const recipient = COMPANY_CONTACT_EMAIL;
 
         await sendEmail({
@@ -523,7 +522,7 @@ export const submitSupportRequest = async (
             subject: `JQYDesigns — Customer Support${orderNumber ? ` — Order ${orderNumber}` : ""}`,
             html,
             text,
-            idempotencyKey: `support-request:${email}:${orderNumber || "none"}:${message.slice(0, 80)}`,
+            idempotencyKey: `support-request:${Buffer.from(`${name}|${email}|${orderNumber}|${message}`).toString("base64url").slice(0, 180)}`,
         });
 
         res.status(200).json({
