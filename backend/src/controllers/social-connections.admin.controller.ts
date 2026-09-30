@@ -3,6 +3,7 @@ import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProv
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { launchMarketingCampaign, listMarketingCampaigns, getMarketingLearning, runMarketingAutopilot } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
+import { getMarketingDailySummary, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
     try { res.json(await getConnections(String(req.user!.userId))); }
@@ -64,6 +65,7 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
             channels: Array.isArray(req.body?.channels) ? req.body.channels as SocialChannel[] : undefined,
             sendEmail: Boolean(req.body?.sendEmail),
             idempotencyKey: typeof req.body?.idempotencyKey === "string" ? req.body.idempotencyKey : undefined,
+            autopilot: Boolean(req.body?.autopilot),
         });
         res.json({ status: "success", data: result });
     } catch (error) {
@@ -156,5 +158,28 @@ export async function marketingAutopilotRun(req: Request, res: Response) {
     } catch (error) {
         console.error("Marketing autopilot run failed:", error);
         res.status(503).json({ error: error instanceof Error ? error.message : "Marketing autopilot failed." });
+    }
+}
+
+
+export async function marketingDailySummary(req: AuthenticatedRequest, res: Response) {
+    try {
+        res.json({ status: "success", summary: await getMarketingDailySummary() });
+    } catch (error) {
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load daily Marketing summary." });
+    }
+}
+
+export async function marketingDailySummaryCron(req: Request, res: Response) {
+    const expected = process.env.CRON_SECRET?.trim();
+    const authorization = String(req.headers.authorization || "");
+    if (!expected || authorization !== `Bearer ${expected}`) {
+        return res.status(401).json({ error: "Unauthorized cron request." });
+    }
+    try {
+        res.json(await sendMarketingDailySummary());
+    } catch (error) {
+        console.error("Marketing daily summary failed:", error);
+        res.status(503).json({ error: error instanceof Error ? error.message : "Marketing daily summary failed." });
     }
 }
