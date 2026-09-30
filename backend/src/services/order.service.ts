@@ -8,7 +8,6 @@
 import crypto from "crypto";
 import { pool } from "../config/database";
 import { getProductById } from "./product.service";
-import { sendEmail } from "./email.service";
 import { sendTemplateEmail } from "./email-template.service";
 import { getShippingQuote } from "./shipping.service";
 import { getSettings } from "./settings.service";
