@@ -26,6 +26,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
 import { apiRequest } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import { addToCart } from "../../utils/cart";
 
 const BASE_PRICES: Record<string, Record<string, number>> = { Classic: { "11 oz": 13, "15 oz": 15 }, Premium: { "11 oz": 17, "15 oz": 17 } };
 const COLORED_HANDLE_SURCHARGE = 2;
@@ -183,7 +184,7 @@ function ContactPage() {
             formData.set("fontStyle", fontStyle);
             formData.set("fontName", FONT_OPTIONS.find((font) => font.id === fontStyle)?.name || "Montserrat");
 
-            const response = await apiRequest<{ checkoutRequestId: string }>(
+            const response = await apiRequest<{ checkoutRequestId: string; requestCode?: string; unitPrice?: number }>(
                 "/api/contact/custom-request",
                 {
                     method: "POST",
@@ -194,6 +195,28 @@ function ContactPage() {
             if (!response.checkoutRequestId) {
                 throw new Error("The custom request was created without a payment reference.");
             }
+
+            const requestOptions: Record<string, string> = {
+                "Design Views": printSides === "2" ? "Front + Back" : "Front",
+                "Font": selectedFont.name,
+                "Text": formData.get("text") ? String(formData.get("text")).trim() : "",
+                "Details": formData.get("notes") ? String(formData.get("notes")).trim() : "",
+                "Request": response.requestCode || response.checkoutRequestId,
+            };
+            addToCart(
+                {
+                    id: `custom-request:${response.checkoutRequestId}`,
+                    name: `Custom Mug — ${mugModel} ${mugSize}`,
+                    model: mugModel,
+                    size: mugSize,
+                    color: mugColor,
+                    options: requestOptions,
+                    price: Number(response.unitPrice ?? unitPrice),
+                    image: imagePreviewUrl,
+                    customRequestId: response.checkoutRequestId,
+                },
+                quantity,
+            );
 
             setCustomStatus("success");
             form.reset();
@@ -209,7 +232,7 @@ function ContactPage() {
             setPrintSides("1");
             setFontStyle("modern");
 
-            navigate(`/checkout?custom_request=${encodeURIComponent(response.checkoutRequestId)}`);
+            navigate("/cart");
         } catch (error) {
             console.error(
                 "Custom request submission error:",
