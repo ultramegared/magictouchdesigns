@@ -174,12 +174,12 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
     const campaignId = randomUUID();
     const trackedLink = withCampaignTracking(input.link?.trim() || undefined, campaignId, "jqydesigns");
     const socialInput: MarketingCampaignInput = { ...input, link: trackedLink };
-    const social = selected.length
+    const social = selected.length && !input.autopilot
         ? await publishSocialCampaign(userId, selected, socialInput)
         : {};
 
     let email: PromotionResult | undefined;
-    if (input.sendEmail) {
+    if (input.sendEmail && !input.autopilot) {
         email = await sendPromotion({
             subject: input.subject?.trim() || name,
             message,
@@ -193,7 +193,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
         focus: seoFocus(targetArea),
     };
 
-    await recordCampaignLaunchLearning({
+    if (!input.autopilot) await recordCampaignLaunchLearning({
         campaignId,
         channels: [...selected, ...(input.sendEmail ? ["email" as const] : [])],
         objective,
@@ -207,7 +207,17 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
     await pool.query(
         `INSERT INTO marketing_campaigns (id, name, objective, target_area, message, subject, channels, results, idempotency_key, owner_user_id, autopilot_enabled, next_run_at)
          VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,$11,$12)`,
-        [campaignId, name, objective, targetArea, message, input.subject?.trim() || name, JSON.stringify(selected), JSON.stringify({ social, email, google }), idempotencyKey, userId, Boolean(input.autopilot), input.autopilot ? new Date() : null]
+        [campaignId, name, objective, targetArea, message, input.subject?.trim() || name, JSON.stringify(selected), JSON.stringify({
+            social,
+            email,
+            google,
+            assets: {
+                imageUrl: input.imageUrl?.trim() || undefined,
+                videoUrl: input.videoUrl?.trim() || undefined,
+                landingLink: input.link?.trim() || undefined,
+            },
+            autopilot: input.autopilot ? { enabled: true, queued: true } : undefined,
+        }), idempotencyKey, userId, Boolean(input.autopilot), input.autopilot ? new Date(Date.now() + 60 * 60 * 1000) : null]
     );
 
     return { campaignId, name, targetArea, objective, connectedChannels: connected, social, email, google };
