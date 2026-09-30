@@ -189,39 +189,6 @@ export const buildOrderSnapshot = async (
             variant,
         });
     }
-            const quantity = Math.floor(Number(input.quantity));
-            if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item.");
-            const product = await getProductById(input.productId);
-            if (!product || !product.is_active) throw new Error("One of the products is no longer available.");
-            const variant: Record<string, string> = {
-                ...(input.model ? { model: input.model } : {}),
-                ...(input.size ? { size: input.size } : {}),
-                ...(input.color ? { color: input.color } : {}),
-            };
-            if (input.customizationId) {
-                const customization = input.customization;
-                if (!customization || customization.productId !== String(product.product_id) || !isSafeImageDataUrl(customization.designDataUrl)) {
-                    throw new Error("The custom mug artwork is missing or invalid. Please return to Customize and upload it again.");
-                }
-                variant.customizationId = input.customizationId;
-                variant.designDataUrl = customization.designDataUrl;
-                if (customization.designFileName) variant.designFileName = customization.designFileName.slice(0, 180);
-                if (customization.designScale !== undefined) variant.designScale = String(customization.designScale);
-                if (customization.designX !== undefined) variant.designX = String(customization.designX);
-                if (customization.designY !== undefined) variant.designY = String(customization.designY);
-                if (customization.designRotation !== undefined) variant.designRotation = String(customization.designRotation);
-                if (customization.mugRotation !== undefined) variant.mugRotation = String(customization.mugRotation);
-            }
-            normalizedItems.push({
-                product_id: String(product.product_id),
-                name: String(product.name),
-                image_url: product.image_url || null,
-                unit_price: Number(product.price),
-                quantity,
-                variant,
-            });
-        }
-    }
 
     const subtotal = normalizedItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
     const shippingQuote = options.skipShipping
