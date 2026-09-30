@@ -887,10 +887,8 @@ function ContactPage() {
 
                             {
                                 customStatus === "sending"
-                                    ? t.customRequest
-                                        .preparingRequest
-                                    : t.customRequest
-                                        .sendRequest
+                                    ? (language === "es" ? "Preparando..." : "Adding to Cart...")
+                                    : (language === "es" ? "AGREGAR AL CARRITO" : "ADD TO CART")
                             }
 
                             <span>
