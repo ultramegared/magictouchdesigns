@@ -99,7 +99,16 @@ function AdminEmailTemplates() {
                         {current&&draft&&<article className="admin-settings__section is-open">
                             <header className="admin-settings__section-head"><div><small>{current.category}</small><h2>{current.name}</h2><p>{current.description} · Published version {current.version}</p></div><label style={{display:"flex",gap:8,alignItems:"center"}}><input type="checkbox" checked={enabled} onChange={e=>setEnabled(e.target.checked)}/> Enabled</label></header>
                             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
-                                {fields.map(([field,label,multi]) => (\n    <label key={field} style={{display:"block",gridColumn: multi ? "1 / -1" : "auto"}}>\n        {label}\n        {multi ? (\n            <textarea rows={field === "body" ? 9 : 4} value={draft[field]} onChange={e => update(field,e.target.value)} />\n        ) : (\n            <input value={draft[field]} onChange={e => update(field,e.target.value)} />\n        )}\n    </label>\n))}
+                                {fields.map(([field,label,multi]) => (
+    <label key={field} style={{display:"block",gridColumn: multi ? "1 / -1" : "auto"}}>
+        {label}
+        {multi ? (
+            <textarea rows={field === "body" ? 9 : 4} value={draft[field]} onChange={e => update(field,e.target.value)} />
+        ) : (
+            <input value={draft[field]} onChange={e => update(field,e.target.value)} />
+        )}
+    </label>
+))}
                             </div>
                             <div style={{marginTop:16,padding:14,border:"1px solid rgba(127,127,127,.18)",borderRadius:12}}>
                                 <strong>Variables</strong>
