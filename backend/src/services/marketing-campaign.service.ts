@@ -297,7 +297,6 @@ export const runMarketingAutopilot = async () => {
     }
 
     const assets = campaign.results?.assets || {};
-    const trackedLink = withCampaignTracking(assets.landingLink || undefined, campaign.id, channel);
 
     const recent = await pool.query(
         `SELECT channel FROM marketing_learning_observations WHERE campaign_id=$1 AND updated_at >= NOW() - INTERVAL '24 hours'`,
@@ -313,6 +312,7 @@ export const runMarketingAutopilot = async () => {
         return (score.get(b) || 0) - (score.get(a) || 0);
     });
     const channel = ranked[0];
+    const trackedLink = withCampaignTracking(assets.landingLink || undefined, campaign.id, channel);
     const input: MarketingCampaignInput = {
         name: campaign.name,
         objective: campaign.objective,
