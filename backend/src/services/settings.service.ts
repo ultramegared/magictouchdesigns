@@ -32,6 +32,21 @@ export interface SiteThemeConfig {
     effects: { enabled: boolean; depth: number; glow: number; };
     locked: boolean;
 }
+export interface EmailTemplateConfig {
+    customMug: {
+        subject: string;
+        eyebrow: string;
+        title: string;
+        intro: string;
+        shippingText: string;
+        paymentButton: string;
+        pendingText: string;
+        footerText: string;
+        primaryColor: string;
+        logoUrl: string;
+    };
+}
+
 export interface SiteConfig {
     theme: SiteThemeConfig;
     websiteName: LocalizedText;
@@ -133,6 +148,20 @@ const DEFAULT_CONFIG: SiteConfig = {
         {id:"social-youtube",name:"YouTube",url:"https://youtube.com/@magictouchdesigns-u7t",active:true,order:4},
     ],
     pages: [],
+    emailTemplates: {
+        customMug: {
+            subject: "Your custom mug request {{requestCode}}",
+            eyebrow: "CUSTOM DESIGN REQUEST",
+            title: "Your custom mug request has been received.",
+            intro: "Hi {{customerName}}, we received your design request and reserved your custom order details.",
+            shippingText: "USPS shipping and applicable sales tax will be calculated after you enter your delivery address at checkout.",
+            paymentButton: "Continue to Secure Checkout",
+            pendingText: "Your order has not been charged yet. Your purchase will only be confirmed after payment is successfully completed.",
+            footerText: "Need help? Contact us at {{supportEmail}}",
+            primaryColor: "#1F67B1",
+            logoUrl: "",
+        },
+    },
 };
 
 let initialized = false;
@@ -171,6 +200,16 @@ const mergeConfig = (raw: unknown): SiteConfig => {
         footerSections: Array.isArray(value.footerSections) && value.footerSections.length ? value.footerSections : DEFAULT_CONFIG.footerSections,
         socialLinks,
         pages: Array.isArray(value.pages) ? value.pages : DEFAULT_CONFIG.pages,
+        emailTemplates: value.emailTemplates && typeof value.emailTemplates === "object"
+            ? {
+                ...DEFAULT_CONFIG.emailTemplates,
+                ...(value.emailTemplates as Partial<EmailTemplateConfig>),
+                customMug: {
+                    ...DEFAULT_CONFIG.emailTemplates.customMug,
+                    ...(value.emailTemplates as Partial<EmailTemplateConfig>).customMug,
+                },
+            }
+            : DEFAULT_CONFIG.emailTemplates,
     } as SiteConfig;
 };
 
