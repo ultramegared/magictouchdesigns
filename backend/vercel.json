@@ -11,5 +11,11 @@
       "src": "/(.*)",
       "dest": "api/index.ts"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/marketing-learning",
+      "schedule": "0 * * * *"
+    }
   ]
 }
