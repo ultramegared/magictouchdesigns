@@ -63,6 +63,7 @@ function ContactPage() {
     const [contactRecipientEmail, setContactRecipientEmail] = useState("");
 
     const [imageName, setImageName] = useState("");
+    const [imagePreviewUrl, setImagePreviewUrl] = useState("");
 
     const [mugModel, setMugModel] = useState("Classic");
     const [mugSize, setMugSize] = useState("15 oz");
@@ -118,6 +119,10 @@ function ContactPage() {
 
         setImageError("");
         setImageName("");
+        setImagePreviewUrl((current) => {
+            if (current) URL.revokeObjectURL(current);
+            return "";
+        });
 
         if (!file) {
             return;
@@ -146,6 +151,7 @@ function ContactPage() {
         }
 
         setImageName(file.name);
+        setImagePreviewUrl(URL.createObjectURL(file));
     };
 
 
@@ -415,6 +421,19 @@ function ContactPage() {
                                     </small>
 
                                 </label>
+
+                                {imagePreviewUrl && (
+                                    <div className="contact-image-preview" aria-label={language === "es" ? "Vista previa de la imagen" : "Image preview"}>
+                                        <img
+                                            src={imagePreviewUrl}
+                                            alt={imageName || (language === "es" ? "Vista previa" : "Preview")}
+                                        />
+                                        <div className="contact-image-preview__meta">
+                                            <strong>{language === "es" ? "Vista previa" : "Preview"}</strong>
+                                            <span>{imageName}</span>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <input
                                     id="custom-image"
