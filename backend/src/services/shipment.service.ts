@@ -1,5 +1,5 @@
 import { pool } from "../config/database";
-import { sendEmail } from "./email.service";
+import { sendTemplateEmail } from "./email-template.service";
 
 const escapeHtml = (value: unknown): string =>
     String(value ?? "").replace(/[&<>\"']/g, character => ({
@@ -23,46 +23,19 @@ const trackingUrl = (carrier: string | null, trackingNumber: string): string | n
 
 export const sendShipmentUpdate = async (orderId: string): Promise<void> => {
     const result = await pool.query(
-        `SELECT id, order_code, customer_first_name, customer_email, carrier, tracking_number, status
-         FROM orders WHERE id = $1 LIMIT 1`,
+        "SELECT id, order_code, customer_first_name, customer_email, carrier, tracking_number, status FROM orders WHERE id = $1 LIMIT 1",
         [orderId],
     );
     const order = result.rows[0];
     if (!order || !order.customer_email || !order.tracking_number) return;
-
     const carrier = String(order.carrier || "").trim();
     const trackingNumber = String(order.tracking_number || "").trim();
-    const url = trackingUrl(carrier, trackingNumber);
-    const customerName = escapeHtml(order.customer_first_name || "Customer");
-    const safeCarrier = escapeHtml(carrier || "carrier");
-    const safeTracking = escapeHtml(trackingNumber);
-    const carrierTrackButton = url
-        ? `<p style="margin:24px 0"><a href="${url}" style="display:inline-block;padding:12px 18px;background:#111;color:#fff;text-decoration:none;border-radius:8px">Track shipment with ${safeCarrier}</a></p>`
-        : "";
-    const siteTrackUrl = `https://www.jqydesigns.com/track-order?order=${encodeURIComponent(String(order.order_code))}`;
-    const siteTrackButton = `<p style="margin:14px 0"><a href="${siteTrackUrl}" style="display:inline-block;padding:12px 18px;background:#d4a33d;color:#111;text-decoration:none;border-radius:8px;font-weight:700">Track your order on JQYDesigns</a></p>`;
-
-    const html = `<div style="font-family:Arial,sans-serif;color:#202020;max-width:680px;margin:auto">
-        <h1>Your order has shipped</h1>
-        <p>Hi ${customerName}, your Magic Touch Designs order <strong>${escapeHtml(order.order_code)}</strong> is on its way.</p>
-        <p><strong>Carrier:</strong> ${safeCarrier}<br><strong>Tracking number:</strong> ${safeTracking}</p>
-        ${carrierTrackButton}
-        ${siteTrackButton}
-        <p style="color:#666">You can also use your order number <strong>${escapeHtml(order.order_code)}</strong> and the email used at checkout on our Track Order page. Carrier tracking updates may take some time to appear.</p>
-    </div>`;
-    const text = [
-        `Your order ${order.order_code} has shipped.`,
-        `Carrier: ${carrier || "carrier"}`,
-        `Tracking number: ${trackingNumber}`,
-        url ? `Track shipment with ${carrier}: ${url}` : "",
-        `Track your order: ${siteTrackUrl}`,
-    ].filter(Boolean).join("\n");
-
-    await sendEmail({
-        to: order.customer_email,
-        subject: `Your order has shipped ${order.order_code}`,
-        html,
-        text,
-        idempotencyKey: `shipment-update/${order.id}/${carrier.toLowerCase()}/${trackingNumber}`,
-    });
+    const url = trackingUrl(carrier, trackingNumber) || "";
+    const siteTrackUrl = "https://www.jqydesigns.com/track-order?order=" + encodeURIComponent(String(order.order_code));
+    const key = "shipment-update/" + order.id + "/" + carrier.toLowerCase() + "/" + trackingNumber;
+    await sendTemplateEmail("shipment_shipped", order.customer_email, {
+        siteName:"JQYDesigns", customerName:order.customer_first_name || "Customer", orderCode:order.order_code,
+        carrier:carrier || "carrier", trackingNumber, trackingUrl:url || siteTrackUrl, orderUrl:siteTrackUrl,
+        supportEmail:"jqydesigns@gmail.com"
+    }, key);
 };
