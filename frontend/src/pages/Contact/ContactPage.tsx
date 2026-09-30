@@ -50,10 +50,12 @@ const ALLOWED_IMAGE_TYPES = [
 ];
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-const MAX_UPLOAD_SIZE = 1.5 * 1024 * 1024;
-const MAX_UPLOAD_DIMENSION = 1800;
+const MAX_UPLOAD_SIZE = 2.4 * 1024 * 1024;
+const MAX_UPLOAD_DIMENSION = 2200;
 
 async function compressArtworkForUpload(file: File): Promise<File> {
+    // Keep normal-sized artwork untouched. Larger images are automatically
+    // optimized for mobile upload so the customer is never asked to resize it.
     if (file.size <= MAX_UPLOAD_SIZE) return file;
 
     const objectUrl = URL.createObjectURL(file);
@@ -66,36 +68,45 @@ async function compressArtworkForUpload(file: File): Promise<File> {
             element.src = objectUrl;
         });
 
-        const scale = Math.min(1, MAX_UPLOAD_DIMENSION / Math.max(image.naturalWidth, image.naturalHeight));
-        const width = Math.max(1, Math.round(image.naturalWidth * scale));
-        const height = Math.max(1, Math.round(image.naturalHeight * scale));
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-
-        const context = canvas.getContext("2d");
-        if (!context) throw new Error("Unable to prepare the artwork for upload.");
-        context.drawImage(image, 0, 0, width, height);
-
+        let scale = Math.min(
+            1,
+            MAX_UPLOAD_DIMENSION / Math.max(image.naturalWidth, image.naturalHeight)
+        );
         let quality = 0.88;
-        let blob: Blob | null = null;
-        for (let attempt = 0; attempt < 6; attempt += 1) {
-            blob = await new Promise<Blob | null>((resolve) =>
+
+        for (let attempt = 0; attempt < 8; attempt += 1) {
+            const width = Math.max(1, Math.round(image.naturalWidth * scale));
+            const height = Math.max(1, Math.round(image.naturalHeight * scale));
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+
+            const context = canvas.getContext("2d");
+            if (!context) {
+                throw new Error("Unable to prepare the artwork for upload.");
+            }
+
+            context.drawImage(image, 0, 0, width, height);
+
+            const blob = await new Promise<Blob | null>((resolve) =>
                 canvas.toBlob(resolve, "image/webp", quality)
             );
-            if (blob && blob.size <= MAX_UPLOAD_SIZE) break;
-            quality -= 0.10;
+
+            if (blob && blob.size <= MAX_UPLOAD_SIZE) {
+                const baseName = file.name.replace(/\.[^.]+$/, "") || "custom-design";
+                return new File([blob], `${baseName}.webp`, {
+                    type: "image/webp",
+                    lastModified: Date.now(),
+                });
+            }
+
+            // Automatically make it smaller again; the customer does not
+            // need to resize or re-upload anything.
+            quality = Math.max(0.42, quality - 0.08);
+            scale *= 0.82;
         }
 
-        if (!blob || blob.size > MAX_UPLOAD_SIZE) {
-            throw new Error("The image is too large to upload. Please choose a smaller image.");
-        }
-
-        const baseName = file.name.replace(/\.[^.]+$/, "") || "custom-design";
-        return new File([blob], `${baseName}.webp`, {
-            type: "image/webp",
-            lastModified: Date.now(),
-        });
+        throw new Error("We couldn't prepare this image automatically. Please try another image.");
     } finally {
         URL.revokeObjectURL(objectUrl);
     }
