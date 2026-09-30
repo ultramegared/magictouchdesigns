@@ -71,6 +71,16 @@ export async function getMarketingDailySummary() {
            COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
     FROM marketing_campaigns
   `);
+  const campaignTotal = Number(campaigns.rows[0]?.total || 0);
+  if (campaignTotal < 1) {
+    return {
+      generatedAt: new Date().toISOString(),
+      campaigns: { total: 0, last24: 0 },
+      last24: { publications: 0, successful: 0, sessions: 0, conversions: 0, revenue: 0 },
+      channels: [],
+      learning: { observations: 0, conversions: 0, revenue: 0, level: 1, levelName: "Semilla", nextTarget: "Crear la primera campaña real." },
+    };
+  }
   const runs = await pool.query(`
     SELECT channel,
            COUNT(*)::int AS publications,
