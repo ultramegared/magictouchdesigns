@@ -40,54 +40,6 @@ const ensurePasswordResetTable = async (): Promise<void> => {
 const hashResetToken = (token: string): string =>
     crypto.createHash("sha256").update(token).digest("hex");
 
-**
- * ================================================================
- * Project: Magic Touch Designs
- * Author: ultramegared
- * File: auth.controller.ts
- * Module: Authentication Controller
- * Language: TypeScript
- * Description:
- * User registration, authentication, and password recovery controller.
- * ================================================================
- */
-
-import type { Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import crypto from "node:crypto";
-import { pool } from "../config/database";
-import { sendEmail } from "../services/email.service";
-import { sendTemplateEmail } from "../services/email-template.service";
-
-const PASSWORD_RESET_EXPIRY_MINUTES = 30;
-const FRONTEND_URL = (process.env.FRONTEND_URL || "https://jqydesigns.com").replace(/\/$/, "");
-
-const ensurePasswordResetTable = async (): Promise<void> => {
-    await pool.query(`
-        CREATE TABLE IF NOT EXISTS password_reset_tokens (
-            token_hash TEXT PRIMARY KEY,
-            user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            expires_at TIMESTAMPTZ NOT NULL,
-            used_at TIMESTAMPTZ NULL,
-            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        )
-    `);
-    await pool.query(`
-        CREATE INDEX IF NOT EXISTS password_reset_tokens_user_idx
-        ON password_reset_tokens(user_id)
-    `);
-};
-
-const hashResetToken = (token: string): string =>
-    crypto.createHash("sha256").update(token).digest("hex");
-
-const passwordResetEmail = (firstName: string, resetUrl: string) => ({
-    subject: "Reset your Magic Touch Designs password",
-    text: `Hi ${firstName || "there"},\n\nWe received a request to reset your Magic Touch Designs password. Use this link within ${PASSWORD_RESET_EXPIRY_MINUTES} minutes:\n\n${resetUrl}\n\nIf you did not request this, you can safely ignore this email.`,
-    html: `<!doctype html><html><body style="margin:0;background:#f7f6f2;font-family:Arial,sans-serif;color:#151515"><div style="max-width:560px;margin:40px auto;padding:32px;background:#fff;border:1px solid #e4e1da;border-radius:18px"><div style="font-size:12px;letter-spacing:.18em;font-weight:800;color:#9a7a12">MAGIC TOUCH DESIGNS</div><h1 style="font-size:28px;margin:18px 0 10px">Reset your password</h1><p style="color:#666;line-height:1.6">Hi ${firstName || "there"}, we received a request to reset your password.</p><p style="color:#666;line-height:1.6">This secure link expires in ${PASSWORD_RESET_EXPIRY_MINUTES} minutes.</p><p style="margin:28px 0"><a href="${resetUrl}" style="display:inline-block;padding:13px 20px;background:#151515;color:#fff;text-decoration:none;border-radius:10px;font-weight:700">Reset password</a></p><p style="font-size:12px;color:#888;line-height:1.5">If you did not request a password reset, you can safely ignore this email.</p></div></body></html>`,
-});
-
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
         const { username, firstName, lastName, email, password } = req.body;
@@ -107,7 +59,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         }
         const passwordHash = await bcrypt.hash(password, 12);
         const result = await pool.query(`INSERT INTO users (username, first_name, last_name, email, password_hash) VALUES ($1, $2, $3, $4, $5) RETURNING id, username, first_name, last_name, email, is_active, created_at, updated_at`, [normalizedUsername, normalizedFirstName, normalizedLastName, normalizedEmail, passwordHash]);
-        try {\n            await sendTemplateEmail("welcome", normalizedEmail, {\n                siteName: "JQYDesigns", customerName: normalizedFirstName, supportEmail: "jqydesigns@gmail.com",\n                accountUrl: FRONTEND_URL + "/account",\n            }, "welcome:" + String(result.rows[0].id));\n        } catch (emailError) {\n            console.error("Welcome email error:", emailError);\n        }\n        res.status(201).json({ status: "ok", message: "User registered successfully.", user: result.rows[0] });
+        try {
+            await sendTemplateEmail("welcome", normalizedEmail, {
+                siteName: "JQYDesigns",
+                customerName: normalizedFirstName,
+                supportEmail: "jqydesigns@gmail.com",
+                accountUrl: FRONTEND_URL + "/account",
+            }, "welcome:" + String(result.rows[0].id));
+        } catch (emailError) {
+            console.error("Welcome email error:", emailError);
+        }
+        res.status(201).json({ status: "ok", message: "User registered successfully.", user: result.rows[0] });
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).json({ status: "error", message: "Unable to register user." });
@@ -165,9 +127,15 @@ export const requestPasswordReset = async (req: Request, res: Response): Promise
         const tokenHash = hashResetToken(rawToken);
         await pool.query(`INSERT INTO password_reset_tokens (token_hash, user_id, expires_at) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 minute'))`, [tokenHash, user.id, PASSWORD_RESET_EXPIRY_MINUTES]);
         const resetUrl = `${FRONTEND_URL}/reset-password?token=${encodeURIComponent(rawToken)}`;
-        const email = passwordResetEmail(user.first_name, resetUrl);
         try {
-            await sendEmail({ to: user.email, subject: email.subject, text: email.text, html: email.html, idempotencyKey: `password-reset:${tokenHash}` });
+            await sendTemplateEmail("password_reset", user.email, {
+                siteName: "JQYDesigns",
+                customerName: user.first_name || "there",
+                supportEmail: "jqydesigns@gmail.com",
+                resetUrl,
+                expiryMinutes: PASSWORD_RESET_EXPIRY_MINUTES,
+                accountUrl: FRONTEND_URL + "/account",
+            }, "password-reset:" + tokenHash);
         } catch (emailError) {
             await pool.query(`DELETE FROM password_reset_tokens WHERE token_hash = $1`, [tokenHash]);
             console.error("Password reset email error:", emailError);
@@ -211,7 +179,20 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
         } finally {
             client.release();
         }
-        try {\n            const userResult = await pool.query(`SELECT first_name, email FROM users WHERE id = $1 LIMIT 1`, [tokenResult.rows[0].user_id]);\n            if (userResult.rows[0]) {\n                await sendTemplateEmail("password_changed", userResult.rows[0].email, { siteName:"JQYDesigns", customerName:userResult.rows[0].first_name || "there", supportEmail:"jqydesigns@gmail.com", accountUrl:FRONTEND_URL + "/account" }, "password-changed:" + tokenHash);\n            }\n        } catch (emailError) { console.error("Password changed email error:", emailError); }\n        res.status(200).json({ status: "ok", message: "Password reset successfully." });
+        try {
+            const userResult = await pool.query("SELECT first_name, email FROM users WHERE id = $1 LIMIT 1", [tokenResult.rows[0].user_id]);
+            if (userResult.rows[0]) {
+                await sendTemplateEmail("password_changed", userResult.rows[0].email, {
+                    siteName:"JQYDesigns",
+                    customerName:userResult.rows[0].first_name || "there",
+                    supportEmail:"jqydesigns@gmail.com",
+                    accountUrl:FRONTEND_URL + "/account"
+                }, "password-changed:" + tokenHash);
+            }
+        } catch (emailError) {
+            console.error("Password changed email error:", emailError);
+        }
+        res.status(200).json({ status: "ok", message: "Password reset successfully." });
     } catch (error) {
         console.error("Password reset error:", error);
         res.status(500).json({ status: "error", message: "Unable to reset the password right now." });
