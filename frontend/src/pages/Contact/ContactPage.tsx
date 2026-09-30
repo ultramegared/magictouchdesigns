@@ -929,8 +929,8 @@ function ContactPage() {
                                 }}
                             >
                                 {
-                                    t.customRequest
-                                        .errorMessage
+                                    customErrorMessage ||
+                                    t.customRequest.errorMessage
                                 }
                             </div>
 
