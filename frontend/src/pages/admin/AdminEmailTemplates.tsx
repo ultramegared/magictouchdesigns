@@ -94,7 +94,8 @@ function AdminEmailTemplates() {
         ["subject","Subject",false],["preheader","Preheader",false],["eyebrow","Eyebrow",false],["title","Title",false],
         ["body","Body",true],["buttonText","Button Text",false],["buttonUrl","Button URL",false],["footerText","Footer",true],["primaryColor","Primary Color",false]
     ];
-    // Production editor: keep field accordion markup valid and directly deployable.\n    const FieldEditor=({field,label,multi}:{field:keyof Content;label:string;multi:boolean})=>{
+    // Production editor: keep field accordion markup valid and directly deployable.
+    const FieldEditor=({field,label,multi}:{field:keyof Content;label:string;multi:boolean})=>{
         const isOpen=!!openFields[field];
         return <div className={"admin-email-templates__field "+(multi?"admin-email-templates__field--wide":"")}>
             <button type="button" className="admin-email-templates__field-toggle" onClick={()=>toggleField(field)} aria-expanded={isOpen}>
