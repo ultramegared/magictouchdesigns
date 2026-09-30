@@ -169,20 +169,79 @@ export const submitCustomRequest = async (
             `${FRONTEND_URL}/checkout?custom_request=${encodeURIComponent(request.id)}`;
 
         try {
+            const safeName = escapeHtml(name);
+            const safeRequestCode = escapeHtml(request.requestCode);
+
             await sendEmail({
                 to: email,
-                subject: `JQYDesigns — Your custom mug request ${request.requestCode}`,
+                subject: `JQYDesigns | Custom Mug Request ${request.requestCode} — Next Step`,
                 html: `
-                    <div style="font-family:Arial,sans-serif;color:#202020;max-width:680px;margin:auto">
-                        <h2>Your custom mug request has been received.</h2>
-                        <p>Hi ${escapeHtml(name)}, we received your design request.</p>
-                        <p><strong>Request:</strong> ${escapeHtml(request.requestCode)}<br>
-                        <strong>Merchandise subtotal:</strong> $${request.subtotal.toFixed(2)}</p>
-                        <p>USPS shipping and applicable sales tax will be calculated after you enter your delivery address.</p>
-                        <p><a href="${paymentUrl}" style="display:inline-block;padding:12px 18px;background:#111;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">Continue to Secure Payment</a></p>
-                    </div>
+                    <!doctype html>
+                    <html>
+                    <body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,Helvetica,sans-serif;color:#172033;">
+                        <div style="width:100%;padding:32px 12px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e2e7ef;">
+                                <tr>
+                                    <td style="background:#0d2342;padding:24px 28px;text-align:center;">
+                                        <img src="https://www.jqydesigns.com/images/logo/logo.png" width="180" alt="Magic Touch Designs" style="display:block;width:180px;max-width:100%;height:auto;margin:0 auto;">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:34px 34px 12px;">
+                                        <div style="display:inline-block;padding:7px 12px;border-radius:999px;background:#eef5ff;color:#1d5fa7;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;">Request received</div>
+                                        <h1 style="margin:18px 0 10px;font-size:28px;line-height:1.2;color:#13233d;">Your custom mug design is ready for checkout</h1>
+                                        <p style="margin:0;color:#5b6575;font-size:16px;line-height:1.65;">Hi ${safeName}, thank you for choosing Magic Touch Designs. We have received your custom mug request and saved your design details.</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:18px 34px;">
+                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f7f9fc;border:1px solid #e5eaf1;border-radius:12px;">
+                                            <tr>
+                                                <td style="padding:18px 20px;">
+                                                    <div style="font-size:12px;color:#7a8494;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Request number</div>
+                                                    <div style="margin-top:5px;font-size:18px;font-weight:700;color:#13233d;">${safeRequestCode}</div>
+                                                </td>
+                                                <td style="padding:18px 20px;text-align:right;">
+                                                    <div style="font-size:12px;color:#7a8494;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Merchandise</div>
+                                                    <div style="margin-top:5px;font-size:18px;font-weight:700;color:#13233d;">$${request.subtotal.toFixed(2)}</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 34px 20px;">
+                                        <h2 style="margin:0 0 10px;font-size:18px;color:#13233d;">Next step</h2>
+                                        <p style="margin:0;color:#5b6575;font-size:15px;line-height:1.65;">Complete checkout to enter your delivery address. USPS shipping and applicable sales tax will be calculated automatically before you pay.</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:4px 34px 34px;text-align:center;">
+                                        <a href="${paymentUrl}" style="display:inline-block;background:#1769c2;color:#ffffff;text-decoration:none;padding:15px 28px;border-radius:10px;font-size:16px;font-weight:700;">Continue to Secure Checkout</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:22px 34px;background:#f7f9fc;border-top:1px solid #e5eaf1;text-align:center;">
+                                        <p style="margin:0 0 6px;font-size:13px;color:#697586;">Your request is not a completed purchase yet.</p>
+                                        <p style="margin:0;font-size:12px;color:#8a94a3;">Magic Touch Designs · JQYDesigns</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </body>
+                    </html>
                 `,
-                text: `Your custom mug request ${request.requestCode} was received. Merchandise subtotal: $${request.subtotal.toFixed(2)}. Continue to secure payment: ${paymentUrl}`,
+                text: [
+                    `Magic Touch Designs — Custom Mug Request ${request.requestCode}`,
+                    "",
+                    `Hi ${name},`,
+                    "We received your custom mug design request.",
+                    `Request: ${request.requestCode}`,
+                    `Merchandise subtotal: $${request.subtotal.toFixed(2)}`,
+                    "",
+                    "Next step: complete secure checkout. USPS shipping and applicable sales tax will be calculated after you enter your delivery address.",
+                    `Checkout: ${paymentUrl}`,
+                ].join("\n"),
                 idempotencyKey: `custom-request/customer/${request.id}`,
             });
         } catch (customerEmailError) {
