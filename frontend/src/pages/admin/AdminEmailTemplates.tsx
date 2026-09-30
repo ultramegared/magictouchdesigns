@@ -8,10 +8,7 @@ type EmailTemplate = {
   shippingText:string; paymentButton:string; pendingText:string;
   footerText:string; primaryColor:string; logoUrl:string;
 };
-type SettingsData = {
-  websiteName:string; browserTitle:string; slogan:string; logoUrl:string|null;
-  supportEmail:string; notificationsEnabled:boolean;
-  config:{ emailTemplates:{ customMug:EmailTemplate }; [key:string]:unknown };
+type SettingsData = any; [key:string]:unknown };
 };
 
 const defaults:EmailTemplate={
@@ -37,14 +34,14 @@ function AdminEmailTemplates(){
   const load=()=>{
     setMessage("");
     apiRequest<{status:string;user:{username:string}}>("/api/user/me").then(r=>setUser(r.user.username)).catch(()=>{});
-    apiRequest<{status:string;settings:SettingsData}>(`/api/settings?email_templates_refresh=${Date.now()}`,{cache:"no-store"})
+    apiRequest<{status:string;settings:SettingsData}>(`/api/settings?email_templates_refresh=${Date.now()}`)
       .then(r=>{
         setSettings(r.settings);
         setTemplate({...defaults,...(r.settings.config.emailTemplates?.customMug||{})});
       })
       .catch(e=>setMessage(e instanceof Error?e.message:"Unable to load email templates."));
   };
-  useEffect(load,[]);
+  useEffect(()=>{ load(); },[]);
 
   const update=(patch:Partial<EmailTemplate>)=>setTemplate(v=>({...v,...patch}));
 
