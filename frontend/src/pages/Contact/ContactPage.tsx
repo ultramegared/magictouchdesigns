@@ -198,6 +198,10 @@ function ContactPage() {
             setCustomStatus("success");
             form.reset();
             setImageName("");
+            setImagePreviewUrl((current) => {
+                if (current) URL.revokeObjectURL(current);
+                return "";
+            });
             setQuantity(1);
             setMugModel("Classic");
             setMugSize("15 oz");
