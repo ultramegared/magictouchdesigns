@@ -64,6 +64,7 @@ export interface SiteConfig {
     footerSections: FooterSectionConfig[];
     socialLinks: SocialLinkConfig[];
     pages: SitePageConfig[];
+    emailTemplates: EmailTemplateConfig;
 }
 
 const localized = (en: string, es = ""): LocalizedText => ({ en, es });
