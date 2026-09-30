@@ -1,0 +1,11 @@
+import { useEffect, useState } from "react";
+import AdminSidebar from "./AdminSidebar";
+import { apiRequest } from "../../services/api";
+
+type Log={id:string;template_key:string;event_key?:string;recipient:string;provider:string;provider_message_id?:string;status:string;error_message?:string;created_at:string};
+
+export default function AdminEmailLog(){
+ const [logs,setLogs]=useState<Log[]>([]); const [message,setMessage]=useState("");
+ useEffect(()=>{void apiRequest<any>("/api/admin/email-templates/logs?limit=200").then(r=>setLogs(r.logs||[])).catch(e=>setMessage(e instanceof Error?e.message:"Unable to load email log."));},[]);
+ return <div className="admin-layout"><AdminSidebar/><main className="admin-settings"><section className="admin-settings__hero"><div><span>EMAIL MANAGEMENT</span><h1>Email Log</h1><p>Delivery history for emails sent through the reusable template system.</p></div></section><section className="admin-settings__container">{message&&<div className="admin-settings__message">{message}</div>}<article className="admin-settings__section is-open"><div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse"}}><thead><tr>{["Date","Template","Event","Recipient","Provider","Message ID","Status"].map(h=><th key={h} style={{textAlign:"left",padding:10,borderBottom:"2px solid #ddd"}}>{h}</th>)}</tr></thead><tbody>{logs.map(l=><tr key={l.id}><td style={{padding:10,borderBottom:"1px solid #eee",whiteSpace:"nowrap"}}>{new Date(l.created_at).toLocaleString()}</td><td style={{padding:10,borderBottom:"1px solid #eee"}}>{l.template_key}</td><td style={{padding:10,borderBottom:"1px solid #eee"}}>{l.event_key||"—"}</td><td style={{padding:10,borderBottom:"1px solid #eee"}}>{l.recipient}</td><td style={{padding:10,borderBottom:"1px solid #eee"}}>{l.provider}</td><td style={{padding:10,borderBottom:"1px solid #eee"}}>{l.provider_message_id||"—"}</td><td style={{padding:10,borderBottom:"1px solid #eee",fontWeight:700}}>{l.status}{l.error_message?<div style={{fontSize:11,color:"#b42318"}}>{l.error_message}</div>:null}</td></tr>)}</tbody></table>{!logs.length&&<p>No templated email deliveries recorded yet.</p>}</div></article></section></main></div>;
+}
