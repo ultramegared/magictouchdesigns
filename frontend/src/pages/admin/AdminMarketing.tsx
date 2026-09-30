@@ -22,6 +22,7 @@ interface SocialSetup { configured?: boolean; envKeys?: string[]; callback?: str
 interface SocialState { configured?: Record<string, boolean>; setup?: Record<string, SocialSetup>; connected?: Record<string, SocialConnection>; channels?: Partial<Record<SocialChannel, boolean>>; }
 interface PublishResult { ok: boolean; id?: string; account?: string; error?: string; }
 interface CampaignRecord { id:string; name:string; objective:string; target_area:string; subject?:string; channels:SocialChannel[]; results?: { social?: Record<string, PublishResult>; email?: { totalRecipients:number }; google?: { focus?:string[] } }; created_at:string; }
+interface LearningInsight { channel: SocialChannel; score:number; observations:number; successRate:number; clicks:number; sessions:number; conversions:number; revenue:number; impressions:number; recommended:boolean; avgHour?:number; avgWeekday?:number; }
 
 const channels: Channel[] = [
     { name: "Google", detail: "Search & Analytics", icon: Search, tone: "#4285F4" },
@@ -76,6 +77,8 @@ function AdminMarketing() {
     const [campaignLaunching, setCampaignLaunching] = useState(false);
     const [campaignResults, setCampaignResults] = useState<any>(null);
     const [campaignHistory, setCampaignHistory] = useState<CampaignRecord[]>([]);
+    const [learningInsights, setLearningInsights] = useState<LearningInsight[]>([]);
+    const [learningLoading, setLearningLoading] = useState(false);
 
     const loadSocial = useCallback(async () => {
         try {
@@ -109,6 +112,15 @@ function AdminMarketing() {
         } finally { setLoading(false); setRefreshing(false); }
     }, [range]);
 
+    const loadLearning = useCallback(async () => {
+        try {
+            setLearningLoading(true);
+            const response = await apiRequest<{ insights: LearningInsight[] }>("/api/admin/marketing/social/campaign/learning");
+            setLearningInsights(response.insights || []);
+        } catch { /* Learning is supplemental and must never block campaign publishing. */ }
+        finally { setLearningLoading(false); }
+    }, []);
+
     const loadCampaignHistory = useCallback(async () => {
         try {
             const response = await apiRequest<{ campaigns: CampaignRecord[] }>("/api/admin/marketing/social/campaign/history?limit=6");
@@ -116,7 +128,7 @@ function AdminMarketing() {
         } catch { /* Marketing history is supplemental; do not block the page. */ }
     }, []);
 
-    useEffect(() => { void load(); void loadSocial(); void loadCampaignHistory(); }, [load, loadSocial, loadCampaignHistory]);
+    useEffect(() => { void load(); void loadSocial(); void loadCampaignHistory(); void loadLearning(); }, [load, loadSocial, loadCampaignHistory, loadLearning]);
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         if (params.get("social") === "connected") setNotice(`Cuenta ${params.get("provider") || "social"} conectada correctamente.`);
@@ -232,7 +244,7 @@ function AdminMarketing() {
             });
             setCampaignResults(response.data);
             setNotice(`Campaña lanzada: ${response.data?.campaignId || "OK"}`);
-            await loadCampaignHistory();
+            await Promise.all([loadCampaignHistory(), loadLearning()]);
         } catch (error) {
             setNotice(error instanceof Error ? error.message : "No se pudo lanzar la campaña.");
         } finally {
@@ -265,6 +277,7 @@ function AdminMarketing() {
         <section className="stats"><article className="stat"><div className="stat-top"><span>Visitors</span><MousePointer2 size={17}/></div><strong>{gaMetrics.users.toLocaleString()}</strong><small>{ga?.configured ? "Google Analytics 4" : "Connect GA4"}</small></article><article className="stat"><div className="stat-top"><span>Page Views</span><TrendingUp size={17}/></div><strong>{gaMetrics.views.toLocaleString()}</strong><small>{ga?.configured ? "Live GA4 data" : "Connect GA4"}</small></article><article className="stat"><div className="stat-top"><span>Orders</span><Users size={17}/></div><strong>{salesMetrics.orders.toLocaleString()}</strong><small>Live order data</small></article><article className="stat"><div className="stat-top"><span>Revenue</span><BarChart3 size={17}/></div><strong>${salesMetrics.revenue.toFixed(2)}</strong><small>Live sales data</small></article><div className="stat range"><Clock3 size={14}/><select className="select" value={range} onChange={event => setRange(event.target.value as "7"|"30"|"90")}><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option></select></div></section>
         <section className="section"><div className="section-title"><h2>Google Integrations</h2><p>Google solo aparece como conectado cuando los servicios reales responden.</p></div><div className="integration"><article className="card integration-card"><div className="integration-head"><h3>Google Search Console</h3>{gsc?.connected && <CheckCircle2 className="status connected" size={18}/>}</div><p>{gsc?.connected ? `Connected to ${gsc.siteUrl}` : gsc?.error || "Needs service-account property access"}</p><div className="metrics"><div className="metric"><b>{searchMetrics.clicks.toLocaleString()}</b><span>Clicks</span></div><div className="metric"><b>{searchMetrics.impressions.toLocaleString()}</b><span>Impressions</span></div><div className="metric"><b>{searchMetrics.count ? (searchMetrics.ctr / searchMetrics.count * 100).toFixed(2) : "0.00"}%</b><span>Avg. CTR</span></div><div className="metric"><b>{searchMetrics.count ? (searchMetrics.position / searchMetrics.count).toFixed(1) : "—"}</b><span>Avg. position</span></div></div></article><article className="card integration-card"><div className="integration-head"><h3>Google Analytics 4</h3>{ga?.configured && <CheckCircle2 className="status connected" size={18}/>}</div><p>{ga?.configured ? `Property ${ga.propertyId} is configured.` : ga?.error || "Needs property ID + service-account access"}</p><div className="metrics"><div className="metric"><b>{gaMetrics.users.toLocaleString()}</b><span>Active users</span></div><div className="metric"><b>{gaMetrics.sessions.toLocaleString()}</b><span>Sessions</span></div><div className="metric"><b>{gaMetrics.views.toLocaleString()}</b><span>Page views</span></div><div className="metric"><b>${gaMetrics.revenue.toFixed(2)}</b><span>GA revenue</span></div></div></article></div></section>
         <section className="section"><div className="section-title"><div className="integration-head"><div><h2>Connect Your Channels</h2><p>Conecta la cuenta oficial que realmente administra cada canal. Nada está hardcodeado.</p></div><button className="btn" onClick={() => void loadSocial()} disabled={socialLoading}><RefreshCw size={14}/></button></div></div><div className="channels">{channels.map(channel => { const Icon = channel.icon; const connected = isConnected(channel); const configured = channel.provider ? Boolean(social.configured?.[channel.provider]) : channel.name === "Google" ? Boolean(gsc?.connected || ga?.configured) : true; return <article className="card channel" key={channel.name}><div className="channel-top"><span className="channel-icon" style={{ color: channel.tone }}><Icon size={21}/></span>{connected && <CheckCircle2 className="connected" size={18}/>}</div><strong>{channel.name}</strong><small>{channel.detail}</small>{connected ? <><span className="status connected"><CheckCircle2 size={11}/>Connected</span><span className="account">{accountName(channel)}</span>{channel.provider && <button className="btn" style={{ marginTop: 8, padding: "6px 8px", fontSize: 9 }} onClick={() => void disconnect(channel)} disabled={busyProvider === channel.provider}><Unplug size={11}/>Disconnect</button>}</> : channel.name === "Google" ? <span className="status">{configured ? "Analytics ready" : "Needs configuration"}</span> : channel.name === "Email" ? <button className="btn primary" style={{ marginTop: 9, padding: "7px 10px", fontSize: 10 }} onClick={() => void openEmailCampaign()}><Mail size={12}/>Open Email Campaign</button> : configured ? <button className="btn primary" style={{ marginTop: 9, padding: "7px 10px", fontSize: 10 }} onClick={() => void connect(channel)} disabled={Boolean(busyProvider)}>{busyProvider === channel.provider ? <Loader2 size={12}/> : <Link2 size={12}/>} Connect official account</button> : <button className="btn" style={{ marginTop: 9, padding: "7px 10px", fontSize: 10 }} onClick={() => setSetupProvider(channel.provider!)}><Link2 size={12}/>Setup connection</button>}</article>; })}</div></section>
+        <section className="section"><div className="section-title"><h2>JQY Marketing Learning Engine</h2><p>El algoritmo propio aprende de cada lanzamiento y acumula experiencia por canal, horario, mercado y resultado. No compra publicidad ni depende de un servicio externo.</p></div><article className="card" style={{ padding: 16 }}><div className="metrics">{learningInsights.map(item => <div className="metric" key={item.channel}><b>{(item.score * 100).toFixed(1)}</b><span>{item.channel} · {item.observations} obs{item.recommended ? " · recomendado" : ""}</span></div>)}</div><div className="notice">{learningLoading ? "Actualizando aprendizaje..." : learningInsights.some(item => item.observations > 0) ? `El motor ya tiene ${learningInsights.reduce((sum,item) => sum + item.observations, 0)} observaciones y seguirá explorando mientras aprende.` : "Primera etapa: cada publicación real alimentará el aprendizaje. Cuando existan suficientes resultados, el motor empezará a priorizar automáticamente los patrones que mejor funcionen."}</div></article></section>
         <section className="section"><div className="section-title"><h2>Campaign History</h2><p>Últimos lanzamientos realizados desde este Marketing Center.</p></div><div className="quick">{campaignHistory.map(campaign => <article className="card" key={campaign.id}><strong>{campaign.name}</strong><small>{campaign.target_area} · {new Date(campaign.created_at).toLocaleString()}</small><small>{campaign.channels?.length || 0} social channels{campaign.results?.email ? ` · Email ${campaign.results.email.totalRecipients}` : ""}</small></article>)}</div></section>
         <section className="section"><div className="section-title"><h2>Central Publisher</h2><p>Selecciona todos los canales conectados o solamente los que quieras usar.</p></div><article className="card" style={{ padding: 16 }}><div className="actions" style={{ marginTop: 0 }}><button className="btn primary" onClick={() => openComposer()}><Send size={15}/>Open Publisher</button><span className="status connected">{selectedSocial.length} connected channel{selectedSocial.length === 1 ? "" : "s"} selected</span></div></article></section>
         <section className="section"><div className="quick">
