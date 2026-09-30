@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { getEmailTemplates, saveEmailTemplateDraft, publishEmailTemplate, sendEmailTemplateTest } from "../services/email-template.service";
+import { listEmailLogs } from "../services/email-log.service";
 
 const validKey = (value: string) => /^[a-z0-9_]+$/.test(value);
 
@@ -37,3 +38,5 @@ export const sendEmailTemplateTestController = async (req: Request, res: Respons
         res.json({ status:"success", message:"Test email sent.", id:result?.id || null });
     } catch (error) { res.status(400).json({ status:"error", message:error instanceof Error ? error.message : "Unable to send test email." }); }
 };
+
+export const listEmailLogsController = async (req: Request, res: Response): Promise<void> => { try { res.json({ status:"success", logs:await listEmailLogs(Number(req.query.limit || 100)) }); } catch (error) { res.status(500).json({ status:"error", message:error instanceof Error ? error.message : "Unable to retrieve email log." }); } };
