@@ -174,56 +174,166 @@ export const submitCustomRequest = async (
 
             await sendEmail({
                 to: email,
-                subject: `JQYDesigns | Custom Mug Request ${request.requestCode} — Next Step`,
+                subject: `JQYDesigns | Your Custom Mug Request ${request.requestCode}`,
                 html: `
                     <!doctype html>
-                    <html>
-                    <body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,Helvetica,sans-serif;color:#172033;">
-                        <div style="width:100%;padding:32px 12px;">
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e2e7ef;">
+                    <html lang="en">
+                    <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width,initial-scale=1">
+                        <title>Your Custom Mug Request</title>
+                    </head>
+                    <body style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#172033;">
+                        <div style="width:100%;background:#eef2f7;padding:24px 10px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:680px;margin:0 auto;background:#ffffff;border:1px solid #dfe5ed;border-radius:18px;overflow:hidden;">
                                 <tr>
-                                    <td style="background:#0d2342;padding:24px 28px;text-align:center;">
-                                        <img src="https://www.jqydesigns.com/images/logo/logo.png" width="180" alt="Magic Touch Designs" style="display:block;width:180px;max-width:100%;height:auto;margin:0 auto;">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:34px 34px 12px;">
-                                        <div style="display:inline-block;padding:7px 12px;border-radius:999px;background:#eef5ff;color:#1d5fa7;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;">Request received</div>
-                                        <h1 style="margin:18px 0 10px;font-size:28px;line-height:1.2;color:#13233d;">Your custom mug design is ready for checkout</h1>
-                                        <p style="margin:0;color:#5b6575;font-size:16px;line-height:1.65;">Hi ${safeName}, thank you for choosing Magic Touch Designs. We have received your custom mug request and saved your design details.</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:18px 34px;">
-                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f7f9fc;border:1px solid #e5eaf1;border-radius:12px;">
+                                    <td style="background:#f8fafc;padding:12px 24px;border-bottom:1px solid #e7ebf1;">
+                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                             <tr>
-                                                <td style="padding:18px 20px;">
-                                                    <div style="font-size:12px;color:#7a8494;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Request number</div>
-                                                    <div style="margin-top:5px;font-size:18px;font-weight:700;color:#13233d;">${safeRequestCode}</div>
+                                                <td style="font-size:12px;color:#4d5868;">Thank you for choosing JQYDesigns!</td>
+                                                <td align="right" style="font-size:12px;"><a href="https://www.jqydesigns.com" style="color:#1659a8;text-decoration:none;font-weight:700;">Visit our website</a></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:22px 26px;background:#ffffff;">
+                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td align="left" valign="middle">
+                                                    <img src="https://www.jqydesigns.com/images/logo/logo.png" width="210" alt="Magic Touch Designs" style="display:block;width:210px;max-width:100%;height:auto;">
                                                 </td>
-                                                <td style="padding:18px 20px;text-align:right;">
-                                                    <div style="font-size:12px;color:#7a8494;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Merchandise</div>
-                                                    <div style="margin-top:5px;font-size:18px;font-weight:700;color:#13233d;">$${request.subtotal.toFixed(2)}</div>
+                                                <td align="right" valign="middle" style="font-size:11px;line-height:1.5;color:#4d5868;">
+                                                    <strong style="color:#1659a8;">PREMIUM QUALITY</strong><br>
+                                                    CUSTOM DESIGNS
                                                 </td>
                                             </tr>
                                         </table>
                                     </td>
                                 </tr>
+
                                 <tr>
-                                    <td style="padding:8px 34px 20px;">
-                                        <h2 style="margin:0 0 10px;font-size:18px;color:#13233d;">Next step</h2>
-                                        <p style="margin:0;color:#5b6575;font-size:15px;line-height:1.65;">Complete checkout to enter your delivery address. USPS shipping and applicable sales tax will be calculated automatically before you pay.</p>
+                                    <td style="padding:0 26px 22px;">
+                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg,#eef5fc,#ffffff);border:1px solid #dce7f4;border-radius:16px;">
+                                            <tr>
+                                                <td style="padding:28px 26px;">
+                                                    <div style="font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#1659a8;">CUSTOM MUG REQUEST</div>
+                                                    <h1 style="margin:10px 0 10px;font-size:30px;line-height:1.18;color:#111b2d;">Your custom mug request has been received.</h1>
+                                                    <p style="margin:0;color:#526071;font-size:16px;line-height:1.65;">Hi ${safeName}, your design request has been saved and is ready for the next step.</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:0 26px 18px;">
+                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td style="padding:0 0 12px;font-size:13px;font-weight:800;letter-spacing:1.3px;color:#172033;text-transform:uppercase;">REQUEST DETAILS</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px;">
+                                                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                                        <tr>
+                                                            <td style="font-size:12px;color:#718096;">Request number</td>
+                                                            <td align="right" style="font-size:16px;font-weight:800;color:#172033;">${safeRequestCode}</td>
+                                                        </tr>
+                                                        <tr><td colspan="2" style="height:12px;border-bottom:1px solid #e4e9ef;"></td></tr>
+                                                        <tr><td colspan="2" style="height:12px;"></td></tr>
+                                                        <tr>
+                                                            <td style="font-size:13px;color:#5b6675;">Mug</td>
+                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${escapeHtml(request.model)} · ${escapeHtml(request.size)}</td>
+                                                        </tr>
+                                                        <tr><td colspan="2" style="height:8px;"></td></tr>
+                                                        <tr>
+                                                            <td style="font-size:13px;color:#5b6675;">Color</td>
+                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${escapeHtml(request.color)}</td>
+                                                        </tr>
+                                                        <tr><td colspan="2" style="height:8px;"></td></tr>
+                                                        <tr>
+                                                            <td style="font-size:13px;color:#5b6675;">Design views</td>
+                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${escapeHtml(request.printSides === "2" ? "Front + Back" : "Front")}</td>
+                                                        </tr>
+                                                        <tr><td colspan="2" style="height:8px;"></td></tr>
+                                                        <tr>
+                                                            <td style="font-size:13px;color:#5b6675;">Quantity</td>
+                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${Number(request.quantity)}</td>
+                                                        </tr>
+                                                        <tr><td colspan="2" style="height:12px;border-bottom:1px solid #e4e9ef;"></td></tr>
+                                                        <tr><td colspan="2" style="height:12px;"></td></tr>
+                                                        <tr>
+                                                            <td style="font-size:14px;font-weight:700;color:#172033;">Merchandise subtotal</td>
+                                                            <td align="right" style="font-size:20px;font-weight:800;color:#1659a8;">$${request.subtotal.toFixed(2)}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:0 26px 18px;">
+                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#edf6ff;border:1px solid #cfe4f8;border-radius:14px;">
+                                            <tr>
+                                                <td style="padding:18px 20px;">
+                                                    <div style="font-size:15px;font-weight:800;color:#1659a8;margin-bottom:6px;">USPS SHIPPING &amp; SALES TAX</div>
+                                                    <div style="font-size:14px;line-height:1.6;color:#526071;">Your shipping cost and applicable sales tax will be calculated automatically after you enter your delivery address at checkout.</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:8px 26px 10px;text-align:center;">
+                                        <a href="${paymentUrl}" style="display:block;background:#1764b1;color:#ffffff;text-decoration:none;padding:17px 20px;border-radius:11px;font-size:16px;font-weight:800;letter-spacing:.2px;">CONTINUE TO SECURE CHECKOUT &nbsp; →</a>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:4px 34px 34px;text-align:center;">
-                                        <a href="${paymentUrl}" style="display:inline-block;background:#1769c2;color:#ffffff;text-decoration:none;padding:15px 28px;border-radius:10px;font-size:16px;font-weight:700;">Continue to Secure Checkout</a>
+                                    <td style="padding:8px 26px 24px;text-align:center;">
+                                        <div style="font-size:13px;line-height:1.55;color:#687586;">Your order has not been charged yet. Your purchase will only be confirmed after payment is successfully completed.</div>
                                     </td>
                                 </tr>
+
                                 <tr>
-                                    <td style="padding:22px 34px;background:#f7f9fc;border-top:1px solid #e5eaf1;text-align:center;">
-                                        <p style="margin:0 0 6px;font-size:13px;color:#697586;">Your request is not a completed purchase yet.</p>
-                                        <p style="margin:0;font-size:12px;color:#8a94a3;">Magic Touch Designs · JQYDesigns</p>
+                                    <td style="padding:18px 26px;background:#f8fafc;border-top:1px solid #e5eaf1;">
+                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td width="33%" valign="top" style="padding-right:12px;">
+                                                    <strong style="font-size:12px;color:#172033;">SECURE PAYMENT</strong><br>
+                                                    <span style="font-size:11px;line-height:1.5;color:#697586;">Safe and secure checkout.</span>
+                                                </td>
+                                                <td width="33%" valign="top" style="padding:0 12px;border-left:1px solid #dfe5ed;border-right:1px solid #dfe5ed;">
+                                                    <strong style="font-size:12px;color:#172033;">USPS SHIPPING</strong><br>
+                                                    <span style="font-size:11px;line-height:1.5;color:#697586;">Shipping calculated at checkout.</span>
+                                                </td>
+                                                <td width="33%" valign="top" style="padding-left:12px;">
+                                                    <strong style="font-size:12px;color:#172033;">CUSTOM DESIGN</strong><br>
+                                                    <span style="font-size:11px;line-height:1.5;color:#697586;">Made especially for you.</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="background:#101b2b;padding:24px 26px;">
+                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td valign="top" style="padding-right:18px;">
+                                                    <img src="https://www.jqydesigns.com/images/logo/logo.png" width="130" alt="Magic Touch Designs" style="display:block;width:130px;max-width:100%;height:auto;">
+                                                    <div style="margin-top:8px;font-size:11px;line-height:1.5;color:#d5dbe4;">Custom Mugs · Personalized Gifts · Premium Quality</div>
+                                                </td>
+                                                <td valign="top" style="padding-left:18px;border-left:1px solid #425064;font-size:11px;line-height:1.7;color:#d5dbe4;">
+                                                    <strong style="color:#ffffff;">Need help?</strong><br>
+                                                    jgydesigns@gmail.com<br>
+                                                    <a href="https://www.jqydesigns.com" style="color:#8ec5ff;text-decoration:none;">jqydesigns.com</a>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
@@ -234,16 +344,22 @@ export const submitCustomRequest = async (
                 text: [
                     `Magic Touch Designs — Custom Mug Request ${request.requestCode}`,
                     "",
-                    `Hi ${name},`,
-                    "We received your custom mug design request.",
+                    `Hi ${name}, your custom mug request has been received and is ready for the next step.`,
+                    "",
                     `Request: ${request.requestCode}`,
+                    `Mug: ${request.model} · ${request.size}`,
+                    `Color: ${request.color}`,
+                    `Design views: ${request.printSides === "2" ? "Front + Back" : "Front"}`,
+                    `Quantity: ${request.quantity}`,
                     `Merchandise subtotal: $${request.subtotal.toFixed(2)}`,
                     "",
-                    "Next step: complete secure checkout. USPS shipping and applicable sales tax will be calculated after you enter your delivery address.",
-                    `Checkout: ${paymentUrl}`,
+                    "USPS shipping and applicable sales tax will be calculated after you enter your delivery address at checkout.",
+                    `Continue to secure checkout: ${paymentUrl}`,
+                    "",
+                    "Your order has not been charged yet. Your purchase will only be confirmed after payment is successfully completed.",
                 ].join("\n"),
                 idempotencyKey: `custom-request/customer/${request.id}`,
-            });
+            })
         } catch (customerEmailError) {
             console.error("Custom request customer email error:", customerEmailError);
         }
