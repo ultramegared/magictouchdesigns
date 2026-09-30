@@ -103,7 +103,7 @@ function AdminEmailTemplates() {
                             </div>
                             <div style={{marginTop:16,padding:14,border:"1px solid rgba(127,127,127,.18)",borderRadius:12}}>
                                 <strong>Variables</strong>
-                                <div style={{display:"flex",flexWrap:"wrap",gap:7,marginTop:9}}>{Object.keys(SAMPLE).map(k=><code key={k}>{{"{{"+k+"}}"}}</code>)}</div>
+                                <div style={{display:"flex",flexWrap:"wrap",gap:7,marginTop:9}}>{Object.keys(SAMPLE).map(k=><code key={k}>{"{{"+k+"}}"}</code>)}</div>
                             </div>
                             <div style={{display:"flex",gap:9,flexWrap:"wrap",marginTop:16}}>
                                 <button type="button" className="admin-settings__add" disabled={busy} onClick={()=>void save()}>{busy?"Saving…":"Save Draft"}</button>
