@@ -199,7 +199,15 @@ function CheckoutPage() {
     const payload = (customer = readCustomerForm()) => ({ customer, ...(customRequestId ? { customRequestId } : {}), items: cartItems.map((item) => {
         const session = item.customizationId ? getCustomizationSession(item.customizationId) : null;
         if (item.customizationId && (!session?.designDataUrl || session.productId !== String(item.id))) throw new Error("Your custom design session expired. Please return to Customize and upload the artwork again.");
-        return { productId: String(item.id), quantity: item.quantity, model: item.model, size: item.size, color: item.color, ...(item.customizationId && session ? { customizationId: item.customizationId, customization: { productId: session.productId, productName: session.productName, size: session.size, color: session.color, designDataUrl: session.designDataUrl, designFileName: session.designFileName, designScale: session.designScale, designX: session.designX, designY: session.designY, designRotation: session.designRotation, mugRotation: session.mugRotation } } : {}) };
+        return {
+            productId: String(item.id),
+            quantity: item.quantity,
+            model: item.model,
+            size: item.size,
+            color: item.color,
+            ...(item.customRequestId ? { customRequestId: item.customRequestId } : {}),
+            ...(item.customizationId && session ? { customizationId: item.customizationId, customization: { productId: session.productId, productName: session.productName, size: session.size, color: session.color, designDataUrl: session.designDataUrl, designFileName: session.designFileName, designScale: session.designScale, designX: session.designX, designY: session.designY, designRotation: session.designRotation, mugRotation: session.mugRotation } } : {}),
+        };
     }) });
 
     const addressReady = isCustomerReady(form);
