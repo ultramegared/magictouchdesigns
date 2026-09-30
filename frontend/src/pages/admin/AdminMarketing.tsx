@@ -22,7 +22,8 @@ interface SocialSetup { configured?: boolean; envKeys?: string[]; callback?: str
 interface SocialState { configured?: Record<string, boolean>; setup?: Record<string, SocialSetup>; connected?: Record<string, SocialConnection>; channels?: Partial<Record<SocialChannel, boolean>>; }
 interface PublishResult { ok: boolean; id?: string; account?: string; error?: string; }
 interface CampaignRecord { id:string; name:string; objective:string; target_area:string; subject?:string; channels:SocialChannel[]; results?: { social?: Record<string, PublishResult>; email?: { totalRecipients:number }; google?: { focus?:string[] } }; created_at:string; autopilot_enabled?:boolean; next_run_at?:string | null; run_count?:number; }
-interface LearningInsight { channel: SocialChannel; score:number; observations:number; successRate:number; clicks:number; sessions:number; conversions:number; revenue:number; impressions:number; recommended:boolean; avgHour?:number; avgWeekday?:number; }\ninterface DailySummary { generatedAt:string; campaigns:{total:number;last24:number}; last24:{publications:number;successful:number;sessions:number;conversions:number;revenue:number}; channels:Array<{channel:string;publications:number;successful:number;sessions:number;conversions:number;revenue:number}>; learning:{observations:number;conversions:number;revenue:number;level:number;levelName:string;nextTarget:string}; }
+interface LearningInsight { channel: SocialChannel; score:number; observations:number; successRate:number; clicks:number; sessions:number; conversions:number; revenue:number; impressions:number; recommended:boolean; avgHour?:number; avgWeekday?:number; }
+interface DailySummary { generatedAt:string; campaigns:{total:number;last24:number}; last24:{publications:number;successful:number;sessions:number;conversions:number;revenue:number}; channels:Array<{channel:string;publications:number;successful:number;sessions:number;conversions:number;revenue:number}>; learning:{observations:number;conversions:number;revenue:number;level:number;levelName:string;nextTarget:string}; }
 
 const channels: Channel[] = [
     { name: "Google", detail: "Search & Analytics", icon: Search, tone: "#4285F4" },
@@ -79,7 +80,9 @@ function AdminMarketing() {
     const [campaignResults, setCampaignResults] = useState<any>(null);
     const [campaignHistory, setCampaignHistory] = useState<CampaignRecord[]>([]);
     const [learningInsights, setLearningInsights] = useState<LearningInsight[]>([]);
-    const [learningLoading, setLearningLoading] = useState(false);\n    const [dailySummary, setDailySummary] = useState<DailySummary | null>(null);\n    const [dailyLoading, setDailyLoading] = useState(false);
+    const [learningLoading, setLearningLoading] = useState(false);
+    const [dailySummary, setDailySummary] = useState<DailySummary | null>(null);
+    const [dailyLoading, setDailyLoading] = useState(false);
 
     const loadSocial = useCallback(async () => {
         try {
@@ -122,7 +125,16 @@ function AdminMarketing() {
         finally { setLearningLoading(false); }
     }, []);
 
-    const loadDailySummary = useCallback(async () => {\n        try {\n            setDailyLoading(true);\n            const response = await apiRequest<{ summary: DailySummary }>("/api/admin/marketing/social/campaign/daily-summary");\n            setDailySummary(response.summary);\n        } catch { /* Daily report is supplemental and never blocks Marketing. */ }\n        finally { setDailyLoading(false); }\n    }, []);\n\n    const loadCampaignHistory = useCallback(async () => {
+    const loadDailySummary = useCallback(async () => {
+        try {
+            setDailyLoading(true);
+            const response = await apiRequest<{ summary: DailySummary }>("/api/admin/marketing/social/campaign/daily-summary");
+            setDailySummary(response.summary);
+        } catch { /* Daily report is supplemental and never blocks Marketing. */ }
+        finally { setDailyLoading(false); }
+    }, []);
+
+    const loadCampaignHistory = useCallback(async () => {
         try {
             const response = await apiRequest<{ campaigns: CampaignRecord[] }>("/api/admin/marketing/social/campaign/history?limit=6");
             setCampaignHistory(response.campaigns || []);
