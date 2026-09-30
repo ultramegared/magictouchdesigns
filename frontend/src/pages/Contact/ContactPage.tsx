@@ -50,6 +50,50 @@ const ALLOWED_IMAGE_TYPES = [
 ];
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const MAX_UPLOAD_SIZE = 2.8 * 1024 * 1024;
+const MAX_UPLOAD_DIMENSION = 2400;
+
+async function compressArtworkForUpload(file: File): Promise<File> {
+    if (file.size <= MAX_UPLOAD_SIZE) return file;
+
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_UPLOAD_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+        bitmap.close();
+        throw new Error("Unable to prepare the artwork for upload.");
+    }
+
+    context.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    let quality = 0.88;
+    let blob: Blob | null = null;
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+        blob = await new Promise<Blob | null>((resolve) =>
+            canvas.toBlob(resolve, "image/webp", quality)
+        );
+        if (blob && blob.size <= MAX_UPLOAD_SIZE) break;
+        quality -= 0.10;
+    }
+
+    if (!blob || blob.size > MAX_UPLOAD_SIZE) {
+        throw new Error("The image is too large to upload. Please choose a smaller image.");
+    }
+
+    const baseName = file.name.replace(/.[^.]+$/, "") || "custom-design";
+    return new File([blob], `${baseName}.webp`, {
+        type: "image/webp",
+        lastModified: Date.now(),
+    });
+}
 
 function ContactPage() {
 
