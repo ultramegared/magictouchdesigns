@@ -62,6 +62,7 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
             whatsappTo: typeof req.body?.whatsappTo === "string" ? req.body.whatsappTo : undefined,
             channels: Array.isArray(req.body?.channels) ? req.body.channels as SocialChannel[] : undefined,
             sendEmail: Boolean(req.body?.sendEmail),
+            idempotencyKey: typeof req.body?.idempotencyKey === "string" ? req.body.idempotencyKey : undefined,
         });
         res.json({ status: "success", data: result });
     } catch (error) {
