@@ -56,43 +56,49 @@ const MAX_UPLOAD_DIMENSION = 1800;
 async function compressArtworkForUpload(file: File): Promise<File> {
     if (file.size <= MAX_UPLOAD_SIZE) return file;
 
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, MAX_UPLOAD_DIMENSION / Math.max(bitmap.width, bitmap.height));
-    const width = Math.max(1, Math.round(bitmap.width * scale));
-    const height = Math.max(1, Math.round(bitmap.height * scale));
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext("2d");
+    const objectUrl = URL.createObjectURL(file);
 
-    if (!context) {
-        bitmap.close();
-        throw new Error("Unable to prepare the artwork for upload.");
+    try {
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const element = new Image();
+            element.onload = () => resolve(element);
+            element.onerror = () => reject(new Error("Unable to read the selected image."));
+            element.src = objectUrl;
+        });
+
+        const scale = Math.min(1, MAX_UPLOAD_DIMENSION / Math.max(image.naturalWidth, image.naturalHeight));
+        const width = Math.max(1, Math.round(image.naturalWidth * scale));
+        const height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Unable to prepare the artwork for upload.");
+        context.drawImage(image, 0, 0, width, height);
+
+        let quality = 0.88;
+        let blob: Blob | null = null;
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+            blob = await new Promise<Blob | null>((resolve) =>
+                canvas.toBlob(resolve, "image/webp", quality)
+            );
+            if (blob && blob.size <= MAX_UPLOAD_SIZE) break;
+            quality -= 0.10;
+        }
+
+        if (!blob || blob.size > MAX_UPLOAD_SIZE) {
+            throw new Error("The image is too large to upload. Please choose a smaller image.");
+        }
+
+        const baseName = file.name.replace(/\.[^.]+$/, "") || "custom-design";
+        return new File([blob], `${baseName}.webp`, {
+            type: "image/webp",
+            lastModified: Date.now(),
+        });
+    } finally {
+        URL.revokeObjectURL(objectUrl);
     }
-
-    context.drawImage(bitmap, 0, 0, width, height);
-    bitmap.close();
-
-    let quality = 0.88;
-    let blob: Blob | null = null;
-
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-        blob = await new Promise<Blob | null>((resolve) =>
-            canvas.toBlob(resolve, "image/webp", quality)
-        );
-        if (blob && blob.size <= MAX_UPLOAD_SIZE) break;
-        quality -= 0.10;
-    }
-
-    if (!blob || blob.size > MAX_UPLOAD_SIZE) {
-        throw new Error("The image is too large to upload. Please choose a smaller image.");
-    }
-
-    const baseName = file.name.replace(/.[^.]+$/, "") || "custom-design";
-    return new File([blob], `${baseName}.webp`, {
-        type: "image/webp",
-        lastModified: Date.now(),
-    });
 }
 
 function ContactPage() {
@@ -124,6 +130,8 @@ function ContactPage() {
     const [customStatus, setCustomStatus] = useState<
         "idle" | "sending" | "success" | "error"
     >("idle");
+
+    const [customErrorMessage, setCustomErrorMessage] = useState("");
 
     const [supportStatus, setSupportStatus] = useState<
         "idle" | "sending" | "success" | "error"
@@ -215,6 +223,7 @@ function ContactPage() {
         }
 
         setCustomStatus("sending");
+        setCustomErrorMessage("");
 
         try {
             const form = event.currentTarget;
@@ -293,7 +302,7 @@ function ContactPage() {
             );
             setCustomStatus("error");
             const message = error instanceof Error ? error.message : "Please try again.";
-            setImageError(message);
+            setCustomErrorMessage(message);
         }
     };
 
