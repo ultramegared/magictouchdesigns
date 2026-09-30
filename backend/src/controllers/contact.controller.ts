@@ -329,7 +329,7 @@ export const submitCustomRequest = async (
                                                 </td>
                                                 <td valign="top" style="padding-left:18px;border-left:1px solid #425064;font-size:11px;line-height:1.7;color:#d5dbe4;">
                                                     <strong style="color:#ffffff;">Need help?</strong><br>
-                                                    jgydesigns@gmail.com<br>
+                                                    jqydesigns@gmail.com<br>
                                                     <a href="https://www.jqydesigns.com" style="color:#8ec5ff;text-decoration:none;">jqydesigns.com</a>
                                                 </td>
                                             </tr>
