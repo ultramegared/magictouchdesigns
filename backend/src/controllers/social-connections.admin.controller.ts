@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, publishPinterest, publishTikTokPhoto, publishYouTube, type SocialChannel } from "../services/social-connections.service";
+import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
@@ -67,7 +67,11 @@ export async function socialPublish(req: AuthenticatedRequest, res: Response) {
             catch (error) { results.pinterest = { ok: false, error: error instanceof Error ? error.message : "Pinterest publication failed." }; }
         }
         if (selected.includes("tiktok")) {
-            try { results.tiktok = await publishTikTokPhoto(userId, text, imageUrl); }
+            try {
+                results.tiktok = videoUrl
+                    ? await publishTikTokVideo(userId, text, videoUrl)
+                    : await publishTikTokPhoto(userId, text, imageUrl);
+            }
             catch (error) { results.tiktok = { ok: false, error: error instanceof Error ? error.message : "TikTok publication failed." }; }
         }
         if (selected.includes("youtube")) {
