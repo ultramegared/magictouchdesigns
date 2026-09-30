@@ -207,7 +207,7 @@ export const submitCustomRequest = async (
                                         <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                             <tr>
                                                 <td align="left" valign="middle">
-                                                    <img src="cid:jqydesigns-logo" width="210" alt="Magic Touch Designs" style="display:block;width:210px;max-width:100%;height:auto;">
+                                                    <img src="cid:jqydesigns-logo" width="110" alt="Magic Touch Designs" style="display:block;width:210px;max-width:100%;height:auto;">
                                                 </td>
                                                 <td align="right" valign="middle" style="font-size:11px;line-height:1.5;color:#4d5868;">
                                                     <strong style="color:#1659a8;">PREMIUM QUALITY</strong><br>
@@ -329,7 +329,7 @@ export const submitCustomRequest = async (
                                         <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                             <tr>
                                                 <td valign="top" style="padding-right:18px;">
-                                                    <img src="cid:jqydesigns-logo" width="130" alt="Magic Touch Designs" style="display:block;width:130px;max-width:100%;height:auto;">
+                                                    <img src="cid:jqydesigns-logo" width="75" alt="Magic Touch Designs" style="display:block;width:130px;max-width:100%;height:auto;">
                                                     <div style="margin-top:8px;font-size:11px;line-height:1.5;color:#d5dbe4;">Custom Mugs · Personalized Gifts · Premium Quality</div>
                                                 </td>
                                                 <td valign="top" style="padding-left:18px;border-left:1px solid #425064;font-size:11px;line-height:1.7;color:#d5dbe4;">
