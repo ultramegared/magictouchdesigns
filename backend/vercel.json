@@ -20,6 +20,10 @@
     {
       "path": "/api/admin/marketing/social/campaign/autopilot-run",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/admin/marketing/social/campaign/daily-summary-cron",
+      "schedule": "0 13 * * *"
     }
   ]
 }
