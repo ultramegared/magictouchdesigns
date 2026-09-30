@@ -66,6 +66,19 @@ const ensureCampaignTable = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_autopilot_idx ON marketing_campaigns(autopilot_enabled, next_run_at)`);
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_campaigns_idempotency_idx ON marketing_campaigns(idempotency_key) WHERE idempotency_key IS NOT NULL`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_created_at_idx ON marketing_campaigns(created_at DESC)`);
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
+            id BIGSERIAL PRIMARY KEY,
+            campaign_id TEXT NOT NULL,
+            channel TEXT NOT NULL,
+            run_type TEXT NOT NULL DEFAULT 'campaign',
+            published BOOLEAN NOT NULL DEFAULT FALSE,
+            result JSONB NOT NULL DEFAULT '{}'::jsonb,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_campaign_idx ON marketing_campaign_runs(campaign_id, created_at DESC)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_created_idx ON marketing_campaign_runs(created_at DESC)`);
 };
 
 const connectedSocialChannels = async (userId: string): Promise<SocialChannel[]> => {
@@ -110,6 +123,18 @@ const publishSocialCampaign = async (
         }
     }
     return results;
+};
+
+const recordCampaignRuns = async (campaignId: string, results: Record<string, unknown>, runType: "campaign" | "autopilot") => {
+    const entries = Object.entries(results);
+    for (const [channel, result] of entries) {
+        const published = Boolean((result as any)?.ok);
+        await pool.query(
+            `INSERT INTO marketing_campaign_runs (campaign_id, channel, run_type, published, result)
+             VALUES ($1,$2,$3,$4,$5::jsonb)`,
+            [campaignId, channel, runType, published, JSON.stringify(result || {})]
+        );
+    }
 };
 
 const withCampaignTracking = (url: string | undefined, campaignId: string, source: string) => {
@@ -193,15 +218,18 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
         focus: seoFocus(targetArea),
     };
 
-    if (!input.autopilot) await recordCampaignLaunchLearning({
+    if (!input.autopilot) {
+        await recordCampaignLaunchLearning({
         campaignId,
         channels: [...selected, ...(input.sendEmail ? ["email" as const] : [])],
         objective,
         targetArea,
         hasImage: Boolean(input.imageUrl?.trim()),
         hasVideo: Boolean(input.videoUrl?.trim()),
-        results: { ...social, ...(email ? { email: { ok: true } } : {}) },
-    });
+            results: { ...social, ...(email ? { email: { ok: true } } : {}) },
+        });
+        await recordCampaignRuns(campaignId, { ...social, ...(email ? { email: { ok: true, totalRecipients: email.totalRecipients } } : {}) }, "campaign");
+    }
 
     await ensureCampaignTable();
     await pool.query(
@@ -239,6 +267,51 @@ export const listMarketingCampaigns = async (limit = 20) => {
 };
 
 
+const getAdaptiveNextSlot = async (targetArea: string, objective: string, channels: SocialChannel[]) => {
+    const result = await pool.query(
+        `SELECT hour, weekday, SUM(sessions)::int sessions, SUM(conversions)::int conversions, COALESCE(SUM(revenue),0)::numeric revenue, COUNT(*)::int observations
+         FROM marketing_learning_observations
+         WHERE target_area ILIKE '%' || $1 || '%'
+           AND objective ILIKE '%' || $2 || '%'
+           AND channel = ANY($3::text[])
+         GROUP BY hour, weekday
+         HAVING COUNT(*) >= 2
+         ORDER BY
+           (
+             (SUM(conversions)::numeric / GREATEST(SUM(sessions), 1)) * 0.8
+             + LEAST((COALESCE(SUM(revenue),0)::numeric / GREATEST(SUM(sessions), 1)) / 50, 1) * 0.2
+           ) DESC,
+           SUM(conversions) DESC,
+           SUM(sessions) DESC
+         LIMIT 1`,
+        [targetArea, objective, channels]
+    );
+    const slot = result.rows[0];
+    if (!slot) return null;
+    const total = await pool.query(
+        `SELECT COUNT(*)::int AS observations
+         FROM marketing_learning_observations
+         WHERE target_area ILIKE '%' || $1 || '%'
+           AND objective ILIKE '%' || $2 || '%'
+           AND channel = ANY($3::text[])`,
+        [targetArea, objective, channels]
+    );
+    if (Number(total.rows[0]?.observations || 0) < 10) return null;
+
+    const now = new Date();
+    const desiredWeekday = Number(slot.weekday);
+    const desiredHour = Number(slot.hour);
+    if (now.getUTCDay() === desiredWeekday && now.getUTCHours() === desiredHour) return null;
+
+    const next = new Date(now);
+    next.setUTCMinutes(0, 0, 0);
+    let daysAhead = (desiredWeekday - now.getUTCDay() + 7) % 7;
+    if (daysAhead === 0 && desiredHour <= now.getUTCHours()) daysAhead = 7;
+    next.setUTCDate(next.getUTCDate() + daysAhead);
+    next.setUTCHours(desiredHour, 0, 0, 0);
+    return next;
+};
+
 export const runMarketingAutopilot = async () => {
     await ensureCampaignTable();
     const due = await pool.query(`
@@ -268,11 +341,19 @@ export const runMarketingAutopilot = async () => {
         return { ran: false, reason: "No selected channel is currently connected.", campaignId: campaign.id };
     }
 
+    const assets = campaign.results?.assets || {};
+
     const recent = await pool.query(
         `SELECT channel FROM marketing_learning_observations WHERE campaign_id=$1 AND updated_at >= NOW() - INTERVAL '24 hours'`,
         [campaign.id]
     );
     const recentlyUsed = new Set(recent.rows.map((r: any) => String(r.channel)));
+    const adaptiveSlot = await getAdaptiveNextSlot(campaign.target_area, campaign.objective, eligible);
+    if (adaptiveSlot) {
+        await pool.query(`UPDATE marketing_campaigns SET next_run_at=$2 WHERE id=$1`, [campaign.id, adaptiveSlot]);
+        return { ran: false, reason: "Waiting for the learned best publication window.", campaignId: campaign.id, nextRunAt: adaptiveSlot.toISOString() };
+    }
+
     const insights = await getMarketingLearningInsights(campaign.target_area, campaign.objective);
     const score = new Map(insights.map((r: any) => [r.channel, Number(r.score || 0)]));
     const ranked = eligible.slice().sort((a, b) => {
@@ -282,8 +363,7 @@ export const runMarketingAutopilot = async () => {
         return (score.get(b) || 0) - (score.get(a) || 0);
     });
     const channel = ranked[0];
-    const source = channel;
-    const trackedLink = withCampaignTracking(campaign.results?.google?.landingLink || undefined, campaign.id, source);
+    const trackedLink = withCampaignTracking(assets.landingLink || undefined, campaign.id, channel);
     const input: MarketingCampaignInput = {
         name: campaign.name,
         objective: campaign.objective,
@@ -305,6 +385,7 @@ export const runMarketingAutopilot = async () => {
         hasVideo: Boolean(input.videoUrl),
         results: social,
     });
+    await recordCampaignRuns(campaign.id, social, "autopilot");
 
     const nextRun = new Date(Date.now() + 60 * 60 * 1000);
     const mergedResults = {
