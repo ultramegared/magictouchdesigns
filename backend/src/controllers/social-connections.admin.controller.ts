@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
+import { launchMarketingCampaign, listMarketingCampaigns } from "../services/marketing-campaign.service";
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
     try { res.json(await getConnections(String(req.user!.userId))); }
@@ -45,6 +46,35 @@ export async function socialDisconnect(req: AuthenticatedRequest, res: Response)
         await disconnect(String(req.user!.userId), provider);
         res.json({ ok: true });
     } catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Unable to disconnect social account." }); }
+}
+
+export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Response) {
+    try {
+        const result = await launchMarketingCampaign(String(req.user!.userId), {
+            name: String(req.body?.name || ""),
+            objective: typeof req.body?.objective === "string" ? req.body.objective : undefined,
+            targetArea: typeof req.body?.targetArea === "string" ? req.body.targetArea : undefined,
+            message: String(req.body?.message || ""),
+            subject: typeof req.body?.subject === "string" ? req.body.subject : undefined,
+            imageUrl: typeof req.body?.imageUrl === "string" ? req.body.imageUrl : undefined,
+            videoUrl: typeof req.body?.videoUrl === "string" ? req.body.videoUrl : undefined,
+            link: typeof req.body?.link === "string" ? req.body.link : undefined,
+            whatsappTo: typeof req.body?.whatsappTo === "string" ? req.body.whatsappTo : undefined,
+            channels: Array.isArray(req.body?.channels) ? req.body.channels as SocialChannel[] : undefined,
+            sendEmail: Boolean(req.body?.sendEmail),
+        });
+        res.json({ status: "success", data: result });
+    } catch (error) {
+        res.status(502).json({ status: "error", error: error instanceof Error ? error.message : "Unable to launch marketing campaign." });
+    }
+}
+
+export async function marketingCampaignHistory(req: AuthenticatedRequest, res: Response) {
+    try {
+        res.json({ status: "success", campaigns: await listMarketingCampaigns(Number(req.query.limit || 20)) });
+    } catch (error) {
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load marketing campaign history." });
+    }
 }
 
 export async function socialPublish(req: AuthenticatedRequest, res: Response) {
