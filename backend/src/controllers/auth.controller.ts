@@ -15,7 +15,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 import { pool } from "../config/database";
-import { sendEmail } from "../services/email.service";
 import { sendTemplateEmail } from "../services/email-template.service";
 
 const PASSWORD_RESET_EXPIRY_MINUTES = 30;
