@@ -16,6 +16,49 @@ import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 import { pool } from "../config/database";
 import { sendEmail } from "../services/email.service";
+import { sendTemplateEmail } from "../services/email-template.service";
+
+const PASSWORD_RESET_EXPIRY_MINUTES = 30;
+const FRONTEND_URL = (process.env.FRONTEND_URL || "https://jqydesigns.com").replace(/\/$/, "");
+
+const ensurePasswordResetTable = async (): Promise<void> => {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+            token_hash TEXT PRIMARY KEY,
+            user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            expires_at TIMESTAMPTZ NOT NULL,
+            used_at TIMESTAMPTZ NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+    await pool.query(`
+        CREATE INDEX IF NOT EXISTS password_reset_tokens_user_idx
+        ON password_reset_tokens(user_id)
+    `);
+};
+
+const hashResetToken = (token: string): string =>
+    crypto.createHash("sha256").update(token).digest("hex");
+
+**
+ * ================================================================
+ * Project: Magic Touch Designs
+ * Author: ultramegared
+ * File: auth.controller.ts
+ * Module: Authentication Controller
+ * Language: TypeScript
+ * Description:
+ * User registration, authentication, and password recovery controller.
+ * ================================================================
+ */
+
+import type { Request, Response } from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
+import { pool } from "../config/database";
+import { sendEmail } from "../services/email.service";
+import { sendTemplateEmail } from "../services/email-template.service";
 
 const PASSWORD_RESET_EXPIRY_MINUTES = 30;
 const FRONTEND_URL = (process.env.FRONTEND_URL || "https://jqydesigns.com").replace(/\/$/, "");
@@ -64,7 +107,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         }
         const passwordHash = await bcrypt.hash(password, 12);
         const result = await pool.query(`INSERT INTO users (username, first_name, last_name, email, password_hash) VALUES ($1, $2, $3, $4, $5) RETURNING id, username, first_name, last_name, email, is_active, created_at, updated_at`, [normalizedUsername, normalizedFirstName, normalizedLastName, normalizedEmail, passwordHash]);
-        res.status(201).json({ status: "ok", message: "User registered successfully.", user: result.rows[0] });
+        try {\n            await sendTemplateEmail("welcome", normalizedEmail, {\n                siteName: "JQYDesigns", customerName: normalizedFirstName, supportEmail: "jqydesigns@gmail.com",\n                accountUrl: FRONTEND_URL + "/account",\n            }, "welcome:" + String(result.rows[0].id));\n        } catch (emailError) {\n            console.error("Welcome email error:", emailError);\n        }\n        res.status(201).json({ status: "ok", message: "User registered successfully.", user: result.rows[0] });
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).json({ status: "error", message: "Unable to register user." });
@@ -168,7 +211,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
         } finally {
             client.release();
         }
-        res.status(200).json({ status: "ok", message: "Password reset successfully." });
+        try {\n            const userResult = await pool.query(`SELECT first_name, email FROM users WHERE id = $1 LIMIT 1`, [tokenResult.rows[0].user_id]);\n            if (userResult.rows[0]) {\n                await sendTemplateEmail("password_changed", userResult.rows[0].email, { siteName:"JQYDesigns", customerName:userResult.rows[0].first_name || "there", supportEmail:"jqydesigns@gmail.com", accountUrl:FRONTEND_URL + "/account" }, "password-changed:" + tokenHash);\n            }\n        } catch (emailError) { console.error("Password changed email error:", emailError); }\n        res.status(200).json({ status: "ok", message: "Password reset successfully." });
     } catch (error) {
         console.error("Password reset error:", error);
         res.status(500).json({ status: "error", message: "Unable to reset the password right now." });
