@@ -81,3 +81,39 @@ export async function getAnalyticsReport(days = 28) {
     const data = await googleRequest<{ rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }>; metricHeaders?: Array<{ name?: string }> }>(ANALYTICS_API, `/properties/${encodeURIComponent(propertyId)}:runReport`, "https://www.googleapis.com/auth/analytics.readonly", { method: "POST", body: JSON.stringify({ dateRanges: [{ startDate: `${safeDays}daysAgo`, endDate: "yesterday" }], dimensions: [{ name: "date" }], metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }], limit: String(safeDays) }) });
     return { propertyId, days: safeDays, rows: data.rows || [] };
 }
+
+export async function getAnalyticsCampaignReport(days = 30) {
+    const propertyId = getAnalyticsPropertyId();
+    if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
+    const safeDays = Math.min(Math.max(Math.floor(days), 1), 90);
+    const data = await googleRequest<{
+        rows?: Array<{
+            dimensionValues?: Array<{ value?: string }>;
+            metricValues?: Array<{ value?: string }>;
+        }>;
+    }>(
+        ANALYTICS_API,
+        `/properties/${encodeURIComponent(propertyId)}:runReport`,
+        "https://www.googleapis.com/auth/analytics.readonly",
+        {
+            method: "POST",
+            body: JSON.stringify({
+                dateRanges: [{ startDate: `${safeDays}daysAgo`, endDate: "yesterday" }],
+                dimensions: [
+                    { name: "sessionManualCampaignId" },
+                    { name: "sessionManualSource" },
+                    { name: "sessionManualMedium" },
+                ],
+                metrics: [
+                    { name: "sessions" },
+                    { name: "activeUsers" },
+                    { name: "conversions" },
+                    { name: "totalRevenue" },
+                    { name: "transactions" },
+                ],
+                limit: "1000",
+            }),
+        },
+    );
+    return { propertyId, days: safeDays, rows: data.rows || [] };
+}
