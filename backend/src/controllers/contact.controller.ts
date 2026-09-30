@@ -49,8 +49,8 @@ export const contactUpload = (
     });
 };
 
-const escapeHtml = (value: string): string =>
-    value
+const escapeHtml = (value: unknown): string =>
+    String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -81,6 +81,9 @@ const sendError = (
 
 const FRONTEND_URL =
     process.env.FRONTEND_URL || "https://www.jqydesigns.com";
+
+// All customer-to-business contact requests must reach the company inbox.
+const COMPANY_CONTACT_EMAIL = "jqydesigns@gmail.com";
 
 const FONT_CATALOG: Record<string, string> = {
     modern: "Montserrat",
@@ -163,8 +166,8 @@ export const submitCustomRequest = async (
             artworkFilename: req.file.originalname || "custom-design",
         });
 
-        // Custom Mug is not a business notification at submission time.
-        // The business receives the order only after payment is verified by the payment webhook.
+        // The customer receives the request confirmation. The company also receives
+        // a separate internal notification immediately so no form submission is lost.
         const paymentUrl =
             `${FRONTEND_URL}/checkout?custom_request=${encodeURIComponent(request.id)}`;
 
@@ -387,6 +390,45 @@ export const submitCustomRequest = async (
             console.error("Custom request customer email error:", customerEmailError);
         }
 
+        try {
+            const internalHtml = `
+                <h2>New Custom Mug Request</h2>
+                <p><strong>Request:</strong> ${escapeHtml(request.requestCode)}</p>
+                <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+                <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+                <p><strong>Model:</strong> ${escapeHtml(model)}</p>
+                <p><strong>Size:</strong> ${escapeHtml(size)}</p>
+                <p><strong>Color:</strong> ${escapeHtml(color || "White")}</p>
+                <p><strong>Print sides:</strong> ${escapeHtml(printSides === "2" ? "Front + Back" : "Front")}</p>
+                <p><strong>Quantity:</strong> ${escapeHtml(quantity)}</p>
+                <p><strong>Text:</strong> ${escapeHtml(textForMug || "Not provided")}</p>
+                <p><strong>Notes:</strong><br>${escapeHtml(notes || "Not provided").replace(/\\n/g, "<br>")}</p>
+            `;
+            const internalText = [
+                "New Custom Mug Request",
+                `Request: ${request.requestCode}`,
+                `Name: ${name}`,
+                `Email: ${email}`,
+                `Model: ${model}`,
+                `Size: ${size}`,
+                `Color: ${color || "White"}`,
+                `Print sides: ${printSides === "2" ? "Front + Back" : "Front"}`,
+                `Quantity: ${quantity}`,
+                `Text: ${textForMug || "Not provided"}`,
+                `Notes: ${notes || "Not provided"}`,
+            ].join("\\n");
+            await sendEmail({
+                to: COMPANY_CONTACT_EMAIL,
+                replyTo: email,
+                subject: `JQYDesigns — New Custom Mug Request ${request.requestCode}`,
+                html: internalHtml,
+                text: internalText,
+                idempotencyKey: `custom-mug-request:${request.id}`,
+            });
+        } catch (internalEmailError) {
+            console.error("Custom request internal email error:", internalEmailError);
+        }
+
         res.status(200).json({
             status: "success",
             message: "Request received.",
@@ -473,10 +515,7 @@ export const submitSupportRequest = async (
         ].join("\n");
 
         const settings = await getSettings();
-        const recipient = settings.supportEmail.trim();
-        if (!recipient) {
-            throw new Error("Contact recipient email is not configured in Admin Settings.");
-        }
+        const recipient = COMPANY_CONTACT_EMAIL;
 
         await sendEmail({
             to: recipient,
@@ -484,6 +523,7 @@ export const submitSupportRequest = async (
             subject: `JQYDesigns — Customer Support${orderNumber ? ` — Order ${orderNumber}` : ""}`,
             html,
             text,
+            idempotencyKey: `support-request:${email}:${orderNumber || "none"}:${message.slice(0, 80)}`,
         });
 
         res.status(200).json({
