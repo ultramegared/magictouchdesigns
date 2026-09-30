@@ -2181,3 +2181,81 @@ html[data-jqy-theme="corporate"] .contact-image-preview img{
     .contact-image-preview{padding:8px;gap:10px}
     .contact-image-preview img{width:64px;height:64px;flex-basis:64px}
 }
+
+
+/* ================================================================
+   COMPACT CUSTOM IMAGE UPLOAD + LARGER PREVIEW
+================================================================ */
+
+.contact-upload{
+    min-height:72px!important;
+    height:72px;
+    padding:10px 14px;
+    gap:4px;
+    border-radius:9px;
+}
+
+.contact-upload__icon{
+    font-size:22px;
+}
+
+.contact-upload strong{
+    font-size:11px;
+    line-height:1.15;
+}
+
+.contact-upload small{
+    font-size:9px;
+    line-height:1.2;
+}
+
+.contact-image-preview{
+    min-height:112px;
+    padding:10px;
+    gap:14px;
+    border-radius:10px;
+}
+
+.contact-image-preview img{
+    width:96px;
+    height:96px;
+    flex:0 0 96px;
+    object-fit:cover;
+    border-radius:8px;
+}
+
+.contact-image-preview__meta{
+    gap:4px;
+}
+
+.contact-image-preview__meta strong{
+    font-size:12px;
+}
+
+.contact-image-preview__meta span{
+    font-size:10px;
+}
+
+@media(max-width:600px){
+    .contact-upload{
+        min-height:68px!important;
+        height:68px;
+        padding:8px 12px;
+    }
+
+    .contact-upload__icon{
+        font-size:20px;
+    }
+
+    .contact-image-preview{
+        min-height:120px;
+        padding:10px;
+        gap:13px;
+    }
+
+    .contact-image-preview img{
+        width:100px;
+        height:100px;
+        flex-basis:100px;
+    }
+}
