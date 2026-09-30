@@ -163,100 +163,10 @@ export const submitCustomRequest = async (
             artworkFilename: req.file.originalname || "custom-design",
         });
 
-        const settings = await getSettings();
-        const recipient = settings.supportEmail.trim();
-        if (!recipient) {
-            throw new Error(
-                "Contact recipient email is not configured in Admin Settings."
-            );
-        }
-
+        // Custom Mug is not a business notification at submission time.
+        // The business receives the order only after payment is verified by the payment webhook.
         const paymentUrl =
             `${FRONTEND_URL}/checkout?custom_request=${encodeURIComponent(request.id)}`;
-
-        const handleLabel =
-            color.startsWith("White + ")
-                ? color
-                : color || "White";
-
-        const sideLabel =
-            printSides === "2"
-                ? "View Front + View Back (+$2.00)"
-                : "View Front";
-
-        const html = `
-            <div style="font-family:Arial,sans-serif;color:#202020;max-width:760px">
-                <h2 style="margin-bottom:6px">New Custom Mug Request ${escapeHtml(request.requestCode)}</h2>
-                <p style="color:#666">Request received. Payment is currently <strong>pending</strong>.</p>
-
-                <h3>Customer</h3>
-                <p><strong>Name:</strong> ${escapeHtml(name)}<br>
-                <strong>Email:</strong> ${escapeHtml(email)}</p>
-
-                <h3>Mug configuration</h3>
-                <p>
-                    <strong>Model:</strong> ${escapeHtml(model)}<br>
-                    <strong>Size:</strong> ${escapeHtml(size)}<br>
-                    <strong>Color:</strong> ${escapeHtml(handleLabel)}<br>
-                    <strong>Design views:</strong> ${escapeHtml(sideLabel)}<br>
-                    <strong>Font style:</strong> ${escapeHtml(fontStyle)}<br>
-                    <strong>Font name:</strong> ${escapeHtml(fontName)}<br>
-                    <strong>Quantity:</strong> ${quantity}<br>
-                    <strong>Unit price:</strong> $${request.unitPrice.toFixed(2)}<br>
-                    <strong>Merchandise subtotal:</strong> $${request.subtotal.toFixed(2)}
-                </p>
-
-                <h3>Design</h3>
-                <p><strong>Text for mug:</strong><br>${escapeHtml(textForMug || "None")}</p>
-                <p><strong>Additional details:</strong><br>${escapeHtml(notes || "None")}</p>
-
-                <p style="padding:14px;background:#f7f3e8;border-radius:8px">
-                    <strong>Shipping:</strong> USPS will be calculated after the customer enters the delivery address.<br>
-                    <strong>Sales tax:</strong> Calculated during secure checkout when applicable.<br>
-                    <strong>Current merchandise total:</strong> $${request.subtotal.toFixed(2)}
-                </p>
-
-                <p style="margin-top:20px">
-                    <strong>Artwork attached:</strong> ${escapeHtml(req.file.originalname || "custom-design")}
-                </p>
-            </div>
-        `;
-
-        const text = [
-            `New Custom Mug Request ${request.requestCode}`,
-            "Payment status: Pending",
-            `Name: ${name}`,
-            `Email: ${email}`,
-            `Model: ${model}`,
-            `Size: ${size}`,
-            `Color: ${handleLabel}`,
-            `Design views: ${sideLabel}`,
-            `Font style: ${fontStyle}`,
-            `Font name: ${fontName}`,
-            `Quantity: ${quantity}`,
-            `Unit price: $${request.unitPrice.toFixed(2)}`,
-            `Merchandise subtotal: $${request.subtotal.toFixed(2)}`,
-            `Text for mug: ${textForMug || "None"}`,
-            `Additional details: ${notes || "None"}`,
-            "Shipping: USPS calculated at checkout.",
-            "Sales tax: Calculated at checkout when applicable.",
-        ].join("\n");
-
-        await sendEmail({
-            to: recipient,
-            replyTo: email,
-            subject: `JQYDesigns — Custom Mug Request ${request.requestCode} from ${name}`,
-            html,
-            text,
-            attachments: [
-                {
-                    filename: req.file.originalname || "custom-design",
-                    content: req.file.buffer.toString("base64"),
-                    contentType: req.file.mimetype,
-                },
-            ],
-            idempotencyKey: `custom-request/admin/${request.id}`,
-        });
 
         try {
             await sendEmail({
