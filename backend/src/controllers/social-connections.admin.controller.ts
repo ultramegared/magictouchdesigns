@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, type SocialChannel } from "../services/social-connections.service";
+import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, publishPinterest, publishTikTokPhoto, publishYouTube, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
@@ -53,11 +53,27 @@ export async function socialPublish(req: AuthenticatedRequest, res: Response) {
         const allowed: SocialChannel[] = ["facebook", "instagram", "whatsapp", "tiktok", "youtube", "pinterest"];
         const selected = channels.filter((channel): channel is SocialChannel => allowed.includes(channel));
         if (!selected.length) return res.status(400).json({ error: "Select at least one social channel." });
+        const userId = String(req.user!.userId);
+        const text = String(req.body?.text || "");
+        const imageUrl = typeof req.body?.imageUrl === "string" ? req.body.imageUrl : undefined;
+        const videoUrl = typeof req.body?.videoUrl === "string" ? req.body.videoUrl : undefined;
+        const link = typeof req.body?.link === "string" ? req.body.link : undefined;
         const metaChannels = selected.filter(channel => ["facebook", "instagram", "whatsapp"].includes(channel));
         const results: Record<string, unknown> = metaChannels.length
-            ? await publishMeta(String(req.user!.userId), metaChannels, String(req.body?.text || ""), req.body?.imageUrl, req.body?.link, req.body?.whatsappTo)
+            ? await publishMeta(userId, metaChannels, text, imageUrl, link, req.body?.whatsappTo)
             : {};
-        for (const channel of selected.filter(channel => !metaChannels.includes(channel))) results[channel] = { ok: false, error: `${channel} publishing requires its channel-specific media workflow.` };
+        if (selected.includes("pinterest")) {
+            try { results.pinterest = await publishPinterest(userId, text, imageUrl, link); }
+            catch (error) { results.pinterest = { ok: false, error: error instanceof Error ? error.message : "Pinterest publication failed." }; }
+        }
+        if (selected.includes("tiktok")) {
+            try { results.tiktok = await publishTikTokPhoto(userId, text, imageUrl); }
+            catch (error) { results.tiktok = { ok: false, error: error instanceof Error ? error.message : "TikTok publication failed." }; }
+        }
+        if (selected.includes("youtube")) {
+            try { results.youtube = await publishYouTube(userId, text, videoUrl, link); }
+            catch (error) { results.youtube = { ok: false, error: error instanceof Error ? error.message : "YouTube publication failed." }; }
+        }
         res.json({ results });
     } catch (error) { res.status(502).json({ error: error instanceof Error ? error.message : "Unable to publish social campaign." }); }
 }
