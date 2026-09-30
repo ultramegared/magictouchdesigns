@@ -88,29 +88,54 @@ export async function publishPinterest(userId: string, text: string, imageUrl?: 
     return { ok: true, id: data.id, account: profile.username || profile.business_name || "Pinterest" };
 }
 
-export async function publishTikTokPhoto(userId: string, text: string, imageUrl?: string) {
-    if (!imageUrl) throw new Error("TikTok photo publishing requires an image URL.");
-    const token = await getAccessToken(userId, "tiktok");
+async function getTikTokCreator(token: string) {
     const creatorResponse = await fetch("https://open.tiktokapis.com/v2/post/publish/creator_info/query/", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
     });
     const creator = await creatorResponse.json();
-    if (!creatorResponse.ok) throw new Error(creator.error?.message || "Unable to read TikTok creator information.");
-    const privacy = creator.data?.privacy_level_options?.[0] || "SELF_ONLY";
+    if (!creatorResponse.ok || creator.error?.code && creator.error.code !== "ok") {
+        throw new Error(creator.error?.message || "Unable to read TikTok creator information.");
+    }
+    return creator.data || {};
+}
+
+export async function publishTikTokPhoto(userId: string, text: string, imageUrl?: string) {
+    if (!imageUrl) throw new Error("TikTok photo publishing requires an image URL.");
+    const token = await getAccessToken(userId, "tiktok");
+    const creator = await getTikTokCreator(token);
+    const privacy = creator.privacy_level_options?.[0] || "SELF_ONLY";
     const response = await fetch("https://open.tiktokapis.com/v2/post/publish/content/init/", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-            post_info: { title: text.slice(0, 2200), description: text.slice(0, 2200), privacy_level: privacy },
-            source_info: { source: "PULL_FROM_URL", photo_images: [imageUrl] },
+            post_info: { title: text.slice(0, 90), description: text.slice(0, 4000), privacy_level: privacy, brand_organic_toggle: true },
+            source_info: { source: "PULL_FROM_URL", photo_cover_index: 0, photo_images: [imageUrl] },
             post_mode: "DIRECT_POST",
             media_type: "PHOTO"
         })
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "TikTok publication failed.");
-    return { ok: true, id: data.data?.publish_id, account: creator.data?.creator_username || creator.data?.creator_nickname || "TikTok" };
+    if (!response.ok || data.error?.code && data.error.code !== "ok") throw new Error(data.error?.message || "TikTok photo publication failed.");
+    return { ok: true, id: data.data?.publish_id, account: creator.creator_username || creator.creator_nickname || "TikTok" };
+}
+
+export async function publishTikTokVideo(userId: string, text: string, videoUrl?: string) {
+    if (!videoUrl) throw new Error("TikTok video publishing requires a public video URL.");
+    const token = await getAccessToken(userId, "tiktok");
+    const creator = await getTikTokCreator(token);
+    const privacy = creator.privacy_level_options?.[0] || "SELF_ONLY";
+    const response = await fetch("https://open.tiktokapis.com/v2/post/publish/video/init/", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+            post_info: { title: text.slice(0, 2200), privacy_level: privacy, brand_organic_toggle: true },
+            source_info: { source: "PULL_FROM_URL", video_url: videoUrl }
+        })
+    });
+    const data = await response.json();
+    if (!response.ok || data.error?.code && data.error.code !== "ok") throw new Error(data.error?.message || "TikTok video publication failed.");
+    return { ok: true, id: data.data?.publish_id, account: creator.creator_username || creator.creator_nickname || "TikTok" };
 }
 
 export async function publishMeta(userId: string, channels: SocialChannel[], text: string, imageUrl?: string, link?: string, whatsappTo?: string) { const token = await getAccessToken(userId, "meta"); const profile = await metaProfile(token); const results: Record<string, unknown> = {}; const base = `https://graph.facebook.com/${META_VERSION}`; for (const channel of channels) { try { if (channel === "facebook") { const page = profile.pages?.[0]; if (!page) throw new Error("No Facebook Page was authorized."); const params = new URLSearchParams({ message: text, access_token: page.accessToken }); if (link) params.set("link", link); const r = await fetch(`${base}/${page.id}/feed`, { method: "POST", body: params }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Facebook publication failed."); results.facebook = { ok: true, id: d.id, account: page.name }; } else if (channel === "instagram") { const account = profile.instagram?.[0]; if (!account) throw new Error("No Instagram Professional account was authorized."); if (!imageUrl) throw new Error("Instagram requires an image URL for this publication."); const pageToken = profile.pages?.find((p: any) => p.id === account.pageId)?.accessToken || token; const params = new URLSearchParams({ image_url: imageUrl, caption: text, access_token: pageToken }); const create = await fetch(`${base}/${account.id}/media`, { method: "POST", body: params }); const created = await create.json(); if (!create.ok) throw new Error(created.error?.message || "Instagram media creation failed."); const publish = await fetch(`${base}/${account.id}/media_publish`, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ creation_id: created.id, access_token: pageToken }) }); const published = await publish.json(); if (!publish.ok) throw new Error(published.error?.message || "Instagram publication failed."); results.instagram = { ok: true, id: published.id, account: account.username || account.name }; } else if (channel === "whatsapp") { const phone = profile.whatsapp?.[0]; if (!phone) throw new Error("No WhatsApp Business phone was authorized."); if (!whatsappTo) throw new Error("WhatsApp requires a recipient phone number."); const r = await fetch(`${base}/${phone.id}/messages`, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ messaging_product: "whatsapp", to: whatsappTo, type: "text", text: { body: text } }) }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "WhatsApp message failed."); results.whatsapp = { ok: true, id: d.messages?.[0]?.id, account: phone.display_phone_number }; } else results[channel] = { ok: false, error: `${channel} connection is supported, but its publisher requires channel-specific media/API handling.` }; } catch (error) { results[channel] = { ok: false, error: error instanceof Error ? error.message : "Publication failed." }; } } return results; }
