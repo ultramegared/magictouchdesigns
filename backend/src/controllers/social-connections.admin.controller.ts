@@ -60,7 +60,7 @@ export async function socialPublish(req: AuthenticatedRequest, res: Response) {
         const link = typeof req.body?.link === "string" ? req.body.link : undefined;
         const metaChannels = selected.filter(channel => ["facebook", "instagram", "whatsapp"].includes(channel));
         const results: Record<string, unknown> = metaChannels.length
-            ? await publishMeta(userId, metaChannels, text, imageUrl, link, req.body?.whatsappTo)
+            ? await publishMeta(userId, metaChannels, text, imageUrl, link, req.body?.whatsappTo, videoUrl)
             : {};
         if (selected.includes("pinterest")) {
             try { results.pinterest = await publishPinterest(userId, text, imageUrl, link); }
