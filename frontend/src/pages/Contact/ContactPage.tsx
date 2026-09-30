@@ -50,8 +50,8 @@ const ALLOWED_IMAGE_TYPES = [
 ];
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-const MAX_UPLOAD_SIZE = 2.8 * 1024 * 1024;
-const MAX_UPLOAD_DIMENSION = 2400;
+const MAX_UPLOAD_SIZE = 1.5 * 1024 * 1024;
+const MAX_UPLOAD_DIMENSION = 1800;
 
 async function compressArtworkForUpload(file: File): Promise<File> {
     if (file.size <= MAX_UPLOAD_SIZE) return file;
@@ -292,6 +292,8 @@ function ContactPage() {
                 error
             );
             setCustomStatus("error");
+            const message = error instanceof Error ? error.message : "Please try again.";
+            setImageError(message);
         }
     };
 
