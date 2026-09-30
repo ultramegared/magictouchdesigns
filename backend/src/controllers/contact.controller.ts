@@ -109,7 +109,6 @@ export const submitCustomRequest = async (
         const name = clean(req.body?.name, 120);
         const email = clean(req.body?.email, 254);
         const textForMug = clean(req.body?.text, 500);
-        const fontStyle = clean(req.body?.fontStyle, 40) || "modern";
         const requestedFontStyle = clean(req.body?.fontStyle, 40) || "modern";
         const fontStyle = FONT_CATALOG[requestedFontStyle] ? requestedFontStyle : "modern";
         const fontName = FONT_CATALOG[fontStyle];
