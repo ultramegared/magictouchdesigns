@@ -29,9 +29,81 @@ export async function getConnections(userId: string) { await ensureSocialConnect
 export function getConnectUrl(provider: SocialProvider, userId: string) { const config = providerConfig(provider); if (!config.configured || !config.clientId) throw new Error(`${provider} integration is not configured on the server.`); const state = jwt.sign({ userId, provider }, stateSecret(), { expiresIn: "10m" }); const url = new URL(config.authorize); url.searchParams.set("client_id", config.clientId); url.searchParams.set("redirect_uri", redirectUri(provider)); url.searchParams.set("response_type", "code"); url.searchParams.set("state", state); if (provider === "meta") url.searchParams.set("scope", config.scopes.join(",")); else if (provider === "pinterest") url.searchParams.set("scope", config.scopes.join(",")); else url.searchParams.set("scope", config.scopes.join(" ")); if (provider === "tiktok") { url.searchParams.set("client_key", config.clientId); url.searchParams.delete("client_id"); } if (provider === "youtube") { url.searchParams.set("access_type", "offline"); url.searchParams.set("prompt", "consent"); } if (provider === "pinterest") url.searchParams.set("continuous_refresh", "true"); return url.toString(); }
 async function exchange(provider: SocialProvider, code: string) { const config = providerConfig(provider); const uri = redirectUri(provider); if (provider === "meta") { const url = new URL(config.token); url.searchParams.set("client_id", String(config.clientId)); url.searchParams.set("client_secret", String(config.clientSecret)); url.searchParams.set("redirect_uri", uri); url.searchParams.set("code", code); const response = await fetch(url); return response.json(); } const body = new URLSearchParams({ client_id: String(config.clientId), client_secret: String(config.clientSecret), code, redirect_uri: uri, grant_type: "authorization_code" }); if (provider === "tiktok") { body.set("client_key", String(config.clientId)); body.delete("client_id"); } const response = await fetch(config.token, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body }); return response.json(); }
 async function metaProfile(accessToken: string) { const base = `https://graph.facebook.com/${META_VERSION}`; const headers = { Authorization: `Bearer ${accessToken}` }; const meResponse = await fetch(`${base}/me?fields=id,name`, { headers }); const me = await meResponse.json(); if (!meResponse.ok) throw new Error(me.error?.message || "Unable to read the Meta account."); const pagesResponse = await fetch(`${base}/me/accounts?fields=id,name,access_token,instagram_business_account{id,username,name,profile_picture_url}`, { headers }); const pagesData = await pagesResponse.json(); const pages = (pagesData.data || []).map((page: any) => ({ id: page.id, name: page.name, accessToken: page.access_token, instagram: page.instagram_business_account || null })); const instagram = pages.filter((page: any) => page.instagram).map((page: any) => ({ ...page.instagram, pageId: page.id, pageName: page.name })); const businessesResponse = await fetch(`${base}/me/businesses?fields=id,name`, { headers }); const businessesData = await businessesResponse.json(); const whatsapp: any[] = []; for (const business of businessesData.data || []) { const wabaResponse = await fetch(`${base}/${business.id}/owned_whatsapp_business_accounts?fields=id,name`, { headers }); const wabaData = await wabaResponse.json(); for (const waba of wabaData.data || []) { const phonesResponse = await fetch(`${base}/${waba.id}/phone_numbers?fields=id,display_phone_number,verified_name`, { headers }); const phonesData = await phonesResponse.json(); for (const phone of phonesData.data || []) whatsapp.push({ businessId: business.id, businessName: business.name, wabaId: waba.id, wabaName: waba.name, ...phone }); } } return { id: me.id, name: me.name, pages, instagram, whatsapp }; }
-async function providerProfile(provider: SocialProvider, accessToken: string) { if (provider === "meta") return metaProfile(accessToken); if (provider === "tiktok") { const r = await fetch("https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,avatar_url,username", { headers: { Authorization: `Bearer ${accessToken}` } }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Unable to read TikTok account."); return d.data?.user || {}; } if (provider === "pinterest") { const r = await fetch("https://api.pinterest.com/v5/user_account", { headers: { Authorization: `Bearer ${accessToken}` } }); const d = await r.json(); if (!r.ok) throw new Error(d.message || "Unable to read Pinterest account."); return d; } const r = await fetch("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true", { headers: { Authorization: `Bearer ${accessToken}` } }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Unable to read YouTube account."); return d.items?.[0] || {}; }
+async function providerProfile(provider: SocialProvider, accessToken: string) { if (provider === "meta") return metaProfile(accessToken); if (provider === "tiktok") { const r = await fetch("https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,avatar_url,username", { headers: { Authorization: `Bearer ${accessToken}` } }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Unable to read TikTok account."); return d.data?.user || {}; } if (provider === "pinterest") { const r = await fetch("https://api.pinterest.com/v5/user_account", { headers: { Authorization: `Bearer ${accessToken}` } }); const d = await r.json(); if (!r.ok) throw new Error(d.message || "Unable to read Pinterest account."); const boardsResponse = await fetch("https://api.pinterest.com/v5/boards?page_size=50", { headers: { Authorization: `Bearer ${accessToken}` } }); const boardsData = await boardsResponse.json(); return { ...d, boards: boardsData.items || [] }; } const r = await fetch("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true", { headers: { Authorization: `Bearer ${accessToken}` } }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Unable to read YouTube account."); return d.items?.[0] || {}; }
 export async function handleCallback(provider: SocialProvider, code: string, state: string) { const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: SocialProvider }; if (payload.provider !== provider) throw new Error("Invalid social connection state."); const tokens = await exchange(provider, code); if (tokens.error) throw new Error(tokens.error_description || tokens.error.message || "Provider authorization failed."); const profile = await providerProfile(provider, String(tokens.access_token)); await saveConnection(payload.userId, provider, tokens, profile); return payload.userId; }
 async function getAccessToken(userId: string, provider: SocialProvider) { await ensureSocialConnectionsTable(); const result = await pool.query<{ access_token: string }>(`SELECT access_token FROM marketing_social_connections WHERE user_id=$1 AND provider=$2`, [userId, provider]); if (!result.rows[0]) throw new Error(`${provider} is not connected.`); return decrypt(result.rows[0].access_token) as string; }
 export async function disconnect(userId: string, provider: SocialProvider) { await ensureSocialConnectionsTable(); await pool.query(`DELETE FROM marketing_social_connections WHERE user_id=$1 AND provider=$2`, [userId, provider]); }
+export async function publishPinterest(userId: string, text: string, imageUrl?: string, link?: string) {
+    if (!imageUrl) throw new Error("Pinterest requires an image URL.");
+    const token = await getAccessToken(userId, "pinterest");
+    const profile = await providerProfile("pinterest", token) as any;
+    const board = profile.boards?.[0];
+    if (!board?.id) throw new Error("No Pinterest board is available for this account.");
+    const response = await fetch("https://api.pinterest.com/v5/pins", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+            board_id: board.id,
+            title: text.slice(0, 100),
+            description: text.slice(0, 500),
+            link: link || undefined,
+            media_source: { source_type: "image_url", url: imageUrl, is_standard: true }
+        })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || data.error?.message || "Pinterest publication failed.");
+    return { ok: true, id: data.id, account: profile.username || profile.business_name || "Pinterest" };
+}
+
+export async function publishTikTokPhoto(userId: string, text: string, imageUrl?: string) {
+    if (!imageUrl) throw new Error("TikTok photo publishing requires an image URL.");
+    const token = await getAccessToken(userId, "tiktok");
+    const creatorResponse = await fetch("https://open.tiktokapis.com/v2/post/publish/creator_info/query/", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+    });
+    const creator = await creatorResponse.json();
+    if (!creatorResponse.ok) throw new Error(creator.error?.message || "Unable to read TikTok creator information.");
+    const privacy = creator.data?.privacy_level_options?.[0] || "SELF_ONLY";
+    const response = await fetch("https://open.tiktokapis.com/v2/post/publish/content/init/", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+            post_info: { title: text.slice(0, 2200), description: text.slice(0, 2200), privacy_level: privacy },
+            source_info: { source: "PULL_FROM_URL", photo_images: [imageUrl] },
+            post_mode: "DIRECT_POST",
+            media_type: "PHOTO"
+        })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || "TikTok publication failed.");
+    return { ok: true, id: data.data?.publish_id, account: creator.data?.creator_username || creator.data?.creator_nickname || "TikTok" };
+}
+
 export async function publishMeta(userId: string, channels: SocialChannel[], text: string, imageUrl?: string, link?: string, whatsappTo?: string) { const token = await getAccessToken(userId, "meta"); const profile = await metaProfile(token); const results: Record<string, unknown> = {}; const base = `https://graph.facebook.com/${META_VERSION}`; for (const channel of channels) { try { if (channel === "facebook") { const page = profile.pages?.[0]; if (!page) throw new Error("No Facebook Page was authorized."); const params = new URLSearchParams({ message: text, access_token: page.accessToken }); if (link) params.set("link", link); const r = await fetch(`${base}/${page.id}/feed`, { method: "POST", body: params }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Facebook publication failed."); results.facebook = { ok: true, id: d.id, account: page.name }; } else if (channel === "instagram") { const account = profile.instagram?.[0]; if (!account) throw new Error("No Instagram Professional account was authorized."); if (!imageUrl) throw new Error("Instagram requires an image URL for this publication."); const pageToken = profile.pages?.find((p: any) => p.id === account.pageId)?.accessToken || token; const params = new URLSearchParams({ image_url: imageUrl, caption: text, access_token: pageToken }); const create = await fetch(`${base}/${account.id}/media`, { method: "POST", body: params }); const created = await create.json(); if (!create.ok) throw new Error(created.error?.message || "Instagram media creation failed."); const publish = await fetch(`${base}/${account.id}/media_publish`, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ creation_id: created.id, access_token: pageToken }) }); const published = await publish.json(); if (!publish.ok) throw new Error(published.error?.message || "Instagram publication failed."); results.instagram = { ok: true, id: published.id, account: account.username || account.name }; } else if (channel === "whatsapp") { const phone = profile.whatsapp?.[0]; if (!phone) throw new Error("No WhatsApp Business phone was authorized."); if (!whatsappTo) throw new Error("WhatsApp requires a recipient phone number."); const r = await fetch(`${base}/${phone.id}/messages`, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ messaging_product: "whatsapp", to: whatsappTo, type: "text", text: { body: text } }) }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "WhatsApp message failed."); results.whatsapp = { ok: true, id: d.messages?.[0]?.id, account: phone.display_phone_number }; } else results[channel] = { ok: false, error: `${channel} connection is supported, but its publisher requires channel-specific media/API handling.` }; } catch (error) { results[channel] = { ok: false, error: error instanceof Error ? error.message : "Publication failed." }; } } return results; }
+export async function publishYouTube(userId: string, text: string, videoUrl?: string, link?: string) {
+    if (!videoUrl) throw new Error("YouTube requires a public video URL.");
+    const token = await getAccessToken(userId, "youtube");
+    const videoResponse = await fetch(videoUrl);
+    if (!videoResponse.ok) throw new Error("Unable to download the video from the supplied URL.");
+    const videoBuffer = Buffer.from(await videoResponse.arrayBuffer());
+    const title = text.split(/\\r?\\n/)[0].slice(0, 100) || "JQYDesigns";
+    const metadata = {
+        snippet: { title, description: link ? `${text}\\n\\n${link}` : text, categoryId: "22" },
+        status: { privacyStatus: "private" }
+    };
+    const init = await fetch("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": videoResponse.headers.get("content-type") || "video/mp4", "X-Upload-Content-Length": String(videoBuffer.length) },
+        body: JSON.stringify(metadata)
+    });
+    if (!init.ok) { const d = await init.json().catch(() => ({})); throw new Error(d.error?.message || "YouTube upload initialization failed."); }
+    const uploadUrl = init.headers.get("location");
+    if (!uploadUrl) throw new Error("YouTube did not return an upload URL.");
+    const uploaded = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": videoResponse.headers.get("content-type") || "video/mp4", "Content-Length": String(videoBuffer.length) }, body: videoBuffer });
+    const data = await uploaded.json().catch(() => ({}));
+    if (!uploaded.ok) throw new Error(data.error?.message || "YouTube video upload failed.");
+    return { ok: true, id: data.id, account: "YouTube" };
+}
+
 export function isSocialProvider(value: string): value is SocialProvider { return ["meta", "tiktok", "youtube", "pinterest"].includes(value); }
