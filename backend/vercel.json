@@ -16,6 +16,10 @@
     {
       "path": "/api/cron/marketing-learning",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/admin/marketing/social/campaign/autopilot-run",
+      "schedule": "0 * * * *"
     }
   ]
 }
