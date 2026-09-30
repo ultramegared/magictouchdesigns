@@ -143,7 +143,7 @@ export const getMarketingLearningSummary = async () => {
   return {
     algorithm: "JQY Marketing Adaptive Engine v1",
     observations: insights.reduce((sum: number, row: any) => sum + row.observations, 0),
-    campaignsLearned: new Set(learnedChannels.map((row: any) => row.observations)).size,
+    campaignsLearned: learnedChannels.reduce((sum: number, row: any) => sum + row.observations, 0),
     insights,
     nextAction: learnedChannels.length ? `Prioritize ${learnedChannels[0].channel} while continuing controlled exploration of other connected channels.` : "Collect the first campaign results; the engine will begin learning immediately.",
   };
