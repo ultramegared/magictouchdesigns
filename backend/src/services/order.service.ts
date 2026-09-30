@@ -8,7 +8,7 @@
 import crypto from "crypto";
 import { pool } from "../config/database";
 import { getProductById } from "./product.service";
-import { sendEmail } from "./email.service";
+import { sendTemplateEmail } from "./email-template.service";
 import { getShippingQuote } from "./shipping.service";
 import { getSettings } from "./settings.service";
 import { getCustomMugRequest, markCustomMugRequestPaid, getCustomMugArtworkAttachment, ensureCustomMugRequestTable } from "./custom-mug.service";
@@ -315,113 +315,53 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
     const order = orderResult.rows[0];
     if (!order) throw new Error("Order not found for customization email.");
     const itemsResult = await pool.query("SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC", [order.id]);
-    const customItems = itemsResult.rows.filter((item: any) => item.variant?.designDataUrl || item.variant?.customRequestId);
+    const customItems = itemsResult.rows.filter((item:any) => item.variant?.designDataUrl || item.variant?.customRequestId);
     if (!customItems.length) return;
-
-    const attachments: Array<{ filename: string; content: string; contentType?: string }> = [];
+    const attachments:Array<{filename:string;content:string;contentType?:string}> = [];
     for (const item of customItems) {
-        if (item.variant?.designDataUrl) {
-            attachments.push(dataUrlToAttachment(item.variant.designDataUrl, item.variant.designFileName, attachments.length));
-        }
+        if (item.variant?.designDataUrl) attachments.push(dataUrlToAttachment(item.variant.designDataUrl, item.variant.designFileName, attachments.length));
         if (item.variant?.customRequestId) {
             const attachment = await getCustomMugArtworkAttachment(String(item.variant.customRequestId));
             if (attachment) attachments.push(attachment);
         }
     }
-
-    const itemRows = itemsResult.rows.map((item: any) =>
-        "<tr><td style='padding:8px;border-bottom:1px solid #eee'><strong>" +
-        escapeHtml(item.product_name) +
-        "</strong><br><span>" +
-        escapeHtml(item.variant?.model || "Mug") + " · " +
-        escapeHtml(item.variant?.size || "") + " · " +
-        escapeHtml(item.variant?.color || "") +
-        (item.variant?.printSides ? " · " + (item.variant.printSides === "2" ? "View Front + View Back" : "View Front") : "") +
-        (item.variant?.fontName ? " · Font: " + escapeHtml(item.variant.fontName) : "") +
-        "</span></td><td style='padding:8px;border-bottom:1px solid #eee;text-align:center'>" +
-        item.quantity +
-        "</td><td style='padding:8px;border-bottom:1px solid #eee;text-align:right'>$" +
-        Number(item.unit_price).toFixed(2) +
-        "</td></tr>"
-    ).join("");
-
-    const shippingAddress = order.shipping_address || {};
-    const html =
-        "<div style='font-family:Arial,sans-serif;color:#202020;max-width:760px'>" +
-        "<h1>New Custom Mug Order " + escapeHtml(order.order_code) + "</h1>" +
-        "<p>Payment confirmed. Production information is below.</p>" +
-        "<h2>Customer</h2><p><strong>" +
-        escapeHtml(order.customer_first_name) + " " + escapeHtml(order.customer_last_name) +
-        "</strong><br>" + escapeHtml(order.customer_email) +
-        (order.customer_phone ? "<br>" + escapeHtml(order.customer_phone) : "") +
-        "</p><h2>Shipping</h2><p>" +
-        escapeHtml(shippingAddress.address) +
-        (shippingAddress.apartment ? "<br>" + escapeHtml(shippingAddress.apartment) : "") +
-        "<br>" + escapeHtml(shippingAddress.city) + ", " +
-        escapeHtml(shippingAddress.state) + " " + escapeHtml(shippingAddress.zip) +
-        "<br>Shipping charged: <strong>$" + Number(order.shipping).toFixed(2) +
-        "</strong></p><h2>Production / Order Details</h2>" +
-        "<table style='width:100%;border-collapse:collapse'><tbody>" + itemRows +
-        "</tbody></table><p><strong>Subtotal:</strong> $" +
-        Number(order.subtotal).toFixed(2) +
-        "<br><strong>Sales tax:</strong> $" + Number(order.tax).toFixed(2) +
-        "<br><strong>Shipping:</strong> $" + Number(order.shipping).toFixed(2) +
-        "<br><strong>Total paid:</strong> $" + Number(order.total).toFixed(2) +
-        "<br><strong>Payment:</strong> " + escapeHtml(order.payment_provider) +
-        " / " + escapeHtml(order.payment_method) +
-        "</p><p><strong>Artwork attached:</strong> " + attachments.length + " file(s).</p></div>";
-
-    const text = [
-        "New Custom Mug Order " + order.order_code,
-        "Customer: " + order.customer_first_name + " " + order.customer_last_name + " <" + order.customer_email + ">",
-        "Shipping: " + shippingAddress.address + ", " + shippingAddress.city + ", " + shippingAddress.state + " " + shippingAddress.zip,
-        "Subtotal: $" + Number(order.subtotal).toFixed(2),
-        "Tax: $" + Number(order.tax).toFixed(2),
-        "Shipping: $" + Number(order.shipping).toFixed(2),
-        "Total: $" + Number(order.total).toFixed(2),
-        "Selected font: " + (customItems[0]?.variant?.fontName || "Not specified"),
-        "Design views: " + (customItems[0]?.variant?.printSides === "2" ? "Front + Back" : "Front"),
-        "Custom artwork files are attached.",
-    ].join("\n");
-
+    const orderItems = itemsResult.rows.map((item:any) => String(item.product_name) + " × " + String(item.quantity) + " — $" + Number(item.unit_price).toFixed(2)).join("\n");
+    const requestCode = customItems.map((item:any) => item.variant?.customRequestId).filter(Boolean).join(", ") || "Custom order";
     const settings = await getSettings();
     const recipient = settings.supportEmail.trim() || process.env.ORDER_NOTIFICATION_EMAIL || process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com";
-    await sendEmail({
-        to: recipient,
-        subject: "New Custom Mug Order " + order.order_code,
-        html,
-        text,
-        attachments,
-        idempotencyKey: "custom-order/" + order.id,
-    });
-
+    await sendTemplateEmail("custom_mug_paid", recipient, {
+        siteName:"JQYDesigns", customerName:(order.customer_first_name + " " + order.customer_last_name).trim(), customerEmail:order.customer_email,
+        orderCode:order.order_code, requestCode, orderTotal:"$" + Number(order.total).toFixed(2),
+        paymentProvider:order.payment_provider || "payment provider", orderItems,
+        orderUrl:FRONTEND_URL + "/admin/orders", supportEmail:settings.supportEmail || "jqydesigns@gmail.com"
+    }, "custom-order/" + order.id, order.customer_email, attachments);
     for (const item of customItems) {
-        if (item.variant?.customRequestId) {
-            await markCustomMugRequestPaid(String(item.variant.customRequestId));
-        }
+        if (item.variant?.customRequestId) await markCustomMugRequestPaid(String(item.variant.customRequestId));
         if (item.variant?.designDataUrl) {
-            await pool.query(
-                "UPDATE order_items SET variant = variant - 'designDataUrl' - 'designFileName' - 'designScale' - 'designX' - 'designY' - 'designRotation' - 'mugRotation' WHERE id = $1",
-                [item.id],
-            );
+            await pool.query("UPDATE order_items SET variant = variant - 'designDataUrl' - 'designFileName' - 'designScale' - 'designX' - 'designY' - 'designRotation' - 'mugRotation' WHERE id = $1", [item.id]);
         }
     }
 };
 
 export const sendCustomerOrderConfirmation = async (orderIdOrCode: string): Promise<void> => {
     await ensureOrderTables();
-    const orderResult = await pool.query(`SELECT * FROM orders WHERE id::text = $1 OR order_code = $1 LIMIT 1`, [orderIdOrCode]);
+    const orderResult = await pool.query("SELECT * FROM orders WHERE id::text = $1 OR order_code = $1 LIMIT 1", [orderIdOrCode]);
     const order = orderResult.rows[0];
     if (!order) throw new Error("Order not found for customer confirmation email.");
-    const itemsResult = await pool.query(`SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC`, [order.id]);
+    const itemsResult = await pool.query("SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC", [order.id]);
     const shippingAddress = order.shipping_address || {};
-    const itemRows = itemsResult.rows.map((item: any) => `<tr><td style="padding:10px;border-bottom:1px solid #eee"><strong>${escapeHtml(item.product_name)}</strong></td><td style="padding:10px;border-bottom:1px solid #eee;text-align:center">${item.quantity}</td><td style="padding:10px;border-bottom:1px solid #eee;text-align:right">${Number(item.unit_price).toFixed(2)}</td></tr>`).join("");
-    const trackOrderUrl = `https://www.jqydesigns.com/track-order?order=${encodeURIComponent(String(order.order_code))}`;
-    const estimatedDays = Number(order.shipping_delivery_days || 0);
-    const html = `<div style="font-family:Arial,sans-serif;color:#202020;max-width:680px;margin:auto"><h1 style="color:#b8872c">Thank you for your order!</h1><p>Hi ${escapeHtml(order.customer_first_name)}, your payment was successfully received and your order is confirmed.</p><p><strong>Order:</strong> ${escapeHtml(order.order_code)}<br><strong>Total paid:</strong> ${Number(order.total).toFixed(2)} USD</p><p style="padding:14px 16px;background:#f7f3e8;border-radius:8px"><strong>Shipping:</strong> ${escapeHtml(order.shipping_service || order.carrier || "USPS Ground Advantage")}${estimatedDays ? `<br><strong>Carrier transit estimate:</strong> up to ${estimatedDays} business days after acceptance` : ""}</p><p><a href="${trackOrderUrl}" style="display:inline-block;padding:12px 18px;background:#111;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">Track your order</a></p><h2>Order details</h2><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:10px;border-bottom:2px solid #222">Item</th><th style="padding:10px;border-bottom:2px solid #222">Qty</th><th style="text-align:right;padding:10px;border-bottom:2px solid #222">Unit</th></tr></thead><tbody>${itemRows}</tbody></table><p style="margin-top:18px"><strong>Subtotal:</strong> ${Number(order.subtotal).toFixed(2)}<br><strong>Shipping:</strong> ${Number(order.shipping).toFixed(2)}<br><strong>Sales tax:</strong> ${Number(order.tax).toFixed(2)}<br><strong>Total:</strong> ${Number(order.total).toFixed(2)}</p><h2>Shipping to</h2><p>${escapeHtml(order.customer_first_name)} ${escapeHtml(order.customer_last_name)}<br>${escapeHtml(shippingAddress.address)}${shippingAddress.apartment ? `<br>${escapeHtml(shippingAddress.apartment)}` : ""}<br>${escapeHtml(shippingAddress.city)}, ${escapeHtml(shippingAddress.state)} ${escapeHtml(shippingAddress.zip)}</p><p style="margin-top:24px;color:#666">We will send another update when your order ships.</p></div>`;
-    const text = `Thank you for your order!\nOrder: ${order.order_code}\nTotal paid: ${Number(order.total).toFixed(2)} USD\nYour order has been confirmed.`;
-    await sendEmail({ to: order.customer_email, subject: `Order confirmed ${order.order_code} — Magic Touch Designs`, html, text, idempotencyKey: `customer-order-confirmation/${order.id}` });
+    const orderItems = itemsResult.rows.map((item:any) => String(item.product_name) + " × " + String(item.quantity) + " — $" + Number(item.unit_price).toFixed(2)).join("\n");
+    const address = [order.customer_first_name + " " + order.customer_last_name, shippingAddress.address, shippingAddress.apartment, shippingAddress.city + ", " + shippingAddress.state + " " + shippingAddress.zip].filter(Boolean).join("\n");
+    const trackOrderUrl = FRONTEND_URL + "/track-order?order=" + encodeURIComponent(String(order.order_code));
+    await sendTemplateEmail("order_confirmed", order.customer_email, {
+        siteName:"JQYDesigns", customerName:order.customer_first_name || "Customer", customerEmail:order.customer_email,
+        orderCode:order.order_code, orderTotal:"$" + Number(order.total).toFixed(2), subtotal:"$" + Number(order.subtotal).toFixed(2),
+        shipping:"$" + Number(order.shipping).toFixed(2), tax:"$" + Number(order.tax).toFixed(2), orderItems, shippingAddress:address,
+        orderUrl:trackOrderUrl, supportEmail:"jqydesigns@gmail.com"
+    }, "customer-order-confirmation/" + order.id);
 };
+
+
 export const materializePaidOrder = async (input: {
     attemptId: string;
     paymentProvider: "stripe" | "paypal";
