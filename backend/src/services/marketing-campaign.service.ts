@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { pool } from "../config/database";
 import { getConnections, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
 import { sendPromotion, type PromotionResult } from "./promotion.service";
+import { recordCampaignLaunchLearning, getMarketingLearningInsights } from "./marketing-learning.service";
 
 export interface MarketingCampaignInput {
     name: string;
@@ -99,6 +100,18 @@ const publishSocialCampaign = async (
     return results;
 };
 
+const withCampaignTracking = (url: string | undefined, campaignId: string, source: string) => {
+    if (!url) return undefined;
+    try {
+        const parsed = new URL(url);
+        parsed.searchParams.set("utm_id", campaignId);
+        parsed.searchParams.set("utm_campaign", campaignId);
+        parsed.searchParams.set("utm_source", source);
+        parsed.searchParams.set("utm_medium", "organic");
+        return parsed.toString();
+    } catch { return url; }
+};
+
 const seoFocus = (targetArea: string) => [
     `custom mugs ${targetArea}`,
     `personalized mugs ${targetArea}`,
@@ -147,8 +160,10 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
     }
 
     const campaignId = randomUUID();
+    const trackedLink = withCampaignTracking(input.link?.trim() || undefined, campaignId, "jqydesigns");
+    const socialInput: MarketingCampaignInput = { ...input, link: trackedLink };
     const social = selected.length
-        ? await publishSocialCampaign(userId, selected, input)
+        ? await publishSocialCampaign(userId, selected, socialInput)
         : {};
 
     let email: PromotionResult | undefined;
@@ -166,6 +181,16 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
         focus: seoFocus(targetArea),
     };
 
+    await recordCampaignLaunchLearning({
+        campaignId,
+        channels: [...selected, ...(input.sendEmail ? ["email" as const] : [])],
+        objective,
+        targetArea,
+        hasImage: Boolean(input.imageUrl?.trim()),
+        hasVideo: Boolean(input.videoUrl?.trim()),
+        results: { ...social, ...(email ? { email: { ok: true } } : {}) },
+    });
+
     await ensureCampaignTable();
     await pool.query(
         `INSERT INTO marketing_campaigns (id, name, objective, target_area, message, subject, channels, results, idempotency_key)
@@ -175,6 +200,8 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
     return { campaignId, name, targetArea, objective, connectedChannels: connected, social, email, google };
 };
+
+export const getMarketingLearning = async (targetArea?: string, objective?: string) => getMarketingLearningInsights(targetArea, objective);
 
 export const listMarketingCampaigns = async (limit = 20) => {
     await ensureCampaignTable();

@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
-import { launchMarketingCampaign, listMarketingCampaigns } from "../services/marketing-campaign.service";
+import { launchMarketingCampaign, listMarketingCampaigns, getMarketingLearning } from "../services/marketing-campaign.service";
+import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
     try { res.json(await getConnections(String(req.user!.userId))); }
@@ -111,4 +112,34 @@ export async function socialPublish(req: AuthenticatedRequest, res: Response) {
         }
         res.json({ results });
     } catch (error) { res.status(502).json({ error: error instanceof Error ? error.message : "Unable to publish social campaign." }); }
+}
+export async function marketingLearning(req: AuthenticatedRequest, res: Response) {
+    try {
+        const targetArea = typeof req.query.targetArea === "string" ? req.query.targetArea : undefined;
+        const objective = typeof req.query.objective === "string" ? req.query.objective : undefined;
+        res.json({ status: "success", insights: await getMarketingLearning(targetArea, objective) });
+    } catch (error) {
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load marketing learning." });
+    }
+}
+
+export async function marketingLearningFeedback(req: AuthenticatedRequest, res: Response) {
+    try {
+        const channel = String(req.body?.channel || "") as LearningChannel;
+        const allowed: LearningChannel[] = ["facebook","instagram","whatsapp","tiktok","youtube","pinterest","email"];
+        if (!allowed.includes(channel)) return res.status(400).json({ error: "Unsupported learning channel." });
+        if (!req.body?.campaignId) return res.status(400).json({ error: "Campaign ID is required." });
+        const result = await recordCampaignLearningFeedback({
+            campaignId: String(req.body.campaignId),
+            channel,
+            clicks: Number(req.body?.clicks || 0),
+            sessions: Number(req.body?.sessions || 0),
+            conversions: Number(req.body?.conversions || 0),
+            revenue: Number(req.body?.revenue || 0),
+            impressions: Number(req.body?.impressions || 0),
+        });
+        res.json({ status: "success", data: result });
+    } catch (error) {
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to record learning feedback." });
+    }
 }
