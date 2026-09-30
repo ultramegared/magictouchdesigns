@@ -17,7 +17,7 @@ import CreateReviewPage from "./pages/Account/CreateReview";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminUsers from "./pages/admin/AdminUsers";
-import AdminSettings, { AdminEmailTemplates } from "./pages/admin/AdminSettings";
+import AdminSettings from "./pages/admin/AdminSettings";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminRoute from "./pages/admin/AdminRoute";
 import AdminProducts from "./pages/admin/AdminProducts";
