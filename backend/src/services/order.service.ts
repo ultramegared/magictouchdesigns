@@ -15,7 +15,7 @@ import { getCustomMugRequest, markCustomMugRequestPaid, getCustomMugArtworkAttac
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://magictouchdesigns.com";
 const STRIPE_API = "https://api.stripe.com/v1";
 
-export interface CheckoutItemInput { productId: string; quantity: number; model?: string; size?: string; color?: string; customizationId?: string; customization?: { productId: string; productName: string; size: string; color: string; designDataUrl: string; designFileName?: string | null; designScale?: number; designX?: number; designY?: number; designRotation?: number; mugRotation?: number; }; }
+export interface CheckoutItemInput { productId: string; quantity: number; customRequestId?: string; model?: string; size?: string; color?: string; customizationId?: string; customization?: { productId: string; productName: string; size: string; color: string; designDataUrl: string; designFileName?: string | null; designScale?: number; designX?: number; designY?: number; designRotation?: number; mugRotation?: number; }; }
 export interface CheckoutCustomerInput { firstName: string; lastName: string; email: string; phone?: string; deliveryType?: "house" | "apartment"; address?: string; apartment?: string; city?: string; state?: string; zip?: string; }
 export interface OrderItemSnapshot { product_id: string; name: string; image_url: string | null; unit_price: number; quantity: number; variant: Record<string, string>; }
 let initialized = false;
@@ -120,37 +120,77 @@ export const buildOrderSnapshot = async (
     if (!items.length) throw new Error("Your cart is empty.");
     const normalizedItems: OrderItemSnapshot[] = [];
 
-    if (options.customRequestId) {
-        await ensureCustomMugRequestTable();
-        const request = await getCustomMugRequest(options.customRequestId);
-        if (!request || request.status !== "pending") {
-            throw new Error("This custom mug request is no longer available for payment.");
+    const customRequestIds = new Set<string>();
+    const inputs = options.customRequestId
+        ? [{ productId: "CUSTOM-MUG", quantity: 1, customRequestId: options.customRequestId } as CheckoutItemInput]
+        : items;
+
+    for (const input of inputs) {
+        if (input.customRequestId) {
+            await ensureCustomMugRequestTable();
+            const request = await getCustomMugRequest(input.customRequestId);
+            if (!request || request.status !== "pending") {
+                throw new Error("This custom mug request is no longer available for payment.");
+            }
+            if (request.email.trim().toLowerCase() !== customer.email.trim().toLowerCase()) {
+                throw new Error("The checkout email must match the custom mug request email.");
+            }
+            const variant: Record<string, string> = {
+                customRequestId: request.id,
+                requestCode: request.request_code,
+                model: request.model,
+                size: request.size,
+                color: request.color,
+                printSides: request.print_sides,
+                fontStyle: request.font_style,
+                fontName: request.font_name,
+                customText: request.text_for_mug || "",
+                customNotes: request.notes || "",
+            };
+            normalizedItems.push({
+                product_id: "CUSTOM-MUG",
+                name: `Custom Mug — ${request.model} ${request.size}`,
+                image_url: null,
+                unit_price: Number(request.unit_price),
+                quantity: Number(request.quantity),
+                variant,
+            });
+            customRequestIds.add(request.id);
+            continue;
         }
-        if (request.email.trim().toLowerCase() !== customer.email.trim().toLowerCase()) {
-            throw new Error("The checkout email must match the custom mug request email.");
-        }
+
+        const quantity = Math.floor(Number(input.quantity));
+        if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item.");
+        const product = await getProductById(input.productId);
+        if (!product || !product.is_active) throw new Error("One of the products is no longer available.");
         const variant: Record<string, string> = {
-            customRequestId: request.id,
-            requestCode: request.request_code,
-            model: request.model,
-            size: request.size,
-            color: request.color,
-            printSides: request.print_sides,
-            fontStyle: request.font_style,
-            fontName: request.font_name,
-            customText: request.text_for_mug || "",
-            customNotes: request.notes || "",
+            ...(input.model ? { model: input.model } : {}),
+            ...(input.size ? { size: input.size } : {}),
+            ...(input.color ? { color: input.color } : {}),
         };
+        if (input.customizationId) {
+            const customization = input.customization;
+            if (!customization || customization.productId !== String(product.product_id) || !isSafeImageDataUrl(customization.designDataUrl)) {
+                throw new Error("The custom mug artwork is missing or invalid. Please return to Customize and upload it again.");
+            }
+            variant.customizationId = input.customizationId;
+            variant.designDataUrl = customization.designDataUrl;
+            if (customization.designFileName) variant.designFileName = customization.designFileName.slice(0, 180);
+            if (customization.designScale !== undefined) variant.designScale = String(customization.designScale);
+            if (customization.designX !== undefined) variant.designX = String(customization.designX);
+            if (customization.designY !== undefined) variant.designY = String(customization.designY);
+            if (customization.designRotation !== undefined) variant.designRotation = String(customization.designRotation);
+            if (customization.mugRotation !== undefined) variant.mugRotation = String(customization.mugRotation);
+        }
         normalizedItems.push({
-            product_id: "CUSTOM-MUG",
-            name: `Custom Mug — ${request.model} ${request.size}`,
-            image_url: null,
-            unit_price: Number(request.unit_price),
-            quantity: Number(request.quantity),
+            product_id: String(product.product_id),
+            name: String(product.name),
+            image_url: product.image_url || null,
+            unit_price: Number(product.price),
+            quantity,
             variant,
         });
-    } else {
-        for (const input of items) {
+    }
             const quantity = Math.floor(Number(input.quantity));
             if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item.");
             const product = await getProductById(input.productId);
