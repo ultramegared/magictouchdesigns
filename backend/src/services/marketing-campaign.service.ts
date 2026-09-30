@@ -267,6 +267,51 @@ export const listMarketingCampaigns = async (limit = 20) => {
 };
 
 
+const getAdaptiveNextSlot = async (targetArea: string, objective: string, channels: SocialChannel[]) => {
+    const result = await pool.query(
+        `SELECT hour, weekday, SUM(sessions)::int sessions, SUM(conversions)::int conversions, COALESCE(SUM(revenue),0)::numeric revenue, COUNT(*)::int observations
+         FROM marketing_learning_observations
+         WHERE target_area ILIKE '%' || $1 || '%'
+           AND objective ILIKE '%' || $2 || '%'
+           AND channel = ANY($3::text[])
+         GROUP BY hour, weekday
+         HAVING COUNT(*) >= 2
+         ORDER BY
+           (
+             (SUM(conversions)::numeric / GREATEST(SUM(sessions), 1)) * 0.8
+             + LEAST((COALESCE(SUM(revenue),0)::numeric / GREATEST(SUM(sessions), 1)) / 50, 1) * 0.2
+           ) DESC,
+           SUM(conversions) DESC,
+           SUM(sessions) DESC
+         LIMIT 1`,
+        [targetArea, objective, channels]
+    );
+    const slot = result.rows[0];
+    if (!slot) return null;
+    const total = await pool.query(
+        `SELECT COUNT(*)::int AS observations
+         FROM marketing_learning_observations
+         WHERE target_area ILIKE '%' || $1 || '%'
+           AND objective ILIKE '%' || $2 || '%'
+           AND channel = ANY($3::text[])`,
+        [targetArea, objective, channels]
+    );
+    if (Number(total.rows[0]?.observations || 0) < 10) return null;
+
+    const now = new Date();
+    const desiredWeekday = Number(slot.weekday);
+    const desiredHour = Number(slot.hour);
+    if (now.getUTCDay() === desiredWeekday && now.getUTCHours() === desiredHour) return null;
+
+    const next = new Date(now);
+    next.setUTCMinutes(0, 0, 0);
+    let daysAhead = (desiredWeekday - now.getUTCDay() + 7) % 7;
+    if (daysAhead === 0 && desiredHour <= now.getUTCHours()) daysAhead = 7;
+    next.setUTCDate(next.getUTCDate() + daysAhead);
+    next.setUTCHours(desiredHour, 0, 0, 0);
+    return next;
+};
+
 export const runMarketingAutopilot = async () => {
     await ensureCampaignTable();
     const due = await pool.query(`
@@ -303,6 +348,12 @@ export const runMarketingAutopilot = async () => {
         [campaign.id]
     );
     const recentlyUsed = new Set(recent.rows.map((r: any) => String(r.channel)));
+    const adaptiveSlot = await getAdaptiveNextSlot(campaign.target_area, campaign.objective, eligible);
+    if (adaptiveSlot) {
+        await pool.query(`UPDATE marketing_campaigns SET next_run_at=$2 WHERE id=$1`, [campaign.id, adaptiveSlot]);
+        return { ran: false, reason: "Waiting for the learned best publication window.", campaignId: campaign.id, nextRunAt: adaptiveSlot.toISOString() };
+    }
+
     const insights = await getMarketingLearningInsights(campaign.target_area, campaign.objective);
     const score = new Map(insights.map((r: any) => [r.channel, Number(r.score || 0)]));
     const ranked = eligible.slice().sort((a, b) => {
