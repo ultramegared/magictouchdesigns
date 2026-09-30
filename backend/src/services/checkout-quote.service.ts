@@ -17,13 +17,24 @@ export const calculateCheckoutQuote = async (
     if (!items.length) throw new Error("Your cart is empty.");
 
     const normalizedItems: Array<{ product_id: string; name: string; unit_price: number; quantity: number }> = [];
-    if (customRequestId) {
-        const { getCustomMugRequest } = await import("./custom-mug.service");
-        const request = await getCustomMugRequest(customRequestId);
-        if (!request || request.status !== "pending") throw new Error("This custom mug request is no longer available.");
-        if (request.email.trim().toLowerCase() !== customer.email.trim().toLowerCase()) throw new Error("The checkout email must match the custom mug request email.");
-        normalizedItems.push({ product_id: "CUSTOM-MUG", name: `Custom Mug — ${request.model} ${request.size}`, unit_price: Number(request.unit_price), quantity: Number(request.quantity) });
-    } else for (const input of items) {
+    const inputs = customRequestId
+        ? [{ productId: "CUSTOM-MUG", quantity: 1, customRequestId } as CheckoutItemInput]
+        : items;
+    for (const input of inputs) {
+        if (input.customRequestId) {
+            const { getCustomMugRequest } = await import("./custom-mug.service");
+            const request = await getCustomMugRequest(input.customRequestId);
+            if (!request || request.status !== "pending") throw new Error("This custom mug request is no longer available.");
+            if (request.email.trim().toLowerCase() !== customer.email.trim().toLowerCase()) throw new Error("The checkout email must match the custom mug request email.");
+            normalizedItems.push({
+                product_id: "CUSTOM-MUG",
+                name: `Custom Mug — ${request.model} ${request.size}`,
+                unit_price: Number(request.unit_price),
+                quantity: Number(request.quantity),
+            });
+            continue;
+        }
+
         const quantity = Math.floor(Number(input.quantity));
         if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item.");
         const product = await getProductById(input.productId);
