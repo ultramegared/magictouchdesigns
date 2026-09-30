@@ -219,6 +219,15 @@ function ContactPage() {
         try {
             const form = event.currentTarget;
             const formData = new FormData(form);
+            const imageInput = form.elements.namedItem("image") as HTMLInputElement | null;
+            const selectedArtwork = imageInput?.files?.[0];
+
+            if (!selectedArtwork) {
+                throw new Error("Please upload your design image.");
+            }
+
+            const uploadArtwork = await compressArtworkForUpload(selectedArtwork);
+            formData.set("image", uploadArtwork, uploadArtwork.name);
 
             formData.set("quantity", String(quantity));
             formData.set("model", mugModel);
