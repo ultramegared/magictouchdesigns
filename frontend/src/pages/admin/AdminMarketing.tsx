@@ -258,7 +258,7 @@ function AdminMarketing() {
             });
             setCampaignResults(response.data);
             setNotice(`Campaña lanzada: ${response.data?.campaignId || "OK"}`);
-            await Promise.all([loadCampaignHistory(), loadLearning()]);
+            await Promise.all([loadCampaignHistory(), loadLearning(), loadDailySummary()]);
         } catch (error) {
             setNotice(error instanceof Error ? error.message : "No se pudo lanzar la campaña.");
         } finally {
