@@ -21,6 +21,7 @@ export type CartItem = {
     quantity: number;
     image: string;
     customizationId?: string;
+    customRequestId?: string;
 };
 
 const CART_STORAGE_KEY = "magic-touch-cart";
@@ -64,6 +65,7 @@ function normalizeCartItem(item: CartItem): CartItem | null {
         options: normalizeOptions(item.options),
         image: String(item.image ?? ""),
         customizationId: item.customizationId ? String(item.customizationId) : undefined,
+        customRequestId: item.customRequestId ? String(item.customRequestId) : undefined,
     };
 }
 
@@ -94,7 +96,8 @@ export function addToCart(item: Omit<CartItem, "quantity">, quantity: number = 1
         cartItem.size === item.size &&
         cartItem.color === item.color &&
         optionsMatch(cartItem.options, item.options) &&
-        cartItem.customizationId === item.customizationId
+        cartItem.customizationId === item.customizationId &&
+        cartItem.customRequestId === item.customRequestId
     );
     if (existingItemIndex >= 0) {
         const updatedItems = [...currentItems];
