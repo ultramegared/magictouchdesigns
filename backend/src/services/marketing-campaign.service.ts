@@ -66,6 +66,19 @@ const ensureCampaignTable = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_autopilot_idx ON marketing_campaigns(autopilot_enabled, next_run_at)`);
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_campaigns_idempotency_idx ON marketing_campaigns(idempotency_key) WHERE idempotency_key IS NOT NULL`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_created_at_idx ON marketing_campaigns(created_at DESC)`);
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
+            id BIGSERIAL PRIMARY KEY,
+            campaign_id TEXT NOT NULL,
+            channel TEXT NOT NULL,
+            run_type TEXT NOT NULL DEFAULT 'campaign',
+            published BOOLEAN NOT NULL DEFAULT FALSE,
+            result JSONB NOT NULL DEFAULT '{}'::jsonb,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_campaign_idx ON marketing_campaign_runs(campaign_id, created_at DESC)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_created_idx ON marketing_campaign_runs(created_at DESC)`);
 };
 
 const connectedSocialChannels = async (userId: string): Promise<SocialChannel[]> => {
@@ -110,6 +123,18 @@ const publishSocialCampaign = async (
         }
     }
     return results;
+};
+
+const recordCampaignRuns = async (campaignId: string, results: Record<string, unknown>, runType: "campaign" | "autopilot") => {
+    const entries = Object.entries(results);
+    for (const [channel, result] of entries) {
+        const published = Boolean((result as any)?.ok);
+        await pool.query(
+            `INSERT INTO marketing_campaign_runs (campaign_id, channel, run_type, published, result)
+             VALUES ($1,$2,$3,$4,$5::jsonb)`,
+            [campaignId, channel, runType, published, JSON.stringify(result || {})]
+        );
+    }
 };
 
 const withCampaignTracking = (url: string | undefined, campaignId: string, source: string) => {
@@ -193,15 +218,18 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
         focus: seoFocus(targetArea),
     };
 
-    if (!input.autopilot) await recordCampaignLaunchLearning({
+    if (!input.autopilot) {
+        await recordCampaignLaunchLearning({
         campaignId,
         channels: [...selected, ...(input.sendEmail ? ["email" as const] : [])],
         objective,
         targetArea,
         hasImage: Boolean(input.imageUrl?.trim()),
         hasVideo: Boolean(input.videoUrl?.trim()),
-        results: { ...social, ...(email ? { email: { ok: true } } : {}) },
-    });
+            results: { ...social, ...(email ? { email: { ok: true } } : {}) },
+        });
+        await recordCampaignRuns(campaignId, { ...social, ...(email ? { email: { ok: true, totalRecipients: email.totalRecipients } } : {}) }, "campaign");
+    }
 
     await ensureCampaignTable();
     await pool.query(
@@ -268,6 +296,9 @@ export const runMarketingAutopilot = async () => {
         return { ran: false, reason: "No selected channel is currently connected.", campaignId: campaign.id };
     }
 
+    const assets = campaign.results?.assets || {};
+    const trackedLink = withCampaignTracking(assets.landingLink || undefined, campaign.id, channel);
+
     const recent = await pool.query(
         `SELECT channel FROM marketing_learning_observations WHERE campaign_id=$1 AND updated_at >= NOW() - INTERVAL '24 hours'`,
         [campaign.id]
@@ -282,8 +313,6 @@ export const runMarketingAutopilot = async () => {
         return (score.get(b) || 0) - (score.get(a) || 0);
     });
     const channel = ranked[0];
-    const source = channel;
-    const trackedLink = withCampaignTracking(campaign.results?.google?.landingLink || undefined, campaign.id, source);
     const input: MarketingCampaignInput = {
         name: campaign.name,
         objective: campaign.objective,
@@ -305,6 +334,7 @@ export const runMarketingAutopilot = async () => {
         hasVideo: Boolean(input.videoUrl),
         results: social,
     });
+    await recordCampaignRuns(campaign.id, social, "autopilot");
 
     const nextRun = new Date(Date.now() + 60 * 60 * 1000);
     const mergedResults = {
