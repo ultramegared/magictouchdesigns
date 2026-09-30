@@ -171,6 +171,10 @@ export const submitCustomRequest = async (
         try {
             const safeName = escapeHtml(name);
             const safeRequestCode = escapeHtml(request.requestCode);
+            const safeModel = escapeHtml(model);
+            const safeSize = escapeHtml(size);
+            const safeColor = escapeHtml(color);
+            const safePrintSides = escapeHtml(printSides === "2" ? "Front + Back" : "Front");
 
             await sendEmail({
                 to: email,
@@ -244,22 +248,22 @@ export const submitCustomRequest = async (
                                                         <tr><td colspan="2" style="height:12px;"></td></tr>
                                                         <tr>
                                                             <td style="font-size:13px;color:#5b6675;">Mug</td>
-                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${escapeHtml(request.model)} · ${escapeHtml(request.size)}</td>
+                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${safeModel} · ${safeSize}</td>
                                                         </tr>
                                                         <tr><td colspan="2" style="height:8px;"></td></tr>
                                                         <tr>
                                                             <td style="font-size:13px;color:#5b6675;">Color</td>
-                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${escapeHtml(request.color)}</td>
+                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${safeColor}</td>
                                                         </tr>
                                                         <tr><td colspan="2" style="height:8px;"></td></tr>
                                                         <tr>
                                                             <td style="font-size:13px;color:#5b6675;">Design views</td>
-                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${escapeHtml(request.printSides === "2" ? "Front + Back" : "Front")}</td>
+                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${safePrintSides}</td>
                                                         </tr>
                                                         <tr><td colspan="2" style="height:8px;"></td></tr>
                                                         <tr>
                                                             <td style="font-size:13px;color:#5b6675;">Quantity</td>
-                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${Number(request.quantity)}</td>
+                                                            <td align="right" style="font-size:13px;font-weight:700;color:#172033;">${Number(quantity)}</td>
                                                         </tr>
                                                         <tr><td colspan="2" style="height:12px;border-bottom:1px solid #e4e9ef;"></td></tr>
                                                         <tr><td colspan="2" style="height:12px;"></td></tr>
@@ -348,9 +352,9 @@ export const submitCustomRequest = async (
                     "",
                     `Request: ${request.requestCode}`,
                     `Mug: ${request.model} · ${request.size}`,
-                    `Color: ${request.color}`,
-                    `Design views: ${request.printSides === "2" ? "Front + Back" : "Front"}`,
-                    `Quantity: ${request.quantity}`,
+                    `Color: ${color}`,
+                    `Design views: ${printSides === "2" ? "Front + Back" : "Front"}`,
+                    `Quantity: ${quantity}`,
                     `Merchandise subtotal: $${request.subtotal.toFixed(2)}`,
                     "",
                     "USPS shipping and applicable sales tax will be calculated after you enter your delivery address at checkout.",
