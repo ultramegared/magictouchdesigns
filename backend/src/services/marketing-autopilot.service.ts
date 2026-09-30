@@ -56,7 +56,17 @@ type DailyChannel = {
 };
 
 export async function getMarketingDailySummary() {
+  await pool.query(`CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
+    id BIGSERIAL PRIMARY KEY,
+    campaign_id TEXT NOT NULL,
+    channel TEXT NOT NULL,
+    run_type TEXT NOT NULL DEFAULT 'campaign',
+    published BOOLEAN NOT NULL DEFAULT FALSE,
+    result JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`);
   const campaigns = await pool.query(`
+
     SELECT COUNT(*)::int AS total,
            COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
     FROM marketing_campaigns
