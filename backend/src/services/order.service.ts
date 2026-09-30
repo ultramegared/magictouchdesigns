@@ -120,7 +120,6 @@ export const buildOrderSnapshot = async (
     if (!items.length) throw new Error("Your cart is empty.");
     const normalizedItems: OrderItemSnapshot[] = [];
 
-    const customRequestIds = new Set<string>();
     const inputs = options.customRequestId
         ? [{ productId: "CUSTOM-MUG", quantity: 1, customRequestId: options.customRequestId } as CheckoutItemInput]
         : items;
@@ -155,7 +154,6 @@ export const buildOrderSnapshot = async (
                 quantity: Number(request.quantity),
                 variant,
             });
-            customRequestIds.add(request.id);
             continue;
         }
 
