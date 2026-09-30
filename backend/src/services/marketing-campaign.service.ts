@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { pool } from "../config/database";
 import { getConnections, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
 import { sendPromotion, type PromotionResult } from "./promotion.service";
+import { recordCampaignLaunchLearning, getMarketingLearningInsights } from "./marketing-learning.service";
 
 export interface MarketingCampaignInput {
     name: string;
@@ -99,7 +100,7 @@ const publishSocialCampaign = async (
     return results;
 };
 
-const seoFocus = (targetArea: string) => [
+const withCampaignTracking = (url: string | undefined, campaignId: string, source: string) => {\n    if (!url) return undefined;\n    try {\n        const parsed = new URL(url);\n        parsed.searchParams.set("utm_id", campaignId);\n        parsed.searchParams.set("utm_campaign", campaignId);\n        parsed.searchParams.set("utm_source", source);\n        parsed.searchParams.set("utm_medium", "organic");\n        return parsed.toString();\n    } catch { return url; }\n};\n\nconst seoFocus = (targetArea: string) => [
     `custom mugs ${targetArea}`,
     `personalized mugs ${targetArea}`,
     `custom gifts ${targetArea}`,
@@ -176,7 +177,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
     return { campaignId, name, targetArea, objective, connectedChannels: connected, social, email, google };
 };
 
-export const listMarketingCampaigns = async (limit = 20) => {
+export const getMarketingLearning = async (targetArea?: string, objective?: string) => getMarketingLearningInsights(targetArea, objective);\n\nexport const listMarketingCampaigns = async (limit = 20) => {
     await ensureCampaignTable();
     const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 50);
     const result = await pool.query(
