@@ -15,6 +15,7 @@ export interface MarketingCampaignInput {
     whatsappTo?: string;
     channels?: SocialChannel[];
     sendEmail?: boolean;
+    idempotencyKey?: string;
 }
 
 export interface MarketingCampaignResult {
@@ -45,9 +46,12 @@ const ensureCampaignTable = async () => {
             subject TEXT,
             channels JSONB NOT NULL DEFAULT '[]'::jsonb,
             results JSONB NOT NULL DEFAULT '{}'::jsonb,
-            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            idempotency_key TEXT UNIQUE
         )
     `);
+    await pool.query(`ALTER TABLE marketing_campaigns ADD COLUMN IF NOT EXISTS idempotency_key TEXT`);
+    await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_campaigns_idempotency_idx ON marketing_campaigns(idempotency_key) WHERE idempotency_key IS NOT NULL`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_created_at_idx ON marketing_campaigns(created_at DESC)`);
 };
 
@@ -122,6 +126,26 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
         throw new Error("Connect at least one social channel or enable Email Campaign.");
     }
 
+    const idempotencyKey = input.idempotencyKey?.trim() || undefined;
+    if (idempotencyKey) {
+        await ensureCampaignTable();
+        const existing = await pool.query(`SELECT id, name, objective, target_area, channels, results FROM marketing_campaigns WHERE idempotency_key = $1 LIMIT 1`, [idempotencyKey]);
+        if (existing.rows[0]) {
+            const row = existing.rows[0];
+            const previous = row.results || {};
+            return {
+                campaignId: row.id,
+                name: row.name,
+                targetArea: row.target_area,
+                objective: row.objective,
+                connectedChannels: connected,
+                social: previous.social || {},
+                email: previous.email,
+                google: previous.google || { status: "tracking_only", message: "Campaign already launched.", focus: seoFocus(targetArea) },
+            };
+        }
+    }
+
     const campaignId = randomUUID();
     const social = selected.length
         ? await publishSocialCampaign(userId, selected, input)
@@ -144,9 +168,9 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
     await ensureCampaignTable();
     await pool.query(
-        `INSERT INTO marketing_campaigns (id, name, objective, target_area, message, subject, channels, results)
-         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb)`,
-        [campaignId, name, objective, targetArea, message, input.subject?.trim() || name, JSON.stringify(selected), JSON.stringify({ social, email, google })]
+        `INSERT INTO marketing_campaigns (id, name, objective, target_area, message, subject, channels, results, idempotency_key)
+         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9)`,
+        [campaignId, name, objective, targetArea, message, input.subject?.trim() || name, JSON.stringify(selected), JSON.stringify({ social, email, google }), idempotencyKey]
     );
 
     return { campaignId, name, targetArea, objective, connectedChannels: connected, social, email, google };
