@@ -212,6 +212,7 @@ function AdminMarketing() {
         try {
             setCampaignLaunching(true);
             setCampaignResults(null);
+            const idempotencyKey = crypto.randomUUID();
             const response = await apiRequest<{ data: any }>("/api/admin/marketing/social/campaign/launch", {
                 method: "POST",
                 body: JSON.stringify({
@@ -226,6 +227,7 @@ function AdminMarketing() {
                     whatsappTo: campaignWhatsappTo.trim() || undefined,
                     channels: selectedSocial,
                     sendEmail: campaignSendEmail,
+                    idempotencyKey,
                 }),
             });
             setCampaignResults(response.data);
