@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
-import { launchMarketingCampaign, listMarketingCampaigns, getMarketingLearning, runMarketingAutopilot } from "../services/marketing-campaign.service";
+import { launchMarketingCampaign, listMarketingCampaigns, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
 import { getMarketingDailySummary, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
@@ -92,6 +92,14 @@ export async function marketingCampaignHistory(req: AuthenticatedRequest, res: R
         res.json({ status: "success", campaigns: await listMarketingCampaigns(Number(req.query.limit || 20)) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load marketing campaign history." });
+    }
+}
+
+export async function marketingPublicationActivity(req: AuthenticatedRequest, res: Response) {
+    try {
+        res.json({ status: "success", publications: await listMarketingPublicationActivity(Number(req.query.limit || 50)) });
+    } catch (error) {
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing publication activity." });
     }
 }
 
