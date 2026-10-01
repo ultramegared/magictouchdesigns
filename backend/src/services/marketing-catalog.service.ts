@@ -1,4 +1,5 @@
 import { pool } from "../config/database";
+import { getActivePortfolio } from "./portfolio.service";
 
 const PUBLIC_SITE = process.env.FRONTEND_PUBLIC_URL?.trim() || "https://www.jqydesigns.com";
 const PUBLIC_CHANNELS = ["facebook","instagram","tiktok","pinterest"] as const;
@@ -27,6 +28,15 @@ const ensureCatalogTables = async () => {
   await pool.query(`ALTER TABLE marketing_catalog_promotions ADD COLUMN IF NOT EXISTS promotion_count INTEGER NOT NULL DEFAULT 0`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_catalog_promotions_campaign_idx ON marketing_catalog_promotions(campaign_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_catalog_promotions_due_idx ON marketing_catalog_promotions(last_promoted_at)`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS marketing_portfolio_promotions (
+    portfolio_id TEXT PRIMARY KEY,
+    campaign_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_promoted_at TIMESTAMPTZ,
+    promotion_count INTEGER NOT NULL DEFAULT 0
+  )`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS marketing_portfolio_promotions_due_idx ON marketing_portfolio_promotions(last_promoted_at)`);
 };
 
 const ensureOwnerState = async (ownerUserId: string) => {
@@ -88,7 +98,8 @@ const buildProductMessage = (product: any) => {
     "✨ New at JQYDesigns",
     `**${String(product.name || "New product")}**`,
     shortDescription || "Personalized design made by JQYDesigns.",
-    `Only $${price}`,
+    features ? `Details: ${features}` : "",
+    `Only ${price}`,
     "Shop now and discover the full design.",
   ].filter(Boolean).join("\n\n");
 };
@@ -100,7 +111,7 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
   const existingQueued = await pool.query(
     `SELECT id FROM marketing_campaigns
      WHERE owner_user_id=$1 AND autopilot_enabled=TRUE
-       AND next_run_at IS NOT NULL AND next_run_at > NOW()
+       AND next_run_at IS NOT NULL AND next_run_at >= NOW() - INTERVAL '6 hours'
        AND (results->'source'->>'type')='catalog'
      LIMIT 1`,
     [ownerUserId],
@@ -199,4 +210,121 @@ export async function getCatalogOwners() {
   await ensureCatalogTables();
   const result = await pool.query(`SELECT owner_user_id FROM marketing_catalog_autopilot WHERE enabled=TRUE`);
   return result.rows.map((row: any) => String(row.owner_user_id));
+}
+
+
+const buildPortfolioMessage = (item: any) => {
+  const description = String(item.description_en || "").replace(/\s+/g, " ").trim();
+  const characteristics = String(item.characteristics_en || "").replace(/\s+/g, " ").trim();
+  return [
+    "✨ Featured work by JQYDesigns",
+    `**${String(item.title_en || "Custom work")}**`,
+    description.length > 180 ? `${description.slice(0,177)}...` : description,
+    characteristics ? `Details: ${characteristics}` : "",
+    "See more of our work and request your own custom design.",
+  ].filter(Boolean).join("\n\n");
+};
+
+export async function queueNextPortfolioWork(ownerUserId: string) {
+  const state = await ensureOwnerState(ownerUserId);
+  if (!state.enabled || !state.initialized_at) return { queued: false, reason: "Content Autopilot is disabled." };
+
+  const existingQueued = await pool.query(
+    `SELECT id FROM marketing_campaigns
+     WHERE owner_user_id=$1 AND autopilot_enabled=TRUE
+       AND next_run_at IS NOT NULL AND next_run_at >= NOW() - INTERVAL '6 hours'
+       AND (results->'source'->>'type')='portfolio'
+     LIMIT 1`,
+    [ownerUserId],
+  );
+  if (existingQueued.rows[0]) return { queued: false, reason: "A portfolio promotion is already queued.", campaignId: existingQueued.rows[0].id };
+
+  const result = await pool.query(
+    `SELECT p.portfolio_id,p.image_url,p.title_en,p.description_en,p.characteristics_en,p.created_at
+     FROM portfolio_items p
+     WHERE p.is_active=TRUE
+       AND (
+         NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id)
+         OR EXISTS (
+           SELECT 1 FROM marketing_portfolio_promotions mpp
+           WHERE mpp.portfolio_id=p.portfolio_id
+             AND COALESCE(mpp.last_promoted_at,mpp.created_at) <= NOW() - INTERVAL '7 days'
+         )
+       )
+       AND NOT EXISTS (
+         SELECT 1 FROM marketing_campaigns mc
+         WHERE mc.owner_user_id=$1
+           AND (mc.results->'source'->>'type')='portfolio'
+           AND (mc.results->'source'->>'portfolioId')=p.portfolio_id::text
+           AND mc.autopilot_enabled=TRUE
+           AND mc.next_run_at IS NOT NULL
+           AND mc.next_run_at >= NOW() - INTERVAL '6 hours'
+       )
+     ORDER BY
+       CASE WHEN NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id) THEN 0 ELSE 1 END,
+       p.created_at ASC
+     LIMIT 1`,
+    [ownerUserId],
+  );
+  const item = result.rows[0];
+  if (!item) return { queued: false, reason: "No portfolio work is due for promotion." };
+
+  const campaignId = `portfolio-${item.portfolio_id}-${Date.now()}`;
+  const link = `${PUBLIC_SITE.replace(/\/$/,"")}/portfolio`;
+  const message = buildPortfolioMessage(item);
+  const now = new Date();
+
+  await pool.query(
+    `INSERT INTO marketing_campaigns
+      (id,name,objective,target_area,message,subject,channels,results,idempotency_key,owner_user_id,autopilot_enabled,next_run_at,campaign_type,recurrence_hours)
+     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'portfolio',168)`,
+    [
+      campaignId,
+      `Portfolio · ${String(item.title_en || "Featured work")}`,
+      "Portfolio awareness and lead generation",
+      "Houston, Texas + United States",
+      message,
+      `Featured JQYDesigns work · ${String(item.title_en || "Custom work")}`,
+      JSON.stringify(PUBLIC_CHANNELS),
+      JSON.stringify({
+        social: {},
+        google: { status: "tracking_only", message: "Portfolio promotion will be measured through campaign analytics.", focus: ["custom mugs Houston", "custom gifts Houston", String(item.title_en || "")] },
+        assets: { imageUrl: String(item.image_url || ""), videoUrl: undefined, landingLink: link },
+        source: { type: "portfolio", portfolioId: String(item.portfolio_id), portfolioTitle: String(item.title_en || "") },
+        autopilot: { enabled: true, queued: true, source: "portfolio" },
+      }),
+      `portfolio:${item.portfolio_id}:${Math.floor(Date.now()/(7*24*60*60*1000))}`,
+      ownerUserId,
+      now,
+    ],
+  );
+
+  await pool.query(
+    `INSERT INTO marketing_portfolio_promotions (portfolio_id,campaign_id,title,last_promoted_at,promotion_count)
+     VALUES ($1,$2,$3,NOW(),1)
+     ON CONFLICT (portfolio_id) DO UPDATE SET campaign_id=EXCLUDED.campaign_id,title=EXCLUDED.title,last_promoted_at=NOW(),promotion_count=marketing_portfolio_promotions.promotion_count+1`,
+    [String(item.portfolio_id), campaignId, String(item.title_en || "Featured work")],
+  );
+
+  return { queued: true, campaignId, portfolioId: String(item.portfolio_id), title: String(item.title_en || "Featured work") };
+}
+
+export async function getContentAutopilotStatus(ownerUserId: string) {
+  const catalog = await getCatalogAutopilotStatus(ownerUserId);
+  await ensureOwnerState(ownerUserId);
+  const portfolio = await pool.query(
+    `SELECT COUNT(*)::int AS count FROM portfolio_items p
+     WHERE p.is_active=TRUE
+       AND (
+         NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id)
+         OR COALESCE((SELECT mpp.last_promoted_at FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id), 'epoch'::timestamptz) <= NOW() - INTERVAL '7 days'
+       )`
+  );
+  return { ...catalog, pendingPortfolio: Number(portfolio.rows[0]?.count || 0) };
+}
+
+export async function queueNextContent(ownerUserId: string) {
+  const catalog = await queueNextCatalogProduct(ownerUserId);
+  const portfolio = await queueNextPortfolioWork(ownerUserId);
+  return { catalog, portfolio };
 }
