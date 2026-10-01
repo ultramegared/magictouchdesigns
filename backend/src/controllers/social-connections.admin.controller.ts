@@ -200,13 +200,20 @@ export async function marketingDailySummaryCron(req: Request, res: Response) {
 
 
 export async function marketingCatalogStatus(req: AuthenticatedRequest, res: Response) {
-    try { res.json({ status: "success", catalog: await getContentAutopilotStatus(String(req.user!.userId)) }); }
-    catch (error) { res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Catalog Autopilot." }); }
+    try {
+        res.json({ status: "success", catalog: await getContentAutopilotStatus(String(req.user!.userId)) });
+    } catch (error) {
+        console.error("Unable to load Content Autopilot status:", error);
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Catalog Autopilot." });
+    }
 }
 
 export async function marketingCatalogToggle(req: AuthenticatedRequest, res: Response) {
     try {
         const enabled = Boolean(req.body?.enabled);
         res.json({ status: "success", catalog: await setCatalogAutopilot(String(req.user!.userId), enabled) });
-    } catch (error) { res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to update Catalog Autopilot." }); }
+    } catch (error) {
+        console.error("Unable to update Content Autopilot:", error);
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to update Catalog Autopilot." });
+    }
 }
