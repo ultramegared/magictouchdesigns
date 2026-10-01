@@ -84,7 +84,7 @@ export async function getAnalyticsReport(days = 28) {
 
 export async function getAnalyticsCampaignReport(days = 30) {
     const propertyId = getAnalyticsPropertyId();
-    if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
+    if (!propertyId || !getCredentials()) return { propertyId, days: Math.min(Math.max(Math.floor(days), 1), 90), rows: [] };
     const safeDays = Math.min(Math.max(Math.floor(days), 1), 90);
     const data = await googleRequest<{
         rows?: Array<{
