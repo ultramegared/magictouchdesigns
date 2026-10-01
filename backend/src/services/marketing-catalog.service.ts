@@ -22,7 +22,7 @@ const ensureCatalogTables = async () => {
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     last_promoted_at TIMESTAMPTZ,
     promotion_count INTEGER NOT NULL DEFAULT 0
-  `);
+  )`);
   await pool.query(`ALTER TABLE marketing_catalog_promotions ADD COLUMN IF NOT EXISTS last_promoted_at TIMESTAMPTZ`);
   await pool.query(`ALTER TABLE marketing_catalog_promotions ADD COLUMN IF NOT EXISTS promotion_count INTEGER NOT NULL DEFAULT 0`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_catalog_promotions_campaign_idx ON marketing_catalog_promotions(campaign_id)`);
@@ -147,8 +147,8 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
 
   await pool.query(
     `INSERT INTO marketing_campaigns
-      (id,name,objective,target_area,message,subject,channels,results,idempotency_key,owner_user_id,autopilot_enabled,next_run_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11)`,
+      (id,name,objective,target_area,message,subject,channels,results,idempotency_key,owner_user_id,autopilot_enabled,next_run_at,campaign_type,recurrence_hours)
+     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'catalog',168)`,
     [
       campaignId,
       `Catalog · ${String(product.name || "New product")}`,
