@@ -826,7 +826,64 @@ export const addProductToCollection =
 
 
 /* ===============================================================
-   REMOVE PRODUCT FROM COLLECTION
+   CREATE PRODUCT IN MULTIPLE COLLECTIONS
+================================================================ */
+
+export const addProductToCollections = async (
+    collectionSlugs: string[],
+    data: CreateCollectionProductData
+) => {
+    const slugs = [...new Set(collectionSlugs.map((slug) => slug.trim()).filter(Boolean))];
+    if (!slugs.length) return null;
+    const client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+        const collectionResult = await client.query(
+            `SELECT id, slug FROM collections WHERE slug = ANY($1::text[]) ORDER BY sort_order ASC, created_at ASC`,
+            [slugs]
+        );
+        if (collectionResult.rows.length !== slugs.length) {
+            await client.query("ROLLBACK");
+            return null;
+        }
+        let productId = data.product_id || "";
+        let createdProduct: unknown = null;
+        if (productId) {
+            const productResult = await client.query(`SELECT product_id FROM products WHERE product_id = $1 LIMIT 1`, [productId]);
+            if (!productResult.rows[0]) { await client.query("ROLLBACK"); return null; }
+        } else {
+            const productResult = await client.query(
+                `INSERT INTO products (name, slug, description, price, image_url, image_urls, features, is_active, sort_order)
+                 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0)
+                 RETURNING product_id,name,slug,description,price,image_url,image_urls,is_active,sort_order,features,created_at,updated_at`,
+                [data.name ?? "", data.slug ?? "", data.description ?? "", data.price ?? 0, data.image_url ?? "",
+                 JSON.stringify(data.image_urls ?? (data.image_url ? [data.image_url] : [])), JSON.stringify(data.features ?? []), data.is_active ?? true]
+            );
+            createdProduct = productResult.rows[0];
+            if (!createdProduct) { await client.query("ROLLBACK"); return null; }
+            productId = productResult.rows[0].product_id;
+        }
+        for (const collection of collectionResult.rows) {
+            const existing = await client.query(
+                `SELECT collection_product_id FROM collection_products WHERE collection_id = $1 AND product_id = $2 LIMIT 1`,
+                [collection.id, productId]
+            );
+            if (existing.rows[0]) continue;
+            await client.query(`UPDATE collection_products SET sort_order = sort_order + 1 WHERE collection_id = $1`, [collection.id]);
+            await client.query(`INSERT INTO collection_products (collection_id, product_id, sort_order) VALUES ($1,$2,1)`, [collection.id, productId]);
+        }
+        await client.query("COMMIT");
+        return {
+            product: createdProduct || (await pool.query(`SELECT * FROM products WHERE product_id = $1 LIMIT 1`, [productId])).rows[0],
+            collection_slugs: collectionResult.rows.map((row) => row.slug)
+        };
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally { client.release(); }
+};
+
+
 ================================================================ */
 
 export const removeProductFromCollection =
