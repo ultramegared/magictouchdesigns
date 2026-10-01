@@ -19,9 +19,14 @@ const ensureCatalogTables = async () => {
     product_id TEXT PRIMARY KEY,
     campaign_id TEXT NOT NULL,
     product_name TEXT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_promoted_at TIMESTAMPTZ,
+    promotion_count INTEGER NOT NULL DEFAULT 0
   `);
+  await pool.query(`ALTER TABLE marketing_catalog_promotions ADD COLUMN IF NOT EXISTS last_promoted_at TIMESTAMPTZ`);
+  await pool.query(`ALTER TABLE marketing_catalog_promotions ADD COLUMN IF NOT EXISTS promotion_count INTEGER NOT NULL DEFAULT 0`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_catalog_promotions_campaign_idx ON marketing_catalog_promotions(campaign_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS marketing_catalog_promotions_due_idx ON marketing_catalog_promotions(last_promoted_at)`);
 };
 
 const ensureOwnerState = async (ownerUserId: string) => {
@@ -43,7 +48,6 @@ export async function getCatalogAutopilotStatus(ownerUserId: string) {
         `SELECT COUNT(*)::int AS count
          FROM products p
          WHERE p.is_active=TRUE
-           AND p.created_at >= $1
            AND NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id)`,
         [state.initialized_at],
       )
@@ -107,11 +111,28 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
     `SELECT p.product_id,p.name,p.slug,p.description,p.price,p.image_url,p.image_urls,p.created_at
      FROM products p
      WHERE p.is_active=TRUE
-       AND p.created_at >= $1
-       AND NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id)
-     ORDER BY p.created_at ASC
+       AND (
+         NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id)
+         OR EXISTS (
+           SELECT 1 FROM marketing_catalog_promotions mcp
+           WHERE mcp.product_id=p.product_id
+             AND COALESCE(mcp.last_promoted_at, mcp.created_at) <= NOW() - INTERVAL '7 days'
+         )
+       )
+       AND NOT EXISTS (
+         SELECT 1 FROM marketing_campaigns mc
+         WHERE mc.owner_user_id=$1
+           AND (mc.results->'source'->>'type')='catalog'
+           AND (mc.results->'source'->>'productId')=p.product_id::text
+           AND mc.autopilot_enabled=TRUE
+           AND mc.next_run_at IS NOT NULL
+           AND mc.next_run_at > NOW()
+       )
+     ORDER BY
+       CASE WHEN NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id) THEN 0 ELSE 1 END,
+       p.created_at ASC
      LIMIT 1`,
-    [state.initialized_at],
+    [ownerUserId],
   );
   const product = productResult.rows[0];
   await pool.query(`UPDATE marketing_catalog_autopilot SET last_scan_at=NOW(), updated_at=NOW() WHERE owner_user_id=$1`, [ownerUserId]);
@@ -153,16 +174,16 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
         },
         autopilot: { enabled: true, queued: true, source: "catalog" },
       }),
-      `catalog:${product.product_id}`,
+      `catalog:${product.product_id}:${Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000))}`,
       ownerUserId,
       now,
     ],
   );
 
   await pool.query(
-    `INSERT INTO marketing_catalog_promotions (product_id,campaign_id,product_name)
-     VALUES ($1,$2,$3)
-     ON CONFLICT (product_id) DO NOTHING`,
+    `INSERT INTO marketing_catalog_promotions (product_id,campaign_id,product_name,last_promoted_at,promotion_count)
+     VALUES ($1,$2,$3,NOW(),1)
+     ON CONFLICT (product_id) DO UPDATE SET campaign_id=EXCLUDED.campaign_id, product_name=EXCLUDED.product_name, last_promoted_at=NOW(), promotion_count=marketing_catalog_promotions.promotion_count+1`,
     [String(product.product_id), campaignId, String(product.name || "New product")],
   );
   await pool.query(
