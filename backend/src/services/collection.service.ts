@@ -891,174 +891,66 @@ export const removeProductFromCollection =
         collectionSlug: string,
         productId: string
     ) => {
-
-        const client =
-            await pool.connect();
-
+        const client = await pool.connect();
 
         try {
+            await client.query("BEGIN");
 
-            await client.query(
-                `
-                BEGIN
-                `
+            const collectionResult = await client.query(
+                `SELECT id
+                 FROM collections
+                 WHERE slug = $1
+                 LIMIT 1`,
+                [collectionSlug]
             );
 
-
-            const collectionResult =
-                await client.query(
-                    `
-                    SELECT
-                        id
-
-                    FROM collections
-
-                    WHERE
-                        slug = $1
-
-                    LIMIT 1
-                    `,
-                    [
-                        collectionSlug,
-                    ]
-                );
-
-
-            const collection =
-                collectionResult.rows[
-                    0
-                ];
-
-
-            if (
-                !collection
-            ) {
-
-                await client.query(
-                    `
-                    ROLLBACK
-                    `
-                );
-
-
+            const collection = collectionResult.rows[0];
+            if (!collection) {
+                await client.query("ROLLBACK");
                 return null;
-
             }
 
+            // product_id is a UUID in the products relation. Casting it to text
+            // here keeps this admin delete path tolerant of the string route param.
+            const result = await client.query(
+                `DELETE FROM collection_products
+                 WHERE collection_id = $1
+                   AND product_id::text = $2
+                 RETURNING collection_product_id, collection_id, product_id`,
+                [collection.id, productId]
+            );
 
-            const result =
-                await client.query(
-                    `
-                    DELETE FROM
-                        collection_products
-
-                    WHERE
-                        collection_id = $1
-
-                        AND product_id = $2
-
-                    RETURNING
-                        collection_product_id,
-                        collection_id,
-                        product_id
-                    `,
-                    [
-                        collection.id,
-                        productId,
-                    ]
-                );
-
-
-            const removedProduct =
-                result.rows[
-                    0
-                ];
-
-
-            if (
-                !removedProduct
-            ) {
-
-                await client.query(
-                    `
-                    ROLLBACK
-                    `
-                );
-
-
+            const removedProduct = result.rows[0];
+            if (!removedProduct) {
+                await client.query("ROLLBACK");
                 return null;
-
             }
-
 
             await client.query(
-                `
-                WITH ordered_products AS (
-
+                `WITH ordered_products AS (
                     SELECT
                         collection_product_id,
-
-                        ROW_NUMBER()
-                        OVER (
-                            ORDER BY
-                                sort_order ASC,
-                                created_at ASC
-                        )
-                        AS new_sort_order
-
+                        ROW_NUMBER() OVER (
+                            ORDER BY sort_order ASC, created_at ASC
+                        ) AS new_sort_order
                     FROM collection_products
-
-                    WHERE
-                        collection_id = $1
-
+                    WHERE collection_id = $1
                 )
-
                 UPDATE collection_products cp
-
-                SET
-                    sort_order =
-                        ordered_products.new_sort_order
-
+                SET sort_order = ordered_products.new_sort_order
                 FROM ordered_products
-
-                WHERE
-                    cp.collection_product_id =
-                        ordered_products.collection_product_id
-                `,
-                [
-                    collection.id,
-                ]
+                WHERE cp.collection_product_id = ordered_products.collection_product_id`,
+                [collection.id]
             );
 
-
-            await client.query(
-                `
-                COMMIT
-                `
-            );
-
-
+            await client.query("COMMIT");
             return removedProduct;
-
-        } catch (
-            error
-        ) {
-
-            await client.query(
-                `
-                ROLLBACK
-                `
-            );
-
-
+        } catch (error) {
+            await client.query("ROLLBACK");
             throw error;
-
         } finally {
-
             client.release();
-
         }
-
     };
 
 
