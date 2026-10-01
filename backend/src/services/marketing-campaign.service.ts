@@ -79,6 +79,10 @@ const ensureCampaignTable = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_autopilot_idx ON marketing_campaigns(autopilot_enabled, next_run_at)`);
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_campaigns_idempotency_idx ON marketing_campaigns(idempotency_key) WHERE idempotency_key IS NOT NULL`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_created_at_idx ON marketing_campaigns(created_at DESC)`);
+    // Normalize existing active Autopilot campaigns to the new 6-hour operating window.
+    // This is intentionally scoped to Marketing campaigns only.
+    await pool.query(`UPDATE marketing_campaigns SET recurrence_hours=6 WHERE autopilot_enabled=TRUE AND recurrence_hours > 7`);
+    await pool.query(`UPDATE marketing_campaigns SET next_run_at=NOW() + INTERVAL '6 hours' WHERE autopilot_enabled=TRUE AND next_run_at IS NOT NULL AND next_run_at > NOW() + INTERVAL '6 hours' AND (starts_at IS NULL OR starts_at <= NOW())`);
     await pool.query(`
         CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
             id BIGSERIAL PRIMARY KEY,
