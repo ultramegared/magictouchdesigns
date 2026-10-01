@@ -1,7 +1,7 @@
 import { pool } from "../config/database";
 
 const PUBLIC_SITE = process.env.FRONTEND_PUBLIC_URL?.trim() || "https://www.jqydesigns.com";
-const ALLOWED_CHANNELS = ["facebook","instagram","whatsapp","tiktok","youtube","pinterest"] as const;
+const PUBLIC_CHANNELS = ["facebook","instagram","tiktok","pinterest"] as const;
 
 const ensureCatalogTables = async () => {
   await pool.query(`CREATE TABLE IF NOT EXISTS marketing_catalog_autopilot (
@@ -135,7 +135,7 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
       "Houston, Texas + United States",
       message,
       `New at JQYDesigns · ${String(product.name || "New product")}`,
-      JSON.stringify([...ALLOWED_CHANNELS]),
+      JSON.stringify(imageUrl ? [...PUBLIC_CHANNELS] : ["facebook"]),
       JSON.stringify({
         social: {},
         google: {
