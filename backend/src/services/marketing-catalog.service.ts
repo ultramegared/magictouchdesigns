@@ -345,7 +345,7 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
      FROM portfolio_items p
      WHERE p.is_active=TRUE
        AND (
-         NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id)
+         NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text)
          OR EXISTS (
            SELECT 1 FROM marketing_portfolio_promotions mpp
            WHERE mpp.portfolio_id=p.portfolio_id
@@ -362,7 +362,7 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
            AND mc.next_run_at >= NOW() - INTERVAL '6 hours'
        )
      ORDER BY
-       CASE WHEN NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id) THEN 0 ELSE 1 END,
+       CASE WHEN NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text) THEN 0 ELSE 1 END,
        p.created_at ASC
      LIMIT 1`,
     [ownerUserId],
@@ -422,8 +422,8 @@ export async function getContentAutopilotStatus(ownerUserId: string) {
       `SELECT COUNT(*)::int AS count FROM portfolio_items p
        WHERE p.is_active=TRUE
          AND (
-           NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id)
-           OR COALESCE((SELECT mpp.last_promoted_at FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id), 'epoch'::timestamptz) <= NOW() - INTERVAL '7 days'
+           NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text)
+           OR COALESCE((SELECT mpp.last_promoted_at FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text), 'epoch'::timestamptz) <= NOW() - INTERVAL '7 days'
          )`
     );
     pendingPortfolio = Number(portfolio.rows[0]?.count || 0);
