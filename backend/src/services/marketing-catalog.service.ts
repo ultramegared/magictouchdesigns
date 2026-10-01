@@ -85,7 +85,23 @@ export async function setCatalogAutopilot(ownerUserId: string, enabled: boolean)
      WHERE owner_user_id=$1`,
     [ownerUserId, enabled, initializedAt],
   );
-  return getCatalogAutopilotStatus(ownerUserId);
+
+  const status = await getCatalogAutopilotStatus(ownerUserId);
+  if (!enabled) return status;
+
+  // Activation performs the first real scan immediately. The cron continues
+  // subsequent scans, but activation must not leave the user waiting for it.
+  const scan = await queueNextCatalogProduct(ownerUserId);
+  return {
+    ...status,
+    ...(scan.queued ? {
+      lastProductId: scan.productId,
+      lastProductName: scan.productName,
+      lastCampaignId: scan.campaignId,
+      lastScanAt: new Date().toISOString(),
+    } : {}),
+    scan,
+  };
 }
 
 const productLink = (slug: string) => `${PUBLIC_SITE.replace(/\/$/, "")}/products?product=${encodeURIComponent(slug)}`;
@@ -400,15 +416,23 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
 export async function getContentAutopilotStatus(ownerUserId: string) {
   const catalog = await getCatalogAutopilotStatus(ownerUserId);
   await ensureOwnerState(ownerUserId);
-  const portfolio = await pool.query(
-    `SELECT COUNT(*)::int AS count FROM portfolio_items p
-     WHERE p.is_active=TRUE
-       AND (
-         NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id)
-         OR COALESCE((SELECT mpp.last_promoted_at FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id), 'epoch'::timestamptz) <= NOW() - INTERVAL '7 days'
-       )`
-  );
-  return { ...catalog, pendingPortfolio: Number(portfolio.rows[0]?.count || 0) };
+
+  let pendingPortfolio = 0;
+  try {
+    const portfolio = await pool.query(
+      `SELECT COUNT(*)::int AS count FROM portfolio_items p
+       WHERE p.is_active=TRUE
+         AND (
+           NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id)
+           OR COALESCE((SELECT mpp.last_promoted_at FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id), 'epoch'::timestamptz) <= NOW() - INTERVAL '7 days'
+         )`
+    );
+    pendingPortfolio = Number(portfolio.rows[0]?.count || 0);
+  } catch (error) {
+    console.error("Unable to read Content Autopilot portfolio status:", error);
+  }
+
+  return { ...catalog, pendingPortfolio };
 }
 
 export async function queueNextContent(ownerUserId: string) {
