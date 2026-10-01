@@ -281,6 +281,56 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
 export const getMarketingLearning = async (targetArea?: string, objective?: string) => getMarketingLearningInsights(targetArea, objective);
 
+export const listMarketingPublicationActivity = async (limit = 50) => {
+    await ensureCampaignTable();
+    const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 100);
+    const result = await pool.query(
+        `SELECT
+            r.id AS run_id,
+            r.campaign_id,
+            c.name AS campaign_name,
+            c.campaign_type,
+            c.target_area,
+            c.results->'assets'->>'landingLink' AS landing_link,
+            r.channel,
+            r.run_type,
+            r.published,
+            r.result,
+            r.created_at
+         FROM marketing_campaign_runs r
+         LEFT JOIN marketing_campaigns c ON c.id = r.campaign_id
+         ORDER BY r.created_at DESC
+         LIMIT $1`,
+        [safeLimit]
+    );
+
+    return result.rows.map((row: any) => {
+        const raw = row.result && typeof row.result === "object" ? row.result : {};
+        let url = typeof raw.url === "string" ? raw.url : undefined;
+        const id = raw.id ? String(raw.id) : undefined;
+        const channel = String(row.channel || "");
+        if (!url && id && channel === "pinterest") {
+            url = "https://www.pinterest.com/pin/" + encodeURIComponent(id) + "/";
+        }
+        if (!url && id && channel === "youtube") {
+            url = "https://www.youtube.com/watch?v=" + encodeURIComponent(id);
+        }
+        return {
+            run_id: Number(row.run_id),
+            campaign_id: String(row.campaign_id),
+            campaign_name: row.campaign_name || String(row.campaign_id),
+            campaign_type: row.campaign_type || "manual",
+            target_area: row.target_area || "",
+            landing_link: row.landing_link || null,
+            channel,
+            run_type: row.run_type,
+            published: Boolean(row.published),
+            result: { ...raw, ...(url ? { url } : {}) },
+            created_at: row.created_at,
+        };
+    });
+};
+
 export const listMarketingCampaigns = async (limit = 20) => {
     await ensureCampaignTable();
     const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 50);
