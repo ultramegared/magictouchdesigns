@@ -88,7 +88,84 @@ export async function setCatalogAutopilot(ownerUserId: string, enabled: boolean)
   return getCatalogAutopilotStatus(ownerUserId);
 }
 
-const productLink = (slug: string) => `${PUBLIC_SITE.replace(/\/$/, "")}/products?product=${encodeURIComponent(slug)}`;
+const productLink = (slug: string) => `${PUBLIC_SITE.replace(/\\/$/, "")}/products?product=${encodeURIComponent(slug)}`;
+
+type PromotionDecision = {
+  eligible: boolean;
+  score: number;
+  reasons: string[];
+};
+
+const promotionHistory = async (sourceType: "catalog" | "portfolio", sourceId: string) => {
+  const idField = sourceType === "catalog" ? "productId" : "portfolioId";
+  const result = await pool.query(
+    `SELECT COUNT(DISTINCT mc.id)::int AS campaigns,
+            COALESCE(SUM(ml.sessions),0)::int AS sessions,
+            COALESCE(SUM(ml.conversions),0)::int AS conversions,
+            COALESCE(SUM(ml.revenue),0)::numeric AS revenue,
+            COALESCE(AVG(CASE WHEN ml.published THEN 1 ELSE 0 END),0)::numeric AS success_rate
+     FROM marketing_campaigns mc
+     LEFT JOIN marketing_learning_observations ml ON ml.campaign_id=mc.id
+     WHERE (mc.results->'source'->>'type')=$1
+       AND (mc.results->'source'->>'${idField}')=$2`,
+    [sourceType, sourceId],
+  );
+  return result.rows[0] || { campaigns: 0, sessions: 0, conversions: 0, revenue: 0, success_rate: 0 };
+};
+
+const evaluateProductPromotability = async (product: any): Promise<PromotionDecision> => {
+  let score = 0;
+  const reasons: string[] = [];
+  const imageUrls = Array.isArray(product.image_urls) ? product.image_urls.filter(Boolean) : [];
+  if (String(product.image_url || imageUrls[0] || "").trim()) { score += 30; reasons.push("has product image"); } else reasons.push("missing product image");
+  if (String(product.name || "").trim().length >= 4) { score += 20; reasons.push("has usable product name"); } else reasons.push("weak product name");
+  if (String(product.description || "").trim().length >= 30) { score += 15; reasons.push("has descriptive copy"); } else reasons.push("description is too short");
+  const rawFeatures = product.features;
+  if ((Array.isArray(rawFeatures) && rawFeatures.length) || (rawFeatures && typeof rawFeatures === "object" && Object.keys(rawFeatures).length)) { score += 10; reasons.push("has product characteristics"); }
+  else reasons.push("no product characteristics");
+  if (Number(product.price) > 0) { score += 10; reasons.push("has valid price"); } else reasons.push("missing valid price");
+  if (product.is_active) score += 5;
+  const ageDays = Math.max(0, (Date.now() - new Date(product.created_at || Date.now()).getTime()) / 86400000);
+  if (ageDays <= 30) { score += 10; reasons.push("recent product"); }
+  else if (ageDays <= 90) score += 5;
+  const history = await promotionHistory("catalog", String(product.product_id));
+  if (Number(history.campaigns) === 0) { score += 5; reasons.push("new promotion opportunity"); }
+  else {
+    const sessions = Number(history.sessions || 0);
+    const conversions = Number(history.conversions || 0);
+    const conversionRate = sessions > 0 ? conversions / sessions : 0;
+    if (conversionRate >= 0.03) { score += 10; reasons.push("strong historical conversion"); }
+    else if (conversionRate >= 0.01) { score += 5; reasons.push("positive historical conversion"); }
+    else if (sessions >= 20 && conversions === 0) { score -= 10; reasons.push("weak historical conversion"); }
+  }
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return { eligible: score >= 60, score, reasons };
+};
+
+const evaluatePortfolioPromotability = async (item: any): Promise<PromotionDecision> => {
+  let score = 0;
+  const reasons: string[] = [];
+  if (String(item.image_url || "").trim()) { score += 35; reasons.push("has portfolio image"); } else reasons.push("missing portfolio image");
+  if (String(item.title_en || "").trim().length >= 4) { score += 25; reasons.push("has portfolio title"); } else reasons.push("weak portfolio title");
+  if (String(item.description_en || "").trim().length >= 30) { score += 20; reasons.push("has descriptive copy"); } else if (String(item.description_en || "").trim()) score += 8;
+  else reasons.push("no description");
+  if (String(item.characteristics_en || "").trim()) { score += 10; reasons.push("has work characteristics"); }
+  const ageDays = Math.max(0, (Date.now() - new Date(item.created_at || Date.now()).getTime()) / 86400000);
+  if (ageDays <= 30) { score += 10; reasons.push("recent work"); }
+  else if (ageDays <= 90) score += 5;
+  const history = await promotionHistory("portfolio", String(item.portfolio_id));
+  if (Number(history.campaigns) === 0) { score += 5; reasons.push("new promotion opportunity"); }
+  else {
+    const sessions = Number(history.sessions || 0);
+    const conversions = Number(history.conversions || 0);
+    const conversionRate = sessions > 0 ? conversions / sessions : 0;
+    if (conversionRate >= 0.03) { score += 10; reasons.push("strong historical conversion"); }
+    else if (conversionRate >= 0.01) { score += 5; reasons.push("positive historical conversion"); }
+    else if (sessions >= 20 && conversions === 0) { score -= 10; reasons.push("weak historical conversion"); }
+  }
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return { eligible: score >= 60, score, reasons };
+};
 
 const buildProductMessage = (product: any) => {
   const description = String(product.description || "").replace(/\s+/g, " ").trim();
@@ -154,6 +231,8 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
   const product = productResult.rows[0];
   await pool.query(`UPDATE marketing_catalog_autopilot SET last_scan_at=NOW(), updated_at=NOW() WHERE owner_user_id=$1`, [ownerUserId]);
   if (!product) return { queued: false, reason: "No new unpromoted product found." };
+  const decision = await evaluateProductPromotability(product);
+  if (!decision.eligible) return { queued: false, reason: "Product was evaluated but is not strong enough to promote yet.", productId: String(product.product_id), productName: String(product.name || ""), decision };
 
   const imageUrls = Array.isArray(product.image_urls) ? product.image_urls.filter(Boolean) : [];
   const imageUrl = String(product.image_url || imageUrls[0] || "").trim() || undefined;
@@ -188,6 +267,7 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
           productSlug: String(product.slug || ""),
           productName: String(product.name || ""),
           price: Number(product.price || 0),
+          decision,
         },
         autopilot: { enabled: true, queued: true, source: "catalog" },
       }),
@@ -209,7 +289,7 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
      WHERE owner_user_id=$1`,
     [ownerUserId, String(product.product_id), String(product.name || "New product"), campaignId],
   );
-  return { queued: true, campaignId, productId: String(product.product_id), productName: String(product.name || "New product") };
+  return { queued: true, campaignId, productId: String(product.product_id), productName: String(product.name || "New product"), decision };
 }
 
 export async function getCatalogOwners() {
@@ -274,6 +354,8 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
   );
   const item = result.rows[0];
   if (!item) return { queued: false, reason: "No portfolio work is due for promotion." };
+  const decision = await evaluatePortfolioPromotability(item);
+  if (!decision.eligible) return { queued: false, reason: "Portfolio work was evaluated but is not strong enough to promote yet.", portfolioId: String(item.portfolio_id), title: String(item.title_en || ""), decision };
 
   const campaignId = `portfolio-${item.portfolio_id}-${Date.now()}`;
   const link = `${PUBLIC_SITE.replace(/\/$/,"")}/portfolio`;
@@ -296,7 +378,7 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
         social: {},
         google: { status: "tracking_only", message: "Portfolio promotion will be measured through campaign analytics.", focus: ["custom mugs Houston", "custom gifts Houston", String(item.title_en || "")] },
         assets: { imageUrl: String(item.image_url || ""), videoUrl: undefined, landingLink: link },
-        source: { type: "portfolio", portfolioId: String(item.portfolio_id), portfolioTitle: String(item.title_en || "") },
+        source: { type: "portfolio", portfolioId: String(item.portfolio_id), portfolioTitle: String(item.title_en || ""), decision },
         autopilot: { enabled: true, queued: true, source: "portfolio" },
       }),
       `portfolio:${item.portfolio_id}:${Math.floor(Date.now()/(7*24*60*60*1000))}`,
@@ -312,7 +394,7 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
     [String(item.portfolio_id), campaignId, String(item.title_en || "Featured work")],
   );
 
-  return { queued: true, campaignId, portfolioId: String(item.portfolio_id), title: String(item.title_en || "Featured work") };
+  return { queued: true, campaignId, portfolioId: String(item.portfolio_id), title: String(item.title_en || "Featured work"), decision };
 }
 
 export async function getContentAutopilotStatus(ownerUserId: string) {
