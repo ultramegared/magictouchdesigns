@@ -10,12 +10,12 @@ type FeatureOption = { id: string; label: string };
 type ProductFeature = { id: string; name: string; options: FeatureOption[] };
 type Product = { product_id: string; name: string; slug: string; description: string; price: number | string; image_url: string; image_urls?: string[]; is_active: boolean; features: unknown[] | Record<string, unknown>; collection_sort_order: number };
 type Collection = { slug: string; name: string; description?: string; image_url?: string; is_active?: boolean };
-type ProductForm = { name: string; slug: string; description: string; price: string; image_url: string; image_urls: string[]; features: ProductFeature[]; is_active: boolean };
+type ProductForm = { name: string; slug: string; description: string; price: string; image_url: string; image_urls: string[]; features: ProductFeature[]; is_active: boolean; collection_slugs: string[] };
 type CurrentUser = { username: string };
 
 const DEFAULT_COLORS = ["White", "Black", "Red"];
 const COLOR_CATALOG = ["White", "Black", "Red", "Green", "Blue", "Purple", "Yellow", "Pink", "Orange", "Gray", "Brown", "Navy", "Teal", "Gold", "Silver", "Beige", "Maroon", "Turquoise"];
-const DEFAULT_SIZES = ["11 oz", "15 oz"];
+const DEFAULT_SIZES = ["11 oz", "15 oz"];\nconst COLLECTIONS = [{ slug:"love-romance", name:"Love & Romance" }, { slug:"family-memories", name:"Family & Memories" }, { slug:"business-branding", name:"Business & Branding" }, { slug:"special-occasions", name:"Special Occasions" }] as const;
 const COLOR_HEX: Record<string, string> = { white:"#fff",black:"#111",red:"#d71920",green:"#168a45",blue:"#2464c4",purple:"#7a3fb0",yellow:"#f0c419",pink:"#e98ca8",orange:"#ef7d24",gray:"#777",brown:"#7a4b2a",navy:"#162b55",teal:"#159b9b",gold:"#d8a82d",silver:"#bfc3c7",beige:"#d8c5a2",maroon:"#6f1d2b",turquoise:"#20b8b8" };
 
 const newId = () => crypto.randomUUID();
@@ -47,7 +47,7 @@ function AdminCollectionProducts() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [editing, setEditing] = useState<Product | null>(null);
-    const [form, setForm] = useState<ProductForm>({ name:"", slug:"", description:"", price:"", image_url:"", image_urls:[], features:defaultFeatures(), is_active:true });
+    const [form, setForm] = useState<ProductForm>({ name:"", slug:"", description:"", price:"", image_url:"", image_urls:[], features:defaultFeatures(), is_active:true, collection_slugs:COLLECTIONS.map((item)=>item.slug) });
     const [modalOpen, setModalOpen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -73,8 +73,8 @@ function AdminCollectionProducts() {
         return products.filter((product) => `${product.name} ${product.slug} ${product.description}`.toLowerCase().includes(term));
     }, [products, search]);
     const activeCount = products.filter((product) => product.is_active).length;
-    const openCreate = () => { setEditing(null); setForm({ name:"", slug:"", description:"", price:"", image_url:"", image_urls:[], features:defaultFeatures(), is_active:true }); setModalOpen(true); };
-    const openEdit = (product: Product) => { setEditing(product); setForm({ name:product.name, slug:product.slug, description:product.description || "", price:String(product.price), image_url:product.image_url || "", image_urls:(product.image_urls?.length ? product.image_urls.slice(0,3) : (product.image_url ? [product.image_url] : [])), features:normalizeFeatures(product.features), is_active:product.is_active }); setModalOpen(true); };
+    const openCreate = () => { setEditing(null); setForm({ name:"", slug:"", description:"", price:"", image_url:"", image_urls:[], features:defaultFeatures(), is_active:true, collection_slugs:COLLECTIONS.map((item)=>item.slug) }); setModalOpen(true); };
+    const openEdit = (product: Product) => { setEditing(product); setForm({ name:product.name, slug:product.slug, description:product.description || "", price:String(product.price), image_url:product.image_url || "", image_urls:(product.image_urls?.length ? product.image_urls.slice(0,3) : (product.image_url ? [product.image_url] : [])), features:normalizeFeatures(product.features), is_active:product.is_active, collection_slugs:[slug] }); setModalOpen(true); };
     const updateFeature = (id: string, patch: Partial<ProductFeature>) => setForm((current) => ({ ...current, features: current.features.map((feature) => feature.id === id ? { ...feature, ...patch } : feature) }));
     const updateOption = (featureId: string, optionId: string, label: string) => setForm((current) => ({ ...current, features: current.features.map((feature) => feature.id === featureId ? { ...feature, options: feature.options.map((option) => option.id === optionId ? { ...option, label } : option) } : feature) }));
     const addFeature = () => setForm((current) => ({ ...current, features: [...current.features, makeFeature("", [""]) ] }));
@@ -108,12 +108,12 @@ function AdminCollectionProducts() {
 
     const saveProduct = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (!form.name.trim() || !form.price || form.features.some((feature) => !feature.name.trim() || feature.options.some((option) => !option.label.trim()))) { window.alert("Complete the product name, price and every option before saving."); return; }
+        if (!form.name.trim() || !form.price || (!editing && form.collection_slugs.length === 0) || form.features.some((feature) => !feature.name.trim() || feature.options.some((option) => !option.label.trim()))) { window.alert("Complete the product name, price and every option before saving."); return; }
         setSaving(true);
         try {
             const payload = { ...form, image_urls:form.image_urls.slice(0,3), image_url:form.image_urls[0] || "", name:form.name.trim(), slug:form.slug.trim(), price:Number(form.price), features:form.features.map((feature) => ({ ...feature, name:feature.name.trim(), options:feature.options.map((option) => ({ ...option, label:option.label.trim() })) })) };
-            const path = editing ? `/api/collections/admin/${slug}/products/${editing.product_id}` : `/api/collections/admin/${slug}/products`;
-            const response = await apiRequest<{ product:Product }>(path, { method:editing ? "PUT" : "POST", body:JSON.stringify(payload) });
+            const path = editing ? `/api/collections/admin/${slug}/products/${editing.product_id}` : "/api/collections/admin/multi/products";
+            const response = await apiRequest<{ product:Product }>(path, { method:editing ? "PUT" : "POST", body:JSON.stringify(editing ? payload : { ...payload, collection_slugs:form.collection_slugs }) });
             setProducts((current) => editing ? current.map((item) => item.product_id === editing.product_id ? response.product : item) : [...current, response.product]); setModalOpen(false);
         } catch (err) { window.alert(err instanceof Error ? err.message : "Unable to save product."); }
         finally { setSaving(false); }
@@ -157,6 +157,7 @@ function AdminCollectionProducts() {
     {modalOpen && <div className="admin-product-modal" role="dialog" aria-modal="true"><div className="admin-product-modal__panel"><button type="button" className="admin-modal-close" onClick={()=>!saving&&!uploading&&setModalOpen(false)}><X/></button><div className="admin-modal-heading"><span>{editing?"EDIT PRODUCT":"NEW PRODUCT"}</span><h2>{editing?"Update product":"Add product to collection"}</h2><p>Every product controls its own image, colors, sizes and future options.</p></div><form onSubmit={saveProduct}>
         <div className="admin-form-grid"><label>Product name<input value={form.name} onChange={(event)=>setForm({...form,name:event.target.value})} required/></label><label>Slug<input value={form.slug} onChange={(event)=>setForm({...form,slug:event.target.value})} placeholder="product-slug"/></label><label>Price<input type="number" min="0" step="0.01" value={form.price} onChange={(event)=>setForm({...form,price:event.target.value})} required/></label><label className="admin-upload-label">Product images <small>Maximum 3 images</small><input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading || form.image_urls.length >= 3} onChange={uploadImages}/>{uploading&&<small>Uploading...</small>}</label></div>
         <label className="admin-description">Description<textarea value={form.description} onChange={(event)=>setForm({...form,description:event.target.value})} rows={4} placeholder="Product description / sample product text"/></label>
+        {!editing && <section className="admin-options-builder"><div className="admin-options-heading"><div><span>COLLECTIONS</span><h3>Publish to collections</h3><p>This creates one product and links it to every selected collection.</p></div></div><div className="admin-option-list">{COLLECTIONS.map((item)=><label key={item.slug} className="admin-active-toggle"><input type="checkbox" checked={form.collection_slugs.includes(item.slug)} onChange={(event)=>setForm((current)=>({...current,collection_slugs:event.target.checked?[...current.collection_slugs,item.slug]:current.collection_slugs.filter((value)=>value!==item.slug)}))}/><span>{item.name}</span></label>)}</div></section>}
         {form.image_urls.length > 0 && <div className="admin-image-gallery">{form.image_urls.map((url,index)=><div className="admin-gallery-item" key={`${url}-${index}`}><img src={url} alt={`Product image ${index + 1}`}/><div className="admin-gallery-item__footer"><span>{index === 0 ? "MAIN IMAGE" : `IMAGE ${index + 1}`}</span><button type="button" onClick={()=>removeImage(index)} aria-label={`Remove image ${index + 1}`}><X size={15}/></button></div></div>)}</div>}
         <section className="admin-options-builder"><div className="admin-options-heading"><div><span>PRODUCT OPTIONS</span><h3>Customer selections</h3><p>White, Black and Red are included by default. Add or remove anything for this product.</p></div><button type="button" className="admin-secondary" onClick={addFeature}><Plus size={16}/> Add option group</button></div>
             {form.features.map((feature)=><div className="admin-feature-card" key={feature.id}><div className="admin-feature-head"><input value={feature.name} onChange={(event)=>updateFeature(feature.id,{name:event.target.value})} placeholder="Option name (Color, Size, Material...)"/><button type="button" onClick={()=>removeFeature(feature.id)} aria-label="Remove option group"><Trash2 size={17}/></button></div>
