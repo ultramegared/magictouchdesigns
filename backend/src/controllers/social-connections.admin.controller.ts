@@ -67,6 +67,10 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
             sendEmail: Boolean(req.body?.sendEmail),
             idempotencyKey: typeof req.body?.idempotencyKey === "string" ? req.body.idempotencyKey : undefined,
             autopilot: Boolean(req.body?.autopilot),
+            campaignType: req.body?.campaignType === "catalog" || req.body?.campaignType === "event" ? req.body.campaignType : "manual",
+            startsAt: typeof req.body?.startsAt === "string" ? req.body.startsAt : undefined,
+            endsAt: typeof req.body?.endsAt === "string" ? req.body.endsAt : undefined,
+            recurrenceHours: Number(req.body?.recurrenceHours || 24),
         });
         res.json({ status: "success", data: result });
     } catch (error) {
