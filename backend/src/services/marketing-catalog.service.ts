@@ -88,7 +88,7 @@ export async function setCatalogAutopilot(ownerUserId: string, enabled: boolean)
   return getCatalogAutopilotStatus(ownerUserId);
 }
 
-const productLink = (slug: string) => `${PUBLIC_SITE.replace(/\\/$/, "")}/products?product=${encodeURIComponent(slug)}`;
+const productLink = (slug: string) => `${PUBLIC_SITE.replace(/\/$/, "")}/products?product=${encodeURIComponent(slug)}`;
 
 type PromotionDecision = {
   eligible: boolean;
