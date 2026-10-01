@@ -259,7 +259,7 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
   await pool.query(
     `INSERT INTO marketing_campaigns
       (id,name,objective,target_area,message,subject,channels,results,idempotency_key,owner_user_id,autopilot_enabled,next_run_at,campaign_type,recurrence_hours)
-     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'catalog',168)`,
+     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'catalog',6)`,
     [
       campaignId,
       `Catalog · ${String(product.name || "New product")}`,
@@ -380,7 +380,7 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
   await pool.query(
     `INSERT INTO marketing_campaigns
       (id,name,objective,target_area,message,subject,channels,results,idempotency_key,owner_user_id,autopilot_enabled,next_run_at,campaign_type,recurrence_hours)
-     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'portfolio',168)`,
+     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'portfolio',6)`,
     [
       campaignId,
       `Portfolio · ${String(item.title_en || "Featured work")}`,
