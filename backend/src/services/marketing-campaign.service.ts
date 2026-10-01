@@ -281,7 +281,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
 export const getMarketingLearning = async (targetArea?: string, objective?: string) => getMarketingLearningInsights(targetArea, objective);
 
-export const listMarketingPublicationActivity = async (limit = 50) => {
+export const listMarketingPublicationActivity = async (ownerUserId: string, limit = 50) => {
     await ensureCampaignTable();
     const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 100);
     const result = await pool.query(
@@ -299,9 +299,10 @@ export const listMarketingPublicationActivity = async (limit = 50) => {
             r.created_at
          FROM marketing_campaign_runs r
          LEFT JOIN marketing_campaigns c ON c.id = r.campaign_id
+         WHERE c.owner_user_id=$1
          ORDER BY r.created_at DESC
-         LIMIT $1`,
-        [safeLimit]
+         LIMIT $2`,
+        [ownerUserId, safeLimit]
     );
 
     return result.rows.map((row: any) => {
