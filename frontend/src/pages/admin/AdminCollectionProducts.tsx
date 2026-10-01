@@ -116,7 +116,8 @@ function AdminCollectionProducts() {
         try {
             const uploaded: string[] = [];
             for (const file of selected) {
-                const preparedFile = await prepareProductImage(file);\n                const body = new FormData(); body.append("image", preparedFile);
+                const preparedFile = await prepareProductImage(file);
+                const body = new FormData(); body.append("image", preparedFile);
                 const response = await apiRequest<{ image_url?: string }>("/api/upload/product", { method:"POST", body });
                 if (response.image_url) uploaded.push(response.image_url);
             }
