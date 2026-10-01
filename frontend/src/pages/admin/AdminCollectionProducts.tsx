@@ -114,7 +114,7 @@ function AdminCollectionProducts() {
             const payload = { ...form, image_urls:form.image_urls.slice(0,3), image_url:form.image_urls[0] || "", name:form.name.trim(), slug:form.slug.trim(), price:Number(form.price), features:form.features.map((feature) => ({ ...feature, name:feature.name.trim(), options:feature.options.map((option) => ({ ...option, label:option.label.trim() })) })) };
             const path = editing ? `/api/collections/admin/${slug}/products/${editing.product_id}` : `/api/collections/admin/${slug}/products`;
             const response = await apiRequest<{ product:Product }>(path, { method:editing ? "PUT" : "POST", body:JSON.stringify(payload) });
-            setProducts((current) => editing ? current.map((item) => item.product_id === editing.product_id ? response.product : item) : [...current, response.product]); setModalOpen(false);
+            setProducts((current) => editing ? current.map((item) => item.product_id === editing.product_id ? response.product : item) : [response.product, ...current]); setModalOpen(false);
         } catch (err) { window.alert(err instanceof Error ? err.message : "Unable to save product."); }
         finally { setSaving(false); }
     };
