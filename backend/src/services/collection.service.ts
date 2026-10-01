@@ -884,6 +884,8 @@ export const addProductToCollections = async (
 };
 
 
+/* ===============================================================
+   REMOVE PRODUCT FROM COLLECTION
 ================================================================ */
 
 export const removeProductFromCollectionService =
@@ -1598,111 +1600,3 @@ export const reorderCollectionProducts =
                     ROLLBACK
                     `
                 );
-
-
-                return null;
-
-            }
-
-
-            if (
-                existingIdsSet.size !==
-                requestedIdsSet.size
-            ) {
-
-                await client.query(
-                    `
-                    ROLLBACK
-                    `
-                );
-
-
-                return null;
-
-            }
-
-
-            for (
-                const productId
-                of productIds
-            ) {
-
-                if (
-                    !existingIdsSet.has(
-                        productId
-                    )
-                ) {
-
-                    await client.query(
-                        `
-                        ROLLBACK
-                        `
-                    );
-
-
-                    return null;
-
-                }
-
-            }
-
-
-            for (
-                let index = 0;
-                index < productIds.length;
-                index++
-            ) {
-
-                await client.query(
-                    `
-                    UPDATE collection_products
-
-                    SET
-                        sort_order = $1
-
-                    WHERE
-                        collection_id = $2
-
-                        AND product_id = $3
-                    `,
-                    [
-                        index + 1,
-                        collection.id,
-                        productIds[
-                            index
-                        ],
-                    ]
-                );
-
-            }
-
-
-            await client.query(
-                `
-                COMMIT
-                `
-            );
-
-
-            return true;
-
-        } catch (
-            error
-        ) {
-
-            await client.query(
-                `
-                ROLLBACK
-                `
-            );
-
-
-            throw error;
-
-        } finally {
-
-            client.release();
-
-        }
-
-    };
