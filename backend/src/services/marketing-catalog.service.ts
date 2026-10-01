@@ -348,7 +348,7 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
          NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text)
          OR EXISTS (
            SELECT 1 FROM marketing_portfolio_promotions mpp
-           WHERE mpp.portfolio_id=p.portfolio_id
+           WHERE mpp.portfolio_id=p.portfolio_id::text
              AND COALESCE(mpp.last_promoted_at,mpp.created_at) <= NOW() - INTERVAL '7 days'
          )
        )
