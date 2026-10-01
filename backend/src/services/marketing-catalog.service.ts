@@ -94,6 +94,12 @@ const buildProductMessage = (product: any) => {
   const description = String(product.description || "").replace(/\s+/g, " ").trim();
   const shortDescription = description.length > 120 ? `${description.slice(0,117)}...` : description;
   const price = Number(product.price || 0).toFixed(2);
+  const rawFeatures = product.features;
+  const features = Array.isArray(rawFeatures)
+    ? rawFeatures.filter(Boolean).slice(0, 5).join(" · ")
+    : rawFeatures && typeof rawFeatures === "object"
+      ? Object.entries(rawFeatures).slice(0, 5).map(([key, value]) => `${key}: ${String(value)}`).join(" · ")
+      : "";
   return [
     "✨ New at JQYDesigns",
     `**${String(product.name || "New product")}**`,
@@ -119,7 +125,7 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
   if (existingQueued.rows[0]) return { queued: false, reason: "A catalog promotion is already queued.", campaignId: existingQueued.rows[0].id };
 
   const productResult = await pool.query(
-    `SELECT p.product_id,p.name,p.slug,p.description,p.price,p.image_url,p.image_urls,p.created_at
+    `SELECT p.product_id,p.name,p.slug,p.description,p.price,p.image_url,p.image_urls,p.features,p.created_at
      FROM products p
      WHERE p.is_active=TRUE
        AND (
