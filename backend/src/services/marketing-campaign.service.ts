@@ -18,6 +18,10 @@ export interface MarketingCampaignInput {
     sendEmail?: boolean;
     idempotencyKey?: string;
     autopilot?: boolean;
+    campaignType?: "manual" | "catalog" | "event";
+    startsAt?: string;
+    endsAt?: string;
+    recurrenceHours?: number;
 }
 
 export interface MarketingCampaignResult {
@@ -54,7 +58,11 @@ const ensureCampaignTable = async () => {
             autopilot_enabled BOOLEAN NOT NULL DEFAULT FALSE,
             next_run_at TIMESTAMPTZ,
             last_run_at TIMESTAMPTZ,
-            run_count INTEGER NOT NULL DEFAULT 0
+            run_count INTEGER NOT NULL DEFAULT 0,
+            campaign_type TEXT NOT NULL DEFAULT 'manual',
+            starts_at TIMESTAMPTZ,
+            ends_at TIMESTAMPTZ,
+            recurrence_hours INTEGER NOT NULL DEFAULT 24
         )
     `);
     await pool.query(`ALTER TABLE marketing_campaigns ADD COLUMN IF NOT EXISTS idempotency_key TEXT`);
@@ -63,6 +71,10 @@ const ensureCampaignTable = async () => {
     await pool.query(`ALTER TABLE marketing_campaigns ADD COLUMN IF NOT EXISTS next_run_at TIMESTAMPTZ`);
     await pool.query(`ALTER TABLE marketing_campaigns ADD COLUMN IF NOT EXISTS last_run_at TIMESTAMPTZ`);
     await pool.query(`ALTER TABLE marketing_campaigns ADD COLUMN IF NOT EXISTS run_count INTEGER NOT NULL DEFAULT 0`);
+    await pool.query(`ALTER TABLE marketing_campaigns ADD COLUMN IF NOT EXISTS campaign_type TEXT NOT NULL DEFAULT 'manual'`);
+    await pool.query(`ALTER TABLE marketing_campaigns ADD COLUMN IF NOT EXISTS starts_at TIMESTAMPTZ`);
+    await pool.query(`ALTER TABLE marketing_campaigns ADD COLUMN IF NOT EXISTS ends_at TIMESTAMPTZ`);
+    await pool.query(`ALTER TABLE marketing_campaigns ADD COLUMN IF NOT EXISTS recurrence_hours INTEGER NOT NULL DEFAULT 24`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_autopilot_idx ON marketing_campaigns(autopilot_enabled, next_run_at)`);
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_campaigns_idempotency_idx ON marketing_campaigns(idempotency_key) WHERE idempotency_key IS NOT NULL`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_created_at_idx ON marketing_campaigns(created_at DESC)`);
@@ -166,6 +178,13 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
     const targetArea = input.targetArea?.trim() || "Houston, Texas + United States";
     const objective = input.objective?.trim() || "Brand awareness and sales";
+    const campaignType = input.campaignType || "manual";
+    const recurrenceHours = Math.min(Math.max(Number(input.recurrenceHours) || (campaignType === "catalog" ? 168 : 24), 1), 720);
+    const startsAt = input.startsAt ? new Date(input.startsAt) : null;
+    const endsAt = input.endsAt ? new Date(input.endsAt) : null;
+    if (startsAt && Number.isNaN(startsAt.getTime())) throw new Error("Invalid campaign start date.");
+    if (endsAt && Number.isNaN(endsAt.getTime())) throw new Error("Invalid campaign end date.");
+    if (startsAt && endsAt && endsAt <= startsAt) throw new Error("Campaign end must be after campaign start.");
     const connected = await connectedSocialChannels(userId);
     const requested = Array.isArray(input.channels) && input.channels.length
         ? input.channels.filter(channel => allowedChannels.includes(channel))
@@ -197,6 +216,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
     }
 
     const campaignId = randomUUID();
+    const firstRunAt = startsAt && startsAt > new Date() ? startsAt : new Date(Date.now() + 60 * 60 * 1000);
     const trackedLink = withCampaignTracking(input.link?.trim() || undefined, campaignId, "jqydesigns");
     const socialInput: MarketingCampaignInput = { ...input, link: trackedLink };
     const social = selected.length && !input.autopilot
@@ -233,8 +253,8 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
     await ensureCampaignTable();
     await pool.query(
-        `INSERT INTO marketing_campaigns (id, name, objective, target_area, message, subject, channels, results, idempotency_key, owner_user_id, autopilot_enabled, next_run_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,$11,$12)`,
+        `INSERT INTO marketing_campaigns (id, name, objective, target_area, message, subject, channels, results, idempotency_key, owner_user_id, autopilot_enabled, next_run_at, campaign_type, starts_at, ends_at, recurrence_hours)
+         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,$11,$12,$13,$14,$15,$16)`,
         [campaignId, name, objective, targetArea, message, input.subject?.trim() || name, JSON.stringify(selected), JSON.stringify({
             social,
             email,
@@ -244,8 +264,15 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
                 videoUrl: input.videoUrl?.trim() || undefined,
                 landingLink: input.link?.trim() || undefined,
             },
+            campaignType,
+            sendEmail: Boolean(input.sendEmail),
+            schedule: {
+                startsAt: startsAt?.toISOString(),
+                endsAt: endsAt?.toISOString(),
+                recurrenceHours,
+            },
             autopilot: input.autopilot ? { enabled: true, queued: true } : undefined,
-        }), idempotencyKey, userId, Boolean(input.autopilot), input.autopilot ? new Date(Date.now() + 60 * 60 * 1000) : null]
+        }), idempotencyKey, userId, Boolean(input.autopilot), input.autopilot ? firstRunAt : null, campaignType, startsAt, endsAt, recurrenceHours]
     );
 
     return { campaignId, name, targetArea, objective, connectedChannels: connected, social, email, google };
@@ -257,7 +284,7 @@ export const listMarketingCampaigns = async (limit = 20) => {
     await ensureCampaignTable();
     const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 50);
     const result = await pool.query(
-        `SELECT id, name, objective, target_area, subject, channels, results, created_at, autopilot_enabled, next_run_at, last_run_at, run_count
+        `SELECT id, name, objective, target_area, subject, channels, results, created_at, autopilot_enabled, next_run_at, last_run_at, run_count, campaign_type, starts_at, ends_at, recurrence_hours
          FROM marketing_campaigns
          ORDER BY created_at DESC
          LIMIT $1`,
@@ -328,6 +355,14 @@ export const runMarketingAutopilot = async () => {
 
     const campaign = due.rows[0];
     const userId = String(campaign.owner_user_id || "");
+    if (campaign.ends_at && new Date(campaign.ends_at) <= new Date()) {
+        await pool.query(`UPDATE marketing_campaigns SET autopilot_enabled=FALSE, next_run_at=NULL WHERE id=$1`, [campaign.id]);
+        return { ran: false, reason: "Campaign window ended.", campaignId: campaign.id };
+    }
+    if (campaign.starts_at && new Date(campaign.starts_at) > new Date()) {
+        await pool.query(`UPDATE marketing_campaigns SET next_run_at=$2 WHERE id=$1`, [campaign.id, campaign.starts_at]);
+        return { ran: false, reason: "Campaign has not started yet.", campaignId: campaign.id };
+    }
     if (!userId) {
         await pool.query(`UPDATE marketing_campaigns SET autopilot_enabled=FALSE, results=results || $2::jsonb WHERE id=$1`, [campaign.id, JSON.stringify({ autopilot: { error: "Campaign has no owner." } })]);
         return { ran: false, reason: "Campaign has no owner." };
@@ -362,35 +397,54 @@ export const runMarketingAutopilot = async () => {
         if (aRecent !== bRecent) return aRecent - bRecent;
         return (score.get(b) || 0) - (score.get(a) || 0);
     });
-    const channel = ranked[0];
-    const trackedLink = withCampaignTracking(assets.landingLink || undefined, campaign.id, channel);
-    const input: MarketingCampaignInput = {
-        name: campaign.name,
-        objective: campaign.objective,
-        targetArea: campaign.target_area,
-        message: campaign.message,
-        subject: campaign.subject,
-        channels: [channel],
-        imageUrl: campaign.results?.assets?.imageUrl,
-        videoUrl: campaign.results?.assets?.videoUrl,
-        link: trackedLink,
-    };
-    const social = await publishSocialCampaign(userId, [channel], input);
+    const firstRun = Number(campaign.run_count || 0) === 0;
+    const channelsToPublish = firstRun ? ranked : [ranked[0]];
+    const social: Record<string, unknown> = {};
+    for (const channel of channelsToPublish) {
+        const trackedLink = withCampaignTracking(assets.landingLink || undefined, campaign.id, channel);
+        const input: MarketingCampaignInput = {
+            name: campaign.name,
+            objective: campaign.objective,
+            targetArea: campaign.target_area,
+            message: campaign.message,
+            subject: campaign.subject,
+            channels: [channel],
+            imageUrl: campaign.results?.assets?.imageUrl,
+            videoUrl: campaign.results?.assets?.videoUrl,
+            link: trackedLink,
+        };
+        Object.assign(social, await publishSocialCampaign(userId, [channel], input));
+    }
+    let autopilotEmail: PromotionResult | undefined;
+    if (firstRun && Boolean(campaign.results?.sendEmail)) {
+        try {
+            autopilotEmail = await sendPromotion({
+                subject: campaign.subject || campaign.name,
+                message: campaign.message,
+                imageUrl: assets.imageUrl || undefined,
+            });
+        } catch (error) {
+            social.email = { ok: false, error: error instanceof Error ? error.message : "Email promotion failed." };
+        }
+    }
+    if (autopilotEmail) social.email = { ok: true, totalRecipients: autopilotEmail.totalRecipients };
+
     await recordCampaignLaunchLearning({
         campaignId: campaign.id,
-        channels: [channel],
+        channels: [...channelsToPublish, ...(autopilotEmail ? ["email" as const] : [])],
         objective: campaign.objective,
         targetArea: campaign.target_area,
-        hasImage: Boolean(input.imageUrl),
-        hasVideo: Boolean(input.videoUrl),
+        hasImage: Boolean(assets.imageUrl),
+        hasVideo: Boolean(assets.videoUrl),
         results: social,
     });
     await recordCampaignRuns(campaign.id, social, "autopilot");
 
-    const nextRun = new Date(Date.now() + 60 * 60 * 1000);
+    const cadenceHours = Math.min(Math.max(Number(campaign.recurrence_hours) || (campaign.campaign_type === "catalog" ? 168 : 24), 1), 720);
+    const nextRun = new Date(Date.now() + cadenceHours * 60 * 60 * 1000);
     const mergedResults = {
         ...(campaign.results || {}),
-        autopilot: { lastChannel: channel, lastRunAt: new Date().toISOString(), runCount: Number(campaign.run_count || 0) + 1, result: social },
+        autopilot: { lastChannels: channelsToPublish, lastRunAt: new Date().toISOString(), runCount: Number(campaign.run_count || 0) + 1, result: social },
     };
     await pool.query(
         `UPDATE marketing_campaigns
@@ -398,5 +452,5 @@ export const runMarketingAutopilot = async () => {
          WHERE id=$1`,
         [campaign.id, JSON.stringify(mergedResults), nextRun]
     );
-    return { ran: true, campaignId: campaign.id, channel, social, nextRunAt: nextRun.toISOString() };
+    return { ran: true, campaignId: campaign.id, channels: channelsToPublish, social, nextRunAt: nextRun.toISOString() };
 };
