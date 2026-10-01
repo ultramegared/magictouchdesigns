@@ -5,6 +5,7 @@ import { launchMarketingCampaign, listMarketingCampaigns, listMarketingPublicati
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
 import { getMarketingDailySummary, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
+import { uploadImageAsset } from "../services/upload.service";
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
     try { res.json(await getConnections(String(req.user!.userId))); }
@@ -49,6 +50,28 @@ export async function socialDisconnect(req: AuthenticatedRequest, res: Response)
         await disconnect(String(req.user!.userId), provider);
         res.json({ ok: true });
     } catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Unable to disconnect social account." }); }
+}
+
+export async function marketingMediaUpload(req: AuthenticatedRequest, res: Response) {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ status: "error", message: "Marketing image file is required." });
+        }
+
+        const asset = await uploadImageAsset(req.file.buffer, "promotions");
+        return res.status(200).json({
+            status: "success",
+            message: "Marketing image uploaded successfully.",
+            image_url: asset.imageUrl,
+            public_id: asset.publicId,
+        });
+    } catch (error) {
+        console.error("Marketing media upload failed:", error);
+        return res.status(500).json({
+            status: "error",
+            message: error instanceof Error ? error.message : "Unable to upload Marketing image.",
+        });
+    }
 }
 
 export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Response) {
