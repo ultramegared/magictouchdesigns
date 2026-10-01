@@ -2,6 +2,7 @@ import { pool } from "../config/database";
 import { getAnalyticsCampaignReport } from "./google-search-console.service";
 import { recordCampaignLearningFeedback, getMarketingLearningInsights } from "./marketing-learning.service";
 import { sendEmail } from "./email.service";
+import { getCatalogOwners, queueNextCatalogProduct } from "./marketing-catalog.service";
 
 const sourceToChannel: Record<string, "facebook"|"instagram"|"whatsapp"|"tiktok"|"youtube"|"pinterest"|"email"> = {
   facebook: "facebook",
