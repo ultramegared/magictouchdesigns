@@ -473,7 +473,7 @@ export const runMarketingAutopilot = async (maxRuns = 10) => {
         // Stop as soon as there is no due work. A single hourly invocation can
         // therefore drain several independent campaigns without letting one
         // manual/catalog/portfolio campaign replace the others.
-        if (!result?.ran) {
+        if (!result?.ran && result?.reason === "No campaign is due.") {
             break;
         }
     }
