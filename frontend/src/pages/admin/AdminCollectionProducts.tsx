@@ -22,6 +22,27 @@ const newId = () => crypto.randomUUID();
 const makeFeature = (name: string, options: string[]): ProductFeature => ({ id: newId(), name, options: options.map((label) => ({ id: newId(), label })) });
 const defaultFeatures = (): ProductFeature[] => [makeFeature("Color", DEFAULT_COLORS), makeFeature("Size", DEFAULT_SIZES)];
 
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+const MAX_IMAGE_DIMENSION = 2400;
+
+async function prepareProductImage(file: File): Promise<File> {
+    if (file.size <= MAX_UPLOAD_BYTES) return file;
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) { bitmap.close(); throw new Error("Unable to prepare the image."); }
+    context.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.88));
+    if (!blob || blob.size > MAX_UPLOAD_BYTES) throw new Error("Image is too large. Please choose a smaller image.");
+    return new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" });
+}
+
 function normalizeFeatures(value: Product["features"]): ProductFeature[] {
     if (Array.isArray(value)) {
         const result = value.flatMap((item) => {
@@ -95,7 +116,7 @@ function AdminCollectionProducts() {
         try {
             const uploaded: string[] = [];
             for (const file of selected) {
-                const body = new FormData(); body.append("image", file);
+                const preparedFile = await prepareProductImage(file);\n                const body = new FormData(); body.append("image", preparedFile);
                 const response = await apiRequest<{ image_url?: string }>("/api/upload/product", { method:"POST", body });
                 if (response.image_url) uploaded.push(response.image_url);
             }
