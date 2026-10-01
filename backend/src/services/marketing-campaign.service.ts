@@ -265,6 +265,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
                 landingLink: input.link?.trim() || undefined,
             },
             campaignType,
+            sendEmail: Boolean(input.sendEmail),
             schedule: {
                 startsAt: startsAt?.toISOString(),
                 endsAt: endsAt?.toISOString(),
@@ -414,9 +415,23 @@ export const runMarketingAutopilot = async () => {
         };
         Object.assign(social, await publishSocialCampaign(userId, [channel], input));
     }
+    let autopilotEmail: PromotionResult | undefined;
+    if (firstRun && Boolean(campaign.results?.sendEmail)) {
+        try {
+            autopilotEmail = await sendPromotion({
+                subject: campaign.subject || campaign.name,
+                message: campaign.message,
+                imageUrl: assets.imageUrl || undefined,
+            });
+        } catch (error) {
+            social.email = { ok: false, error: error instanceof Error ? error.message : "Email promotion failed." };
+        }
+    }
+    if (autopilotEmail) social.email = { ok: true, totalRecipients: autopilotEmail.totalRecipients };
+
     await recordCampaignLaunchLearning({
         campaignId: campaign.id,
-        channels: channelsToPublish,
+        channels: [...channelsToPublish, ...(autopilotEmail ? ["email" as const] : [])],
         objective: campaign.objective,
         targetArea: campaign.target_area,
         hasImage: Boolean(assets.imageUrl),
