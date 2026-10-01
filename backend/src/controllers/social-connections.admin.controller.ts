@@ -97,7 +97,7 @@ export async function marketingCampaignHistory(req: AuthenticatedRequest, res: R
 
 export async function marketingPublicationActivity(req: AuthenticatedRequest, res: Response) {
     try {
-        res.json({ status: "success", publications: await listMarketingPublicationActivity(Number(req.query.limit || 50)) });
+        res.json({ status: "success", publications: await listMarketingPublicationActivity(String(req.user!.userId), Number(req.query.limit || 50)) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing publication activity." });
     }
