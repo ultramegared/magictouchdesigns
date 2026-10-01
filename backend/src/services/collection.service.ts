@@ -886,7 +886,7 @@ export const addProductToCollections = async (
 
 ================================================================ */
 
-export const removeProductFromCollection =
+export const removeProductFromCollectionService =
     async (
         collectionSlug: string,
         productId: string
