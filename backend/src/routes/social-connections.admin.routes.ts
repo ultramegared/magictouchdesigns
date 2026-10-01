@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/auth.middleware";
-import { marketingCampaignHistory, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, socialAuthorize, socialCallback, socialConnect, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
+import { marketingCampaignHistory, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, socialAuthorize, socialCallback, socialConnect, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
 
 const router = Router();
 
@@ -15,6 +15,7 @@ router.get("/:provider/connect", socialConnect);
 router.delete("/:provider", socialDisconnect);
 router.post("/publish", socialPublish);
 router.post("/campaign/launch", marketingCampaignLaunch);
+router.post("/campaign/autopilot-run-now", marketingAutopilotRunNow);
 router.get("/campaign/history", marketingCampaignHistory);
 router.get("/campaign/daily-summary", marketingDailySummary);
 router.get("/campaign/catalog", marketingCatalogStatus);
