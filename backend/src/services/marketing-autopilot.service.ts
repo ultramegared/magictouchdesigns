@@ -35,10 +35,10 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
       campaignId,
       channel,
       sessions: numberAt(row.metricValues, 0),
-      clicks: numberAt(row.metricValues, 0),
+      // GA4 campaign report does not expose ad/social clicks or impressions.
+      // Never map sessions or activeUsers into those metrics.
       conversions: numberAt(row.metricValues, 2),
       revenue: numberAt(row.metricValues, 3),
-      impressions: numberAt(row.metricValues, 1),
     });
     updated += result.updated;
   }
