@@ -59,7 +59,6 @@ export async function getCatalogAutopilotStatus(ownerUserId: string) {
          FROM products p
          WHERE p.is_active=TRUE
            AND NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id::text)`,
-        [state.initialized_at],
       )
     : { rows: [{ count: 0 }] };
   return {
