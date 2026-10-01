@@ -340,7 +340,7 @@ const getAdaptiveNextSlot = async (targetArea: string, objective: string, channe
     return next;
 };
 
-export const runMarketingAutopilot = async () => {
+const runMarketingAutopilotOnce = async () => {
     await ensureCampaignTable();
     const contentOwners = await getCatalogOwners();
     const contentQueue = [];
@@ -460,4 +460,31 @@ export const runMarketingAutopilot = async () => {
         [campaign.id, JSON.stringify(mergedResults), nextRun]
     );
     return { ran: true, campaignId: campaign.id, channels: channelsToPublish, social, nextRunAt: nextRun.toISOString(), contentQueue };
+};
+
+export const runMarketingAutopilot = async (maxRuns = 10) => {
+    const safeMaxRuns = Math.min(Math.max(Number(maxRuns) || 1, 1), 10);
+    const runs: any[] = [];
+
+    for (let index = 0; index < safeMaxRuns; index += 1) {
+        const result = await runMarketingAutopilotOnce();
+        runs.push(result);
+
+        // Stop as soon as there is no due work. A single hourly invocation can
+        // therefore drain several independent campaigns without letting one
+        // manual/catalog/portfolio campaign replace the others.
+        if (!result?.ran) {
+            break;
+        }
+    }
+
+    const successful = runs.filter(result => result?.ran);
+    const last = runs[runs.length - 1] || { ran: false, reason: "No campaign is due." };
+
+    return {
+        ...last,
+        ran: successful.length > 0,
+        processed: successful.length,
+        runs,
+    };
 };
