@@ -126,11 +126,13 @@ export const getMarketingLearningInsights = async (targetArea?: string, objectiv
     const revenue = Number(row.revenue || 0);
     const impressions = Number(row.impressions || 0);
     // Own adaptive score: performance + reliability + a small exploration bonus.
-    const engagementRate = sessions > 0 ? Math.min(clicks / sessions, 1) : 0;
+    // Only score metrics that this engine actually receives from real sources.
+    // GA4 campaign sync provides sessions, conversions and revenue; it does not
+    // provide social/ad clicks or impressions, so those fields must not be inferred.
     const conversionRate = sessions > 0 ? Math.min(conversions / sessions, 1) : 0;
-    const reachRate = impressions > 0 ? Math.min(clicks / impressions, 1) : 0;
+    const revenuePerSession = sessions > 0 ? Math.min((revenue / sessions) / 25, 1) : 0;
     const exploration = 1 / Math.sqrt(Math.max(observations, 1));
-    const score = Number(((successRate * 0.25) + (engagementRate * 0.25) + (conversionRate * 0.35) + (reachRate * 0.1) + (exploration * 0.05)).toFixed(4));
+    const score = Number(((successRate * 0.30) + (conversionRate * 0.45) + (revenuePerSession * 0.20) + (exploration * 0.05)).toFixed(4));
     return { channel: row.channel as LearningChannel, score, observations, successRate: Number(successRate.toFixed(4)), clicks, sessions, conversions, revenue, impressions, recommended: false, avgHour: Number(Number(row.avg_hour || 0).toFixed(1)), avgWeekday: Number(Number(row.avg_weekday || 0).toFixed(1)) };
   });
   const maxScore = Math.max(...rows.map((row: any) => row.score), 0);
