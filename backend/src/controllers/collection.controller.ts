@@ -22,6 +22,7 @@ import {
     getCollectionProductForAdmin as getCollectionProductForAdminService,
     getAvailableProductsForCollection as getAvailableProductsForCollectionService,
     addProductToCollection as addProductToCollectionService,
+    addProductToCollections as addProductToCollectionsService,
     removeProductFromCollection as removeProductFromCollectionService,
     updateCollection as updateCollectionService,
     updateCollectionProduct as updateCollectionProductService,
@@ -149,6 +150,34 @@ export const addProductToCollection = async (request: Request, response: Respons
     } catch (error) {
         console.error("Unable to create or add product to collection:", error);
         return response.status(500).json({ status: "error", message: "Unable to create product." });
+    }
+};
+
+export const addProductToCollections = async (request: Request, response: Response) => {
+    try {
+        const { collection_slugs, product_id, name, slug: productSlug, description, price, image_url, image_urls, features, is_active } = request.body;
+        if (!Array.isArray(collection_slugs) || collection_slugs.length === 0) return response.status(400).json({ status: "error", message: "At least one collection is required." });
+        const normalizedSlugs = [...new Set(collection_slugs.filter((value: unknown) => typeof value === "string").map((value: string) => value.trim()).filter(Boolean))];
+        const normalizedProductId = typeof product_id === "string" ? product_id.trim() : "";
+        const hasValidProductId = Boolean(normalizedProductId) && normalizedProductId !== "undefined" && normalizedProductId !== "null";
+        if (!hasValidProductId) {
+            if (!name || !String(name).trim() || !productSlug || !String(productSlug).trim()) return response.status(400).json({ status: "error", message: "Product name and slug are required." });
+            const normalizedPrice = typeof price === "number" ? price : Number(price);
+            if (!Number.isFinite(normalizedPrice) || normalizedPrice < 0) return response.status(400).json({ status: "error", message: "Please enter a valid product price." });
+            if (typeof image_urls !== "undefined" && (!Array.isArray(image_urls) || image_urls.length > 3 || image_urls.some((value: unknown) => typeof value !== "string"))) return response.status(400).json({ status: "error", message: "A product can have a maximum of 3 images." });
+            if (typeof features !== "undefined" && !Array.isArray(features)) return response.status(400).json({ status: "error", message: "features must be an array." });
+        }
+        const result = await addProductToCollectionsService(normalizedSlugs, hasValidProductId ? { product_id: normalizedProductId } : {
+            name: String(name).trim(), slug: String(productSlug).trim().toLowerCase(), description: typeof description === "string" ? description.trim() : "",
+            price: typeof price === "number" ? price : Number(price), image_url: typeof image_url === "string" ? image_url.trim() : "",
+            image_urls: Array.isArray(image_urls) ? image_urls.slice(0, 3) : undefined, features: Array.isArray(features) ? features : [],
+            is_active: typeof is_active === "boolean" ? is_active : true,
+        });
+        if (!result) return response.status(404).json({ status: "error", message: "One or more collections or the product were not found." });
+        return response.status(201).json({ status: "success", message: "Product added to selected collections successfully.", ...result });
+    } catch (error) {
+        console.error("Unable to add product to multiple collections:", error);
+        return response.status(500).json({ status: "error", message: "Unable to add product to selected collections." });
     }
 };
 
