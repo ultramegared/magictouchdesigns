@@ -15,7 +15,8 @@ type CurrentUser = { username: string };
 
 const DEFAULT_COLORS = ["White", "Black", "Red"];
 const COLOR_CATALOG = ["White", "Black", "Red", "Green", "Blue", "Purple", "Yellow", "Pink", "Orange", "Gray", "Brown", "Navy", "Teal", "Gold", "Silver", "Beige", "Maroon", "Turquoise"];
-const DEFAULT_SIZES = ["11 oz", "15 oz"];\nconst COLLECTIONS = [{ slug:"love-romance", name:"Love & Romance" }, { slug:"family-memories", name:"Family & Memories" }, { slug:"business-branding", name:"Business & Branding" }, { slug:"special-occasions", name:"Special Occasions" }] as const;
+const DEFAULT_SIZES = ["11 oz", "15 oz"];
+const COLLECTIONS = [{ slug:"love-romance", name:"Love & Romance" }, { slug:"family-memories", name:"Family & Memories" }, { slug:"business-branding", name:"Business & Branding" }, { slug:"special-occasions", name:"Special Occasions" }] as const;
 const COLOR_HEX: Record<string, string> = { white:"#fff",black:"#111",red:"#d71920",green:"#168a45",blue:"#2464c4",purple:"#7a3fb0",yellow:"#f0c419",pink:"#e98ca8",orange:"#ef7d24",gray:"#777",brown:"#7a4b2a",navy:"#162b55",teal:"#159b9b",gold:"#d8a82d",silver:"#bfc3c7",beige:"#d8c5a2",maroon:"#6f1d2b",turquoise:"#20b8b8" };
 
 const newId = () => crypto.randomUUID();
