@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/auth.middleware";
-import { marketingCampaignHistory, marketingPublicationActivity, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, socialAuthorize, socialCallback, socialConnect, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
+import { marketingCampaignHistory, marketingPublicationActivity, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, socialAuthorize, socialCallback, socialConnect, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
 
 const router = Router();
 
