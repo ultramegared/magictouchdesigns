@@ -78,6 +78,15 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
     }
 }
 
+export async function marketingAutopilotRunNow(req: AuthenticatedRequest, res: Response) {
+    try {
+        res.json({ status: "success", data: await runMarketingAutopilot() });
+    } catch (error) {
+        console.error("Manual Marketing autopilot run failed:", error);
+        res.status(503).json({ status: "error", error: error instanceof Error ? error.message : "Marketing autopilot failed." });
+    }
+}
+
 export async function marketingCampaignHistory(req: AuthenticatedRequest, res: Response) {
     try {
         res.json({ status: "success", campaigns: await listMarketingCampaigns(Number(req.query.limit || 20)) });

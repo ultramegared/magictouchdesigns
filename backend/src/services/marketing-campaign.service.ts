@@ -3,6 +3,7 @@ import { pool } from "../config/database";
 import { getConnections, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
 import { sendPromotion, type PromotionResult } from "./promotion.service";
 import { recordCampaignLaunchLearning, getMarketingLearningInsights } from "./marketing-learning.service";
+import { getCatalogOwners, queueNextCatalogProduct } from "./marketing-catalog.service";
 
 export interface MarketingCampaignInput {
     name: string;
@@ -341,6 +342,12 @@ const getAdaptiveNextSlot = async (targetArea: string, objective: string, channe
 
 export const runMarketingAutopilot = async () => {
     await ensureCampaignTable();
+    const catalogOwners = await getCatalogOwners();
+    const catalogQueue = [];
+    for (const ownerId of catalogOwners) {
+        try { catalogQueue.push(await queueNextCatalogProduct(ownerId)); }
+        catch (error) { catalogQueue.push({ queued: false, reason: error instanceof Error ? error.message : "Catalog scan failed." }); }
+    }
     const due = await pool.query(`
         SELECT *
         FROM marketing_campaigns
@@ -351,7 +358,7 @@ export const runMarketingAutopilot = async () => {
         LIMIT 1
         FOR UPDATE SKIP LOCKED
     `);
-    if (!due.rows[0]) return { ran: false, reason: "No campaign is due." };
+    if (!due.rows[0]) return { ran: false, reason: "No campaign is due.", catalogQueue };
 
     const campaign = due.rows[0];
     const userId = String(campaign.owner_user_id || "");
@@ -452,5 +459,5 @@ export const runMarketingAutopilot = async () => {
          WHERE id=$1`,
         [campaign.id, JSON.stringify(mergedResults), nextRun]
     );
-    return { ran: true, campaignId: campaign.id, channels: channelsToPublish, social, nextRunAt: nextRun.toISOString() };
+    return { ran: true, campaignId: campaign.id, channels: channelsToPublish, social, nextRunAt: nextRun.toISOString(), catalogQueue };
 };
