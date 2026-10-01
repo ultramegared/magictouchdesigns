@@ -4,6 +4,7 @@ import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { launchMarketingCampaign, listMarketingCampaigns, getMarketingLearning, runMarketingAutopilot } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
 import { getMarketingDailySummary, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
+import { getCatalogAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
     try { res.json(await getConnections(String(req.user!.userId))); }
@@ -182,4 +183,17 @@ export async function marketingDailySummaryCron(req: Request, res: Response) {
         console.error("Marketing daily summary failed:", error);
         res.status(503).json({ error: error instanceof Error ? error.message : "Marketing daily summary failed." });
     }
+}
+
+
+export async function marketingCatalogStatus(req: AuthenticatedRequest, res: Response) {
+    try { res.json({ status: "success", catalog: await getCatalogAutopilotStatus(String(req.user!.userId)) }); }
+    catch (error) { res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Catalog Autopilot." }); }
+}
+
+export async function marketingCatalogToggle(req: AuthenticatedRequest, res: Response) {
+    try {
+        const enabled = Boolean(req.body?.enabled);
+        res.json({ status: "success", catalog: await setCatalogAutopilot(String(req.user!.userId), enabled) });
+    } catch (error) { res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to update Catalog Autopilot." }); }
 }
