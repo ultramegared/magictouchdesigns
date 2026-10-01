@@ -58,7 +58,7 @@ export async function getCatalogAutopilotStatus(ownerUserId: string) {
         `SELECT COUNT(*)::int AS count
          FROM products p
          WHERE p.is_active=TRUE
-           AND NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id)`,
+           AND NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id::text)`,
         [state.initialized_at],
       )
     : { rows: [{ count: 0 }] };
@@ -222,10 +222,10 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
      FROM products p
      WHERE p.is_active=TRUE
        AND (
-         NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id)
+         NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id::text)
          OR EXISTS (
            SELECT 1 FROM marketing_catalog_promotions mcp
-           WHERE mcp.product_id=p.product_id
+           WHERE mcp.product_id=p.product_id::text
              AND COALESCE(mcp.last_promoted_at, mcp.created_at) <= NOW() - INTERVAL '7 days'
          )
        )
@@ -239,7 +239,7 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
            AND mc.next_run_at > NOW()
        )
      ORDER BY
-       CASE WHEN NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id) THEN 0 ELSE 1 END,
+       CASE WHEN NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id::text) THEN 0 ELSE 1 END,
        p.created_at ASC
      LIMIT 1`,
     [ownerUserId],
