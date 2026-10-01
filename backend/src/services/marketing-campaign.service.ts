@@ -180,7 +180,10 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
     const targetArea = input.targetArea?.trim() || "Houston, Texas + United States";
     const objective = input.objective?.trim() || "Brand awareness and sales";
     const campaignType = input.campaignType || "manual";
-    const recurrenceHours = Math.min(Math.max(Number(input.recurrenceHours) || (campaignType === "catalog" ? 168 : 24), 1), 720);
+    const requestedRecurrenceHours = Number(input.recurrenceHours) || 6;
+    // Marketing Autopilot operates on a tight 5–7 hour learning cadence.
+    // The hourly cron remains the queue/check mechanism; this is the campaign publish interval.
+    const recurrenceHours = Math.min(Math.max(requestedRecurrenceHours, 5), 7);
     const startsAt = input.startsAt ? new Date(input.startsAt) : null;
     const endsAt = input.endsAt ? new Date(input.endsAt) : null;
     if (startsAt && Number.isNaN(startsAt.getTime())) throw new Error("Invalid campaign start date.");
@@ -443,8 +446,14 @@ const runMarketingAutopilotOnce = async () => {
     const recentlyUsed = new Set(recent.rows.map((r: any) => String(r.channel)));
     const adaptiveSlot = await getAdaptiveNextSlot(campaign.target_area, campaign.objective, eligible);
     if (adaptiveSlot) {
-        await pool.query(`UPDATE marketing_campaigns SET next_run_at=$2 WHERE id=$1`, [campaign.id, adaptiveSlot]);
-        return { ran: false, reason: "Waiting for the learned best publication window.", campaignId: campaign.id, nextRunAt: adaptiveSlot.toISOString() };
+        // Never delay beyond the 5–7 hour operating window just because a historical
+        // best slot falls on another day. The Brain may still use the learned slot
+        // when it is inside the normal cadence, otherwise the next cycle runs on time.
+        const maxAdaptiveDelayMs = 7 * 60 * 60 * 1000;
+        if (adaptiveSlot.getTime() - Date.now() <= maxAdaptiveDelayMs) {
+            await pool.query(`UPDATE marketing_campaigns SET next_run_at=$2 WHERE id=$1`, [campaign.id, adaptiveSlot]);
+            return { ran: false, reason: "Waiting for the learned best publication window.", campaignId: campaign.id, nextRunAt: adaptiveSlot.toISOString() };
+        }
     }
 
     const insights = await getMarketingLearningInsights(campaign.target_area, campaign.objective);
@@ -455,8 +464,8 @@ const runMarketingAutopilotOnce = async () => {
         if (aRecent !== bRecent) return aRecent - bRecent;
         return (score.get(b) || 0) - (score.get(a) || 0);
     });
+    const channelsToPublish = ranked;
     const firstRun = Number(campaign.run_count || 0) === 0;
-    const channelsToPublish = firstRun ? ranked : [ranked[0]];
     const social: Record<string, unknown> = {};
     for (const channel of channelsToPublish) {
         const trackedLink = withCampaignTracking(assets.landingLink || undefined, campaign.id, channel);
@@ -498,7 +507,7 @@ const runMarketingAutopilotOnce = async () => {
     });
     await recordCampaignRuns(campaign.id, social, "autopilot");
 
-    const cadenceHours = Math.min(Math.max(Number(campaign.recurrence_hours) || (campaign.campaign_type === "catalog" ? 168 : 24), 1), 720);
+    const cadenceHours = Math.min(Math.max(Number(campaign.recurrence_hours) || 6, 5), 7);
     const nextRun = new Date(Date.now() + cadenceHours * 60 * 60 * 1000);
     const mergedResults = {
         ...(campaign.results || {}),
