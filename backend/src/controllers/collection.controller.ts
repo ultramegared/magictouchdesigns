@@ -23,7 +23,7 @@ import {
     getAvailableProductsForCollection as getAvailableProductsForCollectionService,
     addProductToCollection as addProductToCollectionService,
     addProductToCollections as addProductToCollectionsService,
-    removeProductFromCollection as removeProductFromCollectionService,
+    removeProductFromCollectionService,
     updateCollection as updateCollectionService,
     updateCollectionProduct as updateCollectionProductService,
     setCollectionProductStatus as setCollectionProductStatusService,
