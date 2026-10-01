@@ -34,6 +34,7 @@ import {
     getAvailableProductsForCollection,
 
     addProductToCollection,
+    addProductToCollections,
 
     removeProductFromCollection,
 
@@ -193,6 +194,8 @@ router.post(
     addProductToCollection
 );
 
+
+router.post("/admin/multi/products", authenticateToken, requireAdmin, addProductToCollections);
 
 /* ===============================================================
    REORDER ALL COLLECTION PRODUCTS
