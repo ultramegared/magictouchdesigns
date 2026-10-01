@@ -23,7 +23,8 @@ interface SocialState { configured?: Record<string, boolean>; setup?: Record<str
 interface PublishResult { ok: boolean; id?: string; account?: string; error?: string; }
 interface CampaignRecord { id:string; name:string; objective:string; target_area:string; subject?:string; channels:SocialChannel[]; results?: { social?: Record<string, PublishResult>; email?: { totalRecipients:number }; google?: { focus?:string[] } }; created_at:string; autopilot_enabled?:boolean; next_run_at?:string | null; run_count?:number; }
 interface LearningInsight { channel: SocialChannel; score:number; observations:number; successRate:number; clicks:number; sessions:number; conversions:number; revenue:number; impressions:number; recommended:boolean; avgHour?:number; avgWeekday?:number; }
-interface DailySummary { generatedAt:string; campaigns:{total:number;last24:number}; last24:{publications:number;successful:number;sessions:number;conversions:number;revenue:number}; channels:Array<{channel:string;publications:number;successful:number;sessions:number;conversions:number;revenue:number}>; learning:{observations:number;conversions:number;revenue:number;level:number;levelName:string;nextTarget:string}; }\ninterface CatalogStatus { enabled:boolean; initializedAt?:string|null; lastScanAt?:string|null; lastProductId?:string|null; lastProductName?:string|null; lastCampaignId?:string|null; lastRunAt?:string|null; pendingProducts:number; }
+interface DailySummary { generatedAt:string; campaigns:{total:number;last24:number}; last24:{publications:number;successful:number;sessions:number;conversions:number;revenue:number}; channels:Array<{channel:string;publications:number;successful:number;sessions:number;conversions:number;revenue:number}>; learning:{observations:number;conversions:number;revenue:number;level:number;levelName:string;nextTarget:string}; }
+interface CatalogStatus { enabled:boolean; initializedAt?:string|null; lastScanAt?:string|null; lastProductId?:string|null; lastProductName?:string|null; lastCampaignId?:string|null; lastRunAt?:string|null; pendingProducts:number; }
 
 const channels: Channel[] = [
     { name: "Google", detail: "Search & Analytics", icon: Search, tone: "#4285F4" },
@@ -82,7 +83,9 @@ function AdminMarketing() {
     const [learningInsights, setLearningInsights] = useState<LearningInsight[]>([]);
     const [learningLoading, setLearningLoading] = useState(false);
     const [dailySummary, setDailySummary] = useState<DailySummary | null>(null);
-    const [dailyLoading, setDailyLoading] = useState(false);\n    const [catalog, setCatalog] = useState<CatalogStatus | null>(null);\n    const [catalogLoading, setCatalogLoading] = useState(false);
+    const [dailyLoading, setDailyLoading] = useState(false);
+    const [catalog, setCatalog] = useState<CatalogStatus | null>(null);
+    const [catalogLoading, setCatalogLoading] = useState(false);
 
     const loadSocial = useCallback(async () => {
         try {
@@ -134,7 +137,24 @@ function AdminMarketing() {
         finally { setDailyLoading(false); }
     }, []);
 
-    const loadCatalog = useCallback(async () => {\n        try {\n            const response = await apiRequest<{ catalog: CatalogStatus }>("/api/admin/marketing/social/campaign/catalog");\n            setCatalog(response.catalog);\n        } catch { /* Catalog Autopilot is supplemental. */ }\n    }, []);\n\n    const toggleCatalog = useCallback(async (enabled: boolean) => {\n        try {\n            setCatalogLoading(true);\n            const response = await apiRequest<{ catalog: CatalogStatus }>("/api/admin/marketing/social/campaign/catalog", { method: "POST", body: JSON.stringify({ enabled }) });\n            setCatalog(response.catalog);\n            setNotice(enabled ? "Catalog Autopilot activado. Los productos nuevos quedarán disponibles para promoción automática." : "Catalog Autopilot pausado.");\n        } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudo cambiar Catalog Autopilot."); }\n        finally { setCatalogLoading(false); }\n    }, []);\n\n    const loadCampaignHistory = useCallback(async () => {
+    const loadCatalog = useCallback(async () => {
+        try {
+            const response = await apiRequest<{ catalog: CatalogStatus }>("/api/admin/marketing/social/campaign/catalog");
+            setCatalog(response.catalog);
+        } catch { /* Catalog Autopilot is supplemental. */ }
+    }, []);
+
+    const toggleCatalog = useCallback(async (enabled: boolean) => {
+        try {
+            setCatalogLoading(true);
+            const response = await apiRequest<{ catalog: CatalogStatus }>("/api/admin/marketing/social/campaign/catalog", { method: "POST", body: JSON.stringify({ enabled }) });
+            setCatalog(response.catalog);
+            setNotice(enabled ? "Catalog Autopilot activado. Los productos nuevos quedarán disponibles para promoción automática." : "Catalog Autopilot pausado.");
+        } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudo cambiar Catalog Autopilot."); }
+        finally { setCatalogLoading(false); }
+    }, []);
+
+    const loadCampaignHistory = useCallback(async () => {
         try {
             const response = await apiRequest<{ campaigns: CampaignRecord[] }>("/api/admin/marketing/social/campaign/history?limit=6");
             setCampaignHistory(response.campaigns || []);
