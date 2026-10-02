@@ -5,7 +5,7 @@ const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SEARCH_CONSOLE_API = "https://www.googleapis.com/webmasters/v3";
 const ANALYTICS_API = "https://analyticsdata.googleapis.com/v1beta";
 
-interface ServiceAccountCredentials { client_email: string; private_key: string; }
+interface ServiceAccountCredentials { client_email: string; private_key: string; private_key_id?: string; }
 interface SearchAnalyticsRow { keys?: string[]; clicks?: number; impressions?: number; ctr?: number; position?: number; }
 
 function parseServiceAccountJson(raw: string): Partial<ServiceAccountCredentials> {
@@ -56,7 +56,7 @@ function getCredentialsResult(): { credentials: ServiceAccountCredentials | null
         if (!parsed.private_key.includes("BEGIN PRIVATE KEY") || !parsed.private_key.includes("END PRIVATE KEY")) {
             return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON has an invalid private_key PEM block." };
         }
-        return { credentials: { client_email: parsed.client_email, private_key: parsed.private_key.replace(/\\n/g, "\n") } };
+        return { credentials: { client_email: parsed.client_email, private_key: parsed.private_key.replace(/\\n/g, "\n"), private_key_id: typeof parsed.private_key_id === "string" ? parsed.private_key_id.trim() : undefined } };
     } catch {
         const preview = raw.slice(0, 16).replace(/[^a-zA-Z0-9_{}"'.:-]/g, "?");
         let shape = "unknown";
@@ -81,7 +81,8 @@ function getAnalyticsPropertyId() { return process.env.GOOGLE_ANALYTICS_PROPERTY
 function base64Url(value: string | Buffer) { return Buffer.from(value).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, ""); }
 
 async function getAccessToken(credentials: ServiceAccountCredentials, scope: string): Promise<string> {
-    const header = base64Url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+    const keyId = credentials.private_key_id;
+    const header = base64Url(JSON.stringify(keyId ? { alg: "RS256", typ: "JWT", kid: keyId } : { alg: "RS256", typ: "JWT" }));
     const now = Math.floor(Date.now() / 1000);
     const payload = base64Url(JSON.stringify({ iss: credentials.client_email, scope, aud: GOOGLE_TOKEN_URL, iat: now, exp: now + 3600 }));
     const unsigned = `${header}.${payload}`;
