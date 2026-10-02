@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/auth.middleware";
-import { marketingCampaignHistory, marketingPublicationActivity, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, socialAuthorize, socialCallback, socialConnect, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
+import { marketingCampaignHistory, marketingPublicationActivity, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, socialAuthorize, socialCallback, socialConnect, socialVerify, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
 
 const router = Router();
 
@@ -13,6 +13,7 @@ router.use(authenticateToken);
 router.get("/", socialConnections);
 router.get("/:provider/authorize", socialAuthorize);
 router.get("/:provider/connect", socialConnect);
+router.get("/:provider/verify", socialVerify);
 router.delete("/:provider", socialDisconnect);
 const marketingMediaMiddleware = multer({
     storage: multer.memoryStorage(),
