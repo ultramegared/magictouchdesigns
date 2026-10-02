@@ -3,6 +3,8 @@ import { pool } from "../config/database";
 export type LearningChannel = "facebook" | "instagram" | "whatsapp" | "tiktok" | "youtube" | "pinterest" | "email";
 export interface LearningFeedback {
   campaignId: string;
+  ownerUserId?: string;
+  runId?: number;
   channel: LearningChannel;
   clicks?: number;
   sessions?: number;
@@ -84,6 +86,13 @@ export const recordCampaignLaunchLearning = async (input: {
 };
 
 export const recordCampaignLearningFeedback = async (feedback: LearningFeedback) => {
+  if (feedback.ownerUserId) {
+    const owner = await pool.query(
+      `SELECT id FROM marketing_campaigns WHERE id=$1 AND owner_user_id=$2 LIMIT 1`,
+      [feedback.campaignId, feedback.ownerUserId]
+    );
+    if (!owner.rows[0]) throw new Error("Campaign not found for this Marketing account.");
+  }
   await ensureLearningTables();
   const result = await pool.query(
     `UPDATE marketing_learning_observations
@@ -106,12 +115,13 @@ export const recordCampaignLearningFeedback = async (feedback: LearningFeedback)
   return { updated: result.rowCount || 0 };
 };
 
-export const getMarketingLearningInsights = async (targetArea?: string, objective?: string) => {
+export const getMarketingLearningInsights = async (targetArea?: string, objective?: string, ownerUserId?: string) => {
   await ensureLearningTables();
   const params: any[] = [];
   const filters: string[] = [];
   if (targetArea?.trim()) { params.push(targetArea.trim()); filters.push(`target_area ILIKE '%' || $${params.length} || '%'`); }
-  if (objective?.trim()) { params.push(objective.trim()); filters.push(`objective ILIKE '%' || $${params.length} || '%'`); }
+  if (objective?.trim()) { params.push(objective.trim()); filters.push(`objective ILIKE '%' || ${params.length} || '%'`); }
+  if (ownerUserId?.trim()) { params.push(ownerUserId.trim()); filters.push(`EXISTS (SELECT 1 FROM marketing_campaigns c WHERE c.id=marketing_learning_observations.campaign_id AND c.owner_user_id=${params.length})`); }
   const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
   const result = await pool.query(
     `SELECT channel,
@@ -152,8 +162,8 @@ export const getMarketingLearningInsights = async (targetArea?: string, objectiv
   return rows.map((row: any) => ({ ...row, recommended: row.score === maxScore && row.observations > 0 }));
 };
 
-export const getMarketingLearningSummary = async () => {
-  const insights = await getMarketingLearningInsights();
+export const getMarketingLearningSummary = async (ownerUserId?: string) => {
+  const insights = await getMarketingLearningInsights(undefined, undefined, ownerUserId);
   const learnedChannels = insights.filter((row: any) => row.observations > 0).sort((a: any,b: any) => b.score-a.score);
   return {
     algorithm: "JQY Marketing Adaptive Engine v1",
