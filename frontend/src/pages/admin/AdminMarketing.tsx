@@ -150,7 +150,7 @@ function AdminMarketing() {
             const start = new Date();
             start.setDate(end.getDate() - Number(range) + 1);
             const iso = (date: Date) => date.toISOString().slice(0, 10);
-                    const [salesResult, googleStatus, gscAnalytics, gaReport] = await Promise.allSettled([
+            const [salesResult, googleStatus, gscAnalytics, gaReport] = await Promise.allSettled([
                 apiRequest<SalesResponse>(`/api/admin/sales?start=${iso(start)}&end=${iso(end)}`),
                 apiRequest<GoogleVerification>(`/api/admin/marketing/search-console/verify-all?_=${Date.now()}`),
                 apiRequest<{ rows?: GscRow[] }>(`/api/admin/marketing/search-console/analytics?days=${range}&_=${Date.now()}`),
