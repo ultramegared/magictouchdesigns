@@ -314,7 +314,6 @@ export async function getCatalogOwners() {
 }
 
 
-
 const buildPortfolioMessage = (item: any) => {
   const description = String(item.description_en || "").replace(/\s+/g, " ").trim();
   const characteristics = String(item.characteristics_en || "").replace(/\s+/g, " ").trim();
