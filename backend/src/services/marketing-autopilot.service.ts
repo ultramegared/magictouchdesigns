@@ -24,7 +24,7 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
     `SELECT COUNT(*)::int AS total,
             COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
      FROM marketing_campaigns
-     `);
+     `
   );
   const campaignTotal = Number(campaigns.rows[0]?.total || 0);
   if (campaignTotal < 1) {
