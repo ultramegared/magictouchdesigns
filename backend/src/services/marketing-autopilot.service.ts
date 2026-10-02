@@ -56,7 +56,7 @@ type DailyChannel = {
   revenue: number;
 };
 
-export async function getMarketingDailySummary() {
+export async function getMarketingDailySummary(ownerUserId?: string) {
   await pool.query(`CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
     id BIGSERIAL PRIMARY KEY,
     campaign_id TEXT NOT NULL,
@@ -88,9 +88,10 @@ export async function getMarketingDailySummary() {
            COUNT(*) FILTER (WHERE published)::int AS successful
     FROM marketing_campaign_runs
     WHERE created_at >= NOW() - INTERVAL '24 hours'
+      AND ($1::text IS NULL OR owner_user_id=$1)
     GROUP BY channel
     ORDER BY successful DESC, publications DESC, channel
-  `);
+  `, [ownerUserId || null]);
   const performance = await pool.query(`
     SELECT channel,
            SUM(sessions)::int AS sessions,
@@ -98,8 +99,13 @@ export async function getMarketingDailySummary() {
            COALESCE(SUM(revenue),0)::numeric AS revenue
     FROM marketing_learning_observations
     WHERE updated_at >= NOW() - INTERVAL '24 hours'
+      AND ($1::text IS NULL OR EXISTS (
+        SELECT 1 FROM marketing_campaigns c
+        WHERE c.id=marketing_learning_observations.campaign_id
+          AND c.owner_user_id=$1
+      ))
     GROUP BY channel
-  `);
+  `, [ownerUserId || null]);
   const performanceMap = new Map(performance.rows.map((row: any) => [
     String(row.channel),
     {
@@ -127,7 +133,7 @@ export async function getMarketingDailySummary() {
     revenue: sum.revenue + row.revenue,
   }), { publications: 0, successful: 0, sessions: 0, conversions: 0, revenue: 0 });
 
-  const insights = await getMarketingLearningInsights();
+  const insights = await getMarketingLearningInsights(undefined, undefined, ownerUserId);
   const observations = insights.reduce((sum, item) => sum + Number(item.observations || 0), 0);
   const lifetimeConversions = insights.reduce((sum, item) => sum + Number(item.conversions || 0), 0);
   const lifetimeRevenue = insights.reduce((sum, item) => sum + Number(item.revenue || 0), 0);
