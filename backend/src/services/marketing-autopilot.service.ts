@@ -60,9 +60,11 @@ export async function getMarketingDailySummary(ownerUserId?: string) {
   await pool.query(`CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
     id BIGSERIAL PRIMARY KEY,
     campaign_id TEXT NOT NULL,
+    owner_user_id TEXT,
     channel TEXT NOT NULL,
     run_type TEXT NOT NULL DEFAULT 'campaign',
     published BOOLEAN NOT NULL DEFAULT FALSE,
+    status TEXT NOT NULL DEFAULT 'FAILED',
     result JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
