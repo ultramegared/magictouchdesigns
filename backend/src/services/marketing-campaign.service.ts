@@ -201,8 +201,10 @@ const withCampaignTracking = (url: string | undefined, campaignId: string, sourc
         const parsed = new URL(url);
         parsed.searchParams.set("utm_id", campaignId);
         parsed.searchParams.set("utm_campaign", campaignId);
-        parsed.searchParams.set("utm_source", source);
-        parsed.searchParams.set("utm_medium", "organic");
+        const normalizedSource = source.trim().toLowerCase() || "jqydesigns";
+        const medium = normalizedSource === "email" ? "email" : normalizedSource === "google" ? "organic_search" : "social";
+        parsed.searchParams.set("utm_source", normalizedSource);
+        parsed.searchParams.set("utm_medium", medium);
         return parsed.toString();
     } catch { return url; }
 };
