@@ -153,7 +153,13 @@ function AdminMarketing() {
             setSocialLoading(true);
             const value = await apiRequest<SocialState>("/api/admin/marketing/social/");
             setSocial(value);
-            setSelectedSocial(socialChannels.map(channel => channel.social!).filter(name => Boolean(value.channels?.[name])));
+            setSelectedSocial(socialChannels.map(channel => channel.social!).filter(name => {
+                if (!value.channels?.[name]) return false;
+                const provider = channels.find(item => item.social === name)?.provider;
+                const profile: any = provider ? value.connected?.[provider]?.profile || {} : {};
+                const options = name === "facebook" ? profile.pages || [] : name === "instagram" ? profile.instagram || [] : name === "whatsapp" ? profile.whatsapp || [] : name === "pinterest" ? profile.boards || [] : [];
+                return options.length <= 1 || Boolean(value.selections?.[name]);
+            }));
         } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudieron cargar las conexiones."); }
         finally { setSocialLoading(false); }
     }, []);
