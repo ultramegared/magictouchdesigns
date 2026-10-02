@@ -300,7 +300,7 @@ function AdminMarketing() {
         setGoogleChecking(true);
         setNotice("");
         try {
-            const health = await apiRequest<GoogleVerification>(`/api/admin/marketing/search-console/verify-all?_=1790952197861`);
+            const health = await apiRequest<GoogleVerification>(`/api/admin/marketing/search-console/verify-all?_=${Date.now()}`);
 
             setGsc({
                 ...health.searchConsole,
@@ -314,6 +314,8 @@ function AdminMarketing() {
             });
 
             if (!health.connected) {
+                setGscRows([]);
+                setGaRows([]);
                 const gscError = health.searchConsole?.error ? `Search Console: ${health.searchConsole.error}` : "";
                 const gaError = health.analytics?.error ? `GA4: ${health.analytics.error}` : "";
                 setNotice([gscError, gaError].filter(Boolean).join(" · ") || "Google verification did not reach DATA_AVAILABLE for both services.");
