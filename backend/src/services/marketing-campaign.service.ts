@@ -385,6 +385,9 @@ export const listMarketingPublicationActivity = async (ownerUserId: string, limi
             r.channel,
             r.run_type,
             r.published,
+            r.status,
+            r.external_id,
+            r.external_url,
             r.result,
             r.created_at
          FROM marketing_campaign_runs r
@@ -416,6 +419,9 @@ export const listMarketingPublicationActivity = async (ownerUserId: string, limi
             channel,
             run_type: row.run_type,
             published: Boolean(row.published),
+            status: row.status || (row.published ? "PUBLISHED" : "FAILED"),
+            external_id: row.external_id || id || null,
+            external_url: row.external_url || url || null,
             result: { ...raw, ...(url ? { url } : {}) },
             created_at: row.created_at,
         };
