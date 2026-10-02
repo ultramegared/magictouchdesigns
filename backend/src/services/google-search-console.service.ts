@@ -91,7 +91,16 @@ async function getAccessToken(credentials: ServiceAccountCredentials, scope: str
         headers: { "content-type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion: `${unsigned}.${base64Url(signature)}` }),
     });
-    if (!response.ok) throw new Error(`Google token request failed (${response.status})`);
+    if (!response.ok) {
+        let detail = "";
+        try {
+            const body = await response.json() as { error?: string; error_description?: string };
+            detail = [body.error, body.error_description].filter(Boolean).join(": ");
+        } catch {
+            detail = (await response.text()).slice(0, 300);
+        }
+        throw new Error(`Google token request failed (${response.status})${detail ? `: ${detail}` : ""}`);
+    }
     const data = await response.json() as { access_token?: string };
     if (!data.access_token) throw new Error("Google did not return an access token");
     return data.access_token;
