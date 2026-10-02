@@ -512,7 +512,7 @@ const syncPendingPublicationStatuses = async () => {
             await pool.query(
                 `UPDATE marketing_campaign_runs
                  SET status=$2, published=$3, external_url=COALESCE($4, external_url), result=result || $5::jsonb
-                 WHERE id=$1`
+                 WHERE id=$1`,
                 [Number(row.id), status, published, externalUrl, JSON.stringify({ stage: "RESULT", providerStatus: result.status, checkedAt: new Date().toISOString(), ...(result as any).failReason ? { error: (result as any).failReason } : {} })]
             );
             await pool.query(
@@ -522,7 +522,7 @@ const syncPendingPublicationStatuses = async () => {
             updated += 1;
         } catch (error) {
             await pool.query(
-                `UPDATE marketing_campaign_runs SET result=result || $2::jsonb WHERE id=$1`
+                `UPDATE marketing_campaign_runs SET result=result || $2::jsonb WHERE id=$1`,
                 [Number(row.id), JSON.stringify({ statusCheckError: error instanceof Error ? error.message : "Status check failed.", checkedAt: new Date().toISOString() })]
             );
         }
