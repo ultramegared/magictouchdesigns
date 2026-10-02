@@ -470,7 +470,8 @@ const getAdaptiveNextSlot = async (targetArea: string, objective: string, channe
          FROM marketing_learning_observations
          WHERE target_area ILIKE '%' || $1 || '%'
            AND objective ILIKE '%' || $2 || '%'
-           AND channel = ANY($3::text[])`,
+           AND channel = ANY($3::text[])
+           AND EXISTS (SELECT 1 FROM marketing_campaigns c WHERE c.id=marketing_learning_observations.campaign_id AND c.owner_user_id=$4)`,
         [targetArea, objective, channels, ownerUserId]
     );
     if (Number(total.rows[0]?.observations || 0) < 10) return null;
