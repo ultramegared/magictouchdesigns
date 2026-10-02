@@ -101,6 +101,12 @@ export const recordCampaignLearningFeedback = async (feedback: LearningFeedback)
          conversions = GREATEST(conversions, $5),
          revenue = GREATEST(revenue, $6),
          impressions = GREATEST(impressions, $7),
+         adjustment = jsonb_build_object(
+           'stage','ADJUSTMENT',
+           'updatedAt',NOW(),
+           'conversionRate',CASE WHEN GREATEST(sessions,$4) > 0 THEN GREATEST(conversions,$5)::numeric / GREATEST(sessions,$4) ELSE 0 END,
+           'revenuePerSession',CASE WHEN GREATEST(sessions,$4) > 0 THEN GREATEST(revenue,$6)::numeric / GREATEST(sessions,$4) ELSE 0 END
+         ),
          updated_at = NOW()
      WHERE campaign_id=$1 AND channel=$2
      AND (run_id = $8::bigint OR ($8::bigint IS NULL AND id = (
