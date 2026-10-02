@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { pool } from "../config/database";
-import { getConnections, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
+import { getConnections, checkTikTokPublicationStatus, checkYouTubePublicationStatus, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
 import { sendPromotion, type PromotionResult } from "./promotion.service";
 import { recordCampaignLaunchLearning, getMarketingLearningInsights } from "./marketing-learning.service";
 import { getCatalogOwners, queueNextContent } from "./marketing-catalog.service";
@@ -490,6 +490,45 @@ const getAdaptiveNextSlot = async (targetArea: string, objective: string, channe
     return next;
 };
 
+const syncPendingPublicationStatuses = async () => {
+    await ensureCampaignTable();
+    const pending = await pool.query(
+        `SELECT id, campaign_id, owner_user_id, channel, external_id
+         FROM marketing_campaign_runs
+         WHERE status='PROCESSING' AND external_id IS NOT NULL
+           AND created_at >= NOW() - INTERVAL '24 hours'
+           AND channel IN ('tiktok','youtube')
+         ORDER BY created_at ASC LIMIT 50`
+    );
+    let updated = 0;
+    for (const row of pending.rows) {
+        try {
+            const result = row.channel === "tiktok"
+                ? await checkTikTokPublicationStatus(String(row.owner_user_id), String(row.external_id))
+                : await checkYouTubePublicationStatus(String(row.owner_user_id), String(row.external_id));
+            const published = Boolean(result.published);
+            const status = published ? "PUBLISHED" : (result.status === "FAILED" ? "FAILED" : "PROCESSING");
+            const externalUrl = (result as any).url || ((result as any).publicPostId ? "https://www.tiktok.com/@/video/" + encodeURIComponent(String((result as any).publicPostId)) : null);
+            await pool.query(
+                `UPDATE marketing_campaign_runs
+                 SET status=$2, published=$3, external_url=COALESCE($4, external_url), result=result || $5::jsonb
+                 WHERE id=$1`
+                [Number(row.id), status, published, externalUrl, JSON.stringify({ stage: "RESULT", providerStatus: result.status, checkedAt: new Date().toISOString(), ...(result as any).failReason ? { error: (result as any).failReason } : {} })]
+            );
+            await pool.query(
+                `UPDATE marketing_learning_observations SET published=$2, decision=decision || $3::jsonb, updated_at=NOW() WHERE run_id=$1`
+                [Number(row.id), published, JSON.stringify({ stage: "RESULT", status })]
+            );
+            updated += 1;
+        } catch (error) {
+            await pool.query(
+                `UPDATE marketing_campaign_runs SET result=result || $2::jsonb WHERE id=$1`
+                [Number(row.id), JSON.stringify({ statusCheckError: error instanceof Error ? error.message : "Status check failed.", checkedAt: new Date().toISOString() })]
+            );
+        }
+    }
+    return { checked: pending.rows.length, updated };
+};
 const runMarketingAutopilotOnce = async () => {
     await ensureCampaignTable();
     const contentOwners = await getCatalogOwners();
@@ -631,6 +670,7 @@ const runMarketingAutopilotOnce = async () => {
 };
 
 export const runMarketingAutopilot = async (maxRuns = 10) => {
+    const publicationSync = await syncPendingPublicationStatuses();
     const safeMaxRuns = Math.min(Math.max(Number(maxRuns) || 1, 1), 10);
     const runs: any[] = [];
 
@@ -654,5 +694,6 @@ export const runMarketingAutopilot = async (maxRuns = 10) => {
         ran: successful.length > 0,
         processed: successful.length,
         runs,
+        publicationSync,
     };
 };
