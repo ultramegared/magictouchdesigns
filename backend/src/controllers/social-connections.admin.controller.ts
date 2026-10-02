@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { randomUUID } from "crypto";
-import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, verifySocialConnection, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
+import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { launchMarketingCampaign, listMarketingCampaigns, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
@@ -32,6 +32,18 @@ export async function socialVerify(req: AuthenticatedRequest, res: Response) {
     }
 }
 
+export async function socialSelectAccount(req: AuthenticatedRequest, res: Response) {
+    try {
+        const provider = String(req.params.provider);
+        const channel = String(req.body?.channel) as SocialChannel;
+        const externalId = String(req.body?.externalId || "");
+        if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
+        const allowed: SocialChannel[] = ["facebook","instagram","whatsapp","tiktok","youtube","pinterest"];
+        if (!allowed.includes(channel)) return res.status(400).json({ error: "Unsupported social channel." });
+        const result = await selectSocialAccount(String(req.user!.userId), provider, channel, externalId);
+        res.json({ status: "success", ...result });
+    } catch (error) { res.status(400).json({ status: "error", error: error instanceof Error ? error.message : "Unable to select social account." }); }
+}
 export function socialConnect(req: AuthenticatedRequest, res: Response) {
     try {
         const provider = String(req.params.provider);
