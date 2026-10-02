@@ -95,6 +95,7 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
             startsAt: typeof req.body?.startsAt === "string" ? req.body.startsAt : undefined,
             endsAt: typeof req.body?.endsAt === "string" ? req.body.endsAt : undefined,
             recurrenceHours: Number(req.body?.recurrenceHours || 24),
+            youtubePrivacy: req.body?.youtubePrivacy === "unlisted" || req.body?.youtubePrivacy === "private" ? req.body.youtubePrivacy : "public",
         });
         res.json({ status: "success", data: result });
     } catch (error) {
@@ -152,6 +153,7 @@ export async function socialPublish(req: AuthenticatedRequest, res: Response) {
             idempotencyKey,
             autopilot: false,
             campaignType: "manual",
+            youtubePrivacy: req.body?.youtubePrivacy === "unlisted" || req.body?.youtubePrivacy === "private" ? req.body.youtubePrivacy : "public",
         });
         res.json({ status: "success", campaignId: result.campaignId, results: result.social, lifecycle: "RECORDED" });
     } catch (error) {
