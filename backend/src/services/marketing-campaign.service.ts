@@ -106,8 +106,6 @@ const ensureCampaignTable = async () => {
     // This is intentionally scoped to Marketing campaigns only.
     await pool.query(`UPDATE marketing_campaigns SET recurrence_hours=6 WHERE autopilot_enabled=TRUE AND recurrence_hours > 7`);
     await pool.query(`UPDATE marketing_campaigns SET next_run_at=NOW() + INTERVAL '6 hours' WHERE autopilot_enabled=TRUE AND next_run_at IS NOT NULL AND next_run_at > NOW() + INTERVAL '6 hours' AND (starts_at IS NULL OR starts_at <= NOW())`);
-    await pool.query(`
-
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_campaign_idx ON marketing_campaign_runs(campaign_id, created_at DESC)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_created_idx ON marketing_campaign_runs(created_at DESC)`);
 };
