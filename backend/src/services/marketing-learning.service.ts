@@ -43,11 +43,17 @@ const ensureLearningTables = async () => {
       impressions INTEGER NOT NULL DEFAULT 0,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      UNIQUE(campaign_id, channel)
+      run_id BIGINT,
+      UNIQUE(campaign_id, channel, run_id)
     )
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_learning_channel_idx ON marketing_learning_observations(channel, created_at DESC)`);
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS run_id BIGINT`);
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS decision JSONB NOT NULL DEFAULT '{}'::jsonb`);
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS adjustment JSONB NOT NULL DEFAULT '{}'::jsonb`);
+  await pool.query(`ALTER TABLE marketing_learning_observations DROP CONSTRAINT IF EXISTS marketing_learning_observations_campaign_id_channel_key`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_learning_context_idx ON marketing_learning_observations(target_area, objective, hour, weekday)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS marketing_learning_run_idx ON marketing_learning_observations(run_id, created_at DESC)`);
 };
 
 export const recordCampaignLaunchLearning = async (input: {
@@ -58,6 +64,7 @@ export const recordCampaignLaunchLearning = async (input: {
   hasImage: boolean;
   hasVideo: boolean;
   results: Record<string, any>;
+  runIds?: Record<string, number>;
 }) => {
   await ensureLearningTables();
   const now = new Date();
@@ -68,10 +75,10 @@ export const recordCampaignLaunchLearning = async (input: {
     const published = Boolean(result?.ok);
     await pool.query(
       `INSERT INTO marketing_learning_observations
-       (campaign_id, channel, objective, target_area, hour, weekday, has_image, has_video, published)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-       ON CONFLICT (campaign_id, channel) DO UPDATE SET published=EXCLUDED.published, updated_at=NOW()`,
-      [input.campaignId, channel, input.objective, input.targetArea, hour, weekday, input.hasImage, input.hasVideo, published]
+       (campaign_id, channel, run_id, objective, target_area, hour, weekday, has_image, has_video, published, decision)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)
+       ON CONFLICT (campaign_id, channel, run_id) DO UPDATE SET published=EXCLUDED.published, decision=EXCLUDED.decision, updated_at=NOW()`,
+      [input.campaignId, channel, input.runIds?.[channel] || null, input.objective, input.targetArea, hour, weekday, input.hasImage, input.hasVideo, published, JSON.stringify({ stage: "PUBLICATION", status: published ? "SUCCESS" : "FAILED", observedAt: now.toISOString() })]
     );
   }
 };
@@ -87,8 +94,14 @@ export const recordCampaignLearningFeedback = async (feedback: LearningFeedback)
          impressions = GREATEST(impressions, $7),
          updated_at = NOW()
      WHERE campaign_id=$1 AND channel=$2
+     AND id = COALESCE($8::bigint, (
+       SELECT id FROM marketing_learning_observations
+       WHERE campaign_id=$1 AND channel=$2
+       ORDER BY created_at DESC, id DESC
+       LIMIT 1
+     ))
      RETURNING id`,
-    [feedback.campaignId, feedback.channel, Math.max(0, Number(feedback.clicks || 0)), Math.max(0, Number(feedback.sessions || 0)), Math.max(0, Number(feedback.conversions || 0)), Math.max(0, Number(feedback.revenue || 0)), Math.max(0, Number(feedback.impressions || 0))]
+    [feedback.campaignId, feedback.channel, Math.max(0, Number(feedback.clicks || 0)), Math.max(0, Number(feedback.sessions || 0)), Math.max(0, Number(feedback.conversions || 0)), Math.max(0, Number(feedback.revenue || 0)), Math.max(0, Number(feedback.impressions || 0)), (feedback as any).runId ? Number((feedback as any).runId) : null]
   );
   return { updated: result.rowCount || 0 };
 };
