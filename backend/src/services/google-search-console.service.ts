@@ -8,17 +8,45 @@ const ANALYTICS_API = "https://analyticsdata.googleapis.com/v1beta";
 interface ServiceAccountCredentials { client_email: string; private_key: string; }
 interface SearchAnalyticsRow { keys?: string[]; clicks?: number; impressions?: number; ctr?: number; position?: number; }
 
+function parseServiceAccountJson(raw: string): Partial<ServiceAccountCredentials> {
+    const normalized = raw.replace(/^\\uFEFF/, "").trim();
+
+    const parseObject = (value: string): unknown => {
+        const parsed = JSON.parse(value);
+        if (typeof parsed === "string") return JSON.parse(parsed);
+        return parsed;
+    };
+
+    try {
+        return (parseObject(normalized) || {}) as Partial<ServiceAccountCredentials>;
+    } catch {
+        if (normalized.startsWith("{\\\"") && normalized.includes("\\\":")) {
+            return (parseObject(normalized.replace(/\\\\"/g, '"')) || {}) as Partial<ServiceAccountCredentials>;
+        }
+        if (normalized.length >= 2 && normalized.startsWith("'") && normalized.endsWith("'")) {
+            return (parseObject(normalized.slice(1, -1)) || {}) as Partial<ServiceAccountCredentials>;
+        }
+        throw new Error("invalid-json");
+    }
+}
+
 function getCredentialsResult(): { credentials: ServiceAccountCredentials | null; error?: string } {
     const raw = process.env.GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON?.trim();
     if (!raw) return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is missing from the running API environment." };
     try {
-        const parsed = JSON.parse(raw) as Partial<ServiceAccountCredentials>;
+        const parsed = parseServiceAccountJson(raw);
         if (!parsed.client_email || !parsed.private_key) {
-            return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is present but missing client_email or private_key." };
+            return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is valid JSON but missing client_email or private_key." };
+        }
+        if (!parsed.client_email.endsWith(".iam.gserviceaccount.com")) {
+            return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON has an invalid Google service-account client_email." };
+        }
+        if (!parsed.private_key.includes("BEGIN PRIVATE KEY") || !parsed.private_key.includes("END PRIVATE KEY")) {
+            return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON has an invalid private_key PEM block." };
         }
         return { credentials: { client_email: parsed.client_email, private_key: parsed.private_key.replace(/\\n/g, "\n") } };
     } catch {
-        return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is present but is not valid JSON." };
+        return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is present but is not valid JSON. Replace its value with the complete downloaded Google service-account JSON file." };
     }
 }
 
