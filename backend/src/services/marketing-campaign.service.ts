@@ -366,7 +366,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
 };
 
-export const getMarketingLearning = async (targetArea?: string, objective?: string) => getMarketingLearningInsights(targetArea, objective);
+export const getMarketingLearning = async (targetArea?: string, objective?: string, ownerUserId?: string) => getMarketingLearningInsights(targetArea, objective, ownerUserId);
 
 export const listMarketingPublicationActivity = async (ownerUserId: string, limit = 50) => {
     await ensureCampaignTable();
