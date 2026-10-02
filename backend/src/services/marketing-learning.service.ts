@@ -74,7 +74,7 @@ export const recordCampaignLaunchLearning = async (input: {
   const weekday = now.getDay();
   for (const channel of input.channels) {
     const result = input.results[channel];
-    const published = Boolean(result?.ok);
+    const published = Boolean(result?.ok && result?.status !== "PROCESSING" && result?.status !== "QUEUED");
     await pool.query(
       `INSERT INTO marketing_learning_observations
        (campaign_id, channel, run_id, objective, target_area, hour, weekday, has_image, has_video, published, decision)
