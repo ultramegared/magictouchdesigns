@@ -19,13 +19,12 @@ const sourceToChannel: Record<string, "facebook"|"instagram"|"whatsapp"|"tiktok"
 const numberAt = (values: Array<{value?: string}>|undefined, index: number) => Number(values?.[index]?.value || 0);
 
 export async function syncMarketingLearningFromAnalytics(days = 30) {
-  const report = await getAnalyticsCampaignReport(days);
+  await getAnalyticsCampaignReport(days);
   const campaigns = await pool.query(
     `SELECT COUNT(*)::int AS total,
             COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
      FROM marketing_campaigns
-     WHERE ($1::text IS NULL OR owner_user_id=$1)`,
-    [ownerUserId || null]
+     `);
   );
   const campaignTotal = Number(campaigns.rows[0]?.total || 0);
   if (campaignTotal < 1) {
@@ -43,10 +42,9 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
            COUNT(*) FILTER (WHERE published)::int AS successful
     FROM marketing_campaign_runs
     WHERE created_at >= NOW() - INTERVAL '24 hours'
-      AND ($1::text IS NULL OR owner_user_id=$1)
-    GROUP BY channel
+      GROUP BY channel
     ORDER BY successful DESC, publications DESC, channel
-  `, [ownerUserId || null]);
+  `);
   const performance = await pool.query(`
     SELECT channel,
            SUM(sessions)::int AS sessions,
@@ -54,13 +52,8 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
            COALESCE(SUM(revenue),0)::numeric AS revenue
     FROM marketing_learning_observations
     WHERE updated_at >= NOW() - INTERVAL '24 hours'
-      AND ($1::text IS NULL OR EXISTS (
-        SELECT 1 FROM marketing_campaigns c
-        WHERE c.id=marketing_learning_observations.campaign_id
-          AND c.owner_user_id=$1
-      ))
-    GROUP BY channel
-  `, [ownerUserId || null]);
+      GROUP BY channel
+  `);
   const performanceMap = new Map(performance.rows.map((row: any) => [
     String(row.channel),
     {
@@ -88,7 +81,7 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
     revenue: sum.revenue + row.revenue,
   }), { publications: 0, successful: 0, sessions: 0, conversions: 0, revenue: 0 });
 
-  const insights = await getMarketingLearningInsights(undefined, undefined, ownerUserId);
+  const insights = await getMarketingLearningInsights();
   const observations = insights.reduce((sum, item) => sum + Number(item.observations || 0), 0);
   const lifetimeConversions = insights.reduce((sum, item) => sum + Number(item.conversions || 0), 0);
   const lifetimeRevenue = insights.reduce((sum, item) => sum + Number(item.revenue || 0), 0);
@@ -129,7 +122,7 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
 }
 
 export async function sendMarketingDailySummary() {
-  const summary = await getMarketingDailySummary();
+  const summary = await syncMarketingLearningFromAnalytics();
   if (summary.campaigns.total < 1) return { sent: false, reason: "No Marketing campaign exists yet.", summary };
 
   const recipient = process.env.MARKETING_DAILY_REPORT_EMAIL?.trim() || "jqydesigns@gmail.com";
