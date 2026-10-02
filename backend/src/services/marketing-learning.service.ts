@@ -3,6 +3,8 @@ import { pool } from "../config/database";
 export type LearningChannel = "facebook" | "instagram" | "whatsapp" | "tiktok" | "youtube" | "pinterest" | "email";
 export interface LearningFeedback {
   campaignId: string;
+  ownerUserId?: string;
+  runId?: number;
   channel: LearningChannel;
   clicks?: number;
   sessions?: number;
@@ -43,11 +45,17 @@ const ensureLearningTables = async () => {
       impressions INTEGER NOT NULL DEFAULT 0,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      UNIQUE(campaign_id, channel)
+      run_id BIGINT,
+      UNIQUE(campaign_id, channel, run_id)
     )
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_learning_channel_idx ON marketing_learning_observations(channel, created_at DESC)`);
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS run_id BIGINT`);
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS decision JSONB NOT NULL DEFAULT '{}'::jsonb`);
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS adjustment JSONB NOT NULL DEFAULT '{}'::jsonb`);
+  await pool.query(`ALTER TABLE marketing_learning_observations DROP CONSTRAINT IF EXISTS marketing_learning_observations_campaign_id_channel_key`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_learning_context_idx ON marketing_learning_observations(target_area, objective, hour, weekday)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS marketing_learning_run_idx ON marketing_learning_observations(run_id, created_at DESC)`);
 };
 
 export const recordCampaignLaunchLearning = async (input: {
@@ -58,6 +66,7 @@ export const recordCampaignLaunchLearning = async (input: {
   hasImage: boolean;
   hasVideo: boolean;
   results: Record<string, any>;
+  runIds?: Record<string, number>;
 }) => {
   await ensureLearningTables();
   const now = new Date();
@@ -65,18 +74,25 @@ export const recordCampaignLaunchLearning = async (input: {
   const weekday = now.getDay();
   for (const channel of input.channels) {
     const result = input.results[channel];
-    const published = Boolean(result?.ok);
+    const published = Boolean(result?.ok && result?.status !== "PROCESSING" && result?.status !== "QUEUED");
     await pool.query(
       `INSERT INTO marketing_learning_observations
-       (campaign_id, channel, objective, target_area, hour, weekday, has_image, has_video, published)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-       ON CONFLICT (campaign_id, channel) DO UPDATE SET published=EXCLUDED.published, updated_at=NOW()`,
-      [input.campaignId, channel, input.objective, input.targetArea, hour, weekday, input.hasImage, input.hasVideo, published]
+       (campaign_id, channel, run_id, objective, target_area, hour, weekday, has_image, has_video, published, decision)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)
+       ON CONFLICT (campaign_id, channel, run_id) DO UPDATE SET published=EXCLUDED.published, decision=EXCLUDED.decision, updated_at=NOW()`,
+      [input.campaignId, channel, input.runIds?.[channel] || null, input.objective, input.targetArea, hour, weekday, input.hasImage, input.hasVideo, published, JSON.stringify({ stage: "PUBLICATION", status: published ? "SUCCESS" : "FAILED", observedAt: now.toISOString() })]
     );
   }
 };
 
 export const recordCampaignLearningFeedback = async (feedback: LearningFeedback) => {
+  if (feedback.ownerUserId) {
+    const owner = await pool.query(
+      `SELECT id FROM marketing_campaigns WHERE id=$1 AND owner_user_id=$2 LIMIT 1`,
+      [feedback.campaignId, feedback.ownerUserId]
+    );
+    if (!owner.rows[0]) throw new Error("Campaign not found for this Marketing account.");
+  }
   await ensureLearningTables();
   const result = await pool.query(
     `UPDATE marketing_learning_observations
@@ -85,20 +101,33 @@ export const recordCampaignLearningFeedback = async (feedback: LearningFeedback)
          conversions = GREATEST(conversions, $5),
          revenue = GREATEST(revenue, $6),
          impressions = GREATEST(impressions, $7),
+         adjustment = jsonb_build_object(
+           'stage','ADJUSTMENT',
+           'updatedAt',NOW(),
+           'conversionRate',CASE WHEN GREATEST(sessions,$4) > 0 THEN GREATEST(conversions,$5)::numeric / GREATEST(sessions,$4) ELSE 0 END,
+           'revenuePerSession',CASE WHEN GREATEST(sessions,$4) > 0 THEN GREATEST(revenue,$6)::numeric / GREATEST(sessions,$4) ELSE 0 END
+         ),
          updated_at = NOW()
      WHERE campaign_id=$1 AND channel=$2
+     AND (run_id = $8::bigint OR ($8::bigint IS NULL AND id = (
+       SELECT id FROM marketing_learning_observations
+       WHERE campaign_id=$1 AND channel=$2
+       ORDER BY created_at DESC, id DESC
+       LIMIT 1
+     )))
      RETURNING id`,
-    [feedback.campaignId, feedback.channel, Math.max(0, Number(feedback.clicks || 0)), Math.max(0, Number(feedback.sessions || 0)), Math.max(0, Number(feedback.conversions || 0)), Math.max(0, Number(feedback.revenue || 0)), Math.max(0, Number(feedback.impressions || 0))]
+    [feedback.campaignId, feedback.channel, Math.max(0, Number(feedback.clicks || 0)), Math.max(0, Number(feedback.sessions || 0)), Math.max(0, Number(feedback.conversions || 0)), Math.max(0, Number(feedback.revenue || 0)), Math.max(0, Number(feedback.impressions || 0)), (feedback as any).runId ? Number((feedback as any).runId) : null]
   );
   return { updated: result.rowCount || 0 };
 };
 
-export const getMarketingLearningInsights = async (targetArea?: string, objective?: string) => {
+export const getMarketingLearningInsights = async (targetArea?: string, objective?: string, ownerUserId?: string) => {
   await ensureLearningTables();
   const params: any[] = [];
   const filters: string[] = [];
-  if (targetArea?.trim()) { params.push(targetArea.trim()); filters.push(`target_area ILIKE '%' || $${params.length} || '%'`); }
+  if (targetArea?.trim()) { params.push(targetArea.trim()); filters.push(`target_area ILIKE '%' || $$${params.length} || '%'`); }
   if (objective?.trim()) { params.push(objective.trim()); filters.push(`objective ILIKE '%' || $${params.length} || '%'`); }
+  if (ownerUserId?.trim()) { params.push(ownerUserId.trim()); filters.push(`EXISTS (SELECT 1 FROM marketing_campaigns c WHERE c.id=marketing_learning_observations.campaign_id AND c.owner_user_id=$${params.length})`); }
   const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
   const result = await pool.query(
     `SELECT channel,
@@ -139,8 +168,8 @@ export const getMarketingLearningInsights = async (targetArea?: string, objectiv
   return rows.map((row: any) => ({ ...row, recommended: row.score === maxScore && row.observations > 0 }));
 };
 
-export const getMarketingLearningSummary = async () => {
-  const insights = await getMarketingLearningInsights();
+export const getMarketingLearningSummary = async (ownerUserId?: string) => {
+  const insights = await getMarketingLearningInsights(undefined, undefined, ownerUserId);
   const learnedChannels = insights.filter((row: any) => row.observations > 0).sort((a: any,b: any) => b.score-a.score);
   return {
     algorithm: "JQY Marketing Adaptive Engine v1",

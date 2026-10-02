@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
-import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
+import { randomUUID } from "crypto";
+import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, verifySocialConnection, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { launchMarketingCampaign, listMarketingCampaigns, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
@@ -18,6 +19,17 @@ export function socialAuthorize(req: AuthenticatedRequest, res: Response) {
         if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
         res.json({ url: getConnectUrl(provider, String(req.user!.userId)) });
     } catch (error) { res.status(503).json({ error: error instanceof Error ? error.message : "Social integration is not configured." }); }
+}
+
+export async function socialVerify(req: AuthenticatedRequest, res: Response) {
+    try {
+        const provider = String(req.params.provider);
+        if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
+        const result = await verifySocialConnection(String(req.user!.userId), provider);
+        res.json({ status: "success", ...result });
+    } catch (error) {
+        res.status(503).json({ status: "error", verified: false, error: error instanceof Error ? error.message : "Social connection verification failed." });
+    }
 }
 
 export function socialConnect(req: AuthenticatedRequest, res: Response) {
@@ -94,6 +106,7 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
             startsAt: typeof req.body?.startsAt === "string" ? req.body.startsAt : undefined,
             endsAt: typeof req.body?.endsAt === "string" ? req.body.endsAt : undefined,
             recurrenceHours: Number(req.body?.recurrenceHours || 24),
+            youtubePrivacy: req.body?.youtubePrivacy === "unlisted" || req.body?.youtubePrivacy === "private" ? req.body.youtubePrivacy : "public",
         });
         res.json({ status: "success", data: result });
     } catch (error) {
@@ -112,7 +125,7 @@ export async function marketingAutopilotRunNow(req: AuthenticatedRequest, res: R
 
 export async function marketingCampaignHistory(req: AuthenticatedRequest, res: Response) {
     try {
-        res.json({ status: "success", campaigns: await listMarketingCampaigns(Number(req.query.limit || 20)) });
+        res.json({ status: "success", campaigns: await listMarketingCampaigns(String(req.user!.userId), Number(req.query.limit || 20)) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load marketing campaign history." });
     }
@@ -132,39 +145,37 @@ export async function socialPublish(req: AuthenticatedRequest, res: Response) {
         const allowed: SocialChannel[] = ["facebook", "instagram", "whatsapp", "tiktok", "youtube", "pinterest"];
         const selected = channels.filter((channel): channel is SocialChannel => allowed.includes(channel));
         if (!selected.length) return res.status(400).json({ error: "Select at least one social channel." });
+        const text = String(req.body?.text || "").trim();
+        if (!text) return res.status(400).json({ error: "Publication text is required." });
         const userId = String(req.user!.userId);
-        const text = String(req.body?.text || "");
-        const imageUrl = typeof req.body?.imageUrl === "string" ? req.body.imageUrl : undefined;
-        const videoUrl = typeof req.body?.videoUrl === "string" ? req.body.videoUrl : undefined;
-        const link = typeof req.body?.link === "string" ? req.body.link : undefined;
-        const metaChannels = selected.filter(channel => ["facebook", "instagram", "whatsapp"].includes(channel));
-        const results: Record<string, unknown> = metaChannels.length
-            ? await publishMeta(userId, metaChannels, text, imageUrl, link, req.body?.whatsappTo, videoUrl)
-            : {};
-        if (selected.includes("pinterest")) {
-            try { results.pinterest = await publishPinterest(userId, text, imageUrl, link); }
-            catch (error) { results.pinterest = { ok: false, error: error instanceof Error ? error.message : "Pinterest publication failed." }; }
-        }
-        if (selected.includes("tiktok")) {
-            try {
-                results.tiktok = videoUrl
-                    ? await publishTikTokVideo(userId, text, videoUrl)
-                    : await publishTikTokPhoto(userId, text, imageUrl);
-            }
-            catch (error) { results.tiktok = { ok: false, error: error instanceof Error ? error.message : "TikTok publication failed." }; }
-        }
-        if (selected.includes("youtube")) {
-            try { results.youtube = await publishYouTube(userId, text, videoUrl, link); }
-            catch (error) { results.youtube = { ok: false, error: error instanceof Error ? error.message : "YouTube publication failed." }; }
-        }
-        res.json({ results });
-    } catch (error) { res.status(502).json({ error: error instanceof Error ? error.message : "Unable to publish social campaign." }); }
+        const idempotencyKey = String(req.body?.idempotencyKey || req.headers["x-idempotency-key"] || randomUUID()).trim();
+        const result = await launchMarketingCampaign(userId, {
+            name: typeof req.body?.campaignName === "string" && req.body.campaignName.trim() ? req.body.campaignName.trim() : `Manual Publication ${new Date().toISOString()}`,
+            objective: "Manual publication",
+            targetArea: typeof req.body?.targetArea === "string" && req.body.targetArea.trim() ? req.body.targetArea.trim() : "Marketing Center",
+            message: text,
+            subject: typeof req.body?.subject === "string" ? req.body.subject : undefined,
+            imageUrl: typeof req.body?.imageUrl === "string" ? req.body.imageUrl : undefined,
+            videoUrl: typeof req.body?.videoUrl === "string" ? req.body.videoUrl : undefined,
+            link: typeof req.body?.link === "string" ? req.body.link : undefined,
+            whatsappTo: typeof req.body?.whatsappTo === "string" ? req.body.whatsappTo : undefined,
+            channels: selected,
+            sendEmail: false,
+            idempotencyKey,
+            autopilot: false,
+            campaignType: "manual",
+            youtubePrivacy: req.body?.youtubePrivacy === "unlisted" || req.body?.youtubePrivacy === "private" ? req.body.youtubePrivacy : "public",
+        });
+        res.json({ status: "success", campaignId: result.campaignId, results: result.social, lifecycle: "RECORDED" });
+    } catch (error) {
+        res.status(502).json({ status: "error", error: error instanceof Error ? error.message : "Unable to publish social campaign." });
+    }
 }
 export async function marketingLearning(req: AuthenticatedRequest, res: Response) {
     try {
         const targetArea = typeof req.query.targetArea === "string" ? req.query.targetArea : undefined;
         const objective = typeof req.query.objective === "string" ? req.query.objective : undefined;
-        res.json({ status: "success", insights: await getMarketingLearning(targetArea, objective) });
+        res.json({ status: "success", insights: await getMarketingLearning(targetArea, objective, String(req.user!.userId)) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load marketing learning." });
     }
@@ -178,6 +189,7 @@ export async function marketingLearningFeedback(req: AuthenticatedRequest, res: 
         if (!req.body?.campaignId) return res.status(400).json({ error: "Campaign ID is required." });
         const result = await recordCampaignLearningFeedback({
             campaignId: String(req.body.campaignId),
+            ownerUserId: String(req.user!.userId),
             channel,
             clicks: Number(req.body?.clicks || 0),
             sessions: Number(req.body?.sessions || 0),
@@ -209,7 +221,7 @@ export async function marketingAutopilotRun(req: Request, res: Response) {
 
 export async function marketingDailySummary(req: AuthenticatedRequest, res: Response) {
     try {
-        res.json({ status: "success", summary: await getMarketingDailySummary() });
+        res.json({ status: "success", summary: await getMarketingDailySummary(String(req.user!.userId)) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load daily Marketing summary." });
     }

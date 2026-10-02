@@ -20,58 +20,13 @@ const numberAt = (values: Array<{value?: string}>|undefined, index: number) => N
 
 export async function syncMarketingLearningFromAnalytics(days = 30) {
   const report = await getAnalyticsCampaignReport(days);
-  const campaigns = await pool.query(`SELECT id FROM marketing_campaigns WHERE created_at >= NOW() - INTERVAL '90 days'`);
-  const known = new Set(campaigns.rows.map((row: any) => String(row.id)));
-  let updated = 0;
-
-  for (const row of report.rows) {
-    const dimensions = row.dimensionValues || [];
-    const campaignId = String(dimensions[0]?.value || "");
-    const source = String(dimensions[1]?.value || "").toLowerCase();
-    const channel = sourceToChannel[source];
-    if (!campaignId || !known.has(campaignId) || !channel) continue;
-
-    const result = await recordCampaignLearningFeedback({
-      campaignId,
-      channel,
-      sessions: numberAt(row.metricValues, 0),
-      // GA4 campaign report does not expose ad/social clicks or impressions.
-      // Never map sessions or activeUsers into those metrics.
-      conversions: numberAt(row.metricValues, 2),
-      revenue: numberAt(row.metricValues, 3),
-    });
-    updated += result.updated;
-  }
-
-  return { checkedRows: report.rows.length, updated, days };
-}
-
-
-type DailyChannel = {
-  channel: string;
-  publications: number;
-  successful: number;
-  sessions: number;
-  conversions: number;
-  revenue: number;
-};
-
-export async function getMarketingDailySummary() {
-  await pool.query(`CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
-    id BIGSERIAL PRIMARY KEY,
-    campaign_id TEXT NOT NULL,
-    channel TEXT NOT NULL,
-    run_type TEXT NOT NULL DEFAULT 'campaign',
-    published BOOLEAN NOT NULL DEFAULT FALSE,
-    result JSONB NOT NULL DEFAULT '{}'::jsonb,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  )`);
-  const campaigns = await pool.query(`
-
-    SELECT COUNT(*)::int AS total,
-           COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
-    FROM marketing_campaigns
-  `);
+  const campaigns = await pool.query(
+    `SELECT COUNT(*)::int AS total,
+            COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
+     FROM marketing_campaigns
+     WHERE ($1::text IS NULL OR owner_user_id=$1)`,
+    [ownerUserId || null]
+  );
   const campaignTotal = Number(campaigns.rows[0]?.total || 0);
   if (campaignTotal < 1) {
     return {
@@ -88,9 +43,10 @@ export async function getMarketingDailySummary() {
            COUNT(*) FILTER (WHERE published)::int AS successful
     FROM marketing_campaign_runs
     WHERE created_at >= NOW() - INTERVAL '24 hours'
+      AND ($1::text IS NULL OR owner_user_id=$1)
     GROUP BY channel
     ORDER BY successful DESC, publications DESC, channel
-  `);
+  `, [ownerUserId || null]);
   const performance = await pool.query(`
     SELECT channel,
            SUM(sessions)::int AS sessions,
@@ -98,8 +54,13 @@ export async function getMarketingDailySummary() {
            COALESCE(SUM(revenue),0)::numeric AS revenue
     FROM marketing_learning_observations
     WHERE updated_at >= NOW() - INTERVAL '24 hours'
+      AND ($1::text IS NULL OR EXISTS (
+        SELECT 1 FROM marketing_campaigns c
+        WHERE c.id=marketing_learning_observations.campaign_id
+          AND c.owner_user_id=$1
+      ))
     GROUP BY channel
-  `);
+  `, [ownerUserId || null]);
   const performanceMap = new Map(performance.rows.map((row: any) => [
     String(row.channel),
     {
@@ -127,7 +88,7 @@ export async function getMarketingDailySummary() {
     revenue: sum.revenue + row.revenue,
   }), { publications: 0, successful: 0, sessions: 0, conversions: 0, revenue: 0 });
 
-  const insights = await getMarketingLearningInsights();
+  const insights = await getMarketingLearningInsights(undefined, undefined, ownerUserId);
   const observations = insights.reduce((sum, item) => sum + Number(item.observations || 0), 0);
   const lifetimeConversions = insights.reduce((sum, item) => sum + Number(item.conversions || 0), 0);
   const lifetimeRevenue = insights.reduce((sum, item) => sum + Number(item.revenue || 0), 0);

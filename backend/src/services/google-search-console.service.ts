@@ -250,8 +250,53 @@ export async function getAnalyticsReport(days = 28) {
     const propertyId = getAnalyticsPropertyId();
     if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
     const safeDays = Math.min(Math.max(Math.floor(days), 1), 90);
-    const data = await googleRequest<{ rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }>; metricHeaders?: Array<{ name?: string }> }>(ANALYTICS_API, `/properties/${encodeURIComponent(propertyId)}:runReport`, "https://www.googleapis.com/auth/analytics.readonly", { method: "POST", body: JSON.stringify({ dateRanges: [{ startDate: `${safeDays}daysAgo`, endDate: "yesterday" }], dimensions: [{ name: "date" }], metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }], limit: String(safeDays) }) });
-    return { propertyId, days: safeDays, rows: data.rows || [] };
+    const summaryData = await googleRequest<{ rows?: Array<{ metricValues?: Array<{ value?: string }> }> }>(
+        ANALYTICS_API,
+        `/properties/${encodeURIComponent(propertyId)}:runReport`,
+        "https://www.googleapis.com/auth/analytics.readonly",
+        {
+            method: "POST",
+            body: JSON.stringify({
+                dateRanges: [{ startDate: `${safeDays}daysAgo`, endDate: "yesterday" }],
+                metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }],
+                limit: "1",
+            }),
+        },
+    );
+    const dailyData = await googleRequest<{ rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }> }>(
+        ANALYTICS_API,
+        `/properties/${encodeURIComponent(propertyId)}:runReport`,
+        "https://www.googleapis.com/auth/analytics.readonly",
+        {
+            method: "POST",
+            body: JSON.stringify({
+                dateRanges: [{ startDate: `${safeDays}daysAgo`, endDate: "yesterday" }],
+                dimensions: [{ name: "date" }],
+                metrics: [{ name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }],
+                limit: String(safeDays),
+            }),
+        },
+    );
+    const summaryValues = summaryData.rows?.[0]?.metricValues || [];
+    return {
+        propertyId,
+        days: safeDays,
+        rows: (dailyData.rows || []).map(row => ({
+            dimensionValues: row.dimensionValues || [],
+            metricValues: [
+                { value: summaryValues[0]?.value || "0" },
+                { value: row.metricValues?.[0]?.value || "0" },
+                { value: row.metricValues?.[1]?.value || "0" },
+                { value: row.metricValues?.[2]?.value || "0" },
+            ],
+        })),
+        summary: {
+            activeUsers: Number(summaryValues[0]?.value || 0),
+            sessions: Number(summaryValues[1]?.value || 0),
+            screenPageViews: Number(summaryValues[2]?.value || 0),
+            totalRevenue: Number(summaryValues[3]?.value || 0),
+        },
+    };
 }
 
 export async function getAnalyticsCampaignReport(days = 30) {
