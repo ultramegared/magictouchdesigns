@@ -23,7 +23,7 @@ interface GoogleServiceState {
     propertyId?: string | null;
 }
 interface GscResponse extends GoogleServiceState { siteUrl?: string; }
-interface GaStatus extends GoogleServiceState { propertyId?: string | null; }
+interface GaStatus extends GoogleServiceState { propertyId?: string | null; summary?: { activeUsers?:number; sessions?:number; screenPageViews?:number; totalRevenue?:number }; }
 interface GoogleVerification {
     connected: boolean;
     searchConsole: GoogleServiceState;
@@ -171,7 +171,10 @@ function AdminMarketing() {
             }
             if (gscAnalytics.status === "fulfilled") setGscRows(gscAnalytics.value.rows || []);
             else setGscRows([]);
-            if (gaReport.status === "fulfilled") setGaRows(gaReport.value.rows || []);
+            if (gaReport.status === "fulfilled") {
+                setGaRows(gaReport.value.rows || []);
+                setGa(current => current ? { ...current, summary: gaReport.value.summary } : current);
+            }
             else setGaRows([]);
         } finally { setLoading(false); setRefreshing(false); }
     }, [range]);
@@ -351,7 +354,10 @@ function AdminMarketing() {
                 apiRequest<GaResponse>("/api/admin/marketing/search-console/google-analytics/report?days=30"),
             ]);
             if (gscAnalytics.status === "fulfilled") setGscRows(gscAnalytics.value.rows || []);
-            if (gaReport.status === "fulfilled") setGaRows(gaReport.value.rows || []);
+            if (gaReport.status === "fulfilled") {
+                setGaRows(gaReport.value.rows || []);
+                setGa(current => current ? { ...current, summary: gaReport.value.summary } : current);
+            }
 
             const dataErrors = [
                 gscAnalytics.status === "rejected" && `Search Console data: ${gscAnalytics.reason instanceof Error ? gscAnalytics.reason.message : "request failed"}`,
