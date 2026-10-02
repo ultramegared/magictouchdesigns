@@ -4,7 +4,7 @@ import { syncMarketingLearningFromAnalytics } from "../services/marketing-autopi
 export async function marketingAutopilotCron(req: Request, res: Response) {
   const expected = process.env.CRON_SECRET?.trim();
   const authorization = String(req.headers.authorization || "");
-  if (expected && authorization !== `Bearer ${expected}`) {
+  if (!expected || authorization !== `Bearer ${expected}`) {
     return res.status(401).json({ status: "error", error: "Unauthorized cron request." });
   }
 
