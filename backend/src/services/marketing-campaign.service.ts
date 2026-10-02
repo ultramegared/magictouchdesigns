@@ -83,6 +83,15 @@ const ensureCampaignTable = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_autopilot_idx ON marketing_campaigns(autopilot_enabled, next_run_at)`);
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_campaigns_idempotency_idx ON marketing_campaigns(idempotency_key) WHERE idempotency_key IS NOT NULL`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaigns_created_at_idx ON marketing_campaigns(created_at DESC)`);
+    await pool.query(`CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
+            id BIGSERIAL PRIMARY KEY,
+            campaign_id TEXT NOT NULL,
+            channel TEXT NOT NULL,
+            run_type TEXT NOT NULL DEFAULT 'campaign',
+            published BOOLEAN NOT NULL DEFAULT FALSE,
+            result JSONB NOT NULL DEFAULT '{}'::jsonb,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )`);
     await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS owner_user_id TEXT`);
     await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS run_token TEXT`);
     await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS publication_key TEXT`);
@@ -98,16 +107,7 @@ const ensureCampaignTable = async () => {
     await pool.query(`UPDATE marketing_campaigns SET recurrence_hours=6 WHERE autopilot_enabled=TRUE AND recurrence_hours > 7`);
     await pool.query(`UPDATE marketing_campaigns SET next_run_at=NOW() + INTERVAL '6 hours' WHERE autopilot_enabled=TRUE AND next_run_at IS NOT NULL AND next_run_at > NOW() + INTERVAL '6 hours' AND (starts_at IS NULL OR starts_at <= NOW())`);
     await pool.query(`
-        CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
-            id BIGSERIAL PRIMARY KEY,
-            campaign_id TEXT NOT NULL,
-            channel TEXT NOT NULL,
-            run_type TEXT NOT NULL DEFAULT 'campaign',
-            published BOOLEAN NOT NULL DEFAULT FALSE,
-            result JSONB NOT NULL DEFAULT '{}'::jsonb,
-            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        )
-    `);
+
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_campaign_idx ON marketing_campaign_runs(campaign_id, created_at DESC)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_created_idx ON marketing_campaign_runs(created_at DESC)`);
 };
@@ -516,7 +516,7 @@ const syncPendingPublicationStatuses = async () => {
                 [Number(row.id), status, published, externalUrl, JSON.stringify({ stage: "RESULT", providerStatus: result.status, checkedAt: new Date().toISOString(), ...(result as any).failReason ? { error: (result as any).failReason } : {} })]
             );
             await pool.query(
-                `UPDATE marketing_learning_observations SET published=$2, decision=decision || $3::jsonb, updated_at=NOW() WHERE run_id=$1`
+                `UPDATE marketing_learning_observations SET published=$2, decision=decision || $3::jsonb, updated_at=NOW() WHERE run_id=$1`,
                 [Number(row.id), published, JSON.stringify({ stage: "RESULT", status })]
             );
             updated += 1;
