@@ -20,60 +20,13 @@ const numberAt = (values: Array<{value?: string}>|undefined, index: number) => N
 
 export async function syncMarketingLearningFromAnalytics(days = 30) {
   const report = await getAnalyticsCampaignReport(days);
-  const campaigns = await pool.query(`SELECT id FROM marketing_campaigns WHERE created_at >= NOW() - INTERVAL '90 days'`);
-  const known = new Set(campaigns.rows.map((row: any) => String(row.id)));
-  let updated = 0;
-
-  for (const row of report.rows) {
-    const dimensions = row.dimensionValues || [];
-    const campaignId = String(dimensions[0]?.value || "");
-    const source = String(dimensions[1]?.value || "").toLowerCase();
-    const channel = sourceToChannel[source];
-    if (!campaignId || !known.has(campaignId) || !channel) continue;
-
-    const result = await recordCampaignLearningFeedback({
-      campaignId,
-      channel,
-      sessions: numberAt(row.metricValues, 0),
-      // GA4 campaign report does not expose ad/social clicks or impressions.
-      // Never map sessions or activeUsers into those metrics.
-      conversions: numberAt(row.metricValues, 2),
-      revenue: numberAt(row.metricValues, 3),
-    });
-    updated += result.updated;
-  }
-
-  return { checkedRows: report.rows.length, updated, days };
-}
-
-
-type DailyChannel = {
-  channel: string;
-  publications: number;
-  successful: number;
-  sessions: number;
-  conversions: number;
-  revenue: number;
-};
-
-export async function getMarketingDailySummary(ownerUserId?: string) {
-  await pool.query(`CREATE TABLE IF NOT EXISTS marketing_campaign_runs (
-    id BIGSERIAL PRIMARY KEY,
-    campaign_id TEXT NOT NULL,
-    owner_user_id TEXT,
-    channel TEXT NOT NULL,
-    run_type TEXT NOT NULL DEFAULT 'campaign',
-    published BOOLEAN NOT NULL DEFAULT FALSE,
-    status TEXT NOT NULL DEFAULT 'FAILED',
-    result JSONB NOT NULL DEFAULT '{}'::jsonb,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  )`);
-  const campaigns = await pool.query(`
-
-    SELECT COUNT(*)::int AS total,
-           COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
-    FROM marketing_campaigns
-  `);
+  const campaigns = await pool.query(
+    `SELECT COUNT(*)::int AS total,
+            COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
+     FROM marketing_campaigns
+     WHERE ($1::text IS NULL OR owner_user_id=$1)`,
+    [ownerUserId || null]
+  );
   const campaignTotal = Number(campaigns.rows[0]?.total || 0);
   if (campaignTotal < 1) {
     return {
