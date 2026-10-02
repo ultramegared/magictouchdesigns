@@ -443,13 +443,14 @@ export const listMarketingCampaigns = async (ownerUserId: string, limit = 20) =>
 };
 
 
-const getAdaptiveNextSlot = async (targetArea: string, objective: string, channels: SocialChannel[]) => {
+const getAdaptiveNextSlot = async (targetArea: string, objective: string, channels: SocialChannel[], ownerUserId: string) => {
     const result = await pool.query(
         `SELECT hour, weekday, SUM(sessions)::int sessions, SUM(conversions)::int conversions, COALESCE(SUM(revenue),0)::numeric revenue, COUNT(*)::int observations
          FROM marketing_learning_observations
          WHERE target_area ILIKE '%' || $1 || '%'
            AND objective ILIKE '%' || $2 || '%'
            AND channel = ANY($3::text[])
+           AND EXISTS (SELECT 1 FROM marketing_campaigns c WHERE c.id=marketing_learning_observations.campaign_id AND c.owner_user_id=$4)
          GROUP BY hour, weekday
          HAVING COUNT(*) >= 2
          ORDER BY
@@ -460,7 +461,7 @@ const getAdaptiveNextSlot = async (targetArea: string, objective: string, channe
            SUM(conversions) DESC,
            SUM(sessions) DESC
          LIMIT 1`,
-        [targetArea, objective, channels]
+        [targetArea, objective, channels, ownerUserId]
     );
     const slot = result.rows[0];
     if (!slot) return null;
@@ -470,7 +471,7 @@ const getAdaptiveNextSlot = async (targetArea: string, objective: string, channe
          WHERE target_area ILIKE '%' || $1 || '%'
            AND objective ILIKE '%' || $2 || '%'
            AND channel = ANY($3::text[])`,
-        [targetArea, objective, channels]
+        [targetArea, objective, channels, ownerUserId]
     );
     if (Number(total.rows[0]?.observations || 0) < 10) return null;
 
@@ -546,7 +547,7 @@ const runMarketingAutopilotOnce = async () => {
         [campaign.id]
     );
     const recentlyUsed = new Set(recent.rows.map((r: any) => String(r.channel)));
-    const adaptiveSlot = await getAdaptiveNextSlot(campaign.target_area, campaign.objective, eligible);
+    const adaptiveSlot = await getAdaptiveNextSlot(campaign.target_area, campaign.objective, eligible, userId);
     if (adaptiveSlot) {
         // Never delay beyond the 5–7 hour operating window just because a historical
         // best slot falls on another day. The Brain may still use the learned slot
@@ -558,7 +559,7 @@ const runMarketingAutopilotOnce = async () => {
         }
     }
 
-    const insights = await getMarketingLearningInsights(campaign.target_area, campaign.objective);
+    const insights = await getMarketingLearningInsights(campaign.target_area, campaign.objective, userId);
     const score = new Map(insights.map((r: any) => [r.channel, Number(r.score || 0)]));
     const ranked = eligible.slice().sort((a, b) => {
         const aRecent = recentlyUsed.has(a) ? 1 : 0;
