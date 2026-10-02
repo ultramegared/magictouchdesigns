@@ -313,6 +313,22 @@ export async function getCatalogOwners() {
   return result.rows.map((row: any) => String(row.owner_user_id));
 }
 
+export async function getContentAutopilotOwners() {
+  await ensureCatalogTables();
+  const result = await pool.query(`
+    SELECT owner_user_id
+    FROM marketing_catalog_autopilot
+    WHERE enabled=TRUE
+    UNION
+    SELECT owner_user_id
+    FROM marketing_campaigns
+    WHERE autopilot_enabled=TRUE
+      AND campaign_type='portfolio'
+      AND owner_user_id IS NOT NULL
+  `);
+  return result.rows.map((row: any) => String(row.owner_user_id));
+}
+
 
 const buildPortfolioMessage = (item: any) => {
   const description = String(item.description_en || "").replace(/\s+/g, " ").trim();
