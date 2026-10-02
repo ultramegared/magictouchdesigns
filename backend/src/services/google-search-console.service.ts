@@ -46,7 +46,17 @@ function getCredentialsResult(): { credentials: ServiceAccountCredentials | null
         }
         return { credentials: { client_email: parsed.client_email, private_key: parsed.private_key.replace(/\\n/g, "\n") } };
     } catch {
-        return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is present but is not valid JSON. Replace its value with the complete downloaded Google service-account JSON file." };
+        const preview = raw.slice(0, 16).replace(/[^a-zA-Z0-9_{}"'.:-]/g, "?");
+        let shape = "unknown";
+        if (raw.startsWith("sk_live_") || raw.startsWith("sk_test_")) shape = "Stripe secret key";
+        else if (raw.startsWith("{")) shape = "object-like value";
+        else if (raw.startsWith('"')) shape = "quoted string";
+        else if (raw.startsWith("type=")) shape = "dotenv-style assignment";
+        else if (raw.includes("\\n") && raw.includes("private_key")) shape = "escaped JSON-like value";
+        return {
+            credentials: null,
+            error: `GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is not valid JSON (received ${shape}; starts with "${preview}"). Paste the complete downloaded Google service-account JSON as the secret value.`,
+        };
     }
 }
 
