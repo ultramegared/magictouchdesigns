@@ -103,19 +103,52 @@ export function getSearchConsoleStatus() {
 }
 
 export async function verifySearchConsoleAccess() {
-    const siteUrl = getSiteUrl();
+    const configuredSiteUrl = getSiteUrl();
+    const hostname = new URL(configuredSiteUrl).hostname;
     const data = await googleRequest<{ siteEntry?: Array<{ siteUrl?: string; permissionLevel?: string }> }>(SEARCH_CONSOLE_API, "/sites", "https://www.googleapis.com/auth/webmasters.readonly");
-    const site = (data.siteEntry || []).find(item => item.siteUrl === siteUrl);
-    return { connected: Boolean(site), siteUrl, permissionLevel: site?.permissionLevel || null, availableProperties: (data.siteEntry || []).map(item => item.siteUrl).filter(Boolean) };
+    const entries = data.siteEntry || [];
+    const site = entries.find(item => item.siteUrl === configuredSiteUrl)
+        || entries.find(item => item.siteUrl === `sc-domain:${hostname}`);
+    return {
+        connected: Boolean(site),
+        siteUrl: configuredSiteUrl,
+        resolvedSiteUrl: site?.siteUrl || null,
+        permissionLevel: site?.permissionLevel || null,
+        availableProperties: entries.map(item => item.siteUrl).filter(Boolean),
+    };
 }
 
-export async function getSearchAnalytics(days = 28) {
+export async function getSearchAnalytics(days = 28, siteUrlOverride?: string) {
     const safeDays = Math.min(Math.max(Math.floor(days), 1), 90);
     const end = new Date(); end.setUTCDate(end.getUTCDate() - 2);
     const start = new Date(end); start.setUTCDate(start.getUTCDate() - safeDays + 1);
     const iso = (date: Date) => date.toISOString().slice(0, 10);
-    const data = await googleRequest<{ rows?: SearchAnalyticsRow[] }>(SEARCH_CONSOLE_API, `/sites/${encodeURIComponent(getSiteUrl())}/searchAnalytics/query`, "https://www.googleapis.com/auth/webmasters.readonly", { method: "POST", body: JSON.stringify({ startDate: iso(start), endDate: iso(end), dimensions: ["date"], rowLimit: safeDays, dataState: "final" }) });
-    return { siteUrl: getSiteUrl(), startDate: iso(start), endDate: iso(end), rows: data.rows || [] };
+    const siteUrl = siteUrlOverride || getSiteUrl();
+    const data = await googleRequest<{ rows?: SearchAnalyticsRow[] }>(SEARCH_CONSOLE_API, `/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`, "https://www.googleapis.com/auth/webmasters.readonly", { method: "POST", body: JSON.stringify({ startDate: iso(start), endDate: iso(end), dimensions: ["date"], rowLimit: safeDays, dataState: "final" }) });
+    return { siteUrl, startDate: iso(start), endDate: iso(end), rows: data.rows || [] };
+}
+
+export async function verifyGoogleIntegration() {
+    const gscResult = await verifySearchConsoleAccess();
+    const gscData = gscResult.connected && gscResult.resolvedSiteUrl
+        ? await getSearchAnalytics(30, gscResult.resolvedSiteUrl)
+        : null;
+
+    const propertyId = getAnalyticsPropertyId();
+    if (!propertyId) {
+        return {
+            connected: false,
+            searchConsole: { ...gscResult, dataVerified: Boolean(gscData) },
+            analytics: { configured: false, dataVerified: false, propertyId: null, error: "GOOGLE_ANALYTICS_PROPERTY_ID is missing from the running API environment." },
+        };
+    }
+
+    const gaData = await getAnalyticsReport(30);
+    return {
+        connected: Boolean(gscResult.connected && gscData),
+        searchConsole: { ...gscResult, dataVerified: Boolean(gscData), rows: gscData?.rows?.length || 0 },
+        analytics: { configured: true, dataVerified: true, propertyId, rows: gaData.rows?.length || 0 },
+    };
 }
 
 export function getAnalyticsStatus() {
