@@ -31,7 +31,7 @@ interface GoogleVerification {
     error?: string;
 }
 interface GaRow { metricValues?: Array<{ value?: string }> }
-interface GaResponse { rows?: GaRow[]; error?: string; }
+interface GaResponse { rows?: GaRow[]; summary?: { activeUsers?:number; sessions?:number; screenPageViews?:number; totalRevenue?:number }; error?: string; }
 interface SearchMetrics { clicks: number; impressions: number; ctr: number; position: number; count: number; }
 type SocialChannel = "facebook" | "instagram" | "tiktok" | "youtube" | "pinterest" | "whatsapp";
 type ChannelName = "Google" | "Facebook" | "Instagram" | "TikTok" | "YouTube" | "Pinterest" | "WhatsApp" | "Email";
@@ -41,7 +41,7 @@ interface SocialProfile { [key: string]: any; }
 interface SocialConnection { connected: boolean; profile?: SocialProfile; }
 interface SocialSetup { configured?: boolean; envKeys?: string[]; callback?: string; }
 interface SocialState { configured?: Record<string, boolean>; setup?: Record<string, SocialSetup>; connected?: Record<string, SocialConnection>; channels?: Partial<Record<SocialChannel, boolean>>; }
-interface PublishResult { ok: boolean; id?: string; account?: string; error?: string; }
+interface PublishResult { ok: boolean; status?: "PUBLISHED"|"PROCESSING"|"SENT"|"FAILED"|"QUEUED"; id?: string; account?: string; url?: string; message?: string; error?: string; }
 interface CampaignRecord { id:string; name:string; objective:string; target_area:string; subject?:string; channels:SocialChannel[]; results?: { social?: Record<string, PublishResult>; email?: { totalRecipients:number }; google?: { focus?:string[] } }; created_at:string; autopilot_enabled?:boolean; next_run_at?:string | null; run_count?:number; campaign_type?: "manual"|"catalog"|"event"; starts_at?:string|null; ends_at?:string|null; recurrence_hours?:number; }
 interface LearningInsight { channel: SocialChannel; score:number; observations:number; successRate:number; clicks:number; sessions:number; conversions:number; revenue:number; impressions:number; recommended:boolean; avgHour?:number; avgWeekday?:number; }
 interface DailySummary { generatedAt:string; campaigns:{total:number;last24:number}; last24:{publications:number;successful:number;sessions:number;conversions:number;revenue:number}; channels:Array<{channel:string;publications:number;successful:number;sessions:number;conversions:number;revenue:number}>; learning:{observations:number;conversions:number;revenue:number;level:number;levelName:string;nextTarget:string}; }
@@ -55,7 +55,10 @@ interface PublicationActivity {
     channel: string;
     run_type: string;
     published: boolean;
-    result?: { ok?: boolean; id?: string; account?: string; url?: string; error?: string; totalRecipients?: number };
+    status?: string;
+    external_id?: string | null;
+    external_url?: string | null;
+    result?: { ok?: boolean; status?: string; id?: string; account?: string; url?: string; message?: string; error?: string; totalRecipients?: number };
     created_at: string;
 }
 interface CatalogStatus { enabled:boolean; initializedAt?:string|null; lastScanAt?:string|null; lastProductId?:string|null; lastProductName?:string|null; lastCampaignId?:string|null; lastRunAt?:string|null; pendingProducts:number; pendingPortfolio:number; }
@@ -93,6 +96,7 @@ function AdminMarketing() {
     const [whatsappTo, setWhatsappTo] = useState("");
     const [videoUrl, setVideoUrl] = useState("");
     const [emailSubject, setEmailSubject] = useState("");
+    const [youtubePrivacy, setYoutubePrivacy] = useState<"public"|"unlisted"|"private">("public");
     const [emailMessage, setEmailMessage] = useState("");
     const [emailImageUrl, setEmailImageUrl] = useState("");
     const [subscriberCounts, setSubscriberCounts] = useState<SubscriberCounts | null>(null);
@@ -254,7 +258,12 @@ function AdminMarketing() {
         }), { clicks: 0, impressions: 0, ctr: 0, position: 0, count: 0 });
         return totals;
     }, [gscRows]);
-    const gaMetrics = useMemo(() => gaRows.reduce((sum, row) => { const metrics = row.metricValues || []; return { users: sum.users + Number(metrics[0]?.value || 0), sessions: sum.sessions + Number(metrics[1]?.value || 0), views: sum.views + Number(metrics[2]?.value || 0), revenue: sum.revenue + Number(metrics[3]?.value || 0) }; }, { users: 0, sessions: 0, views: 0, revenue: 0 }), [gaRows]);
+    const gaMetrics = useMemo(() => ({
+        users: Number((ga as any)?.summary?.activeUsers || 0),
+        sessions: Number((ga as any)?.summary?.sessions || gaRows.reduce((sum, row) => sum + Number(row.metricValues?.[1]?.value || 0), 0)),
+        views: Number((ga as any)?.summary?.screenPageViews || gaRows.reduce((sum, row) => sum + Number(row.metricValues?.[2]?.value || 0), 0)),
+        revenue: Number((ga as any)?.summary?.totalRevenue || gaRows.reduce((sum, row) => sum + Number(row.metricValues?.[3]?.value || 0), 0)),
+    }), [ga, gaRows]);
 
     const isConnected = (channel: Channel) => channel.social ? Boolean(social.channels?.[channel.social]) : channel.name === "Google" ? Boolean(gsc?.connected && gsc?.dataVerified && ga?.connected && ga?.dataVerified) : false;
     const accountName = (channel: Channel) => {
@@ -368,8 +377,11 @@ function AdminMarketing() {
         if (!selectedSocial.length || !publishText.trim()) { setNotice("Selecciona al menos un canal conectado y escribe el mensaje."); return; }
         try {
             setPublishing(true); setPublishResults({});
-            const response = await apiRequest<{ results: Record<string, PublishResult> }>("/api/admin/marketing/social/publish", { method: "POST", body: JSON.stringify({ channels: selectedSocial, text: publishText.trim(), imageUrl: imageUrl.trim() || undefined, videoUrl: videoUrl.trim() || undefined, link: link.trim() || undefined, whatsappTo: whatsappTo.trim() || undefined }) });
+            const idempotencyKey = crypto.randomUUID();
+            const response = await apiRequest<{ results: Record<string, PublishResult>; campaignId?: string }>("/api/admin/marketing/social/publish", { method: "POST", body: JSON.stringify({ idempotencyKey, campaignName: "Central Publisher", channels: selectedSocial, text: publishText.trim(), imageUrl: imageUrl.trim() || undefined, videoUrl: videoUrl.trim() || undefined, link: link.trim() || undefined, whatsappTo: whatsappTo.trim() || undefined, youtubePrivacy }) });
             setPublishResults(response.results || {});
+            setNotice(response.campaignId ? `Publication recorded in Marketing Ledger · ${response.campaignId}` : "Publication recorded in Marketing Ledger.");
+            await Promise.all([loadPublicationActivity(), loadCampaignHistory(), loadLearning(), loadDailySummary()]);
         } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudo publicar."); }
         finally { setPublishing(false); }
     };
@@ -406,6 +418,7 @@ function AdminMarketing() {
                     startsAt: campaignStartsAt ? new Date(campaignStartsAt).toISOString() : undefined,
                     endsAt: campaignEndsAt ? new Date(campaignEndsAt).toISOString() : undefined,
                     recurrenceHours: Number(campaignRecurrenceHours || 6),
+                    youtubePrivacy,
                     idempotencyKey,
                 }),
             });
