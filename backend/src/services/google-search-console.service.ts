@@ -8,14 +8,22 @@ const ANALYTICS_API = "https://analyticsdata.googleapis.com/v1beta";
 interface ServiceAccountCredentials { client_email: string; private_key: string; }
 interface SearchAnalyticsRow { keys?: string[]; clicks?: number; impressions?: number; ctr?: number; position?: number; }
 
-function getCredentials(): ServiceAccountCredentials | null {
+function getCredentialsResult(): { credentials: ServiceAccountCredentials | null; error?: string } {
     const raw = process.env.GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON?.trim();
-    if (!raw) return null;
+    if (!raw) return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is missing from the running API environment." };
     try {
         const parsed = JSON.parse(raw) as Partial<ServiceAccountCredentials>;
-        if (!parsed.client_email || !parsed.private_key) return null;
-        return { client_email: parsed.client_email, private_key: parsed.private_key.replace(/\\n/g, "\n") };
-    } catch { return null; }
+        if (!parsed.client_email || !parsed.private_key) {
+            return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is present but missing client_email or private_key." };
+        }
+        return { credentials: { client_email: parsed.client_email, private_key: parsed.private_key.replace(/\\n/g, "\n") } };
+    } catch {
+        return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is present but is not valid JSON." };
+    }
+}
+
+function getCredentials(): ServiceAccountCredentials | null {
+    return getCredentialsResult().credentials;
 }
 
 function getSiteUrl() { return (process.env.GOOGLE_SEARCH_CONSOLE_SITE_URL || DEFAULT_SITE_URL).trim().replace(/\/$/, "/"); }
@@ -41,7 +49,10 @@ async function getAccessToken(credentials: ServiceAccountCredentials, scope: str
 
 async function googleRequest<T>(base: string, path: string, scope: string, options: RequestInit = {}): Promise<T> {
     const credentials = getCredentials();
-    if (!credentials) throw new Error("Google integration is not configured");
+    if (!credentials) {
+        const diagnostic = getCredentialsResult().error || "Google credentials are unavailable.";
+        throw new Error(`Google integration is not configured: ${diagnostic}`);
+    }
     const token = await getAccessToken(credentials, scope);
     const response = await fetch(`${base}${path}`, { ...options, headers: { authorization: `Bearer ${token}`, "content-type": "application/json", ...(options.headers || {}) } });
     if (!response.ok) { const text = await response.text(); throw new Error(`Google API failed (${response.status}): ${text.slice(0, 300)}`); }
@@ -50,7 +61,7 @@ async function googleRequest<T>(base: string, path: string, scope: string, optio
 
 export function getSearchConsoleStatus() {
     const configured = Boolean(getCredentials());
-    return { configured, siteUrl: getSiteUrl(), provider: "Google Search Console", message: configured ? "Credentials are configured." : "Add GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON in Vercel." };
+    return { configured, siteUrl: getSiteUrl(), provider: "Google Search Console", message: configured ? "Credentials are configured." : (getCredentialsResult().error || "Google credentials are unavailable.") };
 }
 
 export async function verifySearchConsoleAccess() {
@@ -71,7 +82,7 @@ export async function getSearchAnalytics(days = 28) {
 
 export function getAnalyticsStatus() {
     const configured = Boolean(getCredentials() && getAnalyticsPropertyId());
-    return { configured, propertyId: getAnalyticsPropertyId(), provider: "Google Analytics 4", message: configured ? "Credentials and property ID are configured." : "Add GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON and GOOGLE_ANALYTICS_PROPERTY_ID in Vercel." };
+    return { configured, propertyId: getAnalyticsPropertyId(), provider: "Google Analytics 4", message: configured ? "Credentials and property ID are configured." : (getCredentialsResult().error || (!getAnalyticsPropertyId() ? "GOOGLE_ANALYTICS_PROPERTY_ID is missing from the running API environment." : "Google credentials are unavailable.")) };
 }
 
 export async function getAnalyticsReport(days = 28) {
