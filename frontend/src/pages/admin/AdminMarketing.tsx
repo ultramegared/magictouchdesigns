@@ -219,7 +219,7 @@ function AdminMarketing() {
     const searchMetrics = useMemo<SearchMetrics>(() => gscRows.reduce<SearchMetrics>((sum, row) => ({ clicks: sum.clicks + Number(row.clicks || 0), impressions: sum.impressions + Number(row.impressions || 0), ctr: sum.ctr + Number(row.ctr || 0), position: sum.position + Number(row.position || 0), count: sum.count + 1 }), { clicks: 0, impressions: 0, ctr: 0, position: 0, count: 0 }), [gscRows]);
     const gaMetrics = useMemo(() => gaRows.reduce((sum, row) => { const metrics = row.metricValues || []; return { users: sum.users + Number(metrics[0]?.value || 0), sessions: sum.sessions + Number(metrics[1]?.value || 0), views: sum.views + Number(metrics[2]?.value || 0), revenue: sum.revenue + Number(metrics[3]?.value || 0) }; }, { users: 0, sessions: 0, views: 0, revenue: 0 }), [gaRows]);
 
-    const isConnected = (channel: Channel) => channel.social ? Boolean(social.channels?.[channel.social]) : channel.name === "Google" ? Boolean(gsc?.connected || ga?.configured) : false;
+    const isConnected = (channel: Channel) => channel.social ? Boolean(social.channels?.[channel.social]) : channel.name === "Google" ? Boolean(gsc?.connected && ga?.configured) : false;
     const accountName = (channel: Channel) => {
         if (!channel.social) return channel.name === "Google" ? (ga?.propertyId ? `GA4 ${ga.propertyId}` : "Search & Analytics") : "Managed separately";
         const profile = channel.provider ? social.connected?.[channel.provider]?.profile || {} : {};
@@ -278,29 +278,33 @@ function AdminMarketing() {
         setGoogleChecking(true);
         setNotice("");
         try {
-            const [gscStatus, gaStatus] = await Promise.allSettled([
-                apiRequest<GscResponse>("/api/admin/marketing/search-console/verify"),
-                apiRequest<GaStatus>("/api/admin/marketing/search-console/google-analytics/status"),
-            ]);
+            const health = await apiRequest<{
+                connected: boolean;
+                error?: string;
+                searchConsole?: { connected: boolean; siteUrl?: string; resolvedSiteUrl?: string | null; permissionLevel?: string | null; dataVerified?: boolean; rows?: number; availableProperties?: string[] };
+                analytics?: { configured: boolean; dataVerified?: boolean; propertyId?: string | null; rows?: number; error?: string };
+            }>("/api/admin/marketing/search-console/verify-all");
 
-            if (gscStatus.status === "fulfilled") setGsc(gscStatus.value);
-            if (gaStatus.status === "fulfilled") setGa(gaStatus.value);
+            setGsc({
+                connected: Boolean(health.searchConsole?.connected && health.searchConsole?.dataVerified),
+                siteUrl: health.searchConsole?.resolvedSiteUrl || health.searchConsole?.siteUrl,
+            });
+            setGa({
+                configured: Boolean(health.analytics?.configured && health.analytics?.dataVerified),
+                propertyId: health.analytics?.propertyId,
+            });
 
-            const gscError = gscStatus.status === "rejected" ? (gscStatus.reason instanceof Error ? gscStatus.reason.message : "Search Console verification failed.") : "";
-            const gaError = gaStatus.status === "rejected" ? (gaStatus.reason instanceof Error ? gaStatus.reason.message : "Google Analytics verification failed.") : "";
-            if (gscError || gaError) {
-                setNotice([gscError && `Search Console: ${gscError}`, gaError && `GA4: ${gaError}`].filter(Boolean).join(" · "));
-                return;
-            }
-
-            const verifiedGsc = gscStatus.status === "fulfilled" && gscStatus.value.connected;
-            const configuredGa = gaStatus.status === "fulfilled" && gaStatus.value.configured;
-            if (!verifiedGsc || !configuredGa) {
-                const details = [
-                    !verifiedGsc && `Search Console: ${gscStatus.status === "fulfilled" ? (gscStatus.value.error || "access not verified") : "verification failed"}`,
-                    !configuredGa && `GA4: ${gaStatus.status === "fulfilled" ? (gaStatus.value.error || "not configured") : "verification failed"}`,
-                ];
-                setNotice(details.join(" · "));
+            if (!health.connected) {
+                const available = health.searchConsole?.availableProperties?.slice(0, 5).join(", ");
+                setNotice(
+                    health.error
+                    || [
+                        !health.searchConsole?.connected && `Search Console: no access to ${health.searchConsole?.siteUrl || "the configured property"}${available ? ` · Available: ${available}` : ""}`,
+                        !health.searchConsole?.dataVerified && health.searchConsole?.connected && "Search Console: access exists but real analytics data could not be verified",
+                        !health.analytics?.configured && "GA4: property is not configured",
+                        !health.analytics?.dataVerified && health.analytics?.configured && `GA4: property ${health.analytics?.propertyId || ""} did not return real report data`,
+                    ].filter(Boolean).join(" · ")
+                );
                 return;
             }
 
@@ -314,9 +318,15 @@ function AdminMarketing() {
             const dataErrors = [
                 gscAnalytics.status === "rejected" && `Search Console data: ${gscAnalytics.reason instanceof Error ? gscAnalytics.reason.message : "request failed"}`,
                 gaReport.status === "rejected" && `GA4 data: ${gaReport.reason instanceof Error ? gaReport.reason.message : "request failed"}`,
-            ].filter(Boolean) as string[];
+            ].filter(Boolean);
+            if (dataErrors.length) {
+                setNotice(dataErrors.join(" · "));
+                return;
+            }
 
-            setNotice(dataErrors.length ? dataErrors.join(" · ") : "✅ Google conectado y verificado. Search Console + GA4 están respondiendo con datos reales.");
+            setNotice("✅ Google conectado y verificado: Search Console + GA4 están respondiendo con datos reales.");
+        } catch (error) {
+            setNotice(error instanceof Error ? error.message : "Google verification failed.");
         } finally {
             setGoogleChecking(false);
         }
@@ -423,7 +433,7 @@ function AdminMarketing() {
         </div></section>
       </main>
       {setupProvider && <div className="modal-bg" onClick={() => setSetupProvider(null)}><div className="modal" onClick={event => event.stopPropagation()}><div className="modal-head"><h2>Connect {setupTitle(setupProvider)}</h2><button className="close" onClick={() => setSetupProvider(null)}><X size={18}/></button></div><p>Esta conexión es real: primero se configura la aplicación OAuth del proveedor en el servidor y después el botón de conexión te llevará a la cuenta oficial para autorizarla.</p><div className="notice"><b>Variables del backend</b><br/>{(social.setup?.[setupProvider]?.envKeys || []).map(key => <code key={key} style={{ display: "block", marginTop: 4 }}>{key}</code>)}<br/><b>Callback exacto</b><br/><code style={{ wordBreak: "break-all" }}>{social.setup?.[setupProvider]?.callback || ""}</code></div><div className="notice">Después de guardar las credenciales en el entorno Production del backend, pulsa Refresh en esta página. El botón cambiará a <b>Connect official account</b> y podrás autorizar tu cuenta real.</div><div className="actions"><button className="btn primary" onClick={() => { setSetupProvider(null); void loadSocial(); }}><RefreshCw size={14}/>Refresh connection status</button><button className="btn" onClick={() => setSetupProvider(null)}>Close</button></div></div></div>}
-      {modal && <div className="modal-bg" onClick={() => setModal(null)}><div className="modal" onClick={event => event.stopPropagation()}><div className="modal-head"><h2>{modal === "composer" ? "Central Publisher" : modal === "email" ? "Email Campaign" : modal === "campaign" ? "Launch Campaign Everywhere" : "Google Integrations"}</h2><button className="close" onClick={() => setModal(null)}><X size={18}/></button></div>{modal === "Google" && <><p>Google se usa aquí para medir descubrimiento y orientar la estrategia SEO. Search Console no puede garantizar ni forzar una posición orgánica.</p><div className="notice">Search Console: {gsc?.connected ? "Connected" : "Needs access"}<br/>GA4: {ga?.configured ? `Configured · ${ga.propertyId}` : "Needs configuration"}</div><div className="actions"><button className="btn primary" onClick={() => void refreshGoogle()} disabled={googleChecking}>{googleChecking ? <Loader2 size={14}/> : <RefreshCw size={14}/>} {googleChecking ? "Verifying Google..." : "Verify & refresh Google"}</button></div></>}
+      {modal && <div className="modal-bg" onClick={() => setModal(null)}><div className="modal" onClick={event => event.stopPropagation()}><div className="modal-head"><h2>{modal === "composer" ? "Central Publisher" : modal === "email" ? "Email Campaign" : modal === "campaign" ? "Launch Campaign Everywhere" : "Google Integrations"}</h2><button className="close" onClick={() => setModal(null)}><X size={18}/></button></div>{modal === "Google" && <><p>Google se conecta al Marketing Brain para leer Search Console y GA4 y alimentar decisiones con datos reales. No publica anuncios ni garantiza posiciones orgánicas.</p><div className="notice">Search Console: {gsc?.connected ? `Connected · ${gsc.siteUrl || "property verified"}` : "Needs access"}<br/>GA4: {ga?.configured ? `Connected · ${ga.propertyId}` : "Needs configuration"}</div><div className="actions"><button className="btn primary" onClick={() => void refreshGoogle()} disabled={googleChecking}>{googleChecking ? <Loader2 size={14}/> : <RefreshCw size={14}/>} {googleChecking ? "Verifying Google..." : "Connect & verify Google"}</button></div></>}
       {modal === "campaign" && <><p>Créala una sola vez. Si activas Autopilot, el mismo Marketing Brain la distribuye por los canales conectados, mide resultados y decide las siguientes oportunidades usando el aprendizaje acumulado.</p><div className="campaign-grid"><div>
         <div className="field"><label>CAMPAIGN TYPE</label><div className="checks"><label className={`check ${campaignType === "event" ? "selected" : ""}`}><input type="radio" checked={campaignType === "event"} onChange={() => setCampaignType("event")}/><span>📣 Special / Event Promotion</span></label><label className={`check ${campaignType === "manual" ? "selected" : ""}`}><input type="radio" checked={campaignType === "manual"} onChange={() => setCampaignType("manual")}/><span>📝 General Manual Campaign</span></label></div></div><div className="field"><label>CAMPAIGN NAME</label><input className="input" value={campaignName} onChange={e => setCampaignName(e.target.value)} placeholder="Halloween 2×3"/></div>
         <div className="field"><label>OBJECTIVE</label><select className="select" value={campaignObjective} onChange={e => setCampaignObjective(e.target.value)}><option>Brand awareness and sales</option><option>Local Houston sales</option><option>New product launch</option><option>Seasonal promotion</option><option>Website traffic</option></select></div>
