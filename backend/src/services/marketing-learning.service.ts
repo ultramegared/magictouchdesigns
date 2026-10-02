@@ -103,12 +103,12 @@ export const recordCampaignLearningFeedback = async (feedback: LearningFeedback)
          impressions = GREATEST(impressions, $7),
          updated_at = NOW()
      WHERE campaign_id=$1 AND channel=$2
-     AND id = COALESCE($8::bigint, (
+     AND (run_id = $8::bigint OR ($8::bigint IS NULL AND id = (
        SELECT id FROM marketing_learning_observations
        WHERE campaign_id=$1 AND channel=$2
        ORDER BY created_at DESC, id DESC
        LIMIT 1
-     ))
+     )))
      RETURNING id`,
     [feedback.campaignId, feedback.channel, Math.max(0, Number(feedback.clicks || 0)), Math.max(0, Number(feedback.sessions || 0)), Math.max(0, Number(feedback.conversions || 0)), Math.max(0, Number(feedback.revenue || 0)), Math.max(0, Number(feedback.impressions || 0)), (feedback as any).runId ? Number((feedback as any).runId) : null]
   );
