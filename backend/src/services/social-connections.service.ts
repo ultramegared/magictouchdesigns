@@ -65,6 +65,21 @@ async function getAccessToken(userId: string, provider: SocialProvider) {
     }
     return decrypt(row.access_token) as string;
 }
+export async function verifySocialConnection(userId: string, provider: SocialProvider) {
+    const accessToken = await getAccessToken(userId, provider);
+    const profile = await providerProfile(provider, accessToken);
+    await pool.query(
+        `UPDATE marketing_social_connections SET profile=$1::jsonb, updated_at=NOW() WHERE user_id=$2 AND provider=$3`,
+        [JSON.stringify(profile), userId, provider]
+    );
+    return {
+        verified: true,
+        provider,
+        profile,
+        verifiedAt: new Date().toISOString(),
+    };
+}
+
 export async function disconnect(userId: string, provider: SocialProvider) { await ensureSocialConnectionsTable(); await pool.query(`DELETE FROM marketing_social_connections WHERE user_id=$1 AND provider=$2`, [userId, provider]); }
 export async function publishPinterest(userId: string, text: string, imageUrl?: string, link?: string) {
     if (!imageUrl) throw new Error("Pinterest requires an image URL.");
