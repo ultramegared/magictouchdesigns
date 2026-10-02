@@ -23,6 +23,7 @@ export interface MarketingCampaignInput {
     startsAt?: string;
     endsAt?: string;
     recurrenceHours?: number;
+    youtubePrivacy?: "public" | "unlisted" | "private";
 }
 
 export interface MarketingCampaignResult {
@@ -147,7 +148,7 @@ const publishSocialCampaign = async (
     }
     if (channels.includes("youtube")) {
         try {
-            results.youtube = await publishYouTube(userId, input.message.trim(), input.videoUrl?.trim(), input.link?.trim());
+            results.youtube = await publishYouTube(userId, input.message.trim(), input.videoUrl?.trim(), input.link?.trim(), input.youtubePrivacy || "public");
         } catch (error) {
             results.youtube = { ok: false, error: error instanceof Error ? error.message : "YouTube publication failed." };
         }
