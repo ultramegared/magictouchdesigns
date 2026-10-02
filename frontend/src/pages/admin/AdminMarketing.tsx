@@ -447,14 +447,28 @@ function AdminMarketing() {
         if (!emailSubject.trim() || !emailMessage.trim()) { setNotice("Escribe el asunto y el mensaje de la promoción."); return; }
         try {
             setEmailSending(true);
-            const response = await apiRequest<{ data: { totalRecipients:number; englishRecipients:number; spanishRecipients:number } }>("/api/subscribers/admin/promotion", {
+            const idempotencyKey = crypto.randomUUID();
+            const response = await apiRequest<{ data: { campaignId:string; email?: { totalRecipients:number } } }>("/api/admin/marketing/social/campaign/launch", {
                 method: "POST",
-                body: JSON.stringify({ subject: emailSubject.trim(), message: emailMessage.trim(), imageUrl: emailImageUrl.trim() || undefined })
+                body: JSON.stringify({
+                    name: emailSubject.trim(),
+                    objective: "Email promotion",
+                    targetArea: "Email subscribers",
+                    message: emailMessage.trim(),
+                    subject: emailSubject.trim(),
+                    imageUrl: emailImageUrl.trim() || undefined,
+                    channels: [],
+                    sendEmail: true,
+                    autopilot: false,
+                    campaignType: "manual",
+                    idempotencyKey,
+                })
             });
             const result = response.data;
-            setNotice(`Promoción enviada a ${result.totalRecipients} suscriptores activos — EN ${result.englishRecipients} / ES ${result.spanishRecipients}.`);
+            setNotice(`Promoción registrada en Marketing Ledger · ${result.campaignId} · ${result.email?.totalRecipients || 0} destinatarios.`);
             setEmailSubject(""); setEmailMessage(""); setEmailImageUrl("");
             setModal(null);
+            await Promise.all([loadCampaignHistory(), loadPublicationActivity(), loadLearning(), loadDailySummary()]);
         } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudo enviar la promoción."); }
         finally { setEmailSending(false); }
     };
