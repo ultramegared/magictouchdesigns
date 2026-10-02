@@ -205,7 +205,7 @@ export async function publishYouTube(userId: string, text: string, videoUrl?: st
     const uploaded = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": videoResponse.headers.get("content-type") || "video/mp4", "Content-Length": String(videoBuffer.length) }, body: videoBuffer });
     const data = await uploaded.json().catch(() => ({}));
     if (!uploaded.ok) throw new Error(data.error?.message || "YouTube video upload failed.");
-    return { ok: true, status: "PUBLISHED", id: data.id, account: "YouTube", privacyStatus, ...(data.id ? { url: "https://www.youtube.com/watch?v=" + encodeURIComponent(String(data.id)) } : {}) };
+    return { ok: true, status: "PROCESSING", id: data.id, account: "YouTube", privacyStatus, message: "YouTube accepted the upload; processing/publication status will be confirmed asynchronously.", ...(data.id ? { url: "https://www.youtube.com/watch?v=" + encodeURIComponent(String(data.id)) } : {}) };
 }
 
 export function isSocialProvider(value: string): value is SocialProvider { return ["meta", "tiktok", "youtube", "pinterest"].includes(value); }
