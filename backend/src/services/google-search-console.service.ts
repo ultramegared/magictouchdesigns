@@ -9,27 +9,39 @@ interface ServiceAccountCredentials { client_email: string; private_key: string;
 interface SearchAnalyticsRow { keys?: string[]; clicks?: number; impressions?: number; ctr?: number; position?: number; }
 
 function parseServiceAccountJson(raw: string): Partial<ServiceAccountCredentials> {
-    const normalized = raw.replace(/^\\uFEFF/, "").trim();
+    let normalized = raw.replace(/^\\uFEFF/, "").trim();
+
+    if (normalized.startsWith("GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON=")) {
+        normalized = normalized.slice("GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON=".length).trim();
+    }
+    if (normalized.length >= 2 && ((normalized.startsWith("'") && normalized.endsWith("'")) || (normalized.startsWith('"') && normalized.endsWith('"')))) {
+        normalized = normalized.slice(1, -1).trim();
+    }
 
     const parseObject = (value: string): unknown => {
-        const parsed = JSON.parse(value);
-        if (typeof parsed === "string") return JSON.parse(parsed);
-        return parsed;
+        try {
+            const parsed = JSON.parse(value);
+            if (typeof parsed === "string") return JSON.parse(parsed);
+            return parsed;
+        } catch {
+            let repaired = "";
+            let inString = false;
+            let escaped = false;
+            for (const char of value) {
+                if (char === '"' && !escaped) inString = !inString;
+                if ((char === "\n" || char === "\r") && inString) repaired += char === "\r" ? "\\r" : "\\n";
+                else repaired += char;
+                escaped = char === "\\" && !escaped;
+                if (char !== "\\") escaped = false;
+            }
+            const parsed = JSON.parse(repaired);
+            if (typeof parsed === "string") return JSON.parse(parsed);
+            return parsed;
+        }
     };
 
-    try {
-        return (parseObject(normalized) || {}) as Partial<ServiceAccountCredentials>;
-    } catch {
-        if (normalized.startsWith("{\\\"") && normalized.includes("\\\":")) {
-            return (parseObject(normalized.replace(/\\\\"/g, '"')) || {}) as Partial<ServiceAccountCredentials>;
-        }
-        if (normalized.length >= 2 && normalized.startsWith("'") && normalized.endsWith("'")) {
-            return (parseObject(normalized.slice(1, -1)) || {}) as Partial<ServiceAccountCredentials>;
-        }
-        throw new Error("invalid-json");
-    }
+    return (parseObject(normalized) || {}) as Partial<ServiceAccountCredentials>;
 }
-
 function getCredentialsResult(): { credentials: ServiceAccountCredentials | null; error?: string } {
     const raw = process.env.GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON?.trim();
     if (!raw) return { credentials: null, error: "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON is missing from the running API environment." };
@@ -128,29 +140,97 @@ export async function getSearchAnalytics(days = 28, siteUrlOverride?: string) {
     return { siteUrl, startDate: iso(start), endDate: iso(end), rows: data.rows || [] };
 }
 
-export async function verifyGoogleIntegration() {
-    const gscResult = await verifySearchConsoleAccess();
-    const gscData = gscResult.connected && gscResult.resolvedSiteUrl
-        ? await getSearchAnalytics(30, gscResult.resolvedSiteUrl)
-        : null;
+type GoogleServiceVerification = {
+    status: "CONFIGURED" | "AUTHENTICATED" | "CONNECTED" | "DATA_AVAILABLE" | "ERROR";
+    configured: boolean;
+    authenticated: boolean;
+    connected: boolean;
+    dataVerified: boolean;
+    rows: number;
+    error?: string;
+};
 
+export async function verifyGoogleIntegration() {
+    const credentialResult = getCredentialsResult();
     const propertyId = getAnalyticsPropertyId();
-    if (!propertyId) {
-        return {
-            connected: false,
-            searchConsole: { ...gscResult, dataVerified: Boolean(gscData) },
-            analytics: { configured: false, dataVerified: false, propertyId: null, error: "GOOGLE_ANALYTICS_PROPERTY_ID is missing from the running API environment." },
-        };
+
+    const searchConsole: GoogleServiceVerification & {
+        siteUrl: string;
+        resolvedSiteUrl?: string | null;
+        permissionLevel?: string | null;
+        availableProperties?: string[];
+    } = {
+        status: credentialResult.credentials ? "CONFIGURED" : "ERROR",
+        configured: Boolean(credentialResult.credentials),
+        authenticated: false,
+        connected: false,
+        dataVerified: false,
+        rows: 0,
+        siteUrl: getSiteUrl(),
+    };
+
+    const analytics: GoogleServiceVerification & { propertyId: string | null } = {
+        status: credentialResult.credentials && propertyId ? "CONFIGURED" : "ERROR",
+        configured: Boolean(credentialResult.credentials && propertyId),
+        authenticated: false,
+        connected: false,
+        dataVerified: false,
+        rows: 0,
+        propertyId,
+    };
+
+    if (!credentialResult.credentials) {
+        searchConsole.error = credentialResult.error;
+        analytics.error = credentialResult.error || "Google service-account credentials are unavailable.";
+        return { connected: false, searchConsole, analytics };
     }
 
-    const gaData = await getAnalyticsReport(30);
+    try {
+        const gscResult = await verifySearchConsoleAccess();
+        searchConsole.authenticated = true;
+        searchConsole.status = "AUTHENTICATED";
+        searchConsole.connected = Boolean(gscResult.connected);
+        searchConsole.resolvedSiteUrl = gscResult.resolvedSiteUrl;
+        searchConsole.permissionLevel = gscResult.permissionLevel;
+        searchConsole.availableProperties = gscResult.availableProperties;
+
+        if (!searchConsole.connected) {
+            searchConsole.status = "ERROR";
+            searchConsole.error = `The service account authenticated successfully, but Google Search Console does not expose access to ${searchConsole.siteUrl}.`;
+        } else if (gscResult.resolvedSiteUrl) {
+            const data = await getSearchAnalytics(30, gscResult.resolvedSiteUrl);
+            searchConsole.rows = data.rows?.length || 0;
+            searchConsole.dataVerified = true;
+            searchConsole.status = "DATA_AVAILABLE";
+        }
+    } catch (error) {
+        searchConsole.status = "ERROR";
+        searchConsole.error = error instanceof Error ? error.message : "Search Console verification failed.";
+    }
+
+    if (!propertyId) {
+        analytics.error = "GOOGLE_ANALYTICS_PROPERTY_ID is missing from the running API environment.";
+    } else {
+        try {
+            const gaData = await getAnalyticsReport(30);
+            analytics.authenticated = true;
+            analytics.connected = true;
+            analytics.status = "CONNECTED";
+            analytics.rows = gaData.rows?.length || 0;
+            analytics.dataVerified = true;
+            analytics.status = "DATA_AVAILABLE";
+        } catch (error) {
+            analytics.status = "ERROR";
+            analytics.error = error instanceof Error ? error.message : "GA4 verification failed.";
+        }
+    }
+
     return {
-        connected: Boolean(gscResult.connected && gscData),
-        searchConsole: { ...gscResult, dataVerified: Boolean(gscData), rows: gscData?.rows?.length || 0 },
-        analytics: { configured: true, dataVerified: true, propertyId, rows: gaData.rows?.length || 0 },
+        connected: searchConsole.dataVerified && analytics.dataVerified,
+        searchConsole,
+        analytics,
     };
 }
-
 export function getAnalyticsStatus() {
     const configured = Boolean(getCredentials() && getAnalyticsPropertyId());
     return { configured, propertyId: getAnalyticsPropertyId(), provider: "Google Analytics 4", message: configured ? "Credentials and property ID are configured." : (getCredentialsResult().error || (!getAnalyticsPropertyId() ? "GOOGLE_ANALYTICS_PROPERTY_ID is missing from the running API environment." : "Google credentials are unavailable.")) };
