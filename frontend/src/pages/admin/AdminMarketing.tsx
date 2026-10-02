@@ -150,17 +150,18 @@ function AdminMarketing() {
             const start = new Date();
             start.setDate(end.getDate() - Number(range) + 1);
             const iso = (date: Date) => date.toISOString().slice(0, 10);
-            const [salesResult, gscStatus, gscAnalytics, gaStatus, gaReport] = await Promise.allSettled([
+            const [salesResult, googleStatus, gscAnalytics, gaReport] = await Promise.allSettled([
                 apiRequest<SalesResponse>(`/api/admin/sales?start=${iso(start)}&end=${iso(end)}`),
-                apiRequest<GscResponse>("/api/admin/marketing/search-console/verify"),
-                apiRequest<{ rows?: GscRow[] }>(`/api/admin/marketing/search-console/analytics?days=${range}`),
-                apiRequest<GaStatus>("/api/admin/marketing/search-console/google-analytics/status"),
-                apiRequest<GaResponse>(`/api/admin/marketing/search-console/google-analytics/report?days=${range}`),
+                apiRequest<GoogleVerification>(`/api/admin/marketing/search-console/verify-all?_=${Date.now()}`),
+                apiRequest<{ rows?: GscRow[] }>(`/api/admin/marketing/search-console/analytics?days=${range}&_=${Date.now()}`),
+                apiRequest<GaResponse>(`/api/admin/marketing/search-console/google-analytics/report?days=${range}&_=${Date.now()}`),
             ]);
             if (salesResult.status === "fulfilled") setSales(salesResult.value);
-            if (gscStatus.status === "fulfilled") setGsc(gscStatus.value);
+            if (googleStatus.status === "fulfilled") {
+                setGsc({ ...googleStatus.value.searchConsole, connected: Boolean(googleStatus.value.searchConsole?.connected && googleStatus.value.searchConsole?.dataVerified), siteUrl: googleStatus.value.searchConsole?.resolvedSiteUrl || googleStatus.value.searchConsole?.siteUrl });
+                setGa({ ...googleStatus.value.analytics, configured: Boolean(googleStatus.value.analytics?.configured), propertyId: googleStatus.value.analytics?.propertyId });
+            }
             if (gscAnalytics.status === "fulfilled") setGscRows(gscAnalytics.value.rows || []);
-            if (gaStatus.status === "fulfilled") setGa(gaStatus.value);
             if (gaReport.status === "fulfilled") setGaRows(gaReport.value.rows || []);
         } finally { setLoading(false); setRefreshing(false); }
     }, [range]);
