@@ -125,7 +125,7 @@ export const getMarketingLearningInsights = async (targetArea?: string, objectiv
   await ensureLearningTables();
   const params: any[] = [];
   const filters: string[] = [];
-  if (targetArea?.trim()) { params.push(targetArea.trim()); filters.push(`target_area ILIKE '%' || $$${params.length} || '%'`); }
+  if (targetArea?.trim()) { params.push(targetArea.trim()); filters.push(`target_area ILIKE '%' || ${params.length} || '%'`); }
   if (objective?.trim()) { params.push(objective.trim()); filters.push(`objective ILIKE '%' || $${params.length} || '%'`); }
   if (ownerUserId?.trim()) { params.push(ownerUserId.trim()); filters.push(`EXISTS (SELECT 1 FROM marketing_campaigns c WHERE c.id=marketing_learning_observations.campaign_id AND c.owner_user_id=$${params.length})`); }
   const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
