@@ -163,7 +163,7 @@ function AdminMarketing() {
     const loadSocial = useCallback(async () => {
         try {
             setSocialLoading(true);
-            const value = await apiRequest<SocialState>("/api/admin/marketing/social/");
+            const value = await apiRequest<SocialState>("/api/admin/marketing/social/?_=" + Date.now());
             setSocial(value);
             setSelectedSocial(socialChannels.map(channel => channel.social!).filter(name => {
                 if (!value.channels?.[name]) return false;
