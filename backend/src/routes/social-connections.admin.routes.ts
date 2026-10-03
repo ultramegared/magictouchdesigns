@@ -30,7 +30,7 @@ const marketingMediaMiddleware = multer({
 });
 
 const processMarketingMediaUpload = (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => {
-    marketingMediaMiddleware.single("image")(req, res, error => {
+    marketingMediaMiddleware.single("media")(req, res, error => {
         if (!error) {
             next();
             return;
