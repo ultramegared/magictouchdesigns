@@ -316,6 +316,34 @@ export async function getAnalyticsReport(days = 28) {
     };
 }
 
+export async function getAnalyticsRealtimeReport() {
+    const propertyId = getAnalyticsPropertyId();
+    if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
+    const data = await googleRequest<{
+        rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }>;
+    }>(
+        ANALYTICS_API,
+        `/properties/${encodeURIComponent(propertyId)}:runRealtimeReport`,
+        "https://www.googleapis.com/auth/analytics.readonly",
+        {
+            method: "POST",
+            body: JSON.stringify({
+                dimensions: [{ name: "country" }],
+                metrics: [{ name: "activeUsers" }, { name: "eventCount" }],
+                limit: "100",
+            }),
+        },
+    );
+    const rows = data.rows || [];
+    return {
+        propertyId,
+        generatedAt: new Date().toISOString(),
+        activeUsers: rows.reduce((sum, row) => sum + Number(row.metricValues?.[0]?.value || 0), 0),
+        eventCount: rows.reduce((sum, row) => sum + Number(row.metricValues?.[1]?.value || 0), 0),
+        rows,
+    };
+}
+
 export async function getAnalyticsCampaignReport(days = 30) {
     const propertyId = getAnalyticsPropertyId();
     if (!propertyId || !getCredentials()) return { propertyId, days: Math.min(Math.max(Math.floor(days), 1), 90), rows: [] };
