@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BarChart3, CheckCircle2, Clock3, Image, Link2, Mail, MessageCircle, MousePointer2, Play, RefreshCw, Search, Send, Sparkles, TrendingUp, Unplug, Users, Video, X, Loader2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { apiRequest } from "../../services/api";
@@ -128,6 +128,8 @@ function AdminMarketing() {
     const [campaignMediaUploading, setCampaignMediaUploading] = useState(false);
     const [campaignPreviewOpen, setCampaignPreviewOpen] = useState(false);
     const [campaignLaunching, setCampaignLaunching] = useState(false);
+    const campaignLaunchLock = useRef(false);
+    const campaignIdempotencyKey = useRef<string | null>(null);
     const [campaignResults, setCampaignResults] = useState<any>(null);
     const [campaignPreviewCampaign, setCampaignPreviewCampaign] = useState<CampaignRecord | null>(null);
     const [campaignHistory, setCampaignHistory] = useState<CampaignRecord[]>([]);
@@ -325,6 +327,10 @@ function AdminMarketing() {
     };
     const openCampaign = () => {
         // A newly opened campaign always starts as manual. Autopilot must be an explicit user choice.
+        // Generate one idempotency key for this campaign draft so repeated taps/retries
+        // cannot create a second campaign on the backend.
+        campaignLaunchLock.current = false;
+        campaignIdempotencyKey.current = crypto.randomUUID();
         setCampaignAutopilot(false);
         const connected = socialChannels.map(channel => channel.social!).filter(name => Boolean(social.channels?.[name]));
         setSelectedSocial(connected);
@@ -424,6 +430,12 @@ function AdminMarketing() {
     };
 
     const launchCampaign = async () => {
+        // The mobile UI can receive multiple taps before React has rendered the
+        // disabled state. The ref closes that race immediately.
+        if (campaignLaunchLock.current) {
+            setNotice("Esta campaña ya se está creando. Espera a que termine.");
+            return;
+        }
         if (!campaignName.trim() || !campaignMessage.trim()) {
             setNotice("La campaña necesita nombre y mensaje.");
             return;
@@ -433,9 +445,10 @@ function AdminMarketing() {
             return;
         }
         try {
+            campaignLaunchLock.current = true;
             setCampaignLaunching(true);
             setCampaignResults(null);
-            const idempotencyKey = crypto.randomUUID();
+            const idempotencyKey = campaignIdempotencyKey.current || (campaignIdempotencyKey.current = crypto.randomUUID());
             const response = await apiRequest<{ data: any }>("/api/admin/marketing/social/campaign/launch", {
                 method: "POST",
                 body: JSON.stringify({
@@ -468,6 +481,7 @@ function AdminMarketing() {
             setModal(null);
             await Promise.all([loadCampaignHistory(), loadPublicationActivity(), loadLearning(), loadDailySummary()]);
         } catch (error) {
+            campaignLaunchLock.current = false;
             setNotice(error instanceof Error ? error.message : "No se pudo lanzar la campaña.");
         } finally {
             setCampaignLaunching(false);
