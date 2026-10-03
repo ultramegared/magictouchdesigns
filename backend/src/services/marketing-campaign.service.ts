@@ -245,6 +245,10 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
         throw new Error("Connect at least one social channel or enable Email Campaign.");
     }
 
+    if (selected.includes("youtube") && !input.videoUrl?.trim()) {
+        throw new Error("YouTube campaigns require a hosted video URL. Upload the video creative before launching.");
+    }
+
     const idempotencyKey = input.idempotencyKey?.trim() || undefined;
     if (idempotencyKey) {
         await ensureCampaignTable();
