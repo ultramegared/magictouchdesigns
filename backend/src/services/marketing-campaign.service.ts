@@ -118,7 +118,8 @@ const connectedSocialChannels = async (userId: string): Promise<SocialChannel[]>
 const publishSocialCampaign = async (
     userId: string,
     channels: SocialChannel[],
-    input: MarketingCampaignInput
+    input: MarketingCampaignInput,
+    campaignId: string,
 ): Promise<Record<string, unknown>> => {
     const results: Record<string, unknown> = {};
     const metaChannels = channels.filter(channel => ["facebook", "instagram", "whatsapp"].includes(channel));
@@ -130,7 +131,7 @@ const publishSocialCampaign = async (
     }
     if (channels.includes("pinterest")) {
         try {
-            results.pinterest = await publishPinterest(userId, input.message.trim(), input.imageUrl?.trim() || undefined, input.link?.trim() || undefined);
+            results.pinterest = await publishPinterest(userId, input.message.trim(), input.imageUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, "pinterest"));
         } catch (error) {
             results.pinterest = { ok: false, error: error instanceof Error ? error.message : "Pinterest publication failed." };
         }
@@ -146,7 +147,7 @@ const publishSocialCampaign = async (
     }
     if (channels.includes("youtube")) {
         try {
-            results.youtube = await publishYouTube(userId, input.message.trim(), input.videoUrl?.trim(), input.link?.trim(), input.youtubePrivacy || "public");
+            results.youtube = await publishYouTube(userId, input.message.trim(), input.videoUrl?.trim(), withCampaignTracking(input.link?.trim(), campaignId, "youtube"), input.youtubePrivacy || "public");
         } catch (error) {
             results.youtube = { ok: false, error: error instanceof Error ? error.message : "YouTube publication failed." };
         }
@@ -347,7 +348,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
     if (selected.length && !input.autopilot) {
         try {
-            social = await publishSocialCampaign(userId, selected, socialInput);
+            social = await publishSocialCampaign(userId, selected, socialInput, campaignId);
         } catch (error) {
             publishError = error instanceof Error ? error.message : "Social publication failed.";
         }
