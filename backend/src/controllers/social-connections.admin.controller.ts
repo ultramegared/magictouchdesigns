@@ -27,6 +27,12 @@ export async function marketingEmailStatus(req: AuthenticatedRequest, res: Respo
 }
 
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
+    // Connection state changes immediately after OAuth; never replay a stale disconnected state.
+    res.set({
+        "Cache-Control": "no-store, no-cache, must-revalidate, private",
+        "Pragma": "no-cache",
+        "Expires": "0",
+    });
     try { res.json(await getConnections(String(req.user!.userId))); }
     catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Unable to load social connections." }); }
 }
