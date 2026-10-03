@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/auth.middleware";
-import { marketingCampaignHistory, marketingPublicationActivity, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
+import { marketingCampaignHistory, marketingPublicationActivity, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
 
 const router = Router();
 
@@ -19,24 +19,24 @@ router.post("/:provider/select", socialSelectAccount);
 router.delete("/:provider", socialDisconnect);
 const marketingMediaMiddleware = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 },
+    limits: { fileSize: 100 * 1024 * 1024 },
     fileFilter: (_req, file, callback) => {
-        if (file.mimetype.startsWith("image/")) {
+        if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/")) {
             callback(null, true);
             return;
         }
-        callback(new Error("Only image files are allowed for Marketing creative uploads."));
+        callback(new Error("Only image and video files are allowed for Marketing creative uploads."));
     },
 });
 
 const processMarketingMediaUpload = (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => {
-    marketingMediaMiddleware.single("image")(req, res, error => {
+    marketingMediaMiddleware.single("media")(req, res, error => {
         if (!error) {
             next();
             return;
         }
         if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
-            res.status(400).json({ status: "error", message: "Marketing image size cannot exceed 10 MB." });
+            res.status(400).json({ status: "error", message: "Marketing media size cannot exceed 100 MB." });
             return;
         }
         res.status(400).json({ status: "error", message: error.message || "Invalid Marketing image upload." });
@@ -44,6 +44,7 @@ const processMarketingMediaUpload = (req: import("express").Request, res: import
 };
 
 router.post("/publish", socialPublish);
+router.post("/campaign/media/signature", marketingMediaSignature);
 router.post("/campaign/media", processMarketingMediaUpload, marketingMediaUpload);
 router.post("/campaign/launch", marketingCampaignLaunch);
 router.post("/campaign/autopilot-run-now", marketingAutopilotRunNow);
