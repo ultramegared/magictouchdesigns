@@ -8,6 +8,24 @@ import { getMarketingDailySummary, sendMarketingDailySummary } from "../services
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
 import { uploadImageAsset } from "../services/upload.service";
 
+export async function marketingEmailStatus(req: AuthenticatedRequest, res: Response) {
+    void req;
+    const apiKeyConfigured = Boolean(process.env.RESEND_API_KEY?.trim());
+    const fromEmail = (process.env.RESEND_FROM_EMAIL || "ventas@magictouchdesigns.com").trim();
+    const fromName = (process.env.RESEND_FROM_NAME || "Magic Touch Designs").trim();
+    res.json({
+        status: "success",
+        provider: "resend",
+        configured: apiKeyConfigured,
+        senderConfigured: Boolean(fromEmail),
+        fromEmail,
+        fromName,
+        connected: false,
+        verified: false,
+        verificationNote: "Email credentials are configured for sending, but the Marketing UI does not claim provider connectivity until a real provider verification or successful test send is confirmed.",
+    });
+}
+
 export async function socialConnections(req: AuthenticatedRequest, res: Response) {
     try { res.json(await getConnections(String(req.user!.userId))); }
     catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Unable to load social connections." }); }
