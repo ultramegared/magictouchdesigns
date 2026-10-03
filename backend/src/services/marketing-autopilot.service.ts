@@ -19,7 +19,22 @@ const sourceToChannel: Record<string, "facebook"|"instagram"|"whatsapp"|"tiktok"
 const numberAt = (values: Array<{value?: string}>|undefined, index: number) => Number(values?.[index]?.value || 0);
 
 export async function syncMarketingLearningFromAnalytics(days = 30) {
-  await getAnalyticsCampaignReport(days);
+  const campaignReport = await getAnalyticsCampaignReport(days);
+  const attributionRows = campaignReport.rows || [];
+  const sourceToLearningChannel: Record<string, "facebook"|"instagram"|"whatsapp"|"tiktok"|"youtube"|"pinterest"|"email"> = { facebook: "facebook", instagram: "instagram", whatsapp: "whatsapp", tiktok: "tiktok", youtube: "youtube", pinterest: "pinterest", email: "email" };
+  let attributedRows = 0;
+  for (const row of attributionRows as any[]) {
+    const dimensions = row.dimensionValues || [];
+    const campaignId = String(dimensions[0]?.value || "").trim();
+    const source = String(dimensions[1]?.value || "").trim().toLowerCase();
+    const channel = sourceToLearningChannel[source];
+    if (!campaignId || !channel) continue;
+    const campaign = await pool.query<{ id:string; owner_user_id:string|null }>('SELECT id, owner_user_id FROM marketing_campaigns WHERE id=$1 LIMIT 1', [campaignId]);
+    if (!campaign.rows[0]) continue;
+    const run = await pool.query<{ id:number }>('SELECT id FROM marketing_campaign_runs WHERE campaign_id=$1 AND channel=$2 ORDER BY created_at DESC, id DESC LIMIT 1', [campaignId, channel]);
+    await recordCampaignLearningFeedback({ campaignId, ownerUserId: campaign.rows[0].owner_user_id || undefined, runId: run.rows[0]?.id, channel, sessions: numberAt(row.metricValues, 0), conversions: numberAt(row.metricValues, 2), revenue: numberAt(row.metricValues, 3), clicks: 0, impressions: 0 });
+    attributedRows += 1;
+  }
   const campaigns = await pool.query(
     `SELECT COUNT(*)::int AS total,
             COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
