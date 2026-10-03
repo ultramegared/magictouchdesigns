@@ -150,6 +150,15 @@ function AdminMarketing() {
             setNotice(error instanceof Error ? error.message : "Could not select the social account.");
         } finally { setBusyProvider(null); }
     };
+    const loadEmailStatus = useCallback(async () => {
+        try {
+            const value = await apiRequest<EmailStatus>("/api/admin/marketing/social/email/status");
+            setEmailStatus(value);
+        } catch {
+            setEmailStatus(null);
+        }
+    }, []);
+
     const loadSocial = useCallback(async () => {
         try {
             setSocialLoading(true);
@@ -249,7 +258,7 @@ function AdminMarketing() {
         } catch { /* Marketing history is supplemental; do not block the page. */ }
     }, []);
 
-    useEffect(() => { void load(); void loadSocial(); void loadCampaignHistory(); void loadPublicationActivity(); void loadLearning(); void loadDailySummary(); void loadCatalog(); }, [load, loadSocial, loadCampaignHistory, loadPublicationActivity, loadLearning, loadDailySummary, loadCatalog]);
+    useEffect(() => { void load(); void loadSocial(); void loadEmailStatus(); void loadCampaignHistory(); void loadPublicationActivity(); void loadLearning(); void loadDailySummary(); void loadCatalog(); }, [load, loadSocial, loadCampaignHistory, loadPublicationActivity, loadLearning, loadDailySummary, loadCatalog]);
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         if (params.get("social") === "connected") setNotice(`Cuenta ${params.get("provider") || "social"} conectada correctamente.`);
