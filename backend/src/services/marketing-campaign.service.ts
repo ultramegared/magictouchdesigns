@@ -301,11 +301,41 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
     // Create the campaign record before contacting external providers. This gives every
     // manual/autopilot publication a durable owner, idempotency key and audit trail even
     // when a provider or the process fails after the campaign has been accepted.
-    await pool.query(
+    const insertedCampaign = await pool.query(
         `INSERT INTO marketing_campaigns (id, name, objective, target_area, message, subject, channels, results, idempotency_key, owner_user_id, autopilot_enabled, next_run_at, campaign_type, starts_at, ends_at, recurrence_hours)
-         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,$11,$12,$13,$14,$15,$16)`,
+         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,$11,$12,$13,$14,$15,$16)
+         ON CONFLICT (idempotency_key) DO NOTHING
+         RETURNING id`,
         [campaignId, name, objective, targetArea, message, input.subject?.trim() || name, JSON.stringify(selected), JSON.stringify(initialResults), idempotencyKey, userId, Boolean(input.autopilot), input.autopilot ? firstRunAt : null, campaignType, startsAt, endsAt, recurrenceHours]
     );
+
+    // Two rapid requests can pass the initial lookup before either insert commits.
+    // The unique idempotency index is the final authority: the losing request must
+    // return the already-created campaign instead of creating a duplicate or failing.
+    if (!insertedCampaign.rows[0] && idempotencyKey) {
+        const existing = await pool.query(
+            `SELECT id, name, objective, target_area, channels, results
+             FROM marketing_campaigns
+             WHERE idempotency_key = $1
+             LIMIT 1`,
+            [idempotencyKey]
+        );
+        if (existing.rows[0]) {
+            const row = existing.rows[0];
+            const previous = row.results || {};
+            return {
+                campaignId: row.id,
+                name: row.name,
+                targetArea: row.target_area,
+                objective: row.objective,
+                connectedChannels: connected,
+                social: previous.social || {},
+                email: previous.email,
+                google: previous.google || { status: "tracking_only", message: "Campaign already launched.", focus: seoFocus(targetArea) },
+            };
+        }
+        throw new Error("Campaign submission was already accepted but could not be recovered safely. Please refresh Campaign History before retrying.");
+    }
 
     let social: Record<string, unknown> = {};
     let email: PromotionResult | undefined;
