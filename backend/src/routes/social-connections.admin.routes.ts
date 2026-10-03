@@ -44,6 +44,9 @@ const processMarketingMediaUpload = (req: import("express").Request, res: import
 };
 
 router.post("/publish", socialPublish);
+// Direct browser video uploads use the signed endpoint. Keep GET and POST available so
+// cached/mobile clients cannot fall back to a dead method while the production bundle rolls.
+router.get("/campaign/media/signature", marketingMediaSignature);
 router.post("/campaign/media/signature", marketingMediaSignature);
 router.post("/campaign/media", processMarketingMediaUpload, marketingMediaUpload);
 router.post("/campaign/launch", marketingCampaignLaunch);
