@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { getAnalyticsReport, getAnalyticsStatus, getSearchAnalytics, getSearchConsoleStatus, verifyGoogleIntegration, verifySearchConsoleAccess } from "../services/google-search-console.service";
+import { getAnalyticsReport, getAnalyticsRealtimeReport, getAnalyticsStatus, getSearchAnalytics, getSearchConsoleStatus, verifyGoogleIntegration, verifySearchConsoleAccess } from "../services/google-search-console.service";
 
 export function getSearchConsoleConfig(_req: Request, res: Response) { res.json(getSearchConsoleStatus()); }
 export async function verifySearchConsole(_req: Request, res: Response) { try { res.json(await verifySearchConsoleAccess()); } catch (error) { console.error("Search Console verification error:", error); res.status(502).json({ connected: false, error: error instanceof Error ? error.message : "Unable to connect to Google Search Console" }); } }
@@ -15,3 +15,5 @@ export async function verifyGoogle(_req: Request, res: Response) {
         res.status(502).json({ connected: false, error: error instanceof Error ? error.message : "Unable to verify Google integration" });
     }
 }
+
+export async function getAnalyticsRealtime(_req: Request, res: Response) { try { res.json(await getAnalyticsRealtimeReport()); } catch (error) { console.error("Google Analytics realtime error:", error); res.status(502).json({ error: error instanceof Error ? error.message : "Unable to load Google Analytics realtime data" }); } }
