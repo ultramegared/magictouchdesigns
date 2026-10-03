@@ -15,3 +15,4 @@ export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailRes
     if (typeof responseData !== "object" || responseData === null || !("id" in responseData) || typeof responseData.id !== "string") throw new Error("Resend returned an invalid email response.");
     return { id: responseData.id };
 };
+
