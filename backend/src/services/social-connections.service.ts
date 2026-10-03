@@ -15,7 +15,11 @@ const providerConfig = (provider: SocialProvider) => {
     return { configured: Boolean(process.env.PINTEREST_APP_ID && process.env.PINTEREST_APP_SECRET), clientId: process.env.PINTEREST_APP_ID, clientSecret: process.env.PINTEREST_APP_SECRET, authorize: "https://www.pinterest.com/oauth/", token: "https://api.pinterest.com/v5/oauth/token", scopes: ["user_accounts:read", "boards:read", "boards:write", "pins:read", "pins:write"], envKeys: ["PINTEREST_APP_ID", "PINTEREST_APP_SECRET"] };
 };
 const redirectUri = (provider: SocialProvider) => `${BACKEND_URL}/api/admin/marketing/social/${provider}/callback`;
-const stateSecret = () => process.env.JWT_SECRET || "marketing-state-secret";
+const stateSecret = () => {
+    const secret = process.env.JWT_SECRET?.trim();
+    if (!secret) throw new Error("JWT_SECRET is required for Marketing social OAuth.");
+    return secret;
+};
 const tokenKey = () => crypto.createHash("sha256").update(process.env.SOCIAL_TOKEN_ENCRYPTION_KEY || stateSecret()).digest();
 function encrypt(value: unknown) { const iv = crypto.randomBytes(12); const cipher = crypto.createCipheriv("aes-256-gcm", tokenKey(), iv); const encrypted = Buffer.concat([cipher.update(JSON.stringify(value), "utf8"), cipher.final()]); return `${iv.toString("base64url")}.${cipher.getAuthTag().toString("base64url")}.${encrypted.toString("base64url")}`; }
 function decrypt(value: string): any { const [ivRaw, tagRaw, dataRaw] = value.split("."); const decipher = crypto.createDecipheriv("aes-256-gcm", tokenKey(), Buffer.from(ivRaw, "base64url")); decipher.setAuthTag(Buffer.from(tagRaw, "base64url")); return JSON.parse(Buffer.concat([decipher.update(Buffer.from(dataRaw, "base64url")), decipher.final()]).toString("utf8")); }

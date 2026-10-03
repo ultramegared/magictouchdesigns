@@ -145,8 +145,25 @@ export async function getSearchAnalytics(days = 28, siteUrlOverride?: string) {
     const end = new Date(); end.setUTCDate(end.getUTCDate() - 2);
     const start = new Date(end); start.setUTCDate(start.getUTCDate() - safeDays + 1);
     const iso = (date: Date) => date.toISOString().slice(0, 10);
-    const siteUrl = siteUrlOverride || getSiteUrl();
-    const data = await googleRequest<{ rows?: SearchAnalyticsRow[] }>(SEARCH_CONSOLE_API, `/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`, "https://www.googleapis.com/auth/webmasters.readonly", { method: "POST", body: JSON.stringify({ startDate: iso(start), endDate: iso(end), dimensions: ["date"], rowLimit: safeDays, dataState: "final" }) });
+
+    // Search Console may expose the account's access as a Domain property
+    // (sc-domain:example.com) even when the configured default is a URL-prefix
+    // property (https://example.com/). Never query the unverified default directly.
+    let siteUrl = siteUrlOverride?.trim() || "";
+    if (!siteUrl) {
+        const access = await verifySearchConsoleAccess();
+        if (!access.connected || !access.resolvedSiteUrl) {
+            throw new Error(`The service account authenticated successfully, but Google Search Console does not expose access to ${getSiteUrl()}.`);
+        }
+        siteUrl = access.resolvedSiteUrl;
+    }
+
+    const data = await googleRequest<{ rows?: SearchAnalyticsRow[] }>(
+        SEARCH_CONSOLE_API,
+        `/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,
+        "https://www.googleapis.com/auth/webmasters.readonly",
+        { method: "POST", body: JSON.stringify({ startDate: iso(start), endDate: iso(end), dimensions: ["date"], rowLimit: safeDays, dataState: "final" }) },
+    );
     return { siteUrl, startDate: iso(start), endDate: iso(end), rows: data.rows || [] };
 }
 
