@@ -41,6 +41,7 @@ interface SocialProfile { [key: string]: any; }
 interface SocialConnection { connected: boolean; profile?: SocialProfile; }
 interface SocialSetup { configured?: boolean; envKeys?: string[]; callback?: string; }
 interface SocialState { configured?: Record<string, boolean>; setup?: Record<string, SocialSetup>; connected?: Record<string, SocialConnection>; selections?: Record<string,string>; channels?: Partial<Record<SocialChannel, boolean>>; }
+interface EmailStatus { configured: boolean; senderConfigured: boolean; fromEmail?: string; fromName?: string; connected: boolean; verified: boolean; verificationNote?: string; error?: string; }
 interface PublishResult { ok: boolean; status?: "PUBLISHED"|"PROCESSING"|"SENT"|"FAILED"|"QUEUED"; id?: string; account?: string; url?: string; message?: string; error?: string; }
 interface CampaignRecord { id:string; name:string; objective:string; target_area:string; subject?:string; channels:SocialChannel[]; results?: { social?: Record<string, PublishResult>; email?: { totalRecipients:number }; google?: { focus?:string[] } }; created_at:string; autopilot_enabled?:boolean; next_run_at?:string | null; run_count?:number; campaign_type?: "manual"|"catalog"|"event"; starts_at?:string|null; ends_at?:string|null; recurrence_hours?:number; }
 interface LearningInsight { channel: SocialChannel; score:number; observations:number; successRate:number; clicks:number; sessions:number; conversions:number; revenue:number; impressions:number; recommended:boolean; avgHour?:number; avgWeekday?:number; }
@@ -83,6 +84,7 @@ function AdminMarketing() {
     const [ga, setGa] = useState<GaStatus | null>(null);
     const [gaRows, setGaRows] = useState<GaRow[]>([]);
     const [social, setSocial] = useState<SocialState>({});
+    const [emailStatus, setEmailStatus] = useState<EmailStatus | null>(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [socialLoading, setSocialLoading] = useState(false);
