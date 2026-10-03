@@ -44,6 +44,7 @@ const processMarketingMediaUpload = (req: import("express").Request, res: import
 };
 
 router.post("/publish", socialPublish);
+router.post("/campaign/media/signature", marketingMediaSignature);
 router.post("/campaign/media", processMarketingMediaUpload, marketingMediaUpload);
 router.post("/campaign/launch", marketingCampaignLaunch);
 router.post("/campaign/autopilot-run-now", marketingAutopilotRunNow);
