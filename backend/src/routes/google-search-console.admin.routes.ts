@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/auth.middleware";
 import { requireAdmin } from "../middleware/admin.middleware";
-import { getAnalytics, getAnalyticsConfig, getSearchConsoleAnalytics, getSearchConsoleConfig, verifyGoogle, verifySearchConsole } from "../controllers/google-search-console.admin.controller";
+import { getAnalytics, getAnalyticsRealtime, getAnalyticsConfig, getSearchConsoleAnalytics, getSearchConsoleConfig, verifyGoogle, verifySearchConsole } from "../controllers/google-search-console.admin.controller";
 
 const router = Router();
 router.use(authenticateToken, requireAdmin);
@@ -11,4 +11,5 @@ router.get("/verify-all", verifyGoogle);
 router.get("/analytics", getSearchConsoleAnalytics);
 router.get("/google-analytics/status", getAnalyticsConfig);
 router.get("/google-analytics/report", getAnalytics);
+router.get("/google-analytics/realtime", getAnalyticsRealtime);
 export default router;
