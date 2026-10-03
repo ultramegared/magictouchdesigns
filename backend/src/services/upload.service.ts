@@ -28,6 +28,11 @@ export interface UploadedImageAsset {
     publicId: string;
 }
 
+export interface UploadedVideoAsset {
+    videoUrl: string;
+    publicId: string;
+}
+
 export const uploadImageAsset = async (
     fileBuffer: Buffer,
     folder: UploadFolder = "reviews"
@@ -49,6 +54,32 @@ export const uploadImageAsset = async (
                     return;
                 }
                 resolve({ imageUrl: result.secure_url, publicId: result.public_id });
+            }
+        );
+        Readable.from(fileBuffer).pipe(uploadStream);
+    });
+};
+
+export const uploadVideoAsset = async (
+    fileBuffer: Buffer,
+    folder: UploadFolder = "promotions"
+): Promise<UploadedVideoAsset> => {
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: `magic-touch-designs/${folder}`,
+                resource_type: "video",
+            },
+            (error, result) => {
+                if (error || !result) {
+                    reject(error || new Error("Unable to upload video."));
+                    return;
+                }
+                if (!result.secure_url || !result.public_id) {
+                    reject(new Error("Cloudinary did not return the required video metadata."));
+                    return;
+                }
+                resolve({ videoUrl: result.secure_url, publicId: result.public_id });
             }
         );
         Readable.from(fileBuffer).pipe(uploadStream);
