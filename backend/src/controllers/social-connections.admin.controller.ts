@@ -6,7 +6,8 @@ import { launchMarketingCampaign, listMarketingCampaigns, listMarketingPublicati
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
 import { getMarketingDailySummary, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
-import { uploadImageAsset } from "../services/upload.service";
+import { uploadImageAsset, uploadVideoAsset } from "../services/upload.service";
+import cloudinary from "../config/cloudinary";
 
 export async function marketingEmailStatus(req: AuthenticatedRequest, res: Response) {
     void req;
@@ -100,17 +101,60 @@ export async function socialDisconnect(req: AuthenticatedRequest, res: Response)
     } catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Unable to disconnect social account." }); }
 }
 
+export function marketingMediaSignature(req: AuthenticatedRequest, res: Response) {
+    void req;
+    try {
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+        const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+        const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+        if (!cloudName || !apiKey || !apiSecret) {
+            return res.status(503).json({ status: "error", message: "Cloudinary media storage is not configured." });
+        }
+
+        const timestamp = Math.floor(Date.now() / 1000);
+        const folder = "magic-touch-designs/promotions";
+        const signature = cloudinary.utils.api_sign_request({ folder, timestamp }, apiSecret);
+        return res.json({
+            status: "success",
+            cloudName,
+            apiKey,
+            timestamp,
+            folder,
+            signature,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: error instanceof Error ? error.message : "Unable to prepare secure media upload.",
+        });
+    }
+}
+
 export async function marketingMediaUpload(req: AuthenticatedRequest, res: Response) {
     try {
         if (!req.file) {
-            return res.status(400).json({ status: "error", message: "Marketing image file is required." });
+            return res.status(400).json({ status: "error", message: "Marketing image or video file is required." });
+        }
+
+        if (req.file.mimetype.startsWith("video/")) {
+            const asset = await uploadVideoAsset(req.file.buffer, "promotions");
+            return res.status(200).json({
+                status: "success",
+                message: "Marketing video uploaded successfully.",
+                media_type: "video",
+                video_url: asset.videoUrl,
+                url: asset.videoUrl,
+                public_id: asset.publicId,
+            });
         }
 
         const asset = await uploadImageAsset(req.file.buffer, "promotions");
         return res.status(200).json({
             status: "success",
             message: "Marketing image uploaded successfully.",
+            media_type: "image",
             image_url: asset.imageUrl,
+            url: asset.imageUrl,
             public_id: asset.publicId,
         });
     } catch (error) {
