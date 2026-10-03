@@ -123,10 +123,10 @@ const publishSocialCampaign = async (
 ): Promise<Record<string, unknown>> => {
     const results: Record<string, unknown> = {};
     const metaChannels = channels.filter(channel => ["facebook", "instagram", "whatsapp"].includes(channel));
-    if (metaChannels.length) {
+    for (const channel of metaChannels) {
         Object.assign(
             results,
-            await publishMeta(userId, metaChannels, input.message.trim(), input.imageUrl?.trim() || undefined, input.link?.trim() || undefined, input.whatsappTo?.trim() || undefined, input.videoUrl?.trim() || undefined)
+            await publishMeta(userId, [channel], input.message.trim(), input.imageUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, channel), input.whatsappTo?.trim() || undefined, input.videoUrl?.trim() || undefined)
         );
     }
     if (channels.includes("pinterest")) {
