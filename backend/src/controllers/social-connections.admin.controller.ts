@@ -6,7 +6,7 @@ import { launchMarketingCampaign, listMarketingCampaigns, listMarketingPublicati
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
 import { getMarketingDailySummary, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
-import { uploadImageAsset } from "../services/upload.service";
+import { uploadImageAsset, uploadVideoAsset } from "../services/upload.service";
 
 export async function marketingEmailStatus(req: AuthenticatedRequest, res: Response) {
     void req;
@@ -103,14 +103,28 @@ export async function socialDisconnect(req: AuthenticatedRequest, res: Response)
 export async function marketingMediaUpload(req: AuthenticatedRequest, res: Response) {
     try {
         if (!req.file) {
-            return res.status(400).json({ status: "error", message: "Marketing image file is required." });
+            return res.status(400).json({ status: "error", message: "Marketing image or video file is required." });
+        }
+
+        if (req.file.mimetype.startsWith("video/")) {
+            const asset = await uploadVideoAsset(req.file.buffer, "promotions");
+            return res.status(200).json({
+                status: "success",
+                message: "Marketing video uploaded successfully.",
+                media_type: "video",
+                video_url: asset.videoUrl,
+                url: asset.videoUrl,
+                public_id: asset.publicId,
+            });
         }
 
         const asset = await uploadImageAsset(req.file.buffer, "promotions");
         return res.status(200).json({
             status: "success",
             message: "Marketing image uploaded successfully.",
+            media_type: "image",
             image_url: asset.imageUrl,
+            url: asset.imageUrl,
             public_id: asset.publicId,
         });
     } catch (error) {
