@@ -430,7 +430,7 @@ export const listMarketingCampaigns = async (ownerUserId: string, limit = 20) =>
     await ensureCampaignTable();
     const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 50);
     const result = await pool.query(
-        `SELECT id, name, objective, target_area, subject, channels, results, created_at, autopilot_enabled, next_run_at, last_run_at, run_count, campaign_type, starts_at, ends_at, recurrence_hours
+        `SELECT id, name, objective, target_area, message, subject, channels, results, created_at, autopilot_enabled, next_run_at, last_run_at, run_count, campaign_type, starts_at, ends_at, recurrence_hours
          FROM marketing_campaigns
          WHERE owner_user_id=$1
          ORDER BY created_at DESC
