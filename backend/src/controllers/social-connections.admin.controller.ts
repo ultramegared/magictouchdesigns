@@ -194,6 +194,24 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
     }
 }
 
+export async function marketingGoogleAdsStatus(_req: AuthenticatedRequest, res: Response) {
+    try {
+        const { getGoogleAdsStatus } = await import("../services/google-ads.service");
+        res.json(getGoogleAdsStatus());
+    } catch (error) {
+        res.status(500).json({ provider: "Google Ads", state: "ERROR", configured: false, connected: false, liveVerified: false, dataAvailable: false, error: error instanceof Error ? error.message : "Google Ads status failed." });
+    }
+}
+
+export async function marketingGoogleAdsVerify(_req: AuthenticatedRequest, res: Response) {
+    try {
+        const { verifyGoogleAdsConfiguration } = await import("../services/google-ads.service");
+        res.json(await verifyGoogleAdsConfiguration());
+    } catch (error) {
+        res.status(503).json({ provider: "Google Ads", state: "ERROR", configured: false, connected: false, liveVerified: false, dataAvailable: false, error: error instanceof Error ? error.message : "Google Ads verification failed." });
+    }
+}
+
 export async function marketingAutopilotRunNow(req: AuthenticatedRequest, res: Response) {
     try {
         res.json({ status: "success", data: await runMarketingAutopilot() });
