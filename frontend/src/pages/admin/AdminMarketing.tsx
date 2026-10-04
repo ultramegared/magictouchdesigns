@@ -32,6 +32,11 @@ interface GoogleVerification {
 }
 interface GaRow { metricValues?: Array<{ value?: string }> }
 interface GaResponse { rows?: GaRow[]; summary?: { activeUsers?:number; sessions?:number; screenPageViews?:number; totalRevenue?:number }; error?: string; }
+interface GaRealtimeResponse { propertyId?:string; generatedAt?:string; activeUsers?:number; eventCount?:number; error?:string; }
+interface CampaignAttribution { campaignId:string; source:string; medium:string; sessions:number; activeUsers:number; conversions:number; revenue:number; transactions:number; attributionStatus:"MATCHED"|"UNMATCHED"; dateRange?:{startDate:string;endDate:string}; campaignName?:string|null; }
+interface CampaignResult { campaignId:string; campaignName:string; channels:SocialChannel[]; publicationStatus:string; publications:number; published:number; processing:number; failed:number; autopilot:boolean; lastRunAt?:string|null; nextRunAt?:string|null; firstPublicationAt?:string|null; lastPublicationAt?:string|null; metrics:{sessions:number|null;activeUsers:number|null;conversions:number|null;revenue:number|null;transactions:number|null;clicks:number|null;impressions:number|null}; publicationLedger:Array<{runId:number;channel:string;status:string;providerStatus?:string|null;providerId?:string|null;externalUrl?:string|null;publishedAt?:string|null;createdAt:string}>; }
+interface GoogleAdsState { state:string; configured:boolean; connected:boolean; liveVerified:boolean; dataAvailable:boolean; missing?:string[]; message?:string; customerId?:string|null; error?:string; }
+
 interface SearchMetrics { clicks: number; impressions: number; ctr: number; position: number; count: number; }
 type SocialChannel = "facebook" | "instagram" | "tiktok" | "youtube" | "pinterest" | "whatsapp";
 type ChannelName = "Google" | "Facebook" | "Instagram" | "TikTok" | "YouTube" | "Pinterest" | "WhatsApp" | "Email";
