@@ -194,11 +194,15 @@ function AdminMarketing() {
             const start = new Date();
             start.setDate(end.getDate() - Number(range) + 1);
             const iso = (date: Date) => date.toISOString().slice(0, 10);
-            const [salesResult, googleStatus, gscAnalytics, gaReport] = await Promise.allSettled([
+            const [salesResult, googleStatus, gscAnalytics, gaReport, gaRealtimeResult, gaCampaignResult, campaignCenterResult, googleAdsResult] = await Promise.allSettled([
                 apiRequest<SalesResponse>(`/api/admin/sales?start=${iso(start)}&end=${iso(end)}`),
                 apiRequest<GoogleVerification>(`/api/admin/marketing/search-console/verify-all?_=${Date.now()}`),
                 apiRequest<{ rows?: GscRow[] }>(`/api/admin/marketing/search-console/analytics?days=${range}&_=${Date.now()}`),
                 apiRequest<GaResponse>(`/api/admin/marketing/search-console/google-analytics/report?days=${range}&_=${Date.now()}`),
+                apiRequest<GaRealtimeResponse>(`/api/admin/marketing/search-console/google-analytics/realtime?_=${Date.now()}`),
+                apiRequest<{ rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }>; startDate?:string; endDate?:string }>(`/api/admin/marketing/search-console/google-analytics/campaigns?days=${range}&_=${Date.now()}`),
+                apiRequest<{ results: CampaignResult[] }>(`/api/admin/marketing/social/campaign/results?days=${range}&_=${Date.now()}`),
+                apiRequest<GoogleAdsState>(`/api/admin/marketing/social/google-ads/verify?_=${Date.now()}`),
             ]);
             if (salesResult.status === "fulfilled") setSales(salesResult.value);
             if (googleStatus.status === "fulfilled") {
@@ -214,8 +218,26 @@ function AdminMarketing() {
             if (gaReport.status === "fulfilled") {
                 setGaRows(gaReport.value.rows || []);
                 setGa(current => current ? { ...current, summary: gaReport.value.summary } : current);
-            }
-            else setGaRows([]);
+            } else setGaRows([]);
+            setGaRealtime(gaRealtimeResult.status === "fulfilled" ? gaRealtimeResult.value : null);
+            if (gaCampaignResult.status === "fulfilled") {
+                const rows = gaCampaignResult.value.rows || [];
+                setCampaignAttribution(rows.map((row:any) => ({
+                    campaignId: String(row.dimensionValues?.[0]?.value || ""),
+                    source: String(row.dimensionValues?.[1]?.value || ""),
+                    medium: String(row.dimensionValues?.[2]?.value || ""),
+                    sessions: Number(row.metricValues?.[0]?.value || 0),
+                    activeUsers: Number(row.metricValues?.[1]?.value || 0),
+                    conversions: Number(row.metricValues?.[2]?.value || 0),
+                    revenue: Number(row.metricValues?.[3]?.value || 0),
+                    transactions: Number(row.metricValues?.[4]?.value || 0),
+                    attributionStatus: "UNMATCHED"
+                })));
+            } else setCampaignAttribution([]);
+            if (campaignCenterResult.status === "fulfilled") setCampaignResultsCenter(campaignCenterResult.value.results || []);
+            else setCampaignResultsCenter([]);
+            if (googleAdsResult.status === "fulfilled") setGoogleAds(googleAdsResult.value);
+            else setGoogleAds(null);
         } finally { setLoading(false); setRefreshing(false); }
     }, [range]);
 
