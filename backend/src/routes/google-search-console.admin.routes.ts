@@ -11,4 +11,5 @@ router.get("/verify-all", verifyGoogle);
 router.get("/analytics", getSearchConsoleAnalytics);
 router.get("/google-analytics/status", getAnalyticsConfig);
 router.get("/google-analytics/report", getAnalytics);
+router.get("/google-analytics/realtime", getAnalyticsRealtime);
 export default router;
