@@ -142,7 +142,7 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
 
   const insights = await getMarketingLearningInsights();
   const observations = insights.reduce((sum,item) => sum + Number(item.observations||0), 0);
-  const evidenceObservations = insights.reduce((sum,item) => sum + Number(item.sessions||0) + Number(item.conversions||0) + Number(item.revenue||0) > 0 ? 1 : 0, 0);
+  const evidenceObservations = insights.reduce((sum, item) => sum + ((Number(item.sessions||0) > 0 || Number(item.conversions||0) > 0 || Number(item.revenue||0) > 0) ? 1 : 0), 0);
   const lifetimeConversions = insights.reduce((sum,item) => sum + Number(item.conversions||0), 0);
   const lifetimeRevenue = insights.reduce((sum,item) => sum + Number(item.revenue||0), 0);
   const level = observations >= 100 && lifetimeConversions >= 25 ? 5 : observations >= 50 && lifetimeConversions >= 10 ? 4 : observations >= 25 && lifetimeConversions >= 5 ? 3 : observations >= 10 ? 2 : 1;
