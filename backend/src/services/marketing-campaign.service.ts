@@ -147,7 +147,7 @@ const publishSocialCampaign = async (
     }
     if (channels.includes("youtube")) {
         try {
-            results.youtube = await publishYouTube(userId, input.message.trim(), input.videoUrl?.trim(), input.link?.trim(), input.youtubePrivacy || "public");
+            results.youtube = await publishYouTube(userId, input.message.trim(), input.videoUrl?.trim(), withCampaignTracking(input.link?.trim(), campaignId, "youtube"), input.youtubePrivacy || "public");
         } catch (error) {
             results.youtube = { ok: false, error: error instanceof Error ? error.message : "YouTube publication failed." };
         }
