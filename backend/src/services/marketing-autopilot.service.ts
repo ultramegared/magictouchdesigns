@@ -19,12 +19,80 @@ const sourceToChannel: Record<string, "facebook"|"instagram"|"whatsapp"|"tiktok"
 const numberAt = (values: Array<{value?: string}>|undefined, index: number) => Number(values?.[index]?.value || 0);
 
 export async function syncMarketingLearningFromAnalytics(days = 30) {
-  await getAnalyticsCampaignReport(days);
+  const campaignReport = await getAnalyticsCampaignReport(days);
+  const attributionRows = campaignReport.rows || [];
+  const sourceToLearningChannel: Record<string, "facebook"|"instagram"|"whatsapp"|"tiktok"|"youtube"|"pinterest"|"email"> = {
+    facebook:"facebook", instagram:"instagram", whatsapp:"whatsapp", tiktok:"tiktok",
+    youtube:"youtube", pinterest:"pinterest", email:"email"
+  };
+  let attributedRows = 0;
+  let unmatchedRows = 0;
+
+  for (const row of attributionRows as any[]) {
+    const dimensions = row.dimensionValues || [];
+    const campaignId = String(dimensions[0]?.value || "").trim();
+    const source = String(dimensions[1]?.value || "").trim().toLowerCase();
+    const medium = String(dimensions[2]?.value || "").trim().toLowerCase();
+    const channel = sourceToLearningChannel[source];
+    if (!campaignId || !channel) { unmatchedRows += 1; continue; }
+
+    const campaign = await pool.query<{ id:string; objective:string; target_area:string }>(
+      "SELECT id, objective, target_area FROM marketing_campaigns WHERE id=$1 LIMIT 1",
+      [campaignId]
+    );
+    if (!campaign.rows[0]) { unmatchedRows += 1; continue; }
+
+    const campaignRow = campaign.rows[0];
+    const sessions = numberAt(row.metricValues, 0);
+    const activeUsers = numberAt(row.metricValues, 1);
+    const conversions = numberAt(row.metricValues, 2);
+    const revenue = numberAt(row.metricValues, 3);
+    const transactions = numberAt(row.metricValues, 4);
+    const evidence = sessions > 0 || activeUsers > 0 || conversions > 0 || revenue > 0 || transactions > 0;
+
+    await pool.query(
+      `INSERT INTO marketing_learning_observations
+        (campaign_id, channel, objective, target_area, hour, weekday, published, sessions, conversions, revenue,
+         attribution_key, source, medium, attribution_evidence, decision, adjustment)
+       VALUES ($1,$2,$3,$4,0,0,TRUE,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13::jsonb)
+       ON CONFLICT (attribution_key) DO UPDATE SET
+         sessions=EXCLUDED.sessions,
+         conversions=EXCLUDED.conversions,
+         revenue=EXCLUDED.revenue,
+         source=EXCLUDED.source,
+         medium=EXCLUDED.medium,
+         attribution_evidence=EXCLUDED.attribution_evidence,
+         decision=EXCLUDED.decision,
+         adjustment=EXCLUDED.adjustment,
+         updated_at=NOW()`,
+      [
+        campaignId,
+        channel,
+        campaignRow.objective,
+        campaignRow.target_area,
+        sessions,
+        conversions,
+        revenue,
+        campaignId + ":" + channel,
+        source,
+        medium,
+        evidence,
+        JSON.stringify({ stage:"RESULT", activeUsers, transactions, source, medium, observedAt:new Date().toISOString() }),
+        JSON.stringify({
+          stage:"ADJUSTMENT",
+          conversionRate:sessions > 0 ? conversions / sessions : 0,
+          revenuePerSession:sessions > 0 ? revenue / sessions : 0,
+          transactions
+        })
+      ]
+    );
+    attributedRows += 1;
+  }
+
   const campaigns = await pool.query(
     `SELECT COUNT(*)::int AS total,
             COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS last24
-     FROM marketing_campaigns
-     `
+     FROM marketing_campaigns`
   );
   const campaignTotal = Number(campaigns.rows[0]?.total || 0);
   if (campaignTotal < 1) {
@@ -33,16 +101,18 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
       campaigns: { total: 0, last24: 0 },
       last24: { publications: 0, successful: 0, sessions: 0, conversions: 0, revenue: 0 },
       channels: [],
-      learning: { observations: 0, conversions: 0, revenue: 0, level: 1, levelName: "Semilla", nextTarget: "Crear la primera campaña real." },
+      attribution: { matched: attributedRows, unmatched: unmatchedRows },
+      learning: { observations: 0, evidenceObservations: 0, conversions: 0, revenue: 0, level: 1, levelName: "Semilla", nextTarget: "Crear la primera campaña real." },
     };
   }
+
   const runs = await pool.query(`
     SELECT channel,
            COUNT(*)::int AS publications,
            COUNT(*) FILTER (WHERE published)::int AS successful
     FROM marketing_campaign_runs
     WHERE created_at >= NOW() - INTERVAL '24 hours'
-      GROUP BY channel
+    GROUP BY channel
     ORDER BY successful DESC, publications DESC, channel
   `);
   const performance = await pool.query(`
@@ -52,74 +122,75 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
            COALESCE(SUM(revenue),0)::numeric AS revenue
     FROM marketing_learning_observations
     WHERE updated_at >= NOW() - INTERVAL '24 hours'
-      GROUP BY channel
+    GROUP BY channel
   `);
   const performanceMap = new Map(performance.rows.map((row: any) => [
     String(row.channel),
-    {
-      sessions: Number(row.sessions || 0),
-      conversions: Number(row.conversions || 0),
-      revenue: Number(row.revenue || 0),
-    },
+    { sessions:Number(row.sessions||0), conversions:Number(row.conversions||0), revenue:Number(row.revenue||0) }
   ]));
-  const byChannel: DailyChannel[] = runs.rows.map((row: any) => {
-    const p = performanceMap.get(String(row.channel)) || { sessions: 0, conversions: 0, revenue: 0 };
-    return {
-      channel: String(row.channel),
-      publications: Number(row.publications || 0),
-      successful: Number(row.successful || 0),
-      sessions: p.sessions,
-      conversions: p.conversions,
-      revenue: p.revenue,
-    };
+  const byChannel: DailyChannel[] = runs.rows.map((row:any) => {
+    const p = performanceMap.get(String(row.channel)) || { sessions:0, conversions:0, revenue:0 };
+    return { channel:String(row.channel), publications:Number(row.publications||0), successful:Number(row.successful||0), sessions:p.sessions, conversions:p.conversions, revenue:p.revenue };
   });
-  const totals = byChannel.reduce((sum, row) => ({
-    publications: sum.publications + row.publications,
-    successful: sum.successful + row.successful,
-    sessions: sum.sessions + row.sessions,
-    conversions: sum.conversions + row.conversions,
-    revenue: sum.revenue + row.revenue,
-  }), { publications: 0, successful: 0, sessions: 0, conversions: 0, revenue: 0 });
+  const totals = byChannel.reduce((sum,row) => ({
+    publications:sum.publications + row.publications,
+    successful:sum.successful + row.successful,
+    sessions:sum.sessions + row.sessions,
+    conversions:sum.conversions + row.conversions,
+    revenue:sum.revenue + row.revenue
+  }), { publications:0, successful:0, sessions:0, conversions:0, revenue:0 });
 
   const insights = await getMarketingLearningInsights();
-  const observations = insights.reduce((sum, item) => sum + Number(item.observations || 0), 0);
-  const lifetimeConversions = insights.reduce((sum, item) => sum + Number(item.conversions || 0), 0);
-  const lifetimeRevenue = insights.reduce((sum, item) => sum + Number(item.revenue || 0), 0);
-  const level =
-    observations >= 100 && lifetimeConversions >= 25 ? 5 :
-    observations >= 50 && lifetimeConversions >= 10 ? 4 :
-    observations >= 25 && lifetimeConversions >= 5 ? 3 :
-    observations >= 10 ? 2 : 1;
-  const levelNames = {
-    1: "Semilla",
-    2: "Aprendiendo",
-    3: "Detectando patrones",
-    4: "Optimizando",
-    5: "Autónomo",
-  } as const;
-  const nextTargets = {
-    1: "Conseguir 10 observaciones reales.",
-    2: "Llegar a 25 observaciones y empezar a comparar conversiones.",
-    3: "Llegar a 50 observaciones y 10 conversiones acumuladas.",
-    4: "Llegar a 100 observaciones y 25 conversiones acumuladas.",
-    5: "Seguir aprendiendo sin dejar de experimentar y validar clientes reales.",
-  } as const;
+  const observations = insights.reduce((sum,item) => sum + Number(item.observations||0), 0);
+  const evidenceObservations = insights.reduce((sum, item) => sum + ((Number(item.sessions||0) > 0 || Number(item.conversions||0) > 0 || Number(item.revenue||0) > 0) ? 1 : 0), 0);
+  const lifetimeConversions = insights.reduce((sum,item) => sum + Number(item.conversions||0), 0);
+  const lifetimeRevenue = insights.reduce((sum,item) => sum + Number(item.revenue||0), 0);
+  const level = observations >= 100 && lifetimeConversions >= 25 ? 5 : observations >= 50 && lifetimeConversions >= 10 ? 4 : observations >= 25 && lifetimeConversions >= 5 ? 3 : observations >= 10 ? 2 : 1;
+  const levelNames = {1:"Semilla",2:"Aprendiendo",3:"Detectando patrones",4:"Optimizando",5:"Autónomo"} as const;
+  const nextTargets = {1:"Conseguir resultados atribuidos reales.",2:"Llegar a 25 observaciones y empezar a comparar conversiones.",3:"Llegar a 50 observaciones y 10 conversiones acumuladas.",4:"Llegar a 100 observaciones y 25 conversiones acumuladas.",5:"Seguir aprendiendo sin dejar de experimentar y validar clientes reales."} as const;
 
   return {
-    generatedAt: new Date().toISOString(),
-    campaigns: { total: Number(campaigns.rows[0]?.total || 0), last24: Number(campaigns.rows[0]?.last24 || 0) },
-    last24: totals,
-    channels: byChannel,
-    learning: {
-      observations,
-      conversions: lifetimeConversions,
-      revenue: lifetimeRevenue,
-      level,
-      levelName: levelNames[level as keyof typeof levelNames],
-      nextTarget: nextTargets[level as keyof typeof nextTargets],
-    },
+    generatedAt:new Date().toISOString(),
+    campaigns:{total:Number(campaigns.rows[0]?.total||0),last24:Number(campaigns.rows[0]?.last24||0)},
+    last24:totals,
+    channels:byChannel,
+    attribution:{matched:attributedRows,unmatched:unmatchedRows},
+    learning:{observations,evidenceObservations,conversions:lifetimeConversions,revenue:lifetimeRevenue,level,levelName:levelNames[level as keyof typeof levelNames],nextTarget:nextTargets[level as keyof typeof nextTargets]}
   };
 }
+
+export const getMarketingAutopilotStatus = async (ownerUserId: string) => {
+  const result = await pool.query(
+    `SELECT id, autopilot_enabled, next_run_at, last_run_at, claim_expires_at, results
+     FROM marketing_campaigns
+     WHERE owner_user_id=$1 AND autopilot_enabled=TRUE
+     ORDER BY next_run_at ASC NULLS LAST
+     LIMIT 100`,
+    [ownerUserId]
+  );
+  const latestRuns = await pool.query(
+    `SELECT status, internal_status, provider_status, error, created_at
+     FROM marketing_campaign_runs
+     WHERE owner_user_id=$1
+     ORDER BY created_at DESC
+     LIMIT 25`,
+    [ownerUserId]
+  );
+  const campaigns = result.rows;
+  const lastError = latestRuns.rows.find((row:any) => row.internal_status === "FAILED" || row.error)?.error || null;
+  const blocked = campaigns.some((row:any) => !row.next_run_at);
+  const active = campaigns.length > 0 && !lastError && !blocked;
+  const state = lastError ? "ERROR" : blocked ? "BLOCKED" : active ? "ACTIVE" : "IDLE";
+  return {
+    state,
+    campaigns: campaigns.length,
+    lastRunAt: campaigns.find((row:any)=>row.last_run_at)?.last_run_at || null,
+    nextRunAt: campaigns.find((row:any)=>row.next_run_at)?.next_run_at || null,
+    processing: latestRuns.rows.filter((row:any)=>row.internal_status === "PROCESSING").length,
+    failures: latestRuns.rows.filter((row:any)=>row.internal_status === "FAILED").length,
+    lastError,
+  };
+};
 
 export async function sendMarketingDailySummary() {
   const summary = await syncMarketingLearningFromAnalytics();
