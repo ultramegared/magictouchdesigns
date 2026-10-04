@@ -222,7 +222,7 @@ function AdminMarketing() {
             setGaRealtime(gaRealtimeResult.status === "fulfilled" ? gaRealtimeResult.value : null);
             if (gaCampaignResult.status === "fulfilled") {
                 const rows = gaCampaignResult.value.rows || [];
-                setCampaignAttribution(rows.map((row:any) => ({
+                setCampaignAttribution(rows.map((row:any): CampaignAttribution => ({
                     campaignId: String(row.dimensionValues?.[0]?.value || ""),
                     source: String(row.dimensionValues?.[1]?.value || ""),
                     medium: String(row.dimensionValues?.[2]?.value || ""),
