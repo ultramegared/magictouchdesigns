@@ -263,6 +263,19 @@ export function getAnalyticsStatus() {
     return { configured, propertyId: getAnalyticsPropertyId(), provider: "Google Analytics 4", message: configured ? "Credentials and property ID are configured." : (getCredentialsResult().error || (!getAnalyticsPropertyId() ? "GOOGLE_ANALYTICS_PROPERTY_ID is missing from the running API environment." : "Google credentials are unavailable.")) };
 }
 
+export async function getAnalyticsRealtimeReport() {
+    const propertyId = getAnalyticsPropertyId();
+    if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
+    const data = await googleRequest<{ rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }> }>(
+        ANALYTICS_API,
+        `/properties/${encodeURIComponent(propertyId)}:runRealtimeReport`,
+        "https://www.googleapis.com/auth/analytics.readonly",
+        { method: "POST", body: JSON.stringify({ dimensions: [{ name: "country" }], metrics: [{ name: "activeUsers" }, { name: "eventCount" }], limit: "100" }) },
+    );
+    const rows = data.rows || [];
+    return { propertyId, generatedAt: new Date().toISOString(), activeUsers: rows.reduce((sum,row)=>sum+Number(row.metricValues?.[0]?.value||0),0), eventCount: rows.reduce((sum,row)=>sum+Number(row.metricValues?.[1]?.value||0),0), rows };
+}
+
 export async function getAnalyticsReport(days = 28) {
     const propertyId = getAnalyticsPropertyId();
     if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
