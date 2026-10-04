@@ -656,7 +656,7 @@ const runMarketingAutopilotOnce = async () => {
             videoUrl: campaign.results?.assets?.videoUrl,
             link: trackedLink,
         };
-        Object.assign(social, await publishSocialCampaign(userId, [channel], input));
+        Object.assign(social, await publishSocialCampaign(userId, [channel], input, campaign.id));
     }
     let autopilotEmail: PromotionResult | undefined;
     if (firstRun && Boolean(campaign.results?.sendEmail)) {
