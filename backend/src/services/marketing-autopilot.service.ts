@@ -159,6 +159,39 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
   };
 }
 
+export const getMarketingAutopilotStatus = async (ownerUserId: string) => {
+  const result = await pool.query(
+    `SELECT id, autopilot_enabled, next_run_at, last_run_at, claim_expires_at, results
+     FROM marketing_campaigns
+     WHERE owner_user_id=$1 AND autopilot_enabled=TRUE
+     ORDER BY next_run_at ASC NULLS LAST
+     LIMIT 100`,
+    [ownerUserId]
+  );
+  const latestRuns = await pool.query(
+    `SELECT status, internal_status, provider_status, error, created_at
+     FROM marketing_campaign_runs
+     WHERE owner_user_id=$1
+     ORDER BY created_at DESC
+     LIMIT 25`,
+    [ownerUserId]
+  );
+  const campaigns = result.rows;
+  const lastError = latestRuns.rows.find((row:any) => row.internal_status === "FAILED" || row.error)?.error || null;
+  const blocked = campaigns.some((row:any) => !row.next_run_at);
+  const active = campaigns.length > 0 && !lastError && !blocked;
+  const state = lastError ? "ERROR" : blocked ? "BLOCKED" : active ? "ACTIVE" : "IDLE";
+  return {
+    state,
+    campaigns: campaigns.length,
+    lastRunAt: campaigns.find((row:any)=>row.last_run_at)?.last_run_at || null,
+    nextRunAt: campaigns.find((row:any)=>row.next_run_at)?.next_run_at || null,
+    processing: latestRuns.rows.filter((row:any)=>row.internal_status === "PROCESSING").length,
+    failures: latestRuns.rows.filter((row:any)=>row.internal_status === "FAILED").length,
+    lastError,
+  };
+};
+
 export async function sendMarketingDailySummary() {
   const summary = await syncMarketingLearningFromAnalytics();
   if (summary.campaigns.total < 1) return { sent: false, reason: "No Marketing campaign exists yet.", summary };
