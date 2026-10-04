@@ -180,19 +180,23 @@ const recordCampaignRuns = async (
         const published = status === "PUBLISHED";
         const externalId = payload?.id ? String(payload.id) : null;
         const externalUrl = typeof payload?.url === "string" ? payload.url : null;
+        const providerStatus = payload?.status ? String(payload.status) : status;
+        const internalStatus = status;
+        const providerError = payload?.error ? String(payload.error) : null;
         const publicationKey = `${campaignId}:${runToken}:${channel}`;
         const inserted = await pool.query(
             `INSERT INTO marketing_campaign_runs
-                (campaign_id, owner_user_id, channel, run_type, run_token, publication_key, status, published, external_id, external_url, published_at, decision, result)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13::jsonb)
+                (campaign_id, owner_user_id, channel, run_type, run_token, publication_key, status, internal_status, provider_status, published, requested_at, external_id, external_url, published_at, error, last_checked_at, decision, result)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$7,$8,$9,NOW(),$10,$11,$12,$13,$14,$15::jsonb,$16::jsonb)
              ON CONFLICT (publication_key) DO UPDATE SET result=EXCLUDED.result, status=EXCLUDED.status,
+                 internal_status=EXCLUDED.internal_status, provider_status=EXCLUDED.provider_status,
                  published=EXCLUDED.published, external_id=EXCLUDED.external_id, external_url=EXCLUDED.external_url,
-                 published_at=EXCLUDED.published_at
+                 published_at=EXCLUDED.published_at, error=EXCLUDED.error, last_checked_at=EXCLUDED.last_checked_at
              RETURNING id`,
             [
-                campaignId, ownerUserId, channel, runType, runToken, publicationKey, status, published,
-                externalId, externalUrl, published ? new Date() : null,
-                JSON.stringify({ stage: "PUBLICATION", channel, status, runToken }),
+                campaignId, ownerUserId, channel, runType, runToken, publicationKey, status, internalStatus, providerStatus, published,
+                externalId, externalUrl, published ? new Date() : null, providerError, null,
+                JSON.stringify({ stage: "PUBLICATION", channel, status, providerStatus, runToken }),
                 JSON.stringify(payload || {}),
             ]
         );
