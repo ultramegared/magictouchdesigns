@@ -131,7 +131,7 @@ const publishSocialCampaign = async (
     }
     if (channels.includes("pinterest")) {
         try {
-            results.pinterest = await publishPinterest(userId, input.message.trim(), input.imageUrl?.trim() || undefined, input.link?.trim() || undefined);
+            results.pinterest = await publishPinterest(userId, input.message.trim(), input.imageUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, "pinterest"));
         } catch (error) {
             results.pinterest = { ok: false, error: error instanceof Error ? error.message : "Pinterest publication failed." };
         }
