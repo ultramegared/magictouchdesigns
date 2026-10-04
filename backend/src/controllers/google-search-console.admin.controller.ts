@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { getAnalyticsReport, getAnalyticsStatus, getSearchAnalytics, getSearchConsoleStatus, verifyGoogleIntegration, verifySearchConsoleAccess } from "../services/google-search-console.service";
+import { getAnalyticsReport, getAnalyticsRealtimeReport, getAnalyticsStatus, getSearchAnalytics, getSearchConsoleStatus, verifyGoogleIntegration, verifySearchConsoleAccess } from "../services/google-search-console.service";
 
 export function getSearchConsoleConfig(_req: Request, res: Response) { res.json(getSearchConsoleStatus()); }
 export async function verifySearchConsole(_req: Request, res: Response) { try { res.json(await verifySearchConsoleAccess()); } catch (error) { console.error("Search Console verification error:", error); res.status(502).json({ connected: false, error: error instanceof Error ? error.message : "Unable to connect to Google Search Console" }); } }
