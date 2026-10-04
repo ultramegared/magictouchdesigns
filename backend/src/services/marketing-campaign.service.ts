@@ -348,7 +348,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
     if (selected.length && !input.autopilot) {
         try {
-            social = await publishSocialCampaign(userId, selected, socialInput);
+            social = await publishSocialCampaign(userId, selected, socialInput, campaignId);
         } catch (error) {
             publishError = error instanceof Error ? error.message : "Social publication failed.";
         }
