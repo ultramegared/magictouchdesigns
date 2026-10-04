@@ -7,6 +7,8 @@ export async function getSearchConsoleAnalytics(req: Request, res: Response) { t
 export function getAnalyticsConfig(_req: Request, res: Response) { res.json(getAnalyticsStatus()); }
 export async function getAnalytics(_req: Request, res: Response) { try { const days = Number(_req.query.days || 28); res.json(await getAnalyticsReport(Number.isFinite(days) ? days : 28)); } catch (error) { console.error("Google Analytics error:", error); res.status(502).json({ error: error instanceof Error ? error.message : "Unable to load Google Analytics" }); } }
 
+export async function getAnalyticsRealtime(_req: Request, res: Response) { try { res.json(await getAnalyticsRealtimeReport()); } catch (error) { console.error("Google Analytics realtime error:", error); res.status(502).json({ error: error instanceof Error ? error.message : "Unable to load Google Analytics realtime data" }); } }
+
 export async function verifyGoogle(_req: Request, res: Response) {
     try {
         res.json(await verifyGoogleIntegration());
