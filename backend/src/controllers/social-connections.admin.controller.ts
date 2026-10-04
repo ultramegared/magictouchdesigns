@@ -4,7 +4,7 @@ import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProv
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { launchMarketingCampaign, listMarketingCampaigns, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot, getMarketingCampaignResults } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
-import { getMarketingDailySummary, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
+import { getMarketingDailySummary, getMarketingAutopilotStatus, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
 import { uploadImageAsset, uploadVideoAsset } from "../services/upload.service";
 import cloudinary from "../config/cloudinary";
@@ -209,6 +209,14 @@ export async function marketingGoogleAdsVerify(_req: AuthenticatedRequest, res: 
         res.json(await verifyGoogleAdsConfiguration());
     } catch (error) {
         res.status(503).json({ provider: "Google Ads", state: "ERROR", configured: false, connected: false, liveVerified: false, dataAvailable: false, error: error instanceof Error ? error.message : "Google Ads verification failed." });
+    }
+}
+
+export async function marketingAutopilotStatus(req: AuthenticatedRequest, res: Response) {
+    try {
+        res.json({ status: "success", data: await getMarketingAutopilotStatus(String(req.user!.userId)) });
+    } catch (error) {
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing Autopilot status." });
     }
 }
 
