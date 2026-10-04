@@ -263,6 +263,19 @@ export function getAnalyticsStatus() {
     return { configured, propertyId: getAnalyticsPropertyId(), provider: "Google Analytics 4", message: configured ? "Credentials and property ID are configured." : (getCredentialsResult().error || (!getAnalyticsPropertyId() ? "GOOGLE_ANALYTICS_PROPERTY_ID is missing from the running API environment." : "Google credentials are unavailable.")) };
 }
 
+export async function getAnalyticsRealtimeReport() {
+    const propertyId = getAnalyticsPropertyId();
+    if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
+    const data = await googleRequest<{ rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }> }>(
+        ANALYTICS_API,
+        `/properties/${encodeURIComponent(propertyId)}:runRealtimeReport`,
+        "https://www.googleapis.com/auth/analytics.readonly",
+        { method: "POST", body: JSON.stringify({ dimensions: [{ name: "country" }], metrics: [{ name: "activeUsers" }, { name: "eventCount" }], limit: "100" }) },
+    );
+    const rows = data.rows || [];
+    return { propertyId, generatedAt: new Date().toISOString(), activeUsers: rows.reduce((sum,row)=>sum+Number(row.metricValues?.[0]?.value||0),0), eventCount: rows.reduce((sum,row)=>sum+Number(row.metricValues?.[1]?.value||0),0), rows };
+}
+
 export async function getAnalyticsReport(days = 28) {
     const propertyId = getAnalyticsPropertyId();
     if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
@@ -320,6 +333,11 @@ export async function getAnalyticsCampaignReport(days = 30) {
     const propertyId = getAnalyticsPropertyId();
     if (!propertyId || !getCredentials()) return { propertyId, days: Math.min(Math.max(Math.floor(days), 1), 90), rows: [] };
     const safeDays = Math.min(Math.max(Math.floor(days), 1), 90);
+    const endDate = new Date();
+    endDate.setUTCDate(endDate.getUTCDate() - 1);
+    const startDate = new Date(endDate);
+    startDate.setUTCDate(startDate.getUTCDate() - safeDays + 1);
+    const iso = (value: Date) => value.toISOString().slice(0, 10);
     const data = await googleRequest<{
         rows?: Array<{
             dimensionValues?: Array<{ value?: string }>;
@@ -332,7 +350,7 @@ export async function getAnalyticsCampaignReport(days = 30) {
         {
             method: "POST",
             body: JSON.stringify({
-                dateRanges: [{ startDate: `${safeDays}daysAgo`, endDate: "yesterday" }],
+                dateRanges: [{ startDate: iso(startDate), endDate: iso(endDate) }],
                 dimensions: [
                     { name: "sessionManualCampaignId" },
                     { name: "sessionManualSource" },
@@ -349,5 +367,11 @@ export async function getAnalyticsCampaignReport(days = 30) {
             }),
         },
     );
-    return { propertyId, days: safeDays, rows: data.rows || [] };
+    return {
+        propertyId,
+        days: safeDays,
+        startDate: iso(startDate),
+        endDate: iso(endDate),
+        rows: data.rows || [],
+    };
 }

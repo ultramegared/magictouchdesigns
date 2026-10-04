@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/auth.middleware";
-import { marketingCampaignHistory, marketingPublicationActivity, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
+import { marketingCampaignHistory, marketingPublicationActivity, marketingCampaignResults, marketingGoogleAdsStatus, marketingGoogleAdsVerify, marketingAutopilotStatus, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
 
 const router = Router();
 
@@ -51,8 +51,12 @@ router.post("/campaign/media/signature", marketingMediaSignature);
 router.post("/campaign/media", processMarketingMediaUpload, marketingMediaUpload);
 router.post("/campaign/launch", marketingCampaignLaunch);
 router.post("/campaign/autopilot-run-now", marketingAutopilotRunNow);
+router.get("/campaign/autopilot-status", marketingAutopilotStatus);
 router.get("/campaign/history", marketingCampaignHistory);
 router.get("/campaign/publications", marketingPublicationActivity);
+router.get("/campaign/results", marketingCampaignResults);
+router.get("/google-ads/status", marketingGoogleAdsStatus);
+router.get("/google-ads/verify", marketingGoogleAdsVerify);
 router.get("/campaign/daily-summary", marketingDailySummary);
 router.get("/campaign/catalog", marketingCatalogStatus);
 router.post("/campaign/catalog", marketingCatalogToggle);
