@@ -327,11 +327,13 @@ function AdminMarketing() {
         return totals;
     }, [gscRows]);
     const gaMetrics = useMemo(() => ({
-        users: Number((ga as any)?.summary?.activeUsers || 0),
-        sessions: Number((ga as any)?.summary?.sessions || gaRows.reduce((sum, row) => sum + Number(row.metricValues?.[1]?.value || 0), 0)),
-        views: Number((ga as any)?.summary?.screenPageViews || gaRows.reduce((sum, row) => sum + Number(row.metricValues?.[2]?.value || 0), 0)),
-        revenue: Number((ga as any)?.summary?.totalRevenue || gaRows.reduce((sum, row) => sum + Number(row.metricValues?.[3]?.value || 0), 0)),
-    }), [ga, gaRows]);
+        users: Number((ga as any)?.summary?.activeUsers ?? NaN),
+        sessions: Number((ga as any)?.summary?.sessions ?? NaN),
+        views: Number((ga as any)?.summary?.screenPageViews ?? NaN),
+        revenue: Number((ga as any)?.summary?.totalRevenue ?? NaN),
+    }), [ga]);
+    const realtimeLabel = gaRealtime?.activeUsers == null ? "N/A" : gaRealtime.activeUsers.toLocaleString();
+    const realtimeEventsLabel = gaRealtime?.eventCount == null ? "N/A" : gaRealtime.eventCount.toLocaleString();
 
     const isConnected = (channel: Channel) => channel.social ? Boolean(social.channels?.[channel.social]) : channel.name === "Google" ? Boolean(gsc?.connected && gsc?.dataVerified && ga?.connected && ga?.dataVerified) : false;
     const accountName = (channel: Channel) => {
