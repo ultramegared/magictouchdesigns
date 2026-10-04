@@ -118,7 +118,8 @@ const connectedSocialChannels = async (userId: string): Promise<SocialChannel[]>
 const publishSocialCampaign = async (
     userId: string,
     channels: SocialChannel[],
-    input: MarketingCampaignInput
+    input: MarketingCampaignInput,
+    campaignId: string,
 ): Promise<Record<string, unknown>> => {
     const results: Record<string, unknown> = {};
     const metaChannels = channels.filter(channel => ["facebook", "instagram", "whatsapp"].includes(channel));
