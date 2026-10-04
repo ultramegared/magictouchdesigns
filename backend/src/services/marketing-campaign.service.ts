@@ -414,6 +414,76 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
 export const getMarketingLearning = async (targetArea?: string, objective?: string, ownerUserId?: string) => getMarketingLearningInsights(targetArea, objective, ownerUserId);
 
+export const getMarketingCampaignResults = async (ownerUserId: string, days = 30) => {
+    await ensureCampaignTable();
+    const safeDays = Math.min(Math.max(Number(days) || 30, 1), 90);
+    const campaignResult = await pool.query(
+        `SELECT id, name, channels, results, created_at, autopilot_enabled, next_run_at, last_run_at
+         FROM marketing_campaigns
+         WHERE owner_user_id=$1
+         ORDER BY created_at DESC
+         LIMIT 100`,
+        [ownerUserId]
+    );
+    const runsResult = await pool.query(
+        `SELECT campaign_id, channel, status, internal_status, provider_status, published, external_id, external_url, created_at, published_at
+         FROM marketing_campaign_runs
+         WHERE owner_user_id=$1
+           AND created_at >= NOW() - ($2::int || ' days')::interval
+         ORDER BY created_at DESC`,
+        [ownerUserId, safeDays]
+    );
+
+    const runMap = new Map<string, any[]>();
+    for (const row of runsResult.rows) {
+        const key = String(row.campaign_id);
+        const bucket = runMap.get(key) || [];
+        bucket.push(row);
+        runMap.set(key, bucket);
+    }
+
+    return campaignResult.rows.map((campaign: any) => {
+        const runs = runMap.get(String(campaign.id)) || [];
+        const publishedRuns = runs.filter((row: any) => row.published);
+        const processingRuns = runs.filter((row: any) => row.internal_status === "PROCESSING");
+        const failedRuns = runs.filter((row: any) => row.internal_status === "FAILED");
+        return {
+            campaignId: String(campaign.id),
+            campaignName: String(campaign.name),
+            channels: Array.isArray(campaign.channels) ? campaign.channels : [],
+            publicationStatus: failedRuns.length ? "FAILED" : processingRuns.length ? "PROCESSING" : publishedRuns.length ? "PUBLISHED" : "QUEUED",
+            publications: runs.length,
+            published: publishedRuns.length,
+            processing: processingRuns.length,
+            failed: failedRuns.length,
+            autopilot: Boolean(campaign.autopilot_enabled),
+            lastRunAt: campaign.last_run_at,
+            nextRunAt: campaign.next_run_at,
+            firstPublicationAt: publishedRuns.length ? publishedRuns[publishedRuns.length - 1].published_at : null,
+            lastPublicationAt: publishedRuns.length ? publishedRuns[0].published_at : null,
+            metrics: {
+                sessions: null,
+                activeUsers: null,
+                conversions: null,
+                revenue: null,
+                transactions: null,
+                clicks: null,
+                impressions: null,
+            },
+            publicationLedger: runs.map((row: any) => ({
+                runId: Number(row.id || 0),
+                channel: String(row.channel),
+                status: String(row.internal_status || row.status || "UNKNOWN"),
+                providerStatus: row.provider_status || null,
+                providerId: row.external_id || null,
+                externalUrl: row.external_url || null,
+                publishedAt: row.published_at || null,
+                createdAt: row.created_at,
+            })),
+        };
+    });
+};
+
 export const listMarketingPublicationActivity = async (ownerUserId: string, limit = 50) => {
     await ensureCampaignTable();
     const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 100);
