@@ -284,7 +284,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
     const campaignId = randomUUID();
     const firstRunAt = startsAt && startsAt > new Date() ? startsAt : new Date();
-    const trackedLink = withCampaignTracking(input.link?.trim() || undefined, campaignId, "jqydesigns");
+    const trackedLink = withCampaignTracking(input.link?.trim() || undefined, campaignId, "campaign");
     const socialInput: MarketingCampaignInput = { ...input, link: trackedLink };
 
     const google = {
