@@ -232,7 +232,10 @@ function AdminMarketing() {
                     revenue: Number(row.metricValues?.[3]?.value || 0),
                     transactions: Number(row.metricValues?.[4]?.value || 0),
                     attributionStatus: "UNMATCHED"
-                })));
+                })).map((row: CampaignAttribution) => {
+                    const match = campaignHistory.some(campaign => campaign.id === row.campaignId);
+                    return { ...row, attributionStatus: match ? "MATCHED" : "UNMATCHED" };
+                }));
             } else setCampaignAttribution([]);
             if (campaignCenterResult.status === "fulfilled") setCampaignResultsCenter(campaignCenterResult.value.results || []);
             else setCampaignResultsCenter([]);
