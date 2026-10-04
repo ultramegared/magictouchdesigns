@@ -100,6 +100,12 @@ const ensureCampaignTable = async () => {
     await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS external_url TEXT`);
     await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ`);
     await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS decision JSONB NOT NULL DEFAULT '{}'::jsonb`);
+    await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS requested_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`);
+    await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS provider_status TEXT`);
+    await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS internal_status TEXT`);
+    await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS last_checked_at TIMESTAMPTZ`);
+    await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS retry_count INTEGER NOT NULL DEFAULT 0`);
+    await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS error TEXT`);
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_campaign_runs_publication_key_idx ON marketing_campaign_runs(publication_key) WHERE publication_key IS NOT NULL`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_owner_idx ON marketing_campaign_runs(owner_user_id, created_at DESC)`);
     // Normalize existing active Autopilot campaigns to the new 6-hour operating window.
