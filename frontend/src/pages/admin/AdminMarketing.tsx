@@ -88,6 +88,10 @@ function AdminMarketing() {
     const [gscRows, setGscRows] = useState<GscRow[]>([]);
     const [ga, setGa] = useState<GaStatus | null>(null);
     const [gaRows, setGaRows] = useState<GaRow[]>([]);
+    const [gaRealtime, setGaRealtime] = useState<GaRealtimeResponse | null>(null);
+    const [campaignAttribution, setCampaignAttribution] = useState<CampaignAttribution[]>([]);
+    const [campaignResultsCenter, setCampaignResultsCenter] = useState<CampaignResult[]>([]);
+    const [googleAds, setGoogleAds] = useState<GoogleAdsState | null>(null);
     const [social, setSocial] = useState<SocialState>({});
     const [emailStatus, setEmailStatus] = useState<EmailStatus | null>(null);
     const [loading, setLoading] = useState(true);
