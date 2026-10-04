@@ -2,9 +2,9 @@ import type { Request, Response } from "express";
 import { randomUUID } from "crypto";
 import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
-import { launchMarketingCampaign, listMarketingCampaigns, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot } from "../services/marketing-campaign.service";
+import { launchMarketingCampaign, listMarketingCampaigns, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot, getMarketingCampaignResults } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
-import { getMarketingDailySummary, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
+import { getMarketingDailySummary, getMarketingAutopilotStatus, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
 import { uploadImageAsset, uploadVideoAsset } from "../services/upload.service";
 import cloudinary from "../config/cloudinary";
@@ -194,6 +194,32 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
     }
 }
 
+export async function marketingGoogleAdsStatus(_req: AuthenticatedRequest, res: Response) {
+    try {
+        const { getGoogleAdsStatus } = await import("../services/google-ads.service");
+        res.json(getGoogleAdsStatus());
+    } catch (error) {
+        res.status(500).json({ provider: "Google Ads", state: "ERROR", configured: false, connected: false, liveVerified: false, dataAvailable: false, error: error instanceof Error ? error.message : "Google Ads status failed." });
+    }
+}
+
+export async function marketingGoogleAdsVerify(_req: AuthenticatedRequest, res: Response) {
+    try {
+        const { verifyGoogleAdsConfiguration } = await import("../services/google-ads.service");
+        res.json(await verifyGoogleAdsConfiguration());
+    } catch (error) {
+        res.status(503).json({ provider: "Google Ads", state: "ERROR", configured: false, connected: false, liveVerified: false, dataAvailable: false, error: error instanceof Error ? error.message : "Google Ads verification failed." });
+    }
+}
+
+export async function marketingAutopilotStatus(req: AuthenticatedRequest, res: Response) {
+    try {
+        res.json({ status: "success", data: await getMarketingAutopilotStatus(String(req.user!.userId)) });
+    } catch (error) {
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing Autopilot status." });
+    }
+}
+
 export async function marketingAutopilotRunNow(req: AuthenticatedRequest, res: Response) {
     try {
         res.json({ status: "success", data: await runMarketingAutopilot() });
@@ -208,6 +234,15 @@ export async function marketingCampaignHistory(req: AuthenticatedRequest, res: R
         res.json({ status: "success", campaigns: await listMarketingCampaigns(String(req.user!.userId), Number(req.query.limit || 20)) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load marketing campaign history." });
+    }
+}
+
+export async function marketingCampaignResults(req: AuthenticatedRequest, res: Response) {
+    try {
+        const days = Number(req.query.days || 30);
+        res.json({ status: "success", results: await getMarketingCampaignResults(String(req.user!.userId), Number.isFinite(days) ? days : 30) });
+    } catch (error) {
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing campaign results." });
     }
 }
 
