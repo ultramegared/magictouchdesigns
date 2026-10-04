@@ -333,6 +333,11 @@ export async function getAnalyticsCampaignReport(days = 30) {
     const propertyId = getAnalyticsPropertyId();
     if (!propertyId || !getCredentials()) return { propertyId, days: Math.min(Math.max(Math.floor(days), 1), 90), rows: [] };
     const safeDays = Math.min(Math.max(Math.floor(days), 1), 90);
+    const endDate = new Date();
+    endDate.setUTCDate(endDate.getUTCDate() - 1);
+    const startDate = new Date(endDate);
+    startDate.setUTCDate(startDate.getUTCDate() - safeDays + 1);
+    const iso = (value: Date) => value.toISOString().slice(0, 10);
     const data = await googleRequest<{
         rows?: Array<{
             dimensionValues?: Array<{ value?: string }>;
@@ -345,7 +350,7 @@ export async function getAnalyticsCampaignReport(days = 30) {
         {
             method: "POST",
             body: JSON.stringify({
-                dateRanges: [{ startDate: `${safeDays}daysAgo`, endDate: "yesterday" }],
+                dateRanges: [{ startDate: iso(startDate), endDate: iso(endDate) }],
                 dimensions: [
                     { name: "sessionManualCampaignId" },
                     { name: "sessionManualSource" },
@@ -362,5 +367,11 @@ export async function getAnalyticsCampaignReport(days = 30) {
             }),
         },
     );
-    return { propertyId, days: safeDays, rows: data.rows || [] };
+    return {
+        propertyId,
+        days: safeDays,
+        startDate: iso(startDate),
+        endDate: iso(endDate),
+        rows: data.rows || [],
+    };
 }
