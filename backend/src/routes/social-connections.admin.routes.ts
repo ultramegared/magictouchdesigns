@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/auth.middleware";
-import { marketingCampaignHistory, marketingPublicationActivity, marketingCampaignResults, marketingGoogleAdsStatus, marketingGoogleAdsVerify, marketingAutopilotStatus, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
+import { marketingCampaignHistory, marketingCampaignDelete, marketingPublicationActivity, marketingCampaignResults, marketingGoogleAdsStatus, marketingGoogleAdsVerify, marketingAutopilotStatus, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish } from "../controllers/social-connections.admin.controller";
 
 const router = Router();
 
@@ -53,6 +53,7 @@ router.post("/campaign/launch", marketingCampaignLaunch);
 router.post("/campaign/autopilot-run-now", marketingAutopilotRunNow);
 router.get("/campaign/autopilot-status", marketingAutopilotStatus);
 router.get("/campaign/history", marketingCampaignHistory);
+router.delete("/campaign/:campaignId", marketingCampaignDelete);
 router.get("/campaign/publications", marketingPublicationActivity);
 router.get("/campaign/results", marketingCampaignResults);
 router.get("/google-ads/status", marketingGoogleAdsStatus);
