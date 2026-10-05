@@ -265,9 +265,15 @@ function AdminMarketing() {
 
     const loadCatalog = useCallback(async () => {
         try {
+            setCatalogLoading(true);
             const response = await apiRequest<{ catalog: CatalogStatus }>("/api/admin/marketing/social/campaign/catalog");
             setCatalog(response.catalog);
-        } catch { /* Catalog Autopilot is supplemental. */ }
+            setNotice(`✓ Content Autopilot actualizado · ${new Date().toLocaleTimeString()}`);
+        } catch (error) {
+            setNotice(error instanceof Error ? error.message : "No se pudo actualizar Content Autopilot.");
+        } finally {
+            setCatalogLoading(false);
+        }
     }, []);
 
     const toggleCatalog = useCallback(async (enabled: boolean) => {
