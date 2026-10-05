@@ -555,6 +555,54 @@ export const listMarketingCampaigns = async (ownerUserId: string, limit = 20) =>
     return result.rows;
 };
 
+export const deleteMarketingCampaign = async (ownerUserId: string, campaignId: string) => {
+    await ensureCampaignTable();
+    const id = String(campaignId || "").trim();
+    if (!id) throw new Error("Campaign ID is required.");
+
+    const client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+        const existing = await client.query(
+            `SELECT id, name
+             FROM marketing_campaigns
+             WHERE id=$1 AND owner_user_id=$2
+             FOR UPDATE`,
+            [id, ownerUserId]
+        );
+        if (!existing.rows[0]) {
+            await client.query("ROLLBACK");
+            return null;
+        }
+
+        const learningDeleted = await client.query(
+            `DELETE FROM marketing_learning_observations WHERE campaign_id=$1`,
+            [id]
+        );
+        const runsDeleted = await client.query(
+            `DELETE FROM marketing_campaign_runs WHERE campaign_id=$1`,
+            [id]
+        );
+        await client.query(
+            `DELETE FROM marketing_campaigns WHERE id=$1 AND owner_user_id=$2`,
+            [id, ownerUserId]
+        );
+        await client.query("COMMIT");
+
+        return {
+            id,
+            name: String(existing.rows[0].name || id),
+            deletedRuns: runsDeleted.rowCount || 0,
+            deletedLearningObservations: learningDeleted.rowCount || 0,
+        };
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
 
 const getAdaptiveNextSlot = async (targetArea: string, objective: string, channels: SocialChannel[], ownerUserId: string) => {
     const result = await pool.query(
