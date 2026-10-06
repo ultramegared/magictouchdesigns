@@ -599,7 +599,7 @@ function AdminMarketing() {
       .marketing-page .input::placeholder,.marketing-page .textarea::placeholder{color:var(--skin-text-muted)!important;opacity:.85}
       .marketing-page select option{background:var(--skin-surface);color:var(--skin-text)}
       .marketing-page .field>label{color:var(--skin-text)!important}
-      .marketing-page .marketing-main{width:min(100%,1600px);margin-inline:auto}
+      .marketing-page .marketing-main{width:calc(100% - 270px);max-width:1600px;margin-left:270px;margin-right:0}
       .marketing-page .integration,.marketing-page .channels,.marketing-page .stats,.marketing-page .metrics{align-items:stretch}
       @media(max-width:1100px){.marketing-main{margin-left:0!important;padding:18px}.channels{grid-template-columns:repeat(2,1fr)!important}.stats{grid-template-columns:repeat(2,1fr)!important}.metrics{grid-template-columns:repeat(2,1fr)!important}.composer-grid,.campaign-grid{grid-template-columns:1fr!important}}
       @media(max-width:720px){.marketing-main{padding:14px}.integration{grid-template-columns:1fr!important}.channels{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}.channel{padding:11px}.channel strong{font-size:13px}.channel small{font-size:9px}.channel .btn{font-size:9px;padding:6px 7px}.stats{grid-template-columns:1fr!important}.metrics{grid-template-columns:1fr!important}.hero{padding:20px}.hero h1{font-size:30px}.marketing-page .actions{align-items:stretch}.marketing-page .btn{justify-content:center}}
