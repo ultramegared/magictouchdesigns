@@ -116,6 +116,13 @@ function AdminEmailTemplates() {
                 .admin-email-templates__main,
                 .admin-email-templates__main * { box-sizing:border-box; }
                 .admin-email-templates__main { min-width:0; width:100%; overflow-x:clip; }
+                .admin-email-templates__main .admin-settings__hero,
+                .admin-email-templates__main .admin-settings__container {
+                    max-width:none;
+                    margin-left:0;
+                    margin-right:0;
+                    width:100%;
+                }
                 .admin-email-templates__workspace {
                     display:grid;
                     grid-template-columns:minmax(240px,300px) minmax(0,1fr);
