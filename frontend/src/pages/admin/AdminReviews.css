@@ -26,13 +26,10 @@
         100vh;
 
     margin-left:
-        270px;
+        0;
 
     width:
-        calc(
-            100% -
-            270px
-        );
+        100%;
 
     box-sizing:
         border-box;
