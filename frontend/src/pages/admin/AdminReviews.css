@@ -72,10 +72,10 @@
         100%;
 
     max-width:
-        1200px;
+        none;
 
     margin:
-        0 auto;
+        0;
 
     display:
         flex;
@@ -217,10 +217,10 @@
         100%;
 
     max-width:
-        1200px;
+        none;
 
     margin:
-        0 auto;
+        0;
 
     box-sizing:
         border-box;
