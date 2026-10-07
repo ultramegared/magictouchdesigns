@@ -31,8 +31,10 @@ const API_BASE_URL =
  */
 export async function apiRequest<T = unknown>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit & { timeoutMs?: number } = {}
 ): Promise<T> {
+
+    const { timeoutMs = 15000, ...fetchOptions } = options;
 
     const token =
         localStorage.getItem(
@@ -48,12 +50,12 @@ export async function apiRequest<T = unknown>(
 
     const headers =
         new Headers(
-            options.headers
+            fetchOptions.headers
         );
 
 
     const isFormData =
-        options.body instanceof FormData;
+        fetchOptions.body instanceof FormData;
 
 
     /*
@@ -74,7 +76,7 @@ export async function apiRequest<T = unknown>(
         !headers.has(
             "Content-Type"
         ) &&
-        options.body
+        fetchOptions.body
     ) {
 
         headers.set(
@@ -114,11 +116,11 @@ export async function apiRequest<T = unknown>(
 
     let response: Response;
     const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
     const requestOptions: RequestInit = {
-        ...options,
+        ...fetchOptions,
         headers,
-        signal: options.signal ?? controller.signal,
+        signal: fetchOptions.signal ?? controller.signal,
     };
 
 
@@ -193,11 +195,15 @@ export async function apiRequest<T = unknown>(
                 ? String(
                     data.message
                 )
-                : (
-                    response.status === 401
-                        ? "Your session has expired. Please log in again."
-                        : "API request failed."
-                );
+                : "error" in data
+                    ? String(
+                        data.error
+                    )
+                    : (
+                        response.status === 401
+                            ? "Your session has expired. Please log in again."
+                            : "API request failed."
+                    );
 
 
         if (
