@@ -307,8 +307,8 @@ function AdminMarketing() {
         try {
             setRetryingCampaignId(campaign.id);
             setNotice("⏳ Publishing to Instagram…");
+            await apiRequest(`/api/admin/marketing/social/campaign/${encodeURIComponent(campaign.id)}/retry`, { method: "POST", timeoutMs: 90000 });
             setCampaignPreviewCampaign(null);
-            await apiRequest(`/api/admin/marketing/social/campaign/${encodeURIComponent(campaign.id)}/retry`, { method: "POST" });
             setNotice(`✓ Campaign "${campaign.name}" published. Check Marketing Activity for the live publication link.`);
             await Promise.all([loadCampaignHistory(), loadPublicationActivity(), loadLearning(), loadDailySummary(), load()]);
         } catch (error) {
