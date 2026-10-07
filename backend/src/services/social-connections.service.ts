@@ -43,7 +43,13 @@ export async function getConnections(userId: string) {
     const providers = ["meta", "instagram", "tiktok", "youtube", "pinterest"] as SocialProvider[];
     const configured = providers.reduce<Record<string, boolean>>((out, provider) => { out[provider] = providerConfig(provider).configured; return out; }, {});
     const setup = providers.reduce<Record<string, unknown>>((out, provider) => { const config = providerConfig(provider); out[provider] = { configured: config.configured, envKeys: config.envKeys, callback: redirectUri(provider) }; return out; }, {});
-    const connected = result.rows.reduce<Record<string, unknown>>((out, row) => { out[row.provider] = { connected: true, profile: row.profile, expiresAt: row.expires_at, updatedAt: row.updated_at }; return out; }, {});
+    // A stored OAuth row is not proof that the provider is still configured/usable.
+    // Only expose a connection when the provider has current production configuration.
+    const connected = result.rows.reduce<Record<string, unknown>>((out, row) => {
+        if (!providerConfig(row.provider).configured) return out;
+        out[row.provider] = { connected: true, profile: row.profile, expiresAt: row.expires_at, updatedAt: row.updated_at };
+        return out;
+    }, {});
     const metaProfile = result.rows.find(row => row.provider === "meta")?.profile || {};
     const instagramConnection = result.rows.find(row => row.provider === "instagram");
     let instagramProfile: any = instagramConnection?.profile || {};
