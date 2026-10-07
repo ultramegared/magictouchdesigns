@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { pool } from "../config/database";
-import { getConnections, checkTikTokPublicationStatus, checkYouTubePublicationStatus, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
+import { getConnections, checkTikTokPublicationStatus, checkYouTubePublicationStatus, publishMeta, publishInstagram, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
 import { sendPromotion, type PromotionResult } from "./promotion.service";
 import { recordCampaignLaunchLearning, getMarketingLearningInsights } from "./marketing-learning.service";
 import { getCatalogOwners, queueNextContent } from "./marketing-catalog.service";
@@ -128,12 +128,19 @@ const publishSocialCampaign = async (
     campaignId: string,
 ): Promise<Record<string, unknown>> => {
     const results: Record<string, unknown> = {};
-    const metaChannels = channels.filter(channel => ["facebook", "instagram", "whatsapp"].includes(channel));
+    const metaChannels = channels.filter(channel => ["facebook", "whatsapp"].includes(channel));
     for (const channel of metaChannels) {
         Object.assign(
             results,
             await publishMeta(userId, [channel], input.message.trim(), input.imageUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, channel), input.whatsappTo?.trim() || undefined, input.videoUrl?.trim() || undefined)
         );
+    }
+    if (channels.includes("instagram")) {
+        try {
+            results.instagram = await publishInstagram(userId, input.message.trim(), input.imageUrl?.trim() || undefined, input.videoUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, "instagram"));
+        } catch (error) {
+            results.instagram = { ok: false, error: error instanceof Error ? error.message : "Instagram publication failed." };
+        }
     }
     if (channels.includes("pinterest")) {
         try {
