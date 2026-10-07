@@ -95,9 +95,20 @@ async function getAccessToken(userId: string, provider: SocialProvider) {
         const configuredToken = process.env.INSTAGRAM_ACCESS_TOKEN?.trim();
         const result = await pool.query<{ access_token: string; expires_at: string | null }>(`SELECT access_token, expires_at FROM marketing_social_connections WHERE user_id=$1 AND provider=$2`, [userId, provider]);
         const row = result.rows[0];
-        if (!row && configuredToken) {
-            await saveConnection(userId, "instagram", { access_token: configuredToken, expires_in: 60 * 24 * 60 * 60 }, await providerProfile("instagram", configuredToken));
-            return configuredToken;
+        // INSTAGRAM_ACCESS_TOKEN is the production source of truth. If the token was
+        // rotated in Vercel, never keep publishing with an older encrypted DB token.
+        if (configuredToken) {
+            const storedToken = row ? String(decrypt(row.access_token) || "") : "";
+            if (!row || storedToken !== configuredToken) {
+                const profile = await providerProfile("instagram", configuredToken);
+                await saveConnection(
+                    userId,
+                    "instagram",
+                    { access_token: configuredToken, expires_in: 60 * 24 * 60 * 60 },
+                    profile
+                );
+                return configuredToken;
+            }
         }
         if (!row) throw new Error("Instagram is not connected. Configure INSTAGRAM_ACCESS_TOKEN in the Marketing backend.");
         const expiresAt = row.expires_at ? new Date(row.expires_at).getTime() : 0;
