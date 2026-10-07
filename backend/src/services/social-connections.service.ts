@@ -282,7 +282,8 @@ export async function publishInstagram(userId: string, text: string, imageUrl?: 
     // require asynchronous processing/status polling before media_publish.
     const publishUrl = new URL(`${base}/${instagramUserId}/media_publish`);
     publishUrl.searchParams.set("creation_id", String(created.id));
-    publishUrl.searchParams.set("access_token", token);\n    const publish = await fetch(publishUrl, { method: "POST" });
+    publishUrl.searchParams.set("access_token", token);
+    const publish = await fetch(publishUrl, { method: "POST" });
     const published = await publish.json();
     if (!publish.ok) throw new Error(published.error?.message || "Instagram publication failed.");
     let url: string | undefined;
