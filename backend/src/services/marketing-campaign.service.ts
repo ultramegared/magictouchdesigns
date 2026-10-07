@@ -463,6 +463,12 @@ export const retryMarketingCampaign = async (userId: string, campaignId: string)
     };
 
     const social = await publishSocialCampaign(userId, selected, socialInput, campaignId);
+    const failedChannels = Object.entries(social)
+        .filter(([, result]) => !(result as any)?.ok)
+        .map(([channel, result]) => `${channel}: ${(result as any)?.error || "publication failed"}`);
+    if (failedChannels.length) {
+        throw new Error(failedChannels.join(" | "));
+    }
     const currentResults = campaign.results && typeof campaign.results === "object" ? campaign.results : {};
     const finalResults = {
         ...currentResults,
