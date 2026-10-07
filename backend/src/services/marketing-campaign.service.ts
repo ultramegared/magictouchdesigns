@@ -419,6 +419,78 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 
 };
 
+
+export const retryMarketingCampaign = async (userId: string, campaignId: string) => {
+    await ensureCampaignTable();
+    const campaignResult = await pool.query(
+        `SELECT id, name, objective, target_area, message, subject, channels, results, autopilot_enabled
+         FROM marketing_campaigns
+         WHERE id=$1 AND owner_user_id=$2
+         LIMIT 1`,
+        [campaignId, userId]
+    );
+    if (!campaignResult.rows[0]) throw new Error("Campaign not found.");
+    const campaign = campaignResult.rows[0] as any;
+    if (Boolean(campaign.autopilot_enabled)) throw new Error("Autopilot campaigns are not manually retried from this action.");
+
+    const existingRuns = await pool.query(
+        `SELECT published, internal_status
+         FROM marketing_campaign_runs
+         WHERE campaign_id=$1 AND owner_user_id=$2`,
+        [campaignId, userId]
+    );
+    if (existingRuns.rows.some((row: any) => row.published)) throw new Error("This campaign is already published.");
+    if (existingRuns.rows.some((row: any) => String(row.internal_status) === "PROCESSING")) throw new Error("This campaign is still processing.");
+
+    const connected = await connectedSocialChannels(userId);
+    const storedChannels = Array.isArray(campaign.channels) ? campaign.channels : [];
+    const selected = storedChannels.filter((channel: string) => allowedChannels.includes(channel as any) && connected.includes(channel as any));
+    if (!selected.length) throw new Error("No configured channel for this campaign is currently connected.");
+
+    const assets = campaign.results?.assets || {};
+    const trackedLink = typeof assets.landingLink === "string" ? assets.landingLink : undefined;
+    const socialInput: MarketingCampaignInput = {
+        name: String(campaign.name),
+        objective: String(campaign.objective || "Brand awareness and sales"),
+        targetArea: String(campaign.target_area || "Houston, Texas + United States"),
+        message: String(campaign.message || ""),
+        subject: String(campaign.subject || campaign.name),
+        imageUrl: typeof assets.imageUrl === "string" ? assets.imageUrl : undefined,
+        videoUrl: typeof assets.videoUrl === "string" ? assets.videoUrl : undefined,
+        link: trackedLink,
+        channels: selected,
+        autopilot: false,
+    };
+
+    const social = await publishSocialCampaign(userId, selected, socialInput, campaignId);
+    const currentResults = campaign.results && typeof campaign.results === "object" ? campaign.results : {};
+    const finalResults = {
+        ...currentResults,
+        social,
+        lifecycle: {
+            ...(currentResults.lifecycle || {}),
+            stage: "PUBLICATION",
+            status: Object.values(social).some((result: any) => result?.ok) ? "RECORDED" : "ERROR",
+            updatedAt: new Date().toISOString(),
+        },
+    };
+    await pool.query(`UPDATE marketing_campaigns SET results=$2::jsonb, last_run_at=NOW() WHERE id=$1`, [campaignId, JSON.stringify(finalResults)]);
+
+    const runIds = await recordCampaignRuns(campaignId, userId, social, "campaign", randomUUID());
+    await recordCampaignLaunchLearning({
+        campaignId,
+        runIds,
+        channels: selected,
+        objective: String(campaign.objective || "Brand awareness and sales"),
+        targetArea: String(campaign.target_area || "Houston, Texas + United States"),
+        hasImage: Boolean(socialInput.imageUrl),
+        hasVideo: Boolean(socialInput.videoUrl),
+        results: social,
+    });
+
+    return { campaignId, social, connectedChannels: connected };
+};
+
 export const getMarketingLearning = async (targetArea?: string, objective?: string, ownerUserId?: string) => getMarketingLearningInsights(targetArea, objective, ownerUserId);
 
 export const getMarketingCampaignResults = async (ownerUserId: string, days = 30) => {
