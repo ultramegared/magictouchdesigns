@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { randomUUID } from "crypto";
 import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
-import { launchMarketingCampaign, listMarketingCampaigns, deleteMarketingCampaign, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot, getMarketingCampaignResults } from "../services/marketing-campaign.service";
+import { launchMarketingCampaign, retryMarketingCampaign, listMarketingCampaigns, deleteMarketingCampaign, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot, getMarketingCampaignResults } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
 import { getMarketingDailySummary, getMarketingAutopilotStatus, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
@@ -191,6 +191,16 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
         res.json({ status: "success", data: result });
     } catch (error) {
         res.status(502).json({ status: "error", error: error instanceof Error ? error.message : "Unable to launch marketing campaign." });
+    }
+}
+
+
+export async function marketingCampaignRetry(req: AuthenticatedRequest, res: Response) {
+    try {
+        const result = await retryMarketingCampaign(String(req.user!.userId), String(req.params.campaignId || ""));
+        res.json({ status: "success", data: result });
+    } catch (error) {
+        res.status(400).json({ status: "error", error: error instanceof Error ? error.message : "Unable to retry marketing campaign." });
     }
 }
 
