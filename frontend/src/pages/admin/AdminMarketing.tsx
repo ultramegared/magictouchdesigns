@@ -41,7 +41,7 @@ interface SearchMetrics { clicks: number; impressions: number; ctr: number; posi
 type SocialChannel = "facebook" | "instagram" | "tiktok" | "youtube" | "pinterest" | "whatsapp";
 type ChannelName = "Google" | "Facebook" | "Instagram" | "TikTok" | "YouTube" | "Pinterest" | "WhatsApp" | "Email";
 interface SubscriberCounts { total:number; active:number; inactive:number; active_en:number; active_es:number; }
-type Channel = { name: ChannelName; detail: string; icon: LucideIcon; tone: string; social?: SocialChannel; provider?: "meta" | "tiktok" | "youtube" | "pinterest" };
+type Channel = { name: ChannelName; detail: string; icon: LucideIcon; tone: string; social?: SocialChannel; provider?: "meta" | "instagram" | "tiktok" | "youtube" | "pinterest" };
 interface SocialProfile { [key: string]: any; }
 interface SocialConnection { connected: boolean; profile?: SocialProfile; }
 interface SocialSetup { configured?: boolean; envKeys?: string[]; callback?: string; }
@@ -72,7 +72,7 @@ interface CatalogStatus { enabled:boolean; initializedAt?:string|null; lastScanA
 const channels: Channel[] = [
     { name: "Google", detail: "Search & Analytics", icon: Search, tone: "#4285F4" },
     { name: "Facebook", detail: "Pages & publishing", icon: MessageCircle, tone: "#1877F2", social: "facebook", provider: "meta" },
-    { name: "Instagram", detail: "Posts & Reels", icon: Image, tone: "#E1306C", social: "instagram", provider: "meta" },
+    { name: "Instagram", detail: "Posts & Reels", icon: Image, tone: "#E1306C", social: "instagram", provider: "instagram" },
     { name: "TikTok", detail: "Short-form video", icon: Video, tone: "#e5e7eb", social: "tiktok", provider: "tiktok" },
     { name: "YouTube", detail: "Video publishing", icon: Play, tone: "#FF0000", social: "youtube", provider: "youtube" },
     { name: "Pinterest", detail: "Pins & products", icon: Image, tone: "#BD081C", social: "pinterest", provider: "pinterest" },
@@ -115,7 +115,7 @@ function AdminMarketing() {
     const [publishing, setPublishing] = useState(false);
     const [publishResults, setPublishResults] = useState<Record<string, PublishResult>>({});
     const [notice, setNotice] = useState("");
-    const [setupProvider, setSetupProvider] = useState<"meta" | "tiktok" | "youtube" | "pinterest" | null>(null);
+    const [setupProvider, setSetupProvider] = useState<"meta" | "instagram" | "tiktok" | "youtube" | "pinterest" | null>(null);
     const [campaignName, setCampaignName] = useState("");
     const [campaignObjective, setCampaignObjective] = useState("Brand awareness and sales");
     const [campaignTargetArea, setCampaignTargetArea] = useState("Houston, Texas + United States");
@@ -373,7 +373,7 @@ function AdminMarketing() {
         if (!channel.social) return channel.name === "Google" ? (ga?.propertyId ? `GA4 ${ga.propertyId}` : "Search & Analytics") : "Managed separately";
         const profile = channel.provider ? social.connected?.[channel.provider]?.profile || {} : {};
         if (channel.social === "facebook") return profile.pages?.[0]?.name || profile.name || "Facebook Page";
-        if (channel.social === "instagram") return profile.instagram?.[0]?.username || profile.instagram?.[0]?.name || "Instagram account";
+        if (channel.social === "instagram") return profile.username || profile.name || "Instagram account";
         if (channel.social === "whatsapp") return profile.whatsapp?.[0]?.verified_name || profile.whatsapp?.[0]?.display_phone_number || "WhatsApp Business";
         if (channel.social === "tiktok") return profile.display_name || profile.username || "TikTok account";
         if (channel.social === "youtube") return profile.snippet?.title || "YouTube channel";
@@ -483,7 +483,7 @@ function AdminMarketing() {
         }
     };
     const openSeo = () => { setModal("Google"); void refreshGoogle(); };
-    const setupTitle = (provider: string) => provider === "meta" ? "Facebook · Instagram · WhatsApp" : provider === "youtube" ? "YouTube / Google" : provider === "tiktok" ? "TikTok" : "Pinterest";
+    const setupTitle = (provider: string) => provider === "meta" ? "Facebook · WhatsApp" : provider === "instagram" ? "Instagram" : provider === "youtube" ? "YouTube / Google" : provider === "tiktok" ? "TikTok" : "Pinterest";
 
     const toggleChannel = (channel: SocialChannel) => setSelectedSocial(current => current.includes(channel) ? current.filter(item => item !== channel) : [...current, channel]);
     const publish = async () => {
