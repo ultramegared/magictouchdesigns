@@ -418,8 +418,8 @@ export const materializePaidOrder = async (input: {
             `INSERT INTO orders
                 (order_code, stripe_checkout_session_id, stripe_payment_intent_id, paypal_order_id, paypal_capture_id,
                  payment_provider, payment_method, customer_first_name, customer_last_name, customer_email, customer_phone,
-                 shipping_address, subtotal, shipping, tax, total, carrier, shipping_service, shipping_delivery_days, shipping_rate_id, status, payment_status)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,'paid','paid')
+                 shipping_address, subtotal, shipping, tax, total, tax_calculation_id, carrier, shipping_service, shipping_delivery_days, shipping_rate_id, status, payment_status)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,'paid','paid')
              RETURNING id, order_code`,
             [
                 attempt.checkout_code,
@@ -438,6 +438,7 @@ export const materializePaidOrder = async (input: {
                 input.shipping,
                 input.tax,
                 input.total,
+                attempt.tax_calculation_id || null,
                 attempt.carrier || null,
                 attempt.shipping_service || null,
                 attempt.shipping_delivery_days || null,
