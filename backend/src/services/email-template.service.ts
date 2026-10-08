@@ -36,7 +36,7 @@ const C = (subject: string, title: string, body: string, buttonText = "", button
 });
 
 const DEFAULTS: Record<string, {name:string;category:EmailTemplateCategory;description:string;content:EmailTemplateContent}> = {
-    welcome:{name:"Welcome",category:"ACCOUNT",description:"Sent after a new customer account is created.",content:C("Welcome to {{siteName}}","Welcome to {{siteName}}","Hi {{customerName}},\n\nWelcome to JQYDesigns. We’re excited to have you here. Your account is ready, so you can explore our personalized designs, manage your profile, and keep your orders organized in one place.\n\nThank you for choosing JQYDesigns — where every piece is made to feel personal.","Explore JQYDesigns","{{accountUrl}}")},
+    welcome:{name:"Welcome",category:"ACCOUNT",description:"Sent after a new customer account is created.",content:C("Welcome to {{siteName}}","Welcome to {{siteName}}!","Hi {{customerName}},\n\nYour customer account has been successfully created.\nYou can now manage your profile, orders, reviews and more.\n\nThank you for being part of the JQYDesigns community.","Open My Account","{{accountUrl}}")},
     email_verification:{name:"Email Verification",category:"ACCOUNT",description:"Reserved for the email-verification flow.",content:C("Verify your email address","Verify your email address","Hi {{customerName}}, please confirm your email address to secure your account.","Verify Email","{{verificationUrl}}")},
     password_reset:{name:"Password Reset",category:"ACCOUNT",description:"Secure password recovery email.",content:C("Reset your {{siteName}} password","Reset your password","Hi {{customerName}}, we received a request to reset your password. This secure link expires in {{expiryMinutes}} minutes.","Reset Password","{{resetUrl}}")},
     password_changed:{name:"Password Changed",category:"ACCOUNT",description:"Confirmation after a successful password change.",content:C("Your {{siteName}} password was changed","Password changed successfully","Hi {{customerName}}, your password was changed successfully. If you did not make this change, contact us immediately.","Open My Account","{{accountUrl}}")},
@@ -158,24 +158,29 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
     const preheader = escapeHtml(resolved.preheader || resolved.title);
 
     const welcomeHighlights = isWelcome
-        ? "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:24px 0 4px\"><tr>" +
-          "<td width=\"33.33%\" valign=\"top\" style=\"padding:14px 8px;border:1px solid #e8edf3;border-radius:10px;text-align:center\"><div style=\"font-size:20px;margin-bottom:7px\">✦</div><div style=\"font-size:12px;font-weight:700;color:#172033\">Personalized</div><div style=\"font-size:11px;color:#6b7280;margin-top:4px\">Made for you</div></td>" +
-          "<td width=\"8px\" style=\"font-size:1px\">&nbsp;</td>" +
-          "<td width=\"33.33%\" valign=\"top\" style=\"padding:14px 8px;border:1px solid #e8edf3;border-radius:10px;text-align:center\"><div style=\"font-size:20px;margin-bottom:7px\">✓</div><div style=\"font-size:12px;font-weight:700;color:#172033\">Your account</div><div style=\"font-size:11px;color:#6b7280;margin-top:4px\">Ready to use</div></td>" +
-          "<td width=\"8px\" style=\"font-size:1px\">&nbsp;</td>" +
-          "<td width=\"33.33%\" valign=\"top\" style=\"padding:14px 8px;border:1px solid #e8edf3;border-radius:10px;text-align:center\"><div style=\"font-size:20px;margin-bottom:7px\">♡</div><div style=\"font-size:12px;font-weight:700;color:#172033\">Made personal</div><div style=\"font-size:11px;color:#6b7280;margin-top:4px\">Just for you</div></td>" +
+        ? "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:26px 0 6px;background:#f5f7fa;border-radius:14px\"><tr>" +
+          "<td width=\"25%\" valign=\"top\" style=\"padding:20px 7px;text-align:center\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">♙</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Manage<br/>Your Profile</div></td>" +
+          "<td width=\"25%\" valign=\"top\" style=\"padding:20px 7px;text-align:center;border-left:1px solid #dfe5ec\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">◇</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">View<br/>Your Orders</div></td>" +
+          "<td width=\"25%\" valign=\"top\" style=\"padding:20px 7px;text-align:center;border-left:1px solid #dfe5ec\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">☆</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Write<br/>Reviews</div></td>" +
+          "<td width=\"25%\" valign=\"top\" style=\"padding:20px 7px;text-align:center;border-left:1px solid #dfe5ec\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">♡</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Save<br/>Favorites</div></td>" +
           "</tr></table>"
         : "";
 
     const html = "<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\" /></head><body style=\"margin:0;background:#eef2f6;font-family:Arial,Helvetica,sans-serif;color:#172033\">" +
         "<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;color:transparent\">" + preheader + "</div>" +
         "<div style=\"padding:28px 12px\"><div style=\"max-width:680px;margin:auto\">" +
-        "<div style=\"height:4px;background:linear-gradient(90deg,#1F67B1,#C99A2E,#1F67B1);border-radius:8px 8px 0 0\"></div>" +
+        "<div style=\"height:4px;background:linear-gradient(90deg,#99621c,#E5B84B,#99621c);border-radius:12px 12px 0 0\"></div>" +
         "<div style=\"background:#fff;border:1px solid #dfe5ec;border-radius:0 0 18px 18px;overflow:hidden\">" +
-        "<div style=\"padding:30px 24px 26px;text-align:center;background:#fbfcfe;border-bottom:1px solid #e7ebf1\"><img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:210px;max-height:92px;width:auto;height:auto;border:0\" /></div>" +
+        (isWelcome
+            ? "<div style=\"padding:34px 24px 30px;text-align:center;background:#17130f;border-bottom:1px solid #3a3024\">" +
+              "<div style=\"color:#E5B84B;font-size:12px;font-weight:800;letter-spacing:5px;margin-bottom:14px\">JQYDESIGNS</div>" +
+              "<img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:190px;max-height:105px;width:auto;height:auto;border:0\" />" +
+              "<div style=\"margin-top:14px;color:#f4dfaa;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase\">Personalized creations for a brighter you</div>" +
+              "</div>"
+            : "<div style=\"padding:30px 24px 26px;text-align:center;background:#fbfcfe;border-bottom:1px solid #e7ebf1\"><img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:210px;max-height:92px;width:auto;height:auto;border:0\" /></div>") +
         "<div style=\"padding:34px 34px 30px\">" +
-        "<div style=\"color:" + color + ";font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase\">" + escapeHtml(resolved.eyebrow) + "</div>" +
-        "<h1 style=\"margin:11px 0 14px;font-size:34px;line-height:1.14;letter-spacing:-.6px;color:#14213a\">" + escapeHtml(resolved.title) + "</h1>" +
+        "<div style=\"color:" + (isWelcome ? "#99621c" : color) + ";font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">" + escapeHtml(resolved.eyebrow) + "</div>" +
+        "<h1 style=\"margin:11px 0 14px;font-size:34px;line-height:1.14;letter-spacing:-.7px;color:#14213a\">" + escapeHtml(resolved.title) + "</h1>" +
         "<div style=\"color:#536174;font-size:16px;line-height:1.75\">" + textToHtml(resolved.body) + "</div>" +
         welcomeHighlights +
         button +
