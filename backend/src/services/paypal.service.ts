@@ -8,7 +8,7 @@
 import crypto from "crypto";
 import { pool } from "../config/database";
 import { buildOrderSnapshot, createCheckoutAttempt, ensureOrderTables, materializePaidOrder, type CheckoutCustomerInput, type CheckoutItemInput } from "./order.service";
-import { calculateDestinationTax } from "./tax.service";
+import { calculateDestinationTax, createTaxTransactionFromCalculation } from "./tax.service";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://jqydesigns.com";
 
@@ -75,7 +75,15 @@ export const createPayPalOrder = async (customer: CheckoutCustomerInput, items: 
     const taxResult = await calculateDestinationTax(taxCustomer, snapshot.normalizedItems, Math.round(snapshot.shipping * 100));
     const tax = taxResult.tax;
     const total = snapshot.subtotal + snapshot.shipping + tax;
-    await pool.query(`UPDATE checkout_attempts SET tax = $1, total = $2, updated_at = NOW() WHERE id = $3`, [tax, total, attempt.attemptId]);
+    await pool.query(
+        `UPDATE checkout_attempts
+         SET tax = $1,
+             total = $2,
+             tax_calculation_id = $3,
+             updated_at = NOW()
+         WHERE id = $4`,
+        [tax, total, taxResult.calculationId, attempt.attemptId],
+    );
     try {
         const token = await getPayPalAccessToken();
         const paypalOrder = await paypalJsonRequest("/v2/checkout/orders", "POST", token, {
@@ -105,6 +113,17 @@ export const capturePayPalOrder = async (paypalOrderId: string) => {
     const capturedAmount = Number(capture?.amount?.value || 0);
     const expectedAmount = Number(attempt.total);
     if (!Number.isFinite(capturedAmount) || Math.abs(capturedAmount - expectedAmount) > 0.01) throw new Error("PayPal captured amount does not match the Magic Touch Designs checkout total.");
+    if (attempt.tax_calculation_id) {
+        try {
+            await createTaxTransactionFromCalculation(
+                String(attempt.tax_calculation_id),
+                String(attempt.checkout_code || paypalOrderId),
+            );
+        } catch (taxError) {
+            console.error("Stripe Tax transaction recording failed after PayPal capture:", taxError);
+        }
+    }
+
     const result = await materializePaidOrder({
         attemptId: String(attempt.id),
         paymentProvider: "paypal",
