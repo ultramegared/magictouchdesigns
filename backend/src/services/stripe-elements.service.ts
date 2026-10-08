@@ -209,6 +209,8 @@ export const updateStripeApplePayShipping = async (
         items,
     );
 
+    const verifiedAddress = shippingQuote.verifiedAddress;
+
     const params = new URLSearchParams();
     params.set("collected_information[shipping_details][name]", `${attempt.customer_first_name || ""} ${attempt.customer_last_name || ""}`.trim() || "Customer");
     params.set("collected_information[shipping_details][address][country]", country);
@@ -241,7 +243,6 @@ export const updateStripeApplePayShipping = async (
     const data = await response.json() as any;
     if (!response.ok) throw new Error(data?.error?.message || "Stripe could not update Apple Pay shipping.");
 
-    const verifiedAddress = shippingQuote.verifiedAddress;
     const shippingAddress = {
         deliveryType: currentAddress.deliveryType || "house",
         address: verifiedAddress.address,
