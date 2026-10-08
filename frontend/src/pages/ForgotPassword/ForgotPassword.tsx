@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { ArrowLeft, Mail, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Mail, Loader2, X } from "lucide-react";
 import "../Login/Login.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
@@ -13,6 +13,7 @@ function ForgotPassword() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [logoUrl, setLogoUrl] = useState("");
+    const [feedback, setFeedback] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -35,6 +36,7 @@ function ForgotPassword() {
                 headers: { "Content-Type": "application/json" },
             });
             setSubmitted(true);
+            setFeedback(true);
         } catch (requestError) {
             setError(requestError instanceof Error ? requestError.message : (language === "es" ? "No pudimos enviar el enlace. Inténtalo nuevamente." : "We could not send the reset link. Please try again."));
         } finally {
@@ -79,6 +81,18 @@ function ForgotPassword() {
                         <p>{language === "es" ? "Si el correo está registrado, recibirás un enlace seguro para crear una nueva contraseña. Revisa también Spam o Promociones." : "If that email is registered, you will receive a secure link to create a new password. Also check Spam or Promotions."}</p>
                     </div>
                 )}
+                {feedback && (
+                    <div className="login__feedback-overlay" role="presentation">
+                        <div className="login__feedback login__feedback--success" role="alertdialog" aria-modal="true">
+                            <button type="button" className="login__feedback-close" onClick={() => setFeedback(false)} aria-label="Close"><X size={18} /></button>
+                            <div className="login__feedback-icon"><CheckCircle2 size={28} /></div>
+                            <h2>{language === "es" ? "Correo enviado" : "Email sent"}</h2>
+                            <p>{language === "es" ? "Si la cuenta existe, recibirás el enlace para crear una nueva contraseña. Revisa también Spam o Promociones." : "If the account exists, you will receive a secure link to create a new password. Also check Spam or Promotions."}</p>
+                            <button type="button" className="login__feedback-action" onClick={() => { window.location.href = "/"; }}>{language === "es" ? "Volver al inicio" : "Back to home"}</button>
+                        </div>
+                    </div>
+                )}
+
                 <div className="login__register">
                     <button type="button" onClick={() => { window.location.href = "/"; }}>
                         <ArrowLeft size={16} aria-hidden="true" />
