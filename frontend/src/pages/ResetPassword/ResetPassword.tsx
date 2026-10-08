@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, Lock, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Eye, EyeOff, Lock, Loader2, X } from "lucide-react";
 import "../Login/Login.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { apiRequest } from "../../services/api";
@@ -37,6 +37,7 @@ function ResetPassword() {
         try {
             await apiRequest<{ status: string; message: string }>("/api/auth/reset-password", { method: "POST", body: JSON.stringify({ token, password }), headers: { "Content-Type": "application/json" } });
             setDone(true);
+            window.setTimeout(() => { window.location.href = "/"; }, 1600);
         } catch (requestError) {
             setError(requestError instanceof Error ? requestError.message : (es ? "No pudimos cambiar la contraseña. Inténtalo nuevamente." : "We could not change your password. Please try again."));
         } finally { setLoading(false); }
@@ -67,6 +68,17 @@ function ResetPassword() {
                         {error && <p role="alert" style={{ color: "#b42318", margin: "-4px 0 4px", fontSize: "13px" }}>{error}</p>}
                         <button type="submit" className="login__submit" disabled={loading}><span>{loading ? (es ? "Actualizando..." : "Updating...") : (es ? "Cambiar contraseña" : "Update password")}</span>{loading ? <Loader2 size={18} className="spin" aria-hidden="true" /> : <span className="login__submit-shine" aria-hidden="true" />}</button>
                     </form>
+                )}
+                {done && (
+                    <div className="login__feedback-overlay" role="presentation">
+                        <div className="login__feedback login__feedback--success" role="alertdialog" aria-modal="true">
+                            <button type="button" className="login__feedback-close" onClick={() => { window.location.href = "/"; }} aria-label="Close"><X size={18} /></button>
+                            <div className="login__feedback-icon"><CheckCircle2 size={28} /></div>
+                            <h2>{es ? "Contraseña modificada con éxito" : "Password changed successfully"}</h2>
+                            <p>{es ? "Tu nueva contraseña ya está activa. Te llevamos al inicio para iniciar sesión." : "Your new password is active. Taking you to the home page to sign in."}</p>
+                            <span className="login__feedback-progress" aria-hidden="true" />
+                        </div>
+                    </div>
                 )}
                 <div className="login__register"><button type="button" onClick={() => { window.location.href = "/"; }}><ArrowLeft size={16} aria-hidden="true" />{es ? "Volver al inicio" : "Back to home"}</button></div>
             </section>
