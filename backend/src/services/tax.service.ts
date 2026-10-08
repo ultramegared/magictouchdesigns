@@ -37,6 +37,7 @@ export const calculateDestinationTax = async (
     params.set("customer_details[address_source]", "shipping");
     params.set("shipping_cost[amount]", String(Math.max(0, Math.round(shippingCents))));
     params.set("shipping_cost[tax_behavior]", "exclusive");
+    params.set("shipping_cost[tax_code]", "txcd_92010001");
 
     items.forEach((item, index) => {
         params.set(`line_items[${index}][amount]`, String(Math.round(item.unit_price * item.quantity * 100)));
@@ -67,4 +68,30 @@ export const calculateDestinationTax = async (
         taxabilityReason: data?.taxability_reason ? String(data.taxability_reason) : null,
         calculationId: data?.id ? String(data.id) : null,
     };
+};
+
+
+export const createTaxTransactionFromCalculation = async (
+    calculationId: string,
+    reference: string,
+): Promise<{ transactionId: string }> => {
+    const params = new URLSearchParams();
+    params.set("calculation", calculationId);
+    params.set("reference", reference);
+
+    const response = await fetch("https://api.stripe.com/v1/tax/transactions/create_from_calculation", {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${requireStripeKey()}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params,
+    });
+
+    const data = await response.json() as any;
+    if (!response.ok) {
+        throw new Error(data?.error?.message || "Unable to record the sales tax transaction.");
+    }
+
+    return { transactionId: String(data?.id || "") };
 };
