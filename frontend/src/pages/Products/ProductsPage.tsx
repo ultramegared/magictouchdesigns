@@ -208,6 +208,14 @@ function ProductsPage() {
         null
     );
 
+    const [cartMessage, setCartMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!cartMessage) return;
+        const timer = window.setTimeout(() => setCartMessage(null), 2200);
+        return () => window.clearTimeout(timer);
+    }, [cartMessage]);
+
 
     /*
     |--------------------------------------------------------------------------
@@ -537,6 +545,13 @@ function ProductsPage() {
     return (
 
         <>
+
+            {cartMessage && (
+                <div className="products-cart-toast" role="status" aria-live="polite">
+                    <span className="products-cart-toast__check">✓</span>
+                    <span>{cartMessage}</span>
+                </div>
+            )}
 
             <Header />
 
@@ -928,6 +943,12 @@ function ProductsPage() {
                                                             ),
 
                                                     });
+
+                                                    setCartMessage(
+                                                        language === "es"
+                                                            ? "Producto agregado con éxito"
+                                                            : "Product added successfully"
+                                                    );
 
                                                 }}
                                             >
