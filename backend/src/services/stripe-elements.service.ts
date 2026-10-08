@@ -176,12 +176,13 @@ export const updateStripeApplePayShipping = async (
     const attempt = attemptResult.rows[0];
     if (!attempt) throw new Error("Apple Pay checkout attempt was not found.");
 
-    const itemResult = await pool.query(
-        `SELECT value->>'product_id' AS product_id, value->>'name' AS product_name, (value->>'quantity')::int AS quantity FROM jsonb_array_elements(items) AS value`,
-    );
-    const items = itemResult.rows.map((item: any) => ({
+    const storedItems = Array.isArray(attempt.items) ? attempt.items : [];
+    const items = storedItems.map((item: any) => ({
         productId: String(item.product_id),
         quantity: Number(item.quantity),
+        model: item?.variant?.model ? String(item.variant.model) : undefined,
+        size: item?.variant?.size ? String(item.variant.size) : undefined,
+        color: item?.variant?.color ? String(item.variant.color) : undefined,
     }));
 
     const currentAddress = attempt.shipping_address || {};
@@ -211,11 +212,11 @@ export const updateStripeApplePayShipping = async (
     const params = new URLSearchParams();
     params.set("collected_information[shipping_details][name]", `${attempt.customer_first_name || ""} ${attempt.customer_last_name || ""}`.trim() || "Customer");
     params.set("collected_information[shipping_details][address][country]", country);
-    params.set("collected_information[shipping_details][address][line1]", street);
-    if (apartment) params.set("collected_information[shipping_details][address][line2]", apartment);
-    params.set("collected_information[shipping_details][address][city]", city);
-    params.set("collected_information[shipping_details][address][state]", state);
-    params.set("collected_information[shipping_details][address][postal_code]", postalCode);
+    params.set("collected_information[shipping_details][address][line1]", verifiedAddress.address);
+    if (verifiedAddress.apartment) params.set("collected_information[shipping_details][address][line2]", verifiedAddress.apartment);
+    params.set("collected_information[shipping_details][address][city]", verifiedAddress.city);
+    params.set("collected_information[shipping_details][address][state]", verifiedAddress.state);
+    params.set("collected_information[shipping_details][address][postal_code]", verifiedAddress.zip);
     params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(shippingQuote.shippingCents));
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
@@ -240,24 +241,38 @@ export const updateStripeApplePayShipping = async (
     const data = await response.json() as any;
     if (!response.ok) throw new Error(data?.error?.message || "Stripe could not update Apple Pay shipping.");
 
+    const verifiedAddress = shippingQuote.verifiedAddress;
     const shippingAddress = {
         deliveryType: currentAddress.deliveryType || "house",
-        address: street,
-        apartment,
-        city,
-        state,
-        zip: postalCode,
+        address: verifiedAddress.address,
+        apartment: verifiedAddress.apartment,
+        city: verifiedAddress.city,
+        state: verifiedAddress.state,
+        zip: verifiedAddress.zip,
     };
 
     await pool.query(
-        `UPDATE checkout_attempts SET customer_first_name = COALESCE(NULLIF($1, ''), customer_first_name), customer_last_name = COALESCE(NULLIF($2, ''), customer_last_name), shipping_address = $4, shipping = $5, total = subtotal + tax + $5, carrier = $6, updated_at = NOW() WHERE stripe_checkout_session_id = $7`,
+        `UPDATE checkout_attempts
+         SET customer_first_name = COALESCE(NULLIF($1, ''), customer_first_name),
+             customer_last_name = COALESCE(NULLIF($2, ''), customer_last_name),
+             shipping_address = $3,
+             shipping = $4,
+             total = subtotal + tax + $4,
+             carrier = $5,
+             shipping_service = $6,
+             shipping_delivery_days = $7,
+             shipping_rate_id = $8,
+             updated_at = NOW()
+         WHERE stripe_checkout_session_id = $9`,
         [
             String(shippingDetails?.name || "").trim().split(/\s+/)[0] || String(attempt.customer_first_name || ""),
             String(shippingDetails?.name || "").trim().split(/\s+/).slice(1).join(" ") || String(attempt.customer_last_name || ""),
-            String(attempt.customer_email || "").trim().toLowerCase(),
             JSON.stringify(shippingAddress),
             shippingQuote.shipping,
             shippingQuote.carrier,
+            shippingQuote.service,
+            shippingQuote.deliveryDays,
+            shippingQuote.rateId,
             normalizedSessionId,
         ],
     );
