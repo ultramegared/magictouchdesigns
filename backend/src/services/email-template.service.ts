@@ -36,7 +36,7 @@ const C = (subject: string, title: string, body: string, buttonText = "", button
 });
 
 const DEFAULTS: Record<string, {name:string;category:EmailTemplateCategory;description:string;content:EmailTemplateContent}> = {
-    welcome:{name:"Welcome",category:"ACCOUNT",description:"Sent after a new customer account is created.",content:C("Welcome to {{siteName}}","Welcome to {{siteName}}","Hi {{customerName}}, your customer account is ready. You can now manage your profile, orders and reviews.","Open My Account","{{accountUrl}}")},
+    welcome:{name:"Welcome",category:"ACCOUNT",description:"Sent after a new customer account is created.",content:C("Welcome to {{siteName}}","Welcome to {{siteName}}","Hi {{customerName}},\n\nWelcome to JQYDesigns. We’re excited to have you here. Your account is ready, so you can explore our personalized designs, manage your profile, and keep your orders organized in one place.\n\nThank you for choosing JQYDesigns — where every piece is made to feel personal.","Explore JQYDesigns","{{accountUrl}}")},
     email_verification:{name:"Email Verification",category:"ACCOUNT",description:"Reserved for the email-verification flow.",content:C("Verify your email address","Verify your email address","Hi {{customerName}}, please confirm your email address to secure your account.","Verify Email","{{verificationUrl}}")},
     password_reset:{name:"Password Reset",category:"ACCOUNT",description:"Secure password recovery email.",content:C("Reset your {{siteName}} password","Reset your password","Hi {{customerName}}, we received a request to reset your password. This secure link expires in {{expiryMinutes}} minutes.","Reset Password","{{resetUrl}}")},
     password_changed:{name:"Password Changed",category:"ACCOUNT",description:"Confirmation after a successful password change.",content:C("Your {{siteName}} password was changed","Password changed successfully","Hi {{customerName}}, your password was changed successfully. If you did not make this change, contact us immediately.","Open My Account","{{accountUrl}}")},
@@ -127,19 +127,56 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
     const settings = await getSettings();
     const resolved: Record<string,string> = {};
     Object.entries(template.published).forEach(([k,v]) => resolved[k] = replaceVariables(String(v), vars));
+
     const logoUrl = settings.logoUrl || FRONTEND_URL + "/images/logo/jqyd-logo-256.png";
     const color = /^#[0-9a-fA-F]{6}$/.test(resolved.primaryColor) ? resolved.primaryColor : "#1F67B1";
-    const button = resolved.buttonText && resolved.buttonUrl
-        ? "<p style=\"margin:28px 0\"><a href=\"" + escapeHtml(resolved.buttonUrl) + "\" style=\"display:inline-block;padding:13px 20px;background:" + color + ";color:#fff;text-decoration:none;border-radius:10px;font-weight:700\">" + escapeHtml(resolved.buttonText) + "</a></p>"
-        : "";
-    const html = "<!doctype html><html><body style=\"margin:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#172033\"><div style=\"padding:32px 14px\"><div style=\"max-width:680px;margin:auto;background:#fff;border:1px solid #e1e6ec;border-radius:18px;overflow:hidden\"><div style=\"padding:22px 28px;border-bottom:1px solid #e7ebf1;text-align:center\"><img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(settings.websiteName || "JQYDesigns") + "\" style=\"display:block;margin:auto;max-width:220px;max-height:82px;width:auto;height:auto;border:0\" /></div><div style=\"padding:28px\"><div style=\"color:" + color + ";font-size:12px;font-weight:800;letter-spacing:1.5px\">" + escapeHtml(resolved.eyebrow) + "</div><h1 style=\"margin:10px 0 12px;font-size:30px;line-height:1.2\">" + escapeHtml(resolved.title) + "</h1><div style=\"color:#526071;font-size:15px\">" + textToHtml(resolved.body) + "</div>" + button + "<div style=\"margin-top:26px;padding-top:18px;border-top:1px solid #e7ebf1;color:#6b7280;font-size:12px;line-height:1.6\">" + textToHtml(resolved.footerText) + "</div></div></div></div></body></html>";
-    const text = [resolved.eyebrow,resolved.title,resolved.body,resolved.buttonUrl ? resolved.buttonText + ": " + resolved.buttonUrl : "",resolved.footerText].filter(Boolean).join("\n\n");
-    try {
-        const result = await sendEmail({ to, subject:resolved.subject, html, text, replyTo, attachments, idempotencyKey });\n        await recordEmailLog({ templateKey:template.key, eventKey:idempotencyKey, recipient:to, providerMessageId:result.id, status:"SENT" });\n        return result;
-    } catch (error) {
-        await recordEmailLog({ templateKey:template.key, eventKey:idempotencyKey, recipient:to, status:"FAILED", errorMessage:error instanceof Error ? error.message : "Email send failed." });\n        throw error;\n    }
-};
+    const siteName = settings.websiteName || "JQYDesigns";
+    const isWelcome = template.key === "welcome";
 
+    const button = resolved.buttonText && resolved.buttonUrl
+        ? "<p style=\"margin:30px 0 8px\"><a href=\"" + escapeHtml(resolved.buttonUrl) + "\" style=\"display:inline-block;padding:15px 28px;background:" + color + ";color:#fff;text-decoration:none;border-radius:9px;font-weight:700;font-size:15px\">" + escapeHtml(resolved.buttonText) + "</a></p>"
+        : "";
+
+    const preheader = escapeHtml(resolved.preheader || resolved.title);
+
+    const welcomeHighlights = isWelcome
+        ? "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:24px 0 4px\"><tr>" +
+          "<td width=\"33.33%\" valign=\"top\" style=\"padding:14px 8px;border:1px solid #e8edf3;border-radius:10px;text-align:center\"><div style=\"font-size:20px;margin-bottom:7px\">✦</div><div style=\"font-size:12px;font-weight:700;color:#172033\">Personalized</div><div style=\"font-size:11px;color:#6b7280;margin-top:4px\">Made for you</div></td>" +
+          "<td width=\"8px\" style=\"font-size:1px\">&nbsp;</td>" +
+          "<td width=\"33.33%\" valign=\"top\" style=\"padding:14px 8px;border:1px solid #e8edf3;border-radius:10px;text-align:center\"><div style=\"font-size:20px;margin-bottom:7px\">✓</div><div style=\"font-size:12px;font-weight:700;color:#172033\">Your account</div><div style=\"font-size:11px;color:#6b7280;margin-top:4px\">Ready to use</div></td>" +
+          "<td width=\"8px\" style=\"font-size:1px\">&nbsp;</td>" +
+          "<td width=\"33.33%\" valign=\"top\" style=\"padding:14px 8px;border:1px solid #e8edf3;border-radius:10px;text-align:center\"><div style=\"font-size:20px;margin-bottom:7px\">♡</div><div style=\"font-size:12px;font-weight:700;color:#172033\">Made personal</div><div style=\"font-size:11px;color:#6b7280;margin-top:4px\">Just for you</div></td>" +
+          "</tr></table>"
+        : "";
+
+    const html = "<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\" /></head><body style=\"margin:0;background:#eef2f6;font-family:Arial,Helvetica,sans-serif;color:#172033\">" +
+        "<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;color:transparent\">" + preheader + "</div>" +
+        "<div style=\"padding:28px 12px\"><div style=\"max-width:680px;margin:auto\">" +
+        "<div style=\"height:4px;background:linear-gradient(90deg,#1F67B1,#C99A2E,#1F67B1);border-radius:8px 8px 0 0\"></div>" +
+        "<div style=\"background:#fff;border:1px solid #dfe5ec;border-radius:0 0 18px 18px;overflow:hidden\">" +
+        "<div style=\"padding:30px 24px 26px;text-align:center;background:#fbfcfe;border-bottom:1px solid #e7ebf1\"><img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:210px;max-height:92px;width:auto;height:auto;border:0\" /></div>" +
+        "<div style=\"padding:34px 34px 30px\">" +
+        "<div style=\"color:" + color + ";font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase\">" + escapeHtml(resolved.eyebrow) + "</div>" +
+        "<h1 style=\"margin:11px 0 14px;font-size:34px;line-height:1.14;letter-spacing:-.6px;color:#14213a\">" + escapeHtml(resolved.title) + "</h1>" +
+        "<div style=\"color:#536174;font-size:16px;line-height:1.75\">" + textToHtml(resolved.body) + "</div>" +
+        welcomeHighlights +
+        button +
+        "<div style=\"margin-top:30px;padding-top:19px;border-top:1px solid #e7ebf1;color:#748091;font-size:12px;line-height:1.65\">" + textToHtml(resolved.footerText) + "</div>" +
+        "</div></div>" +
+        "<div style=\"text-align:center;padding:18px 12px;color:#8993a1;font-size:11px\">© " + new Date().getFullYear() + " " + escapeHtml(siteName) + " · Thank you for being with us.</div>" +
+        "</div></div></body></html>";
+
+    const text = [resolved.eyebrow,resolved.title,resolved.body,resolved.buttonUrl ? resolved.buttonText + ": " + resolved.buttonUrl : "",resolved.footerText].filter(Boolean).join("\n\n");
+
+    try {
+        const result = await sendEmail({ to, subject:resolved.subject, html, text, replyTo, attachments, idempotencyKey });
+        await recordEmailLog({ templateKey:template.key, eventKey:idempotencyKey, recipient:to, providerMessageId:result.id, status:"SENT" });
+        return result;
+    } catch (error) {
+        await recordEmailLog({ templateKey:template.key, eventKey:idempotencyKey, recipient:to, status:"FAILED", errorMessage:error instanceof Error ? error.message : "Email send failed." });
+        throw error;
+    }
+};
 export const sendTemplateEmail = async (key: string, to: string|string[], vars: Record<string, unknown>, idempotencyKey: string, replyTo?: string, attachments?: Array<{ filename:string; content:string; contentType?:string }>) => {
     const library = await getEmailTemplates();
     const template = library[key];
