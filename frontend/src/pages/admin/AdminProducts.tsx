@@ -262,12 +262,8 @@ function AdminProducts() {
        MESSAGE
     ============================================================ */
 
-    const [
-        message,
-        setMessage,
-    ] = useState<string | null>(
-        null
-    );
+    const [message, setMessage] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
 
 
     /* ============================================================
@@ -382,6 +378,12 @@ function AdminProducts() {
         loadProducts();
 
     }, []);
+
+    useEffect(() => {
+        if (!message) return;
+        const timer = window.setTimeout(() => setMessage(null), 3000);
+        return () => window.clearTimeout(timer);
+    }, [message]);
 
 
     /* ============================================================
@@ -1096,30 +1098,16 @@ function AdminProducts() {
        DELETE PRODUCT
     ============================================================ */
 
-    const handleDelete =
-        async (
-            product:
-                Product
-        ) => {
+    const handleDelete = (product: Product) => {
+        setDeleteTarget(product);
+    };
 
-            const confirmed =
-                window.confirm(
+    const confirmDelete = async () => {
+        if (!deleteTarget) return;
+        const product = deleteTarget;
+        setDeleteTarget(null);
 
-                    `Are you sure you want to permanently delete "${product.name}"?`
-
-                );
-
-
-            if (
-                !confirmed
-            ) {
-
-                return;
-
-            }
-
-
-            try {
+        try {
 
                 await apiRequest(
 
@@ -2011,6 +1999,20 @@ function AdminProducts() {
                     )
 
                 }
+
+            {deleteTarget && (
+                <div className="admin-products__confirm-overlay" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setDeleteTarget(null); }}>
+                    <div className="admin-products__confirm" role="alertdialog" aria-modal="true">
+                        <div className="admin-products__confirm-icon"><Trash2 size={24} /></div>
+                        <h2>Delete Product?</h2>
+                        <p>Are you sure you want to permanently delete <strong>{deleteTarget.name}</strong>? This action cannot be undone.</p>
+                        <div className="admin-products__confirm-actions">
+                            <button type="button" className="admin-products__confirm-cancel" onClick={() => setDeleteTarget(null)}>Cancel</button>
+                            <button type="button" className="admin-products__confirm-delete" onClick={() => void confirmDelete()}>Delete Product</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             </main>
 
