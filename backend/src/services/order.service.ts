@@ -207,7 +207,13 @@ export const buildOrderSnapshot = async (
         }, normalizedItems);
     const shippingCents = shippingQuote.shippingCents;
     const shipping = shippingCents / 100;
-    const verifiedAddress = shippingQuote.verifiedAddress;
+    const verifiedAddress = shippingQuote.verifiedAddress || {
+        address: customer.address || "",
+        apartment: customer.apartment || "",
+        city: customer.city || "",
+        state: customer.state || "",
+        zip: customer.zip || "",
+    };
     const shippingAddress = {
         deliveryType: customer.deliveryType || "house",
         address: verifiedAddress.address,
