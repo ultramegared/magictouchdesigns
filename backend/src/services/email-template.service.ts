@@ -78,9 +78,27 @@ export const getEmailTemplates = async (): Promise<Record<string, EmailTemplateR
     const result: Record<string, EmailTemplateRecord> = {};
     for (const [key, def] of Object.entries(DEFAULTS)) {
         const saved = stored[key];
-        const fallback = key === "custom_mug_request" && legacy ? legacyCustomMug(legacy) : def.content;
-        const published = { ...fallback, ...(saved?.published || {}) };
-        const draft = { ...published, ...(saved?.draft || {}) };
+
+        // The welcome template was previously saved in settings with the old,
+        // plain "your customer account is ready" copy. That stored version
+        // overrides DEFAULTS, so migrate that legacy welcome content once and
+        // let the current premium default become the live published version.
+        const legacyWelcome =
+            key === "welcome" &&
+            saved?.published &&
+            String(saved.published.title || "") === "Welcome to {{siteName}}" &&
+            String(saved.published.body || "").trim() ===
+                "Hi {{customerName}}, your customer account is ready. You can now manage your profile, orders and reviews.";
+
+        const fallback = key === "custom_mug_request" && legacy
+            ? legacyCustomMug(legacy)
+            : def.content;
+        const published = legacyWelcome
+            ? { ...def.content }
+            : { ...fallback, ...(saved?.published || {}) };
+        const draft = legacyWelcome
+            ? { ...def.content }
+            : { ...published, ...(saved?.draft || {}) };
         result[key] = {
             key, name:def.name, category:def.category, description:def.description,
             enabled:saved?.enabled !== false, version:Number(saved?.version || 1),
