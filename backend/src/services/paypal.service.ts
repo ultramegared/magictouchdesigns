@@ -63,7 +63,16 @@ export const createPayPalOrder = async (customer: CheckoutCustomerInput, items: 
     await ensureOrderTables();
     const snapshot = await buildOrderSnapshot(customer, items, { customRequestId });
     const attempt = await createCheckoutAttempt(customer, snapshot, "paypal");
-    const taxResult = await calculateDestinationTax(customer, snapshot.normalizedItems, Math.round(snapshot.shipping * 100));
+    const verifiedAddress = snapshot.shippingAddress;
+    const taxCustomer: CheckoutCustomerInput = {
+        ...customer,
+        address: verifiedAddress.address,
+        apartment: verifiedAddress.apartment,
+        city: verifiedAddress.city,
+        state: verifiedAddress.state,
+        zip: verifiedAddress.zip,
+    };
+    const taxResult = await calculateDestinationTax(taxCustomer, snapshot.normalizedItems, Math.round(snapshot.shipping * 100));
     const tax = taxResult.tax;
     const total = snapshot.subtotal + snapshot.shipping + tax;
     await pool.query(`UPDATE checkout_attempts SET tax = $1, total = $2, updated_at = NOW() WHERE id = $3`, [tax, total, attempt.attemptId]);
@@ -71,7 +80,7 @@ export const createPayPalOrder = async (customer: CheckoutCustomerInput, items: 
         const token = await getPayPalAccessToken();
         const paypalOrder = await paypalJsonRequest("/v2/checkout/orders", "POST", token, {
             intent: "CAPTURE",
-            purchase_units: [{ reference_id: "default", invoice_id: attempt.checkoutCode.replace(/^#/, ""), custom_id: attempt.attemptId, amount: { currency_code: "USD", value: formatMoney(total), breakdown: { item_total: { currency_code: "USD", value: formatMoney(snapshot.subtotal) }, shipping: { currency_code: "USD", value: formatMoney(snapshot.shipping) }, tax_total: { currency_code: "USD", value: formatMoney(tax) } } }, items: snapshot.normalizedItems.map((item) => ({ name: item.name.slice(0, 127), unit_amount: { currency_code: "USD", value: formatMoney(item.unit_price) }, quantity: String(item.quantity), category: "PHYSICAL_GOODS", ...(item.image_url ? { image_url: item.image_url } : {}) })), shipping: { name: { full_name: `${customer.firstName.trim()} ${customer.lastName.trim()}`.trim() }, address: { address_line_1: customer.address, ...(customer.apartment ? { address_line_2: customer.apartment } : {}), admin_area_2: customer.city, admin_area_1: customer.state?.toUpperCase(), postal_code: customer.zip, country_code: "US" } } }],
+            purchase_units: [{ reference_id: "default", invoice_id: attempt.checkoutCode.replace(/^#/, ""), custom_id: attempt.attemptId, amount: { currency_code: "USD", value: formatMoney(total), breakdown: { item_total: { currency_code: "USD", value: formatMoney(snapshot.subtotal) }, shipping: { currency_code: "USD", value: formatMoney(snapshot.shipping) }, tax_total: { currency_code: "USD", value: formatMoney(tax) } } }, items: snapshot.normalizedItems.map((item) => ({ name: item.name.slice(0, 127), unit_amount: { currency_code: "USD", value: formatMoney(item.unit_price) }, quantity: String(item.quantity), category: "PHYSICAL_GOODS", ...(item.image_url ? { image_url: item.image_url } : {}) })), shipping: { name: { full_name: `${customer.firstName.trim()} ${customer.lastName.trim()}`.trim() }, address: { address_line_1: verifiedAddress.address, ...(verifiedAddress.apartment ? { address_line_2: verifiedAddress.apartment } : {}), admin_area_2: verifiedAddress.city, admin_area_1: verifiedAddress.state?.toUpperCase(), postal_code: verifiedAddress.zip, country_code: "US" } } }],
             payment_source: { paypal: { experience_context: { brand_name: "JQYD", user_action: "PAY_NOW", shipping_preference: "SET_PROVIDED_ADDRESS", return_url: `${FRONTEND_URL}/checkout/success?paypal=1&order_code=${encodeURIComponent(attempt.checkoutCode)}`, cancel_url: `${FRONTEND_URL}/checkout?paypal=cancelled` } } }
         });
         await pool.query(`UPDATE checkout_attempts SET paypal_order_id = $1, updated_at = NOW() WHERE id = $2`, [paypalOrder.id, attempt.attemptId]);
