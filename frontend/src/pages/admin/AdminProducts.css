@@ -1453,3 +1453,8 @@
     }
 
 }
+.admin-products__confirm-overlay{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(13,16,22,.56);backdrop-filter:blur(8px);}
+.admin-products__confirm{width:min(430px,100%);padding:30px;border:1px solid #e8d9bd;border-radius:22px;background:#fff;box-shadow:0 30px 80px rgba(25,25,25,.24);text-align:center;animation:admin-products-confirm-in .2s ease-out;}
+.admin-products__confirm-icon{width:56px;height:56px;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;border-radius:17px;background:#fff5f5;border:1px solid #f0cccc;color:#ad3c3c;}
+.admin-products__confirm h2{margin:0 0 8px;color:#252a38;font-size:20px}.admin-products__confirm p{margin:0;color:#6e7480;font-size:13px;line-height:1.65}.admin-products__confirm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}.admin-products__confirm-actions button{min-height:42px;padding:0 16px;border-radius:10px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.admin-products__confirm-cancel{border:1px solid #dfe3ea;background:#fff;color:#626a78}.admin-products__confirm-delete{border:1px solid #b43c3c;background:#b43c3c;color:#fff;box-shadow:0 8px 20px rgba(180,60,60,.18)}@keyframes admin-products-confirm-in{from{opacity:0;transform:translateY(7px) scale(.98)}to{opacity:1;transform:none}}
+@media(max-width:680px){.admin-products__confirm{padding:25px 20px;border-radius:20px}.admin-products__confirm-actions{flex-direction:column-reverse}.admin-products__confirm-actions button{width:100%}}
