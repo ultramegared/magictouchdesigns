@@ -1078,3 +1078,16 @@
     }
 
 }
+/* Branded feedback dialogs */
+.login__feedback-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,7,10,.62);backdrop-filter:blur(9px);animation:login-feedback-fade .18s ease-out;}
+.login__feedback{position:relative;width:min(420px,100%);padding:34px 30px 30px;border:1px solid rgba(218,181,99,.42);border-radius:22px;background:linear-gradient(145deg,rgba(30,34,40,.98),rgba(12,15,19,.98));color:#fff;text-align:center;box-shadow:0 28px 80px rgba(0,0,0,.45),0 0 35px rgba(224,182,91,.1);animation:login-feedback-rise .24s ease-out;}
+.login__feedback-close{position:absolute;top:12px;right:12px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.08);border-radius:50%;background:rgba(255,255,255,.04);color:#aeb6bd;cursor:pointer;}
+.login__feedback-icon{width:58px;height:58px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(218,181,99,.35);border-radius:18px;background:rgba(218,181,99,.08);color:#e7c77f;}
+.login__feedback--error .login__feedback-icon{border-color:rgba(196,74,74,.4);background:rgba(196,74,74,.08);color:#ef8c8c;}
+.login__feedback h2{margin:0 0 9px;font-size:1.25rem;letter-spacing:.01em;}
+.login__feedback p{margin:0;color:#aeb6bd;font-size:.86rem;line-height:1.65;}
+.login__feedback-action{margin-top:22px;min-height:44px;padding:0 20px;border:1px solid #f1d087;border-radius:11px;background:linear-gradient(135deg,#fff0bd,#d4a44b,#fff0ba);color:#111;font:inherit;font-weight:800;cursor:pointer;}
+.login__feedback-progress{display:block;width:100%;height:2px;margin-top:22px;overflow:hidden;border-radius:2px;background:rgba(255,255,255,.08);}
+.login__feedback-progress::after{content:"";display:block;width:100%;height:100%;background:#d9b66b;transform-origin:left;animation:login-feedback-progress 1.55s linear forwards;}
+@keyframes login-feedback-fade{from{opacity:0}to{opacity:1}}@keyframes login-feedback-rise{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}@keyframes login-feedback-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:576px){.login__feedback{padding:31px 22px 25px;border-radius:20px}.login__feedback h2{font-size:1.12rem}}
