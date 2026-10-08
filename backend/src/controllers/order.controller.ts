@@ -41,17 +41,9 @@ export const stripeWebhook = async (req: Request, res: Response): Promise<void> 
                      customer_last_name = COALESCE(NULLIF($2, ''), customer_last_name),
                      customer_email = COALESCE(NULLIF($3, ''), customer_email),
                      customer_phone = COALESCE(NULLIF($4, ''), customer_phone),
-                     shipping_address = CASE WHEN $5::boolean THEN jsonb_build_object(
-                        'deliveryType', COALESCE(shipping_address->>'deliveryType', 'house'),
-                        'address', COALESCE($6, ''), 'apartment', COALESCE($7, ''),
-                        'city', COALESCE($8, ''), 'state', COALESCE($9, ''), 'zip', COALESCE($10, '')
-                     ) ELSE shipping_address END,
                      updated_at = NOW()
-                 WHERE id = $11`,
-                [firstName, lastName, email, phone, Boolean(shippingDetails?.address),
-                    String(shippingAddress?.line1 || "").trim(), String(shippingAddress?.line2 || "").trim(),
-                    String(shippingAddress?.city || "").trim(), String(shippingAddress?.state || "").trim(),
-                    String(shippingAddress?.postal_code || "").trim(), attemptId],
+                 WHERE id = $5`,
+                [firstName, lastName, email, phone, attemptId],
             );
         }
         await handleStripeWebhook(event);
