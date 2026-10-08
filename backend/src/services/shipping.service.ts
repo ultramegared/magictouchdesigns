@@ -36,6 +36,8 @@ type MugProfile = {
     heightIn: number;
 };
 
+import { verifyCheckoutAddress, type VerifiedAddress } from "./easypost.service";
+
 const USPS_API_BASE = "https://apis.usps.com";
 const TOKEN_URL = `${USPS_API_BASE}/oauth2/v3/token`;
 const SHIPPING_OPTIONS_URL = `${USPS_API_BASE}/shipments/v3/options/search`;
@@ -233,7 +235,8 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
     }
 
     const originZip = normalizeZip(requiredEnv("USPS_ORIGIN_ZIP"));
-    const destinationZip = normalizeZip(destination.zip);
+    const verifiedAddress: VerifiedAddress = await verifyCheckoutAddress(destination);
+    const destinationZip = normalizeZip(verifiedAddress.zip);
 
     const totalQuantity = items.reduce(
         (sum, item) => sum + Math.max(1, Math.floor(Number(item.quantity) || 0)),
@@ -266,6 +269,7 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
     if (standardDays) maxTransitDays = Math.max(maxTransitDays, standardDays);
 
     return {
+        verifiedAddress,
         shippingCents,
         shipping: Number((shippingCents / 100).toFixed(2)),
         carrier: "USPS",
