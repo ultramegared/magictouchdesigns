@@ -213,7 +213,7 @@ export const sendEmailTemplateTest = async (key: string, to: string) => {
         siteName:settings.websiteName || "JQYDesigns", customerName:"Jose", customerEmail:to, supportEmail:settings.supportEmail || "jqydesigns@gmail.com",
         requestCode:"REQ-2026-001", orderCode:"#1001", orderTotal:"$24.99", subtotal:"$19.99", shipping:"$5.00", tax:"$0.00",
         orderItems:"Custom Mug × 1", shippingAddress:"123 Example St, Houston, TX 77001", carrier:"USPS", trackingNumber:"9400111899223856920000",
-        trackingUrl:"https://tools.usps.com/", orderUrl:FRONTEND_URL + "/track-order", accountUrl:FRONTEND_URL + "/account",
+        trackingUrl:"https://tools.usps.com/", orderUrl:FRONTEND_URL + "/track-order", accountUrl:FRONTEND_URL,
         paymentUrl:FRONTEND_URL + "/checkout", resetUrl:FRONTEND_URL + "/reset-password?token=TEST", verificationUrl:FRONTEND_URL + "/account",
         expiryMinutes:"30", mugModel:"Premium", mugSize:"15 oz", mugColor:"White", printSides:"Front + Back", quantity:"1",
         shippingText:"Shipping and applicable tax are calculated at checkout.", pendingText:"Your order has not been charged yet.",
