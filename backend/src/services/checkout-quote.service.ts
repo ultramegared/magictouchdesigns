@@ -65,7 +65,16 @@ export const calculateCheckoutQuote = async (
     );
     const shippingCents = shippingQuote.shippingCents;
     const shipping = shippingCents / 100;
-    const taxResult = await calculateDestinationTax(customer, normalizedItems, shippingCents);
+    const verifiedAddress = shippingQuote.verifiedAddress;
+    const taxCustomer: CheckoutCustomerInput = {
+        ...customer,
+        address: verifiedAddress.address,
+        apartment: verifiedAddress.apartment,
+        city: verifiedAddress.city,
+        state: verifiedAddress.state,
+        zip: verifiedAddress.zip,
+    };
+    const taxResult = await calculateDestinationTax(taxCustomer, normalizedItems, shippingCents);
     const tax = taxResult.tax;
     const total = subtotal + shipping + tax;
 
@@ -81,5 +90,15 @@ export const calculateCheckoutQuote = async (
         shippingDeliveryDays: shippingQuote.deliveryDays,
         shippingShipmentId: shippingQuote.shipmentId,
         shippingRateId: shippingQuote.rateId,
+        addressVerified: verifiedAddress.deliveryVerified,
+        zip4Verified: verifiedAddress.zip4Verified,
+        verifiedAddress: {
+            address: verifiedAddress.address,
+            apartment: verifiedAddress.apartment,
+            city: verifiedAddress.city,
+            state: verifiedAddress.state,
+            zip: verifiedAddress.zip,
+            residential: verifiedAddress.residential,
+        },
     };
 };
