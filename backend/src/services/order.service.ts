@@ -207,13 +207,14 @@ export const buildOrderSnapshot = async (
         }, normalizedItems);
     const shippingCents = shippingQuote.shippingCents;
     const shipping = shippingCents / 100;
+    const verifiedAddress = shippingQuote.verifiedAddress;
     const shippingAddress = {
         deliveryType: customer.deliveryType || "house",
-        address: customer.address || "",
-        apartment: customer.apartment || "",
-        city: customer.city || "",
-        state: customer.state || "",
-        zip: customer.zip || "",
+        address: verifiedAddress.address,
+        apartment: verifiedAddress.apartment,
+        city: verifiedAddress.city,
+        state: verifiedAddress.state,
+        zip: verifiedAddress.zip,
     };
     const checkoutCode = await makeOrderCode();
     return {
