@@ -1,14 +1,15 @@
 /**
- * Production USPS shipping integration for JQYDesigns.
+ * Production shipping integration for JQYDesigns.
  *
- * Uses the current USPS APIs (OAuth 2.0), not the retired Web Tools platform.
- * The customer-facing quote is calculated from the destination ZIP, package
- * weight/dimensions and the live USPS Ground Advantage Commercial option.
+ * EasyPost is the single shipping authority for:
+ * 1) destination address verification / normalization;
+ * 2) USPS Ground Advantage live rating.
  *
- * Package defaults are conservative reference values and can be overridden
- * with environment variables once JQYDesigns confirms its final measured
- * shipping package.
+ * Stripe and PayPal remain payment processors and are not involved in
+ * carrier/address verification.
  */
+
+import { verifyCheckoutAddress, type VerifiedAddress } from "./easypost.service";
 
 type ShippingAddress = {
     firstName?: string;
@@ -36,14 +37,21 @@ type MugProfile = {
     heightIn: number;
 };
 
-import { verifyCheckoutAddress, type VerifiedAddress } from "./easypost.service";
+type EasyPostOrigin = {
+    name?: string;
+    company?: string;
+    street1: string;
+    street2?: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+    phone?: string;
+    email?: string;
+};
 
-const USPS_API_BASE = "https://apis.usps.com";
-const TOKEN_URL = `${USPS_API_BASE}/oauth2/v3/token`;
-const SHIPPING_OPTIONS_URL = `${USPS_API_BASE}/shipments/v3/options/search`;
-const SERVICE_STANDARDS_URL = `${USPS_API_BASE}/service-standards/v3/estimates`;
-
-let cachedToken: { value: string; expiresAt: number } | null = null;
+const EASYPOST_API_BASE = "https://api.easypost.com/v2";
+let cachedUspsCarrierAccountId: string | null = null;
 
 const requiredEnv = (name: string): string => {
     const value = process.env[name]?.trim();
@@ -62,8 +70,8 @@ const positiveNumberEnv = (name: string, fallback: number): number => {
 };
 
 const normalizeZip = (value: string): string => {
-    const match = String(value || "").match(/^\d{5}/);
-    if (!match) throw new Error("A valid 5-digit US destination ZIP Code is required.");
+    const match = String(value || "").match(/^\d{5}(?:-\d{4})?$/);
+    if (!match) throw new Error("A valid US destination ZIP Code is required.");
     return match[0];
 };
 
@@ -86,146 +94,145 @@ const getProfile = (size: string | undefined): MugProfile => {
     };
 };
 
-const getAccessToken = async (): Promise<string> => {
-    if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) return cachedToken.value;
-
-    const clientId = requiredEnv("USPS_CLIENT_ID");
-    const clientSecret = requiredEnv("USPS_CLIENT_SECRET");
-
-    const response = await fetch(TOKEN_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            client_id: clientId,
-            client_secret: clientSecret,
-            grant_type: "client_credentials",
-        }),
-    });
-
-    const data = await response.json() as {
-        access_token?: string;
-        expires_in?: number;
-        error?: string;
-        error_description?: string;
-    };
-
-    if (!response.ok || !data.access_token) {
-        throw new Error(data.error_description || data.error || "Unable to authenticate with USPS.");
+const parseOriginAddress = (): EasyPostOrigin => {
+    const raw = requiredEnv("SHIPPING_ORIGIN_ADDRESS_JSON");
+    let parsed: any;
+    try {
+        parsed = JSON.parse(raw);
+    } catch {
+        throw new Error("SHIPPING_ORIGIN_ADDRESS_JSON is not valid JSON.");
     }
 
-    const expiresIn = Math.max(300, Number(data.expires_in || 3600));
-    cachedToken = {
-        value: data.access_token,
-        expiresAt: Date.now() + expiresIn * 1000,
+    const street1 = String(parsed?.street1 || parsed?.address || "").trim();
+    const city = String(parsed?.city || "").trim();
+    const state = String(parsed?.state || "").trim().toUpperCase();
+    const zip = String(parsed?.zip || parsed?.postal_code || "").trim();
+    if (!street1 || !city || !state || !zip) {
+        throw new Error("SHIPPING_ORIGIN_ADDRESS_JSON must contain street1, city, state and zip.");
+    }
+
+    return {
+        name: String(parsed?.name || "").trim() || undefined,
+        company: String(parsed?.company || "").trim() || undefined,
+        street1,
+        street2: String(parsed?.street2 || parsed?.apartment || "").trim() || undefined,
+        city,
+        state,
+        zip,
+        country: String(parsed?.country || "US").trim().toUpperCase(),
+        phone: String(parsed?.phone || "").trim() || undefined,
+        email: String(parsed?.email || "").trim().toLowerCase() || undefined,
     };
-    return data.access_token;
 };
 
-const uspsJson = async <T>(url: string, init: RequestInit): Promise<T> => {
-    const token = await getAccessToken();
-    const response = await fetch(url, {
-        ...init,
+const easypostRequest = async <T>(
+    path: string,
+    method: "GET" | "POST",
+    body?: unknown,
+): Promise<T> => {
+    const apiKey = requiredEnv("EASYPOST_API_KEY");
+    const auth = Buffer.from(apiKey + ":").toString("base64");
+
+    const response = await fetch(`${EASYPOST_API_BASE}${path}`, {
+        method,
         headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-            ...(init.headers || {}),
+            Authorization: `Basic ${auth}`,
+            ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+        },
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+
+    const data = await response.json() as any;
+    if (!response.ok) {
+        const errors = Array.isArray(data?.error?.errors)
+            ? data.error.errors.map((item: any) => item?.message).filter(Boolean).join("; ")
+            : "";
+        throw new Error(errors || data?.error?.message || `EasyPost request failed (${response.status}).`);
+    }
+    return data as T;
+};
+
+const getUspsCarrierAccountId = async (): Promise<string> => {
+    if (cachedUspsCarrierAccountId) return cachedUspsCarrierAccountId;
+
+    const configured = process.env.EASYPOST_USPS_CARRIER_ACCOUNT_ID?.trim();
+    if (configured) {
+        cachedUspsCarrierAccountId = configured;
+        return configured;
+    }
+
+    const accounts = await easypostRequest<any[]>("/carrier_accounts", "GET");
+    const usps = (Array.isArray(accounts) ? accounts : [])
+        .filter((account: any) => {
+            const type = String(account?.type || "").toLowerCase();
+            const readable = String(account?.readable || "").toLowerCase();
+            return type.includes("usps") || readable === "usps";
+        })
+        .sort((a: any, b: any) => {
+            const aWallet = String(a?.billing_type || "").toLowerCase() === "easypost";
+            const bWallet = String(b?.billing_type || "").toLowerCase() === "easypost";
+            return Number(bWallet) - Number(aWallet);
+        });
+
+    const id = String(usps[0]?.id || "").trim();
+    if (!id) {
+        throw new Error("No USPS carrier account is enabled in EasyPost. Enable USPS in EasyPost before accepting checkout orders.");
+    }
+
+    cachedUspsCarrierAccountId = id;
+    return id;
+};
+
+const quoteEasyPostPackage = async (
+    origin: EasyPostOrigin,
+    destination: VerifiedAddress,
+    profile: MugProfile,
+) => {
+    const carrierAccountId = await getUspsCarrierAccountId();
+    const payload = await easypostRequest<any>("/shipments", "POST", {
+        shipment: {
+            to_address: {
+                street1: destination.address,
+                ...(destination.apartment ? { street2: destination.apartment } : {}),
+                city: destination.city,
+                state: destination.state,
+                zip: destination.zip,
+                country: destination.country,
+            },
+            from_address: origin,
+            parcel: {
+                weight: Number((profile.weightLb * 16).toFixed(2)),
+                length: profile.lengthIn,
+                width: profile.widthIn,
+                height: profile.heightIn,
+            },
+            carrier_accounts: [carrierAccountId],
         },
     });
 
-    const data = await response.json() as T & { error?: string; error_description?: string };
-    if (!response.ok) {
-        throw new Error(data?.error_description || data?.error || `USPS API request failed (${response.status}).`);
-    }
-    return data;
-};
+    const rates = Array.isArray(payload?.rates) ? payload.rates : [];
+    const candidates = rates
+        .filter((rate: any) => String(rate?.carrier || "").toUpperCase() === "USPS")
+        .filter((rate: any) => String(rate?.service || "").toLowerCase() === "groundadvantage")
+        .filter((rate: any) => Number.isFinite(Number(rate?.rate)))
+        .sort((a: any, b: any) => Number(a.rate) - Number(b.rate));
 
-const packageDescription = (profile: MugProfile) => {
-    const girth = 2 * (profile.widthIn + profile.heightIn);
+    const selected = candidates[0];
+    if (!selected) {
+        throw new Error("EasyPost did not return a USPS Ground Advantage rate for this package.");
+    }
+
     return {
-        weight: profile.weightLb,
-        length: profile.lengthIn,
-        width: profile.widthIn,
-        height: profile.heightIn,
-        girth,
-        mailClass: "USPS_GROUND_ADVANTAGE",
-        mailingDate: new Date().toISOString().slice(0, 10),
+        price: Number(selected.rate),
+        rateId: String(selected.id || ""),
+        shipmentId: String(payload?.id || selected.shipment_id || ""),
+        days: Number.isFinite(Number(selected.delivery_days))
+            ? Number(selected.delivery_days)
+            : Number.isFinite(Number(selected.est_delivery_days))
+                ? Number(selected.est_delivery_days)
+                : null,
     };
-};
-
-const extractGroundRate = (payload: any): { price: number; sku: string; days: number | null } => {
-    const shippingOptions = Array.isArray(payload?.pricingOptions)
-        ? payload.pricingOptions.flatMap((option: any) => option?.shippingOptions || [])
-        : [];
-
-    const candidates = shippingOptions
-        .filter((option: any) => String(option?.mailClass || "").toUpperCase() === "USPS_GROUND_ADVANTAGE")
-        .flatMap((option: any) => Array.isArray(option?.rateOptions)
-            ? option.rateOptions.map((rate: any) => ({ ...rate, option }))
-            : []);
-
-    const eligible = candidates
-        .filter((rate: any) => Number.isFinite(Number(rate?.totalPrice)))
-        .sort((a: any, b: any) => Number(a.totalPrice) - Number(b.totalPrice));
-
-    const selected = eligible[0];
-    if (!selected) throw new Error("USPS did not return a Ground Advantage rate for this package.");
-
-    const daysMatch = String(selected?.commitment?.name || "").match(/(\d+)/);
-    return {
-        price: Number(selected.totalPrice),
-        sku: String(selected?.rates?.[0]?.SKU || selected?.SKU || ""),
-        days: daysMatch ? Number(daysMatch[1]) : null,
-    };
-};
-
-const quotePackage = async (
-    originZip: string,
-    destinationZip: string,
-    profile: MugProfile,
-) => {
-    const paymentAccount = process.env.USPS_EPS_ACCOUNT_NUMBER?.trim();
-    const pricingOption: Record<string, unknown> = { priceType: "COMMERCIAL" };
-    if (paymentAccount) {
-        pricingOption.paymentAccount = {
-            accountType: "EPS",
-            accountNumber: paymentAccount,
-        };
-    }
-
-    const payload = await uspsJson<any>(SHIPPING_OPTIONS_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            pricingOptions: [pricingOption],
-            originZIPCode: originZip,
-            destinationZIPCode: destinationZip,
-            packageDescription: packageDescription(profile),
-        }),
-    });
-
-    return extractGroundRate(payload);
-};
-
-const getDeliveryDays = async (originZip: string, destinationZip: string): Promise<number | null> => {
-    const params = new URLSearchParams({
-        originZIPCode: originZip,
-        destinationZIPCode: destinationZip,
-        mailClass: "USPS_GROUND_ADVANTAGE",
-    });
-
-    try {
-        const payload = await uspsJson<any[]>(
-            `${SERVICE_STANDARDS_URL}?${params.toString()}`,
-            { method: "GET" },
-        );
-        const values = payload
-            .map(item => Number(item?.serviceStandard ?? item?.days))
-            .filter(value => Number.isFinite(value) && value > 0);
-        return values.length ? Math.max(...values) : null;
-    } catch (error) {
-        console.warn("USPS service-standard lookup failed; keeping rate quote:", error);
-        return null;
-    }
 };
 
 export const getShippingQuote = async (destination: ShippingAddress, items: ShippingItem[]) => {
@@ -234,23 +241,19 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
         throw new Error("Shipping is currently available within the United States only.");
     }
 
-    const originZip = normalizeZip(requiredEnv("USPS_ORIGIN_ZIP"));
-    const verifiedAddress: VerifiedAddress = await verifyCheckoutAddress(destination);
-    const destinationZip = normalizeZip(verifiedAddress.zip);
+    const verifiedAddress = await verifyCheckoutAddress(destination);
+    const origin = parseOriginAddress();
 
     const totalQuantity = items.reduce(
         (sum, item) => sum + Math.max(1, Math.floor(Number(item.quantity) || 0)),
         0,
     );
-
     if (!totalQuantity) throw new Error("At least one shippable item is required.");
 
-    // Each mug is treated as one protective shipping unit. This matches the
-    // single-mug box profiles and avoids inventing a multi-mug master carton.
-    // The resulting postage is the live USPS rate for each actual package.
     let shippingCents = 0;
     let maxTransitDays = 0;
     const rateIds: string[] = [];
+    const shipmentIds: string[] = [];
 
     for (const item of items) {
         const quantity = Math.max(1, Math.floor(Number(item.quantity) || 0));
@@ -258,15 +261,13 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
         const profile = getProfile(size);
 
         for (let index = 0; index < quantity; index += 1) {
-            const quote = await quotePackage(originZip, destinationZip, profile);
+            const quote = await quoteEasyPostPackage(origin, verifiedAddress, profile);
             shippingCents += Math.round(quote.price * 100);
             if (quote.days) maxTransitDays = Math.max(maxTransitDays, quote.days);
-            if (quote.sku) rateIds.push(quote.sku);
+            if (quote.rateId) rateIds.push(quote.rateId);
+            if (quote.shipmentId) shipmentIds.push(quote.shipmentId);
         }
     }
-
-    const standardDays = await getDeliveryDays(originZip, destinationZip);
-    if (standardDays) maxTransitDays = Math.max(maxTransitDays, standardDays);
 
     return {
         verifiedAddress,
@@ -276,7 +277,7 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
         service: "USPS Ground Advantage",
         deliveryDays: maxTransitDays || 5,
         currency: "USD",
-        shipmentId: "",
+        shipmentId: shipmentIds.join(","),
         rateId: rateIds.join(",") || "USPS_GROUND_ADVANTAGE",
     };
 };
