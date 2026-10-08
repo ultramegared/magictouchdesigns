@@ -42,6 +42,7 @@ export const ensureOrderTables = async (): Promise<void> => {
             shipping NUMERIC(12,2) NOT NULL DEFAULT 0,
             tax NUMERIC(12,2) NOT NULL DEFAULT 0,
             total NUMERIC(12,2) NOT NULL DEFAULT 0,
+            tax_calculation_id VARCHAR(255),
             currency VARCHAR(3) NOT NULL DEFAULT 'USD',
             payment_status VARCHAR(32) NOT NULL DEFAULT 'pending',
             status VARCHAR(32) NOT NULL DEFAULT 'pending_payment',
@@ -53,6 +54,7 @@ export const ensureOrderTables = async (): Promise<void> => {
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS tax_calculation_id VARCHAR(255);
         ALTER TABLE orders ADD COLUMN IF NOT EXISTS paypal_order_id VARCHAR(255);
         ALTER TABLE orders ADD COLUMN IF NOT EXISTS paypal_capture_id VARCHAR(255);
         ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_provider VARCHAR(32);
@@ -88,6 +90,7 @@ export const ensureOrderTables = async (): Promise<void> => {
             shipping NUMERIC(12,2) NOT NULL DEFAULT 0,
             tax NUMERIC(12,2) NOT NULL DEFAULT 0,
             total NUMERIC(12,2) NOT NULL DEFAULT 0,
+            tax_calculation_id VARCHAR(255),
             carrier VARCHAR(40),
             shipping_service VARCHAR(80),
             shipping_delivery_days INTEGER,
@@ -101,6 +104,7 @@ export const ensureOrderTables = async (): Promise<void> => {
         ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_service VARCHAR(80);
         ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_delivery_days INTEGER;
         ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_rate_id TEXT;
+        ALTER TABLE checkout_attempts ADD COLUMN IF NOT EXISTS tax_calculation_id VARCHAR(255);
         ALTER TABLE checkout_attempts ADD COLUMN IF NOT EXISTS shipping_service VARCHAR(80);
         ALTER TABLE checkout_attempts ADD COLUMN IF NOT EXISTS shipping_delivery_days INTEGER;
         ALTER TABLE checkout_attempts ADD COLUMN IF NOT EXISTS shipping_rate_id TEXT;
