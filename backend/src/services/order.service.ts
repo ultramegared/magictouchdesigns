@@ -192,7 +192,7 @@ export const buildOrderSnapshot = async (
 
     const subtotal = normalizedItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
     const shippingQuote = options.skipShipping
-        ? { shippingCents: 0, shipping: 0, carrier: "", service: "", deliveryDays: null, currency: "USD", shipmentId: "", rateId: "" }
+        ? { shippingCents: 0, shipping: 0, carrier: "", service: "", deliveryDays: null, currency: "USD", shipmentId: "", rateId: "", verifiedAddress: null }
         : await getShippingQuote({
             firstName: customer.firstName,
             lastName: customer.lastName,
