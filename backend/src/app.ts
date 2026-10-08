@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+
 import { pool } from "./config/database";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
@@ -22,7 +23,42 @@ import emailTemplateRoutes from "./routes/email-template.routes";
 import { stripeWebhook } from "./controllers/order.controller";
 import { marketingAutopilotCron } from "./controllers/marketing-autopilot.controller";
 const app=express();
-app.use(cors());
+
+const configuredCorsOrigins = [
+  process.env.FRONTEND_PUBLIC_URL,
+  ...(process.env.CORS_ORIGINS || "").split(","),
+]
+  .map((origin) => origin?.trim())
+  .filter(Boolean);
+
+const allowedCorsOrigins = new Set([
+  "https://jqydesigns.com",
+  "https://www.jqydesigns.com",
+  ...configuredCorsOrigins,
+]);
+
+if (process.env.NODE_ENV !== "production") {
+  allowedCorsOrigins.add("http://localhost:3000");
+  allowedCorsOrigins.add("http://localhost:5173");
+}
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Non-browser/server-to-server requests have no Origin header.
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      callback(null, allowedCorsOrigins.has(origin));
+    },
+    credentials: true,
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    optionsSuccessStatus: 204,
+  }),
+);
 app.post("/api/orders/webhook",express.raw({type:"application/json"}),stripeWebhook);
 app.get("/api/cron/marketing-learning", marketingAutopilotCron);
 app.use(express.json({limit:"5mb"}));
