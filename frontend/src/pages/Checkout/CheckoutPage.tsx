@@ -50,6 +50,7 @@ function CheckoutPage() {
     const stripeSessionRef = useRef({ id: "", code: "" });
     const stripeCleanupRef = useRef<(() => void) | null>(null);
     const stripeStartingRef = useRef(false);
+    const stripeCustomerKeyRef = useRef("");
     const paypalContainerRef = useRef<HTMLDivElement>(null);
 
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -211,6 +212,18 @@ function CheckoutPage() {
     }) });
 
     const addressReady = isCustomerReady(form);
+    const customerKey = (customer: typeof form) => [
+        customer.firstName.trim().toLowerCase(),
+        customer.lastName.trim().toLowerCase(),
+        customer.email.trim().toLowerCase(),
+        customer.phone.trim(),
+        customer.address.trim().toLowerCase(),
+        customer.apartment.trim().toLowerCase(),
+        customer.city.trim().toLowerCase(),
+        customer.state.trim().toUpperCase(),
+        customer.zip.trim(),
+        customer.deliveryType,
+    ].join("|");
 
     useEffect(() => {
         if (!cartItems.length || !addressReady) { setQuote(null); setQuoteError(""); setQuoteLoading(false); return; }
@@ -243,7 +256,7 @@ function CheckoutPage() {
             const checkout = window.Stripe(cfg.publishableKey).initCheckout({ clientSecret: d.clientSecret, elementsOptions: { appearance: { theme: "stripe", inputs: "spaced", labels: "above", variables: { colorPrimary: "#174A8B", colorBackground: "#FFFFFF", colorText: "#111827", colorTextSecondary: "#5B6573", colorTextPlaceholder: "#7B8491", colorDanger: "#C62828", iconColor: "#174A8B", borderRadius: "10px", fontSizeBase: "16px", fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" }, rules: { ".Label": { color: "#174A8B", fontWeight: "600" }, ".Label--focused": { color: "#123A6D" }, ".Input": { color: "#111827", backgroundColor: "#FFFFFF", border: "1px solid #CFD6DF" }, ".Input:focus": { borderColor: "#174A8B", boxShadow: "0 0 0 1px #174A8B" } } } }, defaultValues: { email: customer.email.trim().toLowerCase(), phoneNumber: customer.phone.trim(), shippingAddress: { name: `${customer.firstName} ${customer.lastName}`.trim(), address: { country: "US", line1: customer.address, line2: customer.apartment || undefined, city: customer.city, state: customer.state.toUpperCase(), postal_code: customer.zip } } } });
             const actions = await checkout.loadActions();
             if (actions.type !== "success") throw new Error(actions.error.message || "Stripe checkout could not initialize.");
-            stripeActionsRef.current = actions.actions; stripeSessionRef.current = { id: d.sessionId, code: d.orderCode };
+            stripeActionsRef.current = actions.actions; stripeSessionRef.current = { id: d.sessionId, code: d.orderCode }; stripeCustomerKeyRef.current = customerKey(customer);
             const payment = checkout.createPaymentElement({ layout: "tabs", fields: { billingDetails: { name: "always" } }, wallets: { applePay: "never", googlePay: "never", link: "never" } });
             const express = checkout.createExpressCheckoutElement({
                 buttonHeight: 52,
@@ -309,6 +322,9 @@ function CheckoutPage() {
                 stripePaymentRef.current?.replaceChildren();
                 stripeAppleRef.current?.replaceChildren();
                 stripeActionsRef.current = null;
+                stripeSessionRef.current = { id: "", code: "" };
+                stripeCustomerKeyRef.current = "";
+                stripeStartingRef.current = false;
             };
             setAppleReady(true);
             setStripeReady(true);
@@ -324,7 +340,40 @@ function CheckoutPage() {
         return () => window.clearTimeout(timer);
     }, [cartItems.length, addressReady]);
 
-    const submit = async (e: FormEvent<HTMLFormElement>) => { e.preventDefault(); const customer = syncAutofilledFields(); if (!valid()) return; if (!stripeReady) await prepareStripe(customer); const actions = stripeActionsRef.current; if (!actions) return setError("Secure card payment is not ready."); setLoading(true); setError(""); try { const r = await actions.confirm({ redirect: "if_required" }); if (r?.type === "error") { setError(r.error?.message || "Card payment could not be completed."); setLoading(false); } else if (r?.type === "success") window.location.assign(`/checkout/success?session_id=${encodeURIComponent(stripeSessionRef.current.id)}&order_code=${encodeURIComponent(stripeSessionRef.current.code)}`); } catch (x) { setError(x instanceof Error ? x.message : "Card payment could not be completed."); setLoading(false); } };
+    const submit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const customer = syncAutofilledFields();
+        if (!valid()) return;
+
+        // A Stripe Checkout Session contains the shipping amount/address used when it
+        // was created. If the customer edited the address afterward, never confirm
+        // an old session with stale shipping data.
+        if (stripeReady && stripeCustomerKeyRef.current !== customerKey(customer)) {
+            stripeCleanupRef.current?.();
+            stripeCleanupRef.current = null;
+            setStripeReady(false);
+            setAppleReady(false);
+            setAppleAvailable(null);
+        }
+
+        if (!stripeReady) await prepareStripe(customer);
+        const actions = stripeActionsRef.current;
+        if (!actions) return setError("Secure card payment is not ready.");
+        setLoading(true);
+        setError("");
+        try {
+            const r = await actions.confirm({ redirect: "if_required" });
+            if (r?.type === "error") {
+                setError(r.error?.message || "Card payment could not be completed.");
+                setLoading(false);
+            } else if (r?.type === "success") {
+                window.location.assign(`/checkout/success?session_id=${encodeURIComponent(stripeSessionRef.current.id)}&order_code=${encodeURIComponent(stripeSessionRef.current.code)}`);
+            }
+        } catch (x) {
+            setError(x instanceof Error ? x.message : "Card payment could not be completed.");
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         let cancelled = false;
