@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 
 import type { FormEvent } from "react";
 
-import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, Lock, Mail, User, X } from "lucide-react";
 
 import "../Login/Login.css";
 import { apiRequest } from "../../services/api";
@@ -36,6 +36,7 @@ function Register() {
         useState(false);
 
     const [logoUrl, setLogoUrl] = useState("");
+    const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -91,15 +92,13 @@ function Register() {
 
         // Confirm password
         if (password !== confirmPassword) {
-            alert("Passwords do not match.");
+            setFeedback({ type: "error", message: language === "es" ? "Las contraseñas no coinciden." : "Passwords do not match." });
             return;
         }
 
         // Password length
         if (password.length < 8) {
-            alert(
-                "Password must contain at least 8 characters."
-            );
+            setFeedback({ type: "error", message: language === "es" ? "La contraseña debe tener al menos 8 caracteres." : "Password must contain at least 8 characters." });
             return;
         }
 
@@ -135,7 +134,8 @@ function Register() {
                 result
             );
 
-            alert(result.message);
+            setFeedback({ type: "success", message: language === "es" ? "Cuenta creada con éxito. Te llevamos al inicio para iniciar sesión." : "Account created successfully. Taking you to the home page to sign in." });
+            window.setTimeout(() => { window.location.href = "/"; }, 1400);
 
             // Clear form after successful registration.
             // We use the ref because the submit event's
@@ -149,11 +149,7 @@ function Register() {
                 error
             );
 
-            alert(
-                error instanceof Error
-                    ? error.message
-                    : "Unable to register user."
-            );
+            setFeedback({ type: "error", message: error instanceof Error ? error.message : (language === "es" ? "No pudimos crear la cuenta." : "Unable to register user.") });
         }
     };
 
@@ -491,6 +487,18 @@ function Register() {
                 </div>
 
             </section>
+
+            {feedback && (
+                <div className="login__feedback-overlay" role="presentation">
+                    <div className={`login__feedback login__feedback--${feedback.type}`} role="alertdialog" aria-modal="true">
+                        <button type="button" className="login__feedback-close" onClick={() => setFeedback(null)} aria-label="Close"><X size={18} /></button>
+                        <div className="login__feedback-icon">{feedback.type === "success" ? <CheckCircle2 size={28} /> : <X size={28} />}</div>
+                        <h2>{feedback.type === "success" ? (language === "es" ? "Cuenta creada con éxito" : "Account created successfully") : (language === "es" ? "No pudimos crear la cuenta" : "We could not create your account")}</h2>
+                        <p>{feedback.message}</p>
+                        {feedback.type === "success" && <span className="login__feedback-progress" aria-hidden="true" />}
+                    </div>
+                </div>
+            )}
 
         </main>
     );
