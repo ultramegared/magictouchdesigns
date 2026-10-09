@@ -714,3 +714,82 @@
     }
 
 }
+
+/* Color-rich reviews refresh: warm brand gold with calm blue/teal accents. */
+.reviews-page {
+  background:
+    radial-gradient(ellipse at 8% 12%,rgba(42,132,166,.14),transparent 34%),
+    radial-gradient(ellipse at 92% 18%,rgba(228,180,70,.18),transparent 32%),
+    linear-gradient(145deg,#f8f7f2,#edf3f6 55%,#fbf4e7) !important;
+  color: #252a30 !important;
+  padding-top: 166px !important;
+}
+.reviews-container { color: #252a30 !important; }
+.reviews-back {
+  color: #805d14 !important;
+  background: linear-gradient(120deg,#fff8e8,#edf7fb) !important;
+  border-color: #dfc77f !important;
+}
+.reviews-header {
+  background: linear-gradient(120deg,#172a3a,#203f50 58%,#4b3920) !important;
+  border: 1px solid #e4d2a2 !important;
+  border-radius: 22px !important;
+  padding: clamp(22px,4vw,36px) !important;
+  box-shadow: 0 16px 36px rgba(25,49,63,.14) !important;
+}
+.reviews-icon {
+  color: #f0c75d !important;
+  background: rgba(255,255,255,.11) !important;
+  border-color: rgba(240,199,93,.38) !important;
+}
+.reviews-eyebrow { color: #f0cb69 !important; }
+.reviews-header h1 { color: #fff !important; }
+.reviews-header p { color: #e0e9ee !important; }
+.reviews-create-button {
+  color: #252a30 !important;
+  background: linear-gradient(135deg,#f5d982,#e7b84e) !important;
+  border-color: #f7df9d !important;
+  box-shadow: 0 8px 18px rgba(211,163,53,.22) !important;
+}
+.reviews-content {
+  background: rgba(255,255,255,.76) !important;
+  border: 1px solid #e3dfd4 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 26px rgba(30,45,54,.06) !important;
+}
+.reviews-empty {
+  background: linear-gradient(145deg,#fff,#f5f9fa) !important;
+  border-color: #e3e6e1 !important;
+  border-radius: 16px !important;
+  color: #2b3035 !important;
+}
+.reviews-empty-icon {
+  color: #a87a19 !important;
+  background: linear-gradient(135deg,#fff4d3,#e5f4f8) !important;
+  border-color: #ead9a9 !important;
+}
+.reviews-empty h2 { color: #252a30 !important; }
+.reviews-empty p { color: #687179 !important; }
+.review-card {
+  color: #252a30 !important;
+  background: linear-gradient(145deg,#fff,#fbfaf5) !important;
+  border: 1px solid #e4dfd2 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 22px rgba(30,45,54,.06) !important;
+}
+.review-card:hover {
+  border-color: #d9bf7a !important;
+  box-shadow: 0 12px 28px rgba(30,45,54,.10) !important;
+}
+.review-card-header { border-bottom-color: #ece6d9 !important; }
+.review-card-text { color: #454d54 !important; }
+.review-card-status {
+  background: #eaf5ee !important;
+  color: #2f7549 !important;
+  border-color: #cde5d5 !important;
+}
+@media (max-width: 640px) {
+  .reviews-page { padding: 156px 12px 48px !important; }
+  .reviews-header { border-radius: 17px !important; }
+  .reviews-content { border-radius: 15px !important; }
+}
