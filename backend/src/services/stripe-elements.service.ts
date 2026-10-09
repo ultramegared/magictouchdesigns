@@ -13,7 +13,7 @@ import {
     type CheckoutItemInput,
 } from "./order.service";
 import { getShippingQuote } from "./shipping.service";
-import { GENERAL_PHYSICAL_GOODS_TAX_CODE } from "./tax.service";
+import { calculateDestinationTax, GENERAL_PHYSICAL_GOODS_TAX_CODE } from "./tax.service";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://jqydesigns.com";
 const STRIPE_API = "https://api.stripe.com/v1";
@@ -210,6 +210,23 @@ export const updateStripeApplePayShipping = async (
     );
 
     const verifiedAddress = shippingQuote.verifiedAddress;
+    const taxCustomer: CheckoutCustomerInput = {
+        firstName: String(attempt.customer_first_name || ""),
+        lastName: String(attempt.customer_last_name || ""),
+        email: String(attempt.customer_email || ""),
+        phone: String(attempt.customer_phone || ""),
+        address: verifiedAddress.address,
+        apartment: verifiedAddress.apartment,
+        city: verifiedAddress.city,
+        state: verifiedAddress.state,
+        zip: verifiedAddress.zip,
+    };
+    const taxItems = storedItems.map((item: any) => ({
+        product_id: String(item.product_id),
+        unit_price: Number(item.unit_price),
+        quantity: Number(item.quantity),
+    }));
+    const taxResult = await calculateDestinationTax(taxCustomer, taxItems, shippingQuote.shippingCents);
 
     const params = new URLSearchParams();
     params.set("collected_information[shipping_details][name]", `${attempt.customer_first_name || ""} ${attempt.customer_last_name || ""}`.trim() || "Customer");
@@ -258,18 +275,22 @@ export const updateStripeApplePayShipping = async (
              customer_last_name = COALESCE(NULLIF($2, ''), customer_last_name),
              shipping_address = $3,
              shipping = $4,
-             total = subtotal + tax + $4,
-             carrier = $5,
-             shipping_service = $6,
-             shipping_delivery_days = $7,
-             shipping_rate_id = $8,
+             tax = $5,
+             tax_calculation_id = $6,
+             total = subtotal + $4 + $5,
+             carrier = $7,
+             shipping_service = $8,
+             shipping_delivery_days = $9,
+             shipping_rate_id = $10,
              updated_at = NOW()
-         WHERE stripe_checkout_session_id = $9`,
+         WHERE stripe_checkout_session_id = $11`,
         [
             String(shippingDetails?.name || "").trim().split(/\s+/)[0] || String(attempt.customer_first_name || ""),
             String(shippingDetails?.name || "").trim().split(/\s+/).slice(1).join(" ") || String(attempt.customer_last_name || ""),
             JSON.stringify(shippingAddress),
             shippingQuote.shipping,
+            taxResult.tax,
+            taxResult.calculationId,
             shippingQuote.carrier,
             shippingQuote.service,
             shippingQuote.deliveryDays,
