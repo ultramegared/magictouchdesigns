@@ -130,13 +130,16 @@ export const createStripeApplePayCheckout = async (
     params.set("billing_address_collection", "auto");
     params.set("phone_number_collection[enabled]", "true");
     params.set("shipping_address_collection[allowed_countries][0]", "US");
-    params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
-    params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents ?? 0));
-    params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
-    params.set("shipping_options[0][shipping_rate_data][display_name]", snapshot.shippingCents > 0
-        ? ([snapshot.shippingCarrier, snapshot.shippingService].filter(Boolean).join(" ") || "Standard Shipping")
-        : "Shipping calculated from your delivery address");
-    params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
+    // Never send Apple Pay a zero-dollar shipping option when the destination
+    // is unknown. Once the full address is available, use only the live quote
+    // calculated by buildOrderSnapshot/EasyPost.
+    if (hasCompleteAddress) {
+        params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
+        params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents));
+        params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
+        params.set("shipping_options[0][shipping_rate_data][display_name]", [snapshot.shippingCarrier, snapshot.shippingService].filter(Boolean).join(" ") || "USPS Ground Advantage");
+        params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
+    }
     params.set("automatic_tax[enabled]", "true");
     params.set("metadata[checkout_attempt_id]", attempt.attemptId);
     params.set("metadata[checkout_code]", attempt.checkoutCode);
