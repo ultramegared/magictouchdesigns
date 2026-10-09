@@ -67,6 +67,8 @@ function CheckoutPage() {
     const [error, setError] = useState("");
     const [paypalError, setPaypalError] = useState("");
     const [quote, setQuote] = useState<CheckoutQuote | null>(null);
+    const quoteRef = useRef<CheckoutQuote | null>(quote);
+    quoteRef.current = quote;
     const [quoteLoading, setQuoteLoading] = useState(false);
     const [quoteError, setQuoteError] = useState("");
 
@@ -317,8 +319,8 @@ function CheckoutPage() {
                 // Never open Apple Pay with the provisional zero-cost shipping option.
                 // The page quote is authoritative because it uses the full address.
                 const currentCustomer = readCustomerForm();
-                const currentQuote = quote;
-                if (!isCustomerReady(currentCustomer) || !currentQuote || !stripeAddressReady ||
+                const currentQuote = quoteRef.current;
+                if (!isCustomerReady(currentCustomer) || !currentQuote ||
                     stripeCustomerKeyRef.current !== customerKey(currentCustomer)) {
                     setError("Enter your complete delivery address first so Apple Pay can show the correct shipping and tax before you approve payment.");
                     e?.resolve?.({ shippingAddressRequired: true, emailRequired: true, phoneNumberRequired: true });
@@ -345,7 +347,15 @@ function CheckoutPage() {
                     const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ sessionId: d.sessionId, shippingDetails: e?.address || {} }),
+                        body: JSON.stringify({ sessionId: d.sessionId, shippingDetails: {
+                            name: e?.name || `${readCustomerForm().firstName} ${readCustomerForm().lastName}`.trim(),
+                            address: {
+                                ...(e?.address || {}),
+                                country: e?.address?.country || "US",
+                                line1: readCustomerForm().address,
+                                line2: readCustomerForm().apartment || "",
+                            },
+                        } }),
                     });
                     if (!response.ok) {
                         e?.reject?.();
