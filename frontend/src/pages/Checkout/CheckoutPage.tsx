@@ -55,6 +55,8 @@ function CheckoutPage() {
 
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", deliveryType: "house" as "house" | "apartment", address: "", apartment: "", city: "", state: "", zip: "" });
+    const formStateRef = useRef(form);
+    formStateRef.current = form;
         const [stripeReady, setStripeReady] = useState(false);
     const [stripeAddressReady, setStripeAddressReady] = useState(false);
     const [appleReady, setAppleReady] = useState(false);
@@ -153,16 +155,16 @@ function CheckoutPage() {
     const syncAutofilledFields = () => {
         const next = readCustomerForm();
         const formChanged =
-            form.firstName !== next.firstName ||
-            form.lastName !== next.lastName ||
-            form.email !== next.email ||
-            form.phone !== next.phone ||
-            form.deliveryType !== next.deliveryType ||
-            form.address !== next.address ||
-            form.apartment !== next.apartment ||
-            form.city !== next.city ||
-            form.state !== next.state ||
-            form.zip !== next.zip;
+            formStateRef.current.firstName !== next.firstName ||
+            formStateRef.current.lastName !== next.lastName ||
+            formStateRef.current.email !== next.email ||
+            formStateRef.current.phone !== next.phone ||
+            formStateRef.current.deliveryType !== next.deliveryType ||
+            formStateRef.current.address !== next.address ||
+            formStateRef.current.apartment !== next.apartment ||
+            formStateRef.current.city !== next.city ||
+            formStateRef.current.state !== next.state ||
+            formStateRef.current.zip !== next.zip;
         if (formChanged) {
             setQuote(null);
             setQuoteError("");
