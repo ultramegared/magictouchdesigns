@@ -330,6 +330,8 @@ function CheckoutPage() {
                 e?.resolve?.({
                     emailRequired: true,
                     phoneNumberRequired: true,
+                    shippingAddressRequired: true,
+                    allowedShippingCountries: ["US"],
                     lineItems: [
                         { name: "Merchandise", amount: Math.round(currentQuote.subtotal * 100) },
                         ...(currentQuote.tax > 0 ? [{ name: "Sales tax", amount: Math.round(currentQuote.tax * 100) }] : []),
