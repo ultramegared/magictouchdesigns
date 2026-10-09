@@ -152,6 +152,22 @@ function CheckoutPage() {
 
     const syncAutofilledFields = () => {
         const next = readCustomerForm();
+        const formChanged =
+            form.firstName !== next.firstName ||
+            form.lastName !== next.lastName ||
+            form.email !== next.email ||
+            form.phone !== next.phone ||
+            form.deliveryType !== next.deliveryType ||
+            form.address !== next.address ||
+            form.apartment !== next.apartment ||
+            form.city !== next.city ||
+            form.state !== next.state ||
+            form.zip !== next.zip;
+        if (formChanged) {
+            setQuote(null);
+            setQuoteError("");
+            setStripeAddressReady(false);
+        }
         setForm((current) => {
             if (
                 current.firstName === next.firstName &&
