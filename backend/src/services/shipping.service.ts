@@ -250,24 +250,33 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
     );
     if (!totalQuantity) throw new Error("At least one shippable item is required.");
 
-    let shippingCents = 0;
-    let maxTransitDays = 0;
-    const rateIds: string[] = [];
-    const shipmentIds: string[] = [];
+    // Rate the cart as one combined parcel instead of charging one full
+    // shipment for every unit. Weight is additive; dimensions are estimated
+    // by keeping the largest footprint and stacking item heights.
+    let combinedWeightLb = 0;
+    let combinedLengthIn = 0;
+    let combinedWidthIn = 0;
+    let combinedHeightIn = 0;
 
     for (const item of items) {
         const quantity = Math.max(1, Math.floor(Number(item.quantity) || 0));
         const size = item.variant?.size || item.variant?.model || item.name;
         const profile = getProfile(size);
 
-        for (let index = 0; index < quantity; index += 1) {
-            const quote = await quoteEasyPostPackage(origin, verifiedAddress, profile);
-            shippingCents += Math.round(quote.price * 100);
-            if (quote.days) maxTransitDays = Math.max(maxTransitDays, quote.days);
-            if (quote.rateId) rateIds.push(quote.rateId);
-            if (quote.shipmentId) shipmentIds.push(quote.shipmentId);
-        }
+        combinedWeightLb += profile.weightLb * quantity;
+        combinedLengthIn = Math.max(combinedLengthIn, profile.lengthIn);
+        combinedWidthIn = Math.max(combinedWidthIn, profile.widthIn);
+        combinedHeightIn += profile.heightIn * quantity;
     }
+
+    const combinedProfile: MugProfile = {
+        weightLb: combinedWeightLb,
+        lengthIn: combinedLengthIn,
+        widthIn: combinedWidthIn,
+        heightIn: combinedHeightIn,
+    };
+    const quote = await quoteEasyPostPackage(origin, verifiedAddress, combinedProfile);
+    const shippingCents = Math.round(quote.price * 100);
 
     return {
         verifiedAddress,
@@ -275,9 +284,9 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
         shipping: Number((shippingCents / 100).toFixed(2)),
         carrier: "USPS",
         service: "USPS Ground Advantage",
-        deliveryDays: maxTransitDays || 5,
+        deliveryDays: quote.days || 5,
         currency: "USD",
-        shipmentId: shipmentIds.join(","),
-        rateId: rateIds.join(",") || "USPS_GROUND_ADVANTAGE",
+        shipmentId: quote.shipmentId,
+        rateId: quote.rateId || "USPS_GROUND_ADVANTAGE",
     };
 };
