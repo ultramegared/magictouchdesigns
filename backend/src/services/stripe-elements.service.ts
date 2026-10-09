@@ -302,6 +302,9 @@ export const updateStripeApplePayShipping = async (
     return {
         shipping: shippingQuote.shipping,
         shippingCents: shippingQuote.shippingCents,
+        tax: taxResult.tax,
+        taxCents: taxResult.taxCents,
+        total: Number((Number(attempt.subtotal) + shippingQuote.shipping + taxResult.tax).toFixed(2)),
         carrier: shippingQuote.carrier,
         service: shippingQuote.service,
         deliveryDays: shippingQuote.deliveryDays,
