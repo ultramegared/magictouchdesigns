@@ -107,7 +107,7 @@ export const createStripeApplePayCheckout = async (
     items: CheckoutItemInput[],
     customRequestId?: string,
 ) => {
-    const snapshot = await buildOrderSnapshot(customer, items, { skipShipping: true, customRequestId });
+    const snapshot = await buildOrderSnapshot(customer, items, { customRequestId });
     const attempt = await createCheckoutAttempt(customer, snapshot, "stripe");
     const params = new URLSearchParams();
 
@@ -120,9 +120,9 @@ export const createStripeApplePayCheckout = async (
     params.set("phone_number_collection[enabled]", "true");
     params.set("shipping_address_collection[allowed_countries][0]", "US");
     params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
-    params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", "0");
+    params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents));
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
-    params.set("shipping_options[0][shipping_rate_data][display_name]", "Shipping calculated from your delivery address");
+    params.set("shipping_options[0][shipping_rate_data][display_name]", [snapshot.shippingCarrier, snapshot.shippingService].filter(Boolean).join(" ") || "Standard Shipping");
     params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
     params.set("automatic_tax[enabled]", "true");
     params.set("metadata[checkout_attempt_id]", attempt.attemptId);
