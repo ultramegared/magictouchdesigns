@@ -240,3 +240,20 @@
 @media (max-width: 430px) {
   .customer-orders__state { padding: 14px 12px !important; gap: 4px !important; }
 }
+
+/* Purchases-only final correction: the empty Purchases page must wrap its content instead of reserving viewport height below it. */
+.customer-orders:has(.customer-orders__state) {
+  min-height: 0 !important;
+  height: auto !important;
+  padding-bottom: 24px !important;
+}
+@media (max-width: 760px) {
+  .customer-orders:has(.customer-orders__state) {
+    padding-bottom: 22px !important;
+  }
+}
+@media (max-width: 430px) {
+  .customer-orders:has(.customer-orders__state) {
+    padding-bottom: 18px !important;
+  }
+}
