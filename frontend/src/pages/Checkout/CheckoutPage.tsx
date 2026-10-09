@@ -423,27 +423,14 @@ function CheckoutPage() {
         finally { setLoading(false); }
     };
 
-    // Do not create or mount a Stripe Checkout Session with a zero-cost provisional
-    // shipping rate. Wait until the complete delivery address and live quote exist.
-    // If the customer edits the address, discard the old session and build a fresh one.
+    // Mount Stripe as soon as the cart is available so payment methods are visible
+    // before the customer enters delivery details. The session starts provisional;
+    // the existing address/quote effect updates shipping before payment can proceed.
     useEffect(() => {
-        if (!cartItems.length || !addressReady || !quoteReady) return;
-        const customer = readCustomerForm();
-        const expectedKey = customerKey(customer);
-        if (stripeReady && stripeCustomerKeyRef.current === expectedKey) return;
-        if (stripeReady) {
-            stripeCleanupRef.current?.();
-            stripeCleanupRef.current = null;
-            setStripeReady(false);
-            setStripeAddressReady(false);
-            setAppleReady(false);
-            setAppleAvailable(null);
-            return;
-        }
-        if (stripeStartingRef.current) return;
-        const timer = window.setTimeout(() => { void prepareStripe(customer); }, 250);
+        if (!cartItems.length || stripeReady || stripeStartingRef.current) return;
+        const timer = window.setTimeout(() => { void prepareStripe(readCustomerForm()); }, 250);
         return () => window.clearTimeout(timer);
-    }, [cartItems.length, addressReady, quoteReady, form, stripeReady]);
+    }, [cartItems.length, stripeReady]);
 
     useEffect(() => {
         if (!stripeReady || !addressReady || !quoteReady || stripeAddressReady || stripeStartingRef.current) return;
