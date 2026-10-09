@@ -893,3 +893,50 @@
   .reviews-content { padding: 12px !important; border-radius: 15px !important; }
   .reviews-empty { min-height: 190px; padding: 30px 12px !important; }
 }
+
+
+/* Empty-state spacing correction: size the review area to its content. */
+.reviews-content {
+  padding: 14px !important;
+}
+.reviews-empty {
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 24px 18px !important;
+  gap: 7px !important;
+}
+.reviews-empty-icon {
+  margin-bottom: 10px !important;
+}
+.reviews-empty h2 {
+  margin: 0 0 5px !important;
+}
+.reviews-empty p {
+  margin: 0 !important;
+}
+@media (min-width: 769px) {
+  .reviews-content {
+    padding: 16px !important;
+  }
+  .reviews-empty {
+    padding: 28px 22px !important;
+  }
+}
+@media (max-width: 768px) {
+  .reviews-content {
+    padding: 12px !important;
+  }
+  .reviews-empty {
+    min-height: 0 !important;
+    padding: 22px 16px !important;
+  }
+}
+@media (max-width: 576px) {
+  .reviews-content {
+    padding: 10px !important;
+  }
+  .reviews-empty {
+    min-height: 0 !important;
+    padding: 20px 12px !important;
+  }
+}
