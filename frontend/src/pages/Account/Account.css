@@ -149,3 +149,25 @@
     padding-top: 158px !important;
   }
 }
+
+
+/* Mobile spacing and safe-area correction for the account dashboard. */
+.account-v2 {
+  box-sizing: border-box;
+  padding-bottom: max(72px, calc(env(safe-area-inset-bottom, 0px) + 48px)) !important;
+}
+@media (max-width: 900px) {
+  .account-v2 { padding-top: 142px !important; }
+}
+@media (max-width: 640px) {
+  .account-v2 { padding-top: 136px !important; }
+}
+@media (max-width: 390px) {
+  .account-v2 { padding-top: 130px !important; }
+}
+.account-v2__stats,
+.account-v2__layout,
+.account-v2__profile-card { min-width: 0; }
+.account-v2__stats > div,
+.account-v2__profile-card,
+.account-v2__sidebar { box-sizing: border-box; }

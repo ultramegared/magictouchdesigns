@@ -93,3 +93,82 @@
   .customer-orders__header { border-radius: 17px !important; }
   .customer-order { border-radius: 15px !important; }
 }
+
+
+/* Mobile layout and readability correction — preserve order logic. */
+.customer-orders {
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: clip !important;
+  padding-top: 118px !important;
+  padding-bottom: max(56px, calc(env(safe-area-inset-bottom, 0px) + 36px)) !important;
+  background: #f4f5f3 !important;
+  color: #202832 !important;
+}
+.customer-orders::before {
+  background:
+    radial-gradient(ellipse at 8% 8%, rgba(40,120,160,.10), transparent 32%),
+    radial-gradient(ellipse at 92% 18%, rgba(224,177,70,.14), transparent 34%),
+    linear-gradient(145deg,#f8f7f3,#eef3f6 54%,#faf5e9) !important;
+}
+.customer-orders__shell { width: min(1120px, 100%); min-width: 0; }
+.customer-orders__back {
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 11px 16px !important;
+  white-space: normal;
+  line-height: 1.35;
+  background: #fffaf0 !important;
+  color: #76540e !important;
+  border-color: #dfc77f !important;
+}
+.customer-orders__header h1 {
+  font-family: Montserrat, Arial, sans-serif !important;
+  font-size: clamp(30px, 5vw, 46px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -.035em !important;
+  line-height: 1.1 !important;
+  overflow-wrap: anywhere;
+  color: #fff !important;
+}
+.customer-orders__state {
+  min-height: 230px !important;
+  box-sizing: border-box;
+  padding: 30px 20px !important;
+  background: #fff !important;
+  color: #525d66 !important;
+  border: 1px solid #e2dfd6 !important;
+  box-shadow: 0 10px 26px rgba(30,45,54,.06) !important;
+}
+.customer-orders__state strong { color: #202832 !important; font-size: 18px !important; line-height: 1.4; }
+.customer-orders__state span { color: #59636b !important; font-size: 14px !important; line-height: 1.6; }
+.customer-orders__state svg:not(.spin) { color: #a87919 !important; }
+.customer-orders__state button { min-height: 46px; justify-content: center; font-size: 11px !important; }
+.customer-order__badge--pending,
+.customer-order__badge--processing { color: #77530c !important; background: #fff4d6 !important; border-color: #ecd28a !important; }
+.customer-order__badge--shipped { color: #205c83 !important; background: #e8f4fb !important; border-color: #c6e0ef !important; }
+.customer-order__badge--delivered { color: #25643a !important; background: #eaf6ed !important; border-color: #cce5d2 !important; }
+.customer-order__badge--cancelled,
+.customer-order__badge--refunded { color: #9b3030 !important; background: #fff0ef !important; border-color: #f0c7c3 !important; }
+.customer-order__item-mini span { color: #38434c !important; }
+.customer-order__more { color: #805d14 !important; font-weight: 700; }
+@media (max-width: 760px) {
+  .customer-orders { padding: 122px 12px max(64px, calc(env(safe-area-inset-bottom, 0px) + 42px)) !important; }
+  .customer-orders__header { padding: 22px 18px !important; gap: 14px !important; border-radius: 17px !important; }
+  .customer-orders__header h1 { font-size: clamp(29px, 7.5vw, 38px) !important; line-height: 1.12 !important; }
+  .customer-orders__header p { font-size: 14px !important; line-height: 1.65 !important; }
+  .customer-orders__summary { min-width: 0; }
+  .customer-orders__state { min-height: 200px !important; margin-top: 18px !important; padding: 28px 16px !important; }
+  .customer-order__top { min-width: 0; }
+  .customer-order__identity, .customer-order__headline { min-width: 0; flex-wrap: wrap; }
+  .customer-order__headline { justify-content: flex-start !important; }
+  .customer-order__item { min-width: 0; }
+  .customer-order__item strong, .customer-order__item span { overflow-wrap: anywhere; }
+}
+@media (max-width: 430px) {
+  .customer-orders { padding-top: 116px !important; }
+  .customer-orders__back { font-size: 10px !important; gap: 7px !important; }
+  .customer-orders__header { padding: 19px 15px !important; }
+  .customer-orders__header h1 { font-size: 29px !important; }
+  .customer-order__headline strong { font-size: 14px !important; }
+}
