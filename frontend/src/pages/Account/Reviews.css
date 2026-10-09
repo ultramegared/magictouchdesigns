@@ -793,3 +793,103 @@
   .reviews-header { border-radius: 17px !important; }
   .reviews-content { border-radius: 15px !important; }
 }
+
+
+/* Mobile layout and contrast correction — preserve review functionality. */
+.reviews-page {
+  box-sizing: border-box;
+  overflow-x: clip !important;
+  padding: 118px 20px max(64px, calc(env(safe-area-inset-bottom, 0px) + 40px)) !important;
+  background:
+    radial-gradient(ellipse at 8% 12%,rgba(42,132,166,.10),transparent 34%),
+    radial-gradient(ellipse at 92% 18%,rgba(228,180,70,.13),transparent 32%),
+    linear-gradient(145deg,#f8f7f2,#edf3f6 55%,#fbf4e7) !important;
+  color: #252a30 !important;
+}
+.reviews-container {
+  box-sizing: border-box;
+  width: min(100%, 980px) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.reviews-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px !important;
+  min-height: 44px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 10px 15px !important;
+  margin-bottom: 22px !important;
+  border: 1px solid #dfc77f;
+  border-radius: 999px;
+  background: #fffaf0 !important;
+  color: #76540e !important;
+  line-height: 1.35;
+}
+.reviews-header {
+  box-sizing: border-box;
+  margin-bottom: 20px !important;
+  padding: clamp(22px,4vw,34px) !important;
+  border: 1px solid #e4d2a2 !important;
+  border-radius: 22px !important;
+  background: linear-gradient(120deg,#172a3a,#203f50 58%,#4b3920) !important;
+  box-shadow: 0 16px 36px rgba(25,49,63,.14) !important;
+}
+.reviews-header h1 {
+  color: #fff !important;
+  font-size: clamp(30px,5vw,44px) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -.035em !important;
+  overflow-wrap: anywhere;
+}
+.reviews-header p { color: #e4edf2 !important; font-size: 15px !important; line-height: 1.65 !important; }
+.reviews-content {
+  box-sizing: border-box;
+  padding: clamp(16px,3vw,26px) !important;
+  border: 1px solid #e3dfd4 !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.9) !important;
+  box-shadow: 0 10px 26px rgba(30,45,54,.06) !important;
+}
+.reviews-empty {
+  box-sizing: border-box;
+  min-height: 220px;
+  padding: 36px 18px !important;
+  border: 1px solid #e5e7e3;
+  border-radius: 15px;
+  background: linear-gradient(145deg,#fff,#f5f9fa) !important;
+  color: #252a30 !important;
+}
+.reviews-empty-icon { color: #a87919 !important; }
+.reviews-empty h2 { color: #202832 !important; font-size: clamp(19px,4vw,24px) !important; line-height: 1.35; }
+.reviews-empty p { color: #59636b !important; font-size: 15px !important; line-height: 1.65 !important; }
+.reviews-create-button {
+  min-height: 52px;
+  box-sizing: border-box;
+  border-radius: 12px !important;
+  color: #24272a !important;
+  background: linear-gradient(135deg,#f7df91,#e5b64c) !important;
+}
+.review-card { background: #fff !important; color: #252a30 !important; }
+.review-card-text { color: #3f4850 !important; }
+.review-card-status { color: #28643c !important; background: #edf7ef !important; border-color: #cce5d0 !important; }
+@media (max-width: 768px) {
+  .reviews-page { padding: 126px 13px max(64px, calc(env(safe-area-inset-bottom, 0px) + 42px)) !important; }
+}
+@media (max-width: 576px) {
+  .reviews-page { padding: 118px 12px max(68px, calc(env(safe-area-inset-bottom, 0px) + 44px)) !important; }
+  .reviews-container { padding: 0 !important; }
+  .reviews-back { margin-bottom: 18px !important; font-size: 12px !important; }
+  .reviews-header { padding: 22px 18px !important; margin-bottom: 16px !important; border-radius: 17px !important; }
+  .reviews-icon { width: 54px !important; height: 54px !important; margin-bottom: 15px !important; }
+  .reviews-header h1 { font-size: 30px !important; }
+  .reviews-header p { font-size: 14px !important; }
+  .reviews-create-button { width: 100% !important; }
+  .reviews-content { padding: 12px !important; border-radius: 15px !important; }
+  .reviews-empty { min-height: 190px; padding: 30px 12px !important; }
+}
