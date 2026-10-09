@@ -158,28 +158,31 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
     const preheader = escapeHtml(resolved.preheader || resolved.title);
 
     const welcomeHighlights = isWelcome
-        ? "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:26px 0 6px;background:#f5f7fa;border-radius:14px\"><tr>" +
-          "<td width=\"25%\" valign=\"top\" style=\"padding:20px 7px;text-align:center\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">♙</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Manage<br/>Your Profile</div></td>" +
-          "<td width=\"25%\" valign=\"top\" style=\"padding:20px 7px;text-align:center;border-left:1px solid #dfe5ec\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">◇</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">View<br/>Your Orders</div></td>" +
-          "<td width=\"25%\" valign=\"top\" style=\"padding:20px 7px;text-align:center;border-left:1px solid #dfe5ec\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">☆</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Write<br/>Reviews</div></td>" +
-          "<td width=\"25%\" valign=\"top\" style=\"padding:20px 7px;text-align:center;border-left:1px solid #dfe5ec\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">♡</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Save<br/>Favorites</div></td>" +
-          "</tr></table>"
+        ? "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:26px 0 6px;background:#fbf7ef;border-radius:14px\"><tr>" +
+          "<td width=\"25%\" valign=\"top\" style=\"padding:18px 5px;text-align:center\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">♙</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Manage<br/>Your Profile</div><div style=\"font-size:11px;color:#536174;margin-top:6px\">Update your details</div></td>" +
+          "<td width=\"25%\" valign=\"top\" style=\"padding:18px 5px;text-align:center;border-left:1px solid #e5dccd\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">▢</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Shop<br/>Collections</div><div style=\"font-size:11px;color:#536174;margin-top:6px\">Find a special gift</div></td>" +
+          "<td width=\"25%\" valign=\"top\" style=\"padding:18px 5px;text-align:center;border-left:1px solid #e5dccd\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">◇</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Track<br/>Your Orders</div><div style=\"font-size:11px;color:#536174;margin-top:6px\">Check order status</div></td>" +
+          "<td width=\"25%\" valign=\"top\" style=\"padding:18px 5px;text-align:center;border-left:1px solid #e5dccd\"><div style=\"font-size:25px;color:#99621c;margin-bottom:8px\">♡</div><div style=\"font-size:12px;font-weight:800;color:#14213a\">Save<br/>Favorites</div><div style=\"font-size:11px;color:#536174;margin-top:6px\">Keep designs you love</div></td>" +
+          "</tr></table>" +
+          "<div style=\"margin:22px 0 4px;padding:22px;background:#fffaf1;border:1px solid #efe2ca;border-radius:14px\"><div style=\"font-size:22px;font-weight:800;color:#14213a;margin-bottom:8px\">Discover Unique Gifts</div>" +
+          "<div style=\"font-size:15px;line-height:1.65;color:#536174\">Explore personalized mugs and thoughtful gifts for birthdays, celebrations, or just because. Find something that makes someone smile.</div>" +
+          "<p style=\"margin:18px 0 0\"><a href=\"" + escapeHtml(FRONTEND_URL + "/") + "\" style=\"display:inline-block;padding:13px 24px;background:#99621c;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px\">Start Shopping &rarr;</a></p></div>"
         : "";
 
     const html = "<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\" /></head><body style=\"margin:0;background:#eef2f6;font-family:Arial,Helvetica,sans-serif;color:#172033\">" +
         "<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;color:transparent\">" + preheader + "</div>" +
-        "<div style=\"padding:28px 12px\"><div style=\"max-width:680px;margin:auto\">" +
-        "<div style=\"height:4px;background:linear-gradient(90deg,#99621c,#E5B84B,#99621c);border-radius:12px 12px 0 0\"></div>" +
+        "<div style=\"padding:28px 12px;background:#eef2f6\"><div style=\"max-width:680px;margin:auto\">" +
+        "<div style=\"height:8px;background:linear-gradient(110deg,#fff1c6,#b77b20,#17130f,#f7d982);border-radius:14px 14px 0 0\"></div>" +
         "<div style=\"background:#fff;border:1px solid #dfe5ec;border-radius:0 0 18px 18px;overflow:hidden\">" +
         (isWelcome
-            ? "<div style=\"padding:34px 24px 30px;text-align:center;background:#17130f;border-bottom:1px solid #3a3024\">" +
-              "<div style=\"color:#E5B84B;font-size:12px;font-weight:800;letter-spacing:5px;margin-bottom:14px\">JQYDESIGNS</div>" +
+            ? "<div style=\"padding:38px 24px 34px;text-align:center;background:radial-gradient(ellipse at top left,#49351b 0%,#17130f 45%,#090909 100%);border-bottom:1px solid #3a3024\">" +
               "<img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:190px;max-height:105px;width:auto;height:auto;border:0\" />" +
-              "<div style=\"margin-top:14px;color:#f4dfaa;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase\">Personalized creations for a brighter you</div>" +
+              "<div style=\"margin-top:18px;color:#f4dfaa;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">Personalized creations for a brighter you</div>" +
+              "<div style=\"width:62px;height:2px;background:#d6a443;margin:18px auto 0\"></div>" +
               "</div>"
             : "<div style=\"padding:30px 24px 26px;text-align:center;background:#fbfcfe;border-bottom:1px solid #e7ebf1\"><img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:210px;max-height:92px;width:auto;height:auto;border:0\" /></div>") +
         "<div style=\"padding:34px 34px 30px\">" +
-        "<div style=\"color:" + (isWelcome ? "#99621c" : color) + ";font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">" + escapeHtml(resolved.eyebrow) + "</div>" +
+        (isWelcome ? "" : "<div style=\"color:" + color + ";font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">" + escapeHtml(resolved.eyebrow) + "</div>") +
         "<h1 style=\"margin:11px 0 14px;font-size:34px;line-height:1.14;letter-spacing:-.7px;color:#14213a\">" + escapeHtml(resolved.title) + "</h1>" +
         "<div style=\"color:#536174;font-size:16px;line-height:1.75\">" + textToHtml(resolved.body) + "</div>" +
         welcomeHighlights +
