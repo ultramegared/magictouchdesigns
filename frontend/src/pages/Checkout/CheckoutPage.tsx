@@ -349,6 +349,8 @@ function CheckoutPage() {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ sessionId: d.sessionId, shippingDetails: {
                             name: e?.name || `${readCustomerForm().firstName} ${readCustomerForm().lastName}`.trim(),
+                            email: readCustomerForm().email,
+                            phone: readCustomerForm().phone,
                             address: {
                                 ...(e?.address || {}),
                                 country: e?.address?.country || "US",
@@ -446,6 +448,8 @@ function CheckoutPage() {
                         sessionId: stripeSessionRef.current.id,
                         shippingDetails: {
                             name: `${customer.firstName} ${customer.lastName}`.trim(),
+                            email: customer.email,
+                            phone: customer.phone,
                             address: { country: "US", line1: customer.address, line2: customer.apartment || "", city: customer.city, state: customer.state, postal_code: customer.zip },
                         },
                     }),
