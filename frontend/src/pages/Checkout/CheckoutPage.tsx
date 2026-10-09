@@ -423,14 +423,27 @@ function CheckoutPage() {
         finally { setLoading(false); }
     };
 
-    // Mount Stripe payment fields as soon as the cart is available. The server
-    // creates a provisional session; card payment remains blocked until shipping and
-    // destination tax are calculated and the session is updated with the real amount.
+    // Do not create or mount a Stripe Checkout Session with a zero-cost provisional
+    // shipping rate. Wait until the complete delivery address and live quote exist.
+    // If the customer edits the address, discard the old session and build a fresh one.
     useEffect(() => {
-        if (!cartItems.length) return;
-        const timer = window.setTimeout(() => { void prepareStripe(readCustomerForm()); }, 250);
+        if (!cartItems.length || !addressReady || !quoteReady) return;
+        const customer = readCustomerForm();
+        const expectedKey = customerKey(customer);
+        if (stripeReady && stripeCustomerKeyRef.current === expectedKey) return;
+        if (stripeReady) {
+            stripeCleanupRef.current?.();
+            stripeCleanupRef.current = null;
+            setStripeReady(false);
+            setStripeAddressReady(false);
+            setAppleReady(false);
+            setAppleAvailable(null);
+            return;
+        }
+        if (stripeStartingRef.current) return;
+        const timer = window.setTimeout(() => { void prepareStripe(customer); }, 250);
         return () => window.clearTimeout(timer);
-    }, [cartItems.length]);
+    }, [cartItems.length, addressReady, quoteReady, form, stripeReady]);
 
     useEffect(() => {
         if (!stripeReady || !addressReady || !quoteReady || stripeAddressReady || stripeStartingRef.current) return;
