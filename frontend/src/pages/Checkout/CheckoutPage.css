@@ -206,7 +206,8 @@
 }
 
 
-.checkout-fields input {
+.checkout-fields input,
+.checkout-fields select {
     width: 100%;
 
     box-sizing: border-box;
@@ -228,6 +229,16 @@
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease;
+}
+
+.checkout-fields select {
+    color-scheme: dark;
+    cursor: pointer;
+}
+
+.checkout-fields select option {
+    color: #fff;
+    background: #171717;
 }
 
 
@@ -269,7 +280,8 @@
 }
 
 
-.checkout-fields input:focus {
+.checkout-fields input:focus,
+.checkout-fields select:focus {
     border-color: rgba(224, 173, 67, 0.75);
 
     box-shadow:
