@@ -322,8 +322,9 @@ function CheckoutPage() {
                 const currentQuote = quoteRef.current;
                 if (!isCustomerReady(currentCustomer) || !currentQuote ||
                     stripeCustomerKeyRef.current !== customerKey(currentCustomer)) {
-                    setError("Enter your complete delivery address first so Apple Pay can show the correct shipping and tax before you approve payment.");
-                    e?.resolve?.({ shippingAddressRequired: true, emailRequired: true, phoneNumberRequired: true });
+                    setError("Enter your complete delivery address first. Apple Pay cannot continue until shipping and tax are confirmed.");
+                    // Intentionally do not resolve the click: this session has a
+                    // provisional zero-cost shipping option and must not be approved.
                     return;
                 }
                 e?.resolve?.({
@@ -380,6 +381,14 @@ function CheckoutPage() {
                 }
             });
             express.on("confirm", async (e: any) => {
+                const currentCustomer = readCustomerForm();
+                const currentQuote = quoteRef.current;
+                if (!isCustomerReady(currentCustomer) || !currentQuote ||
+                    stripeCustomerKeyRef.current !== customerKey(currentCustomer)) {
+                    setError("Apple Pay was stopped because the final shipping and tax amount is not confirmed. Enter your delivery address and try again.");
+                    e?.paymentFailed?.({ reason: "invalid_shipping_address" });
+                    return;
+                }
                 setLoading(true);
                 try {
                     const result = await actions.actions.confirm({ expressCheckoutConfirmEvent: e });
