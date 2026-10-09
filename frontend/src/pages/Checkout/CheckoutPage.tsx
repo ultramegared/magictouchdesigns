@@ -328,7 +328,6 @@ function CheckoutPage() {
                     return;
                 }
                 e?.resolve?.({
-                    shippingAddressRequired: true,
                     emailRequired: true,
                     phoneNumberRequired: true,
                     lineItems: [
