@@ -940,3 +940,17 @@
     padding: 20px 12px !important;
   }
 }
+
+
+/* Final Reviews-only correction: when the page has no review cards, do not reserve a full viewport below the empty state. */
+.reviews-page:has(.reviews-empty) {
+  min-height: 0 !important;
+  height: auto !important;
+  padding-bottom: 24px !important;
+}
+@media (max-width: 768px) {
+  .reviews-page:has(.reviews-empty) { padding-bottom: 22px !important; }
+}
+@media (max-width: 576px) {
+  .reviews-page:has(.reviews-empty) { padding-bottom: 18px !important; }
+}
