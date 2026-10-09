@@ -214,3 +214,29 @@
     padding: 18px 14px !important;
   }
 }
+
+
+/* Final empty-state height lock: the card must wrap its content, never stretch vertically. */
+.customer-orders__state {
+  min-height: 0 !important;
+  height: fit-content !important;
+  max-height: max-content !important;
+  flex: 0 0 auto !important;
+  align-self: flex-start !important;
+  box-sizing: border-box !important;
+  padding: 16px 18px !important;
+  margin-bottom: 0 !important;
+}
+.customer-orders__state > * { flex: 0 0 auto !important; }
+.customer-orders__state button { margin-top: 3px !important; }
+@media (max-width: 760px) {
+  .customer-orders__state {
+    min-height: 0 !important;
+    height: fit-content !important;
+    padding: 16px 14px !important;
+    gap: 5px !important;
+  }
+}
+@media (max-width: 430px) {
+  .customer-orders__state { padding: 14px 12px !important; gap: 4px !important; }
+}
