@@ -313,6 +313,33 @@ function CheckoutPage() {
 
             express.on("ready", updateAppleAvailability);
             express.on("availablepaymentmethodschange", updateAppleAvailability);
+            express.on("click", (e: any) => {
+                // Never open Apple Pay with the provisional zero-cost shipping option.
+                // The page quote is authoritative because it uses the full address.
+                const currentCustomer = readCustomerForm();
+                const currentQuote = quote;
+                if (!isCustomerReady(currentCustomer) || !currentQuote || !stripeAddressReady ||
+                    stripeCustomerKeyRef.current !== customerKey(currentCustomer)) {
+                    setError("Enter your complete delivery address first so Apple Pay can show the correct shipping and tax before you approve payment.");
+                    e?.resolve?.({ shippingAddressRequired: true, emailRequired: true, phoneNumberRequired: true });
+                    return;
+                }
+                e?.resolve?.({
+                    shippingAddressRequired: true,
+                    emailRequired: true,
+                    phoneNumberRequired: true,
+                    lineItems: [
+                        { name: "Merchandise", amount: Math.round(currentQuote.subtotal * 100) },
+                        ...(currentQuote.tax > 0 ? [{ name: "Sales tax", amount: Math.round(currentQuote.tax * 100) }] : []),
+                    ],
+                    shippingRates: [{
+                        id: "jqyd-live-shipping",
+                        amount: Math.round(currentQuote.shipping * 100),
+                        displayName: [currentQuote.shippingCarrier, currentQuote.shippingService].filter(Boolean).join(" ") || "Shipping",
+                        ...(currentQuote.shippingDeliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: currentQuote.shippingDeliveryDays }, maximum: { unit: "business_day", value: currentQuote.shippingDeliveryDays + 2 } } } : {}),
+                    }],
+                });
+            });
             express.on("shippingaddresschange", async (e: any) => {
                 try {
                     const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
@@ -324,7 +351,20 @@ function CheckoutPage() {
                         e?.reject?.();
                         return;
                     }
-                    e?.resolve?.();
+                    const updated = await response.json() as { shipping?: number; shippingCents?: number; tax?: number; taxCents?: number; carrier?: string; service?: string; deliveryDays?: number | null };
+                    const currentSubtotalCents = Math.round((quote?.subtotal ?? subtotal) * 100);
+                    e?.resolve?.({
+                        lineItems: [
+                            { name: "Merchandise", amount: currentSubtotalCents },
+                            ...(Number(updated.taxCents ?? 0) > 0 ? [{ name: "Sales tax", amount: Number(updated.taxCents) }] : []),
+                        ],
+                        shippingRates: [{
+                            id: "jqyd-live-shipping",
+                            amount: Number(updated.shippingCents ?? Math.round(Number(updated.shipping ?? 0) * 100)),
+                            displayName: [updated.carrier, updated.service].filter(Boolean).join(" ") || "Shipping",
+                            ...(updated.deliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: updated.deliveryDays }, maximum: { unit: "business_day", value: updated.deliveryDays + 2 } } } : {}),
+                        }],
+                    });
                 } catch {
                     e?.reject?.();
                 }
