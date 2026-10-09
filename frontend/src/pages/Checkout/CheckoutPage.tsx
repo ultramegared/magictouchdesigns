@@ -250,6 +250,43 @@ function CheckoutPage() {
         customer.deliveryType,
     ].join("|");
 
+    const syncApplePaySession = async (customer: typeof form, currentQuote: CheckoutQuote) => {
+        const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                sessionId: stripeSessionRef.current.id,
+                shippingDetails: {
+                    name: `${customer.firstName} ${customer.lastName}`.trim(),
+                    email: customer.email,
+                    phone: customer.phone,
+                    address: {
+                        country: "US",
+                        line1: customer.address,
+                        line2: customer.apartment || "",
+                        city: customer.city,
+                        state: customer.state,
+                        postal_code: customer.zip,
+                    },
+                },
+            }),
+        });
+        const data = await response.json() as { shipping?: number; tax?: number; total?: number; message?: string };
+        if (!response.ok || typeof data.total !== "number") {
+            throw new Error(data.message || "Could not confirm the final Apple Pay total.");
+        }
+
+        // Stripe's server-side session total must match the quote shown by Order Summary
+        // before Apple Pay is allowed to open.
+        const expectedTotalCents = Math.round(currentQuote.total * 100);
+        const syncedTotalCents = Math.round(data.total * 100);
+        if (expectedTotalCents !== syncedTotalCents) {
+            throw new Error("The payment total changed while confirming shipping and tax. Please wait for the total to recalculate.");
+        }
+
+        return data;
+    };
+
     useEffect(() => {
         if (!cartItems.length || !addressReady) { setQuote(null); setQuoteError(""); setQuoteLoading(false); return; }
         const controller = new AbortController();
@@ -315,18 +352,28 @@ function CheckoutPage() {
 
             express.on("ready", updateAppleAvailability);
             express.on("availablepaymentmethodschange", updateAppleAvailability);
-            express.on("click", (e: any) => {
-                // Never open Apple Pay with the provisional zero-cost shipping option.
-                // The page quote is authoritative because it uses the full address.
+            express.on("click", async (e: any) => {
                 const currentCustomer = readCustomerForm();
                 const currentQuote = quoteRef.current;
-                if (!isCustomerReady(currentCustomer) || !currentQuote ||
-                    stripeCustomerKeyRef.current !== customerKey(currentCustomer)) {
+
+                // Keep the Apple Pay button visible, but never let Stripe open its
+                // payment sheet until the backend session has the exact final total.
+                if (!isCustomerReady(currentCustomer) || !currentQuote) {
                     setError("Enter your complete delivery address first. Apple Pay cannot continue until shipping and tax are confirmed.");
-                    // Intentionally do not resolve the click: this session has a
-                    // provisional zero-cost shipping option and must not be approved.
                     return;
                 }
+
+                try {
+                    setError("");
+                    await syncApplePaySession(currentCustomer, currentQuote);
+                    stripeCustomerKeyRef.current = customerKey(currentCustomer);
+                    setStripeAddressReady(true);
+                } catch (x) {
+                    setStripeAddressReady(false);
+                    setError(x instanceof Error ? x.message : "Could not confirm the final Apple Pay total.");
+                    return;
+                }
+
                 e?.resolve?.({
                     emailRequired: true,
                     phoneNumberRequired: true,
@@ -443,21 +490,9 @@ function CheckoutPage() {
         let cancelled = false;
         (async () => {
             try {
-                const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        sessionId: stripeSessionRef.current.id,
-                        shippingDetails: {
-                            name: `${customer.firstName} ${customer.lastName}`.trim(),
-                            email: customer.email,
-                            phone: customer.phone,
-                            address: { country: "US", line1: customer.address, line2: customer.apartment || "", city: customer.city, state: customer.state, postal_code: customer.zip },
-                        },
-                    }),
-                });
-                const data = await response.json() as { message?: string };
-                if (!response.ok) throw new Error(data.message || "Could not update the secure payment total.");
+                const currentQuote = quoteRef.current;
+                if (!currentQuote) throw new Error("Please wait until shipping and sales tax are confirmed.");
+                await syncApplePaySession(customer, currentQuote);
                 if (!cancelled && expectedKey === customerKey(readCustomerForm())) {
                     stripeCustomerKeyRef.current = expectedKey;
                     setStripeAddressReady(true);
