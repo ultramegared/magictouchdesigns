@@ -130,3 +130,22 @@
  .account-v2__stats svg, .account-v2__stat-dollar { grid-row: span 2 !important; }
  .account-v2__section-heading { flex-direction: column !important; }
 }
+
+
+/* Fix: account hero was starting underneath the fixed, two-row mobile header. */
+@media (max-width: 900px) {
+  .account-v2 {
+    padding-top: 178px !important;
+    scroll-margin-top: 150px;
+  }
+}
+@media (max-width: 640px) {
+  .account-v2 {
+    padding-top: 166px !important;
+  }
+}
+@media (max-width: 390px) {
+  .account-v2 {
+    padding-top: 158px !important;
+  }
+}
