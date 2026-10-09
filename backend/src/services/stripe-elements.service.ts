@@ -107,7 +107,18 @@ export const createStripeApplePayCheckout = async (
     items: CheckoutItemInput[],
     customRequestId?: string,
 ) => {
-    const snapshot = await buildOrderSnapshot(customer, items, { customRequestId });
+    // A provisional session lets Stripe Elements (including Apple Pay) render
+    // immediately on the checkout page. A real shipping quote replaces this zero
+    // placeholder through updateStripeApplePayShipping before payment is allowed.
+    const hasCompleteAddress = Boolean(
+        customer.firstName?.trim() && customer.lastName?.trim() && customer.email?.trim() &&
+        customer.address?.trim() && customer.city?.trim() && customer.state?.trim() && customer.zip?.trim()
+    );
+    const snapshot = await buildOrderSnapshot(
+        customer,
+        items,
+        hasCompleteAddress ? { customRequestId } : { skipShipping: true, customRequestId },
+    );
     const attempt = await createCheckoutAttempt(customer, snapshot, "stripe");
     const params = new URLSearchParams();
 
@@ -120,9 +131,11 @@ export const createStripeApplePayCheckout = async (
     params.set("phone_number_collection[enabled]", "true");
     params.set("shipping_address_collection[allowed_countries][0]", "US");
     params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
-    params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents));
+    params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents ?? 0));
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
-    params.set("shipping_options[0][shipping_rate_data][display_name]", [snapshot.shippingCarrier, snapshot.shippingService].filter(Boolean).join(" ") || "Standard Shipping");
+    params.set("shipping_options[0][shipping_rate_data][display_name]", snapshot.shippingCents > 0
+        ? ([snapshot.shippingCarrier, snapshot.shippingService].filter(Boolean).join(" ") || "Standard Shipping")
+        : "Shipping calculated from your delivery address");
     params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
     params.set("automatic_tax[enabled]", "true");
     params.set("metadata[checkout_attempt_id]", attempt.attemptId);
