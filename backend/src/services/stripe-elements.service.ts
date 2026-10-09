@@ -312,6 +312,21 @@ export const updateStripeApplePayShipping = async (
         ],
     );
 
+    // The initial Elements session may have been created before the customer typed
+    // their details. Persist them once the address and live quote are confirmed.
+    await pool.query(
+        `UPDATE checkout_attempts
+         SET customer_email = COALESCE(NULLIF($1, ''), customer_email),
+             customer_phone = COALESCE(NULLIF($2, ''), customer_phone),
+             updated_at = NOW()
+         WHERE stripe_checkout_session_id = $3`,
+        [
+            String(shippingDetails?.email || "").trim().toLowerCase(),
+            String(shippingDetails?.phone || "").trim(),
+            normalizedSessionId,
+        ],
+    );
+
     return {
         shipping: shippingQuote.shipping,
         shippingCents: shippingQuote.shippingCents,
