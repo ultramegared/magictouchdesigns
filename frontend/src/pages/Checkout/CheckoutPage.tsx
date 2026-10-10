@@ -492,15 +492,19 @@ function CheckoutPage() {
         finally { setLoading(false); }
     };
 
-    // Initialize Stripe immediately so the real card fields and Apple Pay button
-    // are visible from the start. The click handler uses quoteRef.current (not a
-    // captured/stale quote) and refuses to open Apple Pay until the full destination
-    // quote exists; once ready, it sends the full breakdown to the wallet.
+    // Create the Stripe Checkout Session only after the complete destination
+    // and live shipping/tax quote are ready. This avoids ever initializing Apple Pay
+    // against the provisional merchandise-only session ($30) and then trying to
+    // retrofit shipping into an already-mounted wallet.
     useEffect(() => {
-        if (!cartItems.length || stripeReady || stripeStartingRef.current) return;
-        const timer = window.setTimeout(() => { void prepareStripe(readCustomerForm()); }, 250);
+        if (!cartItems.length || !addressReady || !quoteReady || stripeReady || stripeStartingRef.current) return;
+        const customer = readCustomerForm();
+        const expectedKey = customerKey(customer);
+        const timer = window.setTimeout(() => {
+            if (expectedKey === customerKey(readCustomerForm())) void prepareStripe(customer);
+        }, 250);
         return () => window.clearTimeout(timer);
-    }, [cartItems.length, stripeReady]);
+    }, [cartItems.length, addressReady, quoteReady, stripeReady]);
 
     useEffect(() => {
         if (!stripeReady || !addressReady || !quoteReady || stripeAddressReady || stripeStartingRef.current) return;
