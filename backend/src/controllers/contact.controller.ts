@@ -4,6 +4,7 @@ import { sendEmail } from "../services/email.service";
 import { sendTemplateEmail } from "../services/email-template.service";
 import {
     createCustomMugRequest,
+    getCustomMugArtworkAttachment,
     getCustomMugCheckoutView,
 } from "../services/custom-mug.service";
 
@@ -219,12 +220,22 @@ export const submitCustomRequest = async (
                 `Text: ${textForMug || "Not provided"}`,
                 `Notes: ${notes || "Not provided"}`,
             ].join("\\n");
+            const artworkAttachment = await getCustomMugArtworkAttachment(request.id);
             await sendEmail({
                 to: COMPANY_CONTACT_EMAIL,
                 replyTo: email,
                 subject: `JQYDesigns — New Custom Mug Request ${request.requestCode}`,
                 html: internalHtml,
                 text: internalText,
+                ...(artworkAttachment
+                    ? {
+                        attachments: [{
+                            filename: artworkAttachment.filename,
+                            content: artworkAttachment.content,
+                            contentType: artworkAttachment.contentType,
+                        }],
+                    }
+                    : {}),
                 idempotencyKey: `custom-mug-request:${request.id}`,
             });
         } catch (internalEmailError) {
