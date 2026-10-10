@@ -363,14 +363,27 @@ function CheckoutPage() {
                     return;
                 }
 
+                let syncedTotal: { shipping?: number; tax?: number; total?: number };
                 try {
                     setError("");
-                    await syncApplePaySession(currentCustomer, currentQuote);
+                    // Use the values returned by the updated Stripe Checkout Session,
+                    // not a potentially stale quote captured by React state.
+                    syncedTotal = await syncApplePaySession(currentCustomer, currentQuote);
                     stripeCustomerKeyRef.current = customerKey(currentCustomer);
                     setStripeAddressReady(true);
                 } catch (x) {
                     setStripeAddressReady(false);
                     setError(x instanceof Error ? x.message : "Could not confirm the final Apple Pay total.");
+                    return;
+                }
+
+                const merchandiseCents = Math.round(currentQuote.subtotal * 100);
+                const taxCents = Math.round(Number(syncedTotal.tax ?? currentQuote.tax) * 100);
+                const shippingCents = Math.round(Number(syncedTotal.shipping ?? currentQuote.shipping) * 100);
+                const walletTotalCents = merchandiseCents + taxCents + shippingCents;
+                if (walletTotalCents !== Math.round(Number(syncedTotal.total) * 100)) {
+                    setStripeAddressReady(false);
+                    setError("Apple Pay total does not match products, tax, and shipping. Please refresh the shipping quote and try again.");
                     return;
                 }
 
@@ -380,12 +393,12 @@ function CheckoutPage() {
                     shippingAddressRequired: true,
                     allowedShippingCountries: ["US"],
                     lineItems: [
-                        { name: "Merchandise", amount: Math.round(currentQuote.subtotal * 100) },
-                        ...(currentQuote.tax > 0 ? [{ name: "Sales tax", amount: Math.round(currentQuote.tax * 100) }] : []),
+                        { name: "Merchandise", amount: merchandiseCents },
+                        ...(taxCents > 0 ? [{ name: "Sales tax", amount: taxCents }] : []),
                     ],
                     shippingRates: [{
                         id: "jqyd-live-shipping",
-                        amount: Math.round(currentQuote.shipping * 100),
+                        amount: shippingCents,
                         displayName: [currentQuote.shippingCarrier, currentQuote.shippingService].filter(Boolean).join(" ") || "Shipping",
                         ...(currentQuote.shippingDeliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: currentQuote.shippingDeliveryDays }, maximum: { unit: "business_day", value: currentQuote.shippingDeliveryDays + 2 } } } : {}),
                     }],
