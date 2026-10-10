@@ -360,8 +360,15 @@ function CheckoutPage() {
                 // ready. Resolve immediately: Stripe requires this callback within 1s.
                 // Waiting for a network request here causes Apple Pay to fall back to
                 // the provisional Checkout Session total (the incorrect $30).
-                if (!isCustomerReady(currentCustomer) || !currentQuote) {
-                    setError("Complete the delivery address and wait for shipping and tax to finish calculating before using Apple Pay.");
+                // Keep the Apple Pay button visible at all times, but do not open
+                // the wallet with the provisional merchandise-only amount. The quote
+                // must belong to the current complete delivery address before resolving
+                // the click event; otherwise Apple Pay would display $30 instead of the
+                // final products + shipping + tax total.
+                if (!isCustomerReady(currentCustomer) || !currentQuote || !quoteReady ||
+                    currentQuote.total <= 0 ||
+                    Math.round((currentQuote.subtotal + currentQuote.shipping + currentQuote.tax) * 100) !== Math.round(currentQuote.total * 100)) {
+                    setError("Complete the delivery address and wait for the full total to finish calculating before opening Apple Pay.");
                     return;
                 }
 
