@@ -1758,3 +1758,34 @@
         padding: 22px 18px;
     }
 }
+
+
+/* Checkout payment gate: clear guidance before destination-based totals are ready. */
+.checkout-payment-gate {
+    border: 1px solid #d6dce3;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+    padding: 22px;
+}
+.checkout-payment-gate .checkout-payment-loading {
+    color: #5b6573;
+    line-height: 1.55;
+    margin: 16px 0;
+}
+.checkout-payment-gate__icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+.checkout-payment-gate__icons span {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #d6dce3;
+    border-radius: 999px;
+    background: #fff;
+    color: #253246;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
