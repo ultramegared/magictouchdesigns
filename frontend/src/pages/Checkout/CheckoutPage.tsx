@@ -352,41 +352,22 @@ function CheckoutPage() {
 
             express.on("ready", updateAppleAvailability);
             express.on("availablepaymentmethodschange", updateAppleAvailability);
-            express.on("click", async (e: any) => {
+            express.on("click", (e: any) => {
                 const currentCustomer = readCustomerForm();
                 const currentQuote = quoteRef.current;
 
-                // Keep the Apple Pay button visible, but never let Stripe open its
-                // payment sheet until the backend session has the exact final total.
-                if (!isCustomerReady(currentCustomer) || !currentQuote) {
-                    setError("Enter your complete delivery address first. Apple Pay cannot continue until shipping and tax are confirmed.");
-                    return;
-                }
-
-                let syncedTotal: { shipping?: number; tax?: number; total?: number };
-                try {
-                    setError("");
-                    // Use the values returned by the updated Stripe Checkout Session,
-                    // not a potentially stale quote captured by React state.
-                    syncedTotal = await syncApplePaySession(currentCustomer, currentQuote);
-                    stripeCustomerKeyRef.current = customerKey(currentCustomer);
-                    setStripeAddressReady(true);
-                } catch (x) {
-                    setStripeAddressReady(false);
-                    setError(x instanceof Error ? x.message : "Could not confirm the final Apple Pay total.");
+                // The wallet button is only mounted once the form and live quote are
+                // ready. Resolve immediately: Stripe requires this callback within 1s.
+                // Waiting for a network request here causes Apple Pay to fall back to
+                // the provisional Checkout Session total (the incorrect $30).
+                if (!isCustomerReady(currentCustomer) || !currentQuote || !quoteReady) {
+                    setError("Complete the delivery address and wait for shipping and tax to finish calculating before using Apple Pay.");
                     return;
                 }
 
                 const merchandiseCents = Math.round(currentQuote.subtotal * 100);
-                const taxCents = Math.round(Number(syncedTotal.tax ?? currentQuote.tax) * 100);
-                const shippingCents = Math.round(Number(syncedTotal.shipping ?? currentQuote.shipping) * 100);
-                const walletTotalCents = merchandiseCents + taxCents + shippingCents;
-                if (walletTotalCents !== Math.round(Number(syncedTotal.total) * 100)) {
-                    setStripeAddressReady(false);
-                    setError("Apple Pay total does not match products, tax, and shipping. Please refresh the shipping quote and try again.");
-                    return;
-                }
-
+                const taxCents = Math.round(currentQuote.tax * 100);
+                const shippingCents = Math.round(currentQuote.shipping * 100);
                 e?.resolve?.({
                     emailRequired: true,
                     phoneNumberRequired: true,
@@ -402,6 +383,23 @@ function CheckoutPage() {
                         displayName: [currentQuote.shippingCarrier, currentQuote.shippingService].filter(Boolean).join(" ") || "Shipping",
                         ...(currentQuote.shippingDeliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: currentQuote.shippingDeliveryDays }, maximum: { unit: "business_day", value: currentQuote.shippingDeliveryDays + 2 } } } : {}),
                     }],
+                });
+
+                // Sync the Stripe Session after the wallet opens, without blocking the
+                // required synchronous resolve. Confirmation stays blocked until sync succeeds.
+                setError("");
+                setStripeAddressReady(false);
+                void syncApplePaySession(currentCustomer, currentQuote).then((syncedTotal) => {
+                    const expectedCents = merchandiseCents + Math.round(Number(syncedTotal.tax ?? 0) * 100) + Math.round(Number(syncedTotal.shipping ?? 0) * 100);
+                    if (expectedCents !== Math.round(Number(syncedTotal.total) * 100) ||
+                        expectedCents !== merchandiseCents + taxCents + shippingCents) {
+                        throw new Error("Apple Pay total does not match products, tax, and shipping. Payment is blocked.");
+                    }
+                    stripeCustomerKeyRef.current = customerKey(currentCustomer);
+                    setStripeAddressReady(true);
+                }).catch((x) => {
+                    setStripeAddressReady(false);
+                    setError(x instanceof Error ? x.message : "Could not confirm the final Apple Pay total.");
                 });
             });
             express.on("shippingaddresschange", async (e: any) => {
@@ -487,14 +485,14 @@ function CheckoutPage() {
         finally { setLoading(false); }
     };
 
-    // Mount Stripe as soon as the cart is available so payment methods are visible
-    // before the customer enters delivery details. The session starts provisional;
-    // the existing address/quote effect updates shipping before payment can proceed.
+    // Do not mount Apple Pay with a provisional session. Wait until the customer
+    // has entered the address and the live shipping/tax quote is ready, so the wallet
+    // can never open with the product-only placeholder amount.
     useEffect(() => {
-        if (!cartItems.length || stripeReady || stripeStartingRef.current) return;
+        if (!cartItems.length || !addressReady || !quoteReady || stripeReady || stripeStartingRef.current) return;
         const timer = window.setTimeout(() => { void prepareStripe(readCustomerForm()); }, 250);
         return () => window.clearTimeout(timer);
-    }, [cartItems.length, stripeReady]);
+    }, [cartItems.length, addressReady, quoteReady, stripeReady]);
 
     useEffect(() => {
         if (!stripeReady || !addressReady || !quoteReady || stripeAddressReady || stripeStartingRef.current) return;
