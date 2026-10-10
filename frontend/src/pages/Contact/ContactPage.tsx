@@ -53,6 +53,64 @@ const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_UPLOAD_SIZE = 2.4 * 1024 * 1024;
 const MAX_UPLOAD_DIMENSION = 2200;
 
+/**
+ * Validate the actual file signature instead of trusting the browser-provided
+ * MIME type alone. This is a page-level guard; the API must validate uploads too.
+ */
+async function hasValidImageSignature(file: File): Promise<boolean> {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return false;
+
+    const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+
+    if (file.type === "image/jpeg") {
+        return header.length >= 3
+            && header[0] === 0xff
+            && header[1] === 0xd8
+            && header[2] === 0xff;
+    }
+
+    if (file.type === "image/png") {
+        return header.length >= 8
+            && header[0] === 0x89
+            && header[1] === 0x50
+            && header[2] === 0x4e
+            && header[3] === 0x47
+            && header[4] === 0x0d
+            && header[5] === 0x0a
+            && header[6] === 0x1a
+            && header[7] === 0x0a;
+    }
+
+    if (file.type === "image/webp") {
+        return header.length >= 12
+            && header[0] === 0x52
+            && header[1] === 0x49
+            && header[2] === 0x46
+            && header[3] === 0x46
+            && header[8] === 0x57
+            && header[9] === 0x45
+            && header[10] === 0x42
+            && header[11] === 0x50;
+    }
+
+    return false;
+}
+
+async function canDecodeImage(file: File): Promise<boolean> {
+    const objectUrl = URL.createObjectURL(file);
+
+    try {
+        return await new Promise<boolean>((resolve) => {
+            const image = new Image();
+            image.onload = () => resolve(image.naturalWidth > 0 && image.naturalHeight > 0);
+            image.onerror = () => resolve(false);
+            image.src = objectUrl;
+        });
+    } finally {
+        URL.revokeObjectURL(objectUrl);
+    }
+}
+
 async function compressArtworkForUpload(file: File): Promise<File> {
     // Keep normal-sized artwork untouched. Larger images are automatically
     // optimized for mobile upload so the customer is never asked to resize it.
@@ -175,11 +233,11 @@ function ContactPage() {
        IMAGE VALIDATION
        ============================================================ */
 
-    const handleImageChange = (
+    const handleImageChange = async (
         event: ChangeEvent<HTMLInputElement>
     ) => {
-
-        const file = event.target.files?.[0];
+        const input = event.currentTarget;
+        const file = input.files?.[0];
 
         setImageError("");
         setImageName("");
@@ -188,34 +246,34 @@ function ContactPage() {
             return "";
         });
 
-        if (!file) {
-            return;
-        }
-
-        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-
-            setImageError(
-                t.customRequest.imageError
-            );
-
-            event.target.value = "";
-
-            return;
-        }
+        if (!file) return;
 
         if (file.size > MAX_IMAGE_SIZE) {
-
-            setImageError(
-                t.customRequest.imageSizeError
-            );
-
-            event.target.value = "";
-
+            setImageError(t.customRequest.imageSizeError);
+            input.value = "";
             return;
         }
 
-        setImageName(file.name);
-        setImagePreviewUrl(URL.createObjectURL(file));
+        try {
+            const validSignature = await hasValidImageSignature(file);
+            const decodable = validSignature && await canDecodeImage(file);
+
+            // Ignore stale async validation if the customer selected another file.
+            if (input.files?.[0] !== file) return;
+
+            if (!validSignature || !decodable) {
+                setImageError(t.customRequest.imageError);
+                input.value = "";
+                return;
+            }
+
+            setImageName(file.name);
+            setImagePreviewUrl(URL.createObjectURL(file));
+        } catch {
+            if (input.files?.[0] !== file) return;
+            setImageError(t.customRequest.imageError);
+            input.value = "";
+        }
     };
 
 
@@ -244,6 +302,12 @@ function ContactPage() {
 
             if (!selectedArtwork) {
                 throw new Error("Please upload your design image.");
+            }
+
+            const validSignature = await hasValidImageSignature(selectedArtwork);
+            const decodable = validSignature && await canDecodeImage(selectedArtwork);
+            if (!validSignature || !decodable) {
+                throw new Error(t.customRequest.imageError);
             }
 
             const uploadArtwork = await compressArtworkForUpload(selectedArtwork);
@@ -294,10 +358,9 @@ function ContactPage() {
             setCustomStatus("success");
             form.reset();
             setImageName("");
-            setImagePreviewUrl((current) => {
-                if (current) URL.revokeObjectURL(current);
-                return "";
-            });
+            // Keep the preview URL alive while the cart route uses it. Revoking
+            // it here made the cart thumbnail disappear immediately after submit.
+            setImagePreviewUrl("");
             setQuantity(1);
             setMugModel("Classic");
             setMugSize("15 oz");
