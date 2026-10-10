@@ -276,6 +276,23 @@ export const updateStripeApplePayShipping = async (
     const data = await response.json() as any;
     if (!response.ok) throw new Error(data?.error?.message || "Stripe could not update Apple Pay shipping.");
 
+    // Stripe's updated Checkout Session is the source of truth for the amount
+    // that Apple Pay will actually authorize. Do not trust only the separately
+    // calculated quote returned by our own backend.
+    const stripeTotalCents = Number(data?.amount_total);
+    const stripeTaxCents = Math.max(0, Math.round(Number(data?.total_details?.amount_tax ?? 0)));
+    const stripeShippingCents = Math.max(0, Math.round(Number(data?.total_details?.amount_shipping ?? shippingQuote.shippingCents)));
+    const expectedStripeTotalCents = Math.round(Number(attempt.subtotal) * 100) + stripeShippingCents + stripeTaxCents;
+    if (!Number.isFinite(stripeTotalCents) || stripeTotalCents <= 0) {
+        throw new Error("Stripe did not return a valid Apple Pay total. Payment has been stopped.");
+    }
+    if (stripeTotalCents !== expectedStripeTotalCents) {
+        throw new Error("Stripe's Apple Pay total does not match products, tax, and shipping. Payment has been stopped to prevent an incorrect charge.");
+    }
+    if (stripeShippingCents !== shippingQuote.shippingCents) {
+        throw new Error("Stripe's shipping amount does not match the live shipping quote. Payment has been stopped.");
+    }
+
     const shippingAddress = {
         deliveryType: currentAddress.deliveryType || "house",
         address: verifiedAddress.address,
@@ -304,8 +321,8 @@ export const updateStripeApplePayShipping = async (
             String(shippingDetails?.name || "").trim().split(/\s+/)[0] || String(attempt.customer_first_name || ""),
             String(shippingDetails?.name || "").trim().split(/\s+/).slice(1).join(" ") || String(attempt.customer_last_name || ""),
             JSON.stringify(shippingAddress),
-            shippingQuote.shipping,
-            taxResult.tax,
+            stripeShippingCents / 100,
+            stripeTaxCents / 100,
             taxResult.calculationId,
             shippingQuote.carrier,
             shippingQuote.service,
@@ -331,11 +348,11 @@ export const updateStripeApplePayShipping = async (
     );
 
     return {
-        shipping: shippingQuote.shipping,
-        shippingCents: shippingQuote.shippingCents,
-        tax: taxResult.tax,
-        taxCents: taxResult.taxCents,
-        total: Number((Number(attempt.subtotal) + shippingQuote.shipping + taxResult.tax).toFixed(2)),
+        shipping: stripeShippingCents / 100,
+        shippingCents: stripeShippingCents,
+        tax: stripeTaxCents / 100,
+        taxCents: stripeTaxCents,
+        total: Number((stripeTotalCents / 100).toFixed(2)),
         carrier: shippingQuote.carrier,
         service: shippingQuote.service,
         deliveryDays: shippingQuote.deliveryDays,
