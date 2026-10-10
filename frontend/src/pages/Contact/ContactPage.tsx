@@ -26,7 +26,6 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
 import { apiRequest } from "../../services/api";
 import { useNavigate } from "react-router-dom";
-import { addToCart } from "../../utils/cart";
 
 const BASE_PRICES: Record<string, Record<string, number>> = { Classic: { "11 oz": 13, "15 oz": 15 }, Premium: { "11 oz": 17, "15 oz": 17 } };
 const COLORED_HANDLE_SURCHARGE = 2;
@@ -41,6 +40,18 @@ const FONT_OPTIONS = [
     { id: "classic", name: "Cormorant Garamond", label: "Classic", className: "classic", fontFamily: "Cormorant Garamond, Georgia, serif" },
     { id: "playful", name: "Pacifico", label: "Playful", className: "playful", fontFamily: "Pacifico, cursive" },
     { id: "luxury", name: "Cinzel", label: "Luxury", className: "luxury", fontFamily: "Cinzel, Georgia, serif" },
+    { id: "serif", name: "Lora", label: "Serif", className: "serif", fontFamily: "Lora, Georgia, serif" },
+    { id: "clean", name: "Raleway", label: "Clean", className: "clean", fontFamily: "Raleway, Arial, sans-serif" },
+    { id: "minimal", name: "Poppins", label: "Minimal", className: "minimal", fontFamily: "Poppins, Arial, sans-serif" },
+    { id: "strong", name: "Oswald", label: "Strong", className: "strong", fontFamily: "Oswald, Impact, sans-serif" },
+    { id: "editorial", name: "Libre Baskerville", label: "Editorial", className: "editorial", fontFamily: "Libre Baskerville, Georgia, serif" },
+    { id: "romantic", name: "Allura", label: "Romantic", className: "romantic", fontFamily: "Allura, cursive" },
+    { id: "signature", name: "Satisfy", label: "Signature", className: "signature", fontFamily: "Satisfy, cursive" },
+    { id: "friendly", name: "Lobster", label: "Friendly", className: "friendly", fontFamily: "Lobster, cursive" },
+    { id: "fashion", name: "Abril Fatface", label: "Fashion", className: "fashion", fontFamily: "Abril Fatface, Georgia, serif" },
+    { id: "luxury-serif", name: "Bodoni Moda", label: "Luxury Serif", className: "luxury-serif", fontFamily: "Bodoni Moda, Georgia, serif" },
+    { id: "modern-serif", name: "DM Serif Display", label: "Modern Serif", className: "modern-serif", fontFamily: "DM Serif Display, Georgia, serif" },
+    { id: "soft-script", name: "Caveat", label: "Soft Script", className: "soft-script", fontFamily: "Caveat, cursive" },
 ];
 
 const ALLOWED_IMAGE_TYPES = [
@@ -226,7 +237,6 @@ function ContactPage() {
         (selectedColorIsHandle ? COLORED_HANDLE_SURCHARGE : 0) +
         (printSides === "2" ? SECOND_SIDE_SURCHARGE : 0);
     const estimatedTotal = unitPrice * quantity;
-    const selectedFont = FONT_OPTIONS.find((font) => font.id === fontStyle) || FONT_OPTIONS[0];
 
 
     /* ============================================================
@@ -333,42 +343,10 @@ function ContactPage() {
                 throw new Error("The custom request was created without a payment reference.");
             }
 
-            const requestOptions: Record<string, string> = {
-                "Design Views": printSides === "2" ? "Front + Back" : "Front",
-                "Font": selectedFont.name,
-                "Text": formData.get("text") ? String(formData.get("text")).trim() : "",
-                "Details": formData.get("notes") ? String(formData.get("notes")).trim() : "",
-                "Request": response.requestCode || response.checkoutRequestId,
-            };
-            addToCart(
-                {
-                    id: `custom-request:${response.checkoutRequestId}`,
-                    name: `Custom Mug — ${mugModel} ${mugSize}`,
-                    model: mugModel,
-                    size: mugSize,
-                    color: mugColor,
-                    options: requestOptions,
-                    price: Number(response.unitPrice ?? unitPrice),
-                    image: imagePreviewUrl,
-                    customRequestId: response.checkoutRequestId,
-                },
-                quantity,
-            );
-
-            setCustomStatus("success");
-            form.reset();
-            setImageName("");
-            // Keep the preview URL alive while the cart route uses it. Revoking
-            // it here made the cart thumbnail disappear immediately after submit.
-            setImagePreviewUrl("");
-            setQuantity(1);
-            setMugModel("Classic");
-            setMugSize("15 oz");
-            setMugColor("White");
-            setPrintSides("1");
-            setFontStyle("modern");
-
-            navigate("/cart");
+            // The checkout page loads the pending request directly by ID.
+            // This keeps the Custom Mug out of the normal cart flow and takes the
+            // customer straight to address, shipping, tax and payment.
+            navigate(`/checkout?custom_request=${encodeURIComponent(response.checkoutRequestId)}`);
         } catch (error) {
             console.error(
                 "Custom request submission error:",
