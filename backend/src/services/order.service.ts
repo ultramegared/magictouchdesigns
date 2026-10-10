@@ -336,7 +336,24 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
             if (attachment) attachments.push(attachment);
         }
     }
-    const orderItems = itemsResult.rows.map((item:any) => String(item.product_name) + " × " + String(item.quantity) + " — $" + Number(item.unit_price).toFixed(2)).join("\n");
+    const orderItems = itemsResult.rows.map((item:any) => {
+        const variant = item.variant || {};
+        const lines = [
+            String(item.product_name),
+            `Quantity: ${String(item.quantity)}`,
+            `Unit price: ${Number(item.unit_price).toFixed(2)}`,
+        ];
+        if (variant.customRequestId) {
+            lines.push(`Model: ${String(variant.model || "Custom Mug")}`);
+            lines.push(`Size: ${String(variant.size || "Not provided")}`);
+            lines.push(`Color: ${String(variant.color || "Not provided")}`);
+            lines.push(`Print sides: ${String(variant.printSides || "Not provided")}`);
+            lines.push(`Font: ${String(variant.fontName || variant.fontStyle || "Not provided")}`);
+            lines.push(`Text: ${String(variant.customText || "Not provided")}`);
+            lines.push(`Notes: ${String(variant.customNotes || "Not provided")}`);
+        }
+        return lines.join("\n");
+    }).join("\n\n");
     const requestCode = customItems.map((item:any) => item.variant?.customRequestId).filter(Boolean).join(", ") || "Custom order";
     const settings = await getSettings();
     const recipient = settings.supportEmail.trim() || process.env.ORDER_NOTIFICATION_EMAIL || process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com";
