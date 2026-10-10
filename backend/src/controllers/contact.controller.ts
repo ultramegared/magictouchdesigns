@@ -1,10 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import multer from "multer";
-import { sendEmail } from "../services/email.service";
-import { sendTemplateEmail } from "../services/email-template.service";
 import {
     createCustomMugRequest,
-    getCustomMugArtworkAttachment,
     getCustomMugCheckoutView,
 } from "../services/custom-mug.service";
 
@@ -95,6 +92,18 @@ const FONT_CATALOG: Record<string, string> = {
     classic: "Cormorant Garamond",
     playful: "Pacifico",
     luxury: "Cinzel",
+    serif: "Lora",
+    clean: "Raleway",
+    minimal: "Poppins",
+    strong: "Oswald",
+    editorial: "Libre Baskerville",
+    romantic: "Allura",
+    signature: "Satisfy",
+    friendly: "Lobster",
+    fashion: "Abril Fatface",
+    luxury-serif: "Bodoni Moda",
+    modern-serif: "DM Serif Display",
+    soft-script: "Caveat",
 };
 
 export const submitCustomRequest = async (
@@ -167,80 +176,9 @@ export const submitCustomRequest = async (
             artworkFilename: req.file.originalname || "custom-design",
         });
 
-        // The customer receives the request confirmation. The company also receives
-        // a separate internal notification immediately so no form submission is lost.
-        const paymentUrl =
-            `${FRONTEND_URL}/checkout?custom_request=${encodeURIComponent(request.id)}`;
-
-        try {
-            await sendTemplateEmail("custom_mug_request", email, {
-                siteName: "JQYDesigns",
-                customerName: name,
-                customerEmail: email,
-                supportEmail: "jqydesigns@gmail.com",
-                requestCode: request.requestCode,
-                mugModel: model,
-                mugSize: size,
-                mugColor: color || "White",
-                printSides: printSides === "2" ? "Front + Back" : "Front",
-                quantity: String(quantity),
-                subtotal: "$" + request.subtotal.toFixed(2),
-                shippingText: "USPS shipping and applicable sales tax will be calculated after you enter your delivery address at checkout.",
-                pendingText: "Your order has not been charged yet. Your purchase will only be confirmed after payment is successfully completed.",
-                paymentUrl,
-            }, "custom-request/customer/" + request.id);
-        } catch (customerEmailError) {
-            console.error("Custom request customer email error:", customerEmailError);
-        }
-
-        try {
-            const internalHtml = `
-                <h2>New Custom Mug Request</h2>
-                <p><strong>Request:</strong> ${escapeHtml(request.requestCode)}</p>
-                <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-                <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-                <p><strong>Model:</strong> ${escapeHtml(model)}</p>
-                <p><strong>Size:</strong> ${escapeHtml(size)}</p>
-                <p><strong>Color:</strong> ${escapeHtml(color || "White")}</p>
-                <p><strong>Print sides:</strong> ${escapeHtml(printSides === "2" ? "Front + Back" : "Front")}</p>
-                <p><strong>Quantity:</strong> ${escapeHtml(quantity)}</p>
-                <p><strong>Text:</strong> ${escapeHtml(textForMug || "Not provided")}</p>
-                <p><strong>Notes:</strong><br>${escapeHtml(notes || "Not provided").replace(/\\n/g, "<br>")}</p>
-            `;
-            const internalText = [
-                "New Custom Mug Request",
-                `Request: ${request.requestCode}`,
-                `Name: ${name}`,
-                `Email: ${email}`,
-                `Model: ${model}`,
-                `Size: ${size}`,
-                `Color: ${color || "White"}`,
-                `Print sides: ${printSides === "2" ? "Front + Back" : "Front"}`,
-                `Quantity: ${quantity}`,
-                `Text: ${textForMug || "Not provided"}`,
-                `Notes: ${notes || "Not provided"}`,
-            ].join("\\n");
-            const artworkAttachment = await getCustomMugArtworkAttachment(request.id);
-            await sendEmail({
-                to: COMPANY_CONTACT_EMAIL,
-                replyTo: email,
-                subject: `JQYDesigns — New Custom Mug Request ${request.requestCode}`,
-                html: internalHtml,
-                text: internalText,
-                ...(artworkAttachment
-                    ? {
-                        attachments: [{
-                            filename: artworkAttachment.filename,
-                            content: artworkAttachment.content,
-                            contentType: artworkAttachment.contentType,
-                        }],
-                    }
-                    : {}),
-                idempotencyKey: `custom-mug-request:${request.id}`,
-            });
-        } catch (internalEmailError) {
-            console.error("Custom request internal email error:", internalEmailError);
-        }
+        // Payment-gated flow: the request is stored as pending only.
+        // Customer and internal notifications are sent by the confirmed-payment
+        // webhook, after Stripe has created the paid order.
 
         res.status(200).json({
             status: "success",
