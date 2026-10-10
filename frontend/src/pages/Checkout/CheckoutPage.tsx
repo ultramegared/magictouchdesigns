@@ -360,7 +360,7 @@ function CheckoutPage() {
                 // ready. Resolve immediately: Stripe requires this callback within 1s.
                 // Waiting for a network request here causes Apple Pay to fall back to
                 // the provisional Checkout Session total (the incorrect $30).
-                if (!isCustomerReady(currentCustomer) || !currentQuote || !quoteReady) {
+                if (!isCustomerReady(currentCustomer) || !currentQuote) {
                     setError("Complete the delivery address and wait for shipping and tax to finish calculating before using Apple Pay.");
                     return;
                 }
@@ -485,14 +485,15 @@ function CheckoutPage() {
         finally { setLoading(false); }
     };
 
-    // Do not mount Apple Pay with a provisional session. Wait until the customer
-    // has entered the address and the live shipping/tax quote is ready, so the wallet
-    // can never open with the product-only placeholder amount.
+    // Initialize Stripe immediately so the real card fields and Apple Pay button
+    // are visible from the start. The click handler uses quoteRef.current (not a
+    // captured/stale quote) and refuses to open Apple Pay until the full destination
+    // quote exists; once ready, it sends the full breakdown to the wallet.
     useEffect(() => {
-        if (!cartItems.length || !addressReady || !quoteReady || stripeReady || stripeStartingRef.current) return;
+        if (!cartItems.length || stripeReady || stripeStartingRef.current) return;
         const timer = window.setTimeout(() => { void prepareStripe(readCustomerForm()); }, 250);
         return () => window.clearTimeout(timer);
-    }, [cartItems.length, addressReady, quoteReady, stripeReady]);
+    }, [cartItems.length, stripeReady]);
 
     useEffect(() => {
         if (!stripeReady || !addressReady || !quoteReady || stripeAddressReady || stripeStartingRef.current) return;
