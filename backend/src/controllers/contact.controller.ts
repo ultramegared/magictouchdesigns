@@ -101,9 +101,9 @@ const FONT_CATALOG: Record<string, string> = {
     signature: "Satisfy",
     friendly: "Lobster",
     fashion: "Abril Fatface",
-    luxury-serif: "Bodoni Moda",
-    modern-serif: "DM Serif Display",
-    soft-script: "Caveat",
+    "luxury-serif": "Bodoni Moda",
+    "modern-serif": "DM Serif Display",
+    "soft-script": "Caveat",
 };
 
 export const submitCustomRequest = async (
