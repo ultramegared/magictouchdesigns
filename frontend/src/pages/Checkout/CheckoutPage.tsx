@@ -396,44 +396,29 @@ function CheckoutPage() {
                     setError(x instanceof Error ? x.message : "Could not confirm the final Apple Pay total.");
                 });
             });
-            express.on("shippingaddresschange", async (e: any) => {
-                try {
-                    const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ sessionId: d.sessionId, shippingDetails: {
-                            name: e?.name || `${readCustomerForm().firstName} ${readCustomerForm().lastName}`.trim(),
-                            email: readCustomerForm().email,
-                            phone: readCustomerForm().phone,
-                            address: {
-                                ...(e?.address || {}),
-                                country: e?.address?.country || "US",
-                                line1: readCustomerForm().address,
-                                line2: readCustomerForm().apartment || "",
-                            },
-                        } }),
-                    });
-                    if (!response.ok) {
-                        e?.reject?.();
-                        return;
-                    }
-                    const updated = await response.json() as { shipping?: number; shippingCents?: number; tax?: number; taxCents?: number; carrier?: string; service?: string; deliveryDays?: number | null };
-                    const currentSubtotalCents = Math.round((quote?.subtotal ?? subtotal) * 100);
-                    e?.resolve?.({
-                        lineItems: [
-                            { name: "Merchandise", amount: currentSubtotalCents },
-                            ...(Number(updated.taxCents ?? 0) > 0 ? [{ name: "Sales tax", amount: Number(updated.taxCents) }] : []),
-                        ],
-                        shippingRates: [{
-                            id: "jqyd-live-shipping",
-                            amount: Number(updated.shippingCents ?? Math.round(Number(updated.shipping ?? 0) * 100)),
-                            displayName: [updated.carrier, updated.service].filter(Boolean).join(" ") || "Shipping",
-                            ...(updated.deliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: updated.deliveryDays }, maximum: { unit: "business_day", value: updated.deliveryDays + 2 } } } : {}),
-                        }],
-                    });
-                } catch {
+            express.on("shippingaddresschange", (e: any) => {
+                // The checkout form is the verified shipping-address source. Keep the
+                // wallet aligned to the same server-quoted total without attempting a
+                // forbidden client/server Checkout Session mutation.
+                const currentQuote = quoteRef.current;
+                if (!currentQuote || !quoteReady || !isCustomerReady(readCustomerForm())) {
                     e?.reject?.();
+                    return;
                 }
+                e?.resolve?.({
+                    lineItems: [
+                        { name: "Merchandise", amount: Math.round(currentQuote.subtotal * 100) },
+                        ...(Math.round(currentQuote.tax * 100) > 0
+                            ? [{ name: "Sales tax", amount: Math.round(currentQuote.tax * 100) }]
+                            : []),
+                    ],
+                    shippingRates: [{
+                        id: "jqyd-live-shipping",
+                        amount: Math.round(currentQuote.shipping * 100),
+                        displayName: [currentQuote.shippingCarrier, currentQuote.shippingService].filter(Boolean).join(" ") || "Shipping",
+                        ...(currentQuote.shippingDeliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: currentQuote.shippingDeliveryDays }, maximum: { unit: "business_day", value: currentQuote.shippingDeliveryDays + 2 } } } : {}),
+                    }],
+                });
             });
             express.on("confirm", async (e: any) => {
                 const currentCustomer = readCustomerForm();
