@@ -530,8 +530,10 @@ export const handleStripeWebhook = async (event: any): Promise<void> => {
             } : undefined,
         },
     });
-    if (result.created) {
-        await sendCustomerOrderConfirmation(result.orderId);
-        await sendCustomOrderNotification(result.orderId);
-    }
+    // Always run the idempotent notification path after a paid Stripe event.
+    // A previous webhook attempt may have created the order and then failed while
+    // sending email; Stripe retries must finish fulfillment instead of skipping it.
+    // Resend idempotency keys prevent duplicate customer/admin emails on retries.
+    await sendCustomerOrderConfirmation(result.orderId);
+    await sendCustomOrderNotification(result.orderId);
 };
