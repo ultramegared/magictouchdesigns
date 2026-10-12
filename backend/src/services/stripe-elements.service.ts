@@ -61,10 +61,6 @@ export const createStripeElementsCheckout = async (
     params.set("billing_address_collection", "auto");
     params.set("phone_number_collection[enabled]", "true");
     params.set("shipping_address_collection[allowed_countries][0]", "US");
-    // This is the endpoint used by the live checkout UI (/orders/stripe/apple-pay).
-    // The backend updates shipping only after verifying the address and recalculating
-    // live carrier rates and sales tax, so Stripe requires server_only permission.
-    params.set("permissions[update_shipping_details]", "server_only");
     // Shipping details are updated only by our trusted backend after address verification,
     // live carrier quoting, and tax recalculation. Stripe rejects server-side updates unless
     // this Checkout Session permission is explicitly configured as server_only.
@@ -138,6 +134,10 @@ export const createStripeApplePayCheckout = async (
     params.set("billing_address_collection", "auto");
     params.set("phone_number_collection[enabled]", "true");
     params.set("shipping_address_collection[allowed_countries][0]", "US");
+    // This is the endpoint used by the live checkout UI (/orders/stripe/apple-pay).
+    // The backend updates shipping only after verifying the address and recalculating
+    // live carrier rates and sales tax, so Stripe requires server_only permission.
+    params.set("permissions[update_shipping_details]", "server_only");
     // Never send Apple Pay a zero-dollar shipping option when the destination
     // is unknown. Once the full address is available, use only the live quote
     // calculated by buildOrderSnapshot/EasyPost.
