@@ -202,6 +202,7 @@ function ContactPage() {
 
     const [mugColor, setMugColor] = useState("White");
     const [fontStyle, setFontStyle] = useState("modern");
+    const selectedFont = FONT_OPTIONS.find((font) => font.id === fontStyle) ?? FONT_OPTIONS[0];
 
     const [quantity, setQuantity] = useState(1);
 
