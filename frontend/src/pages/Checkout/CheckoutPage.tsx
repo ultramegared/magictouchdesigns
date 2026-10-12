@@ -271,18 +271,57 @@ function CheckoutPage() {
                 },
             }),
         });
-        const data = await response.json() as { shipping?: number; tax?: number; total?: number; message?: string };
-        if (!response.ok || typeof data.total !== "number") {
-            throw new Error(data.message || "Could not confirm the final Apple Pay total.");
+        const data = await response.json() as {
+            shipping?: number;
+            tax?: number;
+            total?: number;
+            carrier?: string;
+            service?: string;
+            deliveryDays?: number | null;
+            message?: string;
+        };
+        if (
+            !response.ok ||
+            typeof data.shipping !== "number" ||
+            typeof data.tax !== "number" ||
+            typeof data.total !== "number" ||
+            !Number.isFinite(data.total) ||
+            data.total <= 0
+        ) {
+            throw new Error(data.message || "Could not confirm the final secure payment total.");
         }
 
-        // Stripe's server-side session total must match the quote shown by Order Summary
-        // before Apple Pay is allowed to open.
-        const expectedTotalCents = Math.round(currentQuote.total * 100);
-        const syncedTotalCents = Math.round(data.total * 100);
-        if (expectedTotalCents !== syncedTotalCents) {
-            throw new Error("The payment total changed while confirming shipping and tax. Please wait for the total to recalculate.");
+        // Stripe's updated session is authoritative for the amount the card will
+        // actually be charged. The quote endpoint uses a separate tax calculation,
+        // so a tax-rounding/rate difference must update the displayed quote rather
+        // than permanently disabling the card button. The server independently
+        // verifies Stripe's total = subtotal + shipping + tax before returning.
+        const expectedShippingCents = Math.round(currentQuote.shipping * 100);
+        const confirmedShippingCents = Math.round(data.shipping * 100);
+        const confirmedTaxCents = Math.round(data.tax * 100);
+        const confirmedTotalCents = Math.round(data.total * 100);
+        const calculatedTotalCents =
+            Math.round(currentQuote.subtotal * 100) +
+            confirmedShippingCents +
+            confirmedTaxCents;
+
+        if (
+            expectedShippingCents !== confirmedShippingCents ||
+            confirmedTotalCents !== calculatedTotalCents
+        ) {
+            throw new Error("The secure payment total could not be reconciled with shipping and tax. Payment has been stopped to prevent an incorrect charge.");
         }
+
+        setQuote({
+            ...currentQuote,
+            shipping: data.shipping,
+            tax: data.tax,
+            total: data.total,
+            shippingCents: confirmedShippingCents,
+            shippingCarrier: data.carrier || currentQuote.shippingCarrier,
+            shippingService: data.service || currentQuote.shippingService,
+            shippingDeliveryDays: data.deliveryDays ?? currentQuote.shippingDeliveryDays,
+        });
 
         return data;
     };
