@@ -182,8 +182,18 @@ function CheckoutPage() {
             formStateRef.current.zip !== next.zip;
         if (formChanged) {
             setQuote(null);
+            quoteRef.current = null;
             setQuoteError("");
+            setQuoteLoading(false);
             setStripeAddressReady(false);
+            stripeCustomerKeyRef.current = "";
+            stripeCleanupRef.current?.();
+            stripeCleanupRef.current = null;
+            stripeSessionRef.current = { id: "", code: "" };
+            stripeActionsRef.current = null;
+            setStripeReady(false);
+            setAppleReady(false);
+            setAppleAvailable(null);
         }
         setForm((current) => {
             if (
