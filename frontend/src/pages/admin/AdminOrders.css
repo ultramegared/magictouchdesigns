@@ -22,3 +22,22 @@
 .admin-orders__details-toggle{display:flex!important;align-items:center;justify-content:center;gap:7px;margin-top:10px;min-height:38px;padding:8px 12px!important;border:1px solid #174b86!important;border-radius:9px!important;background:#174b86!important;color:#fff!important;font-size:12px!important;font-weight:800!important;white-space:nowrap;cursor:pointer;box-shadow:0 3px 8px rgba(23,75,134,.16)}
 .admin-orders__details-toggle:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
 .admin-orders__details-toggle:hover{background:#103968!important}
+
+
+.admin-orders__refund-confirmed {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0 0 18px;
+    padding: 16px 18px;
+    border: 1px solid #86efac;
+    border-radius: 12px;
+    background: #f0fdf4;
+    color: #14532d;
+}
+.admin-orders__refund-confirmed > svg { flex: 0 0 auto; margin-top: 2px; color: #15803d; }
+.admin-orders__refund-confirmed > div { display: grid; gap: 5px; }
+.admin-orders__refund-confirmed strong { font-size: 13px; letter-spacing: .06em; }
+.admin-orders__refund-confirmed span,
+.admin-orders__refund-confirmed small { color: #166534; font-size: 13px; }
+.admin-orders__refund-confirmed b { color: #14532d; font-size: 22px; }
