@@ -6,6 +6,7 @@ import type { Request, Response } from "express";
 import { pool } from "../config/database";
 import { ensureOrderTables } from "../services/order.service";
 import { sendShipmentUpdate } from "../services/shipment.service";
+import { sendCustomOrderNotification } from "../services/order.service";
 
 export const listAdminOrders = async (_req: Request, res: Response): Promise<void> => {
     try {
@@ -326,5 +327,25 @@ export const sendAdminOrderInvoice = async (req: Request, res: Response): Promis
     } catch (error) {
         console.error("Admin invoice email error:", error);
         res.status(500).json({ message: error instanceof Error ? error.message : "Unable to send invoice email." });
+    }
+};
+
+
+export const resendAdminSellerOrderEmail = async (req: Request, res: Response): Promise<void> => {
+    try {
+        await ensureOrderTables();
+        const orderId = String(req.params.id || "").trim();
+        const result = await pool.query("SELECT id, order_code, payment_status FROM orders WHERE id::text = $1 OR order_code = $1 LIMIT 1", [orderId]);
+        const order = result.rows[0];
+        if (!order) { res.status(404).json({ message: "Order not found." }); return; }
+        if (String(order.payment_status).toLowerCase() !== "paid") {
+            res.status(409).json({ message: "Seller production email can only be sent for an order with confirmed paid status. This order was not changed." });
+            return;
+        }
+        await sendCustomOrderNotification(String(order.id), { resend: true });
+        res.json({ success: true, orderCode: order.order_code, message: "Seller production email sent." });
+    } catch (error) {
+        console.error("Admin seller order email error:", error);
+        res.status(500).json({ message: error instanceof Error ? error.message : "Unable to send seller production email." });
     }
 };
