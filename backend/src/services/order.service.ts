@@ -568,6 +568,20 @@ export const handleStripeWebhook = async (event: any): Promise<void> => {
     // A previous webhook attempt may have created the order and then failed while
     // sending email; Stripe retries must finish fulfillment instead of skipping it.
     // Resend idempotency keys prevent duplicate customer/admin emails on retries.
-    await sendCustomerOrderConfirmation(result.orderId);
-    await sendCustomOrderNotification(result.orderId);
+    // Attempt both notifications independently: a customer-email failure must never
+    // prevent the seller from receiving a paid-order production handoff.
+    const notificationResults = await Promise.allSettled([
+        sendCustomOrderNotification(result.orderId),
+        sendCustomerOrderConfirmation(result.orderId),
+    ]);
+    const sellerEmailResult = notificationResults[0];
+    const customerEmailResult = notificationResults[1];
+    if (sellerEmailResult.status === "rejected") {
+        console.error("Seller paid-order notification failed; returning an error so Stripe can retry:", sellerEmailResult.reason);
+        throw sellerEmailResult.reason;
+    }
+    if (customerEmailResult.status === "rejected") {
+        console.error("Customer order confirmation failed after seller notification was attempted:", customerEmailResult.reason);
+        throw customerEmailResult.reason;
+    }
 };
