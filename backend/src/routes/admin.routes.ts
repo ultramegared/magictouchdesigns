@@ -35,6 +35,8 @@ import {
     updateAdminUserRole,
 } from "../controllers/adminUserRole.controller";
 
+import { sendCustomOrderNotification } from "../services/order.service";
+
 
 const router = Router();
 
@@ -103,6 +105,21 @@ router.delete(
     deleteAdminUser
 );
 
+
+/**
+ * Resend the seller production email for a paid order. This route is protected
+ * by the administrator authentication middleware above.
+ */
+router.post("/orders/:orderCode/resend-seller-email", async (req, res): Promise<void> => {
+    try {
+        await sendCustomOrderNotification(String(req.params.orderCode || ""), { resend: true });
+        res.status(200).json({ success: true, message: "Seller order email sent." });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Could not send seller order email.";
+        const status = message === "Order not found for seller notification." ? 404 : message === "Seller notification can only be sent for a paid order." ? 409 : 500;
+        res.status(status).json({ success: false, message });
+    }
+});
 
 /**
  * ================================================================
