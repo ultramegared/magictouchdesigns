@@ -42,7 +42,7 @@ const DEFAULTS: Record<string, {name:string;category:EmailTemplateCategory;descr
     password_changed:{name:"Password Changed",category:"ACCOUNT",description:"Confirmation after a successful password change.",content:C("Your {{siteName}} password was changed","Password changed successfully","Hi {{customerName}}, your password was changed successfully. If you did not make this change, contact us immediately.","Open My Account","{{accountUrl}}")},
     custom_mug_request:{name:"Custom Mug Request",category:"CUSTOM_MUG",description:"Customer confirmation after submitting a custom mug request.",content:C("Your custom mug request {{requestCode}}","Your custom mug request has been received.","Hi {{customerName}}, we received your design request.\\n\\nRequest: {{requestCode}}\\nMug: {{mugModel}} · {{mugSize}}\\nColor: {{mugColor}}\\nDesign views: {{printSides}}\\nQuantity: {{quantity}}\\nMerchandise subtotal: {{subtotal}}\\n\\n{{shippingText}}","Continue to Secure Checkout","{{paymentUrl}}")},
     custom_mug_paid:{name:"Custom Mug Paid",category:"CUSTOM_MUG",description:"Internal production notification after a custom mug is paid.",content:C("Custom mug paid — {{orderCode}}","Custom mug order ready for production","Customer: {{customerName}}\\nEmail: {{customerEmail}}\\nOrder: {{orderCode}}\\nRequest: {{requestCode}}\\nTotal: {{orderTotal}}\\nPayment: {{paymentProvider}}\\n\\n{{orderItems}}","View Order","{{orderUrl}}")},
-    seller_order_paid:{name:"Seller Order Paid",category:"ORDER",description:"Internal production handoff for every paid order, including product variants and customer artwork.",content:C("NEW PAID ORDER — {{orderCode}}","New paid order — prepare for production","Order: {{orderCode}}\\nDate: {{orderDate}}\\nPayment status: {{paymentStatus}}\\nPayment provider: {{paymentProvider}}\\nPayment method: {{paymentMethod}}\\n\\nCUSTOMER\\nName: {{customerName}}\\nEmail: {{customerEmail}}\\nPhone: {{customerPhone}}\\nShipping address: {{shippingAddress}}\\n\\nITEMS AND CUSTOMIZATION\\n{{orderItems}}\\n\\nSubtotal: {{subtotal}}\\nShipping: {{shipping}}\\nTax: {{tax}}\\nTOTAL PAID: {{orderTotal}}\\n\\nCustom request: {{requestCode}}\\nUploaded artwork is attached to this email when provided.","Open Order in Admin","{{orderUrl}}")},
+    seller_order_paid:{name:"Seller Order Paid",category:"ORDER",description:"Internal production handoff for every paid order, including product variants and customer artwork.",content:C("NEW PAID ORDER — {{orderCode}}","New paid order — prepare for production","Order: {{orderCode}}\\nDate: {{orderDate}}\\nPayment status: {{paymentStatus}}\\nPayment provider: {{paymentProvider}}\\nPayment method: {{paymentMethod}}\\n\\nCUSTOMER\\nName: {{customerName}}\\nEmail: {{customerEmail}}\\nPhone: {{customerPhone}}\\nShipping address: {{shippingAddress}}\\n\\nITEMS AND CUSTOMIZATION\\n{{orderItems}}\\n\\nPRODUCT PHOTOS\\n{{productImagesHtml}}\\n\\nSubtotal: {{subtotal}}\\nShipping: {{shipping}}\\nTax: {{tax}}\\nTOTAL PAID: {{orderTotal}}\\n\\nCustom request: {{requestCode}}\\nUploaded artwork is attached to this email when provided.","Open Order in Admin","{{orderUrl}}")},
     order_received:{name:"Order Received",category:"ORDER",description:"Order acknowledgement before final payment confirmation.",content:C("We received your order {{orderCode}}","We received your order","Hi {{customerName}}, we received your order {{orderCode}}. Your order will be confirmed after payment is successfully completed.","View Order","{{orderUrl}}")},
     order_confirmed:{name:"Order Confirmed",category:"ORDER",description:"Customer confirmation after successful payment.",content:C("Order confirmed {{orderCode}} — {{siteName}}","Thank you for your order","Hi {{customerName}}, your payment was received and order {{orderCode}} is confirmed.\\n\\n{{orderItems}}\\n\\nSubtotal: {{subtotal}}\\nShipping: {{shipping}}\\nTax: {{tax}}\\nTotal: {{orderTotal}}\\n\\nShipping address:\\n{{shippingAddress}}","Track My Order","{{orderUrl}}")},
     order_updated:{name:"Order Updated",category:"ORDER",description:"Customer notification when an order changes.",content:C("Order {{orderCode}} was updated","Your order was updated","Hi {{customerName}}, your order {{orderCode}} has been updated.\\n\\n{{updateMessage}}","View Order","{{orderUrl}}")},
@@ -170,6 +170,8 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
           "<p style=\"margin:18px 0 0\"><a href=\"" + escapeHtml(FRONTEND_URL + "/") + "\" style=\"display:inline-block;padding:13px 24px;background:#99621c;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px\">Start Shopping &rarr;</a></p></div>"
         : "";
 
+    const renderedBodyHtml = textToHtml(resolved.body).replace(/__MTD_PRODUCT_IMAGES_HTML__/g, String(vars.productImagesHtmlRaw || "<p>No product image is available for this order.</p>"));
+    const renderedTextBody = resolved.body.replace(/__MTD_PRODUCT_IMAGES_HTML__/g, "Product photos are displayed in the HTML version of this email.");
     const html = "<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\" /></head><body style=\"margin:0;background:#eef2f6;font-family:Arial,Helvetica,sans-serif;color:#172033\">" +
         "<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;color:transparent\">" + preheader + "</div>" +
         "<div style=\"padding:28px 12px;background:#eef2f6\"><div style=\"max-width:680px;margin:auto\">" +
@@ -185,7 +187,7 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
         "<div style=\"padding:34px 34px 30px\">" +
         (isWelcome ? "" : "<div style=\"color:" + color + ";font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">" + escapeHtml(resolved.eyebrow) + "</div>") +
         "<h1 style=\"margin:11px 0 14px;font-size:34px;line-height:1.14;letter-spacing:-.7px;color:#14213a\">" + escapeHtml(resolved.title) + "</h1>" +
-        "<div style=\"color:#536174;font-size:16px;line-height:1.75\">" + textToHtml(resolved.body) + "</div>" +
+        "<div style=\"color:#536174;font-size:16px;line-height:1.75\">" + renderedBodyHtml + "</div>" +
         welcomeHighlights +
         button +
         "<div style=\"margin-top:30px;padding-top:19px;border-top:1px solid #e7ebf1;color:#748091;font-size:12px;line-height:1.65\">" + textToHtml(resolved.footerText) + "</div>" +
@@ -193,7 +195,7 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
         "<div style=\"text-align:center;padding:18px 12px;color:#8993a1;font-size:11px\">© " + new Date().getFullYear() + " " + escapeHtml(siteName) + " · Thank you for being with us.</div>" +
         "</div></div></body></html>";
 
-    const text = [resolved.eyebrow,resolved.title,resolved.body,resolved.buttonUrl ? resolved.buttonText + ": " + resolved.buttonUrl : "",resolved.footerText].filter(Boolean).join("\n\n");
+    const text = [resolved.eyebrow,resolved.title,renderedTextBody,resolved.buttonUrl ? resolved.buttonText + ": " + resolved.buttonUrl : "",resolved.footerText].filter(Boolean).join("\n\n");
 
     try {
         const result = await sendEmail({ to, subject:resolved.subject, html, text, replyTo, attachments, idempotencyKey });
@@ -207,7 +209,8 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
 export const sendTemplateEmail = async (key: string, to: string|string[], vars: Record<string, unknown>, idempotencyKey: string, replyTo?: string, attachments?: Array<{ filename:string; content:string; contentType?:string }>) => {
     const library = await getEmailTemplates();
     const template = library[key];
-    if (!template || !template.enabled) return null;
+    // Seller production handoff is mandatory for paid orders; it must not be silently disabled in template settings.
+    if (!template || (!template.enabled && key !== "seller_order_paid")) return null;
     return sendRenderedEmail(template, vars, to, idempotencyKey, replyTo, attachments);
 };
 
