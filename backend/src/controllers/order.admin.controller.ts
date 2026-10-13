@@ -16,6 +16,8 @@ export const listAdminOrders = async (_req: Request, res: Response): Promise<voi
                 o.order_code,
                 CONCAT_WS(' ', o.customer_first_name, o.customer_last_name) AS customer_name,
                 o.customer_email,
+                o.customer_phone,
+                o.shipping_address,
                 o.subtotal,
                 o.shipping AS shipping_amount,
                 o.tax AS tax_amount,
@@ -29,7 +31,19 @@ export const listAdminOrders = async (_req: Request, res: Response): Promise<voi
                 o.tracking_number,
                 o.created_at,
                 o.updated_at,
-                COUNT(oi.id)::int AS item_count
+                COUNT(oi.id)::int AS item_count,
+                COALESCE(
+                    json_agg(json_build_object(
+                        'id', oi.id,
+                        'product_id', oi.product_id,
+                        'product_name', oi.product_name,
+                        'image_url', oi.image_url,
+                        'unit_price', oi.unit_price,
+                        'quantity', oi.quantity,
+                        'variant', oi.variant
+                    ) ORDER BY oi.id) FILTER (WHERE oi.id IS NOT NULL),
+                    '[]'::json
+                ) AS items
             FROM orders o
             LEFT JOIN order_items oi ON oi.order_id = o.id
             WHERE o.payment_status IN ('paid', 'refunded')
