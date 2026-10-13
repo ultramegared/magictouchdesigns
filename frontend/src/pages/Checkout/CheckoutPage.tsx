@@ -126,9 +126,22 @@ function CheckoutPage() {
     const tax = quote?.tax ?? null;
     const baseTotal = quote?.total ?? subtotal + shipping;
     const update = (key: keyof typeof form, value: string) => {
+        // A Stripe Elements session is bound to the address/quote used when it was
+        // created. Invalidate it immediately whenever checkout details change so
+        // the next session is created only after a fresh destination quote succeeds.
         setQuote(null);
+        quoteRef.current = null;
         setQuoteError("");
+        setQuoteLoading(false);
         setStripeAddressReady(false);
+        stripeCustomerKeyRef.current = "";
+        stripeCleanupRef.current?.();
+        stripeCleanupRef.current = null;
+        stripeSessionRef.current = { id: "", code: "" };
+        stripeActionsRef.current = null;
+        setStripeReady(false);
+        setAppleReady(false);
+        setAppleAvailable(null);
         setForm((f) => ({ ...f, [key]: value }));
         const input = formRef.current?.elements.namedItem(key) as HTMLInputElement | null;
         if (input) input.classList.toggle("checkout-autofill-value", Boolean(value));
@@ -288,7 +301,12 @@ function CheckoutPage() {
                         : d.message || "Unable to calculate shipping and tax.";
                     throw new Error(message);
                 }
-                setQuote({ subtotal: d.subtotal, shipping: d.shipping, tax: d.tax, total: d.total, shippingCents: d.shippingCents, shippingCarrier: d.shippingCarrier, shippingService: d.shippingService, shippingDeliveryDays: d.shippingDeliveryDays });
+                // An older request may finish parsing after the address changed.
+                // Never allow that response to overwrite the quote for the new ZIP/state.
+                if (controller.signal.aborted) return;
+                const nextQuote = { subtotal: d.subtotal, shipping: d.shipping, tax: d.tax, total: d.total, shippingCents: d.shippingCents, shippingCarrier: d.shippingCarrier, shippingService: d.shippingService, shippingDeliveryDays: d.shippingDeliveryDays };
+                quoteRef.current = nextQuote;
+                setQuote(nextQuote);
             } catch (x) {
                 if (!controller.signal.aborted) {
                     setQuote(null);
