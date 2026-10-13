@@ -66,7 +66,6 @@ function Footer() {
         </div>
     );
     const renderSocialLink = (social: SocialLink) => <a key={social.id} href={social.url === "#" ? undefined : social.url} className={`footer__social-card footer__social-card--${social.name.toLowerCase()}`} target={social.url === "#" ? undefined : "_blank"} rel={social.url === "#" ? undefined : "noopener noreferrer"} aria-label={social.name}><SocialIcon name={social.name} /><span>{social.name}</span></a>;
-    const websiteName = localize(siteConfig?.websiteName, language, "Magic Touch Designs");
     const slogan = localize(siteConfig?.slogan, language, language === "es" ? "Regalos y diseños personalizados" : "Personalized Gifts & Designs");
 
     return (
