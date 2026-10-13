@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, ChevronDown, Filter, Package, RefreshCw, Search, Trash2, Truck, ShieldCheck, ChevronUp, MapPin } from "lucide-react";
+import { CheckCircle2, ChevronDown, Filter, Package, RefreshCw, Search, Trash2, Truck, ShieldCheck, ChevronUp, MapPin, RotateCcw, ReceiptText } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import { apiRequest } from "../../services/api";
 import "./AdminOrders.css";
@@ -53,6 +53,7 @@ function AdminOrders() {
     const [paymentFilter, setPaymentFilter] = useState("all");
     const [purging, setPurging] = useState(false);
     const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
+    const [orderAction, setOrderAction] = useState<{ id: string; action: "refund" | "invoice" } | null>(null);
 
     const loadOrders = useCallback(async () => {
         try {
@@ -100,6 +101,36 @@ function AdminOrders() {
             setError(err instanceof Error ? err.message : "Unable to update order.");
         } finally {
             setSaving(null);
+        }
+    };
+
+    const refundOrder = async (order: Order) => {
+        if (order.payment_status !== "paid" || order.payment_provider !== "stripe") return;
+        const confirmed = window.confirm(`Refund ${money(order.total_amount)} for ${order.order_code}?\\n\\nStripe will return the full payment to the original payment method. This cannot be undone from this panel.`);
+        if (!confirmed) return;
+        try {
+            setOrderAction({ id: order.id, action: "refund" });
+            setError(null);
+            const result = await apiRequest<{ success: boolean; refundStatus: string; amount: number }>(`/api/admin/orders/${order.id}/refund`, { method: "POST" });
+            await loadOrders();
+            window.alert(`Stripe refund status: ${result.refundStatus}. Amount: ${money(result.amount)}.`);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Unable to refund this order.");
+        } finally {
+            setOrderAction(null);
+        }
+    };
+
+    const sendInvoice = async (order: Order) => {
+        try {
+            setOrderAction({ id: order.id, action: "invoice" });
+            setError(null);
+            const result = await apiRequest<{ success: boolean; sentTo: string }>(`/api/admin/orders/${order.id}/invoice`, { method: "POST" });
+            window.alert(`Invoice sent to ${result.sentTo}.`);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Unable to send invoice.");
+        } finally {
+            setOrderAction(null);
         }
     };
 
@@ -225,7 +256,7 @@ function AdminOrders() {
                                 <td><time dateTime={order.created_at}>{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</time></td>
                                 <td>{canDelete ? <button className="admin-orders__delete-button" type="button" title="Delete pending or cancelled unpaid order" aria-label={`Delete ${order.order_code}`} onClick={() => deleteOrder(order)} disabled={deleting !== null || saving === order.id}><Trash2 size={16} /></button> : <span className="admin-orders__protected">{order.payment_status === "paid" ? "Protected" : "—"}</span>}</td>
                             </tr>
-                            {expandedOrderIds.has(order.id) && <tr className="admin-orders__details-row"><td colSpan={9}><div className="admin-orders__details-grid"><section><h3>Order breakdown</h3><div><span>Subtotal</span><strong>{money(order.subtotal)}</strong></div><div><span>Shipping</span><strong>{money(order.shipping_amount)}</strong></div><div><span>Tax</span><strong>{money(order.tax_amount)}</strong></div><div className="admin-orders__details-total"><span>Total</span><strong>{money(order.total_amount)}</strong></div><p>Provider: {statusLabel(order.payment_provider || "unknown")} · Method: {statusLabel(order.payment_method || "unknown")}</p></section><section><h3><MapPin size={15}/> Delivery & items</h3><p>{order.customer_phone || "No phone recorded"}</p>{order.shipping_address && <p>{[order.shipping_address.address, order.shipping_address.apartment, order.shipping_address.city, order.shipping_address.state, order.shipping_address.zip].filter(Boolean).join(", ") || "No shipping address recorded"}</p>}{(order.items || []).map(item => <div className="admin-orders__detail-item" key={item.id}><span>{item.product_name} × {item.quantity}</span><strong>{money(Number(item.unit_price) * Number(item.quantity))}</strong></div>)}</section></div></td></tr>}</Fragment>; })}
+                            {expandedOrderIds.has(order.id) && <tr className="admin-orders__details-row"><td colSpan={9}><div className="admin-orders__details-grid"><section><h3>Order breakdown</h3><div><span>Subtotal</span><strong>{money(order.subtotal)}</strong></div><div><span>Shipping</span><strong>{money(order.shipping_amount)}</strong></div><div><span>Tax</span><strong>{money(order.tax_amount)}</strong></div><div className="admin-orders__details-total"><span>Total</span><strong>{money(order.total_amount)}</strong></div><p>Provider: {statusLabel(order.payment_provider || "unknown")} · Method: {statusLabel(order.payment_method || "unknown")}</p><div className="admin-orders__detail-actions">{order.payment_status === "paid" && order.payment_provider === "stripe" && <button type="button" className="admin-orders__refund-action" onClick={() => refundOrder(order)} disabled={orderAction !== null}>{orderAction?.id === order.id && orderAction.action === "refund" ? <RefreshCw size={15} className="spin"/> : <RotateCcw size={15}/>} {orderAction?.id === order.id && orderAction.action === "refund" ? "Refunding..." : "Refund purchase"}</button>}<button type="button" className="admin-orders__invoice-action" onClick={() => sendInvoice(order)} disabled={orderAction !== null}>{orderAction?.id === order.id && orderAction.action === "invoice" ? <RefreshCw size={15} className="spin"/> : <ReceiptText size={15}/>} {orderAction?.id === order.id && orderAction.action === "invoice" ? "Sending invoice..." : "Send invoice & receipt"}</button></div></section><section><h3><MapPin size={15}/> Customer & delivery</h3><p><strong>{order.customer_name}</strong><br/>{order.customer_email}<br/>{order.customer_phone || "No phone recorded"}</p><p>{order.customer_phone || "No phone recorded"}</p>{order.shipping_address && <p>{[order.shipping_address.address, order.shipping_address.apartment, order.shipping_address.city, order.shipping_address.state, order.shipping_address.zip].filter(Boolean).join(", ") || "No shipping address recorded"}</p>}{(order.items || []).map(item => <div className="admin-orders__detail-item" key={item.id}><span>{item.product_name} × {item.quantity}</span><strong>{money(Number(item.unit_price) * Number(item.quantity))}</strong></div>)}</section></div></td></tr>}</Fragment>; })}
                         </tbody></table></div>
                     )}
                 </section>
