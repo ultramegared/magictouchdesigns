@@ -147,10 +147,18 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
     const resolved: Record<string,string> = {};
     Object.entries(template.published).forEach(([k,v]) => resolved[k] = replaceVariables(String(v), vars));
 
-    const logoUrl = settings.logoUrl || FRONTEND_URL + "/images/logo/jqyd-logo-256.png";
-    const color = /^#[0-9a-fA-F]{6}$/.test(resolved.primaryColor) ? resolved.primaryColor : "#1F67B1";
-    const siteName = settings.websiteName || "JQYDesigns";
+    const isRefund = template.key === "order_cancelled" && Boolean(vars.refundAmount);
+    const logoUrl = isRefund
+        ? "https://res.cloudinary.com/ydcdwyui/image/upload/v1790738368/magic-touch-designs/logos/nneyxqq6xylcxciw3om7.png"
+        : (settings.logoUrl || FRONTEND_URL + "/images/logo/jqyd-logo-256.png");
+    const color = isRefund ? "#d92f50" : (/^#[0-9a-fA-F]{6}$/.test(resolved.primaryColor) ? resolved.primaryColor : "#1F67B1");
+    const siteName = isRefund ? "Magic Touch Designs" : (settings.websiteName || "JQYDesigns");
     const isWelcome = template.key === "welcome";
+    if (isRefund) {
+        resolved.eyebrow = "REFUND CONFIRMATION";
+        resolved.title = "Your refund has been processed";
+        resolved.buttonText = "Contact support";
+    }
 
     const button = resolved.buttonText && resolved.buttonUrl
         ? "<p style=\"margin:30px 0 8px\"><a href=\"" + escapeHtml(resolved.buttonUrl) + "\" style=\"display:inline-block;padding:15px 28px;background:" + color + ";color:#fff;text-decoration:none;border-radius:9px;font-weight:700;font-size:15px\">" + escapeHtml(resolved.buttonText) + "</a></p>"
@@ -183,11 +191,16 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
               "<div style=\"margin-top:18px;color:#f4dfaa;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">Personalized creations for a brighter you</div>" +
               "<div style=\"width:62px;height:2px;background:#d6a443;margin:18px auto 0\"></div>" +
               "</div>"
-            : "<div style=\"padding:30px 24px 26px;text-align:center;background:#fbfcfe;border-bottom:1px solid #e7ebf1\"><img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:210px;max-height:92px;width:auto;height:auto;border:0\" /></div>") +
+            : "<div style=\"padding:30px 24px 26px;text-align:center;background:#fbfcfe;border-bottom:1px solid #e7ebf1\"><img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:" + (isRefund ? "300px;max-height:150px" : "210px;max-height:92px") + ";width:auto;height:auto;border:0\" /></div>") +
         "<div style=\"padding:34px 34px 30px\">" +
         (isWelcome ? "" : "<div style=\"color:" + color + ";font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">" + escapeHtml(resolved.eyebrow) + "</div>") +
         "<h1 style=\"margin:11px 0 14px;font-size:34px;line-height:1.14;letter-spacing:-.7px;color:#14213a\">" + escapeHtml(resolved.title) + "</h1>" +
-        "<div style=\"color:#536174;font-size:16px;line-height:1.75\">" + renderedBodyHtml + "</div>" +
+        (isRefund ?
+        "<p style=\"margin:0 0 18px;color:#536174;font-size:16px;line-height:1.7\">Hello " + escapeHtml(vars.customerName || "there") + ",</p>" +
+        "<p style=\"margin:0 0 20px;color:#536174;font-size:16px;line-height:1.7\">Your order <strong>" + escapeHtml(vars.orderCode || "") + "</strong> has been cancelled and the refund has been issued to your original payment method.</p>" +
+        "<div style=\"margin:22px 0;padding:24px;border:1px solid #e5e7eb;border-radius:14px;background:#fff\"><div style=\"font-size:12px;letter-spacing:1px;color:#64748b;font-weight:700\">REFUND AMOUNT</div><div style=\"font-size:34px;font-weight:800;color:#14213a;margin:7px 0 14px\">" + escapeHtml(vars.refundAmount || "") + "</div><span style=\"display:inline-block;padding:8px 12px;border-radius:8px;background:#dcfce7;color:#166534;font-size:13px;font-weight:700\">✓ Refund issued</span><div style=\"margin-top:20px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:15px;color:#334155\"><strong>When will the money arrive?</strong><p style=\"margin:8px 0 0;line-height:1.65\">Most card refunds appear within <strong>5–10 business days</strong>. Exact timing depends on your bank or card issuer, and some refunds may take longer.</p></div></div>" +
+        "<div style=\"margin:20px 0;padding:18px 20px;border-radius:12px;background:#eff6ff;color:#334155;font-size:14px;line-height:1.65\"><strong>What happens next?</strong><p style=\"margin:7px 0 0\">The refund was sent to your original payment method. Your bank must post the credit to your account. If it has not appeared after 10 business days, contact your card issuer and reference order " + escapeHtml(vars.orderCode || "") + ".</p></div>"
+        : "<div style=\"color:#536174;font-size:16px;line-height:1.75\">" + renderedBodyHtml + "</div>") +
         welcomeHighlights +
         button +
         "<div style=\"margin-top:30px;padding-top:19px;border-top:1px solid #e7ebf1;color:#748091;font-size:12px;line-height:1.65\">" + textToHtml(resolved.footerText) + "</div>" +
