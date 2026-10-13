@@ -12,6 +12,7 @@ import {
     purgeUnpaidOrders,
     refundAdminOrder,
     sendAdminOrderInvoice,
+    resendAdminSellerOrderEmail,
 } from "../controllers/order.admin.controller";
 
 const router = Router();
@@ -23,6 +24,7 @@ router.get("/", listAdminOrders);
 router.post("/purge-unpaid", purgeUnpaidOrders);
 router.post("/:id/refund", refundAdminOrder);
 router.post("/:id/invoice", sendAdminOrderInvoice);
+router.post("/:id/resend-seller-email", resendAdminSellerOrderEmail);
 router.patch("/:id", updateAdminOrder);
 router.delete("/:id", deleteAdminOrder);
 
