@@ -269,7 +269,7 @@ export const sendAdminOrderInvoice = async (req: Request, res: Response): Promis
         const itemRows = items.map((item: any) => `<tr><td style="padding:10px;border-bottom:1px solid #e5e7eb">${esc(item.product_name)} × ${Number(item.quantity || 0)}</td><td style="padding:10px;text-align:right;border-bottom:1px solid #e5e7eb">${money(Number(item.unit_price || 0) * Number(item.quantity || 0))}</td></tr>`).join("");
         const address = order.shipping_address && typeof order.shipping_address === "object" ? order.shipping_address : {};
         const addressText = [address.address, address.apartment, address.city, address.state, address.zip].filter(Boolean).join(", ");
-        const logoUrl = "https://jqydesigns.com/images/logo/jqyd-logo-256.png";
+        const logoUrl = "https://www.jqydesigns.com/images/logo/jqyd-logo-256.png";
         const customerName = [order.customer_first_name, order.customer_last_name].filter(Boolean).join(" ") || "Valued customer";
         const paymentStatus = String(order.payment_status || "paid").toUpperCase();
         const html = `<!doctype html>
