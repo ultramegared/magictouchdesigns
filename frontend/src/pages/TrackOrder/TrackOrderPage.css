@@ -865,3 +865,44 @@
     }
 
 }
+
+/* TRACK ORDER RESULTS — FIX TEXT CONTRAST */
+.track-order-page__result {
+    color: #f8fafc !important;
+    background: #101820 !important;
+    border: 1px solid rgba(212, 163, 61, 0.42) !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    box-sizing: border-box !important;
+    isolation: isolate;
+}
+
+.track-order-page__result p,
+.track-order-page__result span,
+.track-order-page__result strong,
+.track-order-page__result h3,
+.track-order-page__result h4 {
+    text-shadow: none;
+}
+
+.track-order-page__result p {
+    color: #d5dde5;
+}
+
+.track-order-page__result > div {
+    color: #f8fafc;
+}
+
+.track-order-page__result > div > div[style*="grid-template-columns"] > div {
+    color: #f8fafc;
+}
+
+.track-order-page__result a {
+    color: #101820 !important;
+}
+
+@media (max-width: 700px) {
+    .track-order-page__result {
+        padding: 16px !important;
+    }
+}
