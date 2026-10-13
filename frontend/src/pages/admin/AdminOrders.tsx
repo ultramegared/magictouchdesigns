@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, ChevronDown, Filter, Package, RefreshCw, Search, Trash2, Truck, ShieldCheck } from "lucide-react";
+import { CheckCircle2, ChevronDown, Filter, Package, RefreshCw, Search, Trash2, Truck, ShieldCheck, ChevronUp, MapPin } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import { apiRequest } from "../../services/api";
 import "./AdminOrders.css";
@@ -9,6 +9,9 @@ type Order = {
     order_code: string;
     customer_name: string;
     customer_email: string;
+    customer_phone?: string | null;
+    shipping_address?: Record<string, string> | null;
+    items: { id: string; product_name: string; image_url?: string | null; unit_price: number; quantity: number; variant?: Record<string, string> | null }[];
     subtotal: number;
     shipping_amount: number;
     tax_amount: number;
@@ -47,6 +50,7 @@ function AdminOrders() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [paymentFilter, setPaymentFilter] = useState("all");
     const [purging, setPurging] = useState(false);
+    const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
 
     const loadOrders = useCallback(async () => {
         try {
@@ -210,7 +214,7 @@ function AdminOrders() {
                         </tr></thead><tbody>
                             {filteredOrders.map(order => { const canDelete = isDeletableOrder(order); return <tr key={order.id}>
                                 <td className="admin-orders__select-cell"><input type="checkbox" checked={selectedOrderIds.has(order.id)} onChange={() => toggleOrderSelection(order.id)} disabled={deleting !== null} aria-label={`Select ${order.order_code}`} /></td>
-                                <td><strong className="order-code">{order.order_code}</strong><small>{order.item_count} item{order.item_count === 1 ? "" : "s"}</small></td>
+                                <td><strong className="order-code">{order.order_code}</strong><small>{order.item_count} item{order.item_count === 1 ? "" : "s"}</small><button type="button" className="admin-orders__details-toggle" onClick={() => setExpandedOrderIds(current => { const next = new Set(current); if (next.has(order.id)) next.delete(order.id); else next.add(order.id); return next; })}>{expandedOrderIds.has(order.id) ? <ChevronUp size={14}/> : <ChevronDown size={14}/>} Details</button></td>
                                 <td><strong>{order.customer_name || "Customer"}</strong><small>{order.customer_email}</small></td>
                                 <td><strong className="order-total">{money(order.total_amount)}</strong><small>Subtotal {money(order.subtotal)}</small></td>
                                 <td><span className={`payment-badge payment-badge--${order.payment_status}`}>{statusLabel(order.payment_status)}</span></td>
@@ -218,7 +222,7 @@ function AdminOrders() {
                                 <td><div className="admin-orders__shipping"><select value={order.carrier || ""} disabled={saving === order.id || deleting !== null} onChange={event => updateOrder(order, { carrier: event.target.value })}><option value="">Carrier</option>{CARRIERS.map(carrier => <option key={carrier} value={carrier}>{carrier}</option>)}</select><input aria-label={`Tracking number for ${order.order_code}`} placeholder="Tracking number" defaultValue={order.tracking_number || ""} disabled={deleting !== null} onBlur={event => { const value = event.target.value.trim(); if (value !== (order.tracking_number || "")) updateOrder(order, { trackingNumber: value }); }} />{order.tracking_number && <a href={order.carrier === "USPS" ? `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(order.tracking_number)}` : order.carrier === "UPS" ? `https://www.ups.com/track?loc=en_US&tracknum=${encodeURIComponent(order.tracking_number)}` : order.carrier === "FedEx" ? `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(order.tracking_number)}` : order.carrier === "DHL" ? `https://www.dhl.com/global-en/home/tracking.html?tracking-id=${encodeURIComponent(order.tracking_number)}` : "#"} target="_blank" rel="noreferrer"><Truck size={15} /> Track shipment</a>}</div></td>
                                 <td><time dateTime={order.created_at}>{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</time></td>
                                 <td>{canDelete ? <button className="admin-orders__delete-button" type="button" title="Delete pending or cancelled unpaid order" aria-label={`Delete ${order.order_code}`} onClick={() => deleteOrder(order)} disabled={deleting !== null || saving === order.id}><Trash2 size={16} /></button> : <span className="admin-orders__protected">{order.payment_status === "paid" ? "Protected" : "—"}</span>}</td>
-                            </tr>; })}
+                            {expandedOrderIds.has(order.id) && <tr key={`${order.id}-details`} className="admin-orders__details-row"><td colSpan={9}><div className="admin-orders__details-grid"><section><h3>Order breakdown</h3><div><span>Subtotal</span><strong>{money(order.subtotal)}</strong></div><div><span>Shipping</span><strong>{money(order.shipping_amount)}</strong></div><div><span>Tax</span><strong>{money(order.tax_amount)}</strong></div><div className="admin-orders__details-total"><span>Total</span><strong>{money(order.total_amount)}</strong></div><p>Provider: {statusLabel(order.payment_provider || "unknown")} · Method: {statusLabel(order.payment_method || "unknown")}</p></section><section><h3><MapPin size={15}/> Delivery & items</h3><p>{order.customer_phone || "No phone recorded"}</p>{order.shipping_address && <p>{[order.shipping_address.address, order.shipping_address.apartment, order.shipping_address.city, order.shipping_address.state, order.shipping_address.zip].filter(Boolean).join(", ") || "No shipping address recorded"}</p>}{(order.items || []).map(item => <div className="admin-orders__detail-item" key={item.id}><span>{item.product_name} × {item.quantity}</span><strong>{money(Number(item.unit_price) * Number(item.quantity))}</strong></div>)}</section></div></td></tr>}</tr>; })}
                         </tbody></table></div>
                     )}
                 </section>
