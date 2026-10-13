@@ -17,6 +17,8 @@ type Order = {
     tax_amount: number;
     total_amount: number;
     payment_status: string;
+    payment_provider?: string | null;
+    payment_method?: string | null;
     status: string;
     carrier?: string | null;
     tracking_number?: string | null;
