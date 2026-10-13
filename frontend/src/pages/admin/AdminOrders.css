@@ -12,3 +12,9 @@
 .admin-orders__details-grid .admin-orders__detail-item{align-items:flex-start;border-top:1px solid #eef2f7}
 .admin-orders__detail-item span{overflow-wrap:anywhere}
 @media(max-width:700px){.admin-orders__details-grid{grid-template-columns:minmax(0,1fr)}}
+
+
+.admin-orders__detail-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.admin-orders__detail-actions button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#174b86;font-size:12px;font-weight:750}
+.admin-orders__detail-actions .admin-orders__refund-action{border-color:#fecaca;background:#fff7f7;color:#b42318}
+.admin-orders__detail-actions button:disabled{opacity:.55;cursor:wait}
