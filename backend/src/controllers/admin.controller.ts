@@ -75,6 +75,13 @@ export const getAdminDashboard = async (
             );
 
 
+        const salesResult = await pool.query(`
+            SELECT
+                COALESCE(SUM(total) FILTER (WHERE payment_status = 'paid'), 0)::numeric AS total_sales,
+                COUNT(*) FILTER (WHERE payment_status IN ('paid', 'refunded'))::int AS total_orders
+            FROM orders
+        `);
+
         const users =
             usersResult.rows[0];
 
@@ -136,10 +143,10 @@ export const getAdminDashboard = async (
                 sales: {
 
                     total_sales:
-                        0,
+                        Number(salesResult.rows[0].total_sales),
 
                     total_orders:
-                        0,
+                        Number(salesResult.rows[0].total_orders),
 
                 },
 
