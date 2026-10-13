@@ -181,12 +181,17 @@ export const deleteAdminOrder = async (req: Request, res: Response): Promise<voi
 };
 
 
-const stripeAdminRequest = async (path: string, body: URLSearchParams): Promise<any> => {
+const stripeAdminRequest = async (path: string, body: URLSearchParams, idempotencyKey?: string): Promise<any> => {
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) throw new Error("STRIPE_SECRET_KEY is not configured.");
+    const headers: Record<string, string> = {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+    };
+    if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
     const response = await fetch(`https://api.stripe.com/v1/${path}`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/x-www-form-urlencoded" },
+        headers,
         body,
     });
     const data = await response.json() as any;
@@ -219,7 +224,7 @@ export const refundAdminOrder = async (req: Request, res: Response): Promise<voi
         body.set("payment_intent", order.stripe_payment_intent_id);
         body.set("metadata[order_code]", order.order_code);
         body.set("metadata[reason]", "Admin initiated refund");
-        const refund = await stripeAdminRequest("refunds", body);
+        const refund = await stripeAdminRequest("refunds", body, `mtd-refund-${order.id}`);
         if (refund.status !== "succeeded") {
             res.status(202).json({
                 success: false,
