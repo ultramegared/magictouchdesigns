@@ -220,8 +220,16 @@ export const refundAdminOrder = async (req: Request, res: Response): Promise<voi
         body.set("metadata[order_code]", order.order_code);
         body.set("metadata[reason]", "Admin initiated refund");
         const refund = await stripeAdminRequest("refunds", body);
-        if (!["succeeded", "pending"].includes(String(refund.status))) {
-            res.status(502).json({ message: "Stripe did not confirm the refund.", refundStatus: refund.status }); return;
+        if (refund.status !== "succeeded") {
+            res.status(202).json({
+                success: false,
+                orderCode: order.order_code,
+                refundId: refund.id,
+                refundStatus: refund.status,
+                amount: Number(refund.amount || 0) / 100,
+                message: "Stripe accepted the refund request but has not confirmed completion. The order remains unchanged until Stripe confirms it.",
+            });
+            return;
         }
         await pool.query(
             `UPDATE orders SET payment_status = 'refunded', status = 'refunded', updated_at = NOW() WHERE id = $1`,
