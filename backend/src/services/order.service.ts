@@ -321,11 +321,12 @@ export const verifyStripeSignature = (payload: Buffer, signature: string): boole
 const escapeHtml = (value: unknown): string => String(value ?? "").replace(/[&<>\"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[character] || character));
 const dataUrlToAttachment = (dataUrl: string, fileName: string | undefined, index: number) => { const match = dataUrl.match(/^data:(image\/(?:png|jpeg|gif|webp));base64,(.+)$/); if (!match) throw new Error("Invalid customization image data."); const safeName = (fileName || `custom-mug-design-${index + 1}.png`).replace(/[^a-zA-Z0-9._-]/g, "_"); return { filename: safeName, content: match[2], contentType: match[1] }; };
 
-export const sendCustomOrderNotification = async (orderIdOrCode: string): Promise<void> => {
+export const sendCustomOrderNotification = async (orderIdOrCode: string, options: { resend?: boolean } = {}): Promise<void> => {
     await ensureOrderTables();
     const orderResult = await pool.query("SELECT * FROM orders WHERE id::text = $1 OR order_code = $1 LIMIT 1", [orderIdOrCode]);
     const order = orderResult.rows[0];
-    if (!order) throw new Error("Order not found for customization email.");
+    if (!order) throw new Error("Order not found for seller notification.");
+    if (String(order.payment_status).toLowerCase() !== "paid") throw new Error("Seller notification can only be sent for a paid order.");
     const itemsResult = await pool.query("SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC", [order.id]);
     // Notify the seller for EVERY paid order, not only custom mug requests.
     // This email is the production handoff: product, variants, payment, customer,
@@ -395,8 +396,8 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
         orderDate:order.created_at ? new Date(order.created_at).toLocaleString("en-US") : "Not provided",
         orderUrl:FRONTEND_URL + "/admin/orders",
         supportEmail:settings.supportEmail || "jqydesigns@gmail.com"
-    }, "seller-order/" + order.id, order.customer_email, attachments);
-    for (const item of customItems) {
+    }, options.resend ? "seller-order-manual-resend/" + order.id + "/" + Date.now() : "seller-order/" + order.id, order.customer_email, attachments);
+    if (!options.resend) for (const item of customItems) {
         if (item.variant?.customRequestId) await markCustomMugRequestPaid(String(item.variant.customRequestId));
         if (item.variant?.designDataUrl) {
             await pool.query("UPDATE order_items SET variant = variant - 'designDataUrl' - 'designFileName' - 'designScale' - 'designX' - 'designY' - 'designRotation' - 'mugRotation' WHERE id = $1", [item.id]);
