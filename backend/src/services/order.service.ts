@@ -354,6 +354,19 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
         else if (variant.designDataUrl) lines.push(`Artwork attachment: included (${String(variant.designFileName || "customer-design")})`);
         return lines.join("\n");
     }).join("\n\n");
+    const productImagesHtmlMarkup = itemsResult.rows.map((item:any) => {
+        const rawUrl = String(item.image_url || "").trim();
+        if (!rawUrl) return "";
+        let imageUrl = "";
+        try {
+            const parsed = new URL(rawUrl, FRONTEND_URL);
+            if (parsed.protocol !== "https:") return "";
+            imageUrl = parsed.toString();
+        } catch { return ""; }
+        const safeUrl = imageUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const safeName = String(item.product_name || "Product").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        return "<div style=\"display:inline-block;vertical-align:top;width:180px;max-width:100%;margin:8px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;text-align:center\"><img src=\"" + safeUrl + "\" alt=\"" + safeName + "\" width=\"160\" style=\"display:block;width:160px;max-width:100%;height:auto;margin:0 auto 8px;border:0;border-radius:6px\" /><div style=\"font-weight:700;font-size:13px;color:#172033\">" + safeName + "</div><div style=\"font-size:12px;color:#536174\">Qty: " + Number(item.quantity) + "</div></div>";
+    }).filter(Boolean).join("");
     const customRequestIds = customItems.map((item:any) => item.variant?.requestCode || item.variant?.customRequestId).filter(Boolean);
     const requestCode = customRequestIds.join(", ") || "Standard product order";
     const settings = await getSettings();
@@ -377,6 +390,8 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
         paymentStatus:order.payment_status || "paid",
         orderItems,
         shippingAddress,
+        productImagesHtml: "__MTD_PRODUCT_IMAGES_HTML__",
+        productImagesHtmlRaw: productImagesHtmlMarkup || "<p>No product image is available for this order.</p>",
         orderDate:order.created_at ? new Date(order.created_at).toLocaleString("en-US") : "Not provided",
         orderUrl:FRONTEND_URL + "/admin/orders",
         supportEmail:settings.supportEmail || "jqydesigns@gmail.com"
