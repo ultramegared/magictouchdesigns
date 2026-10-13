@@ -10,7 +10,32 @@ import { sendShipmentUpdate } from "../services/shipment.service";
 export const listAdminOrders = async (_req: Request, res: Response): Promise<void> => {
     try {
         await ensureOrderTables();
-        const result = await pool.query(`SELECT o.*, COUNT(oi.id)::int AS item_count FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id WHERE o.payment_status IN ('paid', 'refunded') GROUP BY o.id ORDER BY o.created_at DESC`);
+        const result = await pool.query(`
+            SELECT
+                o.id,
+                o.order_code,
+                CONCAT_WS(' ', o.customer_first_name, o.customer_last_name) AS customer_name,
+                o.customer_email,
+                o.subtotal,
+                o.shipping AS shipping_amount,
+                o.tax AS tax_amount,
+                o.total AS total_amount,
+                o.currency,
+                o.payment_provider,
+                o.payment_method,
+                o.payment_status,
+                o.status,
+                o.carrier,
+                o.tracking_number,
+                o.created_at,
+                o.updated_at,
+                COUNT(oi.id)::int AS item_count
+            FROM orders o
+            LEFT JOIN order_items oi ON oi.order_id = o.id
+            WHERE o.payment_status IN ('paid', 'refunded')
+            GROUP BY o.id
+            ORDER BY o.created_at DESC
+        `);
         res.json(result.rows);
     } catch (error) {
         console.error("List admin orders error:", error);
