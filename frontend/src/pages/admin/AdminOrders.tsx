@@ -48,7 +48,7 @@ function AdminOrders() {
     const [deleting, setDeleting] = useState<string | null>(null);
     const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
     const [error, setError] = useState<string | null>(null);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get("search") || "");
     const [statusFilter, setStatusFilter] = useState("all");
     const [paymentFilter, setPaymentFilter] = useState("all");
     const [purging, setPurging] = useState(false);
@@ -60,8 +60,14 @@ function AdminOrders() {
             setLoading(true);
             setError(null);
             const result = await apiRequest<Order[]>("/api/admin/orders");
-            setOrders(Array.isArray(result) ? result : []);
+            const loadedOrders = Array.isArray(result) ? result : [];
+            setOrders(loadedOrders);
             setSelectedOrderIds(new Set());
+            const requestedOrder = new URLSearchParams(window.location.search).get("search");
+            if (requestedOrder) {
+                const match = loadedOrders.find(order => order.order_code.toLowerCase() === requestedOrder.toLowerCase());
+                if (match) setExpandedOrderIds(current => new Set(current).add(match.id));
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Unable to load orders.");
         } finally {
