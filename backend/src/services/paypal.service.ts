@@ -7,7 +7,7 @@
 
 import crypto from "crypto";
 import { pool } from "../config/database";
-import { buildOrderSnapshot, createCheckoutAttempt, ensureOrderTables, materializePaidOrder, type CheckoutCustomerInput, type CheckoutItemInput } from "./order.service";
+import { buildOrderSnapshot, createCheckoutAttempt, ensureOrderTables, materializePaidOrder, sendCustomOrderNotification, sendCustomerOrderConfirmation, type CheckoutCustomerInput, type CheckoutItemInput } from "./order.service";
 import { calculateDestinationTax, createTaxTransactionFromCalculation } from "./tax.service";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://jqydesigns.com";
@@ -104,8 +104,18 @@ export const capturePayPalOrder = async (paypalOrderId: string) => {
     const attemptResult = await pool.query(`SELECT * FROM checkout_attempts WHERE paypal_order_id = $1 LIMIT 1`, [paypalOrderId]);
     const attempt = attemptResult.rows[0];
     if (!attempt) throw new Error("PayPal checkout attempt not found.");
-    const existing = await pool.query(`SELECT order_code FROM orders WHERE paypal_order_id = $1 LIMIT 1`, [paypalOrderId]);
-    if (existing.rows[0]) return { orderCode: existing.rows[0].order_code, status: "COMPLETED", alreadyCaptured: true };
+    const existing = await pool.query(`SELECT id, order_code FROM orders WHERE paypal_order_id = $1 LIMIT 1`, [paypalOrderId]);
+    if (existing.rows[0]) {
+        // A previous capture may have saved the paid order but failed during email delivery.
+        // Retry both idempotent notifications when PayPal's capture endpoint is called again.
+        const results = await Promise.allSettled([
+            sendCustomOrderNotification(String(existing.rows[0].id)),
+            sendCustomerOrderConfirmation(String(existing.rows[0].id)),
+        ]);
+        if (results[0].status === "rejected") throw results[0].reason;
+        if (results[1].status === "rejected") throw results[1].reason;
+        return { orderCode: existing.rows[0].order_code, status: "COMPLETED", alreadyCaptured: true };
+    }
     const token = await getPayPalAccessToken();
     const captured = await paypalJsonRequest(`/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/capture`, "POST", token);
     const capture = captured?.purchase_units?.[0]?.payments?.captures?.[0];
@@ -135,5 +145,13 @@ export const capturePayPalOrder = async (paypalOrderId: string) => {
         tax: Number(attempt.tax),
         total: Number(attempt.total),
     });
+    // Seller handoff and customer confirmation are separate; one failing must not
+    // prevent the other from being attempted after a confirmed PayPal capture.
+    const notifications = await Promise.allSettled([
+        sendCustomOrderNotification(result.orderId),
+        sendCustomerOrderConfirmation(result.orderId),
+    ]);
+    if (notifications[0].status === "rejected") throw notifications[0].reason;
+    if (notifications[1].status === "rejected") throw notifications[1].reason;
     return { orderCode: result.orderCode, status: capture.status, captureId: capture.id || null };
 };
