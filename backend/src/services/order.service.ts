@@ -327,8 +327,10 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
     const order = orderResult.rows[0];
     if (!order) throw new Error("Order not found for customization email.");
     const itemsResult = await pool.query("SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC", [order.id]);
+    // Notify the seller for EVERY paid order, not only custom mug requests.
+    // This email is the production handoff: product, variants, payment, customer,
+    // shipping, and any uploaded artwork must be visible to the seller.
     const customItems = itemsResult.rows.filter((item:any) => item.variant?.designDataUrl || item.variant?.customRequestId);
-    if (!customItems.length) return;
     const attachments:Array<{filename:string;content:string;contentType?:string}> = [];
     for (const item of customItems) {
         if (item.variant?.designDataUrl) attachments.push(dataUrlToAttachment(item.variant.designDataUrl, item.variant.designFileName, attachments.length));
@@ -340,30 +342,45 @@ export const sendCustomOrderNotification = async (orderIdOrCode: string): Promis
     const orderItems = itemsResult.rows.map((item:any) => {
         const variant = item.variant || {};
         const lines = [
-            String(item.product_name),
+            `Product: ${String(item.product_name)}`,
             `Quantity: ${String(item.quantity)}`,
             `Unit price: ${Number(item.unit_price).toFixed(2)}`,
+            `Line total: ${(Number(item.unit_price) * Number(item.quantity)).toFixed(2)}`,
         ];
-        if (variant.customRequestId) {
-            lines.push(`Model: ${String(variant.model || "Custom Mug")}`);
-            lines.push(`Size: ${String(variant.size || "Not provided")}`);
-            lines.push(`Color: ${String(variant.color || "Not provided")}`);
-            lines.push(`Print sides: ${String(variant.printSides || "Not provided")}`);
-            lines.push(`Font: ${String(variant.fontName || variant.fontStyle || "Not provided")}`);
-            lines.push(`Text: ${String(variant.customText || "Not provided")}`);
-            lines.push(`Notes: ${String(variant.customNotes || "Not provided")}`);
+        for (const [key, label] of [["model","Model"],["size","Size"],["color","Color"],["printSides","Print sides"],["fontName","Font"],["fontStyle","Font style"],["customText","Text on product"],["customNotes","Customer design notes"],["requestCode","Custom request code"]] as const) {
+            if (variant[key]) lines.push(`${label}: ${String(variant[key])}`);
         }
+        if (variant.customRequestId) lines.push(`Artwork attachment: included (custom request ${String(variant.customRequestId)})`);
+        else if (variant.designDataUrl) lines.push(`Artwork attachment: included (${String(variant.designFileName || "customer-design")})`);
         return lines.join("\n");
     }).join("\n\n");
-    const requestCode = customItems.map((item:any) => item.variant?.customRequestId).filter(Boolean).join(", ") || "Custom order";
+    const customRequestIds = customItems.map((item:any) => item.variant?.requestCode || item.variant?.customRequestId).filter(Boolean);
+    const requestCode = customRequestIds.join(", ") || "Standard product order";
     const settings = await getSettings();
-    const recipient = settings.supportEmail.trim() || process.env.ORDER_NOTIFICATION_EMAIL || process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com";
-    await sendTemplateEmail("custom_mug_paid", recipient, {
-        siteName:"JQYDesigns", customerName:(order.customer_first_name + " " + order.customer_last_name).trim(), customerEmail:order.customer_email,
-        orderCode:order.order_code, requestCode, orderTotal:"$" + Number(order.total).toFixed(2),
-        paymentProvider:order.payment_provider || "payment provider", orderItems,
-        orderUrl:FRONTEND_URL + "/admin/orders", supportEmail:settings.supportEmail || "jqydesigns@gmail.com"
-    }, "custom-order/" + order.id, order.customer_email, attachments);
+    const recipient = process.env.ORDER_NOTIFICATION_EMAIL || "jqydesigns@gmail.com";
+    const shippingAddress = order.shipping_address && typeof order.shipping_address === "object"
+        ? [order.shipping_address.address, order.shipping_address.apartment, order.shipping_address.city, order.shipping_address.state, order.shipping_address.zip].filter(Boolean).join(", ")
+        : String(order.shipping_address || "Not provided");
+    await sendTemplateEmail("seller_order_paid", recipient, {
+        siteName:"Magic Touch Designs",
+        customerName:[order.customer_first_name, order.customer_last_name].filter(Boolean).join(" ") || "Not provided",
+        customerEmail:order.customer_email || "Not provided",
+        customerPhone:order.customer_phone || "Not provided",
+        orderCode:order.order_code,
+        requestCode,
+        orderTotal:"$" + Number(order.total).toFixed(2),
+        subtotal:"$" + Number(order.subtotal).toFixed(2),
+        shipping:"$" + Number(order.shipping).toFixed(2),
+        tax:"$" + Number(order.tax).toFixed(2),
+        paymentProvider:order.payment_provider || "Not provided",
+        paymentMethod:order.payment_method || "Not provided",
+        paymentStatus:order.payment_status || "paid",
+        orderItems,
+        shippingAddress,
+        orderDate:order.created_at ? new Date(order.created_at).toLocaleString("en-US") : "Not provided",
+        orderUrl:FRONTEND_URL + "/admin/orders",
+        supportEmail:settings.supportEmail || "jqydesigns@gmail.com"
+    }, "seller-order/" + order.id, order.customer_email, attachments);
     for (const item of customItems) {
         if (item.variant?.customRequestId) await markCustomMugRequestPaid(String(item.variant.customRequestId));
         if (item.variant?.designDataUrl) {
