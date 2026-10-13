@@ -205,7 +205,8 @@ export const refundAdminOrder = async (req: Request, res: Response): Promise<voi
         await ensureOrderTables();
         const orderId = String(req.params.id || "");
         const orderResult = await pool.query(
-            `SELECT id, order_code, stripe_payment_intent_id, payment_provider, payment_status, total, currency
+            `SELECT id, order_code, stripe_payment_intent_id, payment_provider, payment_status, total, currency,
+                    customer_email, customer_first_name, customer_last_name
              FROM orders WHERE id = $1 LIMIT 1`,
             [orderId],
         );
@@ -241,7 +242,53 @@ export const refundAdminOrder = async (req: Request, res: Response): Promise<voi
             `UPDATE orders SET payment_status = 'refunded', status = 'refunded', updated_at = NOW() WHERE id = $1`,
             [orderId],
         );
-        res.json({ success: true, orderCode: order.order_code, refundId: refund.id, refundStatus: refund.status, amount: Number(refund.amount || 0) / 100 });
+
+        // Only notify the customer after Stripe confirms that the refund succeeded.
+        // Email failure must not undo or misreport a completed financial refund.
+        let customerNotified = false;
+        let notificationError: string | undefined;
+        if (order.customer_email) {
+            try {
+                const { sendTemplateEmail } = await import("../services/email-template.service");
+                const customerName = [order.customer_first_name, order.customer_last_name]
+                    .filter(Boolean)
+                    .join(" ") || "Customer";
+                const currency = String(order.currency || "USD").toUpperCase();
+                const refundAmount = new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency,
+                }).format(Number(refund.amount || 0) / 100);
+                await sendTemplateEmail(
+                    "order_cancelled",
+                    String(order.customer_email),
+                    {
+                        siteName: "Magic Touch Designs",
+                        customerName,
+                        orderCode: String(order.order_code),
+                        updateMessage: `Your order has been cancelled and your refund of ${refundAmount} has been issued to the original payment method. The time it takes to appear depends on your bank or card issuer.`,
+                        contactUrl: "https://magictouchdesigns.com/contact",
+                    },
+                    `customer-order-refunded/${order.id}/${refund.id}`,
+                );
+                customerNotified = true;
+            } catch (emailError) {
+                notificationError = emailError instanceof Error ? emailError.message : "Customer refund email failed.";
+                console.error("Customer refund notification failed after Stripe refund succeeded:", emailError);
+            }
+        } else {
+            notificationError = "The order has no customer email address.";
+            console.error("Customer refund notification skipped: no customer email for order", order.order_code);
+        }
+
+        res.json({
+            success: true,
+            orderCode: order.order_code,
+            refundId: refund.id,
+            refundStatus: refund.status,
+            amount: Number(refund.amount || 0) / 100,
+            customerNotified,
+            ...(notificationError ? { notificationError } : {}),
+        });
     } catch (error) {
         console.error("Admin order refund error:", error);
         res.status(500).json({ message: error instanceof Error ? error.message : "Unable to refund this order." });
