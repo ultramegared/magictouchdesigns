@@ -86,3 +86,77 @@
 .footer__social-card--youtube { color: #c62828 !important; }
 .footer__social-card--pinterest { color: #c62828 !important; }
 .footer__link:hover { color: #174ea6 !important; }
+
+
+/* FOOTER CONNECT SECTION — PROFESSIONAL ALIGNMENT */
+/* Keep the existing footer background unchanged. */
+.footer__connect,
+.footer__mobile-connect {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.footer__connect {
+  padding-left: 0;
+  padding-right: 0;
+}
+.footer__connect-heading,
+.footer__connect > p,
+.footer__mobile-connect .footer__connect-heading,
+.footer__mobile-connect > p {
+  text-align: center;
+}
+.footer__social-grid {
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+}
+.footer__social-card {
+  flex: 0 1 82px;
+}
+.footer__whatsapp-card {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.footer__mobile-connect {
+  margin-top: 22px;
+}
+.footer__mobile-connect .footer__whatsapp-card {
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 901px) {
+  .footer__desktop-layout {
+    align-items: center;
+  }
+  .footer__connect {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+@media (max-width: 900px) {
+  .footer__mobile-connect {
+    width: 100%;
+    max-width: 620px;
+    margin: 22px auto 0;
+    padding: 22px 16px 18px;
+  }
+  .footer__mobile-connect .footer__social-grid {
+    justify-content: center;
+  }
+}
+@media (max-width: 460px) {
+  .footer__mobile-connect {
+    padding: 18px 12px 14px;
+  }
+  .footer__mobile-connect .footer__whatsapp-card {
+    grid-template-columns: minmax(0, 1fr) 80px;
+    gap: 8px;
+  }
+}
