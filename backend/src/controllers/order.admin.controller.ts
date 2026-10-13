@@ -269,8 +269,54 @@ export const sendAdminOrderInvoice = async (req: Request, res: Response): Promis
         const itemRows = items.map((item: any) => `<tr><td style="padding:10px;border-bottom:1px solid #e5e7eb">${esc(item.product_name)} × ${Number(item.quantity || 0)}</td><td style="padding:10px;text-align:right;border-bottom:1px solid #e5e7eb">${money(Number(item.unit_price || 0) * Number(item.quantity || 0))}</td></tr>`).join("");
         const address = order.shipping_address && typeof order.shipping_address === "object" ? order.shipping_address : {};
         const addressText = [address.address, address.apartment, address.city, address.state, address.zip].filter(Boolean).join(", ");
-        const html = `<div style="font-family:Arial,sans-serif;color:#172033;max-width:680px;margin:auto"><h1 style="color:#174b86">Magic Touch Designs</h1><p>Invoice / Receipt</p><h2>${esc(order.order_code)}</h2><p>Customer: ${esc(order.customer_first_name)} ${esc(order.customer_last_name)}<br>Email: ${esc(order.customer_email)}<br>Phone: ${esc(order.customer_phone || "Not provided")}<br>Delivery address: ${esc(addressText || "Not recorded")}</p><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:10px">Item</th><th style="text-align:right;padding:10px">Amount</th></tr></thead><tbody>${itemRows}<tr><td style="padding:10px">Subtotal</td><td style="padding:10px;text-align:right">${money(order.subtotal)}</td></tr><tr><td style="padding:10px">Shipping</td><td style="padding:10px;text-align:right">${money(order.shipping)}</td></tr><tr><td style="padding:10px">Sales tax</td><td style="padding:10px;text-align:right">${money(order.tax)}</td></tr><tr><td style="padding:12px;font-weight:bold;border-top:2px solid #174b86">Total</td><td style="padding:12px;text-align:right;font-weight:bold;border-top:2px solid #174b86">${money(order.total)}</td></tr></tbody></table><p>Payment status: ${esc(order.payment_status)}<br>Payment method: ${esc(order.payment_provider || order.payment_method || "Not recorded")}<br>Date: ${esc(new Date(order.created_at).toLocaleString("en-US"))}</p><p>Thank you for shopping with Magic Touch Designs.</p></div>`;
-        await sendEmail({ to: order.customer_email, subject: `Your Magic Touch Designs invoice — ${order.order_code}`, html, text: `Magic Touch Designs invoice for ${order.order_code}. Total: ${money(order.total)}. Subtotal: ${money(order.subtotal)}. Shipping: ${money(order.shipping)}. Sales tax: ${money(order.tax)}. Customer: ${order.customer_first_name} ${order.customer_last_name}. Delivery: ${addressText}.`, idempotencyKey: `admin-invoice-${order.id}-${Date.now()}` });
+        const logoUrl = "https://jqydesigns.com/images/logo/jqyd-logo-256.png";
+        const customerName = [order.customer_first_name, order.customer_last_name].filter(Boolean).join(" ") || "Valued customer";
+        const paymentStatus = String(order.payment_status || "paid").toUpperCase();
+        const html = `<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Receipt ${esc(order.order_code)}</title></head>
+<body style="margin:0;padding:0;background:#f2f5f9;font-family:Arial,Helvetica,sans-serif;color:#172033">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f2f5f9;padding:28px 12px"><tr><td align="center">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:640px;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden">
+<tr><td style="background:#123d70;padding:26px 30px;text-align:center">
+<img src="${logoUrl}" width="104" height="104" alt="JQ &amp; YD — Magic Touch Designs" style="display:block;width:104px;height:104px;object-fit:contain;margin:0 auto 12px;border:0">
+<div style="font-size:19px;line-height:26px;letter-spacing:2px;font-weight:700;color:#ffffff">MAGIC TOUCH DESIGNS</div>
+<div style="font-size:11px;line-height:18px;letter-spacing:3px;color:#dbeafe">PERSONALIZED WITH CARE</div>
+</td></tr>
+<tr><td style="padding:30px 30px 12px">
+<div style="font-size:12px;line-height:18px;letter-spacing:2px;font-weight:700;color:#b18424">PAYMENT CONFIRMED</div>
+<h1 style="margin:8px 0 10px;font-size:27px;line-height:34px;color:#14243a">Thank you for your order!</h1>
+<p style="margin:0;font-size:15px;line-height:24px;color:#536174">Hello ${esc(customerName)}, your payment has been received. Keep this email as your purchase receipt.</p>
+</td></tr>
+<tr><td style="padding:12px 30px 20px">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f7f9fc;border:1px solid #e5eaf1;border-radius:10px"><tr>
+<td style="padding:15px 16px"><div style="font-size:11px;line-height:17px;color:#64748b;letter-spacing:1px">ORDER NUMBER</div><div style="font-size:16px;line-height:24px;font-weight:700;color:#14243a">${esc(order.order_code)}</div></td>
+<td align="right" style="padding:15px 16px"><div style="font-size:11px;line-height:17px;color:#64748b;letter-spacing:1px">PAYMENT STATUS</div><span style="display:inline-block;background:#dcfce7;color:#166534;font-size:12px;line-height:18px;font-weight:700;padding:4px 9px;border-radius:20px">${esc(paymentStatus)}</span></td>
+</tr></table>
+</td></tr>
+<tr><td style="padding:0 30px 8px"><h2 style="margin:0;font-size:17px;line-height:24px;color:#14243a">Order summary</h2></td></tr>
+<tr><td style="padding:0 30px 18px">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse">
+<thead><tr><th align="left" style="padding:12px 8px;border-bottom:1px solid #dbe3ed;font-size:12px;color:#64748b">ITEM</th><th align="right" style="padding:12px 8px;border-bottom:1px solid #dbe3ed;font-size:12px;color:#64748b">AMOUNT</th></tr></thead>
+<tbody>${itemRows}
+<tr><td style="padding:10px 8px;font-size:14px;color:#536174">Subtotal</td><td align="right" style="padding:10px 8px;font-size:14px;color:#172033">${money(order.subtotal)}</td></tr>
+<tr><td style="padding:10px 8px;font-size:14px;color:#536174">Shipping</td><td align="right" style="padding:10px 8px;font-size:14px;color:#172033">${money(order.shipping)}</td></tr>
+<tr><td style="padding:10px 8px;font-size:14px;color:#536174">Sales tax</td><td align="right" style="padding:10px 8px;font-size:14px;color:#172033">${money(order.tax)}</td></tr>
+<tr><td style="padding:15px 8px;border-top:2px solid #174b86;font-size:16px;font-weight:700;color:#14243a">TOTAL PAID</td><td align="right" style="padding:15px 8px;border-top:2px solid #174b86;font-size:20px;font-weight:700;color:#174b86">${money(order.total)}</td></tr>
+</tbody></table>
+</td></tr>
+<tr><td style="padding:0 30px 24px">
+<h2 style="margin:0 0 12px;font-size:17px;line-height:24px;color:#14243a">Customer &amp; delivery details</h2>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td style="padding:0 0 8px;font-size:13px;line-height:20px;color:#536174"><strong style="color:#172033">Customer</strong><br>${esc(customerName)}<br>${esc(order.customer_email)}<br>${esc(order.customer_phone || "Phone not provided")}</td></tr>
+<tr><td style="padding:8px 0;font-size:13px;line-height:20px;color:#536174"><strong style="color:#172033">Shipping address</strong><br>${esc(addressText || "Not recorded")}</td></tr>
+<tr><td style="padding:8px 0;font-size:13px;line-height:20px;color:#536174"><strong style="color:#172033">Payment method</strong><br>${esc(order.payment_provider || order.payment_method || "Not recorded")}<br><strong style="color:#172033">Order date</strong><br>${esc(new Date(order.created_at).toLocaleString("en-US"))}</td></tr></table>
+</td></tr>
+<tr><td style="background:#f7f9fc;border-top:1px solid #e5eaf1;padding:22px 30px;text-align:center">
+<p style="margin:0 0 8px;font-size:15px;line-height:22px;font-weight:700;color:#174b86">Thank you for choosing Magic Touch Designs.</p>
+<p style="margin:0;font-size:12px;line-height:19px;color:#64748b">Questions about your order? Reply to this email and we’ll be happy to help.</p>
+<p style="margin:12px 0 0;font-size:11px;line-height:17px;color:#94a3b8">© ${new Date().getFullYear()} Magic Touch Designs · Personalized with care</p>
+</td></tr></table></td></tr></table></body></html>`;
+        await sendEmail({ to: order.customer_email, subject: `Your Magic Touch Designs invoice — ${order.order_code}`, html, text: `MAGIC TOUCH DESIGNS — PAYMENT CONFIRMED\nThank you for your order, ${customerName}.\nOrder: ${order.order_code}\nPayment status: ${paymentStatus}\n\nITEMS\n${items.map((item: any) => `${item.product_name} × ${Number(item.quantity || 0)} — ${money(Number(item.unit_price || 0) * Number(item.quantity || 0))}`).join("\n")}\n\nSubtotal: ${money(order.subtotal)}\nShipping: ${money(order.shipping)}\nSales tax: ${money(order.tax)}\nTOTAL PAID: ${money(order.total)}\n\nCustomer: ${customerName}\nEmail: ${order.customer_email}\nPhone: ${order.customer_phone || "Not provided"}\nDelivery: ${addressText || "Not recorded"}\nPayment method: ${order.payment_provider || order.payment_method || "Not recorded"}\nDate: ${new Date(order.created_at).toLocaleString("en-US")}\n\nThank you for choosing Magic Touch Designs.`, idempotencyKey: `admin-invoice-${order.id}-${Date.now()}` });
         res.json({ success: true, orderCode: order.order_code, sentTo: order.customer_email });
     } catch (error) {
         console.error("Admin invoice email error:", error);
