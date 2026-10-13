@@ -75,8 +75,7 @@ function Footer() {
                 <div className="footer__desktop-layout">
                     <div className="footer__brand">
                         <div className="footer__brand-mark" style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none", color: "transparent", backgroundImage: `url('${logoUrl || "/images/logo/jqyd-logo-256.png"}')`, backgroundPosition: "center", backgroundSize: "contain", backgroundRepeat: "no-repeat" }} aria-label="JQ & YD" />
-                        <div className="footer__brand-name">{websiteName}</div>
-                        <p>{slogan}.</p>
+                        <p className="footer__brand-slogan">{slogan}.</p>
                         <div className="footer__benefits"><span>♢ <b>{language === "es" ? "Alta calidad" : "High Quality"}</b></span><span>⌁ <b>{language === "es" ? "Envío rápido" : "Fast Shipping"}</b></span><span>♡ <b>{language === "es" ? "Hecho con amor" : "Made with Love"}</b></span></div>
                     </div>
                     <div className="footer__connect">
