@@ -202,9 +202,11 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     if (cancelled) return;
                     artworkCtx.clearRect(0, 0, artworkCanvas.width, artworkCanvas.height);
                     const scale = clamp(designScale, 0.4, 1.6);
-                    const aspect = image.width / Math.max(1, image.height);
-                    const h = Math.min(760 * scale, 900);
-                    const w = Math.min(1500 * scale, h * aspect);
+                    // The canvas maps the entire circumference of the mug. Fill that printable wrap
+                    // by default so the artwork continues around the front and back, not as a small
+                    // centered sticker. The print cylinder clips the artwork to the mug's printable height.
+                    const w = artworkCanvas.width * scale;
+                    const h = 890 * scale;
                     const x = artworkCanvas.width / 2 + (designX / 100) * 560;
                     const y = artworkCanvas.height / 2 - (designY / 100) * 280;
                     artworkCtx.save();
