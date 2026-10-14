@@ -178,32 +178,42 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             printSurface.castShadow = false;
             group.add(printSurface);
 
-            const updateArtwork = () => {
+            const updateArtwork = (
+                designUrl = props.designUrl,
+                designScale = props.designScale,
+                designX = props.designX,
+                designY = props.designY,
+                designRotation = props.designRotation
+            ) => {
                 if (!artworkCtx) return;
                 artworkCtx.clearRect(0, 0, artworkCanvas.width, artworkCanvas.height);
-                if (!props.designUrl) {
-                    texture.needsUpdate = true;
-                    return;
-                }
+                texture.needsUpdate = true;
+
+                if (!designUrl) return;
+
                 const image = new Image();
                 image.onload = () => {
                     if (cancelled) return;
                     artworkCtx.clearRect(0, 0, artworkCanvas.width, artworkCanvas.height);
-                    const scale = clamp(props.designScale, 0.4, 1.6);
+                    const scale = clamp(designScale, 0.4, 1.6);
                     const aspect = image.width / Math.max(1, image.height);
                     const h = Math.min(760 * scale, 900);
                     const w = Math.min(1500 * scale, h * aspect);
-                    const x = artworkCanvas.width / 2 + (props.designX / 100) * 560;
-                    const y = artworkCanvas.height / 2 - (props.designY / 100) * 280;
+                    const x = artworkCanvas.width / 2 + (designX / 100) * 560;
+                    const y = artworkCanvas.height / 2 - (designY / 100) * 280;
                     artworkCtx.save();
                     artworkCtx.translate(x, y);
-                    artworkCtx.rotate((props.designRotation * Math.PI) / 180);
+                    artworkCtx.rotate((designRotation * Math.PI) / 180);
                     artworkCtx.imageSmoothingEnabled = true;
                     artworkCtx.drawImage(image, -w / 2, -h / 2, w, h);
                     artworkCtx.restore();
                     texture.needsUpdate = true;
                 };
-                image.src = props.designUrl;
+                image.onerror = () => {
+                    artworkCtx.clearRect(0, 0, artworkCanvas.width, artworkCanvas.height);
+                    texture.needsUpdate = true;
+                };
+                image.src = designUrl;
             };
             updateArtwork();
 
@@ -321,7 +331,7 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
         if (!state) return;
         state.bodyMaterial.color.set(props.mugBodyColor);
         state.rimMaterial.color.set(props.mugAccentColor);
-        state.updateArtwork();
+        state.updateArtwork(props.designUrl, props.designScale, props.designX, props.designY, props.designRotation);
     }, [props.mugBodyColor, props.mugAccentColor, props.designUrl, props.designScale, props.designX, props.designY, props.designRotation]);
 
     return (
