@@ -32,7 +32,7 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
     useEffect(() => {
         let cancelled = false;
         let cleanup = () => {};
-        const loadThree = new Function("return import('https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js')") as () => Promise<ThreeModule>;
+        const loadThree = new Function("return Promise.race([import('https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js'), new Promise((_, reject) => setTimeout(() => reject(new Error('3D engine timeout')), 7000))])") as () => Promise<ThreeModule>;
 
         const init = async () => {
             const THREE = await loadThree();
@@ -254,7 +254,33 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
 
         void init().catch(() => {
             if (!cancelled && mountRef.current) {
-                mountRef.current.innerHTML = '<div class="mug-3d-preview__fallback">3D preview could not load. Please refresh and try again.</div>';
+                const body = props.mugBodyColor || "#ffffff";
+                const accent = props.mugAccentColor || "#d94b59";
+                const artwork = props.designUrl
+                    ? `<image href="${props.designUrl}" x="125" y="120" width="150" height="105" preserveAspectRatio="xMidYMid meet" />`
+                    : "";
+                mountRef.current.innerHTML = `
+                    <div class="mug-3d-preview__fallback" role="img" aria-label="Mug preview">
+                      <svg viewBox="0 0 400 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          <linearGradient id="mugBodyShade" x1="0" x2="1" y1="0" y2="0">
+                            <stop offset="0%" stop-color="#b8b4ae"/><stop offset="18%" stop-color="${body}"/>
+                            <stop offset="72%" stop-color="${body}"/><stop offset="100%" stop-color="#c8c4bd"/>
+                          </linearGradient>
+                          <linearGradient id="mugAccentShade" x1="0" x2="1"><stop offset="0%" stop-color="#777"/><stop offset="25%" stop-color="${accent}"/><stop offset="100%" stop-color="#777"/></linearGradient>
+                          <clipPath id="mugPrintArea"><path d="M104 91 Q200 110 296 91 L284 251 Q200 272 116 251 Z"/></clipPath>
+                          <filter id="mugShadow"><feDropShadow dx="0" dy="12" stdDeviation="9" flood-color="#66594a" flood-opacity=".22"/></filter>
+                        </defs>
+                        <ellipse cx="202" cy="276" rx="119" ry="17" fill="#bcb3a6" opacity=".35"/>
+                        <path d="M286 113 C365 87 368 205 291 211 L280 187 C326 184 330 127 286 143 Z" fill="url(#mugAccentShade)" stroke="#8f887e" stroke-width="3" filter="url(#mugShadow)"/>
+                        <path d="M104 89 Q200 110 296 89 L284 249 Q200 270 116 249 Z" fill="url(#mugBodyShade)" stroke="#d0cbc3" stroke-width="3" filter="url(#mugShadow)"/>
+                        <ellipse cx="200" cy="91" rx="96" ry="18" fill="${body}" stroke="#b7b1a8" stroke-width="3"/>
+                        <ellipse cx="200" cy="91" rx="78" ry="10" fill="#4d4a46" opacity=".9"/>
+                        <path d="M111 105 Q126 172 122 239" fill="none" stroke="#fff" stroke-width="8" opacity=".32" stroke-linecap="round"/>
+                        <g clip-path="url(#mugPrintArea)"><rect x="112" y="112" width="176" height="130" fill="transparent"/>${artwork}</g>
+                        <path d="M117 250 Q200 269 283 250" fill="none" stroke="#b5afa6" stroke-width="4"/>
+                      </svg>
+                    </div>`;
             }
         });
 
