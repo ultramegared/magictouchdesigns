@@ -62,10 +62,33 @@ export const calculateDestinationTax = async (
     }
 
     const taxCents = Math.max(0, Math.round(Number(data?.tax_amount_exclusive || 0)));
+    const taxBreakdown = Array.isArray(data?.tax_breakdown) ? data.tax_breakdown : [];
+    const taxabilityReasons = [...new Set(
+        taxBreakdown
+            .map((entry: any) => entry?.taxability_reason)
+            .filter((reason: unknown): reason is string => typeof reason === "string" && reason.length > 0),
+    )];
+    const taxabilityReason = taxabilityReasons.length ? taxabilityReasons.join(",") : null;
+
+    // Keep diagnostics useful without logging customer names, street address, email, or full ZIP.
+    console.info("[stripe-tax-calculation]", JSON.stringify({
+        calculationId: typeof data?.id === "string" ? data.id : null,
+        state: (customer.state || "").trim().toUpperCase() || null,
+        postalCodePrefix: (customer.zip || "").trim().slice(0, 3) || null,
+        taxCents,
+        taxabilityReason,
+        lineItems: (Array.isArray(data?.line_items?.data) ? data.line_items.data : []).map((line: any) => ({
+            taxCode: line?.tax_code || null,
+            amountCents: Number(line?.amount || 0),
+            taxCents: Number(line?.amount_tax || 0),
+        })),
+        shippingTaxCents: Number(data?.shipping_cost?.amount_tax || 0),
+    }));
+
     return {
         tax: Number((taxCents / 100).toFixed(2)),
         taxCents,
-        taxabilityReason: data?.taxability_reason ? String(data.taxability_reason) : null,
+        taxabilityReason,
         calculationId: data?.id ? String(data.id) : null,
     };
 };
