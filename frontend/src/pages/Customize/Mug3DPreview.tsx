@@ -42,9 +42,9 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             const scene = new THREE.Scene();
             scene.background = new THREE.Color("#f4f1ec");
 
-            const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
-            camera.position.set(4.8, 2.7, 5.4);
-            camera.lookAt(0, 0.15, 0);
+            const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+            camera.position.set(4.9, 2.35, 6.6);
+            camera.lookAt(0, 0.02, 0);
 
             const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -83,6 +83,8 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             scene.add(floor);
 
             const group = new THREE.Group();
+            const mugScale = props.mugSize === "15 oz" ? 0.78 : 0.72;
+            group.scale.setScalar(mugScale);
             scene.add(group);
 
             const bodyMaterial = new THREE.MeshPhysicalMaterial({
@@ -117,13 +119,32 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             inner.position.y = 1.30;
             group.add(inner);
 
-            const handleGeometry = new THREE.TorusGeometry(0.78, 0.18, 24, 64, Math.PI * 1.72);
+            const handleCurve = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(1.18, 0.86, 0),
+                new THREE.Vector3(1.62, 0.86, 0),
+                new THREE.Vector3(1.98, 0.62, 0),
+                new THREE.Vector3(2.08, 0.0, 0),
+                new THREE.Vector3(1.98, -0.62, 0),
+                new THREE.Vector3(1.62, -0.86, 0),
+                new THREE.Vector3(1.18, -0.86, 0),
+            ]);
+            const handleGeometry = new THREE.TubeGeometry(handleCurve, 64, 0.18, 24, false);
             const handle = new THREE.Mesh(handleGeometry, rimMaterial);
-            handle.rotation.y = Math.PI / 2;
-            handle.rotation.z = -Math.PI / 2;
-            handle.position.set(1.48, 0.1, 0);
             handle.castShadow = true;
+            handle.receiveShadow = true;
             group.add(handle);
+
+            const handleTopCollar = new THREE.Mesh(
+                new THREE.SphereGeometry(0.22, 24, 16),
+                rimMaterial
+            );
+            handleTopCollar.position.set(1.22, 0.86, 0);
+            handleTopCollar.scale.set(1.35, 0.72, 0.72);
+            group.add(handleTopCollar);
+
+            const handleBottomCollar = handleTopCollar.clone();
+            handleBottomCollar.position.y = -0.86;
+            group.add(handleBottomCollar);
 
             const base = new THREE.Mesh(
                 new THREE.TorusGeometry(1.38, 0.055, 16, 96),
