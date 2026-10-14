@@ -291,12 +291,16 @@ export const createCheckoutSession = async (customer: CheckoutCustomerInput, ite
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(snapshot.shippingCents));
     params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
     params.set("shipping_options[0][shipping_rate_data][display_name]", "Standard Shipping");
+    params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
+    params.set("shipping_options[0][shipping_rate_data][tax_code]", "txcd_92010001");
     params.set("automatic_tax[enabled]", "true");
     params.set("metadata[checkout_attempt_id]", attempt.attemptId);
     params.set("metadata[checkout_code]", attempt.checkoutCode);
     snapshot.normalizedItems.forEach((item, index) => {
         params.set(`line_items[${index}][price_data][currency]`, "usd");
         params.set(`line_items[${index}][price_data][product_data][name]`, item.name);
+        params.set(`line_items[${index}][price_data][product_data][tax_code]`, "txcd_99999999");
+        params.set(`line_items[${index}][price_data][product_data][tax_behavior]`, "exclusive");
         if (item.image_url) params.set(`line_items[${index}][price_data][product_data][images][0]`, item.image_url);
         params.set(`line_items[${index}][price_data][unit_amount]`, String(Math.round(item.unit_price * 100)));
         params.set(`line_items[${index}][quantity]`, String(item.quantity));
