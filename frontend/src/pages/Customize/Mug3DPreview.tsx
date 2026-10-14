@@ -168,16 +168,20 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                 map: texture,
                 transparent: true,
                 depthWrite: false,
-                side: THREE.FrontSide,
+                side: THREE.DoubleSide,
+                depthTest: true,
+                depthWrite: false,
+                alphaTest: 0.001,
                 polygonOffset: true,
-                polygonOffsetFactor: -1,
-                polygonOffsetUnits: -1,
+                polygonOffsetFactor: -4,
+                polygonOffsetUnits: -4,
             });
 
             const printGeometry = new THREE.CylinderGeometry(1.371, 1.441, 2.28, 128, 1, true, 0, TAU);
             const printSurface = new THREE.Mesh(printGeometry, artworkMaterial);
             printSurface.position.y = 0;
             printSurface.castShadow = false;
+            printSurface.renderOrder = 10;
             group.add(printSurface);
 
             const updateArtwork = (
@@ -209,7 +213,12 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     artworkCtx.imageSmoothingEnabled = true;
                     artworkCtx.drawImage(image, -w / 2, -h / 2, w, h);
                     artworkCtx.restore();
+
+                    // Keep the uploaded artwork unmistakably visible on the printable area.
+                    // The canvas is transparent everywhere else, so the mug remains visible.
                     texture.needsUpdate = true;
+                    texture.needsUpdate = true;
+                    printSurface.visible = true;
                 };
                 image.onerror = () => {
                     artworkCtx.clearRect(0, 0, artworkCanvas.width, artworkCanvas.height);
