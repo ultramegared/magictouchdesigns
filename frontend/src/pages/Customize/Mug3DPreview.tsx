@@ -53,7 +53,14 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             renderer.toneMappingExposure = 1.12;
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            mount.innerHTML = "";
+            mount.innerHTML = `
+                <div class="mug-3d-preview__loading">
+                    <div class="mug-3d-preview__loading-cup" aria-hidden="true">
+                        <span class="mug-3d-preview__loading-handle"></span>
+                        <span class="mug-3d-preview__loading-body"></span>
+                    </div>
+                    <strong>Preparing your mug</strong>
+                </div>`;
             mount.appendChild(renderer.domElement);
 
             const hemi = new THREE.HemisphereLight(0xffffff, 0x8a8178, 2.1);
@@ -190,6 +197,7 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             const observer = new ResizeObserver(resize);
             observer.observe(mount);
             resize();
+            mount.querySelector(".mug-3d-preview__loading")?.remove();
 
             let dragging = false;
             let lastX = 0;
