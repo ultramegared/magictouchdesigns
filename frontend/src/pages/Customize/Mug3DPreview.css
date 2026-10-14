@@ -1,12 +1,15 @@
 .mug-3d-preview {
     position: relative;
     width: 100%;
-    min-height: 620px;
+    height: clamp(390px, 52vw, 590px);
+    min-height: 0;
     overflow: hidden;
-    border: 1px solid rgba(180, 139, 62, .28);
-    border-radius: 26px;
-    background: radial-gradient(circle at 50% 34%, #fffdf9 0%, #f6f0e5 48%, #e9dfcf 100%);
-    box-shadow: 0 24px 60px rgba(28, 22, 16, .10), inset 0 0 0 1px rgba(255,255,255,.75);
+    border: 1px solid rgba(180,139,62,.25);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,.98) 0 18%, rgba(255,252,247,.88) 38%, transparent 65%),
+        linear-gradient(180deg,#fbf9f5 0%,#f1ebe2 100%);
+    box-shadow: 0 20px 50px rgba(28,22,16,.09), inset 0 0 0 1px rgba(255,255,255,.8);
     cursor: grab;
     touch-action: none;
     user-select: none;
@@ -15,128 +18,228 @@
 .mug-3d-preview:active { cursor: grabbing; }
 
 .mug-3d-preview__canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: inherit;
+    display:block;
+    width:100%;
+    height:100%;
+    min-height:0;
+}
+
+.mug-3d-preview__webgl canvas {
+    display:block;
+    width:100%;
+    height:100%;
 }
 
 .mug-3d-preview__topbar {
-    position: absolute;
-    z-index: 5;
-    top: 16px;
-    left: 16px;
-    right: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    pointer-events: none;
+    position:absolute;
+    z-index:5;
+    top:14px;
+    left:14px;
+    right:14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    pointer-events:none;
 }
 
 .mug-3d-preview__badge,
 .mug-3d-preview__size {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 12px;
-    border-radius: 999px;
-    backdrop-filter: blur(14px);
-    box-shadow: 0 8px 24px rgba(30,24,18,.08);
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:8px 11px;
+    border-radius:999px;
+    backdrop-filter:blur(14px);
+    box-shadow:0 8px 22px rgba(30,24,18,.08);
 }
 
 .mug-3d-preview__badge {
-    border: 1px solid rgba(185, 145, 67, .42);
-    background: rgba(25, 22, 19, .90);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 850;
-    letter-spacing: .1em;
+    border:1px solid rgba(185,145,67,.42);
+    background:rgba(25,22,19,.9);
+    color:#fff;
+    font-size:9px;
+    font-weight:850;
+    letter-spacing:.1em;
 }
 
 .mug-3d-preview__live-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #d3aa59;
-    box-shadow: 0 0 0 4px rgba(211,170,89,.14);
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#d3aa59;
+    box-shadow:0 0 0 4px rgba(211,170,89,.14);
 }
 
 .mug-3d-preview__size {
-    border: 1px solid rgba(255,255,255,.82);
-    background: rgba(255,255,255,.82);
-    color: #29231d;
-    font-size: 10px;
-    font-weight: 800;
+    border:1px solid rgba(255,255,255,.9);
+    background:rgba(255,255,255,.86);
+    color:#29231d;
+    font-size:9px;
+    font-weight:800;
 }
 
 .mug-3d-preview__empty {
-    position: absolute;
-    z-index: 4;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: min(82%, 390px);
-    padding: 20px 24px;
-    border: 1px solid rgba(184,143,65,.25);
-    border-radius: 18px;
-    background: rgba(255,255,255,.72);
-    box-shadow: 0 14px 40px rgba(35,28,20,.08);
-    text-align: center;
-    pointer-events: none;
-    backdrop-filter: blur(12px);
+    position:absolute;
+    z-index:4;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:min(82%,360px);
+    padding:15px 18px;
+    border:1px solid rgba(184,143,65,.2);
+    border-radius:16px;
+    background:rgba(255,255,255,.7);
+    box-shadow:0 14px 35px rgba(35,28,20,.07);
+    text-align:center;
+    pointer-events:none;
+    backdrop-filter:blur(12px);
 }
 
-.mug-3d-preview__empty strong {
-    display: block;
-    color: #28221c;
-    font-size: 15px;
-    font-weight: 850;
+.mug-3d-preview__empty strong { display:block; color:#28221c; font-size:14px; font-weight:850; }
+.mug-3d-preview__empty span { display:block; margin-top:5px; color:#7a7065; font-size:10px; line-height:1.45; }
+
+.mug-3d-preview__loading {
+    position:absolute;
+    inset:0;
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:13px;
+    color:#655c53;
+    font-size:11px;
+    pointer-events:none;
 }
 
-.mug-3d-preview__empty span {
-    display: block;
-    margin-top: 6px;
-    color: #7a7065;
-    font-size: 11px;
-    line-height: 1.5;
+.mug-3d-preview__loading-cup {
+    position:relative;
+    width:128px;
+    height:105px;
+}
+
+.mug-3d-preview__loading-body {
+    position:absolute;
+    left:17px;
+    top:12px;
+    width:92px;
+    height:78px;
+    border-radius:13px 13px 20px 20px;
+    background:linear-gradient(90deg,#c9c4bc 0%,#fff 17%,#f5f2ed 72%,#c8c3ba 100%);
+    border:1px solid #d0cbc3;
+    box-shadow:0 13px 24px rgba(74,65,55,.16);
+}
+
+.mug-3d-preview__loading-body::before {
+    content:"";
+    position:absolute;
+    left:3px;
+    top:-7px;
+    width:84px;
+    height:19px;
+    border-radius:50%;
+    background:#fff;
+    border:1px solid #cfc9c0;
+    box-shadow:inset 0 0 0 5px #4b4844;
+}
+
+.mug-3d-preview__loading-handle {
+    position:absolute;
+    right:0;
+    top:28px;
+    width:37px;
+    height:45px;
+    border:9px solid #d94b59;
+    border-left-width:7px;
+    border-radius:0 24px 24px 0;
 }
 
 .mug-3d-preview__hint {
-    position: absolute;
-    z-index: 5;
-    left: 50%;
-    bottom: 17px;
-    transform: translateX(-50%);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: max-content;
-    max-width: calc(100% - 28px);
-    padding: 10px 15px;
-    border: 1px solid rgba(255,255,255,.78);
-    border-radius: 999px;
-    background: rgba(25,22,19,.88);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1.3;
-    box-shadow: 0 10px 26px rgba(25,20,16,.14);
-    backdrop-filter: blur(12px);
-    pointer-events: none;
+    position:absolute;
+    z-index:5;
+    left:50%;
+    bottom:13px;
+    transform:translateX(-50%);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:max-content;
+    max-width:calc(100% - 24px);
+    padding:8px 12px;
+    border:1px solid rgba(255,255,255,.8);
+    border-radius:999px;
+    background:rgba(25,22,19,.86);
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    line-height:1.3;
+    box-shadow:0 9px 22px rgba(25,20,16,.13);
+    backdrop-filter:blur(12px);
+    pointer-events:none;
 }
 
-.mug-3d-preview__hint span { color: #d3aa59; margin-right: 3px; }
+.mug-3d-preview__hint span { color:#d3aa59; margin-right:3px; }
 
-@media (max-width: 900px) {
-    .mug-3d-preview { min-height: 520px; border-radius: 22px; }
+.mug-3d-preview__fallback {
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:44px 18px 55px;
+    box-sizing:border-box;
 }
 
-@media (max-width: 600px) {
-    .mug-3d-preview { min-height: 430px; border-radius: 20px; }
-    .mug-3d-preview__topbar { top: 10px; left: 10px; right: 10px; }
+.mug-3d-preview__fallback svg {
+    display:block;
+    width:min(78%,430px);
+    height:auto;
+    max-height:88%;
+    filter:drop-shadow(0 18px 20px rgba(56,45,33,.12));
+}
+
+@media (max-width:900px) {
+    .mug-3d-preview { height:clamp(360px,60vw,500px); border-radius:20px; }
+}
+
+@media (max-width:600px) {
+    .mug-3d-preview {
+        height:360px;
+        border-radius:18px;
+    }
+
+    .mug-3d-preview__topbar {
+        top:10px;
+        left:10px;
+        right:10px;
+    }
+
     .mug-3d-preview__badge,
-    .mug-3d-preview__size { padding: 7px 9px; font-size: 8px; }
-    .mug-3d-preview__hint { bottom: 11px; font-size: 9px; max-width: calc(100% - 18px); }
-    .mug-3d-preview__empty { width: min(84%, 340px); padding: 16px 18px; }
+    .mug-3d-preview__size {
+        padding:7px 9px;
+        font-size:8px;
+    }
+
+    .mug-3d-preview__hint {
+        bottom:9px;
+        font-size:9px;
+        max-width:calc(100% - 18px);
+        white-space:nowrap;
+    }
+
+    .mug-3d-preview__empty {
+        width:min(84%,320px);
+        padding:14px 16px;
+    }
+
+    .mug-3d-preview__fallback svg {
+        width:min(88%,360px);
+        max-height:78%;
+    }
+}
+
+@media (max-width:380px) {
+    .mug-3d-preview { height:330px; }
+    .mug-3d-preview__hint { font-size:8px; }
 }
