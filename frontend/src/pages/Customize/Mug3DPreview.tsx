@@ -26,6 +26,8 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
     const mountRef = useRef<HTMLDivElement>(null);
     const stateRef = useRef<any>(null);
     const rotationRef = useRef(props.rotation);
+    const propsRef = useRef(props);
+    propsRef.current = props;
 
     useEffect(() => { rotationRef.current = props.rotation; }, [props.rotation]);
 
@@ -215,7 +217,13 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                 };
                 image.src = designUrl;
             };
-            updateArtwork();
+            updateArtwork(
+                propsRef.current.designUrl,
+                propsRef.current.designScale,
+                propsRef.current.designX,
+                propsRef.current.designY,
+                propsRef.current.designRotation
+            );
 
             const resize = () => {
                 const rect = mount.getBoundingClientRect();
@@ -272,6 +280,13 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             animate();
 
             stateRef.current = { THREE, scene, renderer, group, bodyMaterial, rimMaterial, texture, updateArtwork };
+            updateArtwork(
+                propsRef.current.designUrl,
+                propsRef.current.designScale,
+                propsRef.current.designX,
+                propsRef.current.designY,
+                propsRef.current.designRotation
+            );
             cleanup = () => {
                 cancelAnimationFrame(frame);
                 observer.disconnect();
