@@ -202,23 +202,21 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     if (cancelled) return;
                     artworkCtx.clearRect(0, 0, artworkCanvas.width, artworkCanvas.height);
                     const scale = clamp(designScale, 0.4, 1.6);
-                    // The canvas maps the entire circumference of the mug. Fill that printable wrap
-                    // by default so the artwork continues around the front and back, not as a small
-                    // centered sticker. The print cylinder clips the artwork to the mug's printable height.
+                    // Treat the upload as a full-wrap print template: canvas width equals 360°
+                    // around the mug, and the printable height fills almost the complete ceramic body.
+                    // The texture therefore continues across the front, sides and back as the mug rotates.
                     const w = artworkCanvas.width * scale;
-                    const h = 890 * scale;
+                    const h = 940 * scale;
                     const x = artworkCanvas.width / 2 + (designX / 100) * 560;
-                    const y = artworkCanvas.height / 2 - (designY / 100) * 280;
+                    const y = artworkCanvas.height / 2 - (designY / 100) * 220;
                     artworkCtx.save();
                     artworkCtx.translate(x, y);
                     artworkCtx.rotate((designRotation * Math.PI) / 180);
                     artworkCtx.imageSmoothingEnabled = true;
+                    artworkCtx.imageSmoothingQuality = "high";
                     artworkCtx.drawImage(image, -w / 2, -h / 2, w, h);
                     artworkCtx.restore();
 
-                    // Keep the uploaded artwork unmistakably visible on the printable area.
-                    // The canvas is transparent everywhere else, so the mug remains visible.
-                    texture.needsUpdate = true;
                     texture.needsUpdate = true;
                     printSurface.visible = true;
                 };
