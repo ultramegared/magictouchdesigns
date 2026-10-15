@@ -215,7 +215,7 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     const w = image.naturalWidth * ratio;
                     const h = image.naturalHeight * ratio;
                     const x = artworkCanvas.width / 2 + (designX / 100) * 560;
-                    const y = artworkCanvas.height / 2 - (designY / 100) * 220;
+                    const y = artworkCanvas.height / 2 + (designY / 100) * 220;
                     artworkCtx.save();
                     artworkCtx.translate(x, y);
                     artworkCtx.rotate((designRotation * Math.PI) / 180);
