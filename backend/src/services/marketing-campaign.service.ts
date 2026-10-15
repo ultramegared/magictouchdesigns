@@ -847,7 +847,7 @@ const runMarketingAutopilotOnce = async () => {
 
     const insights = await getMarketingLearningInsights(campaign.target_area, campaign.objective, userId);
     const score = new Map(insights.map((r: any) => [r.channel, Number(r.score || 0)]));
-    const ranked = eligible.slice().sort((a, b) => {
+    const ranked = eligible.slice().sort((a: string, b: string) => {
         const aRecent = recentlyUsed.has(a) ? 1 : 0;
         const bRecent = recentlyUsed.has(b) ? 1 : 0;
         if (aRecent !== bRecent) return aRecent - bRecent;
