@@ -67,6 +67,38 @@ function createTextArtwork(text: string, font: string, color: string, size: numb
 }
 
 
+async function createPrintReadyArtwork(designUrl: string, size: "11 oz" | "15 oz", scale: number, designX: number, designY: number, rotation: number): Promise<string> {
+    const widthInches = size === "15 oz" ? 8.75 : 8.5;
+    const heightInches = size === "15 oz" ? 4.25 : 3.5;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(widthInches * 300);
+    canvas.height = Math.round(heightInches * 300);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not prepare the print file.");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const image = new Image();
+    image.src = designUrl;
+    await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("Could not load your design for checkout.")); });
+    const drawScale = Math.max(canvas.width * Math.max(0.4, Math.min(1.6, scale)) / image.naturalWidth, canvas.height * Math.max(0.4, Math.min(1.6, scale)) / image.naturalHeight);
+    const w = image.naturalWidth * drawScale;
+    const h = image.naturalHeight * drawScale;
+    const x = canvas.width / 2 + (designX / 100) * Math.max(0, w - canvas.width);
+    const y = canvas.height / 2 + (designY / 100) * Math.max(0, h - canvas.height);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation * Math.PI / 180);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(image, -w / 2, -h / 2, w, h);
+    ctx.restore();
+    // JPEG keeps the session payload small while preserving the full print dimensions.
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.96));
+    if (!blob) throw new Error("Could not create the print-ready design.");
+    return fileToDataUrl(blob);
+}
+
+
 async function downloadPrintReadyArtwork(designUrl: string, size: "11 oz" | "15 oz", scale: number, designX: number, designY: number, rotation: number) {
     // Common sublimation wrap sizes at 300 DPI; the file is exported at full print resolution.
     const widthInches = size === "15 oz" ? 8.75 : 8.5;
@@ -147,7 +179,7 @@ function CustomizePage() {
         setDesignFileName("Personalized-text.svg");
         resetDesign();
     };
-    const saveAndAddToCart = () => { if (!selectedProduct) return setError("Choose a mug model before continuing."); if (!designUrl) return setError("Upload your design before adding the custom mug to the cart."); setAdding(true); setError(""); const customizationId = createCustomizationId(); saveCustomizationSession({ id: customizationId, productId: selectedProduct.product_id, productName: selectedProduct.name, size, color: selectedVariant.name, designDataUrl: designUrl, designFileName, designScale, designX, designY, designRotation, mugRotation, createdAt: new Date().toISOString() }); addToCart({ id: selectedProduct.product_id, name: selectedProduct.name, model: `Custom · ${selectedVariant.name}`, size, color: selectedVariant.name, price, image: selectedProduct.image_url || "/images/products/placeholder.jpg", customizationId }); navigate("/cart"); };
+    const saveAndAddToCart = async () => { if (!selectedProduct) return setError("Choose a mug model before continuing."); if (!designUrl) return setError("Upload your design before adding the custom mug to the cart."); setAdding(true); setError(""); try { const printReadyDesign = await createPrintReadyArtwork(originalDesignUrl || designUrl, size, designScale, designX, designY, designRotation); const customizationId = createCustomizationId(); const printFileName = `JQYDesigns-Mug-${size.replace(" ", "")}-${size === "15 oz" ? "8.75x4.25" : "8.5x3.5"}in-300dpi.jpg`; saveCustomizationSession({ id: customizationId, productId: selectedProduct.product_id, productName: selectedProduct.name, size, color: selectedVariant.name, designDataUrl: printReadyDesign, designFileName: printFileName, designScale: 1, designX: 0, designY: 0, designRotation: 0, mugRotation, createdAt: new Date().toISOString() }); addToCart({ id: selectedProduct.product_id, name: selectedProduct.name, model: `Custom · ${selectedVariant.name}`, size, color: selectedVariant.name, price, image: selectedProduct.image_url || "/images/products/placeholder.jpg", customizationId }); navigate("/cart"); } catch (error) { setError(error instanceof Error ? error.message : "Could not prepare your print-ready design."); setAdding(false); } };
     const chooseView = (view: "3d" | "front" | "back" | "side") => { setActiveView(view); if (view === "front") setMugRotation(0); if (view === "back") setMugRotation(Math.PI); if (view === "side") setMugRotation(Math.PI / 2); };
     return <><Header /><main className="customize-page"><div className="customize-shell"><header className="customize-heading"><div><span className="customize-heading__eyebrow">MAGIC TOUCH CUSTOM STUDIO</span><h1>Design Your Mug</h1><p>Choose the exact mug style you use, upload your artwork and inspect the finished mug in realistic 3D before ordering.</p></div></header>{error && <div className="customize-error">{error}</div>}<section className="customize-engine"><aside className="customize-panel customize-panel--controls"><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">1</span>Select Size</div><div className="customize-size-grid">{(["11 oz", "15 oz"] as const).map((option) => <button key={option} type="button" className={`customize-choice ${size === option ? "customize-choice--active" : ""}`} onClick={() => setSize(option)}>{option}</button>)}</div></div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">2</span>Choose Your Real Mug Style</div><p className="customize-step__description">These are the mug combinations you actually use. The 3D model changes to match the selected style.</p><div className="customize-colors">{MUG_VARIANTS.map((option) => <button key={option.id} type="button" title={option.name} aria-label={`Choose ${option.name}`} className={`customize-color customize-color--${option.id} ${variantId === option.id ? "customize-color--active" : ""}`} style={{ "--mug-swatch": option.swatchColor } as CSSProperties} onClick={() => { setVariantId(option.id); setMugRotation(0); setActiveView("3d"); }}><span /><small>{option.name}</small></button>)}</div></div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">3</span>Personalize Your Mug</div>
                         <div className="customize-size-grid customize-artwork-mode">
