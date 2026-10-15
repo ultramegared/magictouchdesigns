@@ -355,6 +355,7 @@ export async function getAnalyticsCampaignReport(days = 30) {
                     { name: "sessionManualCampaignId" },
                     { name: "sessionManualSource" },
                     { name: "sessionManualMedium" },
+                    { name: "date" },
                 ],
                 metrics: [
                     { name: "sessions" },
