@@ -136,7 +136,7 @@ export async function verifySearchConsoleAccess() {
         siteUrl: configuredSiteUrl,
         resolvedSiteUrl: site?.siteUrl || null,
         permissionLevel: site?.permissionLevel || null,
-        availableProperties: entries.map(item => item.siteUrl).filter(Boolean),
+        availableProperties: entries.map(item => item.siteUrl).filter((siteUrl): siteUrl is string => typeof siteUrl === "string" && siteUrl.length > 0),
     };
 }
 
