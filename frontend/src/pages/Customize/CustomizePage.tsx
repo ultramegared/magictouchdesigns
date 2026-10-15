@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { RotateCcw, Upload, ShieldCheck } from "lucide-react";
+import { RotateCcw, Upload, ShieldCheck, Download } from "lucide-react";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
@@ -66,7 +66,50 @@ function createTextArtwork(text: string, font: string, color: string, size: numb
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-function CustomizePage() {
+
+async function downloadPrintReadyArtwork(designUrl: string, size: "11 oz" | "15 oz", scale: number, designX: number, designY: number, rotation: number) {
+    // Common sublimation wrap sizes at 300 DPI; the file is exported at full print resolution.
+    const widthInches = size === "15 oz" ? 8.75 : 8.5;
+    const heightInches = size === "15 oz" ? 4.25 : 3.5;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(widthInches * 300);
+    canvas.height = Math.round(heightInches * 300);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not prepare the print file.");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const image = new Image();
+    image.src = designUrl;
+    await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("Could not load your design for download.")); });
+    const drawScale = Math.max(canvas.width * Math.max(0.4, Math.min(1.6, scale)) / image.naturalWidth, canvas.height * Math.max(0.4, Math.min(1.6, scale)) / image.naturalHeight);
+    const w = image.naturalWidth * drawScale;
+    const h = image.naturalHeight * drawScale;
+    const x = canvas.width / 2 + (designX / 100) * Math.max(0, w - canvas.width);
+    const y = canvas.height / 2 + (designY / 100) * Math.max(0, h - canvas.height);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation * Math.PI / 180);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(image, -w / 2, -h / 2, w, h);
+    ctx.restore();
+    // Preserve the print-safe gap where the wrap meets by the handle.
+    const gap = canvas.width * 0.045;
+    ctx.clearRect(0, 0, gap, canvas.height);
+    ctx.clearRect(canvas.width - gap, 0, gap, canvas.height);
+    canvas.toBlob((blob) => {
+        if (!blob) { alert("Could not create the PNG file. Please try again."); return; }
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `JQYDesigns-Mug-${size.replace(" ", "")}-${Math.round(widthInches * 100)}x${Math.round(heightInches * 100)}in-300dpi.png`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+    }, "image/png");
+}
+\nfunction CustomizePage() {
     const navigate = useNavigate();
     const [products, setProducts] = useState<Product[]>([]);
     const [productId, setProductId] = useState("");
@@ -147,6 +190,6 @@ function CustomizePage() {
                                 <div className="customize-uploaded-artwork__info"><strong>Image loaded</strong><span title={designFileName}>{designFileName}</span></div>
                                 <span className="customize-uploaded-artwork__check">✓</span>
                             </div>
-                        )}</div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">4</span>Adjust Design</div><div className="customize-control-row"><label htmlFor="design-scale">Scale</label><span className="customize-control-value">{Math.round(designScale * 100)}%</span><input id="design-scale" className="customize-range" type="range" min="0.4" max="1.6" step="0.01" value={designScale} onChange={(event) => setDesignScale(Number(event.target.value))} /></div><div className="customize-control-row"><label htmlFor="design-x">Horizontal</label><span className="customize-control-value">{designX}%</span><input id="design-x" className="customize-range" type="range" min="-35" max="35" step="1" value={designX} onChange={(event) => setDesignX(Number(event.target.value))} /></div><div className="customize-control-row"><label htmlFor="design-y">Vertical</label><span className="customize-control-value">{designY}%</span><input id="design-y" className="customize-range" type="range" min="-25" max="25" step="1" value={designY} onChange={(event) => setDesignY(Number(event.target.value))} /></div><div className="customize-control-row"><label htmlFor="design-rotation">Artwork rotation</label><span className="customize-control-value">{designRotation}°</span><input id="design-rotation" className="customize-range" type="range" min="-180" max="180" step="1" value={designRotation} onChange={(event) => setDesignRotation(Number(event.target.value))} /></div><button type="button" className="customize-reset" onClick={resetDesign}><RotateCcw size={14} /> Reset Design</button></div></aside><section className="customize-center"><div className="customize-view-tabs">{([ ["3d", "Realistic 3D"], ["front", "Front View"], ["back", "Back View"], ["side", "Side View"] ] as const).map(([view, label]) => <button key={view} type="button" className={`customize-view-tab ${activeView === view ? "customize-view-tab--active" : ""}`} onClick={() => chooseView(view)}>{label}</button>)}</div><Mug3DPreview mugStyle={selectedVariant.family} mugSize={size} mugBodyColor={selectedVariant.bodyColor} mugAccentColor={selectedVariant.accentColor} designUrl={designUrl} designScale={designScale} designX={designX} designY={designY} designRotation={designRotation} rotation={mugRotation} onRotationChange={(value) => { setMugRotation(value); setActiveView("3d"); }} /><div className="customize-side-preview"><button type="button" onClick={() => chooseView("front")}>Front</button><button type="button" onClick={() => chooseView("side")}>Right Side</button><button type="button" onClick={() => chooseView("back")}>Back</button><button type="button" onClick={() => { setActiveView("side"); setMugRotation(-Math.PI / 2); }}>Left Side</button></div></section><aside className="customize-panel customize-panel--summary"><div className="customize-summary"><div><span className="customize-summary__label">YOUR CREATION</span><h2>Product Details</h2><div className="customize-summary__product"><div><strong>{selectedProduct?.name || "Ceramic Mug"}</strong><span>{size} · {selectedVariant.name} · Custom artwork</span></div><span className="customize-summary__price">${price.toFixed(2)}</span></div></div><div className="customize-summary__specs"><div className="customize-summary__spec"><span>Size</span><strong>{size}</strong></div><div className="customize-summary__spec"><span>Mug style</span><strong>{selectedVariant.name}</strong></div><div className="customize-summary__spec"><span>Artwork</span><strong>{designUrl ? "Uploaded" : "Required"}</strong></div></div><div><div className="customize-summary__note">Shipping and taxes are calculated automatically at checkout from the customer's delivery destination.</div><button type="button" className="customize-summary__button" disabled={!selectedProduct || !designUrl || adding} onClick={saveAndAddToCart}>{adding ? "Adding…" : "Add Custom Mug to Cart →"}</button><div className="customize-summary__secure"><ShieldCheck size={13} /> Your artwork is kept only temporarily for order processing and is deleted after the production email is sent.</div></div></div></aside></section></div></main><Footer /></>;
+                        )}</div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">4</span>Adjust Design</div><div className="customize-control-row"><label htmlFor="design-scale">Scale</label><span className="customize-control-value">{Math.round(designScale * 100)}%</span><input id="design-scale" className="customize-range" type="range" min="0.4" max="1.6" step="0.01" value={designScale} onChange={(event) => setDesignScale(Number(event.target.value))} /></div><div className="customize-control-row"><label htmlFor="design-x">Horizontal</label><span className="customize-control-value">{designX}%</span><input id="design-x" className="customize-range" type="range" min="-35" max="35" step="1" value={designX} onChange={(event) => setDesignX(Number(event.target.value))} /></div><div className="customize-control-row"><label htmlFor="design-y">Vertical</label><span className="customize-control-value">{designY}%</span><input id="design-y" className="customize-range" type="range" min="-25" max="25" step="1" value={designY} onChange={(event) => setDesignY(Number(event.target.value))} /></div><div className="customize-control-row"><label htmlFor="design-rotation">Artwork rotation</label><span className="customize-control-value">{designRotation}°</span><input id="design-rotation" className="customize-range" type="range" min="-180" max="180" step="1" value={designRotation} onChange={(event) => setDesignRotation(Number(event.target.value))} /></div><button type="button" className="customize-reset" onClick={resetDesign}><RotateCcw size={14} /> Reset Design</button></div></aside><section className="customize-center"><div className="customize-view-tabs">{([ ["3d", "Realistic 3D"], ["front", "Front View"], ["back", "Back View"], ["side", "Side View"] ] as const).map(([view, label]) => <button key={view} type="button" className={`customize-view-tab ${activeView === view ? "customize-view-tab--active" : ""}`} onClick={() => chooseView(view)}>{label}</button>)}</div><Mug3DPreview mugStyle={selectedVariant.family} mugSize={size} mugBodyColor={selectedVariant.bodyColor} mugAccentColor={selectedVariant.accentColor} designUrl={designUrl} designScale={designScale} designX={designX} designY={designY} designRotation={designRotation} rotation={mugRotation} onRotationChange={(value) => { setMugRotation(value); setActiveView("3d"); }} /><div className="customize-side-preview"><button type="button" onClick={() => chooseView("front")}>Front</button><button type="button" onClick={() => chooseView("side")}>Right Side</button><button type="button" onClick={() => chooseView("back")}>Back</button><button type="button" onClick={() => { setActiveView("side"); setMugRotation(-Math.PI / 2); }}>Left Side</button></div></section><aside className="customize-panel customize-panel--summary"><div className="customize-summary"><div><span className="customize-summary__label">YOUR CREATION</span><h2>Product Details</h2><div className="customize-summary__product"><div><strong>{selectedProduct?.name || "Ceramic Mug"}</strong><span>{size} · {selectedVariant.name} · Custom artwork</span></div><span className="customize-summary__price">${price.toFixed(2)}</span></div></div><div className="customize-summary__specs"><div className="customize-summary__spec"><span>Size</span><strong>{size}</strong></div><div className="customize-summary__spec"><span>Mug style</span><strong>{selectedVariant.name}</strong></div><div className="customize-summary__spec"><span>Artwork</span><strong>{designUrl ? "Uploaded" : "Required"}</strong></div></div><div><div className="customize-summary__note">Shipping and taxes are calculated automatically at checkout from the customer's delivery destination.</div><button type="button" className="customize-summary__button" disabled={!selectedProduct || !designUrl || adding} onClick={saveAndAddToCart}>{adding ? "Adding…" : "Add Custom Mug to Cart →"}</button><button type="button" className="customize-download__button" disabled={!designUrl} onClick={() => { if (designUrl) void downloadPrintReadyArtwork(designUrl, size, designScale, designX, designY, designRotation); }}><Download size={16} /> Download print design · {size}</button><p className="customize-download__note">PNG at 300 DPI · {size === "15 oz" ? "8.75 × 4.25 in" : "8.5 × 3.5 in"}. Saves to your phone or computer.</p><div className="customize-summary__secure"><ShieldCheck size={13} /> Your artwork is kept only temporarily for order processing and is deleted after the production email is sent.</div></div></div></aside></section></div></main><Footer /></>;
 }
 export default CustomizePage;
