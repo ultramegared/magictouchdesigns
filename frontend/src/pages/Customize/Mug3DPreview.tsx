@@ -207,8 +207,12 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     // Fit the uploaded photo to the cylindrical wrap while reserving 5% on each
                     // edge of the canvas. Those blank edges meet at the handle as a small print-safe gap.
                     // Keep the image proportions when possible; the height fills the printable ceramic body.
-                    const w = artworkCanvas.width * 0.90 * scale;
-                    const h = 980 * scale;
+                    // Preserve the original photo proportions inside the fixed printable area.
+                    const maxW = artworkCanvas.width * 0.90 * scale;
+                    const maxH = 980 * scale;
+                    const ratio = Math.min(maxW / image.naturalWidth, maxH / image.naturalHeight);
+                    const w = image.naturalWidth * ratio;
+                    const h = image.naturalHeight * ratio;
                     const x = artworkCanvas.width / 2 + (designX / 100) * 560;
                     const y = artworkCanvas.height / 2 - (designY / 100) * 220;
                     artworkCtx.save();
