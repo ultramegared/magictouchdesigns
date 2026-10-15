@@ -186,6 +186,7 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             printSurface.renderOrder = 10;
             group.add(printSurface);
 
+            let artworkUpdateId = 0;
             const updateArtwork = (
                 designUrl = props.designUrl,
                 designScale = props.designScale,
@@ -199,9 +200,10 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
 
                 if (!designUrl) return;
 
+                const updateId = ++artworkUpdateId;
                 const image = new Image();
                 image.onload = () => {
-                    if (cancelled) return;
+                    if (cancelled || updateId !== artworkUpdateId) return;
                     artworkCtx.clearRect(0, 0, artworkCanvas.width, artworkCanvas.height);
                     const scale = clamp(designScale, 0.4, 1.6);
                     // Fit the uploaded photo to the cylindrical wrap while reserving 5% on each
@@ -228,6 +230,7 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     printSurface.visible = true;
                 };
                 image.onerror = () => {
+                    if (cancelled || updateId !== artworkUpdateId) return;
                     artworkCtx.clearRect(0, 0, artworkCanvas.width, artworkCanvas.height);
                     texture.needsUpdate = true;
                 };
