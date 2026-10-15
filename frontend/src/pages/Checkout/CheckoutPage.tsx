@@ -420,7 +420,7 @@ function CheckoutPage() {
                 e?.resolve?.({
                     emailRequired: true,
                     phoneNumberRequired: true,
-                    shippingAddressRequired: true,
+                    shippingAddressRequired: false,
                     allowedShippingCountries: ["US"],
                     lineItems: [
                         { name: "Merchandise", amount: merchandiseCents },
