@@ -288,14 +288,40 @@ function CheckoutPage() {
         if (subtotalCents + shippingCents + taxCents !== totalCents) {
             throw new Error("The shipping and tax total is not reconciled. Payment has been stopped.");
         }
-        return {
-            shipping: currentQuote.shipping,
-            tax: currentQuote.tax,
-            total: currentQuote.total,
-            carrier: currentQuote.shippingCarrier,
-            service: currentQuote.shippingService,
-            deliveryDays: currentQuote.shippingDeliveryDays,
-        };
+
+        // Update the actual Stripe Checkout Session before enabling Apple Pay.
+        // Otherwise the wallet can display an older shipping rate than this page.
+        const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                sessionId: stripeSessionRef.current.id,
+                shippingDetails: {
+                    name: `${customer.firstName} ${customer.lastName}`.trim(),
+                    email: customer.email.trim().toLowerCase(),
+                    phone: customer.phone.trim(),
+                    address: {
+                        country: "US",
+                        line1: customer.address,
+                        line2: customer.apartment || undefined,
+                        city: customer.city,
+                        state: customer.state.toUpperCase(),
+                        postal_code: customer.zip,
+                    },
+                },
+            }),
+        });
+        const synced = await response.json() as { shipping?: number; tax?: number; total?: number; carrier?: string; service?: string; deliveryDays?: number; message?: string };
+        if (!response.ok || typeof synced.shipping !== "number" || typeof synced.tax !== "number" || typeof synced.total !== "number") {
+            throw new Error(synced.message || "Stripe could not synchronize the final shipping and tax amount.");
+        }
+        const syncedShippingCents = Math.round(synced.shipping * 100);
+        const syncedTaxCents = Math.round(synced.tax * 100);
+        const syncedTotalCents = Math.round(synced.total * 100);
+        if (syncedShippingCents !== shippingCents || syncedTaxCents !== taxCents || syncedTotalCents !== totalCents) {
+            throw new Error("Apple Pay's shipping or tax differs from the checkout total. Payment is blocked until both totals match.");
+        }
+        return synced;
     };
 
     useEffect(() => {
