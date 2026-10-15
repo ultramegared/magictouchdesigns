@@ -28,7 +28,6 @@ const MUG_VARIANTS: MugVariant[] = [
 
 type Product = { product_id: string; name: string; price: number; image_url?: string | null; is_active?: boolean };
 type ProductsResponse = { products?: Product[] };
-function readFileAsDataUrl(file: File): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error("Unable to read the image.")); reader.readAsDataURL(file); }); }
 function fileToDataUrl(file: Blob): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error("Unable to read the image.")); reader.readAsDataURL(file); }); }
 async function prepareImageForCheckout(file: File): Promise<string> {
     const limit = 2.8 * 1024 * 1024;
