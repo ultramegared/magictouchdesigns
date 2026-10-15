@@ -102,7 +102,7 @@ async function downloadPrintReadyArtwork(designUrl: string, size: "11 oz" | "15 
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `JQYDesigns-Mug-${size.replace(" ", "")}-${Math.round(widthInches * 100)}x${Math.round(heightInches * 100)}in-300dpi.png`;
+        link.download = `JQYDesigns-Mug-${size.replace(" ", "")}-${widthInches}x${heightInches}in-300dpi.png`;
         document.body.appendChild(link);
         link.click();
         link.remove();
