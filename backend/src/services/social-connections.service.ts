@@ -257,38 +257,87 @@ export async function publishInstagram(userId: string, text: string, imageUrl?: 
     const token = await getAccessToken(userId, "instagram");
     const profile = await providerProfile("instagram", token) as any;
     const instagramUserId = String(profile.id || "");
-    if (!instagramUserId) throw new Error("Instagram account ID is unavailable.");
-    if (!imageUrl && !videoUrl) throw new Error("Instagram requires an image or video URL for publication.");
-    const base = "https://graph.instagram.com/v26.0";
+    if (!instagramUserId) throw new Error("Instagram account ID is unavailable. Reconnect the Instagram professional account.");
+
+    const mediaUrl = videoUrl || imageUrl;
+    if (!mediaUrl) throw new Error("Instagram requires a public image or video URL. The campaign has no usable media URL.");
+    let parsedMediaUrl: URL;
+    try { parsedMediaUrl = new URL(mediaUrl); } catch { throw new Error("Instagram media URL is invalid."); }
+    if (parsedMediaUrl.protocol !== "https:") throw new Error("Instagram requires media to be hosted at a publicly accessible HTTPS URL.");
+
+    const base = `https://graph.instagram.com/${META_VERSION}`;
+    const requestJson = async (response: Response, fallback: string) => {
+        let data: any;
+        try { data = await response.json(); } catch { throw new Error(`${fallback} Instagram returned a non-JSON response (HTTP ${response.status}).`); }
+        if (!response.ok || data?.error || data?.success === false) {
+            const detail = data?.error?.message || data?.message || data?.error?.error_user_msg || fallback;
+            const code = data?.error?.code ? ` (code ${data.error.code}${data.error.error_subcode ? `/${data.error.error_subcode}` : ""})` : "";
+            throw new Error(`${detail}${code}`);
+        }
+        return data;
+    };
+
     const mediaParams = new URLSearchParams();
-    if (videoUrl) { mediaParams.set("media_type", "REELS"); mediaParams.set("video_url", videoUrl); } else mediaParams.set("image_url", imageUrl!);
+    if (videoUrl) {
+        mediaParams.set("media_type", "REELS");
+        mediaParams.set("video_url", videoUrl);
+    } else {
+        mediaParams.set("image_url", imageUrl!);
+    }
     mediaParams.set("caption", link ? `${text}\n\n${link}` : text);
     mediaParams.set("access_token", token);
-    const create = await fetch(`${base}/${instagramUserId}/media`, { method: "POST", body: mediaParams });
-    const created = await create.json();
-    if (!create.ok) throw new Error(created.error?.message || "Instagram media container creation failed.");
+
+    const createResponse = await fetch(`${base}/${encodeURIComponent(instagramUserId)}/media`, {
+        method: "POST",
+        body: mediaParams
+    });
+    const created = await requestJson(createResponse, "Instagram media container creation failed.");
+    if (!created?.id) throw new Error("Instagram did not return a media container ID; publication was not attempted.");
+
     if (videoUrl) {
+        let finished = false;
         for (let attempt = 0; attempt < 18; attempt += 1) {
             await new Promise(resolve => setTimeout(resolve, 5000));
-            const statusUrl = new URL(`${base}/${created.id}`); statusUrl.searchParams.set("fields", "status_code,status"); statusUrl.searchParams.set("access_token", token);
-            const statusResponse = await fetch(statusUrl); const statusData = await statusResponse.json();
-            if (!statusResponse.ok) throw new Error(statusData.error?.message || "Instagram Reel processing check failed.");
-            if (statusData.status_code === "ERROR") throw new Error(statusData.status || "Instagram Reel processing failed.");
-            if (statusData.status_code === "FINISHED") break;
-            if (attempt === 17) throw new Error("Instagram Reel is still processing. Try again later.");
+            const statusUrl = new URL(`${base}/${encodeURIComponent(String(created.id))}`);
+            statusUrl.searchParams.set("fields", "status_code,status");
+            statusUrl.searchParams.set("access_token", token);
+            const statusResponse = await fetch(statusUrl);
+            const statusData = await requestJson(statusResponse, "Instagram Reel processing check failed.");
+            if (statusData.status_code === "FINISHED") { finished = true; break; }
+            if (statusData.status_code === "ERROR" || statusData.status_code === "EXPIRED") {
+                throw new Error(`Instagram could not process the Reel: ${statusData.status || statusData.status_code}.`);
+            }
         }
+        if (!finished) throw new Error("Instagram Reel is still processing after 90 seconds. It was not published; wait and check status before retrying.");
     }
-    // Image containers are ready for publication after creation. Only Reels
-    // require asynchronous processing/status polling before media_publish.
-    const publishUrl = new URL(`${base}/${instagramUserId}/media_publish`);
+
+    const publishUrl = new URL(`${base}/${encodeURIComponent(instagramUserId)}/media_publish`);
     publishUrl.searchParams.set("creation_id", String(created.id));
     publishUrl.searchParams.set("access_token", token);
-    const publish = await fetch(publishUrl, { method: "POST" });
-    const published = await publish.json();
-    if (!publish.ok) throw new Error(published.error?.message || "Instagram publication failed.");
+    const publishResponse = await fetch(publishUrl, { method: "POST" });
+    const published = await requestJson(publishResponse, "Instagram publication failed.");
+    if (!published?.id) throw new Error("Instagram did not return a published media ID. The campaign will not be marked as published.");
+
     let url: string | undefined;
-    if (published.id) { try { const permalinkUrl = new URL(`${base}/${published.id}`); permalinkUrl.searchParams.set("fields", "permalink"); permalinkUrl.searchParams.set("access_token", token); const permalink = await fetch(permalinkUrl); const permalinkData = await permalink.json(); if (permalink.ok && permalinkData.permalink) url = permalinkData.permalink; } catch { } }
-    return { ok: true, id: published.id, account: profile.username || profile.name || "Instagram", ...(url ? { url } : {}) };
+    const permalinkUrl = new URL(`${base}/${encodeURIComponent(String(published.id))}`);
+    permalinkUrl.searchParams.set("fields", "permalink");
+    permalinkUrl.searchParams.set("access_token", token);
+    try {
+        const permalinkResponse = await fetch(permalinkUrl);
+        const permalinkData = await requestJson(permalinkResponse, "Instagram published the media but permalink lookup failed.");
+        if (typeof permalinkData.permalink === "string" && permalinkData.permalink.startsWith("https://")) url = permalinkData.permalink;
+    } catch (error) {
+        // A valid published ID proves that Instagram accepted the publication.
+        // Keep the ID, but surface the missing permalink for operational follow-up.
+        console.warn("[marketing][instagram] Published media ID returned but permalink lookup failed:", error instanceof Error ? error.message : "unknown error");
+    }
+
+    return {
+        ok: true,
+        id: String(published.id),
+        account: profile.username || profile.name || "Instagram",
+        ...(url ? { url } : {})
+    };
 }
 export async function publishMeta(userId: string, channels: SocialChannel[], text: string, imageUrl?: string, link?: string, whatsappTo?: string, videoUrl?: string) { const token = await getAccessToken(userId, "meta"); const profile = await metaProfile(token); const selections = await pool.query<{channel:string; external_id:string}>(`SELECT channel, external_id FROM marketing_social_selections WHERE user_id=$1 AND provider='meta'`, [userId]); const selected = new Map(selections.rows.map(row => [String(row.channel), String(row.external_id)])); const results: Record<string, unknown> = {}; const base = `https://graph.facebook.com/${META_VERSION}`; for (const channel of channels) { try { if (channel === "facebook") { const page = selected.get("facebook") ? profile.pages?.find((item: any) => String(item.id) === selected.get("facebook")) : profile.pages?.length === 1 ? profile.pages[0] : null; if (!page) throw new Error("No Facebook Page was authorized."); let endpoint = `${base}/${page.id}/feed`; const params = new URLSearchParams({ message: text, access_token: page.accessToken }); if (imageUrl) { endpoint = `${base}/${page.id}/photos`; params.set("url", imageUrl); } if (link && !imageUrl) params.set("link", link); const r = await fetch(endpoint, { method: "POST", body: params }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Facebook publication failed."); const publicationId = d.id || d.post_id; let url: string | undefined; if (publicationId) { try { const permalink = await fetch(`${base}/${publicationId}?fields=permalink_url&access_token=${encodeURIComponent(page.accessToken)}`); const permalinkData = await permalink.json(); if (permalink.ok && permalinkData.permalink_url) url = permalinkData.permalink_url; } catch { /* publication succeeded even if permalink lookup is unavailable */ } } results.facebook = { ok: true, id: publicationId, account: page.name, ...(url ? { url } : {}) }; } else if (channel === "instagram") { throw new Error("Instagram uses the dedicated Instagram Login connection."); } else if (channel === "whatsapp") { const phone = selected.get("whatsapp") ? profile.whatsapp?.find((item: any) => String(item.id) === selected.get("whatsapp")) : profile.whatsapp?.length === 1 ? profile.whatsapp[0] : null; if (!phone) throw new Error("No WhatsApp Business phone was authorized."); if (!whatsappTo) throw new Error("WhatsApp requires a recipient phone number."); const r = await fetch(`${base}/${phone.id}/messages`, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ messaging_product: "whatsapp", to: whatsappTo, type: "text", text: { body: text } }) }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "WhatsApp message failed."); results.whatsapp = { ok: true, id: d.messages?.[0]?.id, account: phone.display_phone_number }; } else results[channel] = { ok: false, error: `${channel} connection is supported, but its publisher requires channel-specific media/API handling.` }; } catch (error) { results[channel] = { ok: false, error: error instanceof Error ? error.message : "Publication failed." }; } } return results; }
 export async function checkTikTokPublicationStatus(userId: string, publishId: string) {
