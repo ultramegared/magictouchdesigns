@@ -519,7 +519,7 @@ function CheckoutPage() {
                             id: "jqyd-live-shipping",
                             amount: Math.round(updatedQuote.shipping * 100),
                             displayName: [updatedQuote.shippingCarrier, updatedQuote.shippingService].filter(Boolean).join(" ") || "Shipping",
-                            ...(updatedQuote.shippingDeliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: updatedQuote.shippingDeliveryDays }, maximum: { unit: "business_day", value: updatedQuote.shippingDeliveryDays + 2 } } : {}),
+                            ...(updatedQuote.shippingDeliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: updatedQuote.shippingDeliveryDays }, maximum: { unit: "business_day", value: updatedQuote.shippingDeliveryDays + 2 } } } : {}),
                         }],
                     });
                 } catch (x) {
