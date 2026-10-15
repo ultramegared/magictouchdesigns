@@ -194,7 +194,7 @@ const recordCampaignRuns = async (
         const inserted = await pool.query(
             `INSERT INTO marketing_campaign_runs
                 (campaign_id, owner_user_id, channel, run_type, run_token, publication_key, status, internal_status, provider_status, published, requested_at, external_id, external_url, published_at, error, last_checked_at, decision, result)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$7,$8,$9,NOW(),$10,$11,$12,$13,$14,$15::jsonb,$16::jsonb)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW(),$11,$12,$13,$14,$15,$16::jsonb,$17::jsonb)
              ON CONFLICT (publication_key) DO UPDATE SET result=EXCLUDED.result, status=EXCLUDED.status,
                  internal_status=EXCLUDED.internal_status, provider_status=EXCLUDED.provider_status,
                  published=EXCLUDED.published, external_id=EXCLUDED.external_id, external_url=EXCLUDED.external_url,
