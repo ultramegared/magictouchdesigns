@@ -421,7 +421,7 @@ function CheckoutPage() {
                 e?.resolve?.({
                     emailRequired: true,
                     phoneNumberRequired: true,
-                    shippingAddressRequired: false,
+                    shippingAddressRequired: true,
                     allowedShippingCountries: ["US"],
                     lineItems: [
                         { name: "Merchandise", amount: merchandiseCents },
