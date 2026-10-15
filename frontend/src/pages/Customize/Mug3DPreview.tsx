@@ -293,7 +293,7 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                 const deltaY = event.clientY - lastY;
                 lastX = event.clientX;
                 lastY = event.clientY;
-                const next = rotationRef.current + deltaX * 0.012;
+                const next = rotationRef.current + deltaX * 0.006;
                 rotationRef.current = next;
                 props.onRotationChange(next);
                 cameraPolar = clamp(cameraPolar + deltaY * 0.008, 0.12, Math.PI - 0.12);
