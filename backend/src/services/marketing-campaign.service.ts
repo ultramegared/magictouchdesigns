@@ -420,7 +420,7 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
 };
 
 
-export const retryMarketingCampaign = async (userId: string, campaignId: string) => {
+export const retryMarketingCampaign = async (userId: string, campaignId: string, requestedChannels?: SocialChannel[]) => {
     await ensureCampaignTable();
     const campaignResult = await pool.query(
         `SELECT id, name, objective, target_area, message, subject, channels, results, autopilot_enabled
@@ -433,19 +433,24 @@ export const retryMarketingCampaign = async (userId: string, campaignId: string)
     const campaign = campaignResult.rows[0] as any;
     if (Boolean(campaign.autopilot_enabled)) throw new Error("Autopilot campaigns are not manually retried from this action.");
 
+    const connected = await connectedSocialChannels(userId);
+    const storedChannels: SocialChannel[] = Array.isArray(campaign.channels) ? campaign.channels : [];
+    const requested = Array.isArray(requestedChannels)
+        ? requestedChannels.filter((channel): channel is SocialChannel => allowedChannels.includes(channel))
+        : storedChannels;
+    const selected = storedChannels.filter((channel: SocialChannel) => requested.includes(channel) && connected.includes(channel));
+    if (!selected.length) throw new Error("Select at least one channel from this campaign that is currently connected.");
+
     const existingRuns = await pool.query(
-        `SELECT published, internal_status
+        `SELECT channel, published, internal_status
          FROM marketing_campaign_runs
          WHERE campaign_id=$1 AND owner_user_id=$2`,
         [campaignId, userId]
     );
-    if (existingRuns.rows.some((row: any) => row.published)) throw new Error("This campaign is already published.");
-    if (existingRuns.rows.some((row: any) => String(row.internal_status) === "PROCESSING")) throw new Error("This campaign is still processing.");
-
-    const connected = await connectedSocialChannels(userId);
-    const storedChannels = Array.isArray(campaign.channels) ? campaign.channels : [];
-    const selected = storedChannels.filter((channel: string) => allowedChannels.includes(channel as any) && connected.includes(channel as any));
-    if (!selected.length) throw new Error("No configured channel for this campaign is currently connected.");
+    const alreadyPublished = selected.filter(channel => existingRuns.rows.some((row: any) => row.channel === channel && row.published));
+    if (alreadyPublished.length) throw new Error(`Already published on: ${alreadyPublished.join(", ")}. Choose a channel that has not published yet.`);
+    const stillProcessing = selected.filter(channel => existingRuns.rows.some((row: any) => row.channel === channel && String(row.internal_status) === "PROCESSING"));
+    if (stillProcessing.length) throw new Error(`Still processing on: ${stillProcessing.join(", ")}. Wait for provider confirmation before retrying.`);
 
     const assets = campaign.results?.assets || {};
     const trackedLink = typeof assets.landingLink === "string" ? assets.landingLink : undefined;
@@ -466,13 +471,13 @@ export const retryMarketingCampaign = async (userId: string, campaignId: string)
     const failedChannels = Object.entries(social)
         .filter(([, result]) => !(result as any)?.ok)
         .map(([channel, result]) => `${channel}: ${(result as any)?.error || "publication failed"}`);
-    if (failedChannels.length) {
-        throw new Error(failedChannels.join(" | "));
-    }
+    if (failedChannels.length) throw new Error(failedChannels.join(" | "));
+
     const currentResults = campaign.results && typeof campaign.results === "object" ? campaign.results : {};
+    const previousSocial = currentResults.social && typeof currentResults.social === "object" ? currentResults.social : {};
     const finalResults = {
         ...currentResults,
-        social,
+        social: { ...previousSocial, ...social },
         lifecycle: {
             ...(currentResults.lifecycle || {}),
             stage: "PUBLICATION",
@@ -494,9 +499,8 @@ export const retryMarketingCampaign = async (userId: string, campaignId: string)
         results: social,
     });
 
-    return { campaignId, social, connectedChannels: connected };
+    return { campaignId, social, connectedChannels: connected, selectedChannels: selected };
 };
-
 export const getMarketingLearning = async (targetArea?: string, objective?: string, ownerUserId?: string) => getMarketingLearningInsights(targetArea, objective, ownerUserId);
 
 export const getMarketingCampaignResults = async (ownerUserId: string, days = 30) => {
