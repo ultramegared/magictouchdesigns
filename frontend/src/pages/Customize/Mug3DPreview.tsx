@@ -167,7 +167,6 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             const artworkMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
                 transparent: true,
-                depthWrite: false,
                 side: THREE.DoubleSide,
                 depthTest: true,
                 depthWrite: false,
