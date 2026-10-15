@@ -57,7 +57,9 @@ function CustomizePage() {
     const [artworkMode, setArtworkMode] = useState<"photo" | "text">("photo");
     const [customText, setCustomText] = useState("");
     const [textFont, setTextFont] = useState(TEXT_FONTS[0].value);
-    const [textColor, setTextColor] = useState("#172b55");\n    const [textFontSize, setTextFontSize] = useState(112);\n    const [draggingText, setDraggingText] = useState(false);
+    const [textColor, setTextColor] = useState("#172b55");
+    const [textFontSize, setTextFontSize] = useState(112);
+    const [draggingText, setDraggingText] = useState(false);
     const [designScale, setDesignScale] = useState(1);
     const [designX, setDesignX] = useState(0);
     const [designY, setDesignY] = useState(0);
@@ -110,8 +112,8 @@ function CustomizePage() {
                                 <span>Drag with your finger or mouse to move it on the mug.</span>
                                 <div className={`customize-text-position__pad ${draggingText ? "is-dragging" : ""}`}
                                     role="application" aria-label="Drag area to position lettering"
-                                    onPointerDown={(event) => { setDraggingText(true); event.currentTarget.setPointerCapture(event.pointerId); const rect = event.currentTarget.getBoundingClientRect(); setDesignX(Math.round(Math.max(-35, Math.min(35, ((event.clientX - rect.left) / rect.width - 0.5) * 70)))); setDesignY(Math.round(Math.max(-25, Math.min(25, (0.5 - (event.clientY - rect.top) / rect.height) * 50))); }}
-                                    onPointerMove={(event) => { if (!draggingText) return; const rect = event.currentTarget.getBoundingClientRect(); setDesignX(Math.round(Math.max(-35, Math.min(35, ((event.clientX - rect.left) / rect.width - 0.5) * 70)))); setDesignY(Math.round(Math.max(-25, Math.min(25, (0.5 - (event.clientY - rect.top) / rect.height) * 50))); }}
+                                    onPointerDown={(event) => { setDraggingText(true); event.currentTarget.setPointerCapture(event.pointerId); const rect = event.currentTarget.getBoundingClientRect(); setDesignX(Math.round(Math.max(-35, Math.min(35, ((event.clientX - rect.left) / rect.width - 0.5) * 70)))); setDesignY(Math.round(Math.max(-25, Math.min(25, (0.5 - (event.clientY - rect.top) / rect.height) * 50)))); }}
+                                    onPointerMove={(event) => { if (!draggingText) return; const rect = event.currentTarget.getBoundingClientRect(); setDesignX(Math.round(Math.max(-35, Math.min(35, ((event.clientX - rect.left) / rect.width - 0.5) * 70)))); setDesignY(Math.round(Math.max(-25, Math.min(25, (0.5 - (event.clientY - rect.top) / rect.height) * 50)))); }}
                                     onPointerUp={() => setDraggingText(false)} onPointerCancel={() => setDraggingText(false)}>
                                     <span className="customize-text-position__crosshair">＋</span>
                                     <span className="customize-text-position__label">Touch and drag</span>
