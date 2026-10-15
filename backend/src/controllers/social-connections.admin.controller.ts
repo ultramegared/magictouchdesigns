@@ -197,7 +197,8 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
 
 export async function marketingCampaignRetry(req: AuthenticatedRequest, res: Response) {
     try {
-        const result = await retryMarketingCampaign(String(req.user!.userId), String(req.params.campaignId || ""));
+        const bodyChannels = Array.isArray(req.body?.channels) ? req.body.channels as SocialChannel[] : undefined;
+        const result = await retryMarketingCampaign(String(req.user!.userId), String(req.params.campaignId || ""), bodyChannels);
         res.json({ status: "success", data: result });
     } catch (error) {
         res.status(400).json({ status: "error", error: error instanceof Error ? error.message : "Unable to retry marketing campaign." });
