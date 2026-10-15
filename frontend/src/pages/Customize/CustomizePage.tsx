@@ -29,6 +29,27 @@ const MUG_VARIANTS: MugVariant[] = [
 type Product = { product_id: string; name: string; price: number; image_url?: string | null; is_active?: boolean };
 type ProductsResponse = { products?: Product[] };
 function readFileAsDataUrl(file: File): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error("Unable to read the image.")); reader.readAsDataURL(file); }); }
+function fileToDataUrl(file: Blob): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error("Unable to read the image.")); reader.readAsDataURL(file); }); }
+async function prepareImageForCheckout(file: File): Promise<string> {
+    const limit = 2.8 * 1024 * 1024;
+    if (file.size <= limit) return fileToDataUrl(file);
+    const objectUrl = URL.createObjectURL(file);
+    try {
+        const image = new Image(); image.src = objectUrl;
+        await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("Unable to decode image.")); });
+        const maxDimension = 2400;
+        const factor = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * factor)); canvas.height = Math.max(1, Math.round(image.naturalHeight * factor));
+        const context = canvas.getContext("2d"); if (!context) throw new Error("Image processing is unavailable.");
+        context.imageSmoothingEnabled = true; context.imageSmoothingQuality = "high"; context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const toBlob = (type: string, quality?: number) => new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
+        if (file.type === "image/png") { const png = await toBlob("image/png"); if (png && png.size <= limit) return fileToDataUrl(png); }
+        context.globalCompositeOperation = "destination-over"; context.fillStyle = "#ffffff"; context.fillRect(0, 0, canvas.width, canvas.height);
+        for (const quality of [0.9, 0.82, 0.74, 0.66, 0.58]) { const blob = await toBlob("image/jpeg", quality); if (blob && blob.size <= limit) return fileToDataUrl(blob); }
+        throw new Error("This image is too large to process. Please choose a smaller photo.");
+    } finally { URL.revokeObjectURL(objectUrl); }
+}
 const TEXT_FONTS = [
     { label: "Elegant Script", value: "'Brush Script MT', 'Segoe Script', cursive" },
     { label: "Classic Serif", value: "Georgia, 'Times New Roman', serif" },
@@ -73,7 +94,7 @@ function CustomizePage() {
     const selectedVariant = MUG_VARIANTS.find((variant) => variant.id === variantId) || MUG_VARIANTS[0];
     const price = Number(selectedProduct?.price || 0);
     const resetDesign = () => { setDesignScale(1); setDesignX(0); setDesignY(0); setDesignRotation(0); setMugRotation(0); setActiveView("3d"); };
-    const handleImage = async (file: File | undefined) => { if (!file) return; setError(""); if (!file.type.startsWith("image/")) return setError("Please choose a PNG, JPG, JPEG or GIF image."); if (file.size > 3 * 1024 * 1024) return setError("The image must be 3 MB or smaller so it can be processed securely at checkout."); try { const dataUrl = await readFileAsDataUrl(file); setDesignUrl(dataUrl); setDesignFileName(file.name); resetDesign(); } catch { setError("The image could not be loaded. Please try another file."); } };
+    const handleImage = async (file: File | undefined) => { if (!file) return; setError(""); if (!file.type.startsWith("image/")) return setError("Please choose a PNG, JPG, JPEG or GIF image."); try { const dataUrl = await prepareImageForCheckout(file); setDesignUrl(dataUrl); setDesignFileName(file.name); resetDesign(); } catch (error) { setError(error instanceof Error ? error.message : "The image could not be processed. Please try another file."); } };
     const handleTextChange = (value: string, font = textFont, color = textColor) => {
         setCustomText(value.slice(0, 36));
         if (!value.trim()) {
