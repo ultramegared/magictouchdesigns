@@ -16,6 +16,15 @@ const sourceToChannel: Record<string, "facebook"|"instagram"|"whatsapp"|"tiktok"
   jqydesigns: "email",
 };
 
+type DailyChannel = {
+  channel: string;
+  publications: number;
+  successful: number;
+  sessions: number;
+  conversions: number;
+  revenue: number;
+};
+
 const numberAt = (values: Array<{value?: string}>|undefined, index: number) => Number(values?.[index]?.value || 0);
 
 export async function syncMarketingLearningFromAnalytics(days = 30) {
@@ -202,6 +211,11 @@ export const getMarketingAutopilotStatus = async (ownerUserId: string) => {
     lastError,
   };
 };
+
+export async function getMarketingDailySummary(_ownerUserId?: string) {
+  // The dashboard summary is derived from the same verified analytics sync used by the cron.
+  return syncMarketingLearningFromAnalytics();
+}
 
 export async function sendMarketingDailySummary() {
   const summary = await syncMarketingLearningFromAnalytics();
