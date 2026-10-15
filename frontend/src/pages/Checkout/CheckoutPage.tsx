@@ -451,29 +451,82 @@ function CheckoutPage() {
                     setError(x instanceof Error ? x.message : "Could not confirm the final Apple Pay total.");
                 });
             });
-            express.on("shippingaddresschange", (e: any) => {
-                // The checkout form is the verified shipping-address source. Keep the
-                // wallet aligned to the same server-quoted total without attempting a
-                // forbidden client/server Checkout Session mutation.
+            express.on("shippingaddresschange", async (e: any) => {
+                const currentCustomer = readCustomerForm();
                 const currentQuote = quoteRef.current;
-                if (!currentQuote || !quoteReady || !isCustomerReady(readCustomerForm())) {
+                const walletAddress = e?.address || e?.shippingAddress || {};
+                const walletZip = String(walletAddress.postal_code || walletAddress.postalCode || "").trim();
+                const walletCity = String(walletAddress.city || "").trim();
+                const walletState = String(walletAddress.state || "").trim();
+                const walletCountry = String(walletAddress.country || "US").trim().toUpperCase();
+                if (!currentQuote || !isCustomerReady(currentCustomer) || walletCountry !== "US" || !walletZip || !walletCity || !walletState) {
                     e?.reject?.();
                     return;
                 }
-                e?.resolve?.({
-                    lineItems: [
-                        { name: "Merchandise", amount: Math.round(currentQuote.subtotal * 100) },
-                        ...(Math.round(currentQuote.tax * 100) > 0
-                            ? [{ name: "Sales tax", amount: Math.round(currentQuote.tax * 100) }]
-                            : []),
-                    ],
-                    shippingRates: [{
-                        id: "jqyd-live-shipping",
-                        amount: Math.round(currentQuote.shipping * 100),
-                        displayName: [currentQuote.shippingCarrier, currentQuote.shippingService].filter(Boolean).join(" ") || "Shipping",
-                        ...(currentQuote.shippingDeliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: currentQuote.shippingDeliveryDays }, maximum: { unit: "business_day", value: currentQuote.shippingDeliveryDays + 2 } } } : {}),
-                    }],
-                });
+
+                // Apple Pay may use a saved address different from the checkout form.
+                // Requote the address selected in the wallet, then use that exact amount
+                // for both the wallet sheet and the visible summary.
+                try {
+                    const response = await fetch(`${API_URL}/orders/stripe/apple-pay/shipping`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            sessionId: stripeSessionRef.current.id,
+                            shippingDetails: {
+                                name: `${currentCustomer.firstName} ${currentCustomer.lastName}`.trim(),
+                                email: currentCustomer.email.trim().toLowerCase(),
+                                phone: currentCustomer.phone.trim(),
+                                address: {
+                                    country: walletCountry,
+                                    line1: String(walletAddress.line1 || walletAddress.addressLine1 || currentCustomer.address).trim(),
+                                    line2: String(walletAddress.line2 || walletAddress.addressLine2 || currentCustomer.apartment).trim(),
+                                    city: walletCity,
+                                    state: walletState,
+                                    postal_code: walletZip,
+                                },
+                            },
+                        }),
+                    });
+                    const result = await response.json() as { shipping?: number; tax?: number; total?: number; shippingCents?: number; carrier?: string; service?: string; deliveryDays?: number; message?: string };
+                    if (!response.ok || typeof result.shipping !== "number" || typeof result.tax !== "number" || typeof result.total !== "number") {
+                        throw new Error(result.message || "Apple Pay could not calculate shipping and tax for the selected address.");
+                    }
+                    const updatedQuote: CheckoutQuote = {
+                        subtotal: currentQuote.subtotal,
+                        shipping: result.shipping,
+                        tax: result.tax,
+                        total: result.total,
+                        shippingCents: result.shippingCents,
+                        shippingCarrier: result.carrier || currentQuote.shippingCarrier,
+                        shippingService: result.service || currentQuote.shippingService,
+                        shippingDeliveryDays: result.deliveryDays ?? currentQuote.shippingDeliveryDays,
+                    };
+                    const expectedCents = Math.round(updatedQuote.subtotal * 100) + Math.round(updatedQuote.shipping * 100) + Math.round(updatedQuote.tax * 100);
+                    if (expectedCents !== Math.round(updatedQuote.total * 100)) {
+                        throw new Error("Apple Pay total does not match the selected address. Payment has been stopped.");
+                    }
+                    quoteRef.current = updatedQuote;
+                    setQuote(updatedQuote);
+                    e?.resolve?.({
+                        lineItems: [
+                            { name: "Merchandise", amount: Math.round(updatedQuote.subtotal * 100) },
+                            ...(Math.round(updatedQuote.tax * 100) > 0
+                                ? [{ name: "Sales tax", amount: Math.round(updatedQuote.tax * 100) }]
+                                : []),
+                        ],
+                        shippingRates: [{
+                            id: "jqyd-live-shipping",
+                            amount: Math.round(updatedQuote.shipping * 100),
+                            displayName: [updatedQuote.shippingCarrier, updatedQuote.shippingService].filter(Boolean).join(" ") || "Shipping",
+                            ...(updatedQuote.shippingDeliveryDays ? { deliveryEstimate: { minimum: { unit: "business_day", value: updatedQuote.shippingDeliveryDays }, maximum: { unit: "business_day", value: updatedQuote.shippingDeliveryDays + 2 } } : {}),
+                        }],
+                    });
+                } catch (x) {
+                    setStripeAddressReady(false);
+                    setError(x instanceof Error ? x.message : "Apple Pay could not update the destination total.");
+                    e?.reject?.();
+                }
             });
             express.on("confirm", async (e: any) => {
                 const currentCustomer = readCustomerForm();
