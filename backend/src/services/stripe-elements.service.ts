@@ -268,18 +268,6 @@ export const updateStripeApplePayShipping = async (
     }
     params.set("shipping_options[0][shipping_rate_data][tax_behavior]", "exclusive");
 
-    // Use the same server-calculated tax amount displayed in the checkout.
-    // Stripe automatic_tax can round taxable shipping/product lines differently,
-    // which made Apple Pay show a different total from the reviewed quote.
-    params.set("automatic_tax[enabled]", "false");
-    params.set("collected_information[shipping_details][name]", `${attempt.customer_first_name || ""} ${attempt.customer_last_name || ""}`.trim() || "Customer");
-    params.set("collected_information[shipping_details][address][country]", country);
-    params.set("collected_information[shipping_details][address][line1]", verifiedAddress.address);
-    if (verifiedAddress.apartment) params.set("collected_information[shipping_details][address][line2]", verifiedAddress.apartment);
-    params.set("collected_information[shipping_details][address][city]", verifiedAddress.city);
-    params.set("collected_information[shipping_details][address][state]", verifiedAddress.state);
-    params.set("collected_information[shipping_details][address][postal_code]", verifiedAddress.zip);
-
     const response = await fetch(`${STRIPE_API}/checkout/sessions/${encodeURIComponent(normalizedSessionId)}`, {
         method: "POST",
         headers: {
