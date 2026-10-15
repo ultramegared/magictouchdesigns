@@ -227,13 +227,11 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     artworkCtx.drawImage(image, -w / 2, -h / 2, w, h);
                     artworkCtx.restore();
 
-                    // Keep the front of the mug continuous. Place two narrow print-safe gaps
-                    // beside the handle, rather than one white stripe directly underneath it.
+                    // The texture's left and right canvas edges meet at the handle seam.
+                    // Clear only those outer edges so no white stripes cut through the front.
                     const handleGapWidth = artworkCanvas.width * 0.018;
-                    const handleGapOffset = artworkCanvas.width * 0.075;
-                    const centerX = artworkCanvas.width / 2;
-                    artworkCtx.clearRect(centerX - handleGapOffset - handleGapWidth / 2, 0, handleGapWidth, artworkCanvas.height);
-                    artworkCtx.clearRect(centerX + handleGapOffset - handleGapWidth / 2, 0, handleGapWidth, artworkCanvas.height);
+                    artworkCtx.clearRect(0, 0, handleGapWidth, artworkCanvas.height);
+                    artworkCtx.clearRect(artworkCanvas.width - handleGapWidth, 0, handleGapWidth, artworkCanvas.height);
 
                     texture.needsUpdate = true;
                     printSurface.visible = true;
