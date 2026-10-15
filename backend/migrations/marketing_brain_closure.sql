@@ -19,7 +19,8 @@ ALTER TABLE marketing_learning_observations
     ADD COLUMN IF NOT EXISTS attribution_key TEXT,
     ADD COLUMN IF NOT EXISTS source TEXT,
     ADD COLUMN IF NOT EXISTS medium TEXT,
-    ADD COLUMN IF NOT EXISTS attribution_evidence BOOLEAN NOT NULL DEFAULT FALSE;
+    ADD COLUMN IF NOT EXISTS attribution_evidence BOOLEAN NOT NULL DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS observation_date TEXT;
 
 CREATE UNIQUE INDEX IF NOT EXISTS marketing_learning_attribution_key_idx
     ON marketing_learning_observations(attribution_key)
@@ -27,3 +28,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS marketing_learning_attribution_key_idx
 
 CREATE INDEX IF NOT EXISTS marketing_learning_evidence_idx
     ON marketing_learning_observations(attribution_evidence, updated_at DESC);
+
+CREATE INDEX IF NOT EXISTS marketing_learning_observation_date_idx
+    ON marketing_learning_observations(observation_date, channel);
