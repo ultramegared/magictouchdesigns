@@ -278,44 +278,42 @@ export async function publishInstagram(userId: string, text: string, imageUrl?: 
     };
 
     const mediaParams = new URLSearchParams();
-    if (videoUrl) {
-        mediaParams.set("media_type", "REELS");
-        mediaParams.set("video_url", videoUrl);
-    } else {
-        mediaParams.set("image_url", imageUrl!);
-    }
-    mediaParams.set("caption", link ? `${text}\n\n${link}` : text);
-    mediaParams.set("access_token", token);
-
-    const createResponse = await fetch(`${base}/${encodeURIComponent(instagramUserId)}/media`, {
-        method: "POST",
-        body: mediaParams
-    });
-    const created = await requestJson(createResponse, "Instagram media container creation failed.");
-    if (!created?.id) throw new Error("Instagram did not return a media container ID; publication was not attempted.");
-
-    if (videoUrl) {
-        let finished = false;
-        for (let attempt = 0; attempt < 18; attempt += 1) {
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            const statusUrl = new URL(`${base}/${encodeURIComponent(String(created.id))}`);
-            statusUrl.searchParams.set("fields", "status_code,status");
-            statusUrl.searchParams.set("access_token", token);
-            const statusResponse = await fetch(statusUrl);
-            const statusData = await requestJson(statusResponse, "Instagram Reel processing check failed.");
-            if (statusData.status_code === "FINISHED") { finished = true; break; }
-            if (statusData.status_code === "ERROR" || statusData.status_code === "EXPIRED") {
-                throw new Error(`Instagram could not process the Reel: ${statusData.status || statusData.status_code}.`);
-            }
+    // Poll every container type, including still images, before calling media_publish.
+    const statusUrl = new URL(base + "/" + encodeURIComponent(String(created.id)));
+    statusUrl.searchParams.set("fields", "status_code,status");
+    statusUrl.searchParams.set("access_token", token);
+    let containerReady = false;
+    let lastContainerStatus = "UNKNOWN";
+    for (let attempt = 0; attempt < 18; attempt += 1) {
+        if (attempt > 0) await new Promise(resolve => setTimeout(resolve, 5000));
+        const statusResponse = await fetch(statusUrl);
+        const statusData = await requestJson(statusResponse, "Instagram media processing check failed.");
+        lastContainerStatus = String(statusData.status_code || statusData.status || "UNKNOWN");
+        if (lastContainerStatus === "FINISHED" || lastContainerStatus === "PUBLISHED") { containerReady = true; break; }
+        if (lastContainerStatus === "ERROR" || lastContainerStatus === "EXPIRED") {
+            throw new Error("Instagram could not process the media container: " + String(statusData.status || lastContainerStatus) + ".");
         }
-        if (!finished) throw new Error("Instagram Reel is still processing after 90 seconds. It was not published; wait and check status before retrying.");
     }
-
-    const publishUrl = new URL(`${base}/${encodeURIComponent(instagramUserId)}/media_publish`);
+    if (!containerReady) throw new Error("Instagram media container was not ready after 90 seconds (status: " + lastContainerStatus + "). It was not published; check the media URL and try again later.");
+    const publishUrl = new URL(base + "/" + encodeURIComponent(instagramUserId) + "/media_publish");
     publishUrl.searchParams.set("creation_id", String(created.id));
     publishUrl.searchParams.set("access_token", token);
-    const publishResponse = await fetch(publishUrl, { method: "POST" });
-    const published = await requestJson(publishResponse, "Instagram publication failed.");
+    let published: any = null;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+        const publishResponse = await fetch(publishUrl, { method: "POST" });
+        try {
+            published = await requestJson(publishResponse, "Instagram publication failed.");
+            break;
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            if (!(message.includes("9007") && message.includes("2207027")) || attempt === 2) throw error;
+            await new Promise(resolve => setTimeout(resolve, 10000));
+            const retryResponse = await fetch(statusUrl);
+            const retryData = await requestJson(retryResponse, "Instagram media processing retry check failed.");
+            const retryStatus = String(retryData.status_code || retryData.status || "UNKNOWN");
+            if (retryStatus === "ERROR" || retryStatus === "EXPIRED") throw new Error("Instagram media container became unavailable: " + String(retryData.status || retryStatus) + ".");
+        }
+    }
     if (!published?.id) throw new Error("Instagram did not return a published media ID. The campaign will not be marked as published.");
 
     let url: string | undefined;
