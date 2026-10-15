@@ -109,7 +109,8 @@ async function downloadPrintReadyArtwork(designUrl: string, size: "11 oz" | "15 
         URL.revokeObjectURL(url);
     }, "image/png");
 }
-\nfunction CustomizePage() {
+
+function CustomizePage() {
     const navigate = useNavigate();
     const [products, setProducts] = useState<Product[]>([]);
     const [productId, setProductId] = useState("");
