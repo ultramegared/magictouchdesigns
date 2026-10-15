@@ -189,7 +189,7 @@ export const buildOrderSnapshot = async (
             product_id: String(product.product_id),
             name: String(product.name),
             image_url: product.image_url || null,
-            unit_price: Number(product.price),
+            unit_price: input.size === "15 oz" ? (String(input.color || "").toLowerCase().includes("handle") ? 18.5 : 17) : (String(input.color || "").toLowerCase().includes("handle") ? 16.5 : 15),
             quantity,
             variant,
         });
