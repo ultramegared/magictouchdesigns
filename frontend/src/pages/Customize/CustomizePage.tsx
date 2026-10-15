@@ -40,9 +40,9 @@ const TEXT_FONTS = [
     { label: "Luxury", value: "Garamond, Georgia, serif" },
 ];
 function escapeXml(value: string) { return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;"); }
-function createTextArtwork(text: string, font: string, color: string) {
+function createTextArtwork(text: string, font: string, color: string, size: number) {
     const safeText = escapeXml(text.trim().slice(0, 36));
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="900" viewBox="0 0 1800 900"><rect width="1800" height="900" fill="#ffffff"/><text x="900" y="450" text-anchor="middle" dominant-baseline="middle" font-family="${escapeXml(font)}" font-size="112" font-weight="600" fill="${escapeXml(color)}">${safeText}</text></svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="900" viewBox="0 0 1800 900"><rect width="1800" height="900" fill="#ffffff"/><text x="900" y="450" text-anchor="middle" dominant-baseline="middle" font-family="${escapeXml(font)}" font-size="${Math.max(32, Math.min(260, size))}" font-weight="600" fill="${escapeXml(color)}">${safeText}</text></svg>`;
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
@@ -57,7 +57,7 @@ function CustomizePage() {
     const [artworkMode, setArtworkMode] = useState<"photo" | "text">("photo");
     const [customText, setCustomText] = useState("");
     const [textFont, setTextFont] = useState(TEXT_FONTS[0].value);
-    const [textColor, setTextColor] = useState("#172b55");
+    const [textColor, setTextColor] = useState("#172b55");\n    const [textFontSize, setTextFontSize] = useState(112);\n    const [draggingText, setDraggingText] = useState(false);
     const [designScale, setDesignScale] = useState(1);
     const [designX, setDesignX] = useState(0);
     const [designY, setDesignY] = useState(0);
@@ -79,7 +79,7 @@ function CustomizePage() {
             setDesignFileName(null);
             return;
         }
-        setDesignUrl(createTextArtwork(value, font, color));
+        setDesignUrl(createTextArtwork(value, font, color, textFontSize));
         setDesignFileName("Personalized-text.svg");
         resetDesign();
     };
@@ -95,13 +95,29 @@ function CustomizePage() {
                                 <input className="customize-select" type="text" maxLength={36} value={customText} placeholder="Enter a name or short message" onChange={(event) => handleTextChange(event.target.value)} />
                             </label>
                             <label className="customize-text-label">Letter style
-                                <select className="customize-select" value={textFont} onChange={(event) => { setTextFont(event.target.value); if (customText.trim()) { setDesignUrl(createTextArtwork(customText, event.target.value, textColor)); setDesignFileName("Personalized-text.svg"); } }}>
+                                <select className="customize-select" value={textFont} onChange={(event) => { setTextFont(event.target.value); if (customText.trim()) { setDesignUrl(createTextArtwork(customText, event.target.value, textColor, textFontSize)); setDesignFileName("Personalized-text.svg"); } }}>
                                     {TEXT_FONTS.map((font) => <option key={font.label} value={font.value}>{font.label}</option>)}
                                 </select>
                             </label>
                             <label className="customize-text-label">Text color
-                                <input type="color" value={textColor} aria-label="Text color" onChange={(event) => { setTextColor(event.target.value); if (customText.trim()) { setDesignUrl(createTextArtwork(customText, textFont, event.target.value)); setDesignFileName("Personalized-text.svg"); } }} />
+                                <input type="color" value={textColor} aria-label="Text color" onChange={(event) => { setTextColor(event.target.value); if (customText.trim()) { setDesignUrl(createTextArtwork(customText, textFont, event.target.value, textFontSize)); setDesignFileName("Personalized-text.svg"); } }} />
                             </label>
+                            <label className="customize-text-label">Letter size <strong>{textFontSize}px</strong>
+                                <input className="customize-range" type="range" min="32" max="260" step="2" value={textFontSize} onChange={(event) => { const nextSize = Number(event.target.value); setTextFontSize(nextSize); if (customText.trim()) { setDesignUrl(createTextArtwork(customText, textFont, textColor, nextSize)); setDesignFileName("Personalized-text.svg"); } }} />
+                            </label>
+                            <div className="customize-text-position">
+                                <strong>Position the lettering</strong>
+                                <span>Drag with your finger or mouse to move it on the mug.</span>
+                                <div className={`customize-text-position__pad ${draggingText ? "is-dragging" : ""}`}
+                                    role="application" aria-label="Drag area to position lettering"
+                                    onPointerDown={(event) => { setDraggingText(true); event.currentTarget.setPointerCapture(event.pointerId); const rect = event.currentTarget.getBoundingClientRect(); setDesignX(Math.round(Math.max(-35, Math.min(35, ((event.clientX - rect.left) / rect.width - 0.5) * 70)))); setDesignY(Math.round(Math.max(-25, Math.min(25, (0.5 - (event.clientY - rect.top) / rect.height) * 50))); }}
+                                    onPointerMove={(event) => { if (!draggingText) return; const rect = event.currentTarget.getBoundingClientRect(); setDesignX(Math.round(Math.max(-35, Math.min(35, ((event.clientX - rect.left) / rect.width - 0.5) * 70)))); setDesignY(Math.round(Math.max(-25, Math.min(25, (0.5 - (event.clientY - rect.top) / rect.height) * 50))); }}
+                                    onPointerUp={() => setDraggingText(false)} onPointerCancel={() => setDraggingText(false)}>
+                                    <span className="customize-text-position__crosshair">＋</span>
+                                    <span className="customize-text-position__label">Touch and drag</span>
+                                </div>
+                                <div className="customize-text-position__values"><span>Horizontal: {designX}%</span><span>Vertical: {designY}%</span></div>
+                            </div>
                             <p className="customize-step__description">Your text will appear on the 3D mug preview. No photo is required.</p>
                         </div> : <><label className="customize-upload"><Upload size={22} /><strong>{designUrl ? "Change Image" : "Upload Your Image"}</strong><span>PNG, JPG, JPEG or GIF · max 3 MB</span><input type="file" accept="image/png,image/jpeg,image/gif" onChange={(event) => void handleImage(event.target.files?.[0])} /></label></>}{artworkMode === "photo" && designFileName && (
                             <div className="customize-uploaded-artwork">
