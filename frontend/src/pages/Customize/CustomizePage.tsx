@@ -29,6 +29,22 @@ const MUG_VARIANTS: MugVariant[] = [
 type Product = { product_id: string; name: string; price: number; image_url?: string | null; is_active?: boolean };
 type ProductsResponse = { products?: Product[] };
 function readFileAsDataUrl(file: File): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error("Unable to read the image.")); reader.readAsDataURL(file); }); }
+const TEXT_FONTS = [
+    { label: "Elegant Script", value: "'Brush Script MT', 'Segoe Script', cursive" },
+    { label: "Classic Serif", value: "Georgia, 'Times New Roman', serif" },
+    { label: "Modern Sans", value: "Arial, Helvetica, sans-serif" },
+    { label: "Bold", value: "Impact, Haettenschweiler, sans-serif" },
+    { label: "Handwritten", value: "'Comic Sans MS', cursive" },
+    { label: "Typewriter", value: "'Courier New', monospace" },
+    { label: "Rounded", value: "'Trebuchet MS', sans-serif" },
+    { label: "Luxury", value: "Garamond, Georgia, serif" },
+];
+function escapeXml(value: string) { return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;"); }
+function createTextArtwork(text: string, font: string, color: string) {
+    const safeText = escapeXml(text.trim().slice(0, 36));
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="900" viewBox="0 0 1800 900"><rect width="1800" height="900" fill="#ffffff"/><text x="900" y="450" text-anchor="middle" dominant-baseline="middle" font-family="${escapeXml(font)}" font-size="112" font-weight="600" fill="${escapeXml(color)}">${safeText}</text></svg>`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
 
 function CustomizePage() {
     const navigate = useNavigate();
@@ -38,6 +54,10 @@ function CustomizePage() {
     const [variantId, setVariantId] = useState("white-pink");
     const [designUrl, setDesignUrl] = useState<string | null>(null);
     const [designFileName, setDesignFileName] = useState<string | null>(null);
+    const [artworkMode, setArtworkMode] = useState<"photo" | "text">("photo");
+    const [customText, setCustomText] = useState("");
+    const [textFont, setTextFont] = useState(TEXT_FONTS[0].value);
+    const [textColor, setTextColor] = useState("#172b55");
     const [designScale, setDesignScale] = useState(1);
     const [designX, setDesignX] = useState(0);
     const [designY, setDesignY] = useState(0);
@@ -52,9 +72,38 @@ function CustomizePage() {
     const price = Number(selectedProduct?.price || 0);
     const resetDesign = () => { setDesignScale(1); setDesignX(0); setDesignY(0); setDesignRotation(0); setMugRotation(0); setActiveView("3d"); };
     const handleImage = async (file: File | undefined) => { if (!file) return; setError(""); if (!file.type.startsWith("image/")) return setError("Please choose a PNG, JPG, JPEG or GIF image."); if (file.size > 3 * 1024 * 1024) return setError("The image must be 3 MB or smaller so it can be processed securely at checkout."); try { const dataUrl = await readFileAsDataUrl(file); setDesignUrl(dataUrl); setDesignFileName(file.name); resetDesign(); } catch { setError("The image could not be loaded. Please try another file."); } };
+    const handleTextChange = (value: string, font = textFont, color = textColor) => {
+        setCustomText(value.slice(0, 36));
+        if (!value.trim()) {
+            setDesignUrl(null);
+            setDesignFileName(null);
+            return;
+        }
+        setDesignUrl(createTextArtwork(value, font, color));
+        setDesignFileName("Personalized-text.svg");
+        resetDesign();
+    };
     const saveAndAddToCart = () => { if (!selectedProduct) return setError("Choose a mug model before continuing."); if (!designUrl) return setError("Upload your design before adding the custom mug to the cart."); setAdding(true); setError(""); const customizationId = createCustomizationId(); saveCustomizationSession({ id: customizationId, productId: selectedProduct.product_id, productName: selectedProduct.name, size, color: selectedVariant.name, designDataUrl: designUrl, designFileName, designScale, designX, designY, designRotation, mugRotation, createdAt: new Date().toISOString() }); addToCart({ id: selectedProduct.product_id, name: selectedProduct.name, model: `Custom · ${selectedVariant.name}`, size, color: selectedVariant.name, price, image: selectedProduct.image_url || "/images/products/placeholder.jpg", customizationId }); navigate("/cart"); };
     const chooseView = (view: "3d" | "front" | "back" | "side") => { setActiveView(view); if (view === "front") setMugRotation(0); if (view === "back") setMugRotation(Math.PI); if (view === "side") setMugRotation(Math.PI / 2); };
-    return <><Header /><main className="customize-page"><div className="customize-shell"><header className="customize-heading"><div><span className="customize-heading__eyebrow">MAGIC TOUCH CUSTOM STUDIO</span><h1>Design Your Mug</h1><p>Choose the exact mug style you use, upload your artwork and inspect the finished mug in realistic 3D before ordering.</p></div></header>{error && <div className="customize-error">{error}</div>}<section className="customize-engine"><aside className="customize-panel customize-panel--controls"><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">1</span>Choose Product</div><select className="customize-select" value={productId} onChange={(event) => setProductId(event.target.value)}>{!products.length && <option value="">Loading mug models…</option>}{products.map((product) => <option key={product.product_id} value={product.product_id}>{product.name}</option>)}</select></div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">2</span>Select Size</div><div className="customize-size-grid">{(["11 oz", "15 oz"] as const).map((option) => <button key={option} type="button" className={`customize-choice ${size === option ? "customize-choice--active" : ""}`} onClick={() => setSize(option)}>{option}</button>)}</div></div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">3</span>Choose Your Real Mug Style</div><p className="customize-step__description">These are the mug combinations you actually use. The 3D model changes to match the selected style.</p><div className="customize-colors">{MUG_VARIANTS.map((option) => <button key={option.id} type="button" title={option.name} aria-label={`Choose ${option.name}`} className={`customize-color customize-color--${option.id} ${variantId === option.id ? "customize-color--active" : ""}`} style={{ "--mug-swatch": option.swatchColor } as CSSProperties} onClick={() => { setVariantId(option.id); setMugRotation(0); setActiveView("3d"); }}><span /><small>{option.name}</small></button>)}</div></div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">4</span>Add Your Design</div><label className="customize-upload"><Upload size={22} /><strong>{designUrl ? "Change Image" : "Upload Your Image"}</strong><span>PNG, JPG, JPEG or GIF · max 3 MB</span><input type="file" accept="image/png,image/jpeg,image/gif" onChange={(event) => void handleImage(event.target.files?.[0])} /></label>{designFileName && (
+    return <><Header /><main className="customize-page"><div className="customize-shell"><header className="customize-heading"><div><span className="customize-heading__eyebrow">MAGIC TOUCH CUSTOM STUDIO</span><h1>Design Your Mug</h1><p>Choose the exact mug style you use, upload your artwork and inspect the finished mug in realistic 3D before ordering.</p></div></header>{error && <div className="customize-error">{error}</div>}<section className="customize-engine"><aside className="customize-panel customize-panel--controls"><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">1</span>Choose Product</div><select className="customize-select" value={productId} onChange={(event) => setProductId(event.target.value)}>{!products.length && <option value="">Loading mug models…</option>}{products.map((product) => <option key={product.product_id} value={product.product_id}>{product.name}</option>)}</select></div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">2</span>Select Size</div><div className="customize-size-grid">{(["11 oz", "15 oz"] as const).map((option) => <button key={option} type="button" className={`customize-choice ${size === option ? "customize-choice--active" : ""}`} onClick={() => setSize(option)}>{option}</button>)}</div></div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">3</span>Choose Your Real Mug Style</div><p className="customize-step__description">These are the mug combinations you actually use. The 3D model changes to match the selected style.</p><div className="customize-colors">{MUG_VARIANTS.map((option) => <button key={option.id} type="button" title={option.name} aria-label={`Choose ${option.name}`} className={`customize-color customize-color--${option.id} ${variantId === option.id ? "customize-color--active" : ""}`} style={{ "--mug-swatch": option.swatchColor } as CSSProperties} onClick={() => { setVariantId(option.id); setMugRotation(0); setActiveView("3d"); }}><span /><small>{option.name}</small></button>)}</div></div><div className="customize-step"><div className="customize-step__title"><span className="customize-step__number">4</span>Personalize Your Mug</div>
+                        <div className="customize-size-grid customize-artwork-mode">
+                            <button type="button" className={`customize-choice ${artworkMode === "photo" ? "customize-choice--active" : ""}`} onClick={() => { setArtworkMode("photo"); setDesignUrl(null); setDesignFileName(null); }}>Photo</button>
+                            <button type="button" className={`customize-choice ${artworkMode === "text" ? "customize-choice--active" : ""}`} onClick={() => { setArtworkMode("text"); setDesignUrl(null); setDesignFileName(null); setCustomText(""); }}>Letters / Name</button>
+                        </div>
+                        {artworkMode === "text" ? <div className="customize-text-design">
+                            <label className="customize-text-label">Text or name (up to 36 characters)
+                                <input className="customize-select" type="text" maxLength={36} value={customText} placeholder="Enter a name or short message" onChange={(event) => handleTextChange(event.target.value)} />
+                            </label>
+                            <label className="customize-text-label">Letter style
+                                <select className="customize-select" value={textFont} onChange={(event) => { setTextFont(event.target.value); if (customText.trim()) { setDesignUrl(createTextArtwork(customText, event.target.value, textColor)); setDesignFileName("Personalized-text.svg"); } }}>
+                                    {TEXT_FONTS.map((font) => <option key={font.label} value={font.value}>{font.label}</option>)}
+                                </select>
+                            </label>
+                            <label className="customize-text-label">Text color
+                                <input type="color" value={textColor} aria-label="Text color" onChange={(event) => { setTextColor(event.target.value); if (customText.trim()) { setDesignUrl(createTextArtwork(customText, textFont, event.target.value)); setDesignFileName("Personalized-text.svg"); } }} />
+                            </label>
+                            <p className="customize-step__description">Your text will appear on the 3D mug preview. No photo is required.</p>
+                        </div> : <><label className="customize-upload"><Upload size={22} /><strong>{designUrl ? "Change Image" : "Upload Your Image"}</strong><span>PNG, JPG, JPEG or GIF · max 3 MB</span><input type="file" accept="image/png,image/jpeg,image/gif" onChange={(event) => void handleImage(event.target.files?.[0])} /></label></>}{artworkMode === "photo" && designFileName && (
                             <div className="customize-uploaded-artwork">
                                 <div className="customize-uploaded-artwork__thumb">{designUrl && <img src={designUrl} alt="Uploaded mug artwork" />}</div>
                                 <div className="customize-uploaded-artwork__info"><strong>Image loaded</strong><span title={designFileName}>{designFileName}</span></div>
