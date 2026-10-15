@@ -133,7 +133,8 @@ export const createStripeApplePayCheckout = async (
     params.set("return_url", `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
     params.set("billing_address_collection", "auto");
     params.set("phone_number_collection[enabled]", "true");
-    params.set("shipping_address_collection[allowed_countries][0]", "US");
+    // Shipping address is collected and verified in our checkout form. Keep the
+    // wallet from substituting a different saved address and creating a mismatched total.
     // Never send Apple Pay a zero-dollar shipping option when the destination
     // is unknown. Once the full address is available, use only the live quote
     // calculated by buildOrderSnapshot/EasyPost.
