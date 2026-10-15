@@ -39,10 +39,14 @@ export const calculateCheckoutQuote = async (
         if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item.");
         const product = await getProductById(input.productId);
         if (!product || !product.is_active) throw new Error("One of the products is no longer available.");
+        const isMugWithColoredHandle = String(input.color || "").toLowerCase().includes("handle");
+        const unitPrice = input.size === "15 oz"
+            ? (isMugWithColoredHandle ? 18.5 : 17)
+            : (isMugWithColoredHandle ? 16.5 : 15);
         normalizedItems.push({
             product_id: String(product.product_id),
             name: String(product.name),
-            unit_price: Number(product.price),
+            unit_price: unitPrice,
             quantity,
         });
     }
