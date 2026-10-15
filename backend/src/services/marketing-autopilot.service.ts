@@ -33,6 +33,8 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
     const campaignId = String(dimensions[0]?.value || "").trim();
     const source = String(dimensions[1]?.value || "").trim().toLowerCase();
     const medium = String(dimensions[2]?.value || "").trim().toLowerCase();
+    const observationDate = String(dimensions[3]?.value || "").trim();
+    if (!/^\d{8}$/.test(observationDate)) { unmatchedRows += 1; continue; }
     const channel = sourceToLearningChannel[source];
     if (!campaignId || !channel) { unmatchedRows += 1; continue; }
 
@@ -53,8 +55,8 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
     await pool.query(
       `INSERT INTO marketing_learning_observations
         (campaign_id, channel, objective, target_area, hour, weekday, published, sessions, conversions, revenue,
-         attribution_key, source, medium, attribution_evidence, decision, adjustment)
-       VALUES ($1,$2,$3,$4,0,0,TRUE,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13::jsonb)
+         attribution_key, source, medium, attribution_evidence, observation_date, decision, adjustment)
+       VALUES ($1,$2,$3,$4,0,0,TRUE,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14::jsonb)
        ON CONFLICT (attribution_key) DO UPDATE SET
          sessions=EXCLUDED.sessions,
          conversions=EXCLUDED.conversions,
@@ -62,6 +64,7 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
          source=EXCLUDED.source,
          medium=EXCLUDED.medium,
          attribution_evidence=EXCLUDED.attribution_evidence,
+         observation_date=EXCLUDED.observation_date,
          decision=EXCLUDED.decision,
          adjustment=EXCLUDED.adjustment,
          updated_at=NOW()`,
@@ -73,13 +76,15 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
         sessions,
         conversions,
         revenue,
-        campaignId + ":" + channel,
+        campaignId + ":" + channel + ":" + observationDate,
         source,
         medium,
         evidence,
-        JSON.stringify({ stage:"RESULT", activeUsers, transactions, source, medium, observedAt:new Date().toISOString() }),
+        observationDate,
+        JSON.stringify({ stage:"RESULT", activeUsers, transactions, source, medium, observationDate, observedAt:new Date().toISOString() }),
         JSON.stringify({
           stage:"ADJUSTMENT",
+          observationDate,
           conversionRate:sessions > 0 ? conversions / sessions : 0,
           revenuePerSession:sessions > 0 ? revenue / sessions : 0,
           transactions
@@ -121,16 +126,22 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
            SUM(conversions)::int AS conversions,
            COALESCE(SUM(revenue),0)::numeric AS revenue
     FROM marketing_learning_observations
-    WHERE updated_at >= NOW() - INTERVAL '24 hours'
+    WHERE observation_date = TO_CHAR((NOW() AT TIME ZONE 'UTC')::date - 1, 'YYYYMMDD')
+      AND attribution_evidence = TRUE
     GROUP BY channel
   `);
   const performanceMap = new Map(performance.rows.map((row: any) => [
     String(row.channel),
     { sessions:Number(row.sessions||0), conversions:Number(row.conversions||0), revenue:Number(row.revenue||0) }
   ]));
-  const byChannel: DailyChannel[] = runs.rows.map((row:any) => {
-    const p = performanceMap.get(String(row.channel)) || { sessions:0, conversions:0, revenue:0 };
-    return { channel:String(row.channel), publications:Number(row.publications||0), successful:Number(row.successful||0), sessions:p.sessions, conversions:p.conversions, revenue:p.revenue };
+  const channelNames = new Set<string>([
+    ...runs.rows.map((row:any) => String(row.channel)),
+    ...performanceMap.keys(),
+  ]);
+  const byChannel: DailyChannel[] = [...channelNames].sort().map(channel => {
+    const run = runs.rows.find((row:any) => String(row.channel) === channel);
+    const p = performanceMap.get(channel) || { sessions:0, conversions:0, revenue:0 };
+    return { channel, publications:Number(run?.publications||0), successful:Number(run?.successful||0), sessions:p.sessions, conversions:p.conversions, revenue:p.revenue };
   });
   const totals = byChannel.reduce((sum,row) => ({
     publications:sum.publications + row.publications,
@@ -142,7 +153,7 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
 
   const insights = await getMarketingLearningInsights();
   const observations = insights.reduce((sum,item) => sum + Number(item.observations||0), 0);
-  const evidenceObservations = insights.reduce((sum, item) => sum + ((Number(item.sessions||0) > 0 || Number(item.conversions||0) > 0 || Number(item.revenue||0) > 0) ? 1 : 0), 0);
+  const evidenceObservations = insights.reduce((sum, item) => sum + (Number(item.sessions||0) > 0 || Number(item.conversions||0) > 0 || Number(item.revenue||0) > 0 ? Number(item.observations||0) : 0), 0);
   const lifetimeConversions = insights.reduce((sum,item) => sum + Number(item.conversions||0), 0);
   const lifetimeRevenue = insights.reduce((sum,item) => sum + Number(item.revenue||0), 0);
   const level = observations >= 100 && lifetimeConversions >= 25 ? 5 : observations >= 50 && lifetimeConversions >= 10 ? 4 : observations >= 25 && lifetimeConversions >= 5 ? 3 : observations >= 10 ? 2 : 1;
