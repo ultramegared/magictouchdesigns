@@ -210,7 +210,8 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     // Preserve the original photo proportions inside the fixed printable area.
                     const maxW = artworkCanvas.width * 0.90 * scale;
                     const maxH = 980 * scale;
-                    const ratio = Math.min(maxW / image.naturalWidth, maxH / image.naturalHeight);
+                    // Cover the fixed print rectangle without stretching; crop overflow at its edges.
+                    const ratio = Math.max(maxW / image.naturalWidth, maxH / image.naturalHeight);
                     const w = image.naturalWidth * ratio;
                     const h = image.naturalHeight * ratio;
                     const x = artworkCanvas.width / 2 + (designX / 100) * 560;
