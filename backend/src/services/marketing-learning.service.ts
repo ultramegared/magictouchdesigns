@@ -91,7 +91,7 @@ export const recordCampaignLaunchLearning = async (input: {
       `INSERT INTO marketing_learning_observations
        (campaign_id, channel, run_id, objective, target_area, hour, weekday, has_image, has_video, published, decision)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)
-       ON CONFLICT (campaign_id, channel, run_id) DO UPDATE SET published=EXCLUDED.published, decision=EXCLUDED.decision, updated_at=NOW()`,
+       ON CONFLICT (campaign_id, channel, run_id) WHERE run_id IS NOT NULL DO UPDATE SET published=EXCLUDED.published, decision=EXCLUDED.decision, updated_at=NOW()`,
       [input.campaignId, channel, input.runIds?.[channel] || null, input.objective, input.targetArea, hour, weekday, input.hasImage, input.hasVideo, published, JSON.stringify({ stage: "PUBLICATION", status: published ? "SUCCESS" : "FAILED", observedAt: now.toISOString() })]
     );
   }
