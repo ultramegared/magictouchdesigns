@@ -32,7 +32,7 @@ import {
 
 export const getCollectionForAdmin = async (request: Request, response: Response) => {
     try {
-        const { slug } = request.params;
+        const slug = String(request.params.slug || "");
         const collection = await getCollectionBySlug(slug);
         if (!collection) {
             return response.status(404).json({ status: "error", message: "Collection was not found." });
@@ -46,7 +46,7 @@ export const getCollectionForAdmin = async (request: Request, response: Response
 
 export const updateCollection = async (request: Request, response: Response) => {
     try {
-        const { slug } = request.params;
+        const slug = String(request.params.slug || "");
         const { name, slug: newSlug, description, image_url, is_active, sort_order } = request.body;
         const collection = await updateCollectionService(slug, { name, slug: newSlug, description, image_url, is_active, sort_order });
         if (!collection) {
@@ -61,7 +61,7 @@ export const updateCollection = async (request: Request, response: Response) => 
 
 export const getCollectionProducts = async (request: Request, response: Response) => {
     try {
-        const { slug } = request.params;
+        const slug = String(request.params.slug || "");
         const products = await getProductsByCollectionSlug(slug);
         return response.json({ status: "success", products });
     } catch (error) {
@@ -72,7 +72,7 @@ export const getCollectionProducts = async (request: Request, response: Response
 
 export const getCollectionProductsForAdmin = async (request: Request, response: Response) => {
     try {
-        const { slug } = request.params;
+        const slug = String(request.params.slug || "");
         const products = await getCollectionProductsForAdminService(slug);
         return response.json({ status: "success", products });
     } catch (error) {
@@ -83,7 +83,7 @@ export const getCollectionProductsForAdmin = async (request: Request, response: 
 
 export const getAvailableProductsForCollection = async (request: Request, response: Response) => {
     try {
-        const { slug } = request.params;
+        const slug = String(request.params.slug || "");
         const products = await getAvailableProductsForCollectionService(slug);
         if (!products) {
             return response.status(404).json({ status: "error", message: "Collection was not found." });
@@ -97,7 +97,7 @@ export const getAvailableProductsForCollection = async (request: Request, respon
 
 export const addProductToCollection = async (request: Request, response: Response) => {
     try {
-        const { slug } = request.params;
+        const slug = String(request.params.slug || "");
         const { product_id, name, slug: productSlug, description, price, image_url, image_urls, features, is_active } = request.body;
         const normalizedProductId = typeof product_id === "string" ? product_id.trim() : "";
         const hasValidProductId = Boolean(normalizedProductId) && normalizedProductId !== "undefined" && normalizedProductId !== "null";
@@ -154,7 +154,8 @@ export const addProductToCollection = async (request: Request, response: Respons
 
 export const removeProductFromCollection = async (request: Request, response: Response) => {
     try {
-        const { slug, product_id } = request.params;
+        const slug = String(request.params.slug || "");
+        const product_id = String(request.params.product_id || "");
         const product = await removeProductFromCollectionService(slug, product_id);
         if (!product) {
             return response.status(404).json({ status: "error", message: "Product was not found in this collection." });
@@ -168,7 +169,8 @@ export const removeProductFromCollection = async (request: Request, response: Re
 
 export const getCollectionProductForAdmin = async (request: Request, response: Response) => {
     try {
-        const { slug, product_id } = request.params;
+        const slug = String(request.params.slug || "");
+        const product_id = String(request.params.product_id || "");
         const product = await getCollectionProductForAdminService(slug, product_id);
         if (!product) {
             return response.status(404).json({ status: "error", message: "Product was not found in this collection." });
@@ -182,7 +184,8 @@ export const getCollectionProductForAdmin = async (request: Request, response: R
 
 export const updateCollectionProduct = async (request: Request, response: Response) => {
     try {
-        const { slug, product_id } = request.params;
+        const slug = String(request.params.slug || "");
+        const product_id = String(request.params.product_id || "");
         const { name, slug: productSlug, description, price, image_url, image_urls, features, is_active } = request.body;
         if (typeof image_urls !== "undefined" && (!Array.isArray(image_urls) || image_urls.length > 3 || image_urls.some((value: unknown) => typeof value !== "string"))) {
             return response.status(400).json({ status: "error", message: "A product can have a maximum of 3 images." });
@@ -200,7 +203,8 @@ export const updateCollectionProduct = async (request: Request, response: Respon
 
 export const updateCollectionProductStatus = async (request: Request, response: Response) => {
     try {
-        const { slug, product_id } = request.params;
+        const slug = String(request.params.slug || "");
+        const product_id = String(request.params.product_id || "");
         const { is_active } = request.body;
         if (typeof is_active !== "boolean") {
             return response.status(400).json({ status: "error", message: "is_active must be a boolean value." });
@@ -218,7 +222,8 @@ export const updateCollectionProductStatus = async (request: Request, response: 
 
 export const updateCollectionProductOrder = async (request: Request, response: Response) => {
     try {
-        const { slug, product_id } = request.params;
+        const slug = String(request.params.slug || "");
+        const product_id = String(request.params.product_id || "");
         const { sort_order } = request.body;
 
         if (
@@ -245,7 +250,7 @@ export const updateCollectionProductOrder = async (request: Request, response: R
 
 export const reorderCollectionProducts = async (request: Request, response: Response) => {
     try {
-        const { slug } = request.params;
+        const slug = String(request.params.slug || "");
         const { product_ids } = request.body;
         if (!Array.isArray(product_ids)) {
             return response.status(400).json({ status: "error", message: "product_ids must be an array." });
