@@ -178,6 +178,9 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
 
             const printGeometry = new THREE.CylinderGeometry(1.371, 1.441, 2.48, 128, 1, true, 0, TAU);
             const printSurface = new THREE.Mesh(printGeometry, artworkMaterial);
+            // Put the texture's wrap seam at the handle, not in the middle of the visible front.
+            // The transparent canvas margins below create a small unprinted safety gap around the handle.
+            printSurface.rotation.y = Math.PI / 2;
             printSurface.position.y = 0;
             printSurface.castShadow = false;
             printSurface.renderOrder = 10;
@@ -201,10 +204,10 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     if (cancelled) return;
                     artworkCtx.clearRect(0, 0, artworkCanvas.width, artworkCanvas.height);
                     const scale = clamp(designScale, 0.4, 1.6);
-                    // Treat the upload as a full-wrap print template: canvas width equals 360°
-                    // around the mug, and the printable height fills almost the complete ceramic body.
-                    // The texture therefore continues across the front, sides and back as the mug rotates.
-                    const w = (artworkCanvas.width - 32) * scale;
+                    // Fit the uploaded photo to the cylindrical wrap while reserving 5% on each
+                    // edge of the canvas. Those blank edges meet at the handle as a small print-safe gap.
+                    // Keep the image proportions when possible; the height fills the printable ceramic body.
+                    const w = artworkCanvas.width * 0.90 * scale;
                     const h = 980 * scale;
                     const x = artworkCanvas.width / 2 + (designX / 100) * 560;
                     const y = artworkCanvas.height / 2 - (designY / 100) * 220;
