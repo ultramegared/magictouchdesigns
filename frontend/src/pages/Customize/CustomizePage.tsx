@@ -163,7 +163,8 @@ function CustomizePage() {
     useEffect(() => { let cancelled = false; const loadProducts = async () => { try { const response = await fetch(`${API_URL}/products/public`); if (!response.ok) throw new Error("Unable to load products."); const data = await response.json() as ProductsResponse; const activeProducts = (data.products || []).filter((product) => product.is_active !== false); if (!cancelled) { setProducts(activeProducts); setProductId(activeProducts[0]?.product_id || ""); } } catch { if (!cancelled) setError("Unable to load the available mug models."); } }; void loadProducts(); return () => { cancelled = true; }; }, []);
     const selectedProduct = useMemo(() => products.find((product) => product.product_id === productId) || null, [products, productId]);
     const selectedVariant = MUG_VARIANTS.find((variant) => variant.id === variantId) || MUG_VARIANTS[0];
-    const price = Number(selectedProduct?.price || 0);
+    const basePrice = size === "15 oz" ? 17 : 15;
+    const price = basePrice + (selectedVariant.family === "colored-handle" ? 1.5 : 0);
     const resetDesign = () => { setDesignScale(1); setDesignX(0); setDesignY(0); setDesignRotation(0); setMugRotation(0); setActiveView("3d"); };
     const handleImage = async (file: File | undefined) => { if (!file) return; setError(""); if (!file.type.startsWith("image/")) return setError("Please choose a PNG, JPG, JPEG or GIF image."); try { const originalDataUrl = await fileToDataUrl(file); const dataUrl = await prepareImageForCheckout(file); setOriginalDesignUrl(originalDataUrl); setDesignUrl(dataUrl); setDesignFileName(file.name); resetDesign(); } catch (error) { setError(error instanceof Error ? error.message : "The image could not be processed. Please try another file."); } };
     const handleTextChange = (value: string, font = textFont, color = textColor) => {
