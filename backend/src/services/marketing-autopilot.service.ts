@@ -1,6 +1,6 @@
 import { pool } from "../config/database";
 import { getAnalyticsCampaignReport } from "./google-search-console.service";
-import { recordCampaignLearningFeedback, getMarketingLearningInsights } from "./marketing-learning.service";
+import { ensureMarketingLearningTables, recordCampaignLearningFeedback, getMarketingLearningInsights } from "./marketing-learning.service";
 import { sendEmail } from "./email.service";
 import { getCatalogOwners, queueNextContent } from "./marketing-catalog.service";
 
@@ -28,6 +28,8 @@ type DailyChannel = {
 const numberAt = (values: Array<{value?: string}>|undefined, index: number) => Number(values?.[index]?.value || 0);
 
 export async function syncMarketingLearningFromAnalytics(days = 30) {
+  // Ensure the live database has the columns required by the attribution upsert before querying analytics.
+  await ensureMarketingLearningTables();
   const campaignReport = await getAnalyticsCampaignReport(days);
   const attributionRows = campaignReport.rows || [];
   const sourceToLearningChannel: Record<string, "facebook"|"instagram"|"whatsapp"|"tiktok"|"youtube"|"pinterest"|"email"> = {

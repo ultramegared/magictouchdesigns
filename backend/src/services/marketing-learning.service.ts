@@ -54,10 +54,20 @@ const ensureLearningTables = async () => {
   await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS decision JSONB NOT NULL DEFAULT '{}'::jsonb`);
   await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS adjustment JSONB NOT NULL DEFAULT '{}'::jsonb`);
   await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS observation_date TEXT`);
+  // Analytics attribution fields are additive so existing learning rows remain intact.
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS attribution_key TEXT`);
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS source TEXT`);
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS medium TEXT`);
+  await pool.query(`ALTER TABLE marketing_learning_observations ADD COLUMN IF NOT EXISTS attribution_evidence BOOLEAN NOT NULL DEFAULT FALSE`);
+  await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_learning_attribution_key_idx ON marketing_learning_observations(attribution_key)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_learning_observation_date_idx ON marketing_learning_observations(observation_date, channel)`);
   await pool.query(`ALTER TABLE marketing_learning_observations DROP CONSTRAINT IF EXISTS marketing_learning_observations_campaign_id_channel_key`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_learning_context_idx ON marketing_learning_observations(target_area, objective, hour, weekday)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_learning_run_idx ON marketing_learning_observations(run_id, created_at DESC)`);
+};
+
+export const ensureMarketingLearningTables = async () => {
+  await ensureLearningTables();
 };
 
 export const recordCampaignLaunchLearning = async (input: {
