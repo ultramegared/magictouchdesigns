@@ -227,6 +227,16 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     artworkCtx.drawImage(image, -w / 2, -h / 2, w, h);
                     artworkCtx.restore();
 
+                    // Leave a narrow, consistent unprinted safety gap at the handle seam.
+                    // This keeps the photo wrap aligned while preventing artwork from touching the handle.
+                    const handleGapWidth = artworkCanvas.width * 0.035;
+                    artworkCtx.clearRect(
+                        (artworkCanvas.width - handleGapWidth) / 2,
+                        0,
+                        handleGapWidth,
+                        artworkCanvas.height
+                    );
+
                     texture.needsUpdate = true;
                     printSurface.visible = true;
                 };
