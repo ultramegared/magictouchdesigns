@@ -85,7 +85,7 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             scene.add(floor);
 
             const group = new THREE.Group();
-            const mugScale = props.mugSize === "15 oz" ? 0.78 : 0.72;
+            const mugScale = props.mugSize === "15 oz" ? 0.88 : 0.82;
             group.scale.setScalar(mugScale);
             scene.add(group);
 
@@ -268,19 +268,36 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
 
             let dragging = false;
             let lastX = 0;
+            let lastY = 0;
+            let cameraAzimuth = Math.atan2(camera.position.x, camera.position.z);
+            let cameraPolar = Math.acos(clamp(camera.position.y / camera.position.length(), -1, 1));
+            let cameraRadius = camera.position.length();
+            const updateCameraOrbit = () => {
+                camera.position.set(
+                    cameraRadius * Math.sin(cameraPolar) * Math.sin(cameraAzimuth),
+                    cameraRadius * Math.cos(cameraPolar),
+                    cameraRadius * Math.sin(cameraPolar) * Math.cos(cameraAzimuth)
+                );
+                camera.lookAt(0, 0.02, 0);
+            };
             const onPointerDown = (event: PointerEvent) => {
                 dragging = true;
                 lastX = event.clientX;
+                lastY = event.clientY;
                 renderer.domElement.setPointerCapture?.(event.pointerId);
                 renderer.domElement.style.cursor = "grabbing";
             };
             const onPointerMove = (event: PointerEvent) => {
                 if (!dragging) return;
-                const delta = event.clientX - lastX;
+                const deltaX = event.clientX - lastX;
+                const deltaY = event.clientY - lastY;
                 lastX = event.clientX;
-                const next = rotationRef.current + delta * 0.012;
+                lastY = event.clientY;
+                const next = rotationRef.current + deltaX * 0.012;
                 rotationRef.current = next;
                 props.onRotationChange(next);
+                cameraPolar = clamp(cameraPolar + deltaY * 0.008, 0.12, Math.PI - 0.12);
+                updateCameraOrbit();
             };
             const onPointerUp = () => {
                 dragging = false;
@@ -288,8 +305,8 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
             };
             const onWheel = (event: WheelEvent) => {
                 event.preventDefault();
-                const next = clamp(camera.position.z + (event.deltaY > 0 ? 0.22 : -0.22), 3.8, 7);
-                camera.position.z = next;
+                cameraRadius = clamp(cameraRadius + (event.deltaY > 0 ? 0.22 : -0.22), 3.8, 9);
+                updateCameraOrbit();
             };
             renderer.domElement.addEventListener("pointerdown", onPointerDown);
             renderer.domElement.addEventListener("pointermove", onPointerMove);
