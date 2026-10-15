@@ -121,7 +121,8 @@ function CheckoutPage() {
     }, [navigate, customRequestId]);
     useEffect(() => () => stripeCleanupRef.current?.(), []);
 
-    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const cartSubtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const subtotal = quote?.subtotal ?? cartSubtotal;
     const shipping = quote?.shipping ?? 0;
     const tax = quote?.tax ?? null;
     const baseTotal = quote?.total ?? subtotal + shipping;
