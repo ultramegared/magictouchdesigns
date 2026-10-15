@@ -369,7 +369,7 @@ function CheckoutPage() {
             const checkout = window.Stripe(cfg.publishableKey).initCheckout({ clientSecret: d.clientSecret, elementsOptions: { appearance: { theme: "stripe", inputs: "spaced", labels: "above", variables: { colorPrimary: "#174A8B", colorBackground: "#FFFFFF", colorText: "#111827", colorTextSecondary: "#5B6573", colorTextPlaceholder: "#7B8491", colorDanger: "#C62828", iconColor: "#174A8B", borderRadius: "10px", fontSizeBase: "16px", fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" }, rules: { ".Label": { color: "#174A8B", fontWeight: "600" }, ".Label--focused": { color: "#123A6D" }, ".Input": { color: "#111827", backgroundColor: "#FFFFFF", border: "1px solid #CFD6DF" }, ".Input:focus": { borderColor: "#174A8B", boxShadow: "0 0 0 1px #174A8B" } } } }, defaultValues: { email: customer.email.trim().toLowerCase(), phoneNumber: customer.phone.trim(), shippingAddress: { name: `${customer.firstName} ${customer.lastName}`.trim(), address: { country: "US", line1: customer.address, line2: customer.apartment || undefined, city: customer.city, state: customer.state.toUpperCase(), postal_code: customer.zip } } } });
             const actions = await checkout.loadActions();
             if (actions.type !== "success") throw new Error(actions.error.message || "Stripe checkout could not initialize.");
-            stripeActionsRef.current = actions.actions; stripeSessionRef.current = { id: d.sessionId, code: d.orderCode }; stripeCustomerKeyRef.current = customerKey(customer);
+            stripeActionsRef.current = actions.actions; stripeSessionRef.current = { id: d.sessionId, code: d.orderCode }; stripeCustomerKeyRef.current = "";
             const payment = checkout.createPaymentElement({ layout: "tabs", fields: { billingDetails: { name: "always" } }, wallets: { applePay: "never", googlePay: "never", link: "never" } });
             const express = checkout.createExpressCheckoutElement({
                 buttonHeight: 52,
@@ -408,6 +408,7 @@ function CheckoutPage() {
                 // the click event; otherwise Apple Pay would display $30 instead of the
                 // final products + shipping + tax total.
                 if (!isCustomerReady(currentCustomer) || !currentQuote || !quoteReady ||
+                    stripeCustomerKeyRef.current !== customerKey(currentCustomer) ||
                     currentQuote.total <= 0 ||
                     Math.round((currentQuote.subtotal + currentQuote.shipping + currentQuote.tax) * 100) !== Math.round(currentQuote.total * 100)) {
                     setError("Complete the delivery address and wait for the full total to finish calculating before opening Apple Pay.");
