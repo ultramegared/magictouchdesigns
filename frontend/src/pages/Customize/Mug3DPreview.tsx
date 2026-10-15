@@ -229,7 +229,9 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
 
                     // The texture's left and right canvas edges meet at the handle seam.
                     // Clear only those outer edges so no white stripes cut through the front.
-                    const handleGapWidth = artworkCanvas.width * 0.018;
+                    // Keep a matching clear margin at both wrap edges so the handle sits centered
+                    // between the two print ends, with a little more breathing room on each side.
+                    const handleGapWidth = artworkCanvas.width * 0.035;
                     artworkCtx.clearRect(0, 0, handleGapWidth, artworkCanvas.height);
                     artworkCtx.clearRect(artworkCanvas.width - handleGapWidth, 0, handleGapWidth, artworkCanvas.height);
 
