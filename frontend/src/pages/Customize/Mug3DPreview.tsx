@@ -210,14 +210,15 @@ function Mug3DPreview(props: Mug3DPreviewProps) {
                     // edge of the canvas. Those blank edges meet at the handle as a small print-safe gap.
                     // Keep the image proportions when possible; the height fills the printable ceramic body.
                     // Preserve the original photo proportions inside the fixed printable area.
-                    const maxW = artworkCanvas.width * 0.90 * scale;
-                    const maxH = 980 * scale;
-                    // Cover the fixed print rectangle without stretching; crop overflow at its edges.
+                    // Use the same fixed 2:1 print frame and cover-crop as the editor preview.
+                    // Horizontal/vertical offsets are percentages of the actual overflow, not arbitrary pixels.
+                    const maxW = artworkCanvas.width * scale;
+                    const maxH = artworkCanvas.height * scale;
                     const ratio = Math.max(maxW / image.naturalWidth, maxH / image.naturalHeight);
                     const w = image.naturalWidth * ratio;
                     const h = image.naturalHeight * ratio;
-                    const x = artworkCanvas.width / 2 + (designX / 100) * 560;
-                    const y = artworkCanvas.height / 2 + (designY / 100) * 220;
+                    const x = artworkCanvas.width / 2 + (designX / 100) * Math.max(0, w - artworkCanvas.width);
+                    const y = artworkCanvas.height / 2 + (designY / 100) * Math.max(0, h - artworkCanvas.height);
                     artworkCtx.save();
                     artworkCtx.translate(x, y);
                     artworkCtx.rotate((designRotation * Math.PI) / 180);
