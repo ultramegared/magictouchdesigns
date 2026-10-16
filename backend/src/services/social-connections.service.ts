@@ -279,12 +279,12 @@ export async function publishInstagram(userId: string, text: string, imageUrl?: 
 
     // Create the Instagram media container before polling it or publishing it.
     // Instagram captions should contain only the copy/hashtags, never campaign tracking URLs.
-    // Remove any pasted URL that carries analytics parameters (utm_* or common click IDs)
-    // while preserving ordinary prose, hashtags, and unrelated URLs.
+    // Remove pasted URLs with analytics parameters while preserving normal copy and hashtags.
     const caption = text
-        .replace(/https?:\/\/[^\\s]+/gi, (candidate) => {
+        .replace(/https?:\/\/[^\s]+/gi, (candidate) => {
             try {
-                const parsed = new URL(candidate.replace(/[),.!?]+$/, ""));
+                const cleaned = candidate.replace(/[),.!?]+$/, "");
+                const parsed = new URL(cleaned);
                 const hasTracking = [...parsed.searchParams.keys()].some((key) =>
                     /^(utm_|fbclid$|gclid$|mc_cid$|mc_eid$)/i.test(key)
                 );
@@ -293,9 +293,9 @@ export async function publishInstagram(userId: string, text: string, imageUrl?: 
                 return candidate;
             }
         })
-        .replace(/[ \\t]{2,}/g, " ")
-        .replace(/\\n[ \\t]+/g, "\\n")
-        .replace(/\\n{3,}/g, "\\n\\n")
+        .replace(/[ \t]{2,}/g, " ")
+        .replace(/\n[ \t]+/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
         .trim();
     const mediaParams = new URLSearchParams({ caption });
     if (videoUrl) {
