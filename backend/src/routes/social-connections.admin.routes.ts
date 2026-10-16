@@ -12,6 +12,7 @@ router.get("/campaign/daily-summary-cron", marketingDailySummaryCron);
 router.use(authenticateToken);
 router.get("/", socialConnections);
 router.get("/email/status", marketingEmailStatus);
+router.get("/instagram/insights", instagramInsights);
 router.get("/:provider/authorize", socialAuthorize);
 router.get("/:provider/connect", socialConnect);
 router.get("/:provider/verify", socialVerify);
