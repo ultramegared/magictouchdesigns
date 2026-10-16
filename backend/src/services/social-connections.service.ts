@@ -254,11 +254,35 @@ export async function publishTikTokVideo(userId: string, text: string, videoUrl?
 }
 
 export async function getInstagramInsights(userId: string, days = 30) {
-    const token = await getAccessToken(userId, "instagram");
-    const profile = await providerProfile("instagram", token) as any;
-    const instagramUserId = String(profile.id || "");
+    await ensureSocialConnectionsTable();
+    const metaRow = await pool.query<{ access_token: string }>(`SELECT access_token FROM marketing_social_connections WHERE user_id=$1 AND provider='meta' LIMIT 1`, [userId]);
+    let token = "";
+    let instagramUserId = "";
+    let accountName: string | null = null;
+    let base = "";
+    let provider = "meta";
+    if (metaRow.rows[0]) {
+        token = String(decrypt(metaRow.rows[0].access_token) || "");
+        const profile = await metaProfile(token) as any;
+        const selection = await pool.query<{ external_id: string }>(`SELECT external_id FROM marketing_social_selections WHERE user_id=$1 AND provider='meta' AND channel='instagram' LIMIT 1`, [userId]);
+        const selectedId = selection.rows[0]?.external_id;
+        const selectedAccount = selectedId ? profile.instagram?.find((item: any) => String(item.id) === selectedId) : profile.instagram?.length === 1 ? profile.instagram[0] : null;
+        if (!selectedAccount?.id) throw new Error("Meta is connected, but no Instagram professional account is selected. In Marketing Brain, select the Instagram account under the Meta connection.");
+        const page = profile.pages?.find((item: any) => String(item.id) === String(selectedAccount.pageId));
+        if (!page?.accessToken) throw new Error("Meta returned the Instagram account but no linked Page access token. Check that the Instagram professional account is linked to a Facebook Page and reauthorize Meta.");
+        token = String(page.accessToken);
+        instagramUserId = String(selectedAccount.id);
+        accountName = selectedAccount.username || selectedAccount.name || null;
+        base = `https://graph.facebook.com/${META_VERSION}`;
+    } else {
+        token = await getAccessToken(userId, "instagram");
+        const profile = await providerProfile("instagram", token) as any;
+        instagramUserId = String(profile.id || "");
+        accountName = profile.username || profile.name || null;
+        base = `https://graph.instagram.com/${META_VERSION}`;
+        provider = "instagram";
+    }
     if (!instagramUserId) throw new Error("Instagram account ID is unavailable. Verify the connected professional account.");
-    const base = `https://graph.instagram.com/${META_VERSION}`;
     const request = async (url: URL) => {
         const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         const data = await response.json().catch(() => ({}));
@@ -284,7 +308,7 @@ export async function getInstagramInsights(userId: string, days = 30) {
     const media = Array.isArray(mediaData.data) ? mediaData.data : [];
     const recentMedia = await Promise.all(media.slice(0, 15).map(async (item: any) => {
         const insightsUrl = new URL(`${base}/${encodeURIComponent(String(item.id))}/insights`);
-        insightsUrl.searchParams.set("metric", item.media_type === "VIDEO" || item.media_type === "REELS" ? "views,reach,likes,comments,shares,saved" : "reach,likes,comments,shares,saved");
+        insightsUrl.searchParams.set("metric", item.media_type === "VIDEO" || item.media_type === "REELS" ? "views,reach,likes,comments,shares,saved" : "reach,likes,shares,saved");
         try {
             const insights = await request(insightsUrl);
             return { id: String(item.id), caption: String(item.caption || "").slice(0, 180), mediaType: item.media_type || "UNKNOWN", timestamp: item.timestamp || null, permalink: item.permalink || null, likeCount: Number(item.like_count || 0), commentsCount: Number(item.comments_count || 0), insights: insights.data || [] };
@@ -292,9 +316,8 @@ export async function getInstagramInsights(userId: string, days = 30) {
             return { id: String(item.id), caption: String(item.caption || "").slice(0, 180), mediaType: item.media_type || "UNKNOWN", timestamp: item.timestamp || null, permalink: item.permalink || null, likeCount: Number(item.like_count || 0), commentsCount: Number(item.comments_count || 0), insights: [], insightsError: error instanceof Error ? error.message : "Media insights unavailable." };
         }
     }));
-    return { verified: true, provider: "instagram", account: { id: instagramUserId, username: profile.username || profile.name || null }, periodDays: period, generatedAt: new Date().toISOString(), accountInsights: accountData.data || [], recentMedia };
+    return { verified: true, provider, account: { id: instagramUserId, username: accountName }, periodDays: period, generatedAt: new Date().toISOString(), accountInsights: accountData.data || [], recentMedia };
 }
-
 export async function publishInstagram(userId: string, text: string, imageUrl?: string, videoUrl?: string) {
     const token = await getAccessToken(userId, "instagram");
     const profile = await providerProfile("instagram", token) as any;
