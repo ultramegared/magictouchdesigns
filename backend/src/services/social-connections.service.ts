@@ -10,7 +10,7 @@ const FRONTEND_URL = process.env.FRONTEND_PUBLIC_URL || "https://jqydesigns.com"
 const BACKEND_URL = process.env.BACKEND_PUBLIC_URL || "https://api.jqydesigns.com";
 const providerConfig = (provider: SocialProvider) => {
     if (provider === "meta") return { configured: Boolean(process.env.META_APP_ID && process.env.META_APP_SECRET), clientId: process.env.META_APP_ID, clientSecret: process.env.META_APP_SECRET, authorize: `https://www.facebook.com/${META_VERSION}/dialog/oauth`, token: `https://graph.facebook.com/${META_VERSION}/oauth/access_token`, scopes: ["pages_show_list", "pages_read_engagement", "pages_manage_posts", "instagram_basic", "instagram_content_publish", "instagram_manage_insights", "whatsapp_business_management", "whatsapp_business_messaging"], envKeys: ["META_APP_ID", "META_APP_SECRET"] };
-    if (provider === "instagram") return { configured: Boolean(process.env.INSTAGRAM_ACCESS_TOKEN?.trim()), clientId: undefined, clientSecret: undefined, authorize: "https://www.instagram.com/oauth/authorize", token: "https://graph.instagram.com", scopes: ["instagram_business_basic", "instagram_business_content_publish"], envKeys: ["INSTAGRAM_ACCESS_TOKEN"] };
+    if (provider === "instagram") return { configured: Boolean(process.env.INSTAGRAM_ACCESS_TOKEN?.trim()), clientId: undefined, clientSecret: undefined, authorize: "https://www.instagram.com/oauth/authorize", token: "https://graph.instagram.com", scopes: ["instagram_business_basic", "instagram_business_content_publish", "instagram_business_manage_insights"], envKeys: ["INSTAGRAM_ACCESS_TOKEN"] };
     if (provider === "tiktok") return { configured: Boolean(process.env.TIKTOK_CLIENT_KEY && process.env.TIKTOK_CLIENT_SECRET), clientId: process.env.TIKTOK_CLIENT_KEY, clientSecret: process.env.TIKTOK_CLIENT_SECRET, authorize: "https://www.tiktok.com/v2/auth/authorize/", token: "https://open.tiktokapis.com/v2/oauth/token/", scopes: ["user.info.basic", "video.publish", "video.upload"], envKeys: ["TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET"] };
     if (provider === "youtube") return { configured: Boolean(process.env.GOOGLE_OAUTH_CLIENT_ID && process.env.GOOGLE_OAUTH_CLIENT_SECRET), clientId: process.env.GOOGLE_OAUTH_CLIENT_ID, clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET, authorize: "https://accounts.google.com/o/oauth2/v2/auth", token: "https://oauth2.googleapis.com/token", scopes: ["openid", "profile", "https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"], envKeys: ["GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET"] };
     return { configured: Boolean(process.env.PINTEREST_APP_ID && process.env.PINTEREST_APP_SECRET), clientId: process.env.PINTEREST_APP_ID, clientSecret: process.env.PINTEREST_APP_SECRET, authorize: "https://www.pinterest.com/oauth/", token: "https://api.pinterest.com/v5/oauth/token", scopes: ["user_accounts:read", "boards:read", "boards:write", "pins:read", "pins:write"], envKeys: ["PINTEREST_APP_ID", "PINTEREST_APP_SECRET"] };
@@ -251,6 +251,48 @@ export async function publishTikTokVideo(userId: string, text: string, videoUrl?
         account: creator.creator_username || creator.creator_nickname || "TikTok",
         message: "TikTok accepted the video publication request; final publication status must be confirmed asynchronously."
     };
+}
+
+export async function getInstagramInsights(userId: string, days = 30) {
+    const token = await getAccessToken(userId, "instagram");
+    const profile = await providerProfile("instagram", token) as any;
+    const instagramUserId = String(profile.id || "");
+    if (!instagramUserId) throw new Error("Instagram account ID is unavailable. Verify the connected professional account.");
+    const base = `https://graph.instagram.com/${META_VERSION}`;
+    const request = async (url: URL) => {
+        const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data?.error) {
+            const message = data?.error?.message || "Instagram Insights request failed.";
+            const code = data?.error?.code ? ` (code ${data.error.code})` : "";
+            throw new Error(message + code);
+        }
+        return data;
+    };
+    const period = Math.max(1, Math.min(90, Math.floor(days)));
+    const accountUrl = new URL(`${base}/${encodeURIComponent(instagramUserId)}/insights`);
+    accountUrl.searchParams.set("metric", "reach,views,accounts_engaged,total_interactions");
+    accountUrl.searchParams.set("period", "day");
+    accountUrl.searchParams.set("metric_type", "total_value");
+    accountUrl.searchParams.set("since", String(Math.floor((Date.now() - period * 86400000) / 1000)));
+    accountUrl.searchParams.set("until", String(Math.floor(Date.now() / 1000)));
+    const accountData = await request(accountUrl);
+    const mediaUrl = new URL(`${base}/${encodeURIComponent(instagramUserId)}/media`);
+    mediaUrl.searchParams.set("fields", "id,caption,media_type,timestamp,permalink,like_count,comments_count");
+    mediaUrl.searchParams.set("limit", "25");
+    const mediaData = await request(mediaUrl);
+    const media = Array.isArray(mediaData.data) ? mediaData.data : [];
+    const recentMedia = await Promise.all(media.slice(0, 15).map(async (item: any) => {
+        const insightsUrl = new URL(`${base}/${encodeURIComponent(String(item.id))}/insights`);
+        insightsUrl.searchParams.set("metric", item.media_type === "VIDEO" || item.media_type === "REELS" ? "views,reach,likes,comments,shares,saved" : "reach,likes,comments,shares,saved");
+        try {
+            const insights = await request(insightsUrl);
+            return { id: String(item.id), caption: String(item.caption || "").slice(0, 180), mediaType: item.media_type || "UNKNOWN", timestamp: item.timestamp || null, permalink: item.permalink || null, likeCount: Number(item.like_count || 0), commentsCount: Number(item.comments_count || 0), insights: insights.data || [] };
+        } catch (error) {
+            return { id: String(item.id), caption: String(item.caption || "").slice(0, 180), mediaType: item.media_type || "UNKNOWN", timestamp: item.timestamp || null, permalink: item.permalink || null, likeCount: Number(item.like_count || 0), commentsCount: Number(item.comments_count || 0), insights: [], insightsError: error instanceof Error ? error.message : "Media insights unavailable." };
+        }
+    }));
+    return { verified: true, provider: "instagram", account: { id: instagramUserId, username: profile.username || profile.name || null }, periodDays: period, generatedAt: new Date().toISOString(), accountInsights: accountData.data || [], recentMedia };
 }
 
 export async function publishInstagram(userId: string, text: string, imageUrl?: string, videoUrl?: string) {
