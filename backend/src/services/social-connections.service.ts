@@ -277,7 +277,25 @@ export async function publishInstagram(userId: string, text: string, imageUrl?: 
         return data;
     };
 
-    const mediaParams = new URLSearchParams();
+    // Create the Instagram media container before polling it or publishing it.
+    const caption = link ? text.trim() + "\n\n" + link.trim() : text.trim();
+    const mediaParams = new URLSearchParams({ caption });
+    if (videoUrl) {
+        mediaParams.set("media_type", "REELS");
+        mediaParams.set("video_url", videoUrl);
+    } else {
+        mediaParams.set("image_url", imageUrl!);
+    }
+    const createUrl = new URL(base + "/" + encodeURIComponent(instagramUserId) + "/media");
+    createUrl.searchParams.set("access_token", token);
+    const createResponse = await fetch(createUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: mediaParams,
+    });
+    const created = await requestJson(createResponse, "Instagram media container creation failed.");
+    if (!created?.id) throw new Error("Instagram did not return a media container ID; nothing was published.");
+
     // Poll every container type, including still images, before calling media_publish.
     const statusUrl = new URL(base + "/" + encodeURIComponent(String(created.id)));
     statusUrl.searchParams.set("fields", "status_code,status");
