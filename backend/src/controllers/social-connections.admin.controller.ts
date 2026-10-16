@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { randomUUID } from "crypto";
-import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "../services/social-connections.service";
+import { disconnect, getConnectUrl, getConnections, handleCallback, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, getInstagramInsights, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { launchMarketingCampaign, retryMarketingCampaign, listMarketingCampaigns, deleteMarketingCampaign, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot, getMarketingCampaignResults } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
@@ -44,6 +44,17 @@ export function socialAuthorize(req: AuthenticatedRequest, res: Response) {
         if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
         res.json({ url: getConnectUrl(provider, String(req.user!.userId)) });
     } catch (error) { res.status(503).json({ error: error instanceof Error ? error.message : "Social integration is not configured." }); }
+}
+
+export async function instagramInsights(req: AuthenticatedRequest, res: Response) {
+    try {
+        const rawDays = Number(req.query.days || 30);
+        const days = Number.isFinite(rawDays) ? Math.max(1, Math.min(90, Math.floor(rawDays))) : 30;
+        res.set({ "Cache-Control": "no-store, no-cache, must-revalidate, private", "Pragma": "no-cache" });
+        res.json({ status: "success", ...(await getInstagramInsights(String(req.user!.userId), days)) });
+    } catch (error) {
+        res.status(503).json({ status: "error", verified: false, error: error instanceof Error ? error.message : "Instagram Insights could not be loaded." });
+    }
 }
 
 export async function socialVerify(req: AuthenticatedRequest, res: Response) {
