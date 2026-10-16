@@ -253,7 +253,7 @@ export async function publishTikTokVideo(userId: string, text: string, videoUrl?
     };
 }
 
-export async function publishInstagram(userId: string, text: string, imageUrl?: string, videoUrl?: string, link?: string) {
+export async function publishInstagram(userId: string, text: string, imageUrl?: string, videoUrl?: string) {
     const token = await getAccessToken(userId, "instagram");
     const profile = await providerProfile("instagram", token) as any;
     const instagramUserId = String(profile.id || "");
@@ -278,7 +278,7 @@ export async function publishInstagram(userId: string, text: string, imageUrl?: 
     };
 
     // Create the Instagram media container before polling it or publishing it.
-    const caption = link ? text.trim() + "\n\n" + link.trim() : text.trim();
+    const caption = text.trim(); // Keep campaign tracking URLs out of the public Instagram caption.
     const mediaParams = new URLSearchParams({ caption });
     if (videoUrl) {
         mediaParams.set("media_type", "REELS");
