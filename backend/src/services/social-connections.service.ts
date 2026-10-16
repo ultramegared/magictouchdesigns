@@ -493,4 +493,4 @@ export async function publishYouTube(userId: string, text: string, videoUrl?: st
     return { ok: true, status: "PROCESSING", id: data.id, account: "YouTube", privacyStatus, message: "YouTube accepted the upload; processing/publication status will be confirmed asynchronously.", ...(data.id ? { url: "https://www.youtube.com/watch?v=" + encodeURIComponent(String(data.id)) } : {}) };
 }
 
-export function isSocialProvider(value: string): value is SocialProvider { return ["meta", "tiktok", "youtube", "pinterest"].includes(value); }
+export function isSocialProvider(value: string): value is SocialProvider { return ["meta", "instagram", "tiktok", "youtube", "pinterest"].includes(value); }
