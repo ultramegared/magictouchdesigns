@@ -227,8 +227,11 @@ export async function verifyGoogleIntegration() {
         } else if (gscResult.resolvedSiteUrl) {
             const data = await getSearchAnalytics(30, gscResult.resolvedSiteUrl);
             searchConsole.rows = data.rows?.length || 0;
-            searchConsole.dataVerified = true;
-            searchConsole.status = "DATA_AVAILABLE";
+            searchConsole.dataVerified = searchConsole.rows > 0;
+            searchConsole.status = searchConsole.dataVerified ? "DATA_AVAILABLE" : "CONNECTED";
+            if (!searchConsole.dataVerified) {
+                searchConsole.error = "Search Console authenticated and property access is confirmed, but the 30-day query returned no rows.";
+            }
         }
     } catch (error) {
         searchConsole.status = "ERROR";
@@ -242,10 +245,16 @@ export async function verifyGoogleIntegration() {
             const gaData = await getAnalyticsReport(30);
             analytics.authenticated = true;
             analytics.connected = true;
-            analytics.status = "CONNECTED";
             analytics.rows = gaData.rows?.length || 0;
-            analytics.dataVerified = true;
-            analytics.status = "DATA_AVAILABLE";
+            analytics.dataVerified = analytics.rows > 0
+                && (Number(gaData.summary?.activeUsers || 0) > 0
+                    || Number(gaData.summary?.sessions || 0) > 0
+                    || Number(gaData.summary?.screenPageViews || 0) > 0
+                    || Number(gaData.summary?.totalRevenue || 0) > 0);
+            analytics.status = analytics.dataVerified ? "DATA_AVAILABLE" : "CONNECTED";
+            if (!analytics.dataVerified) {
+                analytics.error = "GA4 authenticated and the report request succeeded, but no historical rows or non-zero summary metrics were returned for the requested period.";
+            }
         } catch (error) {
             analytics.status = "ERROR";
             analytics.error = error instanceof Error ? error.message : "GA4 verification failed.";
