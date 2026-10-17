@@ -121,6 +121,19 @@ const connectedSocialChannels = async (userId: string): Promise<SocialChannel[]>
     return allowedChannels.filter(channel => Boolean(state.channels?.[channel]));
 };
 
+// Keep price details out of social captions while preserving useful numbers such as
+// product sizes, dates, and model names. This applies only at the social publishing
+// boundary; catalog prices and the original campaign record remain unchanged.
+const sanitizeSocialCaption = (message: string): string => {
+    const pricePattern = /(?:\$\s?\d+(?:[.,]\d{1,2})?|\bUSD\s?\d+(?:[.,]\d{1,2})?|\b\d+(?:[.,]\d{1,2})?\s?(?:USD|dollars?)\b|\b(?:price|priced at|only)\s*:?\s*\$?\s?\d+(?:[.,]\d{1,2})?\b)/i;
+    return message
+        .split(/(?<=[.!?])\s+|\n+/)
+        .filter(part => !pricePattern.test(part))
+        .join("\n\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+};
+
 const publishSocialCampaign = async (
     userId: string,
     channels: SocialChannel[],
@@ -128,23 +141,24 @@ const publishSocialCampaign = async (
     campaignId: string,
 ): Promise<Record<string, unknown>> => {
     const results: Record<string, unknown> = {};
+    const socialCaption = sanitizeSocialCaption(input.message.trim());
     const metaChannels = channels.filter(channel => ["facebook", "whatsapp"].includes(channel));
     for (const channel of metaChannels) {
         Object.assign(
             results,
-            await publishMeta(userId, [channel], input.message.trim(), input.imageUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, channel), input.whatsappTo?.trim() || undefined, input.videoUrl?.trim() || undefined)
+            await publishMeta(userId, [channel], socialCaption, input.imageUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, channel), input.whatsappTo?.trim() || undefined, input.videoUrl?.trim() || undefined)
         );
     }
     if (channels.includes("instagram")) {
         try {
-            results.instagram = await publishInstagram(userId, input.message.trim(), input.imageUrl?.trim() || undefined, input.videoUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, "instagram"));
+            results.instagram = await publishInstagram(userId, socialCaption, input.imageUrl?.trim() || undefined, input.videoUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, "instagram"));
         } catch (error) {
             results.instagram = { ok: false, error: error instanceof Error ? error.message : "Instagram publication failed." };
         }
     }
     if (channels.includes("pinterest")) {
         try {
-            results.pinterest = await publishPinterest(userId, input.message.trim(), input.imageUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, "pinterest"));
+            results.pinterest = await publishPinterest(userId, socialCaption, input.imageUrl?.trim() || undefined, withCampaignTracking(input.link?.trim(), campaignId, "pinterest"));
         } catch (error) {
             results.pinterest = { ok: false, error: error instanceof Error ? error.message : "Pinterest publication failed." };
         }
@@ -152,15 +166,15 @@ const publishSocialCampaign = async (
     if (channels.includes("tiktok")) {
         try {
             results.tiktok = input.videoUrl
-                ? await publishTikTokVideo(userId, input.message.trim(), input.videoUrl.trim())
-                : await publishTikTokPhoto(userId, input.message.trim(), input.imageUrl?.trim());
+                ? await publishTikTokVideo(userId, socialCaption, input.videoUrl.trim())
+                : await publishTikTokPhoto(userId, socialCaption, input.imageUrl?.trim());
         } catch (error) {
             results.tiktok = { ok: false, error: error instanceof Error ? error.message : "TikTok publication failed." };
         }
     }
     if (channels.includes("youtube")) {
         try {
-            results.youtube = await publishYouTube(userId, input.message.trim(), input.videoUrl?.trim(), withCampaignTracking(input.link?.trim(), campaignId, "youtube"), input.youtubePrivacy || "public");
+            results.youtube = await publishYouTube(userId, socialCaption, input.videoUrl?.trim(), withCampaignTracking(input.link?.trim(), campaignId, "youtube"), input.youtubePrivacy || "public");
         } catch (error) {
             results.youtube = { ok: false, error: error instanceof Error ? error.message : "YouTube publication failed." };
         }
