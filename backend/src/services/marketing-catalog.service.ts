@@ -208,7 +208,7 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
   const existingQueued = await pool.query(
     `SELECT id FROM marketing_campaigns
      WHERE owner_user_id=$1 AND autopilot_enabled=TRUE
-       AND next_run_at IS NOT NULL AND next_run_at >= NOW() - INTERVAL '6 hours'
+       AND next_run_at IS NOT NULL AND next_run_at >= NOW() - INTERVAL '12 hours'
        AND (results->'source'->>'type')='catalog'
      LIMIT 1`,
     [ownerUserId],
@@ -218,6 +218,8 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
   const productResult = await pool.query(
     `SELECT p.product_id,p.name,p.slug,p.description,p.price,p.image_url,p.image_urls,p.features,p.created_at
      FROM products p
+     JOIN collection_products cp ON cp.product_id=p.product_id
+     JOIN collections col ON col.id=cp.collection_id AND col.is_active=TRUE
      WHERE p.is_active=TRUE
        AND p.price > 0
        AND NULLIF(BTRIM(p.name), '') IS NOT NULL
@@ -262,7 +264,7 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
   await pool.query(
     `INSERT INTO marketing_campaigns
       (id,name,objective,target_area,message,subject,channels,results,idempotency_key,owner_user_id,autopilot_enabled,next_run_at,campaign_type,recurrence_hours)
-     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'catalog',6)`,
+     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'catalog',12)`,
     [
       campaignId,
       `Catalog · ${String(product.name || "New product")}`,
@@ -336,7 +338,7 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
   const existingQueued = await pool.query(
     `SELECT id FROM marketing_campaigns
      WHERE owner_user_id=$1 AND autopilot_enabled=TRUE
-       AND next_run_at IS NOT NULL AND next_run_at >= NOW() - INTERVAL '6 hours'
+       AND next_run_at IS NOT NULL AND next_run_at >= NOW() - INTERVAL '12 hours'
        AND (results->'source'->>'type')='portfolio'
      LIMIT 1`,
     [ownerUserId],
@@ -347,6 +349,9 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
     `SELECT p.portfolio_id,p.image_url,p.title_en,p.description_en,p.characteristics_en,p.created_at
      FROM portfolio_items p
      WHERE p.is_active=TRUE
+       AND NULLIF(BTRIM(COALESCE(p.image_url,'')), '') IS NOT NULL
+       AND NULLIF(BTRIM(COALESCE(p.title_en,'')), '') IS NOT NULL
+       AND p.title_en !~* '(^|[^a-z])(test|sample|demo|placeholder|completed work)([^a-z]|$)'
        AND (
          NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text)
          OR EXISTS (
@@ -362,7 +367,7 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
            AND (mc.results->'source'->>'portfolioId')=p.portfolio_id::text
            AND mc.autopilot_enabled=TRUE
            AND mc.next_run_at IS NOT NULL
-           AND mc.next_run_at >= NOW() - INTERVAL '6 hours'
+           AND mc.next_run_at >= NOW() - INTERVAL '12 hours'
        )
      ORDER BY
        CASE WHEN NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text) THEN 0 ELSE 1 END,
@@ -383,7 +388,7 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
   await pool.query(
     `INSERT INTO marketing_campaigns
       (id,name,objective,target_area,message,subject,channels,results,idempotency_key,owner_user_id,autopilot_enabled,next_run_at,campaign_type,recurrence_hours)
-     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'portfolio',6)`,
+     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9,$10,TRUE,$11,'portfolio',12)`,
     [
       campaignId,
       `Portfolio · ${String(item.title_en || "Featured work")}`,
@@ -424,6 +429,9 @@ export async function getContentAutopilotStatus(ownerUserId: string) {
     const portfolio = await pool.query(
       `SELECT COUNT(*)::int AS count FROM portfolio_items p
        WHERE p.is_active=TRUE
+         AND NULLIF(BTRIM(COALESCE(p.image_url,'')), '') IS NOT NULL
+         AND NULLIF(BTRIM(COALESCE(p.title_en,'')), '') IS NOT NULL
+         AND p.title_en !~* '(^|[^a-z])(test|sample|demo|placeholder|completed work)([^a-z]|$)'
          AND (
            NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text)
            OR COALESCE((SELECT mpp.last_promoted_at FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text), 'epoch'::timestamptz) <= NOW() - INTERVAL '7 days'
