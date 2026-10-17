@@ -819,6 +819,36 @@ const runMarketingAutopilotOnce = async () => {
 
     const campaign = due.rows[0];
     const userId = String(campaign.owner_user_id || "");
+
+    // Never publish placeholder/test catalog items, inactive products, or products
+    // without a real positive price and a usable image. This also protects against
+    // campaigns that were queued before the eligibility rules were tightened.
+    const source = campaign.results?.source || {};
+    if (source.type === "catalog") {
+        const productId = String(source.productId || "");
+        const productCheck = productId
+            ? await pool.query(
+                `SELECT name, price, is_active, COALESCE(NULLIF(BTRIM(image_url), ''), NULLIF(BTRIM(image_urls->>0), '')) AS image_url
+                 FROM products WHERE product_id::text=$1 LIMIT 1`,
+                [productId]
+              )
+            : { rows: [] };
+        const product = productCheck.rows[0];
+        const isPlaceholder = !product || !product.is_active || Number(product.price) <= 0
+            || !String(product.name || "").trim()
+            || /(^|[^a-z])(test|sample|demo|placeholder)([^a-z]|$)/i.test(String(product.name || ""))
+            || !String(product.image_url || "").trim();
+        if (isPlaceholder) {
+            await pool.query(
+                `UPDATE marketing_campaigns
+                 SET autopilot_enabled=FALSE, next_run_at=NULL, claim_token=NULL, claim_expires_at=NULL,
+                     results=results || $2::jsonb
+                 WHERE id=$1 AND claim_token=$3`,
+                [campaign.id, JSON.stringify({ autopilot: { blocked: true, reason: "Catalog item failed production eligibility checks; no social post was sent." } }), claimToken]
+            );
+            return { ran: false, reason: "Catalog item failed production eligibility checks; no social post was sent.", campaignId: campaign.id };
+        }
+    }
     if (campaign.ends_at && new Date(campaign.ends_at) <= new Date()) {
         await pool.query(`UPDATE marketing_campaigns SET autopilot_enabled=FALSE, next_run_at=NULL, claim_token=NULL, claim_expires_at=NULL WHERE id=$1 AND claim_token=$2`, [campaign.id, claimToken]);
         return { ran: false, reason: "Campaign window ended.", campaignId: campaign.id };
