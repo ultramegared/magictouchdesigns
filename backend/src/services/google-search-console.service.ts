@@ -262,7 +262,7 @@ export async function verifyGoogleIntegration() {
     }
 
     return {
-        connected: searchConsole.dataVerified && analytics.dataVerified,
+        connected: searchConsole.connected && analytics.connected,
         searchConsole,
         analytics,
     };
