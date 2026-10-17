@@ -43,4 +43,6 @@ The statuses below are based on the prior work conversation and are **not a fres
 
 ## Update log
 
+- 2026-10-16: Draft PR #90 (`fix/marketing-social-no-prices`) removes the explicit catalog price from generated social copy and filters price-bearing sentences at the social publishing boundary. No posts were sent and no social connections were changed. Build/CI and deployment are still pending; this is not live until merged and deployed.
+
 - 2026-10-16: Initial handoff file created from the previously reported project context. Integration statuses above are historical reports, not live verification.
