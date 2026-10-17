@@ -185,7 +185,6 @@ const evaluatePortfolioPromotability = async (item: any): Promise<PromotionDecis
 const buildProductMessage = (product: any) => {
   const description = String(product.description || "").replace(/\s+/g, " ").trim();
   const shortDescription = description.length > 120 ? `${description.slice(0,117)}...` : description;
-  const price = Number(product.price || 0).toFixed(2);
   const rawFeatures = product.features;
   const features = Array.isArray(rawFeatures)
     ? rawFeatures.filter(Boolean).slice(0, 5).join(" · ")
@@ -193,12 +192,12 @@ const buildProductMessage = (product: any) => {
       ? Object.entries(rawFeatures).slice(0, 5).map(([key, value]) => `${key}: ${String(value)}`).join(" · ")
       : "";
   return [
-    "✨ New at JQYDesigns",
-    `**${String(product.name || "New product")}**`,
-    shortDescription || "Personalized design made by JQYDesigns.",
-    features ? `Details: ${features}` : "",
-    `Only ${price}`,
-    "Shop now and discover the full design.",
+    "✨ Discover something personal at JQYDesigns",
+    `**${String(product.name || "Custom design")}**`,
+    shortDescription || "A thoughtful personalized design, created to make your gift feel one of a kind.",
+    features ? `Design details: ${features}` : "",
+    "Looking for a meaningful gift for a school, team, celebration, or someone special?",
+    "Explore the design and request your own custom creation at JQYDesigns.",
   ].filter(Boolean).join("\n\n");
 };
 
