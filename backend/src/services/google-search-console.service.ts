@@ -287,7 +287,7 @@ export async function getAnalyticsReport(days = 28) {
         {
             method: "POST",
             body: JSON.stringify({
-                dateRanges: [{ startDate: `${safeDays}daysAgo`, endDate: "yesterday" }],
+                dateRanges: [{ startDate: safeDays === 1 ? "today" : `${safeDays - 1}daysAgo`, endDate: "today" }],
                 metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }],
                 limit: "1",
             }),
@@ -300,7 +300,7 @@ export async function getAnalyticsReport(days = 28) {
         {
             method: "POST",
             body: JSON.stringify({
-                dateRanges: [{ startDate: `${safeDays}daysAgo`, endDate: "yesterday" }],
+                dateRanges: [{ startDate: safeDays === 1 ? "today" : `${safeDays - 1}daysAgo`, endDate: "today" }],
                 dimensions: [{ name: "date" }],
                 metrics: [{ name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }],
                 limit: String(safeDays),
