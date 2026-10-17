@@ -308,10 +308,26 @@ export async function getAnalyticsReport(days = 28) {
         },
     );
     const summaryValues = summaryData.rows?.[0]?.metricValues || [];
+    const dailyRows = dailyData.rows || [];
+    // Safe diagnostics: log report shape and aggregate values, never credentials or tokens.
+    console.info("[GA4 report diagnostic]", {
+        propertyId,
+        days: safeDays,
+        startDate: safeDays === 1 ? "today" : `${safeDays - 1}daysAgo`,
+        endDate: "today",
+        summaryRowCount: summaryData.rows?.length || 0,
+        dailyRowCount: dailyRows.length,
+        summary: {
+            activeUsers: Number(summaryValues[0]?.value || 0),
+            sessions: Number(summaryValues[1]?.value || 0),
+            screenPageViews: Number(summaryValues[2]?.value || 0),
+            totalRevenue: Number(summaryValues[3]?.value || 0),
+        },
+    });
     return {
         propertyId,
         days: safeDays,
-        rows: (dailyData.rows || []).map(row => ({
+        rows: dailyRows.map(row => ({
             dimensionValues: row.dimensionValues || [],
             metricValues: [
                 { value: summaryValues[0]?.value || "0" },
