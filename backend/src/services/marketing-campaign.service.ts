@@ -108,10 +108,10 @@ const ensureCampaignTable = async () => {
     await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS error TEXT`);
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_campaign_runs_publication_key_idx ON marketing_campaign_runs(publication_key) WHERE publication_key IS NOT NULL`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_owner_idx ON marketing_campaign_runs(owner_user_id, created_at DESC)`);
-    // Normalize existing active Autopilot campaigns to the new 6-hour operating window.
-    // This is intentionally scoped to Marketing campaigns only.
-    await pool.query(`UPDATE marketing_campaigns SET recurrence_hours=6 WHERE autopilot_enabled=TRUE AND recurrence_hours > 7`);
-    await pool.query(`UPDATE marketing_campaigns SET next_run_at=NOW() + INTERVAL '6 hours' WHERE autopilot_enabled=TRUE AND next_run_at IS NOT NULL AND next_run_at > NOW() + INTERVAL '6 hours' AND (starts_at IS NULL OR starts_at <= NOW())`);
+    // Normalize active Marketing Autopilot campaigns to the requested 12-hour cadence.
+    // This is scoped to marketing campaigns only and does not publish anything by itself.
+    await pool.query(`UPDATE marketing_campaigns SET recurrence_hours=12 WHERE autopilot_enabled=TRUE AND recurrence_hours <> 12`);
+    await pool.query(`UPDATE marketing_campaigns SET next_run_at=NOW() + INTERVAL '12 hours' WHERE autopilot_enabled=TRUE AND next_run_at IS NOT NULL AND next_run_at > NOW() + INTERVAL '12 hours' AND (starts_at IS NULL OR starts_at <= NOW())`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_campaign_idx ON marketing_campaign_runs(campaign_id, created_at DESC)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_created_idx ON marketing_campaign_runs(created_at DESC)`);
 };
@@ -258,10 +258,10 @@ export const launchMarketingCampaign = async (userId: string, input: MarketingCa
     const targetArea = input.targetArea?.trim() || "Houston, Texas + United States";
     const objective = input.objective?.trim() || "Brand awareness and sales";
     const campaignType = input.campaignType || "manual";
-    const requestedRecurrenceHours = Number(input.recurrenceHours) || 6;
-    // Marketing Autopilot operates on a tight 5–7 hour learning cadence.
-    // The hourly cron remains the queue/check mechanism; this is the campaign publish interval.
-    const recurrenceHours = Math.min(Math.max(requestedRecurrenceHours, 5), 7);
+    const requestedRecurrenceHours = Number(input.recurrenceHours) || 12;
+    // Twice-daily publishing is the default. The learning engine may prefer a better slot
+    // only when real attributed observations support that decision.
+    const recurrenceHours = Math.min(Math.max(requestedRecurrenceHours, 12), 12);
     const startsAt = input.startsAt ? new Date(input.startsAt) : null;
     const endsAt = input.endsAt ? new Date(input.endsAt) : null;
     if (startsAt && Number.isNaN(startsAt.getTime())) throw new Error("Invalid campaign start date.");
@@ -819,6 +819,36 @@ const runMarketingAutopilotOnce = async () => {
 
     const campaign = due.rows[0];
     const userId = String(campaign.owner_user_id || "");
+
+    // Never publish placeholder/test catalog items, inactive products, or products
+    // without a real positive price and a usable image. This also protects against
+    // campaigns that were queued before the eligibility rules were tightened.
+    const source = campaign.results?.source || {};
+    if (source.type === "catalog") {
+        const productId = String(source.productId || "");
+        const productCheck = productId
+            ? await pool.query(
+                `SELECT name, price, is_active, COALESCE(NULLIF(BTRIM(image_url), ''), NULLIF(BTRIM(image_urls->>0), '')) AS image_url
+                 FROM products WHERE product_id::text=$1 LIMIT 1`,
+                [productId]
+              )
+            : { rows: [] };
+        const product = productCheck.rows[0];
+        const isPlaceholder = !product || !product.is_active || Number(product.price) <= 0
+            || !String(product.name || "").trim()
+            || /(^|[^a-z])(test|sample|demo|placeholder)([^a-z]|$)/i.test(String(product.name || ""))
+            || !String(product.image_url || "").trim();
+        if (isPlaceholder) {
+            await pool.query(
+                `UPDATE marketing_campaigns
+                 SET autopilot_enabled=FALSE, next_run_at=NULL, claim_token=NULL, claim_expires_at=NULL,
+                     results=results || $2::jsonb
+                 WHERE id=$1 AND claim_token=$3`,
+                [campaign.id, JSON.stringify({ autopilot: { blocked: true, reason: "Catalog item failed production eligibility checks; no social post was sent." } }), claimToken]
+            );
+            return { ran: false, reason: "Catalog item failed production eligibility checks; no social post was sent.", campaignId: campaign.id };
+        }
+    }
     if (campaign.ends_at && new Date(campaign.ends_at) <= new Date()) {
         await pool.query(`UPDATE marketing_campaigns SET autopilot_enabled=FALSE, next_run_at=NULL, claim_token=NULL, claim_expires_at=NULL WHERE id=$1 AND claim_token=$2`, [campaign.id, claimToken]);
         return { ran: false, reason: "Campaign window ended.", campaignId: campaign.id };
@@ -836,7 +866,7 @@ const runMarketingAutopilotOnce = async () => {
     const configuredChannels = Array.isArray(campaign.channels) ? campaign.channels.filter((x: any) => allowedChannels.includes(x)) : [];
     const eligible = configuredChannels.filter((channel: SocialChannel) => connected.includes(channel));
     if (!eligible.length) {
-        await pool.query(`UPDATE marketing_campaigns SET next_run_at = NOW() + INTERVAL '6 hours', claim_token=NULL, claim_expires_at=NULL WHERE id=$1 AND claim_token=$2`, [campaign.id, claimToken]);
+        await pool.query(`UPDATE marketing_campaigns SET next_run_at = NOW() + INTERVAL '12 hours', claim_token=NULL, claim_expires_at=NULL WHERE id=$1 AND claim_token=$2`, [campaign.id, claimToken]);
         return { ran: false, reason: "No selected channel is currently connected.", campaignId: campaign.id };
     }
 
@@ -849,10 +879,9 @@ const runMarketingAutopilotOnce = async () => {
     const recentlyUsed = new Set(recent.rows.map((r: any) => String(r.channel)));
     const adaptiveSlot = await getAdaptiveNextSlot(campaign.target_area, campaign.objective, eligible, userId);
     if (adaptiveSlot) {
-        // Never delay beyond the 5–7 hour operating window just because a historical
-        // best slot falls on another day. The Brain may still use the learned slot
-        // when it is inside the normal cadence, otherwise the next cycle runs on time.
-        const maxAdaptiveDelayMs = 7 * 60 * 60 * 1000;
+        // Use learned publication windows only when enough attributed evidence exists.
+        // Timing optimization must never exceed one standard 12-hour cycle.
+        const maxAdaptiveDelayMs = 12 * 60 * 60 * 1000;
         if (adaptiveSlot.getTime() - Date.now() <= maxAdaptiveDelayMs) {
             await pool.query(`UPDATE marketing_campaigns SET next_run_at=$2, claim_token=NULL, claim_expires_at=NULL WHERE id=$1 AND claim_token=$3`, [campaign.id, adaptiveSlot, claimToken]);
             return { ran: false, reason: "Waiting for the learned best publication window.", campaignId: campaign.id, nextRunAt: adaptiveSlot.toISOString() };
@@ -913,7 +942,7 @@ const runMarketingAutopilotOnce = async () => {
         results: publicationResults,
     });
 
-    const cadenceHours = Math.min(Math.max(Number(campaign.recurrence_hours) || 6, 5), 7);
+    const cadenceHours = 12;
     const nextRun = new Date(Date.now() + cadenceHours * 60 * 60 * 1000);
     const mergedResults = {
         ...(campaign.results || {}),

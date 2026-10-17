@@ -219,6 +219,10 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
     `SELECT p.product_id,p.name,p.slug,p.description,p.price,p.image_url,p.image_urls,p.features,p.created_at
      FROM products p
      WHERE p.is_active=TRUE
+       AND p.price > 0
+       AND NULLIF(BTRIM(p.name), '') IS NOT NULL
+       AND p.name !~* '(^|[^a-z])(test|sample|demo|placeholder)([^a-z]|$)'
+       AND NULLIF(BTRIM(COALESCE(p.image_url, p.image_urls->>0, '')), '') IS NOT NULL
        AND (
          NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id::text)
          OR EXISTS (
