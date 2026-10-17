@@ -677,8 +677,8 @@ function AdminMarketing() {
 {gsc?.error && <span>{gsc?.connected ? "⚠️ " : "❌ "}{gsc.error}<br/></span>}
 <b>GA4</b><br/>
 {ga?.dataVerified ? "✅ DATA_AVAILABLE" : ga?.status ? `⚠️ ${ga.status}` : "⚠️ NOT VERIFIED"} · Property {ga?.propertyId || "553929161"}<br/>
-{ga?.error && <span>{ga?.connected ? "⚠️ " : "❌ "}{ga.error}<br/></span>}
-{(gsc?.rows || ga?.rows) ? <span>Data rows: Search Console {gsc?.rows || 0} · GA4 {ga?.rows || 0}</span> : null}
+{ga?.connected && !ga?.dataVerified ? <span>⚠️ GA4 está conectado, pero aún no devuelve datos históricos para el período consultado.<br/></span> : ga?.error ? <span>❌ {ga.error}<br/></span> : null}
+<span>Filas de datos: Search Console {gsc?.rows || 0} · GA4 {ga?.rows || 0}</span>
 </div><div className="actions"><button className="btn primary" onClick={() => void refreshGoogle()} disabled={googleChecking}>{googleChecking ? <Loader2 size={14}/> : <RefreshCw size={14}/>} {googleChecking ? "Verifying Google..." : "Verify & refresh Google"}</button></div></>}
       {modal === "campaign" && <><p>Créala una sola vez. Si activas Autopilot, el mismo Marketing Brain la distribuye por los canales conectados, mide resultados y decide las siguientes oportunidades usando el aprendizaje acumulado.</p><div className="campaign-grid"><div>
         <div className="field"><label>CAMPAIGN TYPE</label><div className="checks"><label className={`check ${campaignType === "event" ? "selected" : ""}`}><input type="radio" checked={campaignType === "event"} onChange={() => setCampaignType("event")}/><span>📣 Special / Event Promotion</span></label><label className={`check ${campaignType === "manual" ? "selected" : ""}`}><input type="radio" checked={campaignType === "manual"} onChange={() => setCampaignType("manual")}/><span>📝 General Manual Campaign</span></label></div></div><div className="field"><label>CAMPAIGN NAME</label><input className="input" value={campaignName} onChange={e => setCampaignName(e.target.value)} placeholder="Halloween 2×3"/></div>
