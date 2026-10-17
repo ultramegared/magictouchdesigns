@@ -273,7 +273,16 @@ export async function getAnalyticsRealtimeReport() {
         { method: "POST", body: JSON.stringify({ dimensions: [{ name: "country" }], metrics: [{ name: "activeUsers" }, { name: "eventCount" }], limit: "100" }) },
     );
     const rows = data.rows || [];
-    return { propertyId, generatedAt: new Date().toISOString(), activeUsers: rows.reduce((sum,row)=>sum+Number(row.metricValues?.[0]?.value||0),0), eventCount: rows.reduce((sum,row)=>sum+Number(row.metricValues?.[1]?.value||0),0), rows };
+    const activeUsers = rows.reduce((sum,row)=>sum+Number(row.metricValues?.[0]?.value||0),0);
+    const eventCount = rows.reduce((sum,row)=>sum+Number(row.metricValues?.[1]?.value||0),0);
+    console.info("[GA4 realtime diagnostic]", {
+        propertyId,
+        rowCount: rows.length,
+        activeUsers,
+        eventCount,
+        generatedAt: new Date().toISOString(),
+    });
+    return { propertyId, generatedAt: new Date().toISOString(), activeUsers, eventCount, rows };
 }
 
 export async function getAnalyticsReport(days = 28) {
