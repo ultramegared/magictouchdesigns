@@ -108,10 +108,10 @@ const ensureCampaignTable = async () => {
     await pool.query(`ALTER TABLE marketing_campaign_runs ADD COLUMN IF NOT EXISTS error TEXT`);
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS marketing_campaign_runs_publication_key_idx ON marketing_campaign_runs(publication_key) WHERE publication_key IS NOT NULL`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_owner_idx ON marketing_campaign_runs(owner_user_id, created_at DESC)`);
-    // Normalize existing active Autopilot campaigns to the new 6-hour operating window.
-    // This is intentionally scoped to Marketing campaigns only.
+    // Normalize active Marketing Autopilot campaigns to the requested 12-hour cadence.
+    // This is scoped to marketing campaigns only and does not publish anything by itself.
     await pool.query(`UPDATE marketing_campaigns SET recurrence_hours=12 WHERE autopilot_enabled=TRUE AND recurrence_hours <> 12`);
-    await pool.query(`UPDATE marketing_campaigns SET next_run_at=NOW() + INTERVAL '6 hours' WHERE autopilot_enabled=TRUE AND next_run_at IS NOT NULL AND next_run_at > NOW() + INTERVAL '6 hours' AND (starts_at IS NULL OR starts_at <= NOW())`);
+    await pool.query(`UPDATE marketing_campaigns SET next_run_at=NOW() + INTERVAL '12 hours' WHERE autopilot_enabled=TRUE AND next_run_at IS NOT NULL AND next_run_at > NOW() + INTERVAL '12 hours' AND (starts_at IS NULL OR starts_at <= NOW())`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_campaign_idx ON marketing_campaign_runs(campaign_id, created_at DESC)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS marketing_campaign_runs_created_idx ON marketing_campaign_runs(created_at DESC)`);
 };
