@@ -141,7 +141,7 @@ const publishSocialCampaign = async (
     campaignId: string,
 ): Promise<Record<string, unknown>> => {
     const results: Record<string, unknown> = {};
-    const socialCaption = sanitizeSocialCaption(socialCaption);
+    const socialCaption = sanitizeSocialCaption(input.message.trim());
     const metaChannels = channels.filter(channel => ["facebook", "whatsapp"].includes(channel));
     for (const channel of metaChannels) {
         Object.assign(
