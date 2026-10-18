@@ -913,7 +913,7 @@ const runMarketingAutopilotOnce = async () => {
     );
     if (!publishGate.rows[0] || publishGate.rows[0].enabled !== true) {
         await pool.query(
-            `UPDATE marketing_campaigns SET claim_token=NULL, claim_expires_at=NULL, next_run_at=NULL WHERE id=$1 AND claim_token=$2`,
+            `UPDATE marketing_campaigns SET claim_token=NULL, claim_expires_at=NULL, next_run_at=NOW() + INTERVAL '12 hours' WHERE id=$1 AND claim_token=$2`,
             [campaign.id, claimToken]
         );
         return { ran: false, paused: true, reason: "Marketing Autopilot was paused before publication; nothing was sent.", campaignId: campaign.id };
