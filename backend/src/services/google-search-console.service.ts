@@ -114,9 +114,31 @@ async function googleRequest<T>(base: string, path: string, scope: string, optio
         throw new Error(`Google integration is not configured: ${diagnostic}`);
     }
     const token = await getAccessToken(credentials, scope);
-    const response = await fetch(`${base}${path}`, { ...options, headers: { authorization: `Bearer ${token}`, "content-type": "application/json", ...(options.headers || {}) } });
-    if (!response.ok) { const text = await response.text(); throw new Error(`Google API failed (${response.status}): ${text.slice(0, 300)}`); }
-    return await response.json() as T;
+    const url = `${base}${path}`;
+    const maxAttempts = 3;
+    let lastError: Error | null = null;
+
+    // Google Analytics occasionally returns an HTML 502 gateway page instead of its JSON API response.
+    // Retry only transient upstream failures; never mask authentication, permission, or configuration errors.
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        try {
+            const response = await fetch(url, { ...options, headers: { authorization: `Bearer ${token}`, "content-type": "application/json", ...(options.headers || {}) } });
+            if (response.ok) return await response.json() as T;
+
+            const body = await response.text();
+            const detail = body.slice(0, 300);
+            lastError = new Error(`Google API failed (${response.status}): ${detail}`);
+            if (![500, 502, 503, 504].includes(response.status) || attempt === maxAttempts) throw lastError;
+        } catch (error) {
+            const err = error instanceof Error ? error : new Error(String(error));
+            if (lastError !== err && attempt === maxAttempts) throw err;
+            if (lastError !== err && !(err.message.includes("fetch failed") || err.name === "TypeError")) throw err;
+            lastError = err;
+            if (attempt === maxAttempts) throw err;
+        }
+        await new Promise(resolve => setTimeout(resolve, attempt * 300));
+    }
+    throw lastError || new Error("Google API request failed.");
 }
 
 export function getSearchConsoleStatus() {
