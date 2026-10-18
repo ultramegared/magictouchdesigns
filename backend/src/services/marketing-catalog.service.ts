@@ -314,7 +314,12 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
 
 export async function getCatalogOwners() {
   await ensureCatalogTables();
-  const result = await pool.query(`SELECT owner_user_id FROM marketing_catalog_autopilot WHERE enabled=TRUE`);
+  // One shared Marketing Brain workspace; never run duplicate autopilot loops per admin.
+  const workspaceId = process.env.MARKETING_WORKSPACE_OWNER_ID?.trim() || "a720d444-d23c-45ca-9086-d0d4dde26a1f";
+  const result = await pool.query(
+    `SELECT owner_user_id FROM marketing_catalog_autopilot WHERE enabled=TRUE AND owner_user_id=$1`,
+    [workspaceId],
+  );
   return result.rows.map((row: any) => String(row.owner_user_id));
 }
 
