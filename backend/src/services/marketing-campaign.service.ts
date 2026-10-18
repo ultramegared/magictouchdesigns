@@ -791,6 +791,15 @@ const syncPendingPublicationStatuses = async () => {
 };
 const runMarketingAutopilotOnce = async () => {
     await ensureCampaignTable();
+    // Shared global pause gate: do not queue content or publish unless explicitly active.
+    const workspaceId = process.env.MARKETING_WORKSPACE_OWNER_ID?.trim() || "a720d444-d23c-45ca-9086-d0d4dde26a1f";
+    const pauseState = await pool.query(
+        `SELECT enabled FROM marketing_catalog_autopilot WHERE owner_user_id=$1 LIMIT 1`,
+        [workspaceId]
+    );
+    if (!pauseState.rows[0] || pauseState.rows[0].enabled !== true) {
+        return { ran: false, paused: true, reason: "Marketing Autopilot is paused; no content was queued or published." };
+    }
     const contentOwners = await getCatalogOwners();
     const contentQueue = [];
     for (const ownerId of contentOwners) {
@@ -897,6 +906,18 @@ const runMarketingAutopilotOnce = async () => {
         return (score.get(b) || 0) - (score.get(a) || 0);
     });
     const channelsToPublish = ranked;
+    // Recheck pause immediately before making outbound provider calls.
+    const publishGate = await pool.query(
+        `SELECT enabled FROM marketing_catalog_autopilot WHERE owner_user_id=$1 LIMIT 1`,
+        [workspaceId]
+    );
+    if (!publishGate.rows[0] || publishGate.rows[0].enabled !== true) {
+        await pool.query(
+            `UPDATE marketing_campaigns SET claim_token=NULL, claim_expires_at=NULL, next_run_at=NULL WHERE id=$1 AND claim_token=$2`,
+            [campaign.id, claimToken]
+        );
+        return { ran: false, paused: true, reason: "Marketing Autopilot was paused before publication; nothing was sent.", campaignId: campaign.id };
+    }
     const firstRun = Number(campaign.run_count || 0) === 0;
     const social: Record<string, unknown> = {};
     for (const channel of channelsToPublish) {
