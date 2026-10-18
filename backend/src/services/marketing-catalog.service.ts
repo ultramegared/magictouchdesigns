@@ -183,22 +183,17 @@ const evaluatePortfolioPromotability = async (item: any): Promise<PromotionDecis
 };
 
 const buildProductMessage = (product: any) => {
-  const description = String(product.description || "").replace(/\s+/g, " ").trim();
-  const shortDescription = description.length > 120 ? `${description.slice(0,117)}...` : description;
-  const rawFeatures = product.features;
-  const features = Array.isArray(rawFeatures)
-    ? rawFeatures.filter(Boolean).slice(0, 5).join(" · ")
-    : rawFeatures && typeof rawFeatures === "object"
-      ? Object.entries(rawFeatures).slice(0, 5).map(([key, value]) => `${key}: ${String(value)}`).join(" · ")
-      : "";
+  // Social copy intentionally uses only the product name as its factual input.
+  // Never leak product descriptions, features, option objects, or prices into captions.
+  const name = String(product.name || "Personalized design").replace(/\s+/g, " ").trim();
   return [
-    "✨ Discover something personal at JQYDesigns",
-    `**${String(product.name || "Custom design")}**`,
-    shortDescription || "A thoughtful personalized design, created to make your gift feel one of a kind.",
-    features ? `Design details: ${features}` : "",
-    "Looking for a meaningful gift for a school, team, celebration, or someone special?",
-    "Explore the design and request your own custom creation at JQYDesigns.",
-  ].filter(Boolean).join("\n\n");
+    `✨ Meet your next favorite personalized gift: ${name} ✨`,
+    "Make a meaningful moment unforgettable with a custom creation made just for you. 💝",
+    "Looking for a thoughtful gift for family, friends, a celebration, or someone special? We would love to help bring your idea to life.",
+    "✨ Explore our designs and request your own custom creation.",
+    "Shop or get started today: https://www.jqydesigns.com/",
+    "#JQYDesigns #PersonalizedGifts #CustomGifts #GiftIdeas #MadeForYou #PersonalizedDesign",
+  ].join("\n\n");
 };
 
 export async function queueNextCatalogProduct(ownerUserId: string) {
