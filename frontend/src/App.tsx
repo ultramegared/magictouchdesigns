@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { apiRequest } from "./services/api";
 import { translations } from "./translations";
 import { useLanguage } from "./contexts/LanguageContext";
@@ -45,6 +45,29 @@ import PrivacyPage from "./pages/Privacy";
 import TermsOfServicePage from "./pages/TermsOfService";
 import ForgotPasswordPage from "./pages/ForgotPassword/ForgotPassword";
 import ResetPasswordPage from "./pages/ResetPassword/ResetPassword";
+
+
+declare global {
+    interface Window {
+        gtag?: (...args: unknown[]) => void;
+    }
+}
+
+function AnalyticsRouteTracker() {
+    const location = useLocation();
+
+    useEffect(() => {
+        if (typeof window.gtag !== "function") return;
+        window.gtag("event", "page_view", {
+            page_path: `${location.pathname}${location.search}${location.hash}`,
+            page_location: window.location.href,
+            page_title: document.title,
+        });
+    }, [location.pathname, location.search, location.hash]);
+
+    return null;
+}
+
 interface LocalizedText{en:string;es:string}
 interface SiteThemeSnapshot{palette?:{primary?:string;secondary?:string;accent?:string;surface?:string;surfaceAlt?:string;text?:string;textMuted?:string;border?:string;buttonText?:string;buttonHover?:string;buttonHoverText?:string;shadow?:string;radius?:number;depth?:number};effects?:{enabled?:boolean;depth?:number;glow?:number};id?:string;name?:string}
 interface SiteConfigSnapshot{websiteName?:LocalizedText;browserTitle?:LocalizedText;designerName?:LocalizedText;designerTitle?:LocalizedText;theme?:SiteThemeSnapshot}
@@ -55,7 +78,7 @@ function App(){const{language}=useLanguage();const[ready,setReady]=useState(fals
 apiRequest<{status:string;settings:{websiteName:string;browserTitle:string;config:SiteConfigSnapshot}}>(`/api/settings?app_refresh=${Date.now()}`,{cache:"no-store"}).then(({settings})=>hydrate(settings.config,settings.websiteName,settings.browserTitle)).catch(()=>{const cached=localStorage.getItem("mtd_site_config");if(cached){try{hydrate(JSON.parse(cached));}catch{}}}).finally(()=>{if(!cancelled)setReady(true)});
 const onThemeUpdate=()=>{try{const cached=localStorage.getItem("mtd_site_config");if(cached)hydrate(JSON.parse(cached));}catch{}};
 window.addEventListener("mtd-site-config-updated",onThemeUpdate);
-return()=>{cancelled=true;window.removeEventListener("mtd-site-config-updated",onThemeUpdate)}},[language]);if(!ready)return null;return <BrowserRouter><Seo/><Routes>
+return()=>{cancelled=true;window.removeEventListener("mtd-site-config-updated",onThemeUpdate)}},[language]);if(!ready)return null;return <BrowserRouter><AnalyticsRouteTracker/><Seo/><Routes>
 <Route path="/" element={<HomePage/>}/><Route path="/admin-login" element={<AdminLogin/>}/><Route path="/register" element={<RegisterPage/>}/><Route path="/forgot-password" element={<ForgotPasswordPage/>}/><Route path="/reset-password" element={<ResetPasswordPage/>}/>
 <Route path="/account" element={<AccountPage/>}/><Route path="/account/orders" element={<OrdersPage/>}/><Route path="/account/reviews" element={<ReviewsPage/>}/><Route path="/account/reviews/create" element={<CreateReviewPage/>}/>
 <Route path="/admin" element={<AdminRoute><AdminDashboard/></AdminRoute>}/><Route path="/admin/marketing" element={<AdminRoute><AdminMarketing/></AdminRoute>}/><Route path="/admin/email-templates" element={<AdminRoute><AdminEmailTemplates/></AdminRoute>}/><Route path="/admin/email-log" element={<AdminRoute><AdminEmailLog/></AdminRoute>}/><Route path="/admin/sales" element={<AdminRoute><AdminSales/></AdminRoute>}/><Route path="/admin/reviews" element={<AdminRoute><AdminReviews/></AdminRoute>}/><Route path="/admin/users" element={<AdminRoute><AdminUsers/></AdminRoute>}/><Route path="/admin/products" element={<AdminRoute><AdminProducts/></AdminRoute>}/><Route path="/admin/collections" element={<AdminRoute><AdminCollectionsHub/></AdminRoute>}/><Route path="/admin/collections/:slug" element={<AdminRoute><AdminCollectionProducts/></AdminRoute>}/><Route path="/admin/subscribers" element={<AdminRoute><AdminSubscribers/></AdminRoute>}/><Route path="/admin/content" element={<AdminRoute><AdminContent/></AdminRoute>}/><Route path="/admin/portfolio" element={<AdminRoute><AdminPortfolio/></AdminRoute>}/><Route path="/admin/orders" element={<AdminRoute><AdminOrders/></AdminRoute>}/><Route path="/admin/reports" element={<AdminRoute><AdminReports/></AdminRoute>}/><Route path="/admin/settings" element={<AdminRoute><AdminSettings/></AdminRoute>}/>
