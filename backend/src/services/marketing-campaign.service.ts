@@ -127,11 +127,50 @@ const connectedSocialChannels = async (userId: string): Promise<SocialChannel[]>
 const sanitizeSocialCaption = (message: string): string => {
     const pricePattern = /(?:\$\s?\d+(?:[.,]\d{1,2})?|\bUSD\s?\d+(?:[.,]\d{1,2})?|\b\d+(?:[.,]\d{1,2})?\s?(?:USD|dollars?)\b|\b(?:price|priced at|only)\s*:?\s*\$?\s?\d+(?:[.,]\d{1,2})?\b)/i;
     return message
+        .replace(/\*{1,3}/g, "")
         .split(/(?<=[.!?])\s+|\n+/)
         .filter(part => !pricePattern.test(part))
+        .filter(part => !/\[object Object\]|design details:|^details:/i.test(part))
+        .filter(part => !/^(?:ceramic mug|dishwasher and microwave safe|features?:)/i.test(part.trim()))
         .join("\n\n")
         .replace(/\n{3,}/g, "\n\n")
         .trim();
+};
+
+const generateAutopilotCaption = async (productName: string, imageUrl?: string): Promise<string> => {
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
+    if (!apiKey) throw new Error("OPENAI_API_KEY is required for image-aware autopilot captions.");
+    const name = productName.replace(/\s+/g, " ").trim() || "Personalized design";
+    const content: any[] = [{
+        type: "input_text",
+        text: [
+            "Write a fresh, professional, inviting English social media caption for JQYDesigns based on the attached product image and product name.",
+            "Inspect the image to understand the visual design and personalize the caption to what is visibly shown. Use the product name as the only product metadata.",
+            "Do not mention product descriptions, features, materials, sizes, care instructions, options, prices, or any details not clearly visible in the image.",
+            "Do not output Markdown formatting, headings, explanations, or labels. Never output [object Object].",
+            "Invite people to shop or request a custom design. Include this URL exactly: https://www.jqydesigns.com/",
+            "Finish with a small set of relevant hashtags including #JQYDesigns.",
+            "Return only the final caption, ready to publish.",
+            `Product name: ${name}`
+        ].join("\n")
+    }];
+    if (imageUrl && /^https:\/\//i.test(imageUrl)) content.push({ type: "input_image", image_url: imageUrl, detail: "high" });
+    const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+            model: process.env.MARKETING_CAPTION_MODEL?.trim() || "gpt-4.1-mini",
+            input: [{ role: "user", content }],
+            max_output_tokens: 350
+        }),
+    });
+    if (!response.ok) throw new Error(`Caption generation failed (OpenAI HTTP ${response.status}).`);
+    const payload: any = await response.json();
+    const generated = typeof payload.output_text === "string" ? payload.output_text.trim() : "";
+    if (!generated || /\[object Object\]/i.test(generated) || !generated.includes("www.jqydesigns.com")) {
+        throw new Error("Generated caption failed content validation.");
+    }
+    return sanitizeSocialCaption(generated);
 };
 
 const publishSocialCampaign = async (
@@ -926,7 +965,12 @@ const runMarketingAutopilotOnce = async () => {
             name: campaign.name,
             objective: campaign.objective,
             targetArea: campaign.target_area,
-            message: campaign.message,
+            message: (source.type === "catalog" || source.type === "portfolio")
+                ? await generateAutopilotCaption(
+                    String(source.productName || source.portfolioTitle || campaign.name || "Personalized design"),
+                    String(assets.imageUrl || "")
+                  )
+                : campaign.message,
             subject: campaign.subject,
             channels: [channel],
             imageUrl: campaign.results?.assets?.imageUrl,
