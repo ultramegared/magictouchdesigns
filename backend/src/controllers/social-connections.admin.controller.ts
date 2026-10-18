@@ -9,6 +9,9 @@ import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/mark
 import { uploadImageAsset, uploadVideoAsset } from "../services/upload.service";
 import cloudinary from "../config/cloudinary";
 
+// All authorized admins share one Marketing Brain workspace. Keep login identities separate.
+const marketingWorkspaceId = () => process.env.MARKETING_WORKSPACE_OWNER_ID?.trim() || "a720d444-d23c-45ca-9086-d0d4dde26a1f";
+
 export async function marketingEmailStatus(req: AuthenticatedRequest, res: Response) {
     void req;
     const apiKeyConfigured = Boolean(process.env.RESEND_API_KEY?.trim());
@@ -34,7 +37,7 @@ export async function socialConnections(req: AuthenticatedRequest, res: Response
         "Pragma": "no-cache",
         "Expires": "0",
     });
-    try { res.json(await getConnections(String(req.user!.userId))); }
+    try { res.json(await getConnections(marketingWorkspaceId())); }
     catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Unable to load social connections." }); }
 }
 
@@ -42,7 +45,7 @@ export function socialAuthorize(req: AuthenticatedRequest, res: Response) {
     try {
         const provider = String(req.params.provider);
         if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
-        res.json({ url: getConnectUrl(provider, String(req.user!.userId)) });
+        res.json({ url: getConnectUrl(provider, marketingWorkspaceId()) });
     } catch (error) { res.status(503).json({ error: error instanceof Error ? error.message : "Social integration is not configured." }); }
 }
 
@@ -51,7 +54,7 @@ export async function instagramInsights(req: AuthenticatedRequest, res: Response
         const rawDays = Number(req.query.days || 30);
         const days = Number.isFinite(rawDays) ? Math.max(1, Math.min(90, Math.floor(rawDays))) : 30;
         res.set({ "Cache-Control": "no-store, no-cache, must-revalidate, private", "Pragma": "no-cache" });
-        res.json({ status: "success", ...(await getInstagramInsights(String(req.user!.userId), days)) });
+        res.json({ status: "success", ...(await getInstagramInsights(marketingWorkspaceId(), days)) });
     } catch (error) {
         res.status(503).json({ status: "error", verified: false, error: error instanceof Error ? error.message : "Instagram Insights could not be loaded." });
     }
@@ -61,7 +64,7 @@ export async function socialVerify(req: AuthenticatedRequest, res: Response) {
     try {
         const provider = String(req.params.provider);
         if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
-        const result = await verifySocialConnection(String(req.user!.userId), provider);
+        const result = await verifySocialConnection(marketingWorkspaceId(), provider);
         res.json({ status: "success", ...result });
     } catch (error) {
         res.status(503).json({ status: "error", verified: false, error: error instanceof Error ? error.message : "Social connection verification failed." });
@@ -76,7 +79,7 @@ export async function socialSelectAccount(req: AuthenticatedRequest, res: Respon
         if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
         const allowed: SocialChannel[] = ["facebook","instagram","whatsapp","tiktok","youtube","pinterest"];
         if (!allowed.includes(channel)) return res.status(400).json({ error: "Unsupported social channel." });
-        const result = await selectSocialAccount(String(req.user!.userId), provider, channel, externalId);
+        const result = await selectSocialAccount(marketingWorkspaceId(), provider, channel, externalId);
         res.json({ status: "success", ...result });
     } catch (error) { res.status(400).json({ status: "error", error: error instanceof Error ? error.message : "Unable to select social account." }); }
 }
@@ -84,7 +87,7 @@ export function socialConnect(req: AuthenticatedRequest, res: Response) {
     try {
         const provider = String(req.params.provider);
         if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
-        res.redirect(getConnectUrl(provider, String(req.user!.userId)));
+        res.redirect(getConnectUrl(provider, marketingWorkspaceId()));
     } catch (error) { res.status(503).json({ error: error instanceof Error ? error.message : "Social integration is not configured." }); }
 }
 
@@ -107,7 +110,7 @@ export async function socialDisconnect(req: AuthenticatedRequest, res: Response)
     try {
         const provider = String(req.params.provider);
         if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
-        await disconnect(String(req.user!.userId), provider);
+        await disconnect(marketingWorkspaceId(), provider);
         res.json({ ok: true });
     } catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Unable to disconnect social account." }); }
 }
@@ -179,7 +182,7 @@ export async function marketingMediaUpload(req: AuthenticatedRequest, res: Respo
 
 export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Response) {
     try {
-        const result = await launchMarketingCampaign(String(req.user!.userId), {
+        const result = await launchMarketingCampaign(marketingWorkspaceId(), {
             name: String(req.body?.name || ""),
             objective: typeof req.body?.objective === "string" ? req.body.objective : undefined,
             targetArea: typeof req.body?.targetArea === "string" ? req.body.targetArea : undefined,
@@ -208,7 +211,7 @@ export async function marketingCampaignLaunch(req: AuthenticatedRequest, res: Re
 
 export async function marketingCampaignRetry(req: AuthenticatedRequest, res: Response) {
     try {
-        const result = await retryMarketingCampaign(String(req.user!.userId), String(req.params.campaignId || ""));
+        const result = await retryMarketingCampaign(marketingWorkspaceId(), String(req.params.campaignId || ""));
         res.json({ status: "success", data: result });
     } catch (error) {
         res.status(400).json({ status: "error", error: error instanceof Error ? error.message : "Unable to retry marketing campaign." });
@@ -235,7 +238,7 @@ export async function marketingGoogleAdsVerify(_req: AuthenticatedRequest, res: 
 
 export async function marketingAutopilotStatus(req: AuthenticatedRequest, res: Response) {
     try {
-        res.json({ status: "success", data: await getMarketingAutopilotStatus(String(req.user!.userId)) });
+        res.json({ status: "success", data: await getMarketingAutopilotStatus(marketingWorkspaceId()) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing Autopilot status." });
     }
@@ -252,7 +255,7 @@ export async function marketingAutopilotRunNow(req: AuthenticatedRequest, res: R
 
 export async function marketingCampaignHistory(req: AuthenticatedRequest, res: Response) {
     try {
-        res.json({ status: "success", campaigns: await listMarketingCampaigns(String(req.user!.userId), Number(req.query.limit || 20)) });
+        res.json({ status: "success", campaigns: await listMarketingCampaigns(marketingWorkspaceId(), Number(req.query.limit || 20)) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load marketing campaign history." });
     }
@@ -261,7 +264,7 @@ export async function marketingCampaignHistory(req: AuthenticatedRequest, res: R
 export async function marketingCampaignDelete(req: AuthenticatedRequest, res: Response) {
     try {
         const campaignId = String(req.params.campaignId || "").trim();
-        const deleted = await deleteMarketingCampaign(String(req.user!.userId), campaignId);
+        const deleted = await deleteMarketingCampaign(marketingWorkspaceId(), campaignId);
         if (!deleted) {
             return res.status(404).json({ status: "error", error: "Marketing campaign not found." });
         }
@@ -275,7 +278,7 @@ export async function marketingCampaignDelete(req: AuthenticatedRequest, res: Re
 export async function marketingCampaignResults(req: AuthenticatedRequest, res: Response) {
     try {
         const days = Number(req.query.days || 30);
-        res.json({ status: "success", results: await getMarketingCampaignResults(String(req.user!.userId), Number.isFinite(days) ? days : 30) });
+        res.json({ status: "success", results: await getMarketingCampaignResults(marketingWorkspaceId(), Number.isFinite(days) ? days : 30) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing campaign results." });
     }
@@ -283,7 +286,7 @@ export async function marketingCampaignResults(req: AuthenticatedRequest, res: R
 
 export async function marketingPublicationActivity(req: AuthenticatedRequest, res: Response) {
     try {
-        res.json({ status: "success", publications: await listMarketingPublicationActivity(String(req.user!.userId), Number(req.query.limit || 50)) });
+        res.json({ status: "success", publications: await listMarketingPublicationActivity(marketingWorkspaceId(), Number(req.query.limit || 50)) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing publication activity." });
     }
@@ -297,7 +300,7 @@ export async function socialPublish(req: AuthenticatedRequest, res: Response) {
         if (!selected.length) return res.status(400).json({ error: "Select at least one social channel." });
         const text = String(req.body?.text || "").trim();
         if (!text) return res.status(400).json({ error: "Publication text is required." });
-        const userId = String(req.user!.userId);
+        const userId = marketingWorkspaceId();
         const idempotencyKey = String(req.body?.idempotencyKey || req.headers["x-idempotency-key"] || randomUUID()).trim();
         const result = await launchMarketingCampaign(userId, {
             name: typeof req.body?.campaignName === "string" && req.body.campaignName.trim() ? req.body.campaignName.trim() : `Manual Publication ${new Date().toISOString()}`,
@@ -325,7 +328,7 @@ export async function marketingLearning(req: AuthenticatedRequest, res: Response
     try {
         const targetArea = typeof req.query.targetArea === "string" ? req.query.targetArea : undefined;
         const objective = typeof req.query.objective === "string" ? req.query.objective : undefined;
-        res.json({ status: "success", insights: await getMarketingLearning(targetArea, objective, String(req.user!.userId)) });
+        res.json({ status: "success", insights: await getMarketingLearning(targetArea, objective, marketingWorkspaceId()) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load marketing learning." });
     }
@@ -339,7 +342,7 @@ export async function marketingLearningFeedback(req: AuthenticatedRequest, res: 
         if (!req.body?.campaignId) return res.status(400).json({ error: "Campaign ID is required." });
         const result = await recordCampaignLearningFeedback({
             campaignId: String(req.body.campaignId),
-            ownerUserId: String(req.user!.userId),
+            ownerUserId: marketingWorkspaceId(),
             channel,
             clicks: Number(req.body?.clicks || 0),
             sessions: Number(req.body?.sessions || 0),
@@ -371,7 +374,7 @@ export async function marketingAutopilotRun(req: Request, res: Response) {
 
 export async function marketingDailySummary(req: AuthenticatedRequest, res: Response) {
     try {
-        res.json({ status: "success", summary: await getMarketingDailySummary(String(req.user!.userId)) });
+        res.json({ status: "success", summary: await getMarketingDailySummary(marketingWorkspaceId()) });
     } catch (error) {
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load daily Marketing summary." });
     }
@@ -394,7 +397,7 @@ export async function marketingDailySummaryCron(req: Request, res: Response) {
 
 export async function marketingCatalogStatus(req: AuthenticatedRequest, res: Response) {
     try {
-        res.json({ status: "success", catalog: await getContentAutopilotStatus(String(req.user!.userId)) });
+        res.json({ status: "success", catalog: await getContentAutopilotStatus(marketingWorkspaceId()) });
     } catch (error) {
         console.error("Unable to load Content Autopilot status:", error);
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Catalog Autopilot." });
@@ -404,7 +407,7 @@ export async function marketingCatalogStatus(req: AuthenticatedRequest, res: Res
 export async function marketingCatalogToggle(req: AuthenticatedRequest, res: Response) {
     try {
         const enabled = Boolean(req.body?.enabled);
-        res.json({ status: "success", catalog: await setCatalogAutopilot(String(req.user!.userId), enabled) });
+        res.json({ status: "success", catalog: await setCatalogAutopilot(marketingWorkspaceId(), enabled) });
     } catch (error) {
         console.error("Unable to update Content Autopilot:", error);
         res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to update Catalog Autopilot." });
