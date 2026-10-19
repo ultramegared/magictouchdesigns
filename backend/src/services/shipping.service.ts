@@ -194,7 +194,13 @@ const quoteEasyPostPackage = async (
 
     const rates = Array.isArray(payload?.rates) ? payload.rates : [];
     const upsRates = rates
-        .filter((rate: any) => String(rate?.carrier || "").toUpperCase() === "UPS")
+        // EasyPost may label an attached UPS account as "UPSDAP" rather than
+        // "UPS". Both represent UPS rates when returned for the configured UPS
+        // carrier account, so an exact equality check incorrectly discarded every rate.
+        .filter((rate: any) => {
+            const carrier = String(rate?.carrier || "").toUpperCase();
+            return carrier === "UPS" || carrier.startsWith("UPS");
+        })
         .filter((rate: any) => Number.isFinite(Number(rate?.rate)) && Number(rate.rate) > 0)
         .sort((a: any, b: any) => Number(a.rate) - Number(b.rate));
 
