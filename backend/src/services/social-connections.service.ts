@@ -87,6 +87,7 @@ async function providerProfile(provider: SocialProvider, accessToken: string) { 
         const boards: any[] = [];
         const seenBookmarks = new Set<string>();
         let bookmark: string | undefined;
+        let paginationComplete = false;
         for (let page = 0; page < 25; page += 1) {
             const boardsUrl = new URL("https://api.pinterest.com/v5/boards");
             boardsUrl.searchParams.set("page_size", "250");
@@ -99,9 +100,16 @@ async function providerProfile(provider: SocialProvider, accessToken: string) { 
             }
             if (Array.isArray(boardsData.items)) boards.push(...boardsData.items);
             const nextBookmark = typeof boardsData.bookmark === "string" && boardsData.bookmark ? boardsData.bookmark : "";
-            if (!nextBookmark || seenBookmarks.has(nextBookmark)) break;
+            if (!nextBookmark) {
+                paginationComplete = true;
+                break;
+            }
+            if (seenBookmarks.has(nextBookmark)) break;
             seenBookmarks.add(nextBookmark);
             bookmark = nextBookmark;
+        }
+        if (!paginationComplete && boards.length === 0) {
+            throw new Error("Pinterest board pagination did not complete, so Marketing Brain will not create a duplicate default board. Retry the connection or check Pinterest API access.");
         }
 
         // Create one public default board only when the full board listing is empty.
