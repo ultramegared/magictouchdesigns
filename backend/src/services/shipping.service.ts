@@ -204,7 +204,7 @@ const quoteEasyPostPackage = async (
 
     return {
         price: Number(selected.rate),
-        service: /^ups\b/i.test(String(selected.service || "")) ? String(selected.service) : `UPS ${String(selected.service || "Ground")}`,
+        service: String(selected.service || "Ground Advantage"),
         rateId: String(selected.id || ""),
         shipmentId: String(payload?.id || selected.shipment_id || ""),
         days: Number.isFinite(Number(selected.delivery_days))
@@ -264,7 +264,7 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
         shipping: Number((shippingCents / 100).toFixed(2)),
         carrier: "USPS",
         service: quote.service,
-        deliveryDays: quote.days || 5,
+        deliveryDays: 7,
         currency: "USD",
         shipmentId: quote.shipmentId,
         rateId: quote.rateId || "USPS_GROUND_ADVANTAGE",
