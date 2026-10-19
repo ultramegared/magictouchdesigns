@@ -51,7 +51,6 @@ type EasyPostOrigin = {
 };
 
 const EASYPOST_API_BASE = "https://api.easypost.com/v2";
-let cachedUpsCarrierAccountId: string | null = null;
 
 const requiredEnv = (name: string): string => {
     const value = process.env[name]?.trim();
@@ -153,24 +152,11 @@ const easypostRequest = async <T>(
     return data as T;
 };
 
-const getUpsCarrierAccountId = async (): Promise<string> => {
-    if (cachedUpsCarrierAccountId) return cachedUpsCarrierAccountId;
-
-    const configured = process.env.EASYPOST_UPS_CARRIER_ACCOUNT_ID?.trim();
-    if (configured) {
-        cachedUpsCarrierAccountId = configured;
-        return configured;
-    }
-
-    throw new Error("EASYPOST_UPS_CARRIER_ACCOUNT_ID is not configured. Configure the UPS carrier account in Vercel before accepting shipping quotes.");
-};
-
 const quoteEasyPostPackage = async (
     origin: EasyPostOrigin,
     destination: VerifiedAddress,
     profile: MugProfile,
 ) => {
-    const carrierAccountId = await getUpsCarrierAccountId();
     const payload = await easypostRequest<any>("/shipments", "POST", {
         shipment: {
             to_address: {
@@ -188,42 +174,32 @@ const quoteEasyPostPackage = async (
                 width: profile.widthIn,
                 height: profile.heightIn,
             },
-            carrier_accounts: [carrierAccountId],
         },
     });
 
     const rates = Array.isArray(payload?.rates) ? payload.rates : [];
-    const upsRates = rates
-        // EasyPost may label an attached UPS account as "UPSDAP" rather than
-        // "UPS". Both represent UPS rates when returned for the configured UPS
-        // carrier account, so an exact equality check incorrectly discarded every rate.
-        .filter((rate: any) => {
-            const carrier = String(rate?.carrier || "").toUpperCase();
-            return carrier === "UPS" || carrier.startsWith("UPS");
-        })
+    const uspsRates = rates
+        .filter((rate: any) => String(rate?.carrier || "").toUpperCase().startsWith("USPS"))
         .filter((rate: any) => Number.isFinite(Number(rate?.rate)) && Number(rate.rate) > 0)
         .sort((a: any, b: any) => Number(a.rate) - Number(b.rate));
 
-    // Prefer UPS Ground / Ground Saver, but don't block checkout when the
-    // verified UPS account returns another valid UPS service for this route.
-    // Every option below is a live EasyPost rate, never a fixed-price fallback.
-    const groundRates = upsRates.filter((rate: any) =>
-        String(rate?.service || "").toLowerCase().replace(/[^a-z]/g, "").includes("ground")
+    // Prefer live USPS Ground Advantage rates; never use a fixed-price fallback.
+    const groundRates = uspsRates.filter((rate: any) =>
+        String(rate?.service || "").toLowerCase().replace(/[^a-z]/g, "").includes("groundadvantage")
     );
-    const selected = groundRates[0] || upsRates[0];
+    const selected = groundRates[0] || uspsRates[0];
     if (!selected) {
         const available = rates
             .map((rate: any) => `${String(rate?.carrier || "unknown")}/${String(rate?.service || "unknown")}`)
             .filter(Boolean)
             .slice(0, 12)
             .join(", ");
-        console.error("EasyPost returned no usable UPS rate for checkout.", {
+        console.error("EasyPost returned no usable USPS rate for checkout.", {
             shipmentId: String(payload?.id || ""),
             rateCount: rates.length,
             availableRates: available,
-            carrierAccountConfigured: Boolean(carrierAccountId),
         });
-        throw new Error("UPS could not return a shipping rate for this package and destination. Please check the address or try again.");
+        throw new Error("USPS could not return a shipping rate for this package and destination. Please check the address or try again.");
     }
 
     return {
@@ -286,11 +262,11 @@ export const getShippingQuote = async (destination: ShippingAddress, items: Ship
         verifiedAddress,
         shippingCents,
         shipping: Number((shippingCents / 100).toFixed(2)),
-        carrier: "UPS",
+        carrier: "USPS",
         service: quote.service,
         deliveryDays: quote.days || 5,
         currency: "USD",
         shipmentId: quote.shipmentId,
-        rateId: quote.rateId || "UPS_GROUND",
+        rateId: quote.rateId || "USPS_GROUND_ADVANTAGE",
     };
 };
