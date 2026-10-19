@@ -193,15 +193,31 @@ const quoteEasyPostPackage = async (
     });
 
     const rates = Array.isArray(payload?.rates) ? payload.rates : [];
-    const candidates = rates
+    const upsRates = rates
         .filter((rate: any) => String(rate?.carrier || "").toUpperCase() === "UPS")
-        .filter((rate: any) => String(rate?.service || "").toLowerCase().replace(/[^a-z]/g, "").includes("ground"))
-        .filter((rate: any) => Number.isFinite(Number(rate?.rate)))
+        .filter((rate: any) => Number.isFinite(Number(rate?.rate)) && Number(rate.rate) > 0)
         .sort((a: any, b: any) => Number(a.rate) - Number(b.rate));
 
-    const selected = candidates[0];
+    // Prefer UPS Ground / Ground Saver, but don't block checkout when the
+    // verified UPS account returns another valid UPS service for this route.
+    // Every option below is a live EasyPost rate, never a fixed-price fallback.
+    const groundRates = upsRates.filter((rate: any) =>
+        String(rate?.service || "").toLowerCase().replace(/[^a-z]/g, "").includes("ground")
+    );
+    const selected = groundRates[0] || upsRates[0];
     if (!selected) {
-        throw new Error("EasyPost did not return a UPS Ground rate for this package and destination.");
+        const available = rates
+            .map((rate: any) => `${String(rate?.carrier || "unknown")}/${String(rate?.service || "unknown")}`)
+            .filter(Boolean)
+            .slice(0, 12)
+            .join(", ");
+        console.error("EasyPost returned no usable UPS rate for checkout.", {
+            shipmentId: String(payload?.id || ""),
+            rateCount: rates.length,
+            availableRates: available,
+            carrierAccountConfigured: Boolean(carrierAccountId),
+        });
+        throw new Error("UPS could not return a shipping rate for this package and destination. Please check the address or try again.");
     }
 
     return {
