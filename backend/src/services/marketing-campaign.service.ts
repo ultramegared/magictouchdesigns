@@ -164,7 +164,30 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
             max_output_tokens: 350
         }),
     });
-    if (!response.ok) throw new Error(`Caption generation failed (OpenAI HTTP ${response.status}).`);
+    if (!response.ok) {
+        // Preserve actionable provider diagnostics without ever logging credentials or request headers.
+        const rawError = await response.text().catch(() => "");
+        let providerError: any = {};
+        try {
+            providerError = rawError ? JSON.parse(rawError) : {};
+        } catch {
+            providerError = {};
+        }
+        const details = providerError?.error || providerError;
+        const errorCode = typeof details?.code === "string" ? details.code : "unknown_code";
+        const errorType = typeof details?.type === "string" ? details.type : "unknown_type";
+        const errorMessage = typeof details?.message === "string"
+            ? details.message.replace(/\\s+/g, " ").slice(0, 500)
+            : rawError.replace(/\\s+/g, " ").slice(0, 500);
+        console.error("[marketing-autopilot] OpenAI caption request failed", {
+            httpStatus: response.status,
+            code: errorCode,
+            type: errorType,
+            message: errorMessage || "No provider error message returned",
+            model: process.env.MARKETING_CAPTION_MODEL?.trim() || "gpt-4.1-mini",
+        });
+        throw new Error(`Caption generation failed (OpenAI HTTP ${response.status}; ${errorCode}; ${errorType}): ${errorMessage || "No provider error message returned"}`);
+    }
     const payload: any = await response.json();
     const generated = typeof payload.output_text === "string" ? payload.output_text.trim() : "";
     if (!generated || /\[object Object\]/i.test(generated) || !generated.includes("www.jqydesigns.com")) {
