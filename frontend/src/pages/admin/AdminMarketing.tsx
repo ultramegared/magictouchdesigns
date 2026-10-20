@@ -117,7 +117,7 @@ function AdminMarketing() {
     const [publishing, setPublishing] = useState(false);
     const [publishResults, setPublishResults] = useState<Record<string, PublishResult>>({});
     const [notice, setNotice] = useState("");
-    const [setupProvider, setSetupProvider] = useState<"meta" | "instagram" | "tiktok" | "youtube" | "pinterest" | null>(null);
+    const [setupProvider, setSetupProvider] = useState<"meta" | "whatsapp" | "instagram" | "tiktok" | "youtube" | "pinterest" | null>(null);
     const [campaignName, setCampaignName] = useState("");
     const [campaignObjective, setCampaignObjective] = useState("Brand awareness and sales");
     const [campaignTargetArea, setCampaignTargetArea] = useState("Houston, Texas + United States");
