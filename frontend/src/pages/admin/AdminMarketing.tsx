@@ -429,10 +429,15 @@ function AdminMarketing() {
                     let signupInfo: {wabaId:string;phoneNumberId:string} | null = null;
                     let authCode = "";
                     let finished = false;
+                    let timer = 0;
+                    const cleanup = () => {
+                        window.removeEventListener("message", onMessage);
+                        if (timer) window.clearTimeout(timer);
+                    };
                     const finish = async () => {
                         if (finished || !signupInfo || !authCode) return;
                         finished = true;
-                        window.removeEventListener("message", onMessage);
+                        cleanup();
                         try {
                             await apiRequest("/api/admin/marketing/social/whatsapp/embedded-complete", { method:"POST", body:JSON.stringify({code:authCode,state:config.state,wabaId:signupInfo.wabaId,phoneNumberId:signupInfo.phoneNumberId}), timeoutMs:30000 });
                             setNotice("✓ WhatsApp Business connected. Facebook remains connected independently.");
@@ -440,28 +445,44 @@ function AdminMarketing() {
                         } catch (error) { setNotice(error instanceof Error ? error.message : "Could not save the WhatsApp connection."); }
                         finally { setBusyProvider(null); }
                     };
+                    const failSignup = (message: string) => {
+                        if (finished) return;
+                        finished = true;
+                        cleanup();
+                        setNotice(message);
+                        setBusyProvider(null);
+                    };
                     const onMessage = (event: MessageEvent) => {
-                        if (!event.origin.endsWith("facebook.com")) return;
+                        if (event.origin !== "https://www.facebook.com" && !event.origin.endsWith(".facebook.com")) return;
                         try {
                             const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
                             if (data?.type !== "WA_EMBEDDED_SIGNUP") return;
                             if (data.event === "FINISH") {
                                 signupInfo = { wabaId:String(data.data?.waba_id || ""), phoneNumberId:String(data.data?.phone_number_id || "") };
+                                if (!/^\\d+$/.test(signupInfo.wabaId) || !/^\\d+$/.test(signupInfo.phoneNumberId)) {
+                                    failSignup("Meta completed the window but did not return both the WhatsApp Business Account ID and phone-number ID. The connection was not saved. Check the WhatsApp Login for Business configuration in Meta Developers.");
+                                    return;
+                                }
                                 void finish();
+                            } else if (data.event === "FINISH_ONLY_WABA") {
+                                failSignup("Meta authorized the WhatsApp Business Account but did not return a phone number. Complete phone-number setup in Meta, then reconnect.");
                             } else if (data.event === "CANCEL" || data.event === "ERROR") {
-                                window.removeEventListener("message", onMessage);
-                                setNotice(data.event === "CANCEL" ? "WhatsApp setup was cancelled; no connection was changed." : String(data.data?.error_message || "Meta could not complete WhatsApp setup."));
-                                setBusyProvider(null);
+                                failSignup(data.event === "CANCEL" ? "WhatsApp setup was cancelled; no connection was changed." : String(data.data?.error_message || "Meta could not complete WhatsApp setup."));
                             }
                         } catch { /* Ignore unrelated SDK messages. */ }
                     };
                     window.addEventListener("message", onMessage);
+                    timer = window.setTimeout(() => {
+                        failSignup(!authCode
+                            ? "Meta authorization did not finish. Reopen WhatsApp connection and complete the Meta flow; no connection was changed."
+                            : !signupInfo
+                                ? "Meta returned authorization but no WhatsApp signup event. The Login for Business configuration may not be set to WhatsApp Embedded Signup."
+                                : "Meta did not return complete WhatsApp account details. No connection was saved.");
+                    }, 90000);
                     win.FB.login((response:any) => {
                         authCode = String(response?.authResponse?.code || "");
                         if (!authCode) {
-                            window.removeEventListener("message", onMessage);
-                            setNotice("Meta did not return an authorization code. No connection was changed; try Connect WhatsApp again.");
-                            setBusyProvider(null);
+                            failSignup("Meta did not return an authorization code. No connection was changed. Reopen Connect official account and complete the Meta flow.");
                             return;
                         }
                         void finish();
