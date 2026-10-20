@@ -238,19 +238,22 @@ async function getAccessToken(userId: string, provider: SocialProvider) {
 }
 export async function verifySocialConnection(userId: string, provider: SocialProvider) {
     const accessToken = await getAccessToken(userId, provider);
-    const profile = await providerProfile(provider, accessToken);
-    await pool.query(
-        `UPDATE marketing_social_connections SET profile=$1::jsonb, updated_at=NOW() WHERE user_id=$2 AND provider=$3`,
-        [JSON.stringify(profile), userId, provider]
-    );
-    return {
-        verified: true,
-        provider,
-        profile,
-        verifiedAt: new Date().toISOString(),
-    };
+    let profile: Record<string, any>;
+    if (provider === "whatsapp") {
+        const saved = await pool.query<{profile:any}>(`SELECT profile FROM marketing_social_connections WHERE user_id=$1 AND provider=$2`, [userId, provider]);
+        const current = saved.rows[0]?.profile || {};
+        const phoneId = String(current.phoneNumberId || current.whatsapp?.[0]?.id || "");
+        const wabaId = String(current.wabaId || current.id || "");
+        if (!phoneId || !wabaId) throw new Error("WhatsApp connection is missing its Business Account or phone-number ID. Reconnect WhatsApp.");
+        const base = `https://graph.facebook.com/${META_VERSION}`;
+        const [wr, pr] = await Promise.all([fetch(`${base}/${wabaId}?fields=id,name`, {headers:{Authorization:`Bearer ${accessToken}`}}), fetch(`${base}/${phoneId}?fields=id,display_phone_number,verified_name`, {headers:{Authorization:`Bearer ${accessToken}`}})]);
+        const waba:any = await wr.json().catch(()=>({})); const phone:any = await pr.json().catch(()=>({}));
+        if (!wr.ok || !pr.ok) throw new Error(waba.error?.message || phone.error?.message || "WhatsApp account verification failed.");
+        profile = {...current, id:wabaId, wabaId, phoneNumberId:phoneId, name:waba.name || current.name, whatsapp:[{...phone,id:phoneId,wabaId,wabaName:waba.name || ""}]};
+    } else profile = await providerProfile(provider, accessToken);
+    await pool.query(`UPDATE marketing_social_connections SET profile=$1::jsonb, updated_at=NOW() WHERE user_id=$2 AND provider=$3`, [JSON.stringify(profile), userId, provider]);
+    return { verified: true, provider, profile, verifiedAt: new Date().toISOString() };
 }
-
 export async function selectSocialAccount(userId: string, provider: SocialProvider, channel: SocialChannel, externalId: string) {
     await ensureSocialConnectionsTable();
     const allowed: Record<SocialChannel, SocialProvider> = { facebook: "meta", instagram: "meta", whatsapp: "whatsapp", tiktok: "tiktok", youtube: "youtube", pinterest: "pinterest" };
