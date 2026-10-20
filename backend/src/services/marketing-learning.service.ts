@@ -144,8 +144,8 @@ export const getMarketingLearningInsights = async (targetArea?: string, objectiv
   const result = await pool.query(
     `SELECT channel,
             COUNT(*)::int observations,
-            COUNT(*) FILTER (WHERE attribution_evidence = TRUE OR sessions > 0 OR conversions > 0 OR revenue > 0)::int evidence_observations,
-            AVG(CASE WHEN published THEN 1 ELSE 0 END) success_rate,
+            COUNT(*) FILTER (WHERE attribution_evidence = TRUE OR clicks > 0 OR sessions > 0 OR conversions > 0 OR revenue > 0 OR impressions > 0)::int evidence_observations,
+            AVG(CASE WHEN published THEN 1 ELSE 0 END) FILTER (WHERE attribution_evidence = TRUE OR clicks > 0 OR sessions > 0 OR conversions > 0 OR revenue > 0 OR impressions > 0) success_rate,
             SUM(clicks)::int clicks,
             SUM(sessions)::int sessions,
             SUM(conversions)::int conversions,
@@ -174,7 +174,7 @@ export const getMarketingLearningInsights = async (targetArea?: string, objectiv
     // provide social/ad clicks or impressions, so those fields must not be inferred.
     const conversionRate = sessions > 0 ? Math.min(conversions / sessions, 1) : 0;
     const revenuePerSession = sessions > 0 ? Math.min((revenue / sessions) / 25, 1) : 0;
-    const exploration = 1 / Math.sqrt(Math.max(observations, 1));
+    const exploration = 1 / Math.sqrt(Math.max(evidenceObservations, 1));
     const score = Number(((successRate * 0.30) + (conversionRate * 0.45) + (revenuePerSession * 0.20) + (exploration * 0.05)).toFixed(4));
     return { channel: row.channel as LearningChannel, score, observations, evidenceObservations, successRate: Number(successRate.toFixed(4)), clicks, sessions, conversions, revenue, impressions, recommended: false, avgHour: Number(Number(row.avg_hour || 0).toFixed(1)), avgWeekday: Number(Number(row.avg_weekday || 0).toFixed(1)) };
   });
