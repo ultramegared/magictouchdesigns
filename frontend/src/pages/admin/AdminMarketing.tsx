@@ -453,7 +453,8 @@ function AdminMarketing() {
                         setBusyProvider(null);
                     };
                     const onMessage = (event: MessageEvent) => {
-                        if (event.origin !== "https://www.facebook.com" && !event.origin.endsWith(".facebook.com")) return;
+                        let messageHost = ""; try { messageHost = new URL(event.origin).hostname.toLowerCase(); } catch { return; }
+                        if (messageHost !== "facebook.com" && !messageHost.endsWith(".facebook.com")) return;
                         try {
                             const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
                             if (data?.type !== "WA_EMBEDDED_SIGNUP") return;
@@ -477,7 +478,7 @@ function AdminMarketing() {
                             : !signupInfo
                                 ? "Meta returned authorization but no WhatsApp signup event. The Login for Business configuration may not be set to WhatsApp Embedded Signup."
                                 : "Meta did not return complete WhatsApp account details. No connection was saved.");
-                    }, 90000);
+                    }, 25000);
                     win.FB.login((response:any) => {
                         authCode = String(response?.authResponse?.code || "");
                         if (!authCode) {
