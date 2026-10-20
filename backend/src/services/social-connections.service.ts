@@ -45,13 +45,20 @@ export async function getConnections(userId: string) {
     const setup = providers.reduce<Record<string, unknown>>((out, provider) => { const config = providerConfig(provider); out[provider] = { configured: config.configured, envKeys: config.envKeys, callback: redirectUri(provider) }; return out; }, {});
     // A stored OAuth row is not proof that the provider is still configured/usable.
     // Only expose a connection when the provider has current production configuration.
+    const metaProfile = result.rows.find(row => row.provider === "meta")?.profile || {};
+    const whatsappProfile = result.rows.find(row => row.provider === "whatsapp")?.profile || {};
+    const whatsappPhones = Array.isArray((whatsappProfile as any).whatsapp) ? (whatsappProfile as any).whatsapp : [];
+    const whatsappWabaId = String((whatsappProfile as any).wabaId || "");
+    const whatsappPhoneId = String((whatsappProfile as any).phoneNumberId || whatsappPhones[0]?.phoneNumberId || "");
+    const whatsappReady = Boolean(whatsappWabaId && /^\d+$/.test(whatsappWabaId) && whatsappPhoneId && /^\d+$/.test(whatsappPhoneId) && whatsappPhones.some((phone: any) => String(phone.phoneNumberId || phone.id || "") === whatsappPhoneId));
     const connected = result.rows.reduce<Record<string, unknown>>((out, row) => {
         if (!providerConfig(row.provider).configured) return out;
+        // Legacy Meta OAuth rows sometimes live under "whatsapp" but contain no
+        // WhatsApp Business Account or phone-number IDs. Do not report those as connected.
+        if (row.provider === "whatsapp" && !whatsappReady) return out;
         out[row.provider] = { connected: true, profile: row.profile, expiresAt: row.expires_at, updatedAt: row.updated_at };
         return out;
     }, {});
-    const metaProfile = result.rows.find(row => row.provider === "meta")?.profile || {};
-    const whatsappProfile = result.rows.find(row => row.provider === "whatsapp")?.profile || {};
     const instagramConnection = result.rows.find(row => row.provider === "instagram");
     let instagramProfile: any = instagramConnection?.profile || {};
     if (!instagramProfile?.id && providerConfig("instagram").configured) {
@@ -66,7 +73,7 @@ export async function getConnections(userId: string) {
         channels: {
             facebook: Boolean((metaProfile as any).pages?.length),
             instagram: Boolean(instagramProfile?.id),
-            whatsapp: Boolean((whatsappProfile as any).whatsapp?.length),
+            whatsapp: whatsappReady,
             tiktok: Boolean(connected.tiktok), youtube: Boolean(connected.youtube), pinterest: Boolean(connected.pinterest)
         }
     };
@@ -143,7 +150,7 @@ export function getWhatsAppEmbeddedConfig(userId: string) {
 export async function completeWhatsAppEmbeddedSignup(userId: string, code: string, state: string, wabaId: string, phoneNumberId: string) {
     const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: string; purpose?: string };
     if (payload.userId !== userId || payload.provider !== "whatsapp" || payload.purpose !== "whatsapp_embedded_signup") throw new Error("WhatsApp signup session expired or is invalid. Start Connect WhatsApp again.");
-    if (!/^\\d+$/.test(wabaId) || !/^\\d+$/.test(phoneNumberId)) throw new Error("Meta did not return valid WhatsApp Business and phone-number IDs.");
+    if (!/^\d+$/.test(wabaId) || !/^\d+$/.test(phoneNumberId)) throw new Error("Meta did not return valid WhatsApp Business and phone-number IDs.");
     const url = new URL(`https://graph.facebook.com/${META_VERSION}/oauth/access_token`);
     url.searchParams.set("client_id", String(process.env.META_APP_ID));
     url.searchParams.set("client_secret", String(process.env.META_APP_SECRET));
