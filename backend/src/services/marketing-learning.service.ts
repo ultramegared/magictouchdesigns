@@ -144,7 +144,8 @@ export const getMarketingLearningInsights = async (targetArea?: string, objectiv
   const result = await pool.query(
     `SELECT channel,
             COUNT(*)::int observations,
-            AVG(CASE WHEN published THEN 1 ELSE 0 END) success_rate,
+            COUNT(*) FILTER (WHERE attribution_evidence = TRUE OR clicks > 0 OR sessions > 0 OR conversions > 0 OR revenue > 0 OR impressions > 0)::int evidence_observations,
+            AVG(CASE WHEN published THEN 1 ELSE 0 END) FILTER (WHERE attribution_evidence = TRUE OR clicks > 0 OR sessions > 0 OR conversions > 0 OR revenue > 0 OR impressions > 0) success_rate,
             SUM(clicks)::int clicks,
             SUM(sessions)::int sessions,
             SUM(conversions)::int conversions,
@@ -160,6 +161,7 @@ export const getMarketingLearningInsights = async (targetArea?: string, objectiv
   );
   const rows = result.rows.map((row: any) => {
     const observations = Number(row.observations || 0);
+    const evidenceObservations = Number(row.evidence_observations || 0);
     const successRate = Number(row.success_rate || 0);
     const clicks = Number(row.clicks || 0);
     const sessions = Number(row.sessions || 0);
@@ -172,17 +174,20 @@ export const getMarketingLearningInsights = async (targetArea?: string, objectiv
     // provide social/ad clicks or impressions, so those fields must not be inferred.
     const conversionRate = sessions > 0 ? Math.min(conversions / sessions, 1) : 0;
     const revenuePerSession = sessions > 0 ? Math.min((revenue / sessions) / 25, 1) : 0;
-    const exploration = 1 / Math.sqrt(Math.max(observations, 1));
+    const exploration = 1 / Math.sqrt(Math.max(evidenceObservations, 1));
     const score = Number(((successRate * 0.30) + (conversionRate * 0.45) + (revenuePerSession * 0.20) + (exploration * 0.05)).toFixed(4));
-    return { channel: row.channel as LearningChannel, score, observations, successRate: Number(successRate.toFixed(4)), clicks, sessions, conversions, revenue, impressions, recommended: false, avgHour: Number(Number(row.avg_hour || 0).toFixed(1)), avgWeekday: Number(Number(row.avg_weekday || 0).toFixed(1)) };
+    return { channel: row.channel as LearningChannel, score, observations, evidenceObservations, successRate: Number(successRate.toFixed(4)), clicks, sessions, conversions, revenue, impressions, recommended: false, avgHour: Number(Number(row.avg_hour || 0).toFixed(1)), avgWeekday: Number(Number(row.avg_weekday || 0).toFixed(1)) };
   });
-  const maxScore = Math.max(...rows.map((row: any) => row.score), 0);
-  return rows.map((row: any) => ({ ...row, recommended: row.score === maxScore && row.observations > 0 }));
+  // Publication attempts alone are not commercial evidence. Do not recommend a
+  // channel until at least one observation contains measured traffic or outcomes.
+  const evidenceRows = rows.filter((row: any) => row.evidenceObservations > 0);
+  const maxEvidenceScore = Math.max(...evidenceRows.map((row: any) => row.score), 0);
+  return rows.map((row: any) => ({ ...row, recommended: row.evidenceObservations > 0 && row.score === maxEvidenceScore }));
 };
 
 export const getMarketingLearningSummary = async (ownerUserId?: string) => {
   const insights = await getMarketingLearningInsights(undefined, undefined, ownerUserId);
-  const learnedChannels = insights.filter((row: any) => row.observations > 0).sort((a: any,b: any) => b.score-a.score);
+  const learnedChannels = insights.filter((row: any) => row.evidenceObservations > 0).sort((a: any,b: any) => b.score-a.score);
   return {
     algorithm: "JQY Marketing Adaptive Engine v1",
     observations: insights.reduce((sum: number, row: any) => sum + row.observations, 0),
