@@ -9,22 +9,36 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
     return res.status(401).json({ status: "error", error: "Unauthorized cron request." });
   }
 
+  // Isolate the two stages: an analytics/provider outage must not prevent the
+  // other stage from running, and a successful publication must not be reported
+  // as a total cron failure merely because analytics synchronization failed.
+  const errors: Record<string, string> = {};
+  let autopilot: unknown = null;
+  let learning: unknown = null;
+
   try {
-    // One hourly entry point drains due campaign work and reconciles provider statuses.
-    // Learning runs afterward so it can observe the publication ledger updated above.
-    const autopilot = await runMarketingAutopilot(10);
-    const learning = await syncMarketingLearningFromAnalytics(30);
-    return res.json({
-      status: "success",
-      engine: "JQY Marketing Adaptive Engine v1",
-      autopilot,
-      learning,
-    });
+    // Drain due campaign work and reconcile provider statuses first.
+    autopilot = await runMarketingAutopilot(10);
   } catch (error) {
-    console.error("Marketing autopilot cron failed:", error);
-    return res.status(503).json({
-      status: "error",
-      error: error instanceof Error ? error.message : "Marketing autopilot cron failed.",
-    });
+    errors.autopilot = error instanceof Error ? error.message : "Marketing Autopilot failed.";
+    console.error("Marketing Autopilot stage failed:", error);
   }
+
+  try {
+    // Always attempt analytics synchronization independently.
+    learning = await syncMarketingLearningFromAnalytics(30);
+  } catch (error) {
+    errors.learning = error instanceof Error ? error.message : "Marketing learning sync failed.";
+    console.error("Marketing learning stage failed:", error);
+  }
+
+  const failedStages = Object.keys(errors);
+  const status = failedStages.length ? "partial" : "success";
+  return res.status(failedStages.length === 2 ? 503 : 200).json({
+    status,
+    engine: "JQY Marketing Adaptive Engine v1",
+    autopilot: autopilot ?? (errors.autopilot ? { status: "error", error: errors.autopilot } : null),
+    learning: learning ?? (errors.learning ? { status: "error", error: errors.learning } : null),
+    ...(failedStages.length ? { errors, failedStages } : {}),
+  });
 }
