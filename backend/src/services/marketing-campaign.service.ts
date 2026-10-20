@@ -772,6 +772,7 @@ const getAdaptiveNextSlot = async (targetArea: string, objective: string, channe
          WHERE target_area ILIKE '%' || $1 || '%'
            AND objective ILIKE '%' || $2 || '%'
            AND channel = ANY($3::text[])
+           AND (attribution_evidence = TRUE OR sessions > 0 OR conversions > 0 OR revenue > 0)
            AND EXISTS (SELECT 1 FROM marketing_campaigns c WHERE c.id=marketing_learning_observations.campaign_id AND c.owner_user_id=$4)
          GROUP BY hour, weekday
          HAVING COUNT(*) >= 2
@@ -793,6 +794,7 @@ const getAdaptiveNextSlot = async (targetArea: string, objective: string, channe
          WHERE target_area ILIKE '%' || $1 || '%'
            AND objective ILIKE '%' || $2 || '%'
            AND channel = ANY($3::text[])
+           AND (attribution_evidence = TRUE OR sessions > 0 OR conversions > 0 OR revenue > 0)
            AND EXISTS (SELECT 1 FROM marketing_campaigns c WHERE c.id=marketing_learning_observations.campaign_id AND c.owner_user_id=$4)`,
         [targetArea, objective, channels, ownerUserId]
     );
