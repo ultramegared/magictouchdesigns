@@ -457,15 +457,14 @@ function AdminMarketing() {
                         try {
                             const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
                             if (data?.type !== "WA_EMBEDDED_SIGNUP") return;
-                            if (data.event === "FINISH") {
+                            if (data.event === "FINISH" || data.event === "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING" || data.event === "FINISH_ONLY_WABA") {
                                 signupInfo = { wabaId:String(data.data?.waba_id || ""), phoneNumberId:String(data.data?.phone_number_id || "") };
-                                if (!/^\\d+$/.test(signupInfo.wabaId) || !/^\\d+$/.test(signupInfo.phoneNumberId)) {
-                                    failSignup("Meta completed the window but did not return both the WhatsApp Business Account ID and phone-number ID. The connection was not saved. Check the WhatsApp Login for Business configuration in Meta Developers.");
+                                if (!/^\\d+$/.test(signupInfo.wabaId)) {
+                                    failSignup("Meta finished signup without a valid WhatsApp Business Account ID. No connection was saved.");
                                     return;
                                 }
+                                // Some Meta signup modes return only waba_id. The backend resolves its phone number via Graph API.
                                 void finish();
-                            } else if (data.event === "FINISH_ONLY_WABA") {
-                                failSignup("Meta authorized the WhatsApp Business Account but did not return a phone number. Complete phone-number setup in Meta, then reconnect.");
                             } else if (data.event === "CANCEL" || data.event === "ERROR") {
                                 failSignup(data.event === "CANCEL" ? "WhatsApp setup was cancelled; no connection was changed." : String(data.data?.error_message || "Meta could not complete WhatsApp setup."));
                             }
