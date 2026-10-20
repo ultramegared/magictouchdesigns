@@ -150,7 +150,7 @@ export function getWhatsAppEmbeddedConfig(userId: string) {
 export async function completeWhatsAppEmbeddedSignup(userId: string, code: string, state: string, wabaId: string, phoneNumberId: string) {
     const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: string; purpose?: string };
     if (payload.userId !== userId || payload.provider !== "whatsapp" || payload.purpose !== "whatsapp_embedded_signup") throw new Error("WhatsApp signup session expired or is invalid. Start Connect WhatsApp again.");
-    if (!/^\d+$/.test(wabaId) || !/^\d+$/.test(phoneNumberId)) throw new Error("Meta did not return valid WhatsApp Business and phone-number IDs.");
+    if (!code.trim() || !/^\\d+$/.test(wabaId)) throw new Error("Meta did not return a valid authorization code and WhatsApp Business Account ID.");
     const url = new URL(`https://graph.facebook.com/${META_VERSION}/oauth/access_token`);
     url.searchParams.set("client_id", String(process.env.META_APP_ID));
     url.searchParams.set("client_secret", String(process.env.META_APP_SECRET));
@@ -160,18 +160,33 @@ export async function completeWhatsAppEmbeddedSignup(userId: string, code: strin
     if (!response.ok || !tokens.access_token) throw new Error(tokens.error?.message || tokens.error_description || "Meta could not exchange the WhatsApp signup code. Start the signup again.");
     const token = String(tokens.access_token);
     const base = `https://graph.facebook.com/${META_VERSION}`;
-    const [wabaResponse, phoneResponse] = await Promise.all([
-        fetch(`${base}/${wabaId}?fields=id,name`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${base}/${phoneNumberId}?fields=id,display_phone_number,verified_name,quality_rating`, { headers: { Authorization: `Bearer ${token}` } })
-    ]);
+    const headers = { Authorization: `Bearer ${token}` };
+    const wabaResponse = await fetch(`${base}/${wabaId}?fields=id,name`, { headers });
     const waba: any = await wabaResponse.json().catch(() => ({}));
-    const phone: any = await phoneResponse.json().catch(() => ({}));
     if (!wabaResponse.ok) throw new Error(waba.error?.message || "The WhatsApp Business Account could not be verified with the granted token.");
-    if (!phoneResponse.ok) throw new Error(phone.error?.message || "The WhatsApp phone number could not be verified with the granted token.");
-    const whatsapp = [{ id: String(phone.id || phoneNumberId), phoneNumberId: String(phone.id || phoneNumberId), display_phone_number: phone.display_phone_number || "", verified_name: phone.verified_name || "", wabaId, wabaName: waba.name || "", name: phone.verified_name || phone.display_phone_number || "WhatsApp Business" }];
-    await saveConnection(userId, "whatsapp", tokens, { id: wabaId, name: waba.name || "WhatsApp Business", wabaId, phoneNumberId, whatsapp, signupMethod: "embedded_signup" });
-    await pool.query(`INSERT INTO marketing_social_selections (user_id,provider,channel,external_id) VALUES ($1,'whatsapp','whatsapp',$2) ON CONFLICT (user_id,provider,channel) DO UPDATE SET external_id=EXCLUDED.external_id, updated_at=NOW()`, [userId, String(phone.id || phoneNumberId)]);
-    return { connected: true, profile: { id: wabaId, name: waba.name || "WhatsApp Business", wabaId, phoneNumberId, whatsapp } };
+
+    // Embedded Signup's coexistence completion event may provide only waba_id.
+    // Resolve the phone ID from that WABA rather than requiring a phone field in the browser event.
+    let resolvedPhoneId = /^\\d+$/.test(String(phoneNumberId || "")) ? String(phoneNumberId) : "";
+    let phone: any = null;
+    if (resolvedPhoneId) {
+        const phoneResponse = await fetch(`${base}/${resolvedPhoneId}?fields=id,display_phone_number,verified_name,quality_rating`, { headers });
+        phone = await phoneResponse.json().catch(() => ({}));
+        if (!phoneResponse.ok) throw new Error(phone.error?.message || "The WhatsApp phone number could not be verified with the granted token.");
+        resolvedPhoneId = String(phone.id || resolvedPhoneId);
+    } else {
+        const phonesResponse = await fetch(`${base}/${wabaId}/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating`, { headers });
+        const phonesData: any = await phonesResponse.json().catch(() => ({}));
+        if (!phonesResponse.ok) throw new Error(phonesData.error?.message || "Meta authorized the WhatsApp Business Account but did not provide a phone number. Check that the Login for Business token has WhatsApp business-management permission and that a phone number is configured.");
+        const phones = Array.isArray(phonesData.data) ? phonesData.data : [];
+        phone = phones.find((item: any) => /^\\d+$/.test(String(item.id || ""))) || null;
+        resolvedPhoneId = String(phone?.id || "");
+        if (!resolvedPhoneId) throw new Error("Meta authorized the WhatsApp Business Account, but no phone number is available under it yet. Finish adding/verifying the number in Meta Business and reconnect.");
+    }
+    const whatsapp = [{ id: resolvedPhoneId, phoneNumberId: resolvedPhoneId, display_phone_number: phone?.display_phone_number || "", verified_name: phone?.verified_name || "", wabaId, wabaName: waba.name || "", name: phone?.verified_name || phone?.display_phone_number || "WhatsApp Business" }];
+    await saveConnection(userId, "whatsapp", tokens, { id: wabaId, name: waba.name || "WhatsApp Business", wabaId, phoneNumberId: resolvedPhoneId, whatsapp, signupMethod: "embedded_signup" });
+    await pool.query(`INSERT INTO marketing_social_selections (user_id,provider,channel,external_id) VALUES ($1,'whatsapp','whatsapp',$2) ON CONFLICT (user_id,provider,channel) DO UPDATE SET external_id=EXCLUDED.external_id, updated_at=NOW()`, [userId, resolvedPhoneId]);
+    return { connected: true, profile: { id: wabaId, name: waba.name || "WhatsApp Business", wabaId, phoneNumberId: resolvedPhoneId, whatsapp } };
 }
 export async function handleCallback(provider: SocialProvider, code: string, state: string) { const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: SocialProvider; channel?: string }; if (payload.provider !== provider) throw new Error("Invalid social connection state."); const storageProvider: SocialProvider = provider === "meta" && payload.channel === "whatsapp" ? "whatsapp" : provider; const tokenProvider: SocialProvider = storageProvider === "whatsapp" ? "whatsapp" : provider; let tokens: Record<string, any>; try { tokens = await exchange(tokenProvider, code); } catch (error) { throw new Error(`OAuth token exchange failed for ${storageProvider}: ${error instanceof Error ? error.message : "unknown provider error"}`); } if (tokens.error) throw new Error(tokens.error_description || tokens.error.message || `OAuth token exchange failed for ${storageProvider}.`); const accessToken = String(tokens.access_token || "").trim(); if (!accessToken) throw new Error(`OAuth authorization completed for ${storageProvider}, but provider did not return an access token.`); let profile: Record<string, unknown>; try { profile = await providerProfile(tokenProvider, accessToken); } catch (error) { throw new Error(`OAuth token was obtained for ${storageProvider}, but account verification failed: ${error instanceof Error ? error.message : "unknown provider error"}`); } await saveConnection(payload.userId, storageProvider, tokens, profile); return payload.userId; }
 async function refreshProviderToken(provider: SocialProvider, refreshToken: string) {
