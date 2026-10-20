@@ -420,7 +420,8 @@ function AdminMarketing() {
         if (!channel.provider) return;
         try {
             setBusyProvider(channel.provider);
-            const result = await apiRequest<{ url: string }>(`/api/admin/marketing/social/${channel.provider}/authorize`);
+            const authorizePath = channel.social === "whatsapp" ? `/api/admin/marketing/social/${channel.provider}/authorize?channel=whatsapp` : `/api/admin/marketing/social/${channel.provider}/authorize`;
+            const result = await apiRequest<{ url: string }>(authorizePath);
             window.location.href = result.url;
         } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudo iniciar OAuth."); setBusyProvider(null); }
     };
