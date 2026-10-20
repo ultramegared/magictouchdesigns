@@ -41,7 +41,7 @@ interface SearchMetrics { clicks: number; impressions: number; ctr: number; posi
 type SocialChannel = "facebook" | "instagram" | "tiktok" | "youtube" | "pinterest" | "whatsapp";
 type ChannelName = "Google" | "Facebook" | "Instagram" | "TikTok" | "YouTube" | "Pinterest" | "WhatsApp" | "Email";
 interface SubscriberCounts { total:number; active:number; inactive:number; active_en:number; active_es:number; }
-type Channel = { name: ChannelName; detail: string; icon: LucideIcon; tone: string; social?: SocialChannel; provider?: "meta" | "instagram" | "tiktok" | "youtube" | "pinterest" };
+type Channel = { name: ChannelName; detail: string; icon: LucideIcon; tone: string; social?: SocialChannel; provider?: "meta" | "whatsapp" | "instagram" | "tiktok" | "youtube" | "pinterest" };
 interface SocialProfile { [key: string]: any; }
 interface SocialConnection { connected: boolean; profile?: SocialProfile; }
 interface SocialSetup { configured?: boolean; envKeys?: string[]; callback?: string; }
@@ -77,7 +77,7 @@ const channels: Channel[] = [
     { name: "TikTok", detail: "Short-form video", icon: Video, tone: "#e5e7eb", social: "tiktok", provider: "tiktok" },
     { name: "YouTube", detail: "Video publishing", icon: Play, tone: "#FF0000", social: "youtube", provider: "youtube" },
     { name: "Pinterest", detail: "Pins & products", icon: Image, tone: "#BD081C", social: "pinterest", provider: "pinterest" },
-    { name: "WhatsApp", detail: "Business messaging", icon: MessageCircle, tone: "#25D366", social: "whatsapp", provider: "meta" },
+    { name: "WhatsApp", detail: "Business messaging", icon: MessageCircle, tone: "#25D366", social: "whatsapp", provider: "whatsapp" },
     { name: "Email", detail: "Newsletters & offers", icon: Mail, tone: "#4F83CC" },
 ];
 const socialChannels = channels.filter(channel => channel.social);
@@ -420,10 +420,78 @@ function AdminMarketing() {
         if (!channel.provider) return;
         try {
             setBusyProvider(channel.provider);
-            const authorizePath = channel.social === "whatsapp" ? `/api/admin/marketing/social/${channel.provider}/authorize?channel=whatsapp` : `/api/admin/marketing/social/${channel.provider}/authorize`;
-            const result = await apiRequest<{ url: string }>(authorizePath);
+            if (channel.social === "whatsapp") {
+                const config = await apiRequest<{appId:string;configId:string;state:string}>("/api/admin/marketing/social/whatsapp/embedded-config");
+                const win = window as any;
+                const launch = async () => {
+                    if (!win.FB) throw new Error("Meta SDK did not load. Check that connect.facebook.net is not blocked and try again.");
+                    win.FB.init({ appId: config.appId, cookie: true, xfbml: false, version: "v26.0" });
+                    let signupInfo: {wabaId:string;phoneNumberId:string} | null = null;
+                    let authCode = "";
+                    let finished = false;
+                    const finish = async () => {
+                        if (finished || !signupInfo || !authCode) return;
+                        finished = true;
+                        window.removeEventListener("message", onMessage);
+                        try {
+                            await apiRequest("/api/admin/marketing/social/whatsapp/embedded-complete", { method:"POST", body:JSON.stringify({code:authCode,state:config.state,wabaId:signupInfo.wabaId,phoneNumberId:signupInfo.phoneNumberId}), timeoutMs:30000 });
+                            setNotice("✓ WhatsApp Business connected. Facebook remains connected independently.");
+                            await loadSocial();
+                        } catch (error) { setNotice(error instanceof Error ? error.message : "Could not save the WhatsApp connection."); }
+                        finally { setBusyProvider(null); }
+                    };
+                    const onMessage = (event: MessageEvent) => {
+                        if (!event.origin.endsWith("facebook.com")) return;
+                        try {
+                            const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+                            if (data?.type !== "WA_EMBEDDED_SIGNUP") return;
+                            if (data.event === "FINISH") {
+                                signupInfo = { wabaId:String(data.data?.waba_id || ""), phoneNumberId:String(data.data?.phone_number_id || "") };
+                                void finish();
+                            } else if (data.event === "CANCEL" || data.event === "ERROR") {
+                                window.removeEventListener("message", onMessage);
+                                setNotice(data.event === "CANCEL" ? "WhatsApp setup was cancelled; no connection was changed." : String(data.data?.error_message || "Meta could not complete WhatsApp setup."));
+                                setBusyProvider(null);
+                            }
+                        } catch { /* Ignore unrelated SDK messages. */ }
+                    };
+                    window.addEventListener("message", onMessage);
+                    win.FB.login((response:any) => {
+                        authCode = String(response?.authResponse?.code || "");
+                        if (!authCode) {
+                            window.removeEventListener("message", onMessage);
+                            setNotice("Meta did not return an authorization code. No connection was changed; try Connect WhatsApp again.");
+                            setBusyProvider(null);
+                            return;
+                        }
+                        void finish();
+                    }, { config_id:config.configId, auth_type:"rerequest", response_type:"code", override_default_response_type:true, extras:{ setup:{} } });
+                };
+                if (win.FB) await launch();
+                else {
+                    const existing = document.getElementById("facebook-jssdk");
+                    if (!existing) {
+                        const script = document.createElement("script");
+                        script.id = "facebook-jssdk";
+                        script.src = "https://connect.facebook.net/en_US/sdk.js";
+                        script.async = true;
+                        script.defer = true;
+                        document.head.appendChild(script);
+                    }
+                    await new Promise<void>((resolve,reject) => {
+                        const started = Date.now();
+                        const timer = window.setInterval(() => {
+                            if (win.FB) { window.clearInterval(timer); resolve(); }
+                            else if (Date.now()-started > 15000) { window.clearInterval(timer); reject(new Error("Meta SDK timed out loading. Check the connection and try again.")); }
+                        },100);
+                    });
+                    await launch();
+                }
+                return;
+            }
+            const result = await apiRequest<{ url: string }>(`/api/admin/marketing/social/${channel.provider}/authorize`);
             window.location.href = result.url;
-        } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudo iniciar OAuth."); setBusyProvider(null); }
+        } catch (error) { setNotice(error instanceof Error ? error.message : "Could not start social connection."); setBusyProvider(null); }
     };
     const disconnect = async (channel: Channel) => {
         if (!channel.provider) return;
