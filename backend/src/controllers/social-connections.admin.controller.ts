@@ -45,7 +45,9 @@ export function socialAuthorize(req: AuthenticatedRequest, res: Response) {
     try {
         const provider = String(req.params.provider);
         if (!isSocialProvider(provider)) return res.status(400).json({ error: "Unsupported social provider." });
-        res.json({ url: getConnectUrl(provider, marketingWorkspaceId()) });
+        const channel = String(req.query.channel || "");
+        if (channel && channel !== "whatsapp") return res.status(400).json({ error: "Unsupported Meta channel authorization." });
+        res.json({ url: getConnectUrl(provider, marketingWorkspaceId(), channel === "whatsapp" ? "whatsapp" : undefined) });
     } catch (error) { res.status(503).json({ error: error instanceof Error ? error.message : "Social integration is not configured." }); }
 }
 
