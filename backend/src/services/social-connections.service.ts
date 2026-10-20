@@ -134,6 +134,38 @@ async function providerProfile(provider: SocialProvider, accessToken: string) { 
         }
         return { ...accountData, boards };
     } const r = await fetch("https://www.googleapis.com/youtube/v3/channels?part=id,snippet&mine=true", { headers: { Authorization: `Bearer ${accessToken}` } }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Unable to read YouTube account."); const channel = Array.isArray(d.items) ? d.items[0] : null; if (!channel?.id) throw new Error("YouTube authorization succeeded, but no YouTube channel was returned for the authorized account."); return channel; }
+export function getWhatsAppEmbeddedConfig(userId: string) {
+    const config = providerConfig("whatsapp");
+    if (!config.configured || !process.env.META_WHATSAPP_LOGIN_CONFIG_ID?.trim()) throw new Error("WhatsApp Embedded Signup is not configured in Production.");
+    const state = jwt.sign({ userId, provider: "whatsapp", purpose: "whatsapp_embedded_signup" }, stateSecret(), { expiresIn: "10m" });
+    return { appId: String(process.env.META_APP_ID), configId: String(process.env.META_WHATSAPP_LOGIN_CONFIG_ID).trim(), state };
+}
+export async function completeWhatsAppEmbeddedSignup(userId: string, code: string, state: string, wabaId: string, phoneNumberId: string) {
+    const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: string; purpose?: string };
+    if (payload.userId !== userId || payload.provider !== "whatsapp" || payload.purpose !== "whatsapp_embedded_signup") throw new Error("WhatsApp signup session expired or is invalid. Start Connect WhatsApp again.");
+    if (!/^\\d+$/.test(wabaId) || !/^\\d+$/.test(phoneNumberId)) throw new Error("Meta did not return valid WhatsApp Business and phone-number IDs.");
+    const url = new URL(`https://graph.facebook.com/${META_VERSION}/oauth/access_token`);
+    url.searchParams.set("client_id", String(process.env.META_APP_ID));
+    url.searchParams.set("client_secret", String(process.env.META_APP_SECRET));
+    url.searchParams.set("code", code);
+    const response = await fetch(url);
+    const tokens: any = await response.json().catch(() => ({}));
+    if (!response.ok || !tokens.access_token) throw new Error(tokens.error?.message || tokens.error_description || "Meta could not exchange the WhatsApp signup code. Start the signup again.");
+    const token = String(tokens.access_token);
+    const base = `https://graph.facebook.com/${META_VERSION}`;
+    const [wabaResponse, phoneResponse] = await Promise.all([
+        fetch(`${base}/${wabaId}?fields=id,name`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${base}/${phoneNumberId}?fields=id,display_phone_number,verified_name,quality_rating`, { headers: { Authorization: `Bearer ${token}` } })
+    ]);
+    const waba: any = await wabaResponse.json().catch(() => ({}));
+    const phone: any = await phoneResponse.json().catch(() => ({}));
+    if (!wabaResponse.ok) throw new Error(waba.error?.message || "The WhatsApp Business Account could not be verified with the granted token.");
+    if (!phoneResponse.ok) throw new Error(phone.error?.message || "The WhatsApp phone number could not be verified with the granted token.");
+    const whatsapp = [{ id: String(phone.id || phoneNumberId), phoneNumberId: String(phone.id || phoneNumberId), display_phone_number: phone.display_phone_number || "", verified_name: phone.verified_name || "", wabaId, wabaName: waba.name || "", name: phone.verified_name || phone.display_phone_number || "WhatsApp Business" }];
+    await saveConnection(userId, "whatsapp", tokens, { id: wabaId, name: waba.name || "WhatsApp Business", wabaId, phoneNumberId, whatsapp, signupMethod: "embedded_signup" });
+    await pool.query(`INSERT INTO marketing_social_selections (user_id,provider,channel,external_id) VALUES ($1,'whatsapp','whatsapp',$2) ON CONFLICT (user_id,provider,channel) DO UPDATE SET external_id=EXCLUDED.external_id, updated_at=NOW()`, [userId, String(phone.id || phoneNumberId)]);
+    return { connected: true, profile: { id: wabaId, name: waba.name || "WhatsApp Business", wabaId, phoneNumberId, whatsapp } };
+}
 export async function handleCallback(provider: SocialProvider, code: string, state: string) { const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: SocialProvider; channel?: string }; if (payload.provider !== provider) throw new Error("Invalid social connection state."); const storageProvider: SocialProvider = provider === "meta" && payload.channel === "whatsapp" ? "whatsapp" : provider; const tokenProvider: SocialProvider = storageProvider === "whatsapp" ? "whatsapp" : provider; let tokens: Record<string, any>; try { tokens = await exchange(tokenProvider, code); } catch (error) { throw new Error(`OAuth token exchange failed for ${storageProvider}: ${error instanceof Error ? error.message : "unknown provider error"}`); } if (tokens.error) throw new Error(tokens.error_description || tokens.error.message || `OAuth token exchange failed for ${storageProvider}.`); const accessToken = String(tokens.access_token || "").trim(); if (!accessToken) throw new Error(`OAuth authorization completed for ${storageProvider}, but provider did not return an access token.`); let profile: Record<string, unknown>; try { profile = await providerProfile(tokenProvider, accessToken); } catch (error) { throw new Error(`OAuth token was obtained for ${storageProvider}, but account verification failed: ${error instanceof Error ? error.message : "unknown provider error"}`); } await saveConnection(payload.userId, storageProvider, tokens, profile); return payload.userId; }
 async function refreshProviderToken(provider: SocialProvider, refreshToken: string) {
     const config = providerConfig(provider);
@@ -221,7 +253,7 @@ export async function verifySocialConnection(userId: string, provider: SocialPro
 
 export async function selectSocialAccount(userId: string, provider: SocialProvider, channel: SocialChannel, externalId: string) {
     await ensureSocialConnectionsTable();
-    const allowed: Record<SocialChannel, SocialProvider> = { facebook: "meta", instagram: "meta", whatsapp: "meta", tiktok: "tiktok", youtube: "youtube", pinterest: "pinterest" };
+    const allowed: Record<SocialChannel, SocialProvider> = { facebook: "meta", instagram: "meta", whatsapp: "whatsapp", tiktok: "tiktok", youtube: "youtube", pinterest: "pinterest" };
     if (allowed[channel] !== provider) throw new Error("Channel/provider selection mismatch.");
     const id = externalId.trim();
     if (!id) throw new Error("Account selection requires an external account ID.");
