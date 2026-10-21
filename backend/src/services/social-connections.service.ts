@@ -147,6 +147,22 @@ export function getWhatsAppEmbeddedConfig(userId: string) {
     const state = jwt.sign({ userId, provider: "whatsapp", purpose: "whatsapp_embedded_signup" }, stateSecret(), { expiresIn: "10m" });
     return { appId: String(process.env.META_APP_ID), configId: String(process.env.META_WHATSAPP_LOGIN_CONFIG_ID).trim(), state };
 }
+// Per-call timeout for the Graph calls chained by the WhatsApp Embedded
+// Signup completion flow, so a hung Meta response fails with a clear error
+// instead of waiting for the serverless platform limit. Scoped to this flow.
+const GRAPH_CALL_TIMEOUT_MS = 15000;
+async function fetchGraphWithTimeout(url: string | URL, init: RequestInit, step: string) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), GRAPH_CALL_TIMEOUT_MS);
+    try {
+        return await fetch(url, { ...init, signal: controller.signal });
+    } catch (error) {
+        if ((error as Error)?.name === "AbortError") throw new Error(`Meta did not respond in time while ${step}. Check the connection and try connecting WhatsApp again.`);
+        throw error;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
 export async function completeWhatsAppEmbeddedSignup(userId: string, code: string, state: string, wabaId: string, phoneNumberId: string) {
     const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: string; purpose?: string };
     if (payload.userId !== userId || payload.provider !== "whatsapp" || payload.purpose !== "whatsapp_embedded_signup") throw new Error("WhatsApp signup session expired or is invalid. Start Connect WhatsApp again.");
@@ -155,13 +171,13 @@ export async function completeWhatsAppEmbeddedSignup(userId: string, code: strin
     url.searchParams.set("client_id", String(process.env.META_APP_ID));
     url.searchParams.set("client_secret", String(process.env.META_APP_SECRET));
     url.searchParams.set("code", code);
-    const response = await fetch(url);
+    const response = await fetchGraphWithTimeout(url, {}, "exchanging the WhatsApp signup code");
     const tokens: any = await response.json().catch(() => ({}));
     if (!response.ok || !tokens.access_token) throw new Error(tokens.error?.message || tokens.error_description || "Meta could not exchange the WhatsApp signup code. Start the signup again.");
     const token = String(tokens.access_token);
     const base = `https://graph.facebook.com/${META_VERSION}`;
     const headers = { Authorization: `Bearer ${token}` };
-    const wabaResponse = await fetch(`${base}/${wabaId}?fields=id,name`, { headers });
+    const wabaResponse = await fetchGraphWithTimeout(`${base}/${wabaId}?fields=id,name`, { headers }, "verifying the WhatsApp Business Account");
     const waba: any = await wabaResponse.json().catch(() => ({}));
     if (!wabaResponse.ok) throw new Error(waba.error?.message || "The WhatsApp Business Account could not be verified with the granted token.");
 
@@ -170,12 +186,12 @@ export async function completeWhatsAppEmbeddedSignup(userId: string, code: strin
     let resolvedPhoneId = /^\\d+$/.test(String(phoneNumberId || "")) ? String(phoneNumberId) : "";
     let phone: any = null;
     if (resolvedPhoneId) {
-        const phoneResponse = await fetch(`${base}/${resolvedPhoneId}?fields=id,display_phone_number,verified_name,quality_rating`, { headers });
+        const phoneResponse = await fetchGraphWithTimeout(`${base}/${resolvedPhoneId}?fields=id,display_phone_number,verified_name,quality_rating`, { headers }, "verifying the WhatsApp phone number");
         phone = await phoneResponse.json().catch(() => ({}));
         if (!phoneResponse.ok) throw new Error(phone.error?.message || "The WhatsApp phone number could not be verified with the granted token.");
         resolvedPhoneId = String(phone.id || resolvedPhoneId);
     } else {
-        const phonesResponse = await fetch(`${base}/${wabaId}/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating`, { headers });
+        const phonesResponse = await fetchGraphWithTimeout(`${base}/${wabaId}/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating`, { headers }, "loading the WhatsApp phone numbers");
         const phonesData: any = await phonesResponse.json().catch(() => ({}));
         if (!phonesResponse.ok) throw new Error(phonesData.error?.message || "Meta authorized the WhatsApp Business Account but did not provide a phone number. Check that the Login for Business token has WhatsApp business-management permission and that a phone number is configured.");
         const phones = Array.isArray(phonesData.data) ? phonesData.data : [];
