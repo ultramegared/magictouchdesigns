@@ -320,41 +320,74 @@ export async function getAnalyticsReport(days = 28) {
     const propertyId = getAnalyticsPropertyId();
     if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
     const safeDays = Math.min(Math.max(Math.floor(days), 1), 90);
-    const summaryData = await googleRequest<{ rows?: Array<{ metricValues?: Array<{ value?: string }> }> }>(
-        ANALYTICS_API,
-        `/properties/${encodeURIComponent(propertyId)}:runReport`,
-        "https://www.googleapis.com/auth/analytics.readonly",
-        {
-            method: "POST",
-            body: JSON.stringify({
-                dateRanges: [{ startDate: safeDays === 1 ? "today" : `${safeDays - 1}daysAgo`, endDate: "today" }],
-                metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }],
-                limit: "1",
-            }),
-        },
-    );
-    const dailyData = await googleRequest<{ rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }> }>(
-        ANALYTICS_API,
-        `/properties/${encodeURIComponent(propertyId)}:runReport`,
-        "https://www.googleapis.com/auth/analytics.readonly",
-        {
-            method: "POST",
-            body: JSON.stringify({
-                dateRanges: [{ startDate: safeDays === 1 ? "today" : `${safeDays - 1}daysAgo`, endDate: "today" }],
-                dimensions: [{ name: "date" }],
-                metrics: [{ name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }],
-                limit: String(safeDays),
-            }),
-        },
-    );
+    const runReportPair = async (startDate: string, endDate: string) => {
+        const summary = await googleRequest<{ rows?: Array<{ metricValues?: Array<{ value?: string }> }> }>(
+            ANALYTICS_API,
+            `/properties/${encodeURIComponent(propertyId)}:runReport`,
+            "https://www.googleapis.com/auth/analytics.readonly",
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    dateRanges: [{ startDate, endDate }],
+                    metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }],
+                    limit: "1",
+                }),
+            },
+        );
+        const daily = await googleRequest<{ rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }> }>(
+            ANALYTICS_API,
+            `/properties/${encodeURIComponent(propertyId)}:runReport`,
+            "https://www.googleapis.com/auth/analytics.readonly",
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    dateRanges: [{ startDate, endDate }],
+                    dimensions: [{ name: "date" }],
+                    metrics: [{ name: "sessions" }, { name: "screenPageViews" }, { name: "totalRevenue" }],
+                    limit: String(safeDays),
+                }),
+            },
+        );
+        return { summary, daily };
+    };
+    const relativeStart = safeDays === 1 ? "today" : `${safeDays - 1}daysAgo`;
+    let { summary: summaryData, daily: dailyData } = await runReportPair(relativeStart, "today");
+    let rangeUsed = "relative-today";
+    // GA4 (2026-10-21): los reportes estándar excluyen el día en curso por
+    // latencia de procesamiento (24-48 h), y pedir endDate "today" dejaba el
+    // histórico en cero aunque sí hubiera datos. Si el rango relativo no trae
+    // filas diarias, se reintenta con fechas de calendario explícitas que
+    // terminan AYER y esa respuesta es la que recibe el panel.
+    if ((dailyData.rows?.length || 0) === 0) {
+        try {
+            const explicitEnd = new Date();
+            explicitEnd.setUTCDate(explicitEnd.getUTCDate() - 1);
+            const explicitStart = new Date(explicitEnd);
+            explicitStart.setUTCDate(explicitStart.getUTCDate() - safeDays + 1);
+            const isoDate = (value: Date) => value.toISOString().slice(0, 10);
+            const explicit = await runReportPair(isoDate(explicitStart), isoDate(explicitEnd));
+            console.info("[GA4 explicit-dates fallback]", {
+                startDate: isoDate(explicitStart),
+                endDate: isoDate(explicitEnd),
+                explicitRowCount: explicit.daily.rows?.length || 0,
+                relativeRowCount: dailyData.rows?.length || 0,
+            });
+            if ((explicit.daily.rows?.length || 0) > 0) {
+                summaryData = explicit.summary;
+                dailyData = explicit.daily;
+                rangeUsed = "explicit-yesterday";
+            }
+        } catch (error) {
+            console.info("[GA4 explicit-dates fallback] failed:", error instanceof Error ? error.message : String(error));
+        }
+    }
     const summaryValues = summaryData.rows?.[0]?.metricValues || [];
     const dailyRows = dailyData.rows || [];
     // Safe diagnostics: log report shape and aggregate values, never credentials or tokens.
     console.info("[GA4 report diagnostic]", {
         propertyId,
         days: safeDays,
-        startDate: safeDays === 1 ? "today" : `${safeDays - 1}daysAgo`,
-        endDate: "today",
+        rangeUsed,
         summaryRowCount: summaryData.rows?.length || 0,
         dailyRowCount: dailyRows.length,
         summary: {
@@ -367,6 +400,7 @@ export async function getAnalyticsReport(days = 28) {
     return {
         propertyId,
         days: safeDays,
+        rangeUsed,
         rows: dailyRows.map(row => ({
             dimensionValues: row.dimensionValues || [],
             metricValues: [
