@@ -439,7 +439,7 @@ function AdminMarketing() {
                         finished = true;
                         cleanup();
                         try {
-                            await apiRequest("/api/admin/marketing/social/whatsapp/embedded-complete", { method:"POST", body:JSON.stringify({code:authCode,state:config.state,wabaId:signupInfo.wabaId,phoneNumberId:signupInfo.phoneNumberId}), timeoutMs:30000 });
+                            await apiRequest("/api/admin/marketing/social/whatsapp/embedded-complete", { method:"POST", body:JSON.stringify({code:authCode,state:config.state,wabaId:signupInfo.wabaId,phoneNumberId:signupInfo.phoneNumberId}), timeoutMs:60000 });
                             setNotice("✓ WhatsApp Business connected. Facebook remains connected independently.");
                             await loadSocial();
                         } catch (error) { setNotice(error instanceof Error ? error.message : "Could not save the WhatsApp connection."); }
@@ -477,7 +477,7 @@ function AdminMarketing() {
                             : !signupInfo
                                 ? "Meta returned authorization but no WhatsApp signup event. The Login for Business configuration may not be set to WhatsApp Embedded Signup."
                                 : "Meta did not return complete WhatsApp account details. No connection was saved.");
-                    }, 90000);
+                    }, 8 * 60 * 1000);
                     win.FB.login((response:any) => {
                         authCode = String(response?.authResponse?.code || "");
                         if (!authCode) {
