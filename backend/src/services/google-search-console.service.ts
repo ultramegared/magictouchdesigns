@@ -441,10 +441,12 @@ export async function getAnalyticsCampaignReport(days = 30) {
             method: "POST",
             body: JSON.stringify({
                 dateRanges: [{ startDate: iso(startDate), endDate: iso(endDate) }],
+                // Session-scoped dimensions preserve attribution for both UTM-tagged and auto-tagged traffic.
+                // Manual-only dimensions can return (not set) for Google Ads / other non-manual sessions.
                 dimensions: [
-                    { name: "sessionManualCampaignId" },
-                    { name: "sessionManualSource" },
-                    { name: "sessionManualMedium" },
+                    { name: "sessionCampaignName" },
+                    { name: "sessionSource" },
+                    { name: "sessionMedium" },
                     { name: "date" },
                 ],
                 metrics: [
