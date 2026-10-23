@@ -117,7 +117,7 @@ function AdminMarketing() {
     const [publishing, setPublishing] = useState(false);
     const [publishResults, setPublishResults] = useState<Record<string, PublishResult>>({});
     const [notice, setNotice] = useState("");
-    const [channelNotice, setChannelNotice] = useState("");
+    const [channelNotice] = useState("");
     const [setupProvider, setSetupProvider] = useState<"meta" | "whatsapp" | "instagram" | "tiktok" | "youtube" | "pinterest" | null>(null);
     const [campaignName, setCampaignName] = useState("");
     const [campaignObjective, setCampaignObjective] = useState("Brand awareness and sales");
@@ -422,122 +422,13 @@ function AdminMarketing() {
         try {
             setBusyProvider(channel.provider);
             if (channel.social === "whatsapp") {
-                const config = await apiRequest<{appId:string;configId:string;state:string}>("/api/admin/marketing/social/whatsapp/embedded-config");
-                const win = window as any;
-                const launch = async () => {
-                    if (!win.FB) throw new Error("Meta SDK did not load. Check that connect.facebook.net is not blocked and try again.");
-                    win.FB.init({ appId: config.appId, cookie: true, xfbml: false, version: "v26.0" });
-                    let signupInfo: {wabaId:string;phoneNumberId:string} | null = null;
-                    let authCode = "";
-                    let finished = false;
-                    let timer = 0;
-                    let fallbackTimer = 0;
-                    const cleanup = () => {
-                        window.removeEventListener("message", onMessage);
-                        if (timer) window.clearTimeout(timer);
-                        if (fallbackTimer) window.clearTimeout(fallbackTimer);
-                    };
-                    const showChannelResult = (message: string) => {
-                        setNotice(message);
-                        setChannelNotice(message);
-                        window.setTimeout(() => document.getElementById("marketing-channels")?.scrollIntoView({ behavior: "smooth" }), 50);
-                    };
-                    const finish = async () => {
-                        if (finished || !signupInfo || !authCode) return;
-                        finished = true;
-                        cleanup();
-                        try {
-                            await apiRequest("/api/admin/marketing/social/whatsapp/embedded-complete", { method:"POST", body:JSON.stringify({code:authCode,state:config.state,wabaId:signupInfo.wabaId,phoneNumberId:signupInfo.phoneNumberId}), timeoutMs:60000 });
-                            showChannelResult("✓ WhatsApp Business connected. Facebook remains connected independently.");
-                            await loadSocial();
-                        } catch (error) { showChannelResult(error instanceof Error ? error.message : "Could not save the WhatsApp connection."); }
-                        finally { setBusyProvider(null); }
-                    };
-                    const finishWithFallback = async () => {
-                        // Meta's completion event sometimes never reaches this tab
-                        // (mobile Safari ends the dialog on a "close this tab"
-                        // screen), but the login code did arrive. Let the backend
-                        // discover the WhatsApp account from the code alone.
-                        if (finished || !authCode || signupInfo) return;
-                        finished = true;
-                        cleanup();
-                        try {
-                            await apiRequest("/api/admin/marketing/social/whatsapp/embedded-complete-fallback", { method:"POST", body:JSON.stringify({code:authCode,state:config.state}), timeoutMs:60000 });
-                            showChannelResult("✓ WhatsApp Business connected. Facebook remains connected independently.");
-                            await loadSocial();
-                        } catch (error) { showChannelResult(error instanceof Error ? error.message : "Could not save the WhatsApp connection."); }
-                        finally { setBusyProvider(null); }
-                    };
-                    const failSignup = (message: string) => {
-                        if (finished) return;
-                        finished = true;
-                        cleanup();
-                        showChannelResult(message);
-                        setBusyProvider(null);
-                    };
-                    const onMessage = (event: MessageEvent) => {
-                        let messageHost = ""; try { messageHost = new URL(event.origin).hostname.toLowerCase(); } catch { return; }
-                        if (messageHost !== "facebook.com" && !messageHost.endsWith(".facebook.com")) return;
-                        try {
-                            const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-                            if (data?.type !== "WA_EMBEDDED_SIGNUP") return;
-                            if (data.event === "FINISH" || data.event === "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING" || data.event === "FINISH_ONLY_WABA") {
-                                signupInfo = { wabaId:String(data.data?.waba_id || ""), phoneNumberId:String(data.data?.phone_number_id || "") };
-                                if (!/^\\d+$/.test(signupInfo.wabaId)) {
-                                    failSignup("Meta finished signup without a valid WhatsApp Business Account ID. No connection was saved.");
-                                    return;
-                                }
-                                // Some Meta signup modes return only waba_id. The backend resolves its phone number via Graph API.
-                                void finish();
-                            } else if (data.event === "CANCEL" || data.event === "ERROR") {
-                                failSignup(data.event === "CANCEL" ? "WhatsApp setup was cancelled; no connection was changed." : String(data.data?.error_message || "Meta could not complete WhatsApp setup."));
-                            }
-                        } catch { /* Ignore unrelated SDK messages. */ }
-                    };
-                    window.addEventListener("message", onMessage);
-                    // Safety net only: completing Meta's Embedded Signup (choosing the
-                    // account, verifying the number, SMS/PIN) normally takes minutes.
-                    // 8 minutes stays below the signed state's 10-minute expiry; the
-                    // previous 25-second limit discarded real signups before finishing.
-                    timer = window.setTimeout(() => {
-                        failSignup(!authCode
-                            ? "Meta authorization did not finish. Reopen WhatsApp connection and complete the Meta flow; no connection was changed."
-                            : !signupInfo
-                                ? "Meta returned authorization but no WhatsApp signup event. The Login for Business configuration may not be set to WhatsApp Embedded Signup."
-                                : "Meta did not return complete WhatsApp account details. No connection was saved.");
-                    }, 480000);
-                    win.FB.login((response:any) => {
-                        authCode = String(response?.authResponse?.code || "");
-                        if (!authCode) {
-                            failSignup("Meta did not return an authorization code. No connection was changed. Reopen Connect official account and complete the Meta flow.");
-                            return;
-                        }
-                        void finish();
-                        // Grace period for the WA_EMBEDDED_SIGNUP event; if it does
-                        // not arrive, complete from the authorization code alone.
-                        fallbackTimer = window.setTimeout(() => { void finishWithFallback(); }, 25000);
-                    }, { config_id:config.configId, auth_type:"rerequest", response_type:"code", override_default_response_type:true, extras:{ setup:{}, featureType:"whatsapp_business_app_onboarding", sessionInfoVersion:"3" } });
-                };
-                if (win.FB) await launch();
-                else {
-                    const existing = document.getElementById("facebook-jssdk");
-                    if (!existing) {
-                        const script = document.createElement("script");
-                        script.id = "facebook-jssdk";
-                        script.src = "https://connect.facebook.net/en_US/sdk.js";
-                        script.async = true;
-                        script.defer = true;
-                        document.head.appendChild(script);
-                    }
-                    await new Promise<void>((resolve,reject) => {
-                        const started = Date.now();
-                        const timer = window.setInterval(() => {
-                            if (win.FB) { window.clearInterval(timer); resolve(); }
-                            else if (Date.now()-started > 15000) { window.clearInterval(timer); reject(new Error("Meta SDK timed out loading. Check the connection and try again.")); }
-                        },100);
-                    });
-                    await launch();
-                }
+                // Connect through the full-page OAuth redirect, the same flow the
+                // other channels use. The FB JS-SDK popup flow cannot complete on
+                // mobile Safari: the dialog ends on a separate "close this tab"
+                // screen, so neither the signup event nor the authorization code
+                // ever reaches this tab and the connection is never saved.
+                const result = await apiRequest<{ url: string }>("/api/admin/marketing/social/meta/authorize?channel=whatsapp");
+                window.location.href = result.url;
                 return;
             }
             const result = await apiRequest<{ url: string }>(`/api/admin/marketing/social/${channel.provider}/authorize`);
