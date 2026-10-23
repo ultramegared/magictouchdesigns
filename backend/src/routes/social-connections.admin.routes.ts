@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/auth.middleware";
-import { marketingCampaignHistory, marketingCampaignDelete, marketingCampaignRetry, marketingPublicationActivity, marketingCampaignResults, marketingGoogleAdsStatus, marketingGoogleAdsVerify, marketingAutopilotStatus, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish, instagramInsights, whatsappEmbeddedConfig, whatsappEmbeddedComplete } from "../controllers/social-connections.admin.controller";
+import { marketingCampaignHistory, marketingCampaignDelete, marketingCampaignRetry, marketingPublicationActivity, marketingCampaignResults, marketingGoogleAdsStatus, marketingGoogleAdsVerify, marketingAutopilotStatus, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish, instagramInsights, whatsappEmbeddedConfig, whatsappEmbeddedComplete, whatsappEmbeddedCompleteFallback } from "../controllers/social-connections.admin.controller";
 
 const router = Router();
 
@@ -16,6 +16,7 @@ router.get("/instagram/insights", instagramInsights);
 router.get("/:provider/authorize", socialAuthorize);
 router.get("/whatsapp/embedded-config", whatsappEmbeddedConfig);
 router.post("/whatsapp/embedded-complete", whatsappEmbeddedComplete);
+router.post("/whatsapp/embedded-complete-fallback", whatsappEmbeddedCompleteFallback);
 router.get("/:provider/connect", socialConnect);
 router.get("/:provider/verify", socialVerify);
 router.post("/:provider/select", socialSelectAccount);
