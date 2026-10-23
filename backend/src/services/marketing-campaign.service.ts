@@ -192,20 +192,37 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
         throw new Error(`Caption generation failed (OpenAI HTTP ${response.status}; ${errorCode}; ${errorType}): ${errorMessage || "No provider error message returned"}`);
     }
     const payload: any = await response.json();
-    const generated = typeof payload.output_text === "string" ? payload.output_text.trim() : "";
-    if (!generated || /\[object Object\]/i.test(generated)) {
-        console.error("[marketing-autopilot] Caption validation failed", {
+    // The Responses API may provide output_text or text nested in output[].content[].
+    // Read both shapes so a valid response is not mistakenly treated as empty.
+    const nestedOutput = Array.isArray(payload.output)
+        ? payload.output.flatMap((item: any) => Array.isArray(item?.content) ? item.content : [])
+            .filter((part: any) => part?.type === "output_text" || typeof part?.text === "string")
+            .map((part: any) => typeof part?.text === "string" ? part.text : "")
+            .join("\\n")
+        : "";
+    const generated = (typeof payload.output_text === "string" ? payload.output_text : nestedOutput).trim();
+    const invalidGenerated = !generated || /\\[object Object\\]/i.test(generated);
+
+    // Fail-safe: an empty model response must not stop the whole publishing queue.
+    // Keep the fallback specific to the catalog item and avoid claiming unseen image details.
+    const fallbackCaption = [
+        `A closer look at our ${name} design ✨`,
+        "A personalized touch can make an everyday moment feel more meaningful. Explore this design or request a custom creation made for your idea.",
+        "Shop or request a custom design: https://www.jqydesigns.com/",
+        "#JQYDesigns #PersonalizedGifts #CustomDesign"
+    ].join("\\n\\n");
+    if (invalidGenerated) {
+        console.error("[marketing-autopilot] Caption response was empty or invalid; using product-specific fallback", {
             hasOutput: Boolean(generated),
-            containsObjectPlaceholder: /\[object Object\]/i.test(generated),
+            containsObjectPlaceholder: /\\[object Object\\]/i.test(generated),
             reason: !generated ? "empty_output" : "object_placeholder",
         });
-        throw new Error("Generated caption failed content validation: empty or invalid output.");
     }
 
     // Models may omit "www" or return the same domain with a different URL form.
     // Canonicalize the shop URL instead of discarding an otherwise usable caption.
-    let caption = sanitizeSocialCaption(generated).replace(
-        /https?:\/\/(?:www\.)?jqydesigns\.com\/?/gi,
+    let caption = sanitizeSocialCaption(invalidGenerated ? fallbackCaption : generated).replace(
+        /https?:\\/\\/(?:www\\.)?jqydesigns\\.com\\/?/gi,
         "https://www.jqydesigns.com/",
     );
     if (!caption.includes("https://www.jqydesigns.com/")) {
