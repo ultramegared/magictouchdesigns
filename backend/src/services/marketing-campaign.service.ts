@@ -198,10 +198,10 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
         ? payload.output.flatMap((item: any) => Array.isArray(item?.content) ? item.content : [])
             .filter((part: any) => part?.type === "output_text" || typeof part?.text === "string")
             .map((part: any) => typeof part?.text === "string" ? part.text : "")
-            .join("\\n")
+            .join("\n")
         : "";
     const generated = (typeof payload.output_text === "string" ? payload.output_text : nestedOutput).trim();
-    const invalidGenerated = !generated || /\\[object Object\\]/i.test(generated);
+    const invalidGenerated = !generated || /\[object Object\]/i.test(generated);
 
     // Fail-safe: an empty model response must not stop the whole publishing queue.
     // Keep the fallback specific to the catalog item and avoid claiming unseen image details.
@@ -214,7 +214,7 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
     if (invalidGenerated) {
         console.error("[marketing-autopilot] Caption response was empty or invalid; using product-specific fallback", {
             hasOutput: Boolean(generated),
-            containsObjectPlaceholder: /\\[object Object\\]/i.test(generated),
+            containsObjectPlaceholder: /\[object Object\]/i.test(generated),
             reason: !generated ? "empty_output" : "object_placeholder",
         });
     }
@@ -222,7 +222,7 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
     // Models may omit "www" or return the same domain with a different URL form.
     // Canonicalize the shop URL instead of discarding an otherwise usable caption.
     let caption = sanitizeSocialCaption(invalidGenerated ? fallbackCaption : generated).replace(
-        /https?:\\/\\/(?:www\\.)?jqydesigns\\.com\\/?/gi,
+        /https?:\/\/(?:www\.)?jqydesigns\.com\/?/gi,
         "https://www.jqydesigns.com/",
     );
     if (!caption.includes("https://www.jqydesigns.com/")) {
