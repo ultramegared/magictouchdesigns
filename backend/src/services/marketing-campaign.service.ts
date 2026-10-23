@@ -210,7 +210,7 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
         "A personalized touch can make an everyday moment feel more meaningful. Explore this design or request a custom creation made for your idea.",
         "Shop or request a custom design: https://www.jqydesigns.com/",
         "#JQYDesigns #PersonalizedGifts #CustomDesign"
-    ].join("\\n\\n");
+    ].join("\n\n");
     if (invalidGenerated) {
         console.error("[marketing-autopilot] Caption response was empty or invalid; using product-specific fallback", {
             hasOutput: Boolean(generated),
