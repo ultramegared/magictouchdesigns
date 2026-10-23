@@ -190,10 +190,29 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
     }
     const payload: any = await response.json();
     const generated = typeof payload.output_text === "string" ? payload.output_text.trim() : "";
-    if (!generated || /\[object Object\]/i.test(generated) || !generated.includes("www.jqydesigns.com")) {
-        throw new Error("Generated caption failed content validation.");
+    if (!generated || /\[object Object\]/i.test(generated)) {
+        console.error("[marketing-autopilot] Caption validation failed", {
+            hasOutput: Boolean(generated),
+            containsObjectPlaceholder: /\[object Object\]/i.test(generated),
+            reason: !generated ? "empty_output" : "object_placeholder",
+        });
+        throw new Error("Generated caption failed content validation: empty or invalid output.");
     }
-    return sanitizeSocialCaption(generated);
+
+    // Models may omit "www" or return the same domain with a different URL form.
+    // Canonicalize the shop URL instead of discarding an otherwise usable caption.
+    let caption = sanitizeSocialCaption(generated).replace(
+        /https?:\/\/(?:www\.)?jqydesigns\.com\/?/gi,
+        "https://www.jqydesigns.com/",
+    );
+    if (!caption.includes("https://www.jqydesigns.com/")) {
+        caption = caption ? `${caption}\n\nShop or request a custom design: https://www.jqydesigns.com/`
+            : "Shop or request a custom design: https://www.jqydesigns.com/";
+    }
+    if (!caption.trim() || /\[object Object\]/i.test(caption)) {
+        throw new Error("Generated caption failed content validation after sanitization.");
+    }
+    return caption;
 };
 
 const publishSocialCampaign = async (
