@@ -449,10 +449,15 @@ export async function marketingCatalogStatus(req: AuthenticatedRequest, res: Res
 
 export async function marketingCatalogToggle(req: AuthenticatedRequest, res: Response) {
     try {
-        const enabled = Boolean(req.body?.enabled);
-        res.json({ status: "success", catalog: await setCatalogAutopilot(marketingWorkspaceId(), enabled) });
+        // Only accept actual booleans: Boolean("false") is true and could accidentally enable publishing.
+        if (typeof req.body?.enabled !== "boolean") {
+            return res.status(400).json({ status: "error", error: "The enabled field must be a boolean true or false." });
+        }
+        const enabled = req.body.enabled;
+        const catalog = await setCatalogAutopilot(marketingWorkspaceId(), enabled);
+        return res.json({ status: "success", catalog });
     } catch (error) {
         console.error("Unable to update Content Autopilot:", error);
-        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to update Catalog Autopilot." });
+        return res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to update Catalog Autopilot." });
     }
 }
