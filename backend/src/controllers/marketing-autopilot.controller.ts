@@ -9,6 +9,22 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
     return res.status(401).json({ status: "error", error: "Unauthorized cron request." });
   }
 
+  // Vercel cron uses UTC. Trigger at 05:00 and 06:00 UTC, but run the robot
+  // only when it is midnight in Houston (America/Chicago), including DST changes.
+  const houstonHour = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).format(new Date());
+  if (houstonHour !== "00") {
+    return res.status(200).json({
+      status: "success",
+      skipped: true,
+      reason: "Marketing Autopilot runs at midnight Houston time.",
+      timezone: "America/Chicago",
+    });
+  }
+
   // Isolate the two stages: an analytics/provider outage must not prevent the
   // other stage from running, and a successful publication must not be reported
   // as a total cron failure merely because analytics synchronization failed.
