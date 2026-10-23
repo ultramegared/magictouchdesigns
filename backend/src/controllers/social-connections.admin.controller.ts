@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { randomUUID } from "crypto";
-import { disconnect, getConnectUrl, getConnections, handleCallback, getWhatsAppEmbeddedConfig, completeWhatsAppEmbeddedSignup, completeWhatsAppFromCode, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, getInstagramInsights, type SocialChannel } from "../services/social-connections.service";
+import { disconnect, getConnectUrl, getConnections, handleCallback, getWhatsAppEmbeddedConfig, completeWhatsAppEmbeddedSignup, completeWhatsAppFromCode, getWhatsAppDiagnosis, recordSocialConnectEvent, listSocialConnectEvents, peekConnectStateChannel, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, getInstagramInsights, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { launchMarketingCampaign, retryMarketingCampaign, listMarketingCampaigns, deleteMarketingCampaign, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot, getMarketingCampaignResults } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
@@ -121,18 +121,32 @@ export function socialConnect(req: AuthenticatedRequest, res: Response) {
 }
 
 export async function socialCallback(req: Request, res: Response) {
+    const provider = String(req.params.provider);
+    const state = String(req.query.state || "");
     try {
-        const provider = String(req.params.provider);
         if (!isSocialProvider(provider)) throw new Error("Unsupported social provider.");
         const code = String(req.query.code || "");
-        const state = String(req.query.state || "");
         if (!code || !state) throw new Error(String(req.query.error_description || req.query.error || "Authorization was cancelled."));
-        await handleCallback(provider, code, state);
+        const result = await handleCallback(provider, code, state);
+        if (result.channel === "whatsapp") {
+            const diagnosis = await getWhatsAppDiagnosis(result.userId);
+            await recordSocialConnectEvent(result.userId, provider, result.channel, diagnosis.ready ? "connected" : "saved_not_ready", diagnosis);
+        } else {
+            await recordSocialConnectEvent(result.userId, provider, result.channel, "connected", {});
+        }
         res.redirect(`${process.env.FRONTEND_PUBLIC_URL || "https://jqydesigns.com"}/admin/marketing?social=connected&provider=${encodeURIComponent(provider)}`);
     } catch (error) {
         const message = error instanceof Error ? error.message : "Social authorization failed.";
+        await recordSocialConnectEvent(marketingWorkspaceId(), provider, peekConnectStateChannel(state), "error", { message });
         res.redirect(`${process.env.FRONTEND_PUBLIC_URL || "https://jqydesigns.com"}/admin/marketing?social=error&message=${encodeURIComponent(message)}`);
     }
+}
+export async function socialConnectEvents(req: AuthenticatedRequest, res: Response) {
+    try {
+        const userId = marketingWorkspaceId();
+        const [events, whatsappDiagnosis] = await Promise.all([listSocialConnectEvents(userId), getWhatsAppDiagnosis(userId)]);
+        res.json({ events, whatsappDiagnosis });
+    } catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Connect diagnostics unavailable." }); }
 }
 
 export async function socialDisconnect(req: AuthenticatedRequest, res: Response) {
