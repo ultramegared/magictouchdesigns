@@ -117,7 +117,7 @@ function AdminMarketing() {
     const [publishing, setPublishing] = useState(false);
     const [publishResults, setPublishResults] = useState<Record<string, PublishResult>>({});
     const [notice, setNotice] = useState("");
-    const [channelNotice] = useState("");
+    const [channelNotice, setChannelNotice] = useState("");
     const [setupProvider, setSetupProvider] = useState<"meta" | "whatsapp" | "instagram" | "tiktok" | "youtube" | "pinterest" | null>(null);
     const [campaignName, setCampaignName] = useState("");
     const [campaignObjective, setCampaignObjective] = useState("Brand awareness and sales");
@@ -368,8 +368,17 @@ function AdminMarketing() {
     useEffect(() => { void load(); void loadSocial(); void loadInstagramInsights(); void loadEmailStatus(); void loadCampaignHistory(); void loadPublicationActivity(); void loadLearning(); void loadDailySummary(); void loadCatalog(); }, [load, loadSocial, loadInstagramInsights, loadCampaignHistory, loadPublicationActivity, loadLearning, loadDailySummary, loadCatalog]);
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        if (params.get("social") === "connected") setNotice(`Cuenta ${params.get("provider") || "social"} conectada correctamente.`);
-        if (params.get("social") === "error") setNotice(params.get("message") || "La conexión social no pudo completarse.");
+        // Show the result next to the channel cards as well as in the page-top
+        // notice, and scroll to it: the channels section sits far down this
+        // page, so a top-only notice is easy to miss after the OAuth redirect
+        // returns — the failure then looks silent.
+        const showResult = (message: string) => {
+            setNotice(message);
+            setChannelNotice(message);
+            window.setTimeout(() => document.getElementById("marketing-channels")?.scrollIntoView({ behavior: "smooth" }), 60);
+        };
+        if (params.get("social") === "connected") showResult(`Cuenta ${params.get("provider") || "social"} conectada correctamente.`);
+        if (params.get("social") === "error") showResult(params.get("message") || "La conexión social no pudo completarse.");
         if (params.has("social")) { void loadSocial(); window.history.replaceState({}, "", window.location.pathname); }
     }, [loadSocial]);
 
