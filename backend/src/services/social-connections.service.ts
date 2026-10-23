@@ -48,8 +48,12 @@ export async function getConnections(userId: string) {
     const metaProfile = result.rows.find(row => row.provider === "meta")?.profile || {};
     const whatsappProfile = result.rows.find(row => row.provider === "whatsapp")?.profile || {};
     const whatsappPhones = Array.isArray((whatsappProfile as any).whatsapp) ? (whatsappProfile as any).whatsapp : [];
-    const whatsappWabaId = String((whatsappProfile as any).wabaId || "");
-    const whatsappPhoneId = String((whatsappProfile as any).phoneNumberId || whatsappPhones[0]?.phoneNumberId || "");
+    // Rows saved from the raw Meta OAuth profile carry the WABA and phone IDs
+    // on the phone entries instead of at the top level. Derive them the same
+    // way the WhatsApp publisher and verifier already do, so a saved, working
+    // connection is not reported as disconnected.
+    const whatsappWabaId = String((whatsappProfile as any).wabaId || whatsappPhones[0]?.wabaId || "");
+    const whatsappPhoneId = String((whatsappProfile as any).phoneNumberId || whatsappPhones[0]?.phoneNumberId || whatsappPhones[0]?.id || "");
     const whatsappReady = Boolean(whatsappWabaId && /^\d+$/.test(whatsappWabaId) && whatsappPhoneId && /^\d+$/.test(whatsappPhoneId) && whatsappPhones.some((phone: any) => String(phone.phoneNumberId || phone.id || "") === whatsappPhoneId));
     const connected = result.rows.reduce<Record<string, unknown>>((out, row) => {
         if (!providerConfig(row.provider).configured) return out;
