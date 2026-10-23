@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { randomUUID } from "crypto";
-import { disconnect, getConnectUrl, getConnections, handleCallback, getWhatsAppEmbeddedConfig, completeWhatsAppEmbeddedSignup, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, getInstagramInsights, type SocialChannel } from "../services/social-connections.service";
+import { disconnect, getConnectUrl, getConnections, handleCallback, getWhatsAppEmbeddedConfig, completeWhatsAppEmbeddedSignup, completeWhatsAppFromCode, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, getInstagramInsights, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { launchMarketingCampaign, retryMarketingCampaign, listMarketingCampaigns, deleteMarketingCampaign, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot, getMarketingCampaignResults } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
@@ -61,8 +61,18 @@ export async function whatsappEmbeddedComplete(req: AuthenticatedRequest, res: R
         const state = String(req.body?.state || "").trim();
         const wabaId = String(req.body?.wabaId || "").trim();
         const phoneNumberId = String(req.body?.phoneNumberId || "").trim();
-        if (!code || !state || !wabaId || !phoneNumberId) return res.status(400).json({ error: "Meta did not return all required WhatsApp signup details. Please connect again." });
+        if (!code || !state || !wabaId) return res.status(400).json({ error: "Meta did not return all required WhatsApp signup details. Please connect again." });
         const result = await completeWhatsAppEmbeddedSignup(marketingWorkspaceId(), code, state, wabaId, phoneNumberId);
+        res.set({ "Cache-Control": "no-store, private" });
+        res.json({ status: "success", ...result });
+    } catch (error) { res.status(502).json({ status: "error", error: error instanceof Error ? error.message : "WhatsApp Embedded Signup failed." }); }
+}
+export async function whatsappEmbeddedCompleteFallback(req: AuthenticatedRequest, res: Response) {
+    try {
+        const code = String(req.body?.code || "").trim();
+        const state = String(req.body?.state || "").trim();
+        if (!code || !state) return res.status(400).json({ error: "Meta did not return an authorization code. Please connect again." });
+        const result = await completeWhatsAppFromCode(marketingWorkspaceId(), code, state);
         res.set({ "Cache-Control": "no-store, private" });
         res.json({ status: "success", ...result });
     } catch (error) { res.status(502).json({ status: "error", error: error instanceof Error ? error.message : "WhatsApp Embedded Signup failed." }); }

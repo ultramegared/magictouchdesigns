@@ -431,9 +431,11 @@ function AdminMarketing() {
                     let authCode = "";
                     let finished = false;
                     let timer = 0;
+                    let fallbackTimer = 0;
                     const cleanup = () => {
                         window.removeEventListener("message", onMessage);
                         if (timer) window.clearTimeout(timer);
+                        if (fallbackTimer) window.clearTimeout(fallbackTimer);
                     };
                     const showChannelResult = (message: string) => {
                         setNotice(message);
@@ -446,6 +448,21 @@ function AdminMarketing() {
                         cleanup();
                         try {
                             await apiRequest("/api/admin/marketing/social/whatsapp/embedded-complete", { method:"POST", body:JSON.stringify({code:authCode,state:config.state,wabaId:signupInfo.wabaId,phoneNumberId:signupInfo.phoneNumberId}), timeoutMs:60000 });
+                            showChannelResult("✓ WhatsApp Business connected. Facebook remains connected independently.");
+                            await loadSocial();
+                        } catch (error) { showChannelResult(error instanceof Error ? error.message : "Could not save the WhatsApp connection."); }
+                        finally { setBusyProvider(null); }
+                    };
+                    const finishWithFallback = async () => {
+                        // Meta's completion event sometimes never reaches this tab
+                        // (mobile Safari ends the dialog on a "close this tab"
+                        // screen), but the login code did arrive. Let the backend
+                        // discover the WhatsApp account from the code alone.
+                        if (finished || !authCode || signupInfo) return;
+                        finished = true;
+                        cleanup();
+                        try {
+                            await apiRequest("/api/admin/marketing/social/whatsapp/embedded-complete-fallback", { method:"POST", body:JSON.stringify({code:authCode,state:config.state}), timeoutMs:60000 });
                             showChannelResult("✓ WhatsApp Business connected. Facebook remains connected independently.");
                             await loadSocial();
                         } catch (error) { showChannelResult(error instanceof Error ? error.message : "Could not save the WhatsApp connection."); }
@@ -496,6 +513,9 @@ function AdminMarketing() {
                             return;
                         }
                         void finish();
+                        // Grace period for the WA_EMBEDDED_SIGNUP event; if it does
+                        // not arrive, complete from the authorization code alone.
+                        fallbackTimer = window.setTimeout(() => { void finishWithFallback(); }, 25000);
                     }, { config_id:config.configId, auth_type:"rerequest", response_type:"code", override_default_response_type:true, extras:{ setup:{}, featureType:"whatsapp_business_app_onboarding", sessionInfoVersion:"3" } });
                 };
                 if (win.FB) await launch();
