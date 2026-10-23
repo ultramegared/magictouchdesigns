@@ -82,6 +82,46 @@ export async function getConnections(userId: string) {
         }
     };
 }
+export async function getWhatsAppDiagnosis(userId: string) {
+    await ensureSocialConnectionsTable();
+    const result = await pool.query<{ profile: any; updated_at: string }>(`SELECT profile, updated_at FROM marketing_social_connections WHERE user_id=$1 AND provider='whatsapp'`, [userId]);
+    const row = result.rows[0];
+    if (!row) return { rowExists: false, entries: 0, firstEntryHasWabaId: false, firstEntryHasPhoneId: false, topLevelWabaId: false, topLevelPhoneNumberId: false, signupMethod: "", ready: false, updatedAt: null as string | null };
+    const profile: any = row.profile || {};
+    const phones = Array.isArray(profile.whatsapp) ? profile.whatsapp : [];
+    const first: any = phones[0] || {};
+    const wabaId = String(profile.wabaId || first.wabaId || "");
+    const phoneId = String(profile.phoneNumberId || first.phoneNumberId || first.id || "");
+    const ready = Boolean(/^\d+$/.test(wabaId) && /^\d+$/.test(phoneId) && phones.some((phone: any) => String(phone.phoneNumberId || phone.id || "") === phoneId));
+    return {
+        rowExists: true,
+        entries: phones.length,
+        firstEntryHasWabaId: /^\d+$/.test(String(first.wabaId || "")),
+        firstEntryHasPhoneId: /^\d+$/.test(String(first.id || "")),
+        topLevelWabaId: /^\d+$/.test(String(profile.wabaId || "")),
+        topLevelPhoneNumberId: /^\d+$/.test(String(profile.phoneNumberId || "")),
+        signupMethod: String(profile.signupMethod || ""),
+        ready,
+        updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : null,
+    };
+}
+export async function ensureSocialConnectEventsTable() {
+    await pool.query(`CREATE TABLE IF NOT EXISTS marketing_social_connect_events (id BIGSERIAL PRIMARY KEY, user_id TEXT NOT NULL, provider TEXT NOT NULL, channel TEXT, outcome TEXT NOT NULL, detail JSONB NOT NULL DEFAULT '{}'::jsonb, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
+}
+export async function recordSocialConnectEvent(userId: string, provider: string, channel: string | undefined, outcome: string, detail: Record<string, unknown>) {
+    try {
+        await ensureSocialConnectEventsTable();
+        await pool.query(`INSERT INTO marketing_social_connect_events (user_id, provider, channel, outcome, detail) VALUES ($1,$2,$3,$4,$5)`, [userId, provider, channel || null, outcome, JSON.stringify(detail)]);
+    } catch { /* Diagnostics must never break the connection flow. */ }
+}
+export async function listSocialConnectEvents(userId: string, limit = 10) {
+    await ensureSocialConnectEventsTable();
+    const result = await pool.query(`SELECT provider, channel, outcome, detail, created_at FROM marketing_social_connect_events WHERE user_id=$1 ORDER BY id DESC LIMIT $2`, [userId, limit]);
+    return result.rows.map((row: any) => ({ provider: row.provider, channel: row.channel, outcome: row.outcome, detail: row.detail || {}, createdAt: row.created_at ? new Date(row.created_at).toISOString() : null }));
+}
+export function peekConnectStateChannel(state: string) {
+    try { const decoded: any = jwt.decode(state); return typeof decoded?.channel === "string" ? decoded.channel : undefined; } catch { return undefined; }
+}
 export function getConnectUrl(provider: SocialProvider, userId: string, channel?: SocialChannel) { const config = providerConfig(provider); if (!config.configured || !config.clientId) throw new Error(`${provider} integration is not configured on the server.`); const state = jwt.sign({ userId, provider, channel: channel === "whatsapp" ? "whatsapp" : undefined }, stateSecret(), { expiresIn: "10m" }); const url = new URL(config.authorize); url.searchParams.set("client_id", config.clientId); url.searchParams.set("redirect_uri", redirectUri(provider)); url.searchParams.set("response_type", "code"); url.searchParams.set("state", state); if (provider === "meta") { const loginConfigId = (channel === "whatsapp" ? process.env.META_WHATSAPP_LOGIN_CONFIG_ID : process.env.META_LOGIN_CONFIG_ID)?.trim(); if (channel === "whatsapp" && !loginConfigId) throw new Error("WhatsApp requires META_WHATSAPP_LOGIN_CONFIG_ID: configure a WhatsApp-specific Login for Business configuration in Meta Developers, then add its ID to the backend Production environment."); if (loginConfigId) { url.searchParams.set("config_id", loginConfigId); url.searchParams.set("override_default_response_type", "true"); } else { url.searchParams.set("scope", config.scopes.join(",")); } } else if (provider === "pinterest" || provider === "tiktok") url.searchParams.set("scope", config.scopes.join(",")); else url.searchParams.set("scope", config.scopes.join(" ")); if (provider === "tiktok") { url.searchParams.set("client_key", config.clientId); url.searchParams.delete("client_id"); } if (provider === "youtube") { url.searchParams.set("access_type", "offline"); url.searchParams.set("prompt", "consent"); url.searchParams.set("include_granted_scopes", "true"); } if (provider === "pinterest") url.searchParams.set("continuous_refresh", "true"); return url.toString(); }
 async function exchange(provider: SocialProvider, code: string) { const config = providerConfig(provider); const uri = redirectUri(provider); if (provider === "meta" || provider === "whatsapp") { const url = new URL(config.token); url.searchParams.set("client_id", String(config.clientId)); url.searchParams.set("client_secret", String(config.clientSecret)); url.searchParams.set("redirect_uri", uri); url.searchParams.set("code", code); const response = await fetch(url); return response.json(); } const body = new URLSearchParams({ client_id: String(config.clientId), client_secret: String(config.clientSecret), code, redirect_uri: uri, grant_type: "authorization_code" }); if (provider === "tiktok") { body.set("client_key", String(config.clientId)); body.delete("client_id"); } const headers: Record<string,string> = { "Content-Type": "application/x-www-form-urlencoded" }; if (provider === "pinterest") { headers.Authorization = `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString("base64")}`; body.delete("client_id"); body.delete("client_secret"); body.set("continuous_refresh", "true"); } const response = await fetch(config.token, { method: "POST", headers, body }); return response.json(); }
 async function metaProfile(accessToken: string) { const base = `https://graph.facebook.com/${META_VERSION}`; const headers = { Authorization: `Bearer ${accessToken}` }; const meResponse = await fetch(`${base}/me?fields=id,name`, { headers }); const me = await meResponse.json(); if (!meResponse.ok) throw new Error(me.error?.message || "Unable to read the Meta account."); const pagesResponse = await fetch(`${base}/me/accounts?fields=id,name,access_token,instagram_business_account{id,username,name,profile_picture_url}`, { headers }); const pagesData = await pagesResponse.json(); const pages = (pagesData.data || []).map((page: any) => ({ id: page.id, name: page.name, accessToken: page.access_token, instagram: page.instagram_business_account || null })); const instagram = pages.filter((page: any) => page.instagram).map((page: any) => ({ ...page.instagram, pageId: page.id, pageName: page.name })); const businessesResponse = await fetch(`${base}/me/businesses?fields=id,name`, { headers }); const businessesData = await businessesResponse.json(); const whatsapp: any[] = []; for (const business of businessesData.data || []) { const wabaResponse = await fetch(`${base}/${business.id}/owned_whatsapp_business_accounts?fields=id,name`, { headers }); const wabaData = await wabaResponse.json(); for (const waba of wabaData.data || []) { const phonesResponse = await fetch(`${base}/${waba.id}/phone_numbers?fields=id,display_phone_number,verified_name`, { headers }); const phonesData = await phonesResponse.json(); for (const phone of phonesData.data || []) whatsapp.push({ businessId: business.id, businessName: business.name, wabaId: waba.id, wabaName: waba.name, ...phone }); } } return { id: me.id, name: me.name, pages, instagram, whatsapp }; }
@@ -250,9 +290,9 @@ export async function handleCallback(provider: SocialProvider, code: string, sta
         profile = { id: wabaId, name: phone.wabaName || "WhatsApp Business", wabaId, phoneNumberId: resolvedPhoneId, whatsapp, signupMethod: "oauth_redirect" };
         await saveConnection(payload.userId, storageProvider, tokens, profile);
         await pool.query(`INSERT INTO marketing_social_selections (user_id,provider,channel,external_id) VALUES ($1,'whatsapp','whatsapp',$2) ON CONFLICT (user_id,provider,channel) DO UPDATE SET external_id=EXCLUDED.external_id, updated_at=NOW()`, [payload.userId, resolvedPhoneId]);
-        return payload.userId;
+        return { userId: payload.userId, channel: payload.channel };
     }
-    await saveConnection(payload.userId, storageProvider, tokens, profile); return payload.userId; }
+    await saveConnection(payload.userId, storageProvider, tokens, profile); return { userId: payload.userId, channel: payload.channel }; }
 async function refreshProviderToken(provider: SocialProvider, refreshToken: string) {
     const config = providerConfig(provider);
     const body = new URLSearchParams({ grant_type: "refresh_token", refresh_token: refreshToken });
