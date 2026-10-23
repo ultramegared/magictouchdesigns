@@ -144,9 +144,12 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
     const content: any[] = [{
         type: "input_text",
         text: [
-            "Write a fresh, professional, inviting English social media caption for JQYDesigns based on the attached product image and product name.",
-            "Inspect the image to understand the visual design and personalize the caption to what is visibly shown. Use the product name as the only product metadata.",
-            "Do not mention product descriptions, features, materials, sizes, care instructions, options, prices, or any details not clearly visible in the image.",
+            "Write a specific, professional, inviting English social media caption for this exact JQYDesigns product.",
+            "Treat the attached product image as the source of truth. Describe only details you can clearly see in that exact image; use the product name to identify the item.",
+            "Do not invent a different design, character, face, color, slogan, or product feature. Do not describe a generic gift instead of this specific item.",
+            "IMPORTANT: This step creates caption text only. Never generate, redraw, edit, replace, reinterpret, or request a new version of the product image. The original uploaded image must be published unchanged.",
+            "Write 2-4 useful sentences describing the visible design and why this particular mug could make a thoughtful gift, without making unsupported claims.",
+            "Do not mention prices, materials, sizes, care instructions, options, or details not clearly visible in the image or supplied product name.",
             "Do not output Markdown formatting, headings, explanations, or labels. Never output [object Object].",
             "Invite people to shop or request a custom design. Include this URL exactly: https://www.jqydesigns.com/",
             "Finish with a small set of relevant hashtags including #JQYDesigns.",
