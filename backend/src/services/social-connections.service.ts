@@ -9,7 +9,7 @@ const META_VERSION = process.env.META_GRAPH_API_VERSION || "v26.0";
 const FRONTEND_URL = process.env.FRONTEND_PUBLIC_URL || "https://jqydesigns.com";
 const BACKEND_URL = process.env.BACKEND_PUBLIC_URL || "https://api.jqydesigns.com";
 const providerConfig = (provider: SocialProvider) => {
-    if (provider === "meta" || provider === "whatsapp") return { configured: Boolean(process.env.META_APP_ID && process.env.META_APP_SECRET && (provider !== "whatsapp" || process.env.META_WHATSAPP_LOGIN_CONFIG_ID)), clientId: process.env.META_APP_ID, clientSecret: process.env.META_APP_SECRET, authorize: `https://m.facebook.com/${META_VERSION}/dialog/oauth`, token: `https://graph.facebook.com/${META_VERSION}/oauth/access_token`, scopes: ["pages_show_list", "pages_read_engagement", "pages_manage_posts"] /* Classic-dialog scopes for the Meta connection only: the publisher needs just the three Pages permissions. Bundling the Instagram/WhatsApp permissions makes the classic dialog fail with Meta's generic "something went wrong" page; Instagram publishes through its dedicated connection and WhatsApp connects through its own Embedded Signup configuration. */, envKeys: provider === "whatsapp" ? ["META_APP_ID", "META_APP_SECRET", "META_WHATSAPP_LOGIN_CONFIG_ID"] : ["META_APP_ID", "META_APP_SECRET"] };
+    if (provider === "meta" || provider === "whatsapp") return { configured: Boolean(process.env.META_APP_ID && process.env.META_APP_SECRET && (provider !== "whatsapp" || process.env.META_WHATSAPP_LOGIN_CONFIG_ID)), clientId: process.env.META_APP_ID, clientSecret: process.env.META_APP_SECRET, authorize: `https://www.facebook.com/${META_VERSION}/dialog/oauth`, token: `https://graph.facebook.com/${META_VERSION}/oauth/access_token`, scopes: ["pages_show_list", "pages_read_engagement", "pages_manage_posts", "instagram_basic", "instagram_content_publish", "instagram_manage_insights", "whatsapp_business_management", "whatsapp_business_messaging"], envKeys: provider === "whatsapp" ? ["META_APP_ID", "META_APP_SECRET", "META_WHATSAPP_LOGIN_CONFIG_ID"] : ["META_APP_ID", "META_APP_SECRET"] };
     if (provider === "instagram") return { configured: Boolean(process.env.INSTAGRAM_ACCESS_TOKEN?.trim()), clientId: undefined, clientSecret: undefined, authorize: "https://www.instagram.com/oauth/authorize", token: "https://graph.instagram.com", scopes: ["instagram_business_basic", "instagram_business_content_publish", "instagram_business_manage_insights"], envKeys: ["INSTAGRAM_ACCESS_TOKEN"] };
     if (provider === "tiktok") return { configured: Boolean(process.env.TIKTOK_CLIENT_KEY && process.env.TIKTOK_CLIENT_SECRET), clientId: process.env.TIKTOK_CLIENT_KEY, clientSecret: process.env.TIKTOK_CLIENT_SECRET, authorize: "https://www.tiktok.com/v2/auth/authorize/", token: "https://open.tiktokapis.com/v2/oauth/token/", scopes: ["user.info.basic", "video.publish", "video.upload"], envKeys: ["TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET"] };
     if (provider === "youtube") return { configured: Boolean(process.env.GOOGLE_OAUTH_CLIENT_ID && process.env.GOOGLE_OAUTH_CLIENT_SECRET), clientId: process.env.GOOGLE_OAUTH_CLIENT_ID, clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET, authorize: "https://accounts.google.com/o/oauth2/v2/auth", token: "https://oauth2.googleapis.com/token", scopes: ["openid", "profile", "https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"], envKeys: ["GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET"] };
@@ -33,7 +33,7 @@ export async function ensureSocialConnectionsTable() {
 async function saveConnection(userId: string, provider: SocialProvider, tokens: Record<string, unknown>, profile: Record<string, unknown>) {
     await ensureSocialConnectionsTable(); const accessToken = String(tokens.access_token || ""); if (!accessToken) throw new Error("The provider did not return an access token."); const expiresIn = Number(tokens.expires_in || 0); const expiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000) : null;
     const safeProfile = JSON.parse(JSON.stringify(profile, (key, value) => key === "accessToken" ? undefined : value));
-    await pool.query(`INSERT INTO marketing_social_connections (user_id,provider,access_token,refresh_token,expires_at,profile) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (user_id,provider) DO UPDATE SET access_token=EXCLUDED.access_token, refresh_token=EXCLUDED.refresh_token, expires_at=EXCLUDED.expires_at, profile=EXCLUDED.profile, updated_at=NOW()`, [userId, provider, encrypt(accessToken), tokens.refresh_token ? encrypt(tokens.refresh_token) : null, expiresAt, JSON.stringify(safeProfile)]);
+    await pool.query(`INSERT INTO marketing_social_connections (user_id,provider,access_token,refresh_token,expires_at,profile) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (user_id,provider) DO UPDATE SET access_token=EXCLUDED.access_token, refresh_token=COALESCE(EXCLUDED.refresh_token, marketing_social_connections.refresh_token), expires_at=COALESCE(EXCLUDED.expires_at, marketing_social_connections.expires_at), profile=EXCLUDED.profile, updated_at=NOW()`, [userId, provider, encrypt(accessToken), tokens.refresh_token ? encrypt(tokens.refresh_token) : null, expiresAt, JSON.stringify(safeProfile)]);
 }
 export async function getConnections(userId: string) {
     await ensureSocialConnectionsTable();
@@ -45,33 +45,12 @@ export async function getConnections(userId: string) {
     const setup = providers.reduce<Record<string, unknown>>((out, provider) => { const config = providerConfig(provider); out[provider] = { configured: config.configured, envKeys: config.envKeys, callback: redirectUri(provider) }; return out; }, {});
     // A stored OAuth row is not proof that the provider is still configured/usable.
     // Only expose a connection when the provider has current production configuration.
-    let storedMetaProfile: Record<string, unknown> = result.rows.find(row => row.provider === "meta")?.profile || {};
+    const metaProfile = result.rows.find(row => row.provider === "meta")?.profile || {};
     const whatsappProfile = result.rows.find(row => row.provider === "whatsapp")?.profile || {};
     const whatsappPhones = Array.isArray((whatsappProfile as any).whatsapp) ? (whatsappProfile as any).whatsapp : [];
-    // Rows saved from the raw Meta OAuth profile carry the WABA and phone IDs
-    // on the phone entries instead of at the top level. Derive them the same
-    // way the WhatsApp publisher and verifier already do, so a saved, working
-    // connection is not reported as disconnected.
-    const whatsappWabaId = String((whatsappProfile as any).wabaId || whatsappPhones[0]?.wabaId || "");
-    const whatsappPhoneId = String((whatsappProfile as any).phoneNumberId || whatsappPhones[0]?.phoneNumberId || whatsappPhones[0]?.id || "");
+    const whatsappWabaId = String((whatsappProfile as any).wabaId || "");
+    const whatsappPhoneId = String((whatsappProfile as any).phoneNumberId || whatsappPhones[0]?.phoneNumberId || "");
     const whatsappReady = Boolean(whatsappWabaId && /^\d+$/.test(whatsappWabaId) && whatsappPhoneId && /^\d+$/.test(whatsappPhoneId) && whatsappPhones.some((phone: any) => String(phone.phoneNumberId || phone.id || "") === whatsappPhoneId));
-    // Self-heal stale Meta profiles: a row saved by an older flow can lack the
-    // Page list, which silently disables the Facebook channel for publishing
-    // even though the account is connected. Refresh the profile from the live
-    // token (profile column only — tokens and expiry are preserved).
-    const metaRow = result.rows.find(row => row.provider === "meta");
-    if (metaRow && !(storedMetaProfile as any).pages?.length && providerConfig("meta").configured) {
-        try {
-            const token = await getAccessToken(userId, "meta");
-            const fresh = await metaProfile(token);
-            if (fresh.pages?.length) {
-                metaRow.profile = fresh as unknown as Record<string, unknown>;
-                storedMetaProfile = fresh as unknown as Record<string, unknown>;
-                const safeFresh = JSON.parse(JSON.stringify(fresh, (key, value) => key === "accessToken" ? undefined : value));
-                await pool.query(`UPDATE marketing_social_connections SET profile=$2, updated_at=NOW() WHERE user_id=$1 AND provider='meta'`, [userId, JSON.stringify(safeFresh)]);
-            }
-        } catch { /* Keep the stored profile when a live refresh is unavailable. */ }
-    }
     const connected = result.rows.reduce<Record<string, unknown>>((out, row) => {
         if (!providerConfig(row.provider).configured) return out;
         // Legacy Meta OAuth rows sometimes live under "whatsapp" but contain no
@@ -92,68 +71,14 @@ export async function getConnections(userId: string) {
     return {
         configured, setup, connected, selections,
         channels: {
-            facebook: Boolean((storedMetaProfile as any).pages?.length),
+            facebook: Boolean((metaProfile as any).pages?.length),
             instagram: Boolean(instagramProfile?.id),
             whatsapp: whatsappReady,
             tiktok: Boolean(connected.tiktok), youtube: Boolean(connected.youtube), pinterest: Boolean(connected.pinterest)
         }
     };
 }
-export async function getMetaDiagnosis(userId: string) {
-    await ensureSocialConnectionsTable();
-    const result = await pool.query<{ profile: any; updated_at: string }>(`SELECT profile, updated_at FROM marketing_social_connections WHERE user_id=$1 AND provider='meta'`, [userId]);
-    const row = result.rows[0];
-    if (!row) return { rowExists: false, pages: 0, instagramAccounts: 0, updatedAt: null as string | null };
-    const profile: any = row.profile || {};
-    return { rowExists: true, pages: Array.isArray(profile.pages) ? profile.pages.length : 0, instagramAccounts: Array.isArray(profile.instagram) ? profile.instagram.length : 0, updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : null };
-}
-export async function getWhatsAppDiagnosis(userId: string) {
-    await ensureSocialConnectionsTable();
-    const result = await pool.query<{ profile: any; updated_at: string }>(`SELECT profile, updated_at FROM marketing_social_connections WHERE user_id=$1 AND provider='whatsapp'`, [userId]);
-    const row = result.rows[0];
-    if (!row) return { rowExists: false, entries: 0, firstEntryHasWabaId: false, firstEntryHasPhoneId: false, topLevelWabaId: false, topLevelPhoneNumberId: false, signupMethod: "", ready: false, updatedAt: null as string | null };
-    const profile: any = row.profile || {};
-    const phones = Array.isArray(profile.whatsapp) ? profile.whatsapp : [];
-    const first: any = phones[0] || {};
-    const wabaId = String(profile.wabaId || first.wabaId || "");
-    const phoneId = String(profile.phoneNumberId || first.phoneNumberId || first.id || "");
-    const ready = Boolean(/^\d+$/.test(wabaId) && /^\d+$/.test(phoneId) && phones.some((phone: any) => String(phone.phoneNumberId || phone.id || "") === phoneId));
-    return {
-        rowExists: true,
-        entries: phones.length,
-        firstEntryHasWabaId: /^\d+$/.test(String(first.wabaId || "")),
-        firstEntryHasPhoneId: /^\d+$/.test(String(first.id || "")),
-        topLevelWabaId: /^\d+$/.test(String(profile.wabaId || "")),
-        topLevelPhoneNumberId: /^\d+$/.test(String(profile.phoneNumberId || "")),
-        signupMethod: String(profile.signupMethod || ""),
-        ready,
-        updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : null,
-    };
-}
-export async function ensureSocialConnectEventsTable() {
-    await pool.query(`CREATE TABLE IF NOT EXISTS marketing_social_connect_events (id BIGSERIAL PRIMARY KEY, user_id TEXT NOT NULL, provider TEXT NOT NULL, channel TEXT, outcome TEXT NOT NULL, detail JSONB NOT NULL DEFAULT '{}'::jsonb, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
-}
-export async function recordSocialConnectEvent(userId: string, provider: string, channel: string | undefined, outcome: string, detail: Record<string, unknown>) {
-    try {
-        await ensureSocialConnectEventsTable();
-        await pool.query(`INSERT INTO marketing_social_connect_events (user_id, provider, channel, outcome, detail) VALUES ($1,$2,$3,$4,$5)`, [userId, provider, channel || null, outcome, JSON.stringify(detail)]);
-    } catch { /* Diagnostics must never break the connection flow. */ }
-}
-export async function listSocialConnectEvents(userId: string, limit = 10) {
-    await ensureSocialConnectEventsTable();
-    const result = await pool.query(`SELECT provider, channel, outcome, detail, created_at FROM marketing_social_connect_events WHERE user_id=$1 ORDER BY id DESC LIMIT $2`, [userId, limit]);
-    return result.rows.map((row: any) => ({ provider: row.provider, channel: row.channel, outcome: row.outcome, detail: row.detail || {}, createdAt: row.created_at ? new Date(row.created_at).toISOString() : null }));
-}
-export function peekConnectStateChannel(state: string) {
-    try { const decoded: any = jwt.decode(state); return typeof decoded?.channel === "string" ? decoded.channel : undefined; } catch { return undefined; }
-}
-export function getConnectUrl(provider: SocialProvider, userId: string, channel?: SocialChannel) { const config = providerConfig(provider); if (!config.configured || !config.clientId) throw new Error(`${provider} integration is not configured on the server.`); const state = jwt.sign({ userId, provider, channel: channel === "whatsapp" ? "whatsapp" : undefined }, stateSecret(), { expiresIn: "10m" }); const url = new URL(config.authorize); url.searchParams.set("client_id", config.clientId); url.searchParams.set("redirect_uri", redirectUri(provider)); url.searchParams.set("response_type", "code"); url.searchParams.set("state", state); if (provider === "meta") { const loginConfigId = channel === "whatsapp" ? process.env.META_WHATSAPP_LOGIN_CONFIG_ID?.trim() : undefined;
-        // The plain Meta (Facebook Page) connection intentionally uses the classic
-        // OAuth dialog with explicit scopes instead of the Login for Business
-        // configuration: the configuration flow detours through
-        // business.facebook.com, which iOS hands to the Business Suite app,
-        // where the flow dies. The classic dialog completes in mobile Safari.
-        if (channel === "whatsapp" && !loginConfigId) throw new Error("WhatsApp requires META_WHATSAPP_LOGIN_CONFIG_ID: configure a WhatsApp-specific Login for Business configuration in Meta Developers, then add its ID to the backend Production environment."); if (loginConfigId) { url.searchParams.set("config_id", loginConfigId); url.searchParams.set("override_default_response_type", "true"); } else { url.searchParams.set("scope", config.scopes.join(",")); } } else if (provider === "pinterest" || provider === "tiktok") url.searchParams.set("scope", config.scopes.join(",")); else url.searchParams.set("scope", config.scopes.join(" ")); if (provider === "tiktok") { url.searchParams.set("client_key", config.clientId); url.searchParams.delete("client_id"); } if (provider === "youtube") { url.searchParams.set("access_type", "offline"); url.searchParams.set("prompt", "consent"); url.searchParams.set("include_granted_scopes", "true"); } if (provider === "pinterest") url.searchParams.set("continuous_refresh", "true"); return url.toString(); }
+export function getConnectUrl(provider: SocialProvider, userId: string, channel?: SocialChannel) { const config = providerConfig(provider); if (!config.configured || !config.clientId) throw new Error(`${provider} integration is not configured on the server.`); const state = jwt.sign({ userId, provider, channel: channel === "whatsapp" ? "whatsapp" : undefined }, stateSecret(), { expiresIn: "10m" }); const url = new URL(config.authorize); url.searchParams.set("client_id", config.clientId); url.searchParams.set("redirect_uri", redirectUri(provider)); url.searchParams.set("response_type", "code"); url.searchParams.set("state", state); if (provider === "meta") { const loginConfigId = (channel === "whatsapp" ? process.env.META_WHATSAPP_LOGIN_CONFIG_ID : process.env.META_LOGIN_CONFIG_ID)?.trim(); if (channel === "whatsapp" && !loginConfigId) throw new Error("WhatsApp requires META_WHATSAPP_LOGIN_CONFIG_ID: configure a WhatsApp-specific Login for Business configuration in Meta Developers, then add its ID to the backend Production environment."); if (loginConfigId) { url.searchParams.set("config_id", loginConfigId); url.searchParams.set("override_default_response_type", "true"); } else { url.searchParams.set("scope", config.scopes.join(",")); } } else if (provider === "pinterest" || provider === "tiktok") url.searchParams.set("scope", config.scopes.join(",")); else url.searchParams.set("scope", config.scopes.join(" ")); if (provider === "tiktok") { url.searchParams.set("client_key", config.clientId); url.searchParams.delete("client_id"); } if (provider === "youtube") { url.searchParams.set("access_type", "offline"); url.searchParams.set("prompt", "consent"); url.searchParams.set("include_granted_scopes", "true"); } if (provider === "pinterest") url.searchParams.set("continuous_refresh", "true"); return url.toString(); }
 async function exchange(provider: SocialProvider, code: string) { const config = providerConfig(provider); const uri = redirectUri(provider); if (provider === "meta" || provider === "whatsapp") { const url = new URL(config.token); url.searchParams.set("client_id", String(config.clientId)); url.searchParams.set("client_secret", String(config.clientSecret)); url.searchParams.set("redirect_uri", uri); url.searchParams.set("code", code); const response = await fetch(url); return response.json(); } const body = new URLSearchParams({ client_id: String(config.clientId), client_secret: String(config.clientSecret), code, redirect_uri: uri, grant_type: "authorization_code" }); if (provider === "tiktok") { body.set("client_key", String(config.clientId)); body.delete("client_id"); } const headers: Record<string,string> = { "Content-Type": "application/x-www-form-urlencoded" }; if (provider === "pinterest") { headers.Authorization = `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString("base64")}`; body.delete("client_id"); body.delete("client_secret"); body.set("continuous_refresh", "true"); } const response = await fetch(config.token, { method: "POST", headers, body }); return response.json(); }
 async function metaProfile(accessToken: string) { const base = `https://graph.facebook.com/${META_VERSION}`; const headers = { Authorization: `Bearer ${accessToken}` }; const meResponse = await fetch(`${base}/me?fields=id,name`, { headers }); const me = await meResponse.json(); if (!meResponse.ok) throw new Error(me.error?.message || "Unable to read the Meta account."); const pagesResponse = await fetch(`${base}/me/accounts?fields=id,name,access_token,instagram_business_account{id,username,name,profile_picture_url}`, { headers }); const pagesData = await pagesResponse.json(); const pages = (pagesData.data || []).map((page: any) => ({ id: page.id, name: page.name, accessToken: page.access_token, instagram: page.instagram_business_account || null })); const instagram = pages.filter((page: any) => page.instagram).map((page: any) => ({ ...page.instagram, pageId: page.id, pageName: page.name })); const businessesResponse = await fetch(`${base}/me/businesses?fields=id,name`, { headers }); const businessesData = await businessesResponse.json(); const whatsapp: any[] = []; for (const business of businessesData.data || []) { const wabaResponse = await fetch(`${base}/${business.id}/owned_whatsapp_business_accounts?fields=id,name`, { headers }); const wabaData = await wabaResponse.json(); for (const waba of wabaData.data || []) { const phonesResponse = await fetch(`${base}/${waba.id}/phone_numbers?fields=id,display_phone_number,verified_name`, { headers }); const phonesData = await phonesResponse.json(); for (const phone of phonesData.data || []) whatsapp.push({ businessId: business.id, businessName: business.name, wabaId: waba.id, wabaName: waba.name, ...phone }); } } return { id: me.id, name: me.name, pages, instagram, whatsapp }; }
 async function providerProfile(provider: SocialProvider, accessToken: string) { if (!accessToken.trim()) throw new Error(`No access token was returned by ${provider}.`); if (provider === "meta" || provider === "whatsapp") return metaProfile(accessToken); if (provider === "instagram") { const r = await fetch("https://graph.instagram.com/me?fields=id,username,name,profile_picture_url", { headers: { Authorization: `Bearer ${accessToken}` } }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Unable to read the Instagram account."); return d; } if (provider === "tiktok") { const r = await fetch("https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,avatar_url,username", { headers: { Authorization: `Bearer ${accessToken}` } }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Unable to read TikTok account."); return d.data?.user || {}; } if (provider === "pinterest") {
@@ -279,51 +204,7 @@ export async function completeWhatsAppEmbeddedSignup(userId: string, code: strin
     await pool.query(`INSERT INTO marketing_social_selections (user_id,provider,channel,external_id) VALUES ($1,'whatsapp','whatsapp',$2) ON CONFLICT (user_id,provider,channel) DO UPDATE SET external_id=EXCLUDED.external_id, updated_at=NOW()`, [userId, resolvedPhoneId]);
     return { connected: true, profile: { id: wabaId, name: waba.name || "WhatsApp Business", wabaId, phoneNumberId: resolvedPhoneId, whatsapp } };
 }
-export async function completeWhatsAppFromCode(userId: string, code: string, state: string) {
-    const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: string; purpose?: string };
-    if (payload.userId !== userId || payload.provider !== "whatsapp" || payload.purpose !== "whatsapp_embedded_signup") throw new Error("WhatsApp signup session expired or is invalid. Start Connect WhatsApp again.");
-    if (!code.trim()) throw new Error("Meta did not return an authorization code. Start the signup again.");
-    const url = new URL(`https://graph.facebook.com/${META_VERSION}/oauth/access_token`);
-    url.searchParams.set("client_id", String(process.env.META_APP_ID));
-    url.searchParams.set("client_secret", String(process.env.META_APP_SECRET));
-    url.searchParams.set("code", code);
-    const response = await fetchGraphWithTimeout(url, {}, "exchanging the WhatsApp signup code");
-    const tokens: any = await response.json().catch(() => ({}));
-    if (!response.ok || !tokens.access_token) throw new Error(tokens.error?.message || tokens.error_description || "Meta could not exchange the WhatsApp signup code. Start the signup again.");
-    const token = String(tokens.access_token);
-    // Fallback for signups where Meta's completion event never reaches the
-    // browser tab (common on mobile Safari, where the dialog ends on a
-    // "close this tab" screen): discover the WhatsApp Business Account and
-    // phone number from the granted token instead of the browser event.
-    const profile: any = await metaProfile(token);
-    const candidates = Array.isArray(profile?.whatsapp) ? profile.whatsapp : [];
-    const phone = candidates.find((item: any) => /^\d+$/.test(String(item?.wabaId || "")) && /^\d+$/.test(String(item?.id || "")));
-    if (!phone) throw new Error("Meta authorized the login, but no WhatsApp Business phone number was found for this account. Finish adding the number in Meta Business and reconnect.");
-    const wabaId = String(phone.wabaId);
-    const resolvedPhoneId = String(phone.id);
-    const whatsapp = [{ id: resolvedPhoneId, phoneNumberId: resolvedPhoneId, display_phone_number: phone.display_phone_number || "", verified_name: phone.verified_name || "", wabaId, wabaName: phone.wabaName || "", name: phone.verified_name || phone.display_phone_number || "WhatsApp Business" }];
-    await saveConnection(userId, "whatsapp", tokens, { id: wabaId, name: phone.wabaName || "WhatsApp Business", wabaId, phoneNumberId: resolvedPhoneId, whatsapp, signupMethod: "embedded_signup_code_fallback" });
-    await pool.query(`INSERT INTO marketing_social_selections (user_id,provider,channel,external_id) VALUES ($1,'whatsapp','whatsapp',$2) ON CONFLICT (user_id,provider,channel) DO UPDATE SET external_id=EXCLUDED.external_id, updated_at=NOW()`, [userId, resolvedPhoneId]);
-    return { connected: true, profile: { id: wabaId, name: phone.wabaName || "WhatsApp Business", wabaId, phoneNumberId: resolvedPhoneId, whatsapp } };
-}
-export async function handleCallback(provider: SocialProvider, code: string, state: string) { const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: SocialProvider; channel?: string }; if (payload.provider !== provider) throw new Error("Invalid social connection state."); const storageProvider: SocialProvider = provider === "meta" && payload.channel === "whatsapp" ? "whatsapp" : provider; const tokenProvider: SocialProvider = storageProvider === "whatsapp" ? "whatsapp" : provider; let tokens: Record<string, any>; try { tokens = await exchange(tokenProvider, code); } catch (error) { throw new Error(`OAuth token exchange failed for ${storageProvider}: ${error instanceof Error ? error.message : "unknown provider error"}`); } if (tokens.error) throw new Error(tokens.error_description || tokens.error.message || `OAuth token exchange failed for ${storageProvider}.`); const accessToken = String(tokens.access_token || "").trim(); if (!accessToken) throw new Error(`OAuth authorization completed for ${storageProvider}, but provider did not return an access token.`); let profile: Record<string, unknown>; try { profile = await providerProfile(tokenProvider, accessToken); } catch (error) { throw new Error(`OAuth token was obtained for ${storageProvider}, but account verification failed: ${error instanceof Error ? error.message : "unknown provider error"}`); } if (storageProvider === "whatsapp") {
-        // The redirect OAuth callback returns the raw Meta profile, whose
-        // whatsapp entries carry the phone ID as `id` and no top-level
-        // wabaId/phoneNumberId. Normalize to the same shape the Embedded
-        // Signup completions save, or the connection status check will
-        // keep reporting WhatsApp as not connected.
-        const candidates = Array.isArray((profile as any)?.whatsapp) ? (profile as any).whatsapp : [];
-        const phone = candidates.find((item: any) => /^\d+$/.test(String(item?.wabaId || "")) && /^\d+$/.test(String(item?.id || "")));
-        if (!phone) throw new Error("Meta authorized the login, but no WhatsApp Business phone number was found for this account. Finish adding the number in Meta Business and reconnect.");
-        const wabaId = String(phone.wabaId);
-        const resolvedPhoneId = String(phone.id);
-        const whatsapp = [{ id: resolvedPhoneId, phoneNumberId: resolvedPhoneId, display_phone_number: phone.display_phone_number || "", verified_name: phone.verified_name || "", wabaId, wabaName: phone.wabaName || "", name: phone.verified_name || phone.display_phone_number || "WhatsApp Business" }];
-        profile = { id: wabaId, name: phone.wabaName || "WhatsApp Business", wabaId, phoneNumberId: resolvedPhoneId, whatsapp, signupMethod: "oauth_redirect" };
-        await saveConnection(payload.userId, storageProvider, tokens, profile);
-        await pool.query(`INSERT INTO marketing_social_selections (user_id,provider,channel,external_id) VALUES ($1,'whatsapp','whatsapp',$2) ON CONFLICT (user_id,provider,channel) DO UPDATE SET external_id=EXCLUDED.external_id, updated_at=NOW()`, [payload.userId, resolvedPhoneId]);
-        return { userId: payload.userId, channel: payload.channel };
-    }
-    await saveConnection(payload.userId, storageProvider, tokens, profile); return { userId: payload.userId, channel: payload.channel }; }
+export async function handleCallback(provider: SocialProvider, code: string, state: string) { const payload = jwt.verify(state, stateSecret()) as { userId: string; provider: SocialProvider; channel?: string }; if (payload.provider !== provider) throw new Error("Invalid social connection state."); const storageProvider: SocialProvider = provider === "meta" && payload.channel === "whatsapp" ? "whatsapp" : provider; const tokenProvider: SocialProvider = storageProvider === "whatsapp" ? "whatsapp" : provider; let tokens: Record<string, any>; try { tokens = await exchange(tokenProvider, code); } catch (error) { throw new Error(`OAuth token exchange failed for ${storageProvider}: ${error instanceof Error ? error.message : "unknown provider error"}`); } if (tokens.error) throw new Error(tokens.error_description || tokens.error.message || `OAuth token exchange failed for ${storageProvider}.`); const accessToken = String(tokens.access_token || "").trim(); if (!accessToken) throw new Error(`OAuth authorization completed for ${storageProvider}, but provider did not return an access token.`); let profile: Record<string, unknown>; try { profile = await providerProfile(tokenProvider, accessToken); } catch (error) { throw new Error(`OAuth token was obtained for ${storageProvider}, but account verification failed: ${error instanceof Error ? error.message : "unknown provider error"}`); } await saveConnection(payload.userId, storageProvider, tokens, profile); return payload.userId; }
 async function refreshProviderToken(provider: SocialProvider, refreshToken: string) {
     const config = providerConfig(provider);
     const body = new URLSearchParams({ grant_type: "refresh_token", refresh_token: refreshToken });
@@ -344,7 +225,7 @@ async function refreshProviderToken(provider: SocialProvider, refreshToken: stri
     if (!response.ok || !data.access_token) throw new Error(data.error_description || data.error?.message || data.message || `Unable to refresh ${provider} access.`);
     return data;
 }
-async function getAccessToken(userId: string, provider: SocialProvider) {
+async function getAccessToken(userId: string, provider: SocialProvider, options?: { forceRefresh?: boolean }) {
     await ensureSocialConnectionsTable();
     if (provider === "instagram") {
         const configuredToken = process.env.INSTAGRAM_ACCESS_TOKEN?.trim();
@@ -385,7 +266,7 @@ async function getAccessToken(userId: string, provider: SocialProvider) {
     const row = result.rows[0];
     if (!row) throw new Error(`${provider} is not connected.`);
     const expiresAt = row.expires_at ? new Date(row.expires_at).getTime() : 0;
-    if (row.refresh_token && expiresAt && expiresAt - Date.now() < 15 * 60 * 1000 && provider !== "meta") {
+    if (row.refresh_token && provider !== "meta" && (options?.forceRefresh || !expiresAt || expiresAt - Date.now() < 15 * 60 * 1000)) {
         const refreshed = await refreshProviderToken(provider, decrypt(row.refresh_token) as string);
         const nextExpiresAt = Number(refreshed.expires_in || 0) ? new Date(Date.now() + Number(refreshed.expires_in) * 1000) : null;
         await pool.query(`UPDATE marketing_social_connections SET access_token=$1, refresh_token=$2, expires_at=$3, updated_at=NOW() WHERE user_id=$4 AND provider=$5`, [encrypt(refreshed.access_token), refreshed.refresh_token ? encrypt(refreshed.refresh_token) : row.refresh_token, nextExpiresAt, userId, provider]);
@@ -708,8 +589,9 @@ export async function checkTikTokPublicationStatus(userId: string, publishId: st
 }
 
 export async function checkYouTubePublicationStatus(userId: string, videoId: string) {
-    const token = await getAccessToken(userId, "youtube");
-    const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=status,processingDetails&id=${encodeURIComponent(videoId)}`, { headers: { Authorization: `Bearer ${token}` } });
+    let token = await getAccessToken(userId, "youtube");
+    let response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=status,processingDetails&id=${encodeURIComponent(videoId)}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (response.status === 401) { token = await getAccessToken(userId, "youtube", { forceRefresh: true }); response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=status,processingDetails&id=${encodeURIComponent(videoId)}`, { headers: { Authorization: `Bearer ${token}` } }); }
     const data = await response.json();
     if (!response.ok) throw new Error(data.error?.message || "Unable to verify YouTube publication status.");
     const video = data.items?.[0];
@@ -722,7 +604,7 @@ export async function checkYouTubePublicationStatus(userId: string, videoId: str
 }
 export async function publishYouTube(userId: string, text: string, videoUrl?: string, link?: string, privacyStatus: "public" | "unlisted" | "private" = "public") {
     if (!videoUrl) throw new Error("YouTube requires a public video URL.");
-    const token = await getAccessToken(userId, "youtube");
+    let token = await getAccessToken(userId, "youtube");
     const videoResponse = await fetch(videoUrl);
     if (!videoResponse.ok) throw new Error("Unable to download the video from the supplied URL.");
     const videoBuffer = Buffer.from(await videoResponse.arrayBuffer());
@@ -731,11 +613,13 @@ export async function publishYouTube(userId: string, text: string, videoUrl?: st
         snippet: { title, description: link ? `${text}\\n\\n${link}` : text, categoryId: "22" },
         status: { privacyStatus }
     };
-    const init = await fetch("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status", {
+    const startUpload = (bearer: string) => fetch("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": videoResponse.headers.get("content-type") || "video/mp4", "X-Upload-Content-Length": String(videoBuffer.length) },
+        headers: { Authorization: `Bearer ${bearer}`, "Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": videoResponse.headers.get("content-type") || "video/mp4", "X-Upload-Content-Length": String(videoBuffer.length) },
         body: JSON.stringify(metadata)
     });
+    let init = await startUpload(token);
+    if (init.status === 401) { token = await getAccessToken(userId, "youtube", { forceRefresh: true }); init = await startUpload(token); }
     if (!init.ok) { const d = await init.json().catch(() => ({})); throw new Error(d.error?.message || "YouTube upload initialization failed."); }
     const uploadUrl = init.headers.get("location");
     if (!uploadUrl) throw new Error("YouTube did not return an upload URL.");
