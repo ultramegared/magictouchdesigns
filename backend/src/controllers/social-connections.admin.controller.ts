@@ -289,7 +289,7 @@ export async function marketingAutopilotStatus(req: AuthenticatedRequest, res: R
 
 export async function marketingAutopilotRunNow(req: AuthenticatedRequest, res: Response) {
     try {
-        res.json({ status: "success", data: await runMarketingAutopilot() });
+        res.json({ status: "success", data: await runMarketingAutopilot(10, "manual") });
     } catch (error) {
         console.error("Manual Marketing autopilot run failed:", error);
         res.status(503).json({ status: "error", error: error instanceof Error ? error.message : "Marketing autopilot failed." });
@@ -407,7 +407,7 @@ export async function marketingAutopilotRun(req: Request, res: Response) {
         return res.status(401).json({ error: "Unauthorized cron request." });
     }
     try {
-        res.json(await runMarketingAutopilot());
+        res.json(await runMarketingAutopilot(10, "cron_run"));
     } catch (error) {
         console.error("Marketing autopilot run failed:", error);
         res.status(503).json({ error: error instanceof Error ? error.message : "Marketing autopilot failed." });
