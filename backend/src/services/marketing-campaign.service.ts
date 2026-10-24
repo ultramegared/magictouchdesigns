@@ -3,7 +3,7 @@ import { pool } from "../config/database";
 import { getConnections, checkTikTokPublicationStatus, checkYouTubePublicationStatus, publishMeta, publishInstagram, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
 import { sendPromotion, type PromotionResult } from "./promotion.service";
 import { recordCampaignLaunchLearning, getMarketingLearningInsights } from "./marketing-learning.service";
-import { getCatalogOwners, queueNextContent } from "./marketing-catalog.service";
+import { getCatalogOwners, queueNextContent, recordAutopilotRunEvent } from "./marketing-catalog.service";
 
 export interface MarketingCampaignInput {
     name: string;
@@ -1087,7 +1087,7 @@ const runMarketingAutopilotOnce = async () => {
     return { ran: true, campaignId: campaign.id, channels: channelsToPublish, social, nextRunAt: nextRun.toISOString(), contentQueue };
 };
 
-export const runMarketingAutopilot = async (maxRuns = 10) => {
+export const runMarketingAutopilot = async (maxRuns = 10, source = "unknown") => {
     const publicationSync = await syncPendingPublicationStatuses();
     const safeMaxRuns = Math.min(Math.max(Number(maxRuns) || 1, 1), 10);
     const runs: any[] = [];
@@ -1107,11 +1107,27 @@ export const runMarketingAutopilot = async (maxRuns = 10) => {
     const successful = runs.filter(result => result?.ran);
     const last = runs[runs.length - 1] || { ran: false, reason: "No campaign is due." };
 
-    return {
+    const summary = {
         ...last,
         ran: successful.length > 0,
         processed: successful.length,
         runs,
         publicationSync,
     };
+    const workspaceId = process.env.MARKETING_WORKSPACE_OWNER_ID?.trim() || "a720d444-d23c-45ca-9086-d0d4dde26a1f";
+    const queueReasons: string[] = [];
+    for (const run of runs) {
+        const queue = (run as any)?.contentQueue;
+        if (Array.isArray(queue)) for (const entry of queue) {
+            if (entry?.catalog?.queued === false && entry.catalog.reason) queueReasons.push(`catalog: ${entry.catalog.reason}`);
+            if (entry?.portfolio?.queued === false && entry.portfolio.reason) queueReasons.push(`portfolio: ${entry.portfolio.reason}`);
+        }
+    }
+    await recordAutopilotRunEvent(workspaceId, source, {
+        ran: summary.ran,
+        processed: summary.processed,
+        reason: (last as any)?.reason,
+        detail: { queueReasons, runReasons: runs.map((run: any) => ({ ran: Boolean(run?.ran), reason: run?.reason || "", campaignId: run?.campaignId || "" })) },
+    });
+    return summary;
 };
