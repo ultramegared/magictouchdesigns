@@ -150,9 +150,14 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
             "IMPORTANT: This step creates caption text only. Never generate, redraw, edit, replace, reinterpret, or request a new version of the product image. The original uploaded image must be published unchanged.",
             "Write 2-4 useful sentences describing the visible design and why this particular mug could make a thoughtful gift, without making unsupported claims.",
             "Do not mention prices, materials, sizes, care instructions, options, or details not clearly visible in the image or supplied product name.",
-            "Do not output Markdown formatting, headings, explanations, or labels. Never output [object Object].",
-            "Invite people to shop or request a custom design. Include this URL exactly: https://www.jqydesigns.com/",
-            "Finish with a small set of relevant hashtags including #JQYDesigns.",
+            "Do not output Markdown formatting, headings, explanations, or labels. Never use asterisks or bold markers. Never output [object Object].",
+            "STYLE — the caption must look designed, not like plain text. Use this exact layout with blank lines between blocks:",
+            "Block 1: one short scroll-stopping hook line that names the product and uses 1-2 emojis (for example ✨ or ☕).",
+            "Block 2: the 2-4 descriptive sentences, each on its own line, with one tasteful emoji at the start of one of them (for example 🎁 or 💛).",
+            "Block 3: one friendly question that invites comments (for example: Who would you gift this to?).",
+            "Block 4: a call-to-action line ending with 👇 (for example: Shop or request your custom design here 👇).",
+            "Block 5: the URL https://www.jqydesigns.com/ completely ALONE on its own line — no words, no hashtags, nothing else on that line.",
+            "Block 6: one final line with a small set of relevant hashtags including #JQYDesigns, and nothing else on that line.",
             "Return only the final caption, ready to publish.",
             `Product name: ${name}`
         ].join("\n")
@@ -206,9 +211,11 @@ const generateAutopilotCaption = async (productName: string, imageUrl?: string):
     // Fail-safe: an empty model response must not stop the whole publishing queue.
     // Keep the fallback specific to the catalog item and avoid claiming unseen image details.
     const fallbackCaption = [
-        `A closer look at our ${name} design ✨`,
-        "A personalized touch can make an everyday moment feel more meaningful. Explore this design or request a custom creation made for your idea.",
-        "Shop or request a custom design: https://www.jqydesigns.com/",
+        `✨ A closer look at our ${name} ✨`,
+        "🎁 A personalized touch can make an everyday moment feel more meaningful.",
+        "💬 Who would you gift this to? Tell us in the comments!",
+        "👇 Shop or request a custom design:",
+        "https://www.jqydesigns.com/",
         "#JQYDesigns #PersonalizedGifts #CustomDesign"
     ].join("\n\n");
     if (invalidGenerated) {
