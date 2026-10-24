@@ -188,10 +188,11 @@ const buildProductMessage = (product: any) => {
   const name = String(product.name || "Personalized design").replace(/\s+/g, " ").trim();
   return [
     `✨ Meet your next favorite personalized gift: ${name} ✨`,
-    "Make a meaningful moment unforgettable with a custom creation made just for you. 💝",
-    "Looking for a thoughtful gift for family, friends, a celebration, or someone special? We would love to help bring your idea to life.",
-    "✨ Explore our designs and request your own custom creation.",
-    "Shop or get started today: https://www.jqydesigns.com/",
+    "💝 A custom creation made just for you, to turn an everyday moment into a meaningful one.",
+    "🎁 Perfect for family, friends, a celebration, or someone special.",
+    "💬 Tell us in the comments: who would you gift this to?",
+    "👇 Shop or request your own custom design:",
+    "https://www.jqydesigns.com/",
     "#JQYDesigns #PersonalizedGifts #CustomGifts #GiftIdeas #MadeForYou #PersonalizedDesign",
   ].join("\n\n");
 };
@@ -323,11 +324,14 @@ const buildPortfolioMessage = (item: any) => {
   const description = String(item.description_en || "").replace(/\s+/g, " ").trim();
   const characteristics = String(item.characteristics_en || "").replace(/\s+/g, " ").trim();
   return [
-    "✨ Featured work by JQYDesigns",
-    `**${String(item.title_en || "Custom work")}**`,
+    "✨ Featured work by JQYDesigns ✨",
+    `🌟 ${String(item.title_en || "Custom work")}`,
     description.length > 180 ? `${description.slice(0,177)}...` : description,
     characteristics ? `Details: ${characteristics}` : "",
-    "See more of our work and request your own custom design.",
+    "💬 Want one like it? Tell us your idea in the comments!",
+    "👇 See more of our work and request your own custom design:",
+    "https://www.jqydesigns.com/portfolio",
+    "#JQYDesigns #CustomDesign #PersonalizedGifts #MadeForYou",
   ].filter(Boolean).join("\n\n");
 };
 
