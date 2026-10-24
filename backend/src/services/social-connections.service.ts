@@ -45,7 +45,7 @@ export async function getConnections(userId: string) {
     const setup = providers.reduce<Record<string, unknown>>((out, provider) => { const config = providerConfig(provider); out[provider] = { configured: config.configured, envKeys: config.envKeys, callback: redirectUri(provider) }; return out; }, {});
     // A stored OAuth row is not proof that the provider is still configured/usable.
     // Only expose a connection when the provider has current production configuration.
-    const metaProfile = result.rows.find(row => row.provider === "meta")?.profile || {};
+    let storedMetaProfile: Record<string, unknown> = result.rows.find(row => row.provider === "meta")?.profile || {};
     const whatsappProfile = result.rows.find(row => row.provider === "whatsapp")?.profile || {};
     const whatsappPhones = Array.isArray((whatsappProfile as any).whatsapp) ? (whatsappProfile as any).whatsapp : [];
     // Rows saved from the raw Meta OAuth profile carry the WABA and phone IDs
@@ -55,6 +55,23 @@ export async function getConnections(userId: string) {
     const whatsappWabaId = String((whatsappProfile as any).wabaId || whatsappPhones[0]?.wabaId || "");
     const whatsappPhoneId = String((whatsappProfile as any).phoneNumberId || whatsappPhones[0]?.phoneNumberId || whatsappPhones[0]?.id || "");
     const whatsappReady = Boolean(whatsappWabaId && /^\d+$/.test(whatsappWabaId) && whatsappPhoneId && /^\d+$/.test(whatsappPhoneId) && whatsappPhones.some((phone: any) => String(phone.phoneNumberId || phone.id || "") === whatsappPhoneId));
+    // Self-heal stale Meta profiles: a row saved by an older flow can lack the
+    // Page list, which silently disables the Facebook channel for publishing
+    // even though the account is connected. Refresh the profile from the live
+    // token (profile column only — tokens and expiry are preserved).
+    const metaRow = result.rows.find(row => row.provider === "meta");
+    if (metaRow && !(storedMetaProfile as any).pages?.length && providerConfig("meta").configured) {
+        try {
+            const token = await getAccessToken(userId, "meta");
+            const fresh = await metaProfile(token);
+            if (fresh.pages?.length) {
+                metaRow.profile = fresh as unknown as Record<string, unknown>;
+                storedMetaProfile = fresh as unknown as Record<string, unknown>;
+                const safeFresh = JSON.parse(JSON.stringify(fresh, (key, value) => key === "accessToken" ? undefined : value));
+                await pool.query(`UPDATE marketing_social_connections SET profile=$2, updated_at=NOW() WHERE user_id=$1 AND provider='meta'`, [userId, JSON.stringify(safeFresh)]);
+            }
+        } catch { /* Keep the stored profile when a live refresh is unavailable. */ }
+    }
     const connected = result.rows.reduce<Record<string, unknown>>((out, row) => {
         if (!providerConfig(row.provider).configured) return out;
         // Legacy Meta OAuth rows sometimes live under "whatsapp" but contain no
@@ -75,12 +92,20 @@ export async function getConnections(userId: string) {
     return {
         configured, setup, connected, selections,
         channels: {
-            facebook: Boolean((metaProfile as any).pages?.length),
+            facebook: Boolean((storedMetaProfile as any).pages?.length),
             instagram: Boolean(instagramProfile?.id),
             whatsapp: whatsappReady,
             tiktok: Boolean(connected.tiktok), youtube: Boolean(connected.youtube), pinterest: Boolean(connected.pinterest)
         }
     };
+}
+export async function getMetaDiagnosis(userId: string) {
+    await ensureSocialConnectionsTable();
+    const result = await pool.query<{ profile: any; updated_at: string }>(`SELECT profile, updated_at FROM marketing_social_connections WHERE user_id=$1 AND provider='meta'`, [userId]);
+    const row = result.rows[0];
+    if (!row) return { rowExists: false, pages: 0, instagramAccounts: 0, updatedAt: null as string | null };
+    const profile: any = row.profile || {};
+    return { rowExists: true, pages: Array.isArray(profile.pages) ? profile.pages.length : 0, instagramAccounts: Array.isArray(profile.instagram) ? profile.instagram.length : 0, updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : null };
 }
 export async function getWhatsAppDiagnosis(userId: string) {
     await ensureSocialConnectionsTable();
