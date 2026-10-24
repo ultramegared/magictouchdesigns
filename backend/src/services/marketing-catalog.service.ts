@@ -420,6 +420,24 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
   return { queued: true, campaignId, portfolioId: String(item.portfolio_id), title: String(item.title_en || "Featured work"), decision };
 }
 
+export async function ensureAutopilotRunEventsTable() {
+  await pool.query(`CREATE TABLE IF NOT EXISTS marketing_autopilot_run_events (id BIGSERIAL PRIMARY KEY, owner_user_id TEXT NOT NULL, source TEXT NOT NULL, ran BOOLEAN NOT NULL DEFAULT FALSE, processed INT NOT NULL DEFAULT 0, reason TEXT, detail JSONB NOT NULL DEFAULT '{}'::jsonb, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
+}
+export async function recordAutopilotRunEvent(ownerUserId: string, source: string, summary: { ran: boolean; processed: number; reason?: string; detail?: Record<string, unknown> }) {
+  try {
+    await ensureAutopilotRunEventsTable();
+    await pool.query(`INSERT INTO marketing_autopilot_run_events (owner_user_id, source, ran, processed, reason, detail) VALUES ($1,$2,$3,$4,$5,$6)`, [ownerUserId, source, summary.ran, summary.processed, summary.reason || null, JSON.stringify(summary.detail || {})]);
+  } catch { /* Run diagnostics must never break the autopilot. */ }
+}
+export async function getLastAutopilotRunEvent(ownerUserId: string) {
+  try {
+    await ensureAutopilotRunEventsTable();
+    const result = await pool.query(`SELECT source, ran, processed, reason, detail, created_at FROM marketing_autopilot_run_events WHERE owner_user_id=$1 ORDER BY id DESC LIMIT 1`, [ownerUserId]);
+    const row = result.rows[0];
+    if (!row) return null;
+    return { source: row.source, ran: Boolean(row.ran), processed: Number(row.processed || 0), reason: row.reason || "", detail: row.detail || {}, createdAt: row.created_at ? new Date(row.created_at).toISOString() : null };
+  } catch { return null; }
+}
 export async function getContentAutopilotStatus(ownerUserId: string) {
   const catalog = await getCatalogAutopilotStatus(ownerUserId);
   await ensureOwnerState(ownerUserId);
@@ -442,7 +460,7 @@ export async function getContentAutopilotStatus(ownerUserId: string) {
     console.error("Unable to read Content Autopilot portfolio status:", error);
   }
 
-  return { ...catalog, pendingPortfolio };
+  return { ...catalog, pendingPortfolio, lastAutopilotRun: await getLastAutopilotRunEvent(ownerUserId) };
 }
 
 export async function queueNextContent(ownerUserId: string) {

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { syncMarketingLearningFromAnalytics } from "../services/marketing-autopilot.service";
 import { runMarketingAutopilot } from "../services/marketing-campaign.service";
+import { recordAutopilotRunEvent } from "../services/marketing-catalog.service";
 
 export async function marketingAutopilotCron(req: Request, res: Response) {
   const expected = process.env.CRON_SECRET?.trim();
@@ -17,6 +18,8 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
     hourCycle: "h23",
   }).format(new Date());
   if (houstonHour !== "00") {
+    const workspaceId = process.env.MARKETING_WORKSPACE_OWNER_ID?.trim() || "a720d444-d23c-45ca-9086-d0d4dde26a1f";
+    await recordAutopilotRunEvent(workspaceId, "cron_midnight", { ran: false, processed: 0, reason: "Skipped: not midnight in Houston." });
     return res.status(200).json({
       status: "success",
       skipped: true,
@@ -34,7 +37,7 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
 
   try {
     // Drain due campaign work and reconcile provider statuses first.
-    autopilot = await runMarketingAutopilot(10);
+    autopilot = await runMarketingAutopilot(10, "cron_midnight");
   } catch (error) {
     errors.autopilot = error instanceof Error ? error.message : "Marketing Autopilot failed.";
     console.error("Marketing Autopilot stage failed:", error);
