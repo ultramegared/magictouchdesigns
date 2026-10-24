@@ -1093,7 +1093,16 @@ export const runMarketingAutopilot = async (maxRuns = 10, source = "unknown") =>
     const runs: any[] = [];
 
     for (let index = 0; index < safeMaxRuns; index += 1) {
-        const result = await runMarketingAutopilotOnce();
+        let result: any;
+        try {
+            result = await runMarketingAutopilotOnce();
+        } catch (error) {
+            // A failed run (for example caption generation or a provider outage)
+            // must still be recorded and reported, never vanish silently.
+            result = { ran: false, reason: `Autopilot run failed: ${error instanceof Error ? error.message : "Unknown error."}` };
+            runs.push(result);
+            break;
+        }
         runs.push(result);
 
         // Stop as soon as there is no due work. A single hourly invocation can
