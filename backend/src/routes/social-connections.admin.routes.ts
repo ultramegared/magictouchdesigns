@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/auth.middleware";
-import { whatsappInboxConversations, whatsappInboxMessages, whatsappInboxReply } from "../controllers/whatsapp-webhook.controller";
+import { whatsappInboxConversations, whatsappInboxMessages, whatsappInboxReply, whatsappWebhookDiagnostics } from "../controllers/whatsapp-webhook.controller";
 import { marketingCampaignHistory, marketingCampaignDelete, marketingCampaignRetry, marketingPublicationActivity, marketingCampaignResults, marketingGoogleAdsStatus, marketingGoogleAdsVerify, marketingAutopilotStatus, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish, instagramInsights, whatsappEmbeddedConfig, whatsappEmbeddedComplete, whatsappEmbeddedCompleteFallback, socialConnectEvents } from "../controllers/social-connections.admin.controller";
 
 const router = Router();
@@ -14,6 +14,7 @@ router.use(authenticateToken);
 router.get("/whatsapp/inbox", whatsappInboxConversations);
 router.get("/whatsapp/inbox/:sender", whatsappInboxMessages);
 router.post("/whatsapp/reply", whatsappInboxReply);
+router.get("/whatsapp/diagnostics", whatsappWebhookDiagnostics);
 router.get("/", socialConnections);
 router.get("/email/status", marketingEmailStatus);
 router.get("/instagram/insights", instagramInsights);
