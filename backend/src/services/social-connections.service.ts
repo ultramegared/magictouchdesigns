@@ -337,7 +337,7 @@ async function refreshProviderToken(provider: SocialProvider, refreshToken: stri
     if (!response.ok || !data.access_token) throw new Error(data.error_description || data.error?.message || data.message || `Unable to refresh ${provider} access.`);
     return data;
 }
-async function getAccessToken(userId: string, provider: SocialProvider, options?: { forceRefresh?: boolean }) {
+export async function getAccessToken(userId: string, provider: SocialProvider, options?: { forceRefresh?: boolean }) {
     await ensureSocialConnectionsTable();
     if (provider === "instagram") {
         const configuredToken = process.env.INSTAGRAM_ACCESS_TOKEN?.trim();
