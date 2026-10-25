@@ -1,3 +1,5 @@
+permissions:
+  contents: write
 name: Desktop Windows build
 
 on:
@@ -34,5 +36,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          permissions:
-  contents: write
