@@ -30,6 +30,78 @@ export async function ensureWhatsappMessagesTable() {
     )`);
 }
 
+export async function ensureWhatsappWebhookEventsTable() {
+    await pool.query(`CREATE TABLE IF NOT EXISTS marketing_whatsapp_webhook_events (
+        id BIGSERIAL PRIMARY KEY,
+        event_phone_id TEXT NOT NULL DEFAULT '',
+        saved_phone_id TEXT NOT NULL DEFAULT '',
+        matched BOOLEAN NOT NULL DEFAULT FALSE,
+        message_count INT NOT NULL DEFAULT 0,
+        outcome TEXT NOT NULL DEFAULT '',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+}
+
+// Diagnostics recorder: never throws, so a logging failure can never break
+// the webhook (Meta retries 5xx responses, so the webhook must stay 200).
+async function recordWebhookEvent(row: {
+    eventPhoneId: string;
+    savedPhoneId: string;
+    matched: boolean;
+    messageCount: number;
+    outcome: string;
+}) {
+    try {
+        await ensureWhatsappWebhookEventsTable();
+        await pool.query(
+            `INSERT INTO marketing_whatsapp_webhook_events
+                (event_phone_id, saved_phone_id, matched, message_count, outcome)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [
+                row.eventPhoneId,
+                row.savedPhoneId,
+                row.matched,
+                row.messageCount,
+                row.outcome,
+            ]
+        );
+    } catch (error) {
+        console.error(
+            "WhatsApp webhook event recording failed:",
+            error instanceof Error ? error.message : error
+        );
+    }
+}
+
+export interface WhatsappWebhookEvent {
+    id: number;
+    eventPhoneId: string;
+    savedPhoneId: string;
+    matched: boolean;
+    messageCount: number;
+    outcome: string;
+    createdAt: string;
+}
+
+export async function listWhatsappWebhookEvents(): Promise<WhatsappWebhookEvent[]> {
+    await ensureWhatsappWebhookEventsTable();
+    const result = await pool.query(
+        `SELECT id, event_phone_id, saved_phone_id, matched, message_count, outcome, created_at
+         FROM marketing_whatsapp_webhook_events
+         ORDER BY created_at DESC, id DESC
+         LIMIT 20`
+    );
+    return result.rows.map((row: any) => ({
+        id: Number(row.id),
+        eventPhoneId: String(row.event_phone_id || ""),
+        savedPhoneId: String(row.saved_phone_id || ""),
+        matched: Boolean(row.matched),
+        messageCount: Number(row.message_count || 0),
+        outcome: String(row.outcome || ""),
+        createdAt: String(row.created_at || ""),
+    }));
+}
+
 interface WhatsappConnection {
     phoneId: string;
     wabaId: string;
@@ -196,7 +268,6 @@ async function maybeAutoReply(
 
 export async function processWhatsappWebhookEvent(payload: any) {
     const connection = await loadWhatsappConnection();
-    if (!connection) return;
     const entries = Array.isArray(payload?.entry) ? payload.entry : [];
     for (const entry of entries) {
         const changes = Array.isArray(entry?.changes) ? entry.changes : [];
@@ -206,7 +277,23 @@ export async function processWhatsappWebhookEvent(payload: any) {
             const businessPhoneId = String(
                 value.metadata?.phone_number_id || ""
             );
-            if (businessPhoneId !== connection.phoneId) continue;
+            const matched =
+                !!connection && businessPhoneId === connection.phoneId;
+            await recordWebhookEvent({
+                eventPhoneId: businessPhoneId,
+                savedPhoneId: connection?.phoneId ?? "",
+                matched,
+                messageCount: Array.isArray(value.messages)
+                    ? value.messages.length
+                    : 0,
+                outcome: !connection
+                    ? "no_connection"
+                    : matched
+                      ? "processed"
+                      : "skipped_phone_mismatch",
+            });
+            if (!connection) continue;
+            if (!matched) continue;
             const messages = Array.isArray(value.messages)
                 ? value.messages
                 : [];
