@@ -1,0 +1,38 @@
+name: Desktop Windows build
+
+# Compila el instalador de Windows de JQYDesigns Marketing y lo publica
+# en la release "desktop-latest", siempre con el mismo enlace de descarga.
+on:
+  push:
+    branches: [main]
+    paths: ["desktop/**"]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Instalar dependencias
+        working-directory: desktop
+        run: npm install
+      - name: Decodificar icono del logo
+        working-directory: desktop
+        run: powershell -Command "[IO.File]::WriteAllBytes('build/icon.ico', [Convert]::FromBase64String((Get-Content 'build/icon.ico.b64' -Raw)))"
+      - name: Compilar instalador
+        working-directory: desktop
+        run: npm run dist
+      - name: Publicar instalador en release desktop-latest
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop-latest
+          name: "JQYDesigns Marketing para PC (ultima version)"
+          body: "Instalador de Windows de JQYDesigns Marketing. Descarga el archivo .exe y ejecutalo en tu PC."
+          files: desktop/dist/*.exe
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
