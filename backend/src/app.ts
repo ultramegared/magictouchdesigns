@@ -21,6 +21,7 @@ import socialConnectionsRoutes from "./routes/social-connections.admin.routes";
 import contactRoutes from "./routes/contact.routes";
 import emailTemplateRoutes from "./routes/email-template.routes";
 import { stripeWebhook } from "./controllers/order.controller";
+import { whatsappWebhookVerify, whatsappWebhookReceive } from "./controllers/whatsapp-webhook.controller";
 import { marketingAutopilotCron } from "./controllers/marketing-autopilot.controller";
 const app=express();
 
@@ -60,6 +61,8 @@ app.use(
   }),
 );
 app.post("/api/orders/webhook",express.raw({type:"application/json"}),stripeWebhook);
+app.get("/api/webhooks/whatsapp",whatsappWebhookVerify);
+app.post("/api/webhooks/whatsapp",express.raw({type:"application/json"}),whatsappWebhookReceive);
 app.get("/api/cron/marketing-learning", marketingAutopilotCron);
 app.use(express.json({limit:"5mb"}));
 app.use("/api/auth",authRoutes);app.use("/api/reviews",reviewRoutes);app.use("/api/upload",uploadRoutes);app.use("/api/user",userRoutes);app.use("/api/admin/marketing/social",socialConnectionsRoutes);app.use("/api/admin",adminRoutes);app.use("/api/admin/orders",adminOrderRoutes);app.use("/api/admin/reports",reportsRoutes);app.use("/api/admin/sales",salesAdminRoutes);app.use("/api/admin/marketing/search-console",googleSearchConsoleRoutes);app.use("/api/settings",settingsRoutes);app.use("/api/products",productRoutes);app.use("/api/collections",collectionRoutes);app.use("/api/subscribers",subscriberRoutes);app.use("/api/portfolio",portfolioRoutes);app.use("/api/orders",orderRoutes);app.use("/api/contact",contactRoutes);app.use("/api/admin/email-templates",emailTemplateRoutes);
