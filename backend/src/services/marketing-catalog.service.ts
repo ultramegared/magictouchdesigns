@@ -2,7 +2,7 @@ import { pool } from "../config/database";
 import { getActivePortfolio } from "./portfolio.service";
 
 const PUBLIC_SITE = process.env.FRONTEND_PUBLIC_URL?.trim() || "https://www.jqydesigns.com";
-const PUBLIC_CHANNELS = ["facebook","instagram","tiktok","pinterest"] as const;
+const PUBLIC_CHANNELS = ["facebook","instagram","tiktok","youtube","pinterest"] as const;
 
 const ensureCatalogTables = async () => {
   await pool.query(`CREATE TABLE IF NOT EXISTS marketing_catalog_autopilot (

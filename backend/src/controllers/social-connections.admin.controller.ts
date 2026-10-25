@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { randomUUID } from "crypto";
-import { disconnect, getConnectUrl, getConnections, handleCallback, getWhatsAppEmbeddedConfig, completeWhatsAppEmbeddedSignup, completeWhatsAppFromCode, getWhatsAppDiagnosis, getMetaDiagnosis, recordSocialConnectEvent, listSocialConnectEvents, peekConnectStateChannel, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, getInstagramInsights, type SocialChannel } from "../services/social-connections.service";
+import { disconnect, getConnectUrl, getConnections, handleCallback, getWhatsAppEmbeddedConfig, completeWhatsAppEmbeddedSignup, completeWhatsAppFromCode, getWhatsAppDiagnosis, getMetaDiagnosis, getYouTubeDiagnosis, recordSocialConnectEvent, listSocialConnectEvents, peekConnectStateChannel, isSocialProvider, verifySocialConnection, selectSocialAccount, publishMeta, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, getInstagramInsights, type SocialChannel } from "../services/social-connections.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { launchMarketingCampaign, retryMarketingCampaign, listMarketingCampaigns, deleteMarketingCampaign, listMarketingPublicationActivity, getMarketingLearning, runMarketingAutopilot, getMarketingCampaignResults } from "../services/marketing-campaign.service";
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
@@ -144,8 +144,8 @@ export async function socialCallback(req: Request, res: Response) {
 export async function socialConnectEvents(req: AuthenticatedRequest, res: Response) {
     try {
         const userId = marketingWorkspaceId();
-        const [events, whatsappDiagnosis, metaDiagnosis] = await Promise.all([listSocialConnectEvents(userId), getWhatsAppDiagnosis(userId), getMetaDiagnosis(userId)]);
-        res.json({ events, whatsappDiagnosis, metaDiagnosis });
+        const [events, whatsappDiagnosis, metaDiagnosis, youtubeDiagnosis] = await Promise.all([listSocialConnectEvents(userId), getWhatsAppDiagnosis(userId), getMetaDiagnosis(userId), getYouTubeDiagnosis(userId)]);
+        res.json({ events, whatsappDiagnosis, metaDiagnosis, youtubeDiagnosis });
     } catch (error) { res.status(500).json({ error: error instanceof Error ? error.message : "Connect diagnostics unavailable." }); }
 }
 
