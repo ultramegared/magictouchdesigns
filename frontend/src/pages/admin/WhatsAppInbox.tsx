@@ -11,6 +11,16 @@ interface WhatsappConversation {
     totalCount: number;
 }
 
+interface WhatsappWebhookEvent {
+    id: number;
+    eventPhoneId: string;
+    savedPhoneId: string;
+    matched: boolean;
+    messageCount: number;
+    outcome: string;
+    createdAt: string;
+}
+
 interface WhatsappMessage {
     id: number;
     sender: string;
@@ -27,6 +37,7 @@ export default function WhatsAppInbox() {
     const [messages, setMessages] = useState<WhatsappMessage[]>([]);
     const [reply, setReply] = useState("");
     const [loading, setLoading] = useState(false);
+    const [events, setEvents] = useState<WhatsappWebhookEvent[]>([]);
     const [loadingMessages, setLoadingMessages] = useState(false);
     const [sending, setSending] = useState(false);
     const [error, setError] = useState("");
@@ -44,6 +55,14 @@ export default function WhatsAppInbox() {
             setError(err instanceof Error ? err.message : "No se pudo cargar la bandeja.");
         } finally {
             setLoading(false);
+        }
+        try {
+            const diag = await apiRequest<{ events: WhatsappWebhookEvent[] }>(
+                `/api/admin/marketing/social/whatsapp/diagnostics?_=${Date.now()}`
+            );
+            setEvents(diag.events || []);
+        } catch {
+            // Diagnostics are best-effort; the inbox still works without them.
         }
     }, []);
 
@@ -148,6 +167,40 @@ export default function WhatsAppInbox() {
                                     · {conversation.totalCount} mensajes
                                 </small>
                             </button>
+                        ))}
+                    </div>
+                )}
+            </article>
+            <article className="card" style={{ padding: 16, marginTop: 10 }}>
+                <h3>Diagnóstico webhook · últimos eventos</h3>
+                <p style={{ opacity: 0.8 }}>
+                    Cada evento que Meta entrega queda aquí, aunque se ignore. Si mandas un mensaje y no aparece ninguna fila nueva, Meta no lo está entregando. Si aparece con &quot;No coincide&quot;, el ID del evento no es el número guardado en el panel.
+                </p>
+                {events.length === 0 ? (
+                    <div className="notice">Sin eventos registrados todavía.</div>
+                ) : (
+                    <div className="quick">
+                        {events.map((event) => (
+                            <div className="notice" key={event.id}>
+                                <b>
+                                    {event.createdAt
+                                        ? new Date(event.createdAt).toLocaleString()
+                                        : ""}
+                                </b>{" "}
+                                · {event.messageCount} mensaje(s) · ¿Coincide?{" "}
+                                {event.matched ? "Sí" : "No"} ·{" "}
+                                {event.outcome === "processed"
+                                    ? "Procesado"
+                                    : event.outcome === "skipped_phone_mismatch"
+                                      ? "Ignorado: el ID no coincide con el guardado"
+                                      : event.outcome === "no_connection"
+                                        ? "Sin conexión guardada"
+                                        : event.outcome}
+                                <div>
+                                    ID recibido: {event.eventPhoneId || "(vacío)"} · ID guardado:{" "}
+                                    {event.savedPhoneId || "(vacío)"}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 )}

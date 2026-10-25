@@ -5,6 +5,7 @@ import {
     listWhatsappConversations,
     listWhatsappMessages,
     sendWhatsappReply,
+    listWhatsappWebhookEvents,
 } from "../services/whatsapp-inbox.service";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 
@@ -93,6 +94,23 @@ export async function whatsappInboxMessages(
                 error instanceof Error
                     ? error.message
                     : "Unable to load WhatsApp messages.",
+        });
+    }
+}
+
+export async function whatsappWebhookDiagnostics(
+    req: AuthenticatedRequest,
+    res: Response
+) {
+    void req;
+    try {
+        res.json({ events: await listWhatsappWebhookEvents() });
+    } catch (error) {
+        res.status(500).json({
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Unable to load WhatsApp webhook diagnostics.",
         });
     }
 }
