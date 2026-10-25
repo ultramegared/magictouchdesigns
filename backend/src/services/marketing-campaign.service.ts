@@ -282,7 +282,14 @@ const publishSocialCampaign = async (
     }
     if (channels.includes("youtube")) {
         try {
-            results.youtube = await publishYouTube(userId, socialCaption, input.videoUrl?.trim(), withCampaignTracking(input.link?.trim(), campaignId, "youtube"), input.youtubePrivacy || "public");
+            const youtubeTags: string[] = [];
+            for (const rawTag of socialCaption.match(/#([A-Za-z0-9_]+)/g) || []) {
+                const tag = rawTag.slice(1);
+                if (youtubeTags.includes(tag)) continue;
+                if ([...youtubeTags, tag].join(",").length > 500) break;
+                youtubeTags.push(tag);
+            }
+            results.youtube = await publishYouTube(userId, socialCaption, input.videoUrl?.trim(), withCampaignTracking(input.link?.trim(), campaignId, "youtube"), input.youtubePrivacy || "public", youtubeTags);
         } catch (error) {
             results.youtube = { ok: false, error: error instanceof Error ? error.message : "YouTube publication failed." };
         }
@@ -1015,7 +1022,14 @@ const runMarketingAutopilotOnce = async () => {
         if (aRecent !== bRecent) return aRecent - bRecent;
         return (score.get(b) || 0) - (score.get(a) || 0);
     });
-    const channelsToPublish = ranked;
+    // YouTube requires a video asset, and catalog/portfolio campaigns only carry
+    // an image. Attempting those runs would record a permanent YouTube failure
+    // for every product, so YouTube joins a run only when the campaign actually
+    // has a video URL. The skip is recorded explicitly below — never silent —
+    // and any attempted upload records its outcome like every other channel.
+    const hasVideoAsset = Boolean(campaign.results?.assets?.videoUrl);
+    const skippedYoutube = ranked.includes("youtube") && !hasVideoAsset;
+    const channelsToPublish = ranked.filter((channel: SocialChannel) => channel !== "youtube" || hasVideoAsset);
     // Recheck pause immediately before making outbound provider calls.
     const publishGate = await pool.query(
         `SELECT enabled FROM marketing_catalog_autopilot WHERE owner_user_id=$1 LIMIT 1`,
@@ -1082,7 +1096,7 @@ const runMarketingAutopilotOnce = async () => {
     const nextRun = new Date(Date.now() + cadenceHours * 60 * 60 * 1000);
     const mergedResults = {
         ...(campaign.results || {}),
-        autopilot: { lastChannels: channelsToPublish, lastRunAt: new Date().toISOString(), runCount: Number(campaign.run_count || 0) + 1, result: social },
+        autopilot: { lastChannels: channelsToPublish, lastRunAt: new Date().toISOString(), runCount: Number(campaign.run_count || 0) + 1, result: social, skippedChannels: skippedYoutube ? [{ channel: "youtube", reason: "YouTube requires a video asset; this campaign has only an image." }] : [] },
     };
     await pool.query(
         `UPDATE marketing_campaigns
