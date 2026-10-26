@@ -49,23 +49,38 @@ function clearSession() {
 }
 
 // ---------------------------------------------------------------- API
+function errorCode(err) {
+  if (!err) return 'desconocido';
+  const cause = err.cause || err;
+  return cause.code || cause.errno || err.name || 'red';
+}
+
 async function apiFetch(pathname, token, options = {}) {
   const url = pathname.startsWith('http')
     ? pathname
     : `${API_BASE}${pathname.startsWith('/') ? '' : '/'}${pathname}`;
   const headers = { ...(options.headers || {}) };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const init = { ...options, headers };
-  // Motor de red de Chromium (el mismo de Chrome): respeta el proxy del
-  // sistema y evita bloqueos que el fetch de Node sí sufre en algunas PCs.
+  // Tope de 15 s por intento: si un firewall tira los paquetes sin avisar,
+  // la llamada NO se queda colgada para siempre; se prueba el otro motor.
+  const mkInit = () => ({ ...options, headers, signal: AbortSignal.timeout(15000) });
+  let lastErr = null;
+  // Motor de red de Chromium (el mismo de Chrome): respeta el proxy del sistema.
   if (net && typeof net.fetch === 'function') {
     try {
-      return await net.fetch(url, init);
-    } catch {
-      // Si la red de Chromium falla, se intenta con el fetch global.
+      return await net.fetch(url, mkInit());
+    } catch (err) {
+      lastErr = err;
     }
   }
-  return fetch(url, init);
+  try {
+    return await fetch(url, mkInit());
+  } catch (err) {
+    lastErr = err;
+  }
+  const wrapped = new Error('network-failed');
+  wrapped.code = errorCode(lastErr);
+  throw wrapped;
 }
 
 // ---------------------------------------------------------------- IPC: auth
@@ -103,8 +118,13 @@ ipcMain.handle('auth:login', async (_event, credentials) => {
       memSession = session;
     }
     return { ok: true, username: session.username };
-  } catch {
-    return { ok: false, error: 'Sin conexión con el servidor. Revisa tu internet e inténtalo de nuevo.' };
+  } catch (err) {
+    return {
+      ok: false,
+      error:
+        'Sin conexión con el servidor (código ' + (err && err.code ? err.code : 'red') + '). ' +
+        'Si tu Windows o antivirus preguntó por este programa, hay que darle «Permitir acceso»; sin eso el servidor no responde.',
+    };
   }
 });
 
