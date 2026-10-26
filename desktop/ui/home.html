@@ -25,13 +25,14 @@
       </div>
     </header>
 
-    <div class="layout"><nav class="sidenav"><button data-target="canales" class="active">Canales</button><button data-target="publicador" class="">Publicador</button><button data-target="autopilot" class="">Autopilot</button><button data-target="historial" class="">Campañas</button><button data-target="google" class="">Google · Ventas</button><button data-target="resultados" class="">Atribución · Ads</button><button data-target="instagram" class="">Instagram</button><button data-target="learning" class="">Learning</button><button data-target="diario" class="">Reporte diario</button><button data-target="email" class="">Email</button><button data-target="version" class="">Versión</button></nav><div class="content">
+    <div class="layout"><nav class="sidenav"><div class="nav-group">GENERAL</div><button data-target="canales" class="active"><span class="nav-num">01</span>Canales</button><button data-target="publicador" class=""><span class="nav-num">02</span>Publicador</button><button data-target="autopilot" class=""><span class="nav-num">03</span>Autopilot</button><button data-target="historial" class=""><span class="nav-num">04</span>Campañas</button><div class="nav-group">ANÁLISIS</div><button data-target="google" class=""><span class="nav-num">05</span>Google · Ventas</button><button data-target="resultados" class=""><span class="nav-num">06</span>Atribución · Ads</button><button data-target="instagram" class=""><span class="nav-num">07</span>Instagram</button><button data-target="learning" class=""><span class="nav-num">08</span>Learning</button><div class="nav-group">SISTEMA</div><button data-target="diario" class=""><span class="nav-num">09</span>Reporte diario</button><button data-target="email" class=""><span class="nav-num">10</span>Email</button><button data-target="version" class=""><span class="nav-num">11</span>Versión</button></nav><div class="content">
       <section class="panel"><section class="panel view active" data-view="canales">
         <div class="panel-head">
           <h2>Canales</h2>
           <button id="channels-refresh" class="btn-ghost">Actualizar</button>
         </div>
         <p id="channels-status" class="muted">Cargando canales…</p>
+        <div class="kpi-strip" id="kpi-strip"></div>
         <div id="channels-grid" class="grid"></div>
       </section>
 
