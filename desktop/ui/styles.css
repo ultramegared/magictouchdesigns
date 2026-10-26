@@ -396,3 +396,18 @@ h2 { color: var(--gold); margin: 0 0 12px; font-size: 22px; font-weight: 600; }
 @media (max-width: 820px) {
   .login-wrap { justify-content: center; padding: 20px; }
 }
+
+/* Placa con el logo real sobre la pared de la escena (vista PC) */
+.wall-logo-wrap {
+  position: absolute; z-index: 1;
+  left: calc(40% - 215px); top: 12%;
+  width: 430px; pointer-events: none;
+}
+.wall-logo {
+  width: 100%; display: block; border-radius: 26px;
+  border: 1px solid rgba(212, 175, 55, .5);
+  box-shadow: 0 34px 80px rgba(0, 0, 0, .55), 0 0 100px rgba(212, 175, 55, .25);
+  animation: flotar 7s ease-in-out infinite;
+  -webkit-box-reflect: below 14px linear-gradient(transparent 62%, rgba(255, 255, 255, .14));
+}
+@media (max-width: 1240px) { .wall-logo-wrap { display: none; } }
