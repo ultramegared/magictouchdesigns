@@ -6,6 +6,10 @@
 // Registro de versiones visible dentro del programa.
 const CHANGELOG = [
   {
+    version: '1.1.2',
+    notes: 'Fondo a pantalla completa: la sala premium con tus productos, con vida (zoom lento y luz).',
+  },
+  {
     version: '1.1.1',
     notes: 'Diseño corporativo premium: tu logo dorado 3D en el login y conexión reforzada (mismo motor de red que tu navegador).',
   },
