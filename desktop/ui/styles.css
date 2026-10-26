@@ -416,3 +416,7 @@ h2 { color: var(--gold); margin: 0 0 12px; font-size: 22px; font-weight: 600; }
     inset 0 1px 0 rgba(255, 255, 255, .22),
     inset 0 -1px 0 rgba(0, 0, 0, .35);
 }
+
+/* Lo oculto se oculta de verdad: sin esto, el display:flex del login
+   anulaba el atributo hidden y ambas pantallas se veian apiladas. */
+[hidden] { display: none !important; }
