@@ -36,17 +36,105 @@
       </section>
 
       <section class="panel">
+        <h2>Publicador central</h2>
+        <p class="muted">Publica en tus canales conectados desde el programa.</p>
+        <div id="pub-channels" class="chips"></div>
+        <textarea id="pub-text" class="composer-text" rows="4" placeholder="Escribe tu publicación…"></textarea>
+        <div class="composer-grid">
+          <input id="pub-image" type="text" placeholder="URL de imagen (opcional)" />
+          <input id="pub-video" type="text" placeholder="URL de video (opcional)" />
+          <input id="pub-link" type="text" placeholder="Enlace" value="https://jqydesigns.com" />
+          <input id="pub-whatsapp" type="text" placeholder="WhatsApp destino (opcional)" />
+          <select id="pub-privacy">
+            <option value="public">YouTube: público</option>
+            <option value="unlisted">YouTube: no listado</option>
+            <option value="private">YouTube: privado</option>
+          </select>
+        </div>
+        <p id="pub-msg" class="muted"></p>
+        <button id="pub-btn" class="btn-gold btn-inline">Publicar</button>
+      </section>
+
+      <section class="panel">
         <h2>Autopilot</h2>
         <p id="autopilot-status" class="muted">Cargando estado…</p>
+        <div id="catalog-box"></div>
+        <div class="row">
+          <button id="autopilot-run-btn" class="btn-gold btn-inline">Ejecutar Autopilot ahora</button>
+          <span id="autopilot-run-msg" class="muted"></span>
+        </div>
         <h3 class="subhead">Actividad reciente</h3>
         <p id="publications-status" class="muted">Cargando actividad…</p>
         <ul id="publications-list" class="activity"></ul>
       </section>
 
       <section class="panel">
-        <h2>Analíticas (Google Analytics)</h2>
+        <div class="panel-head">
+          <h2>Historial de campañas</h2>
+          <button id="history-refresh" class="btn-ghost">Actualizar</button>
+        </div>
+        <p id="history-status" class="muted">Cargando historial…</p>
+        <div id="history-list" class="quick-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Google · Analíticas · Ventas</h2>
+          <select id="range-sel" class="range-sel">
+            <option value="7">7 días</option>
+            <option value="30" selected>30 días</option>
+            <option value="90">90 días</option>
+          </select>
+        </div>
+        <h3 class="subhead">Google Analytics 4</h3>
         <p id="ga-status" class="muted">Cargando analíticas…</p>
         <div id="ga-box" class="ga-box"></div>
+        <h3 class="subhead">Google Search Console</h3>
+        <p id="gsc-status" class="muted">Cargando Search Console…</p>
+        <div id="gsc-box" class="ga-box"></div>
+        <div id="gsc-table"></div>
+        <h3 class="subhead">Ventas</h3>
+        <p id="sales-status" class="muted">Cargando ventas…</p>
+        <div id="sales-box"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Atribución · Google Ads · Resultados</h2>
+        <h3 class="subhead">Campaign Attribution</h3>
+        <div id="attr-table"></div>
+        <h3 class="subhead">Google Ads</h3>
+        <p id="ads-box" class="muted">Cargando Google Ads…</p>
+        <h3 class="subhead">Campaign Result Center</h3>
+        <div id="results-table"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Instagram Insights</h2>
+          <button id="ig-refresh" class="btn-ghost">Actualizar</button>
+        </div>
+        <p id="ig-status" class="muted">Cargando insights…</p>
+        <div id="ig-box"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Marketing Learning</h2>
+        <p id="learning-status" class="muted">Cargando aprendizaje…</p>
+        <div id="learning-box"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Daily Growth Report</h2>
+          <button id="daily-refresh" class="btn-ghost">Actualizar</button>
+        </div>
+        <p id="daily-status" class="muted">Cargando reporte…</p>
+        <div id="daily-box"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Email</h2>
+        <p id="email-box" class="muted">Cargando estado de email…</p>
       </section>
 
       <section class="panel">
