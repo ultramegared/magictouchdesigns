@@ -353,8 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btn = $('toggle-pass');
     const show = input.type === 'password';
     input.type = show ? 'text' : 'password';
-    btn.querySelector('.eye-open').hidden = show;
-    btn.querySelector('.eye-closed').hidden = !show;
+    btn.querySelector('.eye-slash').hidden = !show;
     btn.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
     input.focus();
   });
