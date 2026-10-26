@@ -3,7 +3,7 @@
 // con el API de la tienda desde este proceso (sin cabecera Origin, para que
 // CORS no bloquee las llamadas). El token NUNCA llega al renderer salvo por
 // los canales IPC definidos aquí; la contraseña jamás se guarda.
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -51,7 +51,17 @@ async function apiFetch(pathname, token, options = {}) {
     : `${API_BASE}${pathname.startsWith('/') ? '' : '/'}${pathname}`;
   const headers = { ...(options.headers || {}) };
   if (token) headers.Authorization = `Bearer ${token}`;
-  return fetch(url, { ...options, headers });
+  const init = { ...options, headers };
+  // Motor de red de Chromium (el mismo de Chrome): respeta el proxy del
+  // sistema y evita bloqueos que el fetch de Node sí sufre en algunas PCs.
+  if (net && typeof net.fetch === 'function') {
+    try {
+      return await net.fetch(url, init);
+    } catch {
+      // Si la red de Chromium falla, se intenta con el fetch global.
+    }
+  }
+  return fetch(url, init);
 }
 
 // ---------------------------------------------------------------- IPC: auth
@@ -68,7 +78,7 @@ ipcMain.handle('auth:login', async (_event, credentials) => {
     });
     const loginData = await loginRes.json().catch(() => ({}));
     if (!loginRes.ok || !loginData.token) {
-      return { ok: false, error: loginData.message || 'Usuario o contraseña incorrectos.' };
+      return { ok: false, status: loginRes.status, error: loginData.message || 'Usuario o contraseña incorrectos.' };
     }
 
     // Regla del negocio: SOLO entra la cuenta administradora de la página.
@@ -77,7 +87,7 @@ ipcMain.handle('auth:login', async (_event, credentials) => {
     const user = meData.user || meData;
     if (!meRes.ok || !user || user.role !== 'ADMIN') {
       // No se guarda el token: la sesión queda descartada.
-      return { ok: false, error: 'Solo la cuenta administradora puede entrar.' };
+      return { ok: false, status: meRes.status, error: 'Solo la cuenta administradora puede entrar.' };
     }
 
     const session = { token: loginData.token, username: user.username || username };

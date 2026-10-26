@@ -44,18 +44,80 @@ h2 { color: var(--gold); margin: 0 0 12px; font-size: 22px; font-weight: 600; }
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background:
+    radial-gradient(1100px 620px at 50% 26%, rgba(212, 175, 55, 0.16), transparent 62%),
+    radial-gradient(900px 500px at 50% 118%, rgba(212, 175, 55, 0.07), transparent 60%),
+    radial-gradient(closest-side at 50% 50%, #101010, #050505);
 }
 .login-card {
+  position: relative;
   width: 100%;
-  max-width: 400px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 36px 32px;
+  max-width: 420px;
+  background: linear-gradient(165deg, rgba(32, 28, 18, 0.92), rgba(10, 10, 10, 0.96) 58%);
+  border: 1px solid rgba(212, 175, 55, 0.38);
+  border-radius: 20px;
+  padding: 40px 34px 34px;
   text-align: center;
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.8),
+    0 0 110px rgba(212, 175, 55, 0.1),
+    inset 0 1px 0 rgba(255, 236, 180, 0.16);
 }
-.login-title { font-size: 26px; margin: 14px 0 4px; color: var(--text); }
+.login-title { font-size: 27px; margin: 16px 0 4px; color: var(--text); letter-spacing: 0.4px; }
+.gold-text {
+  background: linear-gradient(180deg, #f7e08c, #c9a227);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 .login-sub { color: var(--muted); margin: 0 0 20px; }
+
+/* ---- Logo corporativo 3D: aura giratoria, halo y reflejo espejo ---- */
+.logo-wrap { position: relative; display: inline-block; margin-top: 2px; }
+.logo-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -34px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(243, 210, 122, 0.32), rgba(212, 175, 55, 0.1) 45%, transparent 68%);
+  filter: blur(6px);
+  z-index: 0;
+}
+.logo-wrap::after {
+  content: "";
+  position: absolute;
+  inset: -52px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(243, 210, 122, 0.13) 24deg, transparent 60deg, transparent 180deg, rgba(243, 210, 122, 0.09) 210deg, transparent 250deg);
+  animation: auraSpin 16s linear infinite;
+  z-index: 0;
+}
+@keyframes auraSpin { to { transform: rotate(360deg); } }
+.login-logo {
+  position: relative;
+  z-index: 1;
+  width: 208px;
+  height: 208px;
+  object-fit: cover;
+  border-radius: 16px;
+  filter: drop-shadow(0 24px 44px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 26px rgba(212, 175, 55, 0.22));
+  -webkit-box-reflect: below 8px linear-gradient(transparent 58%, rgba(255, 255, 255, 0.14));
+  animation: logoFloat 7s ease-in-out infinite;
+}
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.brand-img {
+  height: 36px;
+  width: 36px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.25);
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-logo, .logo-wrap::after { animation: none; }
+}
 .login-card form { text-align: left; }
 .login-card label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; }
 .login-card input {
@@ -67,11 +129,17 @@ h2 { color: var(--gold); margin: 0 0 12px; font-size: 22px; font-weight: 600; }
   color: var(--text);
   font-size: 15px;
 }
-.login-card input:focus { outline: 1px solid var(--gold-soft); }
+.login-card input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18), 0 0 18px rgba(212, 175, 55, 0.12);
+}
 
 /* ---------- Botones ---------- */
 .btn-gold {
-  background: linear-gradient(180deg, #e6c758, var(--gold-soft));
+  background: linear-gradient(180deg, #f6dc8a, #d4af37 48%, #9a7b12);
+  box-shadow: 0 12px 26px rgba(212, 175, 55, 0.28), inset 0 1px 0 rgba(255, 248, 214, 0.65), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  letter-spacing: 0.6px;
   color: #171300;
   border: none;
   border-radius: 8px;
@@ -82,7 +150,7 @@ h2 { color: var(--gold); margin: 0 0 12px; font-size: 22px; font-weight: 600; }
   width: 100%;
   margin-top: 20px;
 }
-.btn-gold:hover { filter: brightness(1.07); }
+.btn-gold:hover { filter: brightness(1.08); transform: translateY(-1px); }
 .btn-gold:disabled { opacity: 0.55; cursor: wait; }
 .btn-inline { width: auto; margin-top: 6px; }
 .btn-ghost {

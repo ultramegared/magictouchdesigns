@@ -6,6 +6,10 @@
 // Registro de versiones visible dentro del programa.
 const CHANGELOG = [
   {
+    version: '1.1.1',
+    notes: 'Diseño corporativo premium: tu logo dorado 3D en el login y conexión reforzada (mismo motor de red que tu navegador).',
+  },
+  {
     version: '1.1.0',
     notes: 'Primera versión como software: inicio de sesión de administrador, panel de canales y Autopilot, actualización automática.',
   },
@@ -88,7 +92,7 @@ async function onLoginSubmit(event) {
       $('login-pass').value = '';
       showHome(result.username);
     } else {
-      error.textContent = result.error || 'No se pudo entrar.';
+      error.textContent = (result.error || 'No se pudo entrar.') + (result.status ? ' (código ' + result.status + ')' : '');
       error.hidden = false;
     }
   } catch {
