@@ -20,37 +20,35 @@
       <p class="login-sub">Accede a tu centro de marketing</p>
 
       <form id="login-form" autocomplete="off">
-        <label for="login-user">Usuario</label>
         <div class="field-wrap">
           <svg class="field-icon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.4-3.4 4.2-5 7.5-5s6.1 1.6 7.5 5"/></svg>
-          <input id="login-user" type="text" placeholder="Tu usuario de administrador" required />
+          <input id="login-user" type="text" placeholder="Usuario" required />
         </div>
 
-        <label for="login-pass">Contraseña</label>
         <div class="field-wrap pass-wrap">
           <svg class="field-icon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <input id="login-pass" type="password" placeholder="Tu contraseña" required />
+          <input id="login-pass" type="password" placeholder="Contraseña" required />
           <button id="toggle-pass" type="button" class="eye-btn" aria-label="Mostrar contraseña">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/><line class="eye-slash" x1="3" y1="3" x2="21" y2="21" hidden/></svg>
           </button>
         </div>
 
         <div class="login-row">
-          <label class="remember"><input id="login-remember" type="checkbox" checked /> Recuérdame</label>
-          <button id="forgot-link" type="button" class="forgot">¿Olvidaste tu contraseña?</button>
+          <label class="remember"><input id="login-remember" type="checkbox" checked /> Remember me</label>
+          <button id="forgot-link" type="button" class="forgot">Forgot password?</button>
         </div>
 
         <p id="login-error" class="error" role="alert" hidden></p>
 
-        <button id="login-btn" type="submit" class="btn-gold">Entrar <span class="btn-arrow">→</span></button>
+        <button id="login-btn" type="submit" class="btn-gold">Sign In <span class="btn-arrow">→</span></button>
       </form>
 
       <div class="feature-row">
-        <div class="feature"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20v-6"/><path d="M11 20V6"/><path d="M17 20v-9"/><path d="M3 20h18"/></svg><span>Analíticas</span></div>
-        <div class="feature"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg><span>Campañas</span></div>
+        <div class="feature"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20v-6"/><path d="M11 20V6"/><path d="M17 20v-9"/><path d="M3 20h18"/></svg><span>Analytics</span></div>
+        <div class="feature"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg><span>Campaigns</span></div>
         <div class="feature"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg><span>Autopilot</span></div>
         <div class="feature"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5C7 16.5 3 13.3 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4a5.4 5.4 0 0 1 4.3-2.4c2.5 0 4.7 1.9 4.7 4.8 0 4-4 7.2-9 11.2z"/></svg><span>Social</span></div>
-        <div class="feature"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg><span>Reportes</span></div>
+        <div class="feature"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg><span>Reports</span></div>
       </div>
       <!-- Sin registro: este programa es solo para la cuenta administradora. -->
     </section>
