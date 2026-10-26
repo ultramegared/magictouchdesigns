@@ -136,6 +136,24 @@ ipcMain.handle('app:open-recovery', async () => {
 
 ipcMain.handle('auth:logout', async () => {
   clearSession();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.loadFile(path.join(__dirname, 'ui', 'login.html'));
+  }
+  return { ok: true };
+});
+
+// El panel es otra pantalla: se carga solo tras un acceso valido.
+ipcMain.handle('ui:show-home', async () => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.loadFile(path.join(__dirname, 'ui', 'home.html'));
+  }
+  return { ok: true };
+});
+
+ipcMain.handle('ui:show-login', async () => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.loadFile(path.join(__dirname, 'ui', 'login.html'));
+  }
   return { ok: true };
 });
 
@@ -237,7 +255,7 @@ function createWindow() {
   mainWindow.maximize();
   mainWindow.once('ready-to-show', () => mainWindow.show());
   // Interfaz 100% local empaquetada con el programa.
-  mainWindow.loadFile(path.join(__dirname, 'ui', 'index.html'));
+  mainWindow.loadFile(path.join(__dirname, 'ui', 'login.html'));
   mainWindow.on('closed', () => {
     mainWindow = null;
   });

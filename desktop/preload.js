@@ -3,6 +3,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
+  // Navegación entre pantallas (login y panel son archivos separados)
+  entered: () => ipcRenderer.invoke('ui:show-home'),
+  goLogin: () => ipcRenderer.invoke('ui:show-login'),
   // Autenticación (solo cuenta administradora; verificado en main.js)
   login: (username, password, remember) => ipcRenderer.invoke('auth:login', { username, password, remember: !!remember }),
   openRecovery: () => ipcRenderer.invoke('app:open-recovery'),
