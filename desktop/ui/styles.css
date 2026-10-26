@@ -257,3 +257,41 @@ h2 { color: var(--gold); margin: 0 0 12px; font-size: 22px; font-weight: 600; }
   border-radius: 6px;
 }
 .eye-btn:hover { color: var(--gold); }
+
+/* ---- Fondo con efecto reforzado (pensado para pantalla de PC) ---- */
+.login-wrap { position: relative; overflow: hidden; }
+.login-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg, transparent 42%, rgba(243, 210, 122, 0.06) 50%, transparent 58%);
+  animation: sheenMove 9s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sheenMove {
+  0%, 100% { transform: translateX(-6%); }
+  50% { transform: translateX(6%); }
+}
+.login-wrap::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  width: 760px;
+  height: 140px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(212, 175, 55, 0.17), transparent);
+  filter: blur(10px);
+  pointer-events: none;
+}
+.login-card { z-index: 1; }
+.logo-wrap::before {
+  inset: -46px;
+  background: radial-gradient(circle, rgba(243, 210, 122, 0.42), rgba(212, 175, 55, 0.13) 45%, transparent 68%);
+}
+.login-logo {
+  -webkit-box-reflect: below 8px linear-gradient(transparent 52%, rgba(255, 255, 255, 0.2));
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-wrap::before { animation: none; }
+}
