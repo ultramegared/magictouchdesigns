@@ -344,6 +344,16 @@ async function loadHome() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   $('login-form').addEventListener('submit', onLoginSubmit);
+  $('toggle-pass').addEventListener('click', () => {
+    const input = $('login-pass');
+    const btn = $('toggle-pass');
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.querySelector('.eye-open').hidden = show;
+    btn.querySelector('.eye-closed').hidden = !show;
+    btn.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    input.focus();
+  });
   $('logout-btn').addEventListener('click', async () => {
     await window.api.logout();
     showLogin();
