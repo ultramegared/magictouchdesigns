@@ -31,7 +31,10 @@ jobs:
           tag_name: desktop-latest
           name: "JQYDesigns Marketing para PC (ultima version)"
           body: "Instalador de Windows de JQYDesigns Marketing. Descarga el archivo .exe y ejecutalo en tu PC."
-          files: desktop/dist/*.exe
+          files: |
+            desktop/dist/*.exe
+            desktop/dist/latest.yml
+            desktop/dist/*.blockmap
           draft: false
           prerelease: false
         env:
