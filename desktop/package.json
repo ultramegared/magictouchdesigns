@@ -49,5 +49,5 @@
     "start": "electron .",
     "predist": "node -e \"const fs=require('fs');const parts=['ui/fondo-1.b64','ui/fondo-2.b64','ui/fondo-3.b64','ui/fondo-4.b64'];const b=parts.map(f=>fs.readFileSync(f,'utf8')).join('').replace(/\\s/g,'');fs.writeFileSync('ui/fondo.webp',Buffer.from(b,'base64'));\""
   },
-  "version": "1.1.5"
+  "version": "1.2.0"
 }
