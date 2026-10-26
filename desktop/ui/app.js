@@ -6,6 +6,10 @@
 // Registro de versiones visible dentro del programa.
 const CHANGELOG = [
   {
+    version: '1.1.3',
+    notes: 'Login estilo showroom: fondo del taller luminoso a pantalla completa, tarjeta de cristal a la derecha, iconos en los campos, Recuérdame y fila de funciones.',
+  },
+  {
     version: '1.1.2',
     notes: 'Fondo a pantalla completa: la sala premium con tus productos, con vida (zoom lento y luz).',
   },
@@ -91,7 +95,7 @@ async function onLoginSubmit(event) {
   btn.disabled = true;
   btn.textContent = 'Entrando…';
   try {
-    const result = await window.api.login($('login-user').value.trim(), $('login-pass').value);
+    const result = await window.api.login($('login-user').value.trim(), $('login-pass').value, $('login-remember').checked);
     if (result.ok) {
       $('login-pass').value = '';
       showHome(result.username);
@@ -348,6 +352,7 @@ async function loadHome() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   $('login-form').addEventListener('submit', onLoginSubmit);
+  $('forgot-link').addEventListener('click', () => { window.api.openRecovery(); });
   $('toggle-pass').addEventListener('click', () => {
     const input = $('login-pass');
     const btn = $('toggle-pass');
