@@ -484,3 +484,18 @@ body.home-body .composer-text, body.home-body .composer-grid input, body.home-bo
 body.home-body .chip { background: #fff; border: 1px solid #d9d9d4; color: #16181c; }
 body.home-body .chart-col span { color: #787c86; }
 body.home-body #update-pill { background: #0a1d42; color: #fff; }
+
+/* ---------- Premium plus v1.2.2: grupos e indicadores ---------- */
+.nav-group { margin: 14px 12px 4px; font-size: 10px; letter-spacing: .28em; color: #808eae; }
+.nav-group:first-child { margin-top: 2px; }
+.nav-num { display: inline-block; width: 26px; font-size: 11px; color: #6c7a99; }
+.sidenav button.active .nav-num { color: var(--gold); }
+.kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 4px 0 18px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 10px; padding: 14px 18px; }
+.kpi-num { font-family: Georgia, 'Times New Roman', serif; font-size: 30px; font-weight: 700; color: var(--gold-soft); }
+.kpi-lbl { margin-top: 4px; font-size: 10px; letter-spacing: .22em; color: var(--muted); }
+body.home-body .kpi { background: #ffffff; border-color: #e4e4e0; border-top-color: #b08d3a; border-radius: 6px; box-shadow: 0 2px 8px rgba(10, 29, 66, .05); }
+body.home-body .kpi-num { color: #0a1d42; }
+body.home-body .kpi-lbl { color: #787c86; }
+body.home-body .nav-num { color: #68779a; }
+body.home-body .sidenav button.active .nav-num { color: #d4af37; }
