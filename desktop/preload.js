@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('api', {
 
   // Datos del panel (GET autenticados contra el API de la tienda)
   apiGet: (pathname) => ipcRenderer.invoke('api:get', pathname),
+  apiSend: (method, pathname, body) => ipcRenderer.invoke('api:send', method, pathname, body),
 
   // Versión y actualización automática
   version: () => ipcRenderer.invoke('app:version'),
