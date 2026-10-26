@@ -4,7 +4,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
   // Autenticación (solo cuenta administradora; verificado en main.js)
-  login: (username, password) => ipcRenderer.invoke('auth:login', { username, password }),
+  login: (username, password, remember) => ipcRenderer.invoke('auth:login', { username, password, remember: !!remember }),
+  openRecovery: () => ipcRenderer.invoke('app:open-recovery'),
   logout: () => ipcRenderer.invoke('auth:logout'),
   session: () => ipcRenderer.invoke('auth:session'),
 

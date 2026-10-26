@@ -3,7 +3,7 @@
 // con el API de la tienda desde este proceso (sin cabecera Origin, para que
 // CORS no bloquee las llamadas). El token NUNCA llega al renderer salvo por
 // los canales IPC definidos aquí; la contraseña jamás se guarda.
-const { app, BrowserWindow, ipcMain, net } = require('electron');
+const { app, BrowserWindow, ipcMain, net, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -19,7 +19,10 @@ function sessionPath() {
   return path.join(app.getPath('userData'), 'session.json');
 }
 
+let memSession = null; // Sesión solo en memoria (cuando no se marca "Recuérdame")
+
 function loadSession() {
+  if (memSession && memSession.token) return memSession;
   try {
     const data = JSON.parse(fs.readFileSync(sessionPath(), 'utf8'));
     return data && data.token ? data : null;
@@ -37,6 +40,7 @@ function saveSession(session) {
 }
 
 function clearSession() {
+  memSession = null;
   try {
     fs.unlinkSync(sessionPath());
   } catch {
@@ -66,7 +70,7 @@ async function apiFetch(pathname, token, options = {}) {
 
 // ---------------------------------------------------------------- IPC: auth
 ipcMain.handle('auth:login', async (_event, credentials) => {
-  const { username, password } = credentials || {};
+  const { username, password, remember } = credentials || {};
   if (!username || !password) {
     return { ok: false, error: 'Escribe tu usuario y contraseña.' };
   }
@@ -91,11 +95,23 @@ ipcMain.handle('auth:login', async (_event, credentials) => {
     }
 
     const session = { token: loginData.token, username: user.username || username };
-    saveSession(session);
+    memSession = session;
+    if (remember) {
+      saveSession(session);
+    } else {
+      clearSession();
+      memSession = session;
+    }
     return { ok: true, username: session.username };
   } catch {
     return { ok: false, error: 'Sin conexión con el servidor. Revisa tu internet e inténtalo de nuevo.' };
   }
+});
+
+ipcMain.handle('app:open-recovery', async () => {
+  // La recuperación de contraseña vive en la página (flujo ya existente).
+  await shell.openExternal('https://jqydesigns.com/admin-login');
+  return { ok: true };
 });
 
 ipcMain.handle('auth:logout', async () => {

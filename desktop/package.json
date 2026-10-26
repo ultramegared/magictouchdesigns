@@ -10,7 +10,8 @@
       "preload.js",
       "ui/**",
       "build/icon.ico",
-      "package.json"
+      "package.json",
+      "!ui/fondo-*.b64"
     ],
     "nsis": {
       "createDesktopShortcut": true,
@@ -45,7 +46,8 @@
   "private": true,
   "scripts": {
     "dist": "electron-builder --win nsis --publish never",
-    "start": "electron ."
+    "start": "electron .",
+    "predist": "node -e \"const fs=require('fs');const parts=['ui/fondo-1.b64','ui/fondo-2.b64','ui/fondo-3.b64','ui/fondo-4.b64'];const b=parts.map(f=>fs.readFileSync(f,'utf8')).join('').replace(/\\s/g,'');fs.writeFileSync('ui/fondo.webp',Buffer.from(b,'base64'));\""
   },
-  "version": "1.1.2"
+  "version": "1.1.3"
 }
