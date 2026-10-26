@@ -6,10 +6,10 @@
   <title>JQYDesigns Marketing</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="home-body">
 
   <!-- ======================= LOGIN ======================= -->
-<body>
+<body class="home-body">
 
   <main id="home-view">
     <header class="topbar">
@@ -25,8 +25,8 @@
       </div>
     </header>
 
-    <div class="content">
-      <section class="panel">
+    <div class="layout"><nav class="sidenav"><button data-target="canales" class="active">Canales</button><button data-target="publicador" class="">Publicador</button><button data-target="autopilot" class="">Autopilot</button><button data-target="historial" class="">Campañas</button><button data-target="google" class="">Google · Ventas</button><button data-target="resultados" class="">Atribución · Ads</button><button data-target="instagram" class="">Instagram</button><button data-target="learning" class="">Learning</button><button data-target="diario" class="">Reporte diario</button><button data-target="email" class="">Email</button><button data-target="version" class="">Versión</button></nav><div class="content">
+      <section class="panel"><section class="panel view active" data-view="canales">
         <div class="panel-head">
           <h2>Canales</h2>
           <button id="channels-refresh" class="btn-ghost">Actualizar</button>
@@ -35,7 +35,7 @@
         <div id="channels-grid" class="grid"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="publicador">
         <h2>Publicador central</h2>
         <p class="muted">Publica en tus canales conectados desde el programa.</p>
         <div id="pub-channels" class="chips"></div>
@@ -55,7 +55,7 @@
         <button id="pub-btn" class="btn-gold btn-inline">Publicar</button>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="autopilot">
         <h2>Autopilot</h2>
         <p id="autopilot-status" class="muted">Cargando estado…</p>
         <div id="catalog-box"></div>
@@ -68,7 +68,7 @@
         <ul id="publications-list" class="activity"></ul>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="historial">
         <div class="panel-head">
           <h2>Historial de campañas</h2>
           <button id="history-refresh" class="btn-ghost">Actualizar</button>
@@ -77,7 +77,7 @@
         <div id="history-list" class="quick-list"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="google">
         <div class="panel-head">
           <h2>Google · Analíticas · Ventas</h2>
           <select id="range-sel" class="range-sel">
@@ -98,7 +98,7 @@
         <div id="sales-box"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="resultados">
         <h2>Atribución · Google Ads · Resultados</h2>
         <h3 class="subhead">Campaign Attribution</h3>
         <div id="attr-table"></div>
@@ -108,7 +108,7 @@
         <div id="results-table"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="instagram">
         <div class="panel-head">
           <h2>Instagram Insights</h2>
           <button id="ig-refresh" class="btn-ghost">Actualizar</button>
@@ -117,13 +117,13 @@
         <div id="ig-box"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="learning">
         <h2>Marketing Learning</h2>
         <p id="learning-status" class="muted">Cargando aprendizaje…</p>
         <div id="learning-box"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="diario">
         <div class="panel-head">
           <h2>Daily Growth Report</h2>
           <button id="daily-refresh" class="btn-ghost">Actualizar</button>
@@ -132,12 +132,12 @@
         <div id="daily-box"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="email">
         <h2>Email</h2>
         <p id="email-box" class="muted">Cargando estado de email…</p>
       </section>
 
-      <section class="panel">
+      <section class="panel"><section class="panel view" data-view="version">
         <h2>Versión y actualizaciones</h2>
         <p>Estás en la versión <strong id="version-current">—</strong> de JQYDesigns Marketing.</p>
         <p id="update-msg" class="muted">El programa busca actualizaciones solo al abrirse.</p>
@@ -149,6 +149,7 @@
         <ul id="changelog-list" class="changelog"></ul>
       </section>
     </div>
+  </div>
   </main>
 
   <script src="home.js"></script>
