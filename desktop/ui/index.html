@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:;" />
+  <title>JQYDesigns Marketing</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ======================= LOGIN ======================= -->
+  <main id="login-view" class="login-wrap">
+    <section class="login-card">
+      <div class="brand">JQ<span class="brand-amp">&amp;</span>YD</div>
+      <h1 class="login-title">JQYDesigns Marketing</h1>
+      <p class="login-sub">Entra con la cuenta administradora de tu página.</p>
+
+      <form id="login-form" autocomplete="off">
+        <label for="login-user">Usuario</label>
+        <input id="login-user" type="text" placeholder="Tu usuario de administrador" required />
+
+        <label for="login-pass">Contraseña</label>
+        <input id="login-pass" type="password" placeholder="Tu contraseña" required />
+
+        <p id="login-error" class="error" role="alert" hidden></p>
+
+        <button id="login-btn" type="submit" class="btn-gold">Entrar</button>
+      </form>
+      <!-- Sin registro: este programa es solo para la cuenta administradora. -->
+    </section>
+  </main>
+
+  <!-- ======================= HOME ======================= -->
+  <main id="home-view" hidden>
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="brand brand-small">JQ<span class="brand-amp">&amp;</span>YD</span>
+        <span class="topbar-title">Marketing</span>
+      </div>
+      <div class="topbar-right">
+        <span id="update-pill" class="pill" hidden></span>
+        <span class="user-chip">👤 <span id="user-name">—</span></span>
+        <span class="version-chip">v<span id="app-version">—</span></span>
+        <button id="logout-btn" class="btn-ghost">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Canales</h2>
+          <button id="channels-refresh" class="btn-ghost">Actualizar</button>
+        </div>
+        <p id="channels-status" class="muted">Cargando canales…</p>
+        <div id="channels-grid" class="grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Autopilot</h2>
+        <p id="autopilot-status" class="muted">Cargando estado…</p>
+        <h3 class="subhead">Actividad reciente</h3>
+        <p id="publications-status" class="muted">Cargando actividad…</p>
+        <ul id="publications-list" class="activity"></ul>
+      </section>
+
+      <section class="panel">
+        <h2>Analíticas (Google Analytics)</h2>
+        <p id="ga-status" class="muted">Cargando analíticas…</p>
+        <div id="ga-box" class="ga-box"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Versión y actualizaciones</h2>
+        <p>Estás en la versión <strong id="version-current">—</strong> de JQYDesigns Marketing.</p>
+        <p id="update-msg" class="muted">El programa busca actualizaciones solo al abrirse.</p>
+        <div class="row">
+          <button id="check-updates-btn" class="btn-gold btn-inline">Buscar actualizaciones</button>
+          <button id="restart-update-btn" class="btn-gold btn-inline" hidden>Reiniciar para actualizar</button>
+        </div>
+        <h3 class="subhead">Registro de versiones</h3>
+        <ul id="changelog-list" class="changelog"></ul>
+      </section>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
