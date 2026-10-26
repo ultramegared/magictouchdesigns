@@ -7,7 +7,7 @@
 const CHANGELOG = [
   {
     version: '1.1.3',
-    notes: 'Login estilo showroom: fondo del taller luminoso a pantalla completa, tarjeta de cristal a la derecha, iconos en los campos, Recuérdame y fila de funciones.',
+    notes: 'Look final estilo tu modelo: escena al anochecer en el jardín, tu logo real en la pared de piedra y la tarjeta de cristal a la derecha (Sign In, Remember me).',
   },
   {
     version: '1.1.2',

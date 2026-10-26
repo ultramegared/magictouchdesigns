@@ -376,7 +376,13 @@ h2 { color: var(--gold); margin: 0 0 12px; font-size: 22px; font-weight: 600; }
   padding: 0;
 }
 .forgot:hover { color: var(--gold); text-decoration: underline; }
-.btn-arrow { margin-left: 6px; font-weight: 700; }
+.btn-arrow {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; margin-left: 10px; border-radius: 50%;
+  border: 1.6px solid rgba(23, 19, 0, .75); font-size: 15px; font-weight: 700;
+  vertical-align: -7px;
+}
+#login-form .field-wrap { margin-bottom: 14px; }
 .feature-row {
   display: flex;
   justify-content: space-between;
@@ -400,8 +406,8 @@ h2 { color: var(--gold); margin: 0 0 12px; font-size: 22px; font-weight: 600; }
 /* Placa con el logo real sobre la pared de la escena (vista PC) */
 .wall-logo-wrap {
   position: absolute; z-index: 1;
-  left: calc(40% - 215px); top: 12%;
-  width: 430px; pointer-events: none;
+  left: 4.2%; top: 11%;
+  width: min(380px, 26vw); pointer-events: none;
 }
 .wall-logo {
   width: 100%; display: block; border-radius: 26px;
