@@ -6,6 +6,10 @@
 // Registro de versiones visible dentro del programa.
 const CHANGELOG = [
   {
+    version: '1.2.1',
+    notes: 'Panel premium corporativo: botones laterales (una sección a la vez, sin lista infinita) y diseño ejecutivo azul marino, blanco y dorado, con rojo solo en indicadores.',
+  },
+  {
     version: '1.2.0',
     notes: 'Panel de Marketing COMPLETO como en la web: publicador central, Autopilot con controles y catálogo, historial de campañas, Google Analytics + Search Console + ventas, atribución, Google Ads, resultados, Instagram Insights, Learning, reporte diario y email.',
   },
@@ -764,6 +768,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('user-name').textContent = session.username || 'Administrador';
   $('logout-btn').addEventListener('click', async () => {
     await window.api.logout();
+  });
+  document.querySelectorAll('.sidenav button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sidenav button').forEach((b) => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.view').forEach((v) => v.classList.toggle('active', v.dataset.view === btn.dataset.target));
+      window.scrollTo({ top: 0 });
+    });
   });
   $('channels-refresh').addEventListener('click', loadChannels);
   $('pub-btn').addEventListener('click', onPublish);
