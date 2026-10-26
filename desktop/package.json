@@ -44,7 +44,7 @@
   "name": "jqydesigns-marketing",
   "private": true,
   "scripts": {
-    "dist": "electron-builder --win nsis",
+    "dist": "electron-builder --win nsis --publish never",
     "start": "electron ."
   },
   "version": "1.1.0"
