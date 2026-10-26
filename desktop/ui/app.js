@@ -6,6 +6,10 @@
 // Registro de versiones visible dentro del programa.
 const CHANGELOG = [
   {
+    version: '1.1.4',
+    notes: 'Fondo final con tu imagen del taller al anochecer y tu cartel dorado; la tarjeta de acceso con efecto 3D sobre la escena.',
+  },
+  {
     version: '1.1.3',
     notes: 'Look final estilo tu modelo: escena al anochecer en el jardín, tu logo real en la pared de piedra y la tarjeta de cristal a la derecha (Sign In, Remember me).',
   },
@@ -93,7 +97,7 @@ async function onLoginSubmit(event) {
   const error = $('login-error');
   error.hidden = true;
   btn.disabled = true;
-  btn.textContent = 'Entrando…';
+  btn.innerHTML = 'Entrando…';
   try {
     const result = await window.api.login($('login-user').value.trim(), $('login-pass').value, $('login-remember').checked);
     if (result.ok) {
@@ -108,7 +112,7 @@ async function onLoginSubmit(event) {
     error.hidden = false;
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Entrar';
+    btn.innerHTML = 'Sign In <span class="btn-arrow">→</span>';
   }
 }
 
