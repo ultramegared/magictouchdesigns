@@ -6,6 +6,10 @@
 // Registro de versiones visible dentro del programa.
 const CHANGELOG = [
   {
+    version: '1.2.2',
+    notes: 'Premium ejecutivo: navegación agrupada (General · Análisis · Sistema) con números dorados, indicadores arriba en Canales y actualización automática desde el programa (Buscar actualizaciones → Instalar).',
+  },
+  {
     version: '1.2.1',
     notes: 'Panel premium corporativo: botones laterales (una sección a la vez, sin lista infinita) y diseño ejecutivo azul marino, blanco y dorado, con rojo solo en indicadores.',
   },
@@ -85,6 +89,26 @@ function handleApiResult(result) {
 }
 
 // ------------------------------------------------------------------ canales
+const KPI = { canales: null, pubs: null, camp: null, auto: null };
+function renderKpis() {
+  const box = $('kpi-strip');
+  if (!box) return;
+  const items = [
+    [KPI.canales, 'CANALES CONECTADOS'],
+    [KPI.pubs, 'PUBLICACIONES · 24 H'],
+    [KPI.camp, 'CAMPAÑAS'],
+    [KPI.auto === null ? null : (KPI.auto ? 'ON' : 'OFF'), 'AUTOPILOT'],
+  ];
+  box.innerHTML = '';
+  for (const [val, lab] of items) {
+    const el = document.createElement('div');
+    el.className = 'kpi';
+    const v = document.createElement('div'); v.className = 'kpi-num'; v.textContent = val === null || val === undefined ? '—' : String(val);
+    const l = document.createElement('div'); l.className = 'kpi-lbl'; l.textContent = lab;
+    el.appendChild(v); el.appendChild(l); box.appendChild(el);
+  }
+}
+
 async function loadChannels() {
   const status = $('channels-status');
   const grid = $('channels-grid');
@@ -105,6 +129,7 @@ async function loadChannels() {
   for (const conn of connections) {
     grid.appendChild(channelCard(conn));
   }
+  KPI.canales = grid.childElementCount; renderKpis();
   renderPublisherChannels(connections);
 }
 
@@ -213,7 +238,7 @@ async function loadAutopilot() {
     const lastRun = pick(data, ['last_run', 'lastRun', 'last_run_at', 'updated_at'], '');
     const summary = pick(data, ['message', 'status', 'summary'], '');
     const parts = [];
-    if (typeof enabled === 'boolean') parts.push(enabled ? 'Autopilot activo.' : 'Autopilot apagado.');
+    if (typeof enabled === 'boolean') { KPI.auto = enabled; renderKpis(); parts.push(enabled ? 'Autopilot activo.' : 'Autopilot apagado.'); }
     if (summary) parts.push(String(summary));
     if (lastRun) parts.push(`Última corrida: ${formatWhen(lastRun)}`);
     statusEl.textContent = parts.length ? parts.join(' ') : 'Autopilot sin datos por ahora.';
@@ -413,6 +438,7 @@ async function loadHistory() {
   if (!result.ok) { status.textContent = 'No se pudo cargar el historial.'; return; }
   const campaigns = asArray(result.data);
   if (campaigns.length === 0) { status.textContent = 'Sin campañas todavía.'; return; }
+  KPI.camp = campaigns.length; renderKpis();
   status.textContent = campaigns.length + ' campaña(s)';
   for (const c of campaigns.slice(0, 20)) {
     const card = document.createElement('article');
@@ -652,6 +678,7 @@ async function loadDaily() {
   if (!handleApiResult(result)) return;
   const s = result.data && result.data.summary;
   if (!s) { status.textContent = 'Sin reporte diario todavía.'; return; }
+  KPI.pubs = s.last24 ? s.last24.publications : null; renderKpis();
   status.textContent = 'Generado: ' + formatWhen(s.generatedAt);
   box.innerHTML = '';
   const stats = document.createElement('div');
