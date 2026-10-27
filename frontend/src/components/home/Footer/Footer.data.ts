@@ -4,7 +4,7 @@ const WHATSAPP_QR_LINK = "https://wa.me/qr/6FQZEC7MEQN3N1";
 const TIKTOK_PLACEHOLDER = { name: "TikTok", href: "#" };
 
 const fallback: FooterContent = {
-    shop:{title:"SHOP",links:[{label:"All Models",href:"/products"},{label:"Collections",href:"/collections"},{label:"Customize",href:"/customize"}]},
+    shop:{title:"SHOP",links:[{label:"Collections",href:"/collections"},{label:"Customize",href:"/customize"}]},
     company:{title:"COMPANY",links:[{label:"About Us",href:"/about"},{label:"How It Works",href:"/how-it-works"},{label:"Shipping & Returns",href:"/shipping-returns"},{label:"FAQs",href:"/faqs"}]},
     support:{title:"SUPPORT",links:[{label:"Contact Us",href:"/contact"},{label:"Track My Order",href:"/track-order"},{label:"WhatsApp",href:WHATSAPP_QR_LINK},{label:"Privacy Policy",href:"/privacy"},{label:"Terms of Service",href:"/terms-of-service"}]},
     social:[{name:"Instagram",href:"https://www.instagram.com/jqydesigns"},{name:"Facebook",href:"https://www.facebook.com/jqydesigns"},TIKTOK_PLACEHOLDER,{name:"YouTube",href:"https://www.youtube.com/@jqydesigns"}],

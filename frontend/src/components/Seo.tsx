@@ -13,14 +13,6 @@ const SEO: Record<string, SeoEntry> = {
       es: "Compra tazas, camisetas, gorras, regalos personalizados y productos hechos para cada ocasión en JQYD Magic Touch Designs.",
     },
   },
-  "/products": {
-    en: "Custom Products | Personalized Mugs, Shirts & Gifts | JQYD",
-    es: "Productos Personalizados | Tazas, Camisetas y Regalos | JQYD",
-    description: {
-      en: "Explore personalized mugs, apparel, hats, gifts and custom products from JQYD Magic Touch Designs.",
-      es: "Explora tazas, ropa, gorras, regalos y productos personalizados de JQYD Magic Touch Designs.",
-    },
-  },
   "/collections": {
     en: "Personalized Gift Collections | JQYD Magic Touch Designs",
     es: "Colecciones de Regalos Personalizados | JQYD Magic Touch Designs",
