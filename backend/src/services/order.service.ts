@@ -33,6 +33,8 @@ export const ensureOrderTables = async (): Promise<void> => {
             paypal_capture_id VARCHAR(255),
             payment_provider VARCHAR(32),
             payment_method VARCHAR(64),
+            payment_card_brand VARCHAR(32),
+            payment_card_last4 VARCHAR(4),
             customer_first_name VARCHAR(120) NOT NULL,
             customer_last_name VARCHAR(120) NOT NULL,
             customer_email VARCHAR(320) NOT NULL,
@@ -60,6 +62,8 @@ export const ensureOrderTables = async (): Promise<void> => {
         ALTER TABLE orders ADD COLUMN IF NOT EXISTS paypal_capture_id VARCHAR(255);
         ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_provider VARCHAR(32);
         ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(64);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_card_brand VARCHAR(32);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_card_last4 VARCHAR(4);
         CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_paypal_order_id ON orders(paypal_order_id) WHERE paypal_order_id IS NOT NULL;
         CREATE TABLE IF NOT EXISTS order_items (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -421,12 +425,28 @@ export const sendCustomerOrderConfirmation = async (orderIdOrCode: string): Prom
     const itemsResult = await pool.query("SELECT * FROM order_items WHERE order_id = $1 ORDER BY id ASC", [order.id]);
     const shippingAddress = order.shipping_address || {};
     const orderItems = itemsResult.rows.map((item:any) => String(item.product_name) + " × " + String(item.quantity) + " — $" + Number(item.unit_price).toFixed(2)).join("\n");
+    const productImagesHtmlMarkup = itemsResult.rows.map((item:any) => {
+        const rawUrl = String(item.image_url || "").trim();
+        if (!rawUrl) return "";
+        let imageUrl = "";
+        try {
+            const parsed = new URL(rawUrl, FRONTEND_URL);
+            if (parsed.protocol !== "https:") return "";
+            imageUrl = parsed.toString();
+        } catch { return ""; }
+        const safeUrl = imageUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const safeName = String(item.product_name || "Product").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        return "<div style=\"display:inline-block;vertical-align:top;width:180px;max-width:100%;margin:8px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;text-align:center\"><img src=\"" + safeUrl + "\" alt=\"" + safeName + "\" width=\"160\" style=\"display:block;width:160px;max-width:100%;height:auto;margin:0 auto 8px;border:0;border-radius:6px\" /><div style=\"font-weight:700;font-size:13px;color:#172033\">" + safeName + "</div><div style=\"font-size:12px;color:#536174\">Qty: " + Number(item.quantity) + "</div></div>";
+    }).filter(Boolean).join("");
+    const paymentMethod = order.payment_card_last4
+        ? String(order.payment_card_brand || "Card").replace(/^\w/, c => c.toUpperCase()) + " •••• " + String(order.payment_card_last4)
+        : order.payment_provider === "paypal" ? "PayPal" : "Card";
     const address = [order.customer_first_name + " " + order.customer_last_name, shippingAddress.address, shippingAddress.apartment, shippingAddress.city + ", " + shippingAddress.state + " " + shippingAddress.zip].filter(Boolean).join("\n");
     const trackOrderUrl = FRONTEND_URL + "/track-order?order=" + encodeURIComponent(String(order.order_code));
     await sendTemplateEmail("order_confirmed", order.customer_email, {
         siteName:"JQYDesigns", customerName:order.customer_first_name || "Customer", customerEmail:order.customer_email,
         orderCode:order.order_code, orderTotal:"$" + Number(order.total).toFixed(2), subtotal:"$" + Number(order.subtotal).toFixed(2),
-        shipping:"$" + Number(order.shipping).toFixed(2), tax:"$" + Number(order.tax).toFixed(2), orderItems, shippingAddress:address,
+        shipping:"$" + Number(order.shipping).toFixed(2), tax:"$" + Number(order.tax).toFixed(2), orderItems, paymentMethod, productImagesHtmlRaw:productImagesHtmlMarkup, shippingAddress:address,
         orderUrl:trackOrderUrl, supportEmail:"jqydesigns@gmail.com"
     }, "customer-order-confirmation/" + order.id);
 };
@@ -527,6 +547,27 @@ export const materializePaidOrder = async (input: {
     }
 };
 
+// Best-effort Stripe card detail lookup for the customer confirmation email.
+// Returns brand + last4 only — full card numbers are never read, stored, or
+// logged. Any failure (no key, no payment intent, network error) returns null
+// so the order and its emails are never blocked by this lookup.
+const fetchStripeCardDetails = async (paymentIntentId: string): Promise<{ brand: string; last4: string } | null> => {
+    try {
+        const key = process.env.STRIPE_SECRET_KEY;
+        if (!key || !paymentIntentId) return null;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 8000);
+        try {
+            const response = await fetch(`${STRIPE_API}/payment_intents/${encodeURIComponent(paymentIntentId)}?expand[]=payment_method`, { method: "GET", headers: { Authorization: `Bearer ${key}` }, signal: controller.signal });
+            if (!response.ok) return null;
+            const data = await response.json() as any;
+            const card = data?.payment_method?.card;
+            if (!card?.last4) return null;
+            return { brand: String(card.brand || ""), last4: String(card.last4) };
+        } finally { clearTimeout(timer); }
+    } catch { return null; }
+};
+
 export const handleStripeWebhook = async (event: any): Promise<void> => {
     await ensureOrderTables();
     if (event?.type !== "checkout.session.completed" && event?.type !== "checkout.session.async_payment_succeeded") return;
@@ -572,6 +613,16 @@ export const handleStripeWebhook = async (event: any): Promise<void> => {
             } : undefined,
         },
     });
+    // Capture card brand + last4 for the customer confirmation email. This
+    // runs before the notifications so sendCustomerOrderConfirmation (which
+    // re-reads the order) sees the card data. Failures are swallowed: the
+    // email falls back to the payment provider name instead.
+    if (session?.payment_intent) {
+        const card = await fetchStripeCardDetails(String(session.payment_intent));
+        if (card) {
+            await pool.query("UPDATE orders SET payment_card_brand=$1, payment_card_last4=$2, updated_at=NOW() WHERE id=$3", [card.brand, card.last4, result.orderId]).catch(() => undefined);
+        }
+    }
     // Always run the idempotent notification path after a paid Stripe event.
     // A previous webhook attempt may have created the order and then failed while
     // sending email; Stripe retries must finish fulfillment instead of skipping it.
