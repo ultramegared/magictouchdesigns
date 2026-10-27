@@ -211,6 +211,20 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
   );
   if (existingQueued.rows[0]) return { queued: false, reason: "A catalog promotion is already queued.", campaignId: existingQueued.rows[0].id };
 
+  // Pacing: with one-shot campaigns the drain would otherwise queue and
+  // publish the whole catalog in a single night (one new item per drain
+  // iteration). At most one catalog campaign per 12h keeps the cadence at
+  // one new catalog post per night, matching the old 12h rhythm.
+  const recentlyPublishedCatalog = await pool.query(
+    `SELECT id FROM marketing_campaigns
+     WHERE owner_user_id=$1 AND campaign_type='catalog'
+       AND last_run_at >= NOW() - INTERVAL '12 hours'
+       AND run_count > 0
+     LIMIT 1`,
+    [ownerUserId],
+  );
+  if (recentlyPublishedCatalog.rows[0]) return { queued: false, reason: "A catalog campaign published within the last 12 hours; pacing the queue.", campaignId: recentlyPublishedCatalog.rows[0].id };
+
   const productResult = await pool.query(
     `SELECT p.product_id,p.name,p.slug,p.description,p.price,p.image_url,p.image_urls,p.features,p.created_at
      FROM products p
@@ -221,13 +235,16 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
        AND NULLIF(BTRIM(p.name), '') IS NOT NULL
        AND p.name !~* '(^|[^a-z])(test|sample|demo|placeholder)([^a-z]|$)'
        AND NULLIF(BTRIM(COALESCE(p.image_url, p.image_urls->>0, '')), '') IS NOT NULL
-       AND (
-         NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id::text)
-         OR EXISTS (
-           SELECT 1 FROM marketing_catalog_promotions mcp
-           WHERE mcp.product_id=p.product_id::text
-             AND COALESCE(mcp.last_promoted_at, mcp.created_at) <= NOW() - INTERVAL '7 days'
-         )
+       AND NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id::text)
+       AND NOT EXISTS (
+         SELECT 1 FROM portfolio_items pi
+         WHERE pi.is_active=TRUE
+           AND NULLIF(BTRIM(COALESCE(pi.image_url,'')), '') = NULLIF(BTRIM(COALESCE(p.image_url, p.image_urls->>0, '')), '')
+       )
+       AND NOT EXISTS (
+         SELECT 1 FROM marketing_campaigns mc
+         WHERE mc.autopilot_enabled=TRUE AND mc.next_run_at IS NOT NULL
+           AND (mc.results->'assets'->>'imageUrl') = NULLIF(BTRIM(COALESCE(p.image_url, p.image_urls->>0, '')), '')
        )
        AND NOT EXISTS (
          SELECT 1 FROM marketing_campaigns mc
@@ -239,7 +256,6 @@ export async function queueNextCatalogProduct(ownerUserId: string) {
            AND mc.next_run_at > NOW()
        )
      ORDER BY
-       CASE WHEN NOT EXISTS (SELECT 1 FROM marketing_catalog_promotions mcp WHERE mcp.product_id=p.product_id::text) THEN 0 ELSE 1 END,
        p.created_at ASC
      LIMIT 1`,
     [ownerUserId],
@@ -349,6 +365,18 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
   );
   if (existingQueued.rows[0]) return { queued: false, reason: "A portfolio promotion is already queued.", campaignId: existingQueued.rows[0].id };
 
+  // Pacing: same one-per-12h rule as the catalog queue, so the drain
+  // publishes at most one new portfolio post per night.
+  const recentlyPublishedPortfolio = await pool.query(
+    `SELECT id FROM marketing_campaigns
+     WHERE owner_user_id=$1 AND campaign_type='portfolio'
+       AND last_run_at >= NOW() - INTERVAL '12 hours'
+       AND run_count > 0
+     LIMIT 1`,
+    [ownerUserId],
+  );
+  if (recentlyPublishedPortfolio.rows[0]) return { queued: false, reason: "A portfolio campaign published within the last 12 hours; pacing the queue.", campaignId: recentlyPublishedPortfolio.rows[0].id };
+
   const result = await pool.query(
     `SELECT p.portfolio_id,p.image_url,p.title_en,p.description_en,p.characteristics_en,p.created_at
      FROM portfolio_items p
@@ -356,13 +384,16 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
        AND NULLIF(BTRIM(COALESCE(p.image_url,'')), '') IS NOT NULL
        AND NULLIF(BTRIM(COALESCE(p.title_en,'')), '') IS NOT NULL
        AND p.title_en !~* '(^|[^a-z])(test|sample|demo|placeholder|completed work)([^a-z]|$)'
-       AND (
-         NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text)
-         OR EXISTS (
-           SELECT 1 FROM marketing_portfolio_promotions mpp
-           WHERE mpp.portfolio_id=p.portfolio_id::text
-             AND COALESCE(mpp.last_promoted_at,mpp.created_at) <= NOW() - INTERVAL '7 days'
-         )
+       AND NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text)
+       AND NOT EXISTS (
+         SELECT 1 FROM products pr
+         WHERE pr.is_active=TRUE
+           AND NULLIF(BTRIM(COALESCE(pr.image_url, pr.image_urls->>0, '')), '') = NULLIF(BTRIM(COALESCE(p.image_url,'')), '')
+       )
+       AND NOT EXISTS (
+         SELECT 1 FROM marketing_campaigns mc
+         WHERE mc.autopilot_enabled=TRUE AND mc.next_run_at IS NOT NULL
+           AND (mc.results->'assets'->>'imageUrl') = NULLIF(BTRIM(COALESCE(p.image_url,'')), '')
        )
        AND NOT EXISTS (
          SELECT 1 FROM marketing_campaigns mc
@@ -374,7 +405,6 @@ export async function queueNextPortfolioWork(ownerUserId: string) {
            AND mc.next_run_at >= NOW() - INTERVAL '12 hours'
        )
      ORDER BY
-       CASE WHEN NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text) THEN 0 ELSE 1 END,
        p.created_at ASC
      LIMIT 1`,
     [ownerUserId],
@@ -454,10 +484,7 @@ export async function getContentAutopilotStatus(ownerUserId: string) {
          AND NULLIF(BTRIM(COALESCE(p.image_url,'')), '') IS NOT NULL
          AND NULLIF(BTRIM(COALESCE(p.title_en,'')), '') IS NOT NULL
          AND p.title_en !~* '(^|[^a-z])(test|sample|demo|placeholder|completed work)([^a-z]|$)'
-         AND (
-           NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text)
-           OR COALESCE((SELECT mpp.last_promoted_at FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text), 'epoch'::timestamptz) <= NOW() - INTERVAL '7 days'
-         )`
+         AND NOT EXISTS (SELECT 1 FROM marketing_portfolio_promotions mpp WHERE mpp.portfolio_id=p.portfolio_id::text)`
     );
     pendingPortfolio = Number(portfolio.rows[0]?.count || 0);
   } catch (error) {
