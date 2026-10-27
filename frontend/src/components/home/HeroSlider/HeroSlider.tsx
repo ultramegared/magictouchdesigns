@@ -10,6 +10,7 @@ type Slide = {
     id: string;
     image: string;
     background?: string;
+    foreground?: string;
     order: number;
     active: boolean;
     title: Text;
@@ -95,7 +96,7 @@ function HeroSlider() {
 
     return (
         <section className="hero-slider" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
-            <div key={slide.id} className="hero-slider__scene" aria-live="polite">
+            <div key={slide.id} className="hero-slider__scene" aria-live="polite" style={slide.background ? { backgroundImage: `url(${slide.background})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
                 <div className="hero-slider__content">
                     <div className="hero-slider__text">
                         <span className="hero-slider__eyebrow" aria-hidden="true" />
@@ -108,6 +109,7 @@ function HeroSlider() {
                     </div>
                     <div className="hero-slider__media">
                         <img className="hero-slider__image" src={slide.image} alt="" />
+                        {slide.foreground ? <img className="hero-slider__foreground" src={slide.foreground} alt="" /> : null}
                     </div>
                 </div>
             </div>
