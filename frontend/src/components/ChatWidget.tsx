@@ -24,6 +24,34 @@ const QUICK_REPLIES = [
     { label: "Turnaround time", question: "How long does my order take?" },
 ];
 
+// Idle-timeout: after 5 minutes with no user reply, the bot gently checks in;
+// if there is still no reply 3 minutes after the check-in, it says a warm
+// farewell and collapses the panel (chat history is never deleted).
+const IDLE_CHECK_MS = 5 * 60 * 1000;
+const FAREWELL_AFTER_CHECK_MS = 3 * 60 * 1000;
+const FAREWELL_CLOSE_MS = 4000;
+const IDLE_TICK_MS = 15 * 1000;
+const TYPING_QUIET_MS = 3000;
+
+const IDLE_CHECK_IN: Record<"es" | "en", string> = {
+    es: "¿Sigues por aquí? 😊 Con gusto te sigo ayudando con tu consulta. ¿Seguimos o damos por finalizado el chat por ahora?",
+    en: "Still here? 😊 I'm happy to keep helping with your question. Shall we keep going, or close the chat for now?",
+};
+
+const IDLE_FAREWELL: Record<"es" | "en", string> = {
+    es: "¡Gracias por visitarnos! Fue un gusto atenderte. Cuando quieras, aquí estamos para ayudarte con tu taza personalizada. ¡Que tengas un lindo día! ☕",
+    en: "Thanks for visiting! It was a pleasure helping you. Whenever you like, we're here to help with your personalized mug. Have a lovely day! ☕",
+};
+
+// Small heuristic for language-matching the idle messages: Spanish markers
+// (inverted punctuation, accents, ñ) or common Spanish words. Defaults to English.
+function detectSpanish(text: string): boolean {
+    if (/[¿¡áéíóúñü]/i.test(text)) return true;
+    return /\b(hola|gracias|quiero|quieres|cuesta|cuestan|precio|precios|taza|tazas|pedido|pedidos|env[ií]o|cu[aá]nto|cu[aá]l|c[oó]mo|d[oó]nde|cu[aá]ndo|personalizada|personalizado|personalizar|ayuda|comprar|hacer|qué)\b/i.test(
+        text,
+    );
+}
+
 // Renders plain-text replies with bare URLs turned into clickable links.
 function renderMessageText(text: string) {
     const parts = text.split(/(https?:\/\/[^\s)]+)/g);
@@ -53,10 +81,86 @@ function ChatWidget() {
     const [loading, setLoading] = useState(false);
     const messagesRef = useRef<HTMLDivElement>(null);
 
+    // Idle-timeout bookkeeping (refs so the interval tick never reads stale state).
+    const lastUserActivityRef = useRef<number | null>(null);
+    const lastTypingRef = useRef<number>(0);
+    const langRef = useRef<"es" | "en">("en");
+    const hasUserMessageRef = useRef(false);
+    const idleCheckedInRef = useRef(false);
+    const checkInAtRef = useRef<number | null>(null);
+    const farewellSentRef = useRef(false);
+    const loadingRef = useRef(false);
+
+    useEffect(() => {
+        loadingRef.current = loading;
+    }, [loading]);
+
+    // Any user activity (send or typing) restarts the idle clock and cancels
+    // a pending check-in/farewell cycle.
+    const noteUserActivity = () => {
+        lastUserActivityRef.current = Date.now();
+        lastTypingRef.current = Date.now();
+        idleCheckedInRef.current = false;
+        checkInAtRef.current = null;
+        farewellSentRef.current = false;
+    };
+
     useEffect(() => {
         const el = messagesRef.current;
         if (el) el.scrollTop = el.scrollHeight;
     }, [messages, loading, open]);
+
+    // Reopening the panel counts as activity: restart the idle clock so the
+    // bot never greets a returning visitor with an instant check-in.
+    useEffect(() => {
+        if (open) {
+            lastUserActivityRef.current = Date.now();
+            idleCheckedInRef.current = false;
+            checkInAtRef.current = null;
+            farewellSentRef.current = false;
+        }
+    }, [open ]);
+
+    // Idle tick: only while the panel is open and the visitor has written at
+    // least once. Never fires while a bot reply is pending or the visitor is
+    // typing, and never deletes history — closing only collapses the panel.
+    useEffect(() => {
+        if (!open) return;
+        const tick = () => {
+            if (!hasUserMessageRef.current || farewellSentRef.current) return;
+            if (loadingRef.current) return;
+            if (Date.now() - lastTypingRef.current < TYPING_QUIET_MS) return;
+            const last = lastUserActivityRef.current;
+            if (last === null) return;
+            const now = Date.now();
+            if (!idleCheckedInRef.current) {
+                if (now - last >= IDLE_CHECK_MS) {
+                    setMessages((prev) => [...prev, { role: "assistant", text: IDLE_CHECK_IN[langRef.current] }]);
+                    idleCheckedInRef.current = true;
+                    checkInAtRef.current = now;
+                }
+            } else if (
+                checkInAtRef.current !== null &&
+                now - checkInAtRef.current >= FAREWELL_AFTER_CHECK_MS
+            ) {
+                const farewellAt = now;
+                farewellSentRef.current = true;
+                setMessages((prev) => [...prev, { role: "assistant", text: IDLE_FAREWELL[langRef.current] }]);
+                window.setTimeout(() => {
+                    // If the visitor came back and typed meanwhile, stay open.
+                    if (
+                        lastUserActivityRef.current !== null &&
+                        lastUserActivityRef.current > farewellAt
+                    ) {
+                        return;
+                    }
+                    setOpen(false);
+                }, FAREWELL_CLOSE_MS);
+            }
+        };
+        const id = window.setInterval(tick, IDLE_TICK_MS);
+        return () => window.clearInterval(id);
+    }, [open ]);
 
     // The assistant serves storefront visitors only, never the admin panel.
     if (pathname === "/admin-login" || pathname.startsWith("/admin")) return null;
@@ -64,6 +168,9 @@ function ChatWidget() {
     const sendMessage = async (rawText: string) => {
         const text = rawText.trim();
         if (!text || loading) return;
+        langRef.current = detectSpanish(text) ? "es" : "en";
+        hasUserMessageRef.current = true;
+        noteUserActivity();
         setMessages((prev) => [...prev, { role: "user", text }]);
         setInput("");
         setLoading(true);
@@ -142,7 +249,10 @@ function ChatWidget() {
                             placeholder="Ask about mugs, prices, shipping…"
                             aria-label="Type your message"
                             disabled={loading}
-                            onChange={(event) => setInput(event.target.value)}
+                            onChange={(event) => {
+                                setInput(event.target.value);
+                                noteUserActivity();
+                            }}
                         />
                         <button type="submit" disabled={loading || !input.trim()} aria-label="Send message">
                             ➤
