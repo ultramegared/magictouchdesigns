@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { X } from "lucide-react";
 import Header from "../layout/Header";
 import Footer from "../home/Footer";
@@ -102,6 +102,7 @@ function swatchColor(label: string) {
 function UnifiedCollectionPage({ slug }: { slug: string }) {
     const { language } = useLanguage();
     const config = COLLECTIONS[slug] || COLLECTIONS["love-romance"];
+    const [searchParams] = useSearchParams();
     const [products, setProducts] = useState<CollectionProduct[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<CollectionProduct | null>(null);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -143,6 +144,24 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
         void load();
         return () => { cancelled = true; };
     }, [slug]);
+
+    /*
+     * Deep link to a product: when the collection page is opened
+     * with ?product=<slug> (for example from a New Arrivals card
+     * on Home), open that product's detail view directly once
+     * the collection products have loaded.
+     */
+    useEffect(() => {
+        const slugParam = searchParams.get("product");
+        if (!slugParam || products.length === 0) {
+            return;
+        }
+        const match = products.find((product) => product.slug === slugParam);
+        if (match) {
+            setSelectedProduct(match);
+            setSelectedImageIndex(0);
+        }
+    }, [products, searchParams]);
 
     const orderedProducts = useMemo(() => [...products].sort((a, b) => {
         const aOrder = Number(a.collection_sort_order ?? 999999);

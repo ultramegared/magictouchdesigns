@@ -61,6 +61,13 @@ interface PublicProductsResponse {
 }
 
 
+interface CollectionProductsResponse {
+
+    products: PublicProduct[];
+
+}
+
+
 /* ================================================================
    CONSTANTS
 ================================================================ */
@@ -68,6 +75,18 @@ interface PublicProductsResponse {
 const MAX_PRODUCTS = 8;
 
 const NEW_BADGE_DAYS = 30;
+
+/*
+ * The store's four categories. New products are uploaded into
+ * one of these collections, so each New Arrivals card links to
+ * the collection where its product lives.
+ */
+const COLLECTION_SLUGS = [
+    "love-romance",
+    "family-memories",
+    "business-branding",
+    "special-occasions",
+];
 
 
 /* ================================================================
@@ -117,6 +136,26 @@ const isNewProduct = (
 };
 
 
+const getProductLink = (
+    product: PublicProduct,
+    collectionByProduct: Record<string, string>
+): string => {
+
+    const collectionSlug = collectionByProduct[product.product_id];
+
+    if (collectionSlug && product.slug) {
+        return `/collections/${collectionSlug}?product=${product.slug}`;
+    }
+
+    if (collectionSlug) {
+        return `/collections/${collectionSlug}`;
+    }
+
+    return "/collections";
+
+};
+
+
 /* ================================================================
    COMPONENT
 ================================================================ */
@@ -124,6 +163,8 @@ const isNewProduct = (
 function NewArrivals() {
 
     const [products, setProducts] = useState<PublicProduct[]>([]);
+
+    const [collectionByProduct, setCollectionByProduct] = useState<Record<string, string>>({});
 
     const [hasLoaded, setHasLoaded] = useState(false);
 
@@ -136,10 +177,36 @@ function NewArrivals() {
 
             try {
 
-                const result =
-                    await apiRequest<PublicProductsResponse>(
+                const [result, collectionResults] = await Promise.all([
+                    apiRequest<PublicProductsResponse>(
                         "/api/products/public"
-                    );
+                    ),
+                    Promise.allSettled(
+                        COLLECTION_SLUGS.map((slug) =>
+                            apiRequest<CollectionProductsResponse>(
+                                `/api/collections/${slug}/products`
+                            )
+                        )
+                    ),
+                ]);
+
+                const nextCollectionByProduct: Record<string, string> = {};
+
+                collectionResults.forEach((collectionResult, index) => {
+
+                    if (collectionResult.status !== "fulfilled") {
+                        return;
+                    }
+
+                    const collectionSlug = COLLECTION_SLUGS[index];
+
+                    (collectionResult.value.products || []).forEach((product) => {
+                        if (!(product.product_id in nextCollectionByProduct)) {
+                            nextCollectionByProduct[product.product_id] = collectionSlug;
+                        }
+                    });
+
+                });
 
                 const activeProducts = (result.products || [])
                     .filter((product) => product.is_active !== false)
@@ -149,6 +216,7 @@ function NewArrivals() {
 
                 if (!cancelled) {
                     setProducts(activeProducts);
+                    setCollectionByProduct(nextCollectionByProduct);
                 }
 
             } catch (error) {
@@ -200,11 +268,7 @@ function NewArrivals() {
 
                     <Link
                         key={product.product_id}
-                        to={
-                            product.slug
-                                ? `/products?product=${product.slug}`
-                                : "/products"
-                        }
+                        to={getProductLink(product, collectionByProduct)}
                         className="new-arrivals__card"
                     >
 
@@ -237,7 +301,7 @@ function NewArrivals() {
             <div className="new-arrivals__footer">
 
                 <Link
-                    to="/products"
+                    to="/collections"
                     className="new-arrivals__view-all"
                 >
                     View all
