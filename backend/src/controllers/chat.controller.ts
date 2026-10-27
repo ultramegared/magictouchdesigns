@@ -1,13 +1,20 @@
 import type { Request, Response } from "express";
 import { getChatReply } from "../services/chat.service";
+import { isSpanishMessage } from "../services/chat-tracking.service";
 
 // Shown when the AI reply cannot be generated, so the widget always stays
 // helpful instead of erroring. It never claims an order was placed.
-const FALLBACK_REPLY =
+// Language-matched to the visitor, like every other chat reply.
+const FALLBACK_REPLY_EN =
     "Thanks for reaching out! I can't pull up the details right now, but you " +
     "can start your order on our website (https://www.jqydesigns.com) or " +
     "message us on WhatsApp at 346-760-3007 (https://wa.me/13467603007) " +
     "and we'll be happy to help.";
+const FALLBACK_REPLY_ES =
+    "¡Gracias por escribir! No puedo ver los detalles ahora mismo, pero puedes " +
+    "empezar tu pedido en nuestra web (https://www.jqydesigns.com) o " +
+    "escribirnos por WhatsApp al 346-760-3007 (https://wa.me/13467603007) " +
+    "y con gusto te ayudamos.";
 
 export const postChatMessage = async (req: Request, res: Response) => {
     const message = typeof req.body?.message === "string" ? req.body.message.trim() : "";
@@ -24,6 +31,9 @@ export const postChatMessage = async (req: Request, res: Response) => {
         res.json({ status: "success", reply });
     } catch (error) {
         console.error("[chat] Failed to generate reply", error);
-        res.json({ status: "success", reply: FALLBACK_REPLY });
+        res.json({
+            status: "success",
+            reply: isSpanishMessage(message) ? FALLBACK_REPLY_ES : FALLBACK_REPLY_EN,
+        });
     }
 };
