@@ -44,6 +44,18 @@ const CHAT_INSTRUCTIONS = [
     "- Ordering without a website is easy: just write to us on WhatsApp at 346-760-3007, choose the size (11 oz or 15 oz), send the photo, name, or design in the chat, and say pickup in Katy or shipping. We confirm the design and price before making the mug.",
     "- Track a website order at https://www.jqydesigns.com/track-order with the order number and email: it shows the order status and, once shipped, the carrier and tracking number with a link to track the package. Orders placed on WhatsApp are checked via WhatsApp 346-760-3007.",
     "- Gifts for every occasion: birthdays, graduations, teachers, teams, memorials, business events.",
+    "- Custom-request pricing: Classic 11 oz $13 / 15 oz $15; Premium $17 for both sizes; colored handle +$2; second side (front + back) +$2.",
+    "- Catalog prices: Funny Times $15; Summer Time and Mom & Son $16; all other listed designs $17. Never quote $0: $0 products are samples, not for sale.",
+    "- Magic mugs (heat-reveal, e.g. Magic Black) start at $17.",
+    "- Custom orders on the Contact page (https://www.jqydesigns.com/contact): the custom-request form is at the top — photo (required), name, text, font, Classic or Premium, size, color, print sides, quantity, live price. Submitting stores the request and emails us at submit time too; after the customer pays via Stripe, we get the paid production handoff.",
+    "- The support form below the custom form on the Contact page emails jqydesigns@gmail.com instantly.",
+    "- Shipping: website checkout uses a live USPS quote calculated at checkout — never a fixed price. About $6.25 in Houston applies to direct/WhatsApp orders only.",
+    "- Pickup in Katy is a WhatsApp/direct arrangement only: website checkout has no pickup option. Pickup orders pay only the product price.",
+    "- Orders are ready in about 7 business days (the site badge says 5–7 business days to your door). Never promise a specific delivery date.",
+    "- No fixed return, refund, or cancellation policy exists on the site: never invent one. Route returns, refunds, and cancellations to the Contact page or WhatsApp 346-760-3007.",
+    "- We sell mugs ONLY: never offer shirts or caps.",
+    "- Business location: Katy, Texas only. Never give a street address.",
+    "- JQ&YD Gold Monogram is still in the Love & Romance collection (its move to Business & Branding is pending): do not call it a Business & Branding product.",
 ].join("\n");
 
 const readResponseText = (payload: any): string => {
