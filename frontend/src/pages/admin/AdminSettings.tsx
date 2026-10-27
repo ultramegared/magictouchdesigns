@@ -17,7 +17,7 @@ type SectionKey="theme"|"branding"|"email"|"hero"|"header"|"footer"|"social"|"de
 type SettingsSectionContextValue={open:Record<SectionKey,boolean>;status:Partial<Record<SectionKey,string>>;saving:SectionKey|null;toggle:(key:SectionKey)=>void;saveSection:(key:SectionKey)=>void};
 const SettingsSectionContext=createContext<SettingsSectionContextValue|null>(null);
 const emptyText=():LocalizedText=>({en:"",es:""});
-const emptyHero=(order:number):HeroSlide=>({id:`hero-${Date.now()}`,image:"",background:"/images/hero/hero-background.jpg",order,active:true,title:emptyText(),subtitle:emptyText(),primaryButton:emptyText(),primaryLink:"/customize",secondaryButton:emptyText(),secondaryLink:"/products"});
+const emptyHero=(order:number):HeroSlide=>({id:`hero-${Date.now()}`,image:"",background:"/images/hero/hero-background.jpg",order,active:true,title:emptyText(),subtitle:emptyText(),primaryButton:emptyText(),primaryLink:"/customize",secondaryButton:emptyText(),secondaryLink:"/collections"});
 const emptyLink=(order:number):NavLink=>({id:`link-${Date.now()}`,label:emptyText(),path:"/",active:true,order});
 const emptyPage=():PageConfig=>({id:`page-${Date.now()}`,title:emptyText(),slug:"new-page",body:emptyText(),active:true});
 const syncPublicConfig=(config:SiteConfig)=>{try{localStorage.setItem("mtd_site_config",JSON.stringify(config));window.dispatchEvent(new Event("mtd-site-config-updated"));}catch{}};
