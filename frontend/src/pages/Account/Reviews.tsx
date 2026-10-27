@@ -256,6 +256,17 @@ const Reviews = () => {
                                                 </div>
 
 
+                                                {review.image_url && (
+
+                                                    <img
+                                                        src={review.image_url}
+                                                        alt=""
+                                                        className="review-card-image"
+                                                    />
+
+                                                )}
+
+
                                                 <p className="review-card-text">
 
                                                     {review.review}
