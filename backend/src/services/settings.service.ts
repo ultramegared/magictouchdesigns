@@ -143,10 +143,10 @@ const DEFAULT_CONFIG: SiteConfig = {
         ]},
     ],
     socialLinks: [
-        {id:"social-instagram",name:"Instagram",url:"https://www.instagram.com/magic.touch_designs",active:true,order:1},
-        {id:"social-facebook",name:"Facebook",url:"https://www.facebook.com/share/1ciBB3BuE3/?mibextid=wwXIfr",active:true,order:2},
+        {id:"social-instagram",name:"Instagram",url:"https://www.instagram.com/jqydesigns",active:true,order:1},
+        {id:"social-facebook",name:"Facebook",url:"https://www.facebook.com/jqydesigns",active:true,order:2},
         {id:"social-tiktok",name:"TikTok",url:"#",active:true,order:3},
-        {id:"social-youtube",name:"YouTube",url:"https://youtube.com/@magictouchdesigns-u7t",active:true,order:4},
+        {id:"social-youtube",name:"YouTube",url:"https://www.youtube.com/@jqydesigns",active:true,order:4},
     ],
     pages: [],
     emailTemplates: {
@@ -311,7 +311,11 @@ export const updateSettings = async (data: any) => {
         JSON.stringify(incomingConfig.headerLinks) !== JSON.stringify(current.config.headerLinks) ||
         JSON.stringify(incomingConfig.footerSections) !== JSON.stringify(current.config.footerSections) ||
         JSON.stringify(incomingConfig.benefits) !== JSON.stringify(current.config.benefits) ||
-        JSON.stringify(incomingConfig.pages) !== JSON.stringify(current.config.pages);
+        JSON.stringify(incomingConfig.pages) !== JSON.stringify(current.config.pages) ||
+        JSON.stringify(incomingConfig.socialLinks) !== JSON.stringify(current.config.socialLinks) ||
+        incomingConfig.businessPhone !== current.config.businessPhone ||
+        incomingConfig.businessAddress !== current.config.businessAddress ||
+        JSON.stringify(incomingConfig.emailTemplates) !== JSON.stringify(current.config.emailTemplates);
 
     // Images/logos are not translatable. A logo-only/settings-only save must never depend on the translator.
     const config = (textConfigChanged || themeChanged)
