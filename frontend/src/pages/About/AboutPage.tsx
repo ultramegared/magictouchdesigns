@@ -266,38 +266,6 @@ function AboutPage() {
                             <article className="about-page__service-card">
 
                                 <div className="about-page__service-icon">
-                                    👕
-                                </div>
-
-                                <h3>
-                                    {t.about.services.shirts.title}
-                                </h3>
-
-                                <p>
-                                    {t.about.services.shirts.description}
-                                </p>
-
-                            </article>
-
-                            <article className="about-page__service-card">
-
-                                <div className="about-page__service-icon">
-                                    🧢
-                                </div>
-
-                                <h3>
-                                    {t.about.services.caps.title}
-                                </h3>
-
-                                <p>
-                                    {t.about.services.caps.description}
-                                </p>
-
-                            </article>
-
-                            <article className="about-page__service-card">
-
-                                <div className="about-page__service-icon">
                                     ✦
                                 </div>
 
