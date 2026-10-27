@@ -10,18 +10,120 @@
  * ================================================================
  */
 
+import { useEffect, useMemo, useState } from "react";
 import "./CollectionsPage.css";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { translations } from "../../translations";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 
 function CollectionsPage() {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const t = translations[language].collections;
+
+  /*
+   * Search mode: when the page is opened with ?search=<query>
+   * (for example from the header search box), fetch every
+   * collection's products and filter them by name and
+   * description instead of showing the collections landing view.
+   * The landing view below is untouched when no ?search is present.
+   */
+  const [searchParams] = useSearchParams();
+  const searchQuery = (searchParams.get("search") ?? "").trim();
+  const searching = searchQuery.length > 0;
+
+  type SearchProduct = {
+    product_id: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    price: number | string;
+    image_url?: string | null;
+    image_urls?: string[];
+    is_active: boolean;
+    collectionSlug: string;
+  };
+
+  const SEARCH_COLLECTIONS = [
+    { slug: "love-romance", name: language === "es" ? "Amor y Romance" : "Love & Romance" },
+    { slug: "family-memories", name: language === "es" ? "Familia y Recuerdos" : "Family & Memories" },
+    { slug: "business-branding", name: language === "es" ? "Negocios y Marca" : "Business & Branding" },
+    { slug: "special-occasions", name: language === "es" ? "Ocasiones Especiales" : "Special Occasions" },
+  ] as const;
+
+  const [searchProducts, setSearchProducts] = useState<SearchProduct[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(false);
+
+  useEffect(() => {
+    if (!searching) {
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      setSearchLoading(true);
+      setSearchError(false);
+      try {
+        const responses = await Promise.all(
+          SEARCH_COLLECTIONS.map((collection) =>
+            fetch(`https://api.jqydesigns.com/api/collections/${collection.slug}/products`, {
+              method: "GET",
+              headers: { Accept: "application/json" },
+              cache: "no-store",
+              credentials: "omit",
+            })
+          )
+        );
+        const parsed = await Promise.all(
+          responses.map(async (response) => {
+            if (!response.ok) {
+              throw new Error(`Collection products request failed (${response.status})`);
+            }
+            return (await response.json()) as { products?: Omit<SearchProduct, "collectionSlug">[] };
+          })
+        );
+        if (cancelled) {
+          return;
+        }
+        const seen = new Set<string>();
+        const merged: SearchProduct[] = [];
+        parsed.forEach((data, index) => {
+          (data.products || []).forEach((product) => {
+            if (!product.is_active || seen.has(product.product_id)) {
+              return;
+            }
+            seen.add(product.product_id);
+            merged.push({ ...product, collectionSlug: SEARCH_COLLECTIONS[index].slug });
+          });
+        });
+        setSearchProducts(merged);
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) setSearchError(true);
+      } finally {
+        if (!cancelled) setSearchLoading(false);
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [searching, searchQuery]);
+
+  const searchResults = useMemo(() => {
+    if (!searching) {
+      return [];
+    }
+    const needle = searchQuery.toLowerCase();
+    return searchProducts.filter((product) =>
+      product.name.toLowerCase().includes(needle) ||
+      (product.description ?? "").toLowerCase().includes(needle)
+    );
+  }, [searching, searchQuery, searchProducts]);
+
+  const searchCollectionName = (slug: string) =>
+    SEARCH_COLLECTIONS.find((collection) => collection.slug === slug)?.name ?? slug;
 
      const collections = [
     {
@@ -187,6 +289,91 @@ function CollectionsPage() {
             ),
         },
     ];
+
+    if (searching) {
+        return (
+            <>
+                <Header />
+
+                <main className="collections-page">
+
+                    <section className="search-results">
+
+                        <h1 className="search-results__title">
+                            {language === "es" ? "Resultados para" : "Results for"} “{searchQuery}”
+                        </h1>
+
+                        {searchLoading && (
+                            <p className="search-results__status">
+                                {language === "es" ? "Buscando productos..." : "Searching products..."}
+                            </p>
+                        )}
+
+                        {!searchLoading && searchError && (
+                            <p className="search-results__status">
+                                {language === "es" ? "No pudimos buscar en este momento. Inténtalo de nuevo." : "We could not search right now. Please try again."}
+                            </p>
+                        )}
+
+                        {!searchLoading && !searchError && (
+                            <>
+                                <p className="search-results__count">
+                                    {searchResults.length === 1
+                                        ? (language === "es" ? "1 producto encontrado" : "1 product found")
+                                        : (language === "es" ? `${searchResults.length} productos encontrados` : `${searchResults.length} products found`)}
+                                </p>
+
+                                {searchResults.length === 0 ? (
+                                    <div className="search-results__empty">
+                                        <p>
+                                            {language === "es" ? "No encontramos productos para tu búsqueda." : "No products matched your search."}
+                                        </p>
+                                        <button type="button" className="search-results__clear" onClick={() => navigate("/collections")}>
+                                            {language === "es" ? "Ver todas las colecciones" : "Browse all collections"}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="search-results__grid">
+                                        {searchResults.map((product) => {
+                                            const image = product.image_url || product.image_urls?.[0] || "";
+                                            return (
+                                                <article className="search-result-card" key={product.product_id}>
+                                                    {image && (
+                                                        <div className="search-result-card__visual">
+                                                            <img src={image} alt={product.name} loading="lazy" />
+                                                        </div>
+                                                    )}
+                                                    <div className="search-result-card__body">
+                                                        <span className="search-result-card__collection">
+                                                            {searchCollectionName(product.collectionSlug)}
+                                                        </span>
+                                                        <h3>{product.name}</h3>
+                                                        {Number.isFinite(Number(product.price)) && (
+                                                            <strong>${Number(product.price).toFixed(2)}</strong>
+                                                        )}
+                                                        <Link
+                                                            className="search-result-card__button"
+                                                            to={`/collections/${product.collectionSlug}?product=${product.slug}`}
+                                                        >
+                                                            {language === "es" ? "Ver producto" : "View product"}
+                                                        </Link>
+                                                    </div>
+                                                </article>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                    </section>
+
+                </main>
+
+                <Footer />
+            </>
+        );
+    }
 
     return (
         <>
