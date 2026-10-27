@@ -42,10 +42,10 @@ const DEFAULTS: Record<string, {name:string;category:EmailTemplateCategory;descr
     password_changed:{name:"Password Changed",category:"ACCOUNT",description:"Confirmation after a successful password change.",content:C("Your {{siteName}} password was changed","Password changed successfully","Hi {{customerName}}, your password was changed successfully. If you did not make this change, contact us immediately.","Open My Account","{{accountUrl}}")},
     custom_mug_request:{name:"Custom Mug Request",category:"CUSTOM_MUG",description:"Customer confirmation after submitting a custom mug request.",content:C("Your custom mug request {{requestCode}}","Your custom mug request has been received.","Hi {{customerName}}, we received your design request.\\n\\nRequest: {{requestCode}}\\nMug: {{mugModel}} · {{mugSize}}\\nColor: {{mugColor}}\\nDesign views: {{printSides}}\\nQuantity: {{quantity}}\\nMerchandise subtotal: {{subtotal}}\\n\\n{{shippingText}}","Continue to Secure Checkout","{{paymentUrl}}")},
     custom_mug_paid:{name:"Custom Mug Paid",category:"CUSTOM_MUG",description:"Internal production notification after a custom mug is paid.",content:C("Custom mug paid — {{orderCode}}","Custom mug order ready for production","Customer: {{customerName}}\\nEmail: {{customerEmail}}\\nOrder: {{orderCode}}\\nRequest: {{requestCode}}\\nTotal: {{orderTotal}}\\nPayment: {{paymentProvider}}\\n\\n{{orderItems}}","View Order","{{orderUrl}}")},
-    custom_mug_received:{name:"Custom Mug Request Received",category:"CUSTOM_MUG",description:"Internal notification when a customer submits a custom mug request, before payment.",content:C("NEW CUSTOM REQUEST (awaiting payment) — {{requestCode}}","New custom request — awaiting payment","A customer just submitted a custom mug request. This request is AWAITING PAYMENT — do not start production yet. A separate paid production handoff will arrive after the customer pays.\\n\\nRequest: {{requestCode}}\\nCustomer: {{customerName}}\\nEmail: {{customerEmail}}\\nMug text: {{mugText}}\\nFont: {{fontName}}\\nModel: {{mugModel}}\\nSize: {{mugSize}}\\nColor: {{mugColor}}\\nDesign views: {{printSides}}\\nQuantity: {{quantity}}\\nUnit price: {{unitPrice}}\\nEstimated subtotal: {{subtotal}}\\nNotes: {{notes}}\\n\\nThe customer's artwork is attached to this email.","Reply to Customer","mailto:{{customerEmail}}")},
+    custom_mug_received:{name:"Custom Mug Request Received",category:"CUSTOM_MUG",description:"Internal notification when a customer submits a custom mug request, before payment.",content:C("NEW CUSTOM REQUEST (awaiting payment) — {{requestCode}}","New custom request — awaiting payment","A customer just submitted a custom mug request. This request is AWAITING PAYMENT — do not start production yet. A separate paid production handoff will arrive after the customer pays.\n\nRequest: {{requestCode}}\nCustomer: {{customerName}}\nEmail: {{customerEmail}}\nMug text: {{mugText}}\nFont: {{fontName}}\nModel: {{mugModel}}\nSize: {{mugSize}}\nColor: {{mugColor}}\nDesign views: {{printSides}}\nQuantity: {{quantity}}\nUnit price: {{unitPrice}}\nEstimated subtotal: {{subtotal}}\nNotes: {{notes}}\n\nThe customer's artwork is attached to this email.","Reply to Customer","mailto:{{customerEmail}}")},
     seller_order_paid:{name:"Seller Order Paid",category:"ORDER",description:"Internal production handoff for every paid order, including product variants and customer artwork.",content:C("NEW PAID ORDER — {{orderCode}}","New paid order — prepare for production","Order: {{orderCode}}\\nDate: {{orderDate}}\\nPayment status: {{paymentStatus}}\\nPayment provider: {{paymentProvider}}\\nPayment method: {{paymentMethod}}\\n\\nCUSTOMER\\nName: {{customerName}}\\nEmail: {{customerEmail}}\\nPhone: {{customerPhone}}\\nShipping address: {{shippingAddress}}\\n\\nITEMS AND CUSTOMIZATION\\n{{orderItems}}\\n\\nPRODUCT PHOTOS\\n{{productImagesHtml}}\\n\\nSubtotal: {{subtotal}}\\nShipping: {{shipping}}\\nTax: {{tax}}\\nTOTAL PAID: {{orderTotal}}\\n\\nCustom request: {{requestCode}}\\nUploaded artwork is attached to this email when provided.","Open Order in Admin","{{orderUrl}}")},
     order_received:{name:"Order Received",category:"ORDER",description:"Order acknowledgement before final payment confirmation.",content:C("We received your order {{orderCode}}","We received your order","Hi {{customerName}}, we received your order {{orderCode}}. Your order will be confirmed after payment is successfully completed.","View Order","{{orderUrl}}")},
-    order_confirmed:{name:"Order Confirmed",category:"ORDER",description:"Customer confirmation after successful payment.",content:C("Order confirmed {{orderCode}} — {{siteName}}","Thank you for your order","Hi {{customerName}}, your payment was received and order {{orderCode}} is confirmed.\\n\\n{{orderItems}}\\n\\nSubtotal: {{subtotal}}\\nShipping: {{shipping}}\\nTax: {{tax}}\\nTotal: {{orderTotal}}\\n\\nShipping address:\\n{{shippingAddress}}","Track My Order","{{orderUrl}}")},
+    order_confirmed:{name:"Order Confirmed",category:"ORDER",description:"Customer confirmation after successful payment.",content:C("Order confirmed {{orderCode}} — {{siteName}}","Thank you for your order","Hi {{customerName}}, your payment was received and order {{orderCode}} is confirmed.\n\n{{orderItems}}\n\nSubtotal: {{subtotal}}\nShipping: {{shipping}}\nTax: {{tax}}\nTotal: {{orderTotal}}\n\nShipping address:\n{{shippingAddress}}","Track My Order","{{orderUrl}}")},
     order_updated:{name:"Order Updated",category:"ORDER",description:"Customer notification when an order changes.",content:C("Order {{orderCode}} was updated","Your order was updated","Hi {{customerName}}, your order {{orderCode}} has been updated.\\n\\n{{updateMessage}}","View Order","{{orderUrl}}")},
     order_cancelled:{name:"Order Cancelled",category:"ORDER",description:"Customer notification when an order is cancelled.",content:C("Order {{orderCode}} cancelled","Your order was cancelled","Hi {{customerName}}, order {{orderCode}} has been cancelled.\\n\\n{{updateMessage}}","Contact Support","{{contactUrl}}")},
     payment_confirmed:{name:"Payment Confirmed",category:"PAYMENT",description:"Payment confirmation template.",content:C("Payment confirmed for {{orderCode}}","Payment confirmed","Hi {{customerName}}, your payment of {{orderTotal}} for {{orderCode}} was successfully received.","View Order","{{orderUrl}}")},
@@ -59,7 +59,7 @@ const DEFAULTS: Record<string, {name:string;category:EmailTemplateCategory;descr
 
 const escapeHtml = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c] || c));
 const replaceVariables = (value: string, vars: Record<string, unknown>): string => value.replace(/{{\s*([a-zA-Z0-9_]+)\s*}}/g, (_m, key: string) => String(vars[key] ?? ""));
-const textToHtml = (value: string): string => value.split(/\n\s*\n/).map(p => "<p style=\"margin:0 0 16px;line-height:1.7\">" + escapeHtml(p).replace(/\n/g,"<br />") + "</p>").join("");
+const textToHtml = (value: string): string => value.replace(/\\n/g, "\n").split(/\n\s*\n/).map(p => "<p style=\"margin:0 0 16px;line-height:1.7\">" + escapeHtml(p).replace(/\n/g,"<br />") + "</p>").join("");
 
 const legacyCustomMug = (legacy: any): EmailTemplateContent => ({
     subject:String(legacy?.subject || DEFAULTS.custom_mug_request.content.subject),
@@ -155,14 +155,19 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
     const color = isRefund ? "#d92f50" : (/^#[0-9a-fA-F]{6}$/.test(resolved.primaryColor) ? resolved.primaryColor : "#1F67B1");
     const siteName = isRefund ? "Magic Touch Designs" : (settings.websiteName || "JQYDesigns");
     const isWelcome = template.key === "welcome";
+    const isCustomMugReceived = template.key === "custom_mug_received";
+    const isOrderConfirmed = template.key === "order_confirmed";
+    const isBranded = isCustomMugReceived || isOrderConfirmed;
     if (isRefund) {
         resolved.eyebrow = "REFUND CONFIRMATION";
         resolved.title = "Your refund has been processed";
         resolved.buttonText = "Contact support";
     }
 
+    const buttonColor = isBranded ? "#C62828" : color;
+    const buttonRadius = isBranded ? "999px" : "9px";
     const button = resolved.buttonText && resolved.buttonUrl
-        ? "<p style=\"margin:30px 0 8px\"><a href=\"" + escapeHtml(resolved.buttonUrl) + "\" style=\"display:inline-block;padding:15px 28px;background:" + color + ";color:#fff;text-decoration:none;border-radius:9px;font-weight:700;font-size:15px\">" + escapeHtml(resolved.buttonText) + "</a></p>"
+        ? "<p style=\"margin:30px 0 8px\"><a href=\"" + escapeHtml(resolved.buttonUrl) + "\" style=\"display:inline-block;padding:15px 28px;background:" + buttonColor + ";color:#fff;text-decoration:none;border-radius:" + buttonRadius + ";font-weight:700;font-size:15px\">" + escapeHtml(resolved.buttonText) + "</a></p>"
         : "";
 
     const preheader = escapeHtml(resolved.preheader || resolved.title);
@@ -180,13 +185,44 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
         : "";
 
     const renderedBodyHtml = textToHtml(resolved.body).replace(/__MTD_PRODUCT_IMAGES_HTML__/g, String(vars.productImagesHtmlRaw || "<p>No product image is available for this order.</p>"));
-    const renderedTextBody = resolved.body.replace(/__MTD_PRODUCT_IMAGES_HTML__/g, "Product photos are displayed in the HTML version of this email.");
+    const renderedTextBody = resolved.body.replace(/\\n/g, "\n").replace(/__MTD_PRODUCT_IMAGES_HTML__/g, "Product photos are displayed in the HTML version of this email.");
+
+    // Branded structured bodies (approved JQYDesigns theme): separated labeled
+    // sections built from the template variables. The generic paragraph body
+    // stays as the plain-text fallback and for the admin editor.
+    const sectionRow = (label: string, value: unknown): string => "<tr><td style=\"padding:11px 18px;border-top:1px solid #eef1f4;font-size:14px;color:#748091;vertical-align:top\">" + escapeHtml(label) + "</td><td style=\"padding:11px 18px;border-top:1px solid #eef1f4;font-size:15px;color:#14213a;font-weight:700\">" + escapeHtml(value ?? "—") + "</td></tr>";
+    const sectionTable = (title: string, rows: string): string => "<div style=\"margin:0 0 20px;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden\"><div style=\"padding:13px 18px;background:#f4f6f8;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#14213a\">" + escapeHtml(title) + "</div><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">" + rows + "</table></div>";
+    const multiline = (value: unknown): string => escapeHtml(value ?? "").replace(/\n/g, "<br />");
+    const customMugBodyHtml = "<div style=\"margin:0 0 22px;padding:18px 20px;border-radius:12px;background:#fff8e1;border:1px solid #f0d98a;color:#5d4037;font-size:15px;line-height:1.65\"><strong>⏳ AWAITING PAYMENT — do not start production yet.</strong><br />A separate paid production handoff will arrive after the customer pays.</div>" +
+        "<div style=\"margin:0 0 22px;font-size:15px;color:#14213a\">Request: <strong>" + escapeHtml(vars.requestCode ?? "") + "</strong></div>" +
+        sectionTable("Customer", sectionRow("Name", vars.customerName) + sectionRow("Email", vars.customerEmail)) +
+        sectionTable("Mug details", sectionRow("Mug text", vars.mugText) + sectionRow("Font", vars.fontName) + sectionRow("Model", vars.mugModel) + sectionRow("Size", vars.mugSize) + sectionRow("Color", vars.mugColor) + sectionRow("Design views", vars.printSides) + sectionRow("Quantity", vars.quantity)) +
+        sectionTable("Price", sectionRow("Unit price", vars.unitPrice) + sectionRow("Estimated subtotal", vars.subtotal)) +
+        sectionTable("Notes", sectionRow("Notes", vars.notes)) +
+        "<div style=\"margin:0 0 6px;padding:16px 18px;border-radius:12px;background:#f4f6f8;color:#334155;font-size:14px;line-height:1.65\">📎 The customer's artwork is attached to this email.</div>";
+    const orderConfirmedBodyHtml = "<p style=\"margin:0 0 20px;color:#536174;font-size:16px;line-height:1.7\">Hi " + escapeHtml(vars.customerName ?? "there") + ", your payment was received and your order is confirmed.</p>" +
+        "<div style=\"margin:0 0 22px;font-size:15px;color:#14213a\">Order: <strong>" + escapeHtml(vars.orderCode ?? "") + "</strong></div>" +
+        sectionTable("Your order", "<tr><td colspan=\"2\" style=\"padding:14px 18px;font-size:15px;line-height:1.8;color:#14213a\">" + multiline(vars.orderItems) + "</td></tr>" + sectionRow("Subtotal", vars.subtotal) + sectionRow("Shipping", vars.shipping) + sectionRow("Tax", vars.tax) + "<tr><td style=\"padding:14px 18px;border-top:1px solid #eef1f4;font-size:15px;color:#14213a;font-weight:800\">Total</td><td style=\"padding:14px 18px;border-top:1px solid #eef1f4;font-size:18px;color:#14213a;font-weight:800\">" + escapeHtml(vars.orderTotal ?? "") + "</td></tr>") +
+        sectionTable("Shipping address", "<tr><td style=\"padding:14px 18px;font-size:15px;line-height:1.8;color:#14213a\">" + multiline(vars.shippingAddress) + "</td></tr>") +
+        "<div style=\"margin:0 0 6px;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden\"><div style=\"padding:13px 18px;background:#f4f6f8;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#14213a\">Status</div><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr>" +
+        "<td width=\"20%\" style=\"padding:16px 4px;text-align:center\"><div style=\"font-size:18px;color:#1F67B1\">✓</div><div style=\"font-size:11px;font-weight:800;color:#14213a;margin-top:4px\">Received</div></td>" +
+        "<td width=\"20%\" style=\"padding:16px 4px;text-align:center\"><div style=\"font-size:18px;color:#1F67B1\">✓</div><div style=\"font-size:11px;font-weight:800;color:#14213a;margin-top:4px\">Paid</div></td>" +
+        "<td width=\"20%\" style=\"padding:16px 4px;text-align:center\"><div style=\"font-size:18px;color:#b8c0cc\">○</div><div style=\"font-size:11px;color:#748091;margin-top:4px\">Processing</div></td>" +
+        "<td width=\"20%\" style=\"padding:16px 4px;text-align:center\"><div style=\"font-size:18px;color:#b8c0cc\">○</div><div style=\"font-size:11px;color:#748091;margin-top:4px\">Shipped</div></td>" +
+        "<td width=\"20%\" style=\"padding:16px 4px;text-align:center\"><div style=\"font-size:18px;color:#b8c0cc\">○</div><div style=\"font-size:11px;color:#748091;margin-top:4px\">Delivered</div></td>" +
+        "</tr></table></div>";
     const html = "<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\" /></head><body style=\"margin:0;background:#eef2f6;font-family:Arial,Helvetica,sans-serif;color:#172033\">" +
         "<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;color:transparent\">" + preheader + "</div>" +
         "<div style=\"padding:28px 12px;background:#eef2f6\"><div style=\"max-width:680px;margin:auto\">" +
         "<div style=\"height:8px;background:linear-gradient(110deg,#fff1c6,#b77b20,#17130f,#f7d982);border-radius:14px 14px 0 0\"></div>" +
         "<div style=\"background:#fff;border:1px solid #dfe5ec;border-radius:0 0 18px 18px;overflow:hidden\">" +
-        (isWelcome
+        (isBranded
+            ? "<div style=\"padding:36px 24px 30px;text-align:center;background:linear-gradient(135deg,#174A8B,#0f3566)\">" +
+              "<div style=\"font-family:Georgia,'Times New Roman',serif;font-size:46px;font-weight:700;color:#e8c56b;letter-spacing:1px;line-height:1\">JQ&amp;YD</div>" +
+              "<div style=\"margin-top:12px;color:#ffffff;font-size:13px;font-weight:800;letter-spacing:5px\">JQYDESIGNS</div>" +
+              "<div style=\"margin-top:8px;color:#c7d6ea;font-size:13px\">Personalized mugs · Katy, TX</div>" +
+              "</div>"
+            : isWelcome
             ? "<div style=\"padding:38px 24px 34px;text-align:center;background:radial-gradient(ellipse at top left,#49351b 0%,#17130f 45%,#090909 100%);border-bottom:1px solid #3a3024\">" +
               "<img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:190px;max-height:105px;width:auto;height:auto;border:0\" />" +
               "<div style=\"margin-top:18px;color:#f4dfaa;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">Personalized creations for a brighter you</div>" +
@@ -194,19 +230,24 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
               "</div>"
             : "<div style=\"padding:30px 24px 26px;text-align:center;background:#fbfcfe;border-bottom:1px solid #e7ebf1\"><img src=\"" + escapeHtml(logoUrl) + "\" alt=\"" + escapeHtml(siteName) + "\" style=\"display:block;margin:auto;max-width:" + (isRefund ? "300px;max-height:150px" : "210px;max-height:92px") + ";width:auto;height:auto;border:0\" /></div>") +
         "<div style=\"padding:34px 34px 30px\">" +
-        (isWelcome ? "" : "<div style=\"color:" + color + ";font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">" + escapeHtml(resolved.eyebrow) + "</div>") +
-        "<h1 style=\"margin:11px 0 14px;font-size:34px;line-height:1.14;letter-spacing:-.7px;color:#14213a\">" + escapeHtml(resolved.title) + "</h1>" +
+        (isWelcome || isBranded ? "" : "<div style=\"color:" + color + ";font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase\">" + escapeHtml(resolved.eyebrow) + "</div>") +
+        "<h1 style=\"margin:11px 0 14px;font-size:34px;line-height:1.14;letter-spacing:-.7px;color:#14213a\">" + (isOrderConfirmed ? "Thank you! Your order is confirmed" : escapeHtml(resolved.title)) + "</h1>" +
         (isRefund ?
         "<p style=\"margin:0 0 18px;color:#536174;font-size:16px;line-height:1.7\">Hello " + escapeHtml(vars.customerName || "there") + ",</p>" +
         "<p style=\"margin:0 0 20px;color:#536174;font-size:16px;line-height:1.7\">Your order <strong>" + escapeHtml(vars.orderCode || "") + "</strong> has been cancelled and the refund has been issued to your original payment method.</p>" +
         "<div style=\"margin:22px 0;padding:24px;border:1px solid #e5e7eb;border-radius:14px;background:#fff\"><div style=\"font-size:12px;letter-spacing:1px;color:#64748b;font-weight:700\">REFUND AMOUNT</div><div style=\"font-size:34px;font-weight:800;color:#14213a;margin:7px 0 14px\">" + escapeHtml(vars.refundAmount || "") + "</div><span style=\"display:inline-block;padding:8px 12px;border-radius:8px;background:#dcfce7;color:#166534;font-size:13px;font-weight:700\">✓ Refund issued</span><div style=\"margin-top:20px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:15px;color:#334155\"><strong>When will the money arrive?</strong><p style=\"margin:8px 0 0;line-height:1.65\">Most card refunds appear within <strong>5–10 business days</strong>. Exact timing depends on your bank or card issuer, and some refunds may take longer.</p></div></div>" +
         "<div style=\"margin:20px 0;padding:18px 20px;border-radius:12px;background:#eff6ff;color:#334155;font-size:14px;line-height:1.65\"><strong>What happens next?</strong><p style=\"margin:7px 0 0\">The refund was sent to your original payment method. Your bank must post the credit to your account. If it has not appeared after 10 business days, contact your card issuer and reference order " + escapeHtml(vars.orderCode || "") + ".</p></div>"
-        : "<div style=\"color:#536174;font-size:16px;line-height:1.75\">" + renderedBodyHtml + "</div>") +
+        : isCustomMugReceived ? customMugBodyHtml : isOrderConfirmed ? orderConfirmedBodyHtml : "<div style=\"color:#536174;font-size:16px;line-height:1.75\">" + renderedBodyHtml + "</div>") +
         welcomeHighlights +
         button +
         "<div style=\"margin-top:30px;padding-top:19px;border-top:1px solid #e7ebf1;color:#748091;font-size:12px;line-height:1.65\">" + textToHtml(resolved.footerText) + "</div>" +
         "</div></div>" +
-        "<div style=\"text-align:center;padding:18px 12px;color:#8993a1;font-size:11px\">© " + new Date().getFullYear() + " " + escapeHtml(siteName) + " · Thank you for being with us.</div>" +
+        (isBranded
+            ? "<div style=\"margin-top:20px;background:#111827;border-radius:14px;padding:22px 18px;text-align:center\">" +
+              "<div style=\"font-size:14px;line-height:2\"><a href=\"https://www.jqydesigns.com\" style=\"color:#ffffff;text-decoration:none;font-weight:700\">🌐 jqydesigns.com</a><span style=\"color:#6b7280\"> &nbsp;·&nbsp; </span><a href=\"https://wa.me/13467603007\" style=\"color:#ffffff;text-decoration:none;font-weight:700\">💬 WhatsApp 346-760-3007</a></div>" +
+              "<div style=\"font-size:13px;line-height:2\"><a href=\"https://www.instagram.com/jqydesigns\" style=\"color:#d1d5db;text-decoration:none\">Instagram</a><span style=\"color:#6b7280\"> &nbsp;·&nbsp; </span><a href=\"https://www.facebook.com/jqydesigns\" style=\"color:#d1d5db;text-decoration:none\">Facebook</a><span style=\"color:#6b7280\"> &nbsp;·&nbsp; </span><a href=\"https://youtube.com/@jqydesigns\" style=\"color:#d1d5db;text-decoration:none\">YouTube</a><span style=\"color:#6b7280\"> &nbsp;·&nbsp; </span><span style=\"color:#9ca3af\">@jqydesigns</span></div>" +
+              "<div style=\"margin-top:10px;color:#6b7280;font-size:11px\">© " + new Date().getFullYear() + " JQYDesigns · Thank you for being with us.</div></div>"
+            : "<div style=\"text-align:center;padding:18px 12px;color:#8993a1;font-size:11px\">© " + new Date().getFullYear() + " " + escapeHtml(siteName) + " · Thank you for being with us.</div>") +
         "</div></div></body></html>";
 
     const text = [resolved.eyebrow,resolved.title,renderedTextBody,resolved.buttonUrl ? resolved.buttonText + ": " + resolved.buttonUrl : "",resolved.footerText].filter(Boolean).join("\n\n");
