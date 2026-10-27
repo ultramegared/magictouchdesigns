@@ -4,6 +4,7 @@ import {
     createCustomMugRequest,
     getCustomMugCheckoutView,
 } from "../services/custom-mug.service";
+import { sendTemplateEmail } from "../services/email-template.service";
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const upload = multer({
@@ -176,9 +177,35 @@ export const submitCustomRequest = async (
             artworkFilename: req.file.originalname || "custom-design",
         });
 
-        // Payment-gated flow: the request is stored as pending only.
-        // Customer and internal notifications are sent by the confirmed-payment
-        // webhook, after Stripe has created the paid order.
+        // Notify JQ at submit time too: previously the seller only learned
+        // about a custom request after payment. The paid webhook still sends
+        // its separate production handoff unchanged. A failed notification
+        // must not fail the customer's submission — the stored PENDING
+        // request remains the source of truth.
+        try {
+            await sendTemplateEmail("custom_mug_received", COMPANY_CONTACT_EMAIL, {
+                siteName: "JQYDesigns",
+                requestCode: request.requestCode,
+                customerName: name,
+                customerEmail: email,
+                mugText: textForMug || "—",
+                fontName,
+                mugModel: model,
+                mugSize: size,
+                mugColor: color || "White",
+                printSides: printSides === "2" ? "Front + Back" : "Front only",
+                quantity: String(quantity),
+                unitPrice: "$" + request.unitPrice.toFixed(2),
+                subtotal: "$" + request.subtotal.toFixed(2),
+                notes: notes || "—",
+            }, "custom-request-received:" + request.id, email, [{
+                filename: req.file.originalname || "custom-design",
+                content: req.file.buffer.toString("base64"),
+                contentType: req.file.mimetype,
+            }]);
+        } catch (emailError) {
+            console.error("Custom request submit notification error:", emailError);
+        }
 
         res.status(200).json({
             status: "success",
