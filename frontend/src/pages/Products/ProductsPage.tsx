@@ -44,6 +44,10 @@ import {
     translations,
 } from "../../translations";
 
+import {
+    apiRequest,
+} from "../../services/api";
+
 
 /* ===============================================================
    TYPES
@@ -97,16 +101,6 @@ type ProductsResponse = {
         Product[];
 
 };
-
-
-/* ===============================================================
-   API URL
-================================================================ */
-
-const API_URL =
-    import.meta.env
-        .VITE_API_URL
-    || "http://localhost:5000/api";
 
 
 /* ===============================================================
@@ -247,6 +241,43 @@ function ProductsPage() {
 
     /*
     |--------------------------------------------------------------------------
+    | Deep Link To Product
+    |--------------------------------------------------------------------------
+    |
+    | When the page is opened with ?product=<slug> (for example
+    | from a New Arrivals card on Home), open that product's
+    | detail view directly once the products have loaded.
+    |
+    */
+
+    useEffect(() => {
+
+        const slug =
+            searchParams.get(
+                "product"
+            );
+
+        if (!slug || products.length === 0) {
+            return;
+        }
+
+        const match =
+            products.find(
+                (product) => product.slug === slug
+            );
+
+        if (match) {
+            setSelectedProduct(match);
+        }
+
+    }, [
+        products,
+        searchParams,
+    ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Load Products
     |--------------------------------------------------------------------------
     */
@@ -268,26 +299,10 @@ function ProductsPage() {
                     );
 
 
-                    const response =
-                        await fetch(
-                            `${API_URL}/products/public`
+                    const data =
+                        await apiRequest<ProductsResponse>(
+                            "/api/products/public"
                         );
-
-
-                    if (
-                        !response.ok
-                    ) {
-
-                        throw new Error(
-                            "Unable to load products."
-                        );
-
-                    }
-
-
-                    const data:
-                        ProductsResponse =
-                        await response.json();
 
 
                     setProducts(
