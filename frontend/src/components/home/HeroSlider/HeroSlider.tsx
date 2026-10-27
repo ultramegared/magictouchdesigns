@@ -96,18 +96,18 @@ function HeroSlider() {
     return (
         <section className="hero-slider" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
             <div key={slide.id} className="hero-slider__scene" aria-live="polite">
-                <img className="hero-slider__background-image" src={slide.image} alt="" aria-hidden="true" />
-                <div className="hero-slider__overlay" />
-                <div className="hero-slider__glow" />
                 <div className="hero-slider__content">
                     <div className="hero-slider__text">
                         <span className="hero-slider__eyebrow" aria-hidden="true" />
                         <h1>{text}</h1>
                         <p>{subtitle}</p>
+                        <div className="hero-slider__buttons">
+                            <button type="button" className="hero-slider__primary" onClick={() => { window.location.href = safeLink(slide.primaryLink, "/customize"); }}>{primary}</button>
+                            <button type="button" className="hero-slider__secondary" onClick={() => { window.location.href = safeLink(slide.secondaryLink, "/collections"); }}>{secondary}</button>
+                        </div>
                     </div>
-                    <div className="hero-slider__buttons">
-                        <button type="button" className="hero-slider__primary" onClick={() => { window.location.href = safeLink(slide.primaryLink, "/customize"); }}>{primary}</button>
-                        <button type="button" className="hero-slider__secondary" onClick={() => { window.location.href = safeLink(slide.secondaryLink, "/collections"); }}>{secondary}</button>
+                    <div className="hero-slider__media">
+                        <img className="hero-slider__image" src={slide.image} alt="" />
                     </div>
                 </div>
             </div>
