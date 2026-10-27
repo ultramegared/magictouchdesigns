@@ -34,11 +34,11 @@ const FRONTEND_URL = (process.env.FRONTEND_URL || "https://www.jqydesigns.com").
 // the real transparent gold logo pasted on top, hosted on the store Cloudinary
 // (never a temporary file host — Gmail may not load those). Used ONLY for the
 // order_confirmed header; the seller email keeps its text header.
-const ORDER_CONFIRMED_BANNER = "https://res.cloudinary.com/ydcdwyui/image/upload/v1793118840/magic-touch-designs/hero/ulluqgsreo2rgxjmakhf.jpg";
+export const ORDER_CONFIRMED_BANNER = "https://res.cloudinary.com/ydcdwyui/image/upload/v1793118840/magic-touch-designs/hero/ulluqgsreo2rgxjmakhf.jpg";
 
 // Social icons for the order_confirmed footer, also on the store Cloudinary.
 // Tappable icon links only — no written handle text (approved mockup v4).
-const SOCIAL_ICONS = {
+export const SOCIAL_ICONS = {
     instagram: { img: "https://res.cloudinary.com/ydcdwyui/image/upload/v1793119258/magic-touch-designs/hero/txoxfz628huimyjdqz57.png", url: "https://www.instagram.com/jqydesigns", alt: "Instagram" },
     facebook: { img: "https://res.cloudinary.com/ydcdwyui/image/upload/v1793119317/magic-touch-designs/hero/dakn9esxkrefiwcyrpxe.png", url: "https://www.facebook.com/jqydesigns", alt: "Facebook" },
     youtube: { img: "https://res.cloudinary.com/ydcdwyui/image/upload/v1793119342/magic-touch-designs/hero/gnlq5fyayrnokw3rkza5.png", url: "https://youtube.com/@jqydesigns", alt: "YouTube" },

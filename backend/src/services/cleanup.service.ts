@@ -11,9 +11,11 @@
  * SAFETY:
  * - The reference set covers ALL product rows (active or not),
  *   ALL review rows (approved or pending), ALL portfolio items,
- *   and the live site settings (logo + every Cloudinary URL inside
- *   the site config JSON, including hero slides). Anything in this
- *   set is NEVER deleted.
+ *   the live site settings (logo + every Cloudinary URL inside
+ *   the site config JSON, including hero slides and stored email
+ *   templates), ALL order-item photos, and the buyer-email code
+ *   constants (order_confirmed banner + social icons). Anything in
+ *   this set is NEVER deleted.
  * - Custom mug requests store their artwork as BYTEA in Postgres,
  *   not as Cloudinary URLs, so they contribute no Cloudinary
  *   references.
@@ -27,6 +29,10 @@
 import { pool } from "../config/database";
 import cloudinary from "../config/cloudinary";
 import { getSettings } from "./settings.service";
+import {
+    ORDER_CONFIRMED_BANNER,
+    SOCIAL_ICONS,
+} from "./email-template.service";
 
 export const STORE_FOLDER_PREFIX = "magic-touch-designs/";
 
@@ -54,8 +60,22 @@ export const isCloudinaryConfigured = (): boolean =>
  * Extracts a Cloudinary public_id from a delivery URL such as
  * https://res.cloudinary.com/<cloud>/image/upload/v179.../magic-touch-designs/hero/x.jpg
  * Returns null when the URL is not a Cloudinary image delivery URL.
+ * Transformation segments (e.g. /image/upload/c_fill,w_500/v179.../) are
+ * tolerated: when the store folder appears in the path, everything from
+ * that folder onward is the public_id, so transformed live URLs still
+ * match their asset instead of looking unreferenced.
  */
 export const extractPublicIdFromUrl = (url: string): string | null => {
+    const folderIndex = url.indexOf(`/${STORE_FOLDER_PREFIX}`);
+    if (folderIndex >= 0) {
+        const raw = url.slice(folderIndex + 1).split("?")[0];
+        const withoutExtension = raw.replace(/\.[a-zA-Z0-9]+$/, "");
+        try {
+            return decodeURIComponent(withoutExtension);
+        } catch {
+            return withoutExtension;
+        }
+    }
     const match = url.match(
         /res\.cloudinary\.com\/[^/]+\/image\/upload\/(?:v\d+\/)?(.+)$/
     );
@@ -151,6 +171,25 @@ export const buildReferencedPublicIds = async (): Promise<Set<string>> => {
     const configUrls = new Set<string>();
     collectUrlsFromValue(settings.config, configUrls);
     configUrls.forEach((url) => addUrl(url));
+
+    // Order item photos: a past order's detail page still shows the image
+    // captured at purchase time, even if the product later changed.
+    const orderItems = await pool.query("SELECT image_url FROM order_items");
+    for (const row of orderItems.rows as Array<{
+        image_url?: string | null;
+    }>) {
+        addUrl(row.image_url);
+    }
+
+    // Buyer-email assets: the order_confirmed banner + social icons live
+    // as code constants (email-template.service.ts), not in any DB row,
+    // so they must be protected explicitly or the scan flags them as
+    // orphans. Stored email-template bodies live inside settings.config
+    // and are already covered by the config scan above.
+    addUrl(ORDER_CONFIRMED_BANNER);
+    for (const icon of Object.values(SOCIAL_ICONS)) {
+        addUrl(icon.img);
+    }
 
     return referenced;
 };
