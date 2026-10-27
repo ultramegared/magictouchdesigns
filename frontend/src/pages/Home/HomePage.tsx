@@ -14,6 +14,7 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 
 import HeroSlider from "../../components/home/HeroSlider";
+import NewArrivals from "../../components/home/NewArrivals";
 import Benefits from "../../components/home/Benefits";
 
 import CollectionsPreview from "../Collections/CollectionsPreview";
@@ -38,6 +39,14 @@ function HomePage() {
                    ================================================== */}
 
                 <HeroSlider />
+
+
+                {/* ==================================================
+                    NEW ARRIVALS
+                    Newest active products, cover photo first.
+                   ================================================== */}
+
+                <NewArrivals />
 
 
                 {/* ==================================================
