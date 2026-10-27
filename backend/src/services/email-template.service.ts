@@ -30,6 +30,21 @@ export interface EmailTemplateRecord {
 
 const FRONTEND_URL = (process.env.FRONTEND_URL || "https://www.jqydesigns.com").replace(/\/$/, "");
 
+// Approved buyer order-confirmation design (mockup v4): premium 3D banner with
+// the real transparent gold logo pasted on top, hosted on the store Cloudinary
+// (never a temporary file host — Gmail may not load those). Used ONLY for the
+// order_confirmed header; the seller email keeps its text header.
+const ORDER_CONFIRMED_BANNER = "https://res.cloudinary.com/ydcdwyui/image/upload/v1793118840/magic-touch-designs/hero/ulluqgsreo2rgxjmakhf.jpg";
+
+// Social icons for the order_confirmed footer, also on the store Cloudinary.
+// Tappable icon links only — no written handle text (approved mockup v4).
+const SOCIAL_ICONS = {
+    instagram: { img: "https://res.cloudinary.com/ydcdwyui/image/upload/v1793119258/magic-touch-designs/hero/txoxfz628huimyjdqz57.png", url: "https://www.instagram.com/jqydesigns", alt: "Instagram" },
+    facebook: { img: "https://res.cloudinary.com/ydcdwyui/image/upload/v1793119317/magic-touch-designs/hero/dakn9esxkrefiwcyrpxe.png", url: "https://www.facebook.com/jqydesigns", alt: "Facebook" },
+    youtube: { img: "https://res.cloudinary.com/ydcdwyui/image/upload/v1793119342/magic-touch-designs/hero/gnlq5fyayrnokw3rkza5.png", url: "https://youtube.com/@jqydesigns", alt: "YouTube" },
+};
+const socialIconLink = (icon: { img: string; url: string; alt: string }): string => "<a href=\"" + icon.url + "\"><img src=\"" + icon.img + "\" alt=\"" + icon.alt + "\" width=\"32\" height=\"32\" style=\"display:inline-block;width:32px;height:32px;margin:0 6px;border:0\" /></a>";
+
 const C = (subject: string, title: string, body: string, buttonText = "", buttonUrl = ""): EmailTemplateContent => ({
     subject, preheader: title, eyebrow: "JQYDESIGNS", title, body, buttonText, buttonUrl,
     footerText: "Need help? Contact us at {{supportEmail}}", primaryColor: "#1F67B1"
@@ -45,7 +60,7 @@ const DEFAULTS: Record<string, {name:string;category:EmailTemplateCategory;descr
     custom_mug_received:{name:"Custom Mug Request Received",category:"CUSTOM_MUG",description:"Internal notification when a customer submits a custom mug request, before payment.",content:C("NEW CUSTOM REQUEST (awaiting payment) — {{requestCode}}","New custom request — awaiting payment","A customer just submitted a custom mug request. This request is AWAITING PAYMENT — do not start production yet. A separate paid production handoff will arrive after the customer pays.\n\nRequest: {{requestCode}}\nCustomer: {{customerName}}\nEmail: {{customerEmail}}\nMug text: {{mugText}}\nFont: {{fontName}}\nModel: {{mugModel}}\nSize: {{mugSize}}\nColor: {{mugColor}}\nDesign views: {{printSides}}\nQuantity: {{quantity}}\nUnit price: {{unitPrice}}\nEstimated subtotal: {{subtotal}}\nNotes: {{notes}}\n\nThe customer's artwork is attached to this email.","Reply to Customer","mailto:{{customerEmail}}")},
     seller_order_paid:{name:"Seller Order Paid",category:"ORDER",description:"Internal production handoff for every paid order, including product variants and customer artwork.",content:C("NEW PAID ORDER — {{orderCode}}","New paid order — prepare for production","Order: {{orderCode}}\\nDate: {{orderDate}}\\nPayment status: {{paymentStatus}}\\nPayment provider: {{paymentProvider}}\\nPayment method: {{paymentMethod}}\\n\\nCUSTOMER\\nName: {{customerName}}\\nEmail: {{customerEmail}}\\nPhone: {{customerPhone}}\\nShipping address: {{shippingAddress}}\\n\\nITEMS AND CUSTOMIZATION\\n{{orderItems}}\\n\\nPRODUCT PHOTOS\\n{{productImagesHtml}}\\n\\nSubtotal: {{subtotal}}\\nShipping: {{shipping}}\\nTax: {{tax}}\\nTOTAL PAID: {{orderTotal}}\\n\\nCustom request: {{requestCode}}\\nUploaded artwork is attached to this email when provided.","Open Order in Admin","{{orderUrl}}")},
     order_received:{name:"Order Received",category:"ORDER",description:"Order acknowledgement before final payment confirmation.",content:C("We received your order {{orderCode}}","We received your order","Hi {{customerName}}, we received your order {{orderCode}}. Your order will be confirmed after payment is successfully completed.","View Order","{{orderUrl}}")},
-    order_confirmed:{name:"Order Confirmed",category:"ORDER",description:"Customer confirmation after successful payment.",content:C("Order confirmed {{orderCode}} — {{siteName}}","Thank you for your order","Hi {{customerName}}, your payment was received and order {{orderCode}} is confirmed.\n\n{{orderItems}}\n\nSubtotal: {{subtotal}}\nShipping: {{shipping}}\nTax: {{tax}}\nTotal: {{orderTotal}}\n\nShipping address:\n{{shippingAddress}}","Track My Order","{{orderUrl}}")},
+    order_confirmed:{name:"Order Confirmed",category:"ORDER",description:"Customer confirmation after successful payment.",content:C("Order confirmed {{orderCode}} — {{siteName}}","Thank you for your order","Hi {{customerName}}, your payment was received and order {{orderCode}} is confirmed.\n\n{{orderItems}}\n\nPayment method: {{paymentMethod}}\nSubtotal: {{subtotal}}\nShipping: {{shipping}}\nTax: {{tax}}\nTotal: {{orderTotal}}\n\nShipping address:\n{{shippingAddress}}","Track My Order","{{orderUrl}}")},
     order_updated:{name:"Order Updated",category:"ORDER",description:"Customer notification when an order changes.",content:C("Order {{orderCode}} was updated","Your order was updated","Hi {{customerName}}, your order {{orderCode}} has been updated.\\n\\n{{updateMessage}}","View Order","{{orderUrl}}")},
     order_cancelled:{name:"Order Cancelled",category:"ORDER",description:"Customer notification when an order is cancelled.",content:C("Order {{orderCode}} cancelled","Your order was cancelled","Hi {{customerName}}, order {{orderCode}} has been cancelled.\\n\\n{{updateMessage}}","Contact Support","{{contactUrl}}")},
     payment_confirmed:{name:"Payment Confirmed",category:"PAYMENT",description:"Payment confirmation template.",content:C("Payment confirmed for {{orderCode}}","Payment confirmed","Hi {{customerName}}, your payment of {{orderTotal}} for {{orderCode}} was successfully received.","View Order","{{orderUrl}}")},
@@ -202,7 +217,7 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
         "<div style=\"margin:0 0 6px;padding:16px 18px;border-radius:12px;background:#f4f6f8;color:#334155;font-size:14px;line-height:1.65\">📎 The customer's artwork is attached to this email.</div>";
     const orderConfirmedBodyHtml = "<p style=\"margin:0 0 20px;color:#536174;font-size:16px;line-height:1.7\">Hi " + escapeHtml(vars.customerName ?? "there") + ", your payment was received and your order is confirmed.</p>" +
         "<div style=\"margin:0 0 22px;font-size:15px;color:#14213a\">Order: <strong>" + escapeHtml(vars.orderCode ?? "") + "</strong></div>" +
-        sectionTable("Your order", "<tr><td colspan=\"2\" style=\"padding:14px 18px;font-size:15px;line-height:1.8;color:#14213a\">" + multiline(vars.orderItems) + "</td></tr>" + sectionRow("Subtotal", vars.subtotal) + sectionRow("Shipping", vars.shipping) + sectionRow("Tax", vars.tax) + "<tr><td style=\"padding:14px 18px;border-top:1px solid #eef1f4;font-size:15px;color:#14213a;font-weight:800\">Total</td><td style=\"padding:14px 18px;border-top:1px solid #eef1f4;font-size:18px;color:#14213a;font-weight:800\">" + escapeHtml(vars.orderTotal ?? "") + "</td></tr>") +
+        sectionTable("Your order", "<tr><td colspan=\"2\" style=\"padding:14px 18px\">" + String(vars.productImagesHtmlRaw || "") + "<div style=\"font-size:15px;line-height:1.8;color:#14213a\">" + multiline(vars.orderItems) + "</div></td></tr>" + sectionRow("Payment method", vars.paymentMethod) + sectionRow("Subtotal", vars.subtotal) + sectionRow("Shipping", vars.shipping) + sectionRow("Tax", vars.tax) + "<tr><td style=\"padding:14px 18px;border-top:1px solid #eef1f4;font-size:15px;color:#14213a;font-weight:800\">Total</td><td style=\"padding:14px 18px;border-top:1px solid #eef1f4;font-size:18px;color:#14213a;font-weight:800\">" + escapeHtml(vars.orderTotal ?? "") + "</td></tr>") +
         sectionTable("Shipping address", "<tr><td style=\"padding:14px 18px;font-size:15px;line-height:1.8;color:#14213a\">" + multiline(vars.shippingAddress) + "</td></tr>") +
         "<div style=\"margin:0 0 6px;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden\"><div style=\"padding:13px 18px;background:#f4f6f8;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#14213a\">Status</div><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr>" +
         "<td width=\"20%\" style=\"padding:16px 4px;text-align:center\"><div style=\"font-size:18px;color:#1F67B1\">✓</div><div style=\"font-size:11px;font-weight:800;color:#14213a;margin-top:4px\">Received</div></td>" +
@@ -210,13 +225,20 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
         "<td width=\"20%\" style=\"padding:16px 4px;text-align:center\"><div style=\"font-size:18px;color:#b8c0cc\">○</div><div style=\"font-size:11px;color:#748091;margin-top:4px\">Processing</div></td>" +
         "<td width=\"20%\" style=\"padding:16px 4px;text-align:center\"><div style=\"font-size:18px;color:#b8c0cc\">○</div><div style=\"font-size:11px;color:#748091;margin-top:4px\">Shipped</div></td>" +
         "<td width=\"20%\" style=\"padding:16px 4px;text-align:center\"><div style=\"font-size:18px;color:#b8c0cc\">○</div><div style=\"font-size:11px;color:#748091;margin-top:4px\">Delivered</div></td>" +
-        "</tr></table></div>";
+        "</tr></table></div>" +
+        "<p style=\"margin:14px 0 6px;color:#536174;font-size:14px;line-height:1.65\">Your tracking number will appear on Track My Order once your order ships.</p>";
+    const orderConfirmedFooter = "<div style=\"margin-top:20px;background:#111827;border-radius:14px;padding:22px 18px;text-align:center\">" +
+        "<div style=\"font-size:14px;line-height:2\"><a href=\"https://www.jqydesigns.com\" style=\"color:#ffffff;text-decoration:none;font-weight:700\">🌐 jqydesigns.com</a><span style=\"color:#6b7280\"> &nbsp;·&nbsp; </span><a href=\"https://wa.me/13467603007\" style=\"color:#ffffff;text-decoration:none;font-weight:700\">💬 WhatsApp 346-760-3007</a></div>" +
+        "<div style=\"margin-top:14px\">" + socialIconLink(SOCIAL_ICONS.instagram) + socialIconLink(SOCIAL_ICONS.facebook) + socialIconLink(SOCIAL_ICONS.youtube) + "</div>" +
+        "<div style=\"margin-top:10px;color:#6b7280;font-size:11px\">© " + new Date().getFullYear() + " JQYDesigns · Thank you for being with us.</div></div>";
     const html = "<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\" /></head><body style=\"margin:0;background:#eef2f6;font-family:Arial,Helvetica,sans-serif;color:#172033\">" +
         "<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;color:transparent\">" + preheader + "</div>" +
         "<div style=\"padding:28px 12px;background:#eef2f6\"><div style=\"max-width:680px;margin:auto\">" +
         "<div style=\"height:8px;background:linear-gradient(110deg,#fff1c6,#b77b20,#17130f,#f7d982);border-radius:14px 14px 0 0\"></div>" +
         "<div style=\"background:#fff;border:1px solid #dfe5ec;border-radius:0 0 18px 18px;overflow:hidden\">" +
-        (isBranded
+        (isOrderConfirmed
+            ? "<div style=\"padding:0\"><img src=\"" + ORDER_CONFIRMED_BANNER + "\" alt=\"JQ&amp;YD — We create designs that tell your story.\" style=\"display:block;width:100%;height:auto;border:0\" /></div>"
+            : isBranded
             ? "<div style=\"padding:36px 24px 30px;text-align:center;background:linear-gradient(135deg,#174A8B,#0f3566)\">" +
               "<div style=\"font-family:Georgia,'Times New Roman',serif;font-size:46px;font-weight:700;color:#e8c56b;letter-spacing:1px;line-height:1\">JQ&amp;YD</div>" +
               "<div style=\"margin-top:12px;color:#ffffff;font-size:13px;font-weight:800;letter-spacing:5px\">JQYDESIGNS</div>" +
@@ -242,7 +264,9 @@ const sendRenderedEmail = async (template: EmailTemplateRecord, vars: Record<str
         button +
         "<div style=\"margin-top:30px;padding-top:19px;border-top:1px solid #e7ebf1;color:#748091;font-size:12px;line-height:1.65\">" + textToHtml(resolved.footerText) + "</div>" +
         "</div></div>" +
-        (isBranded
+        (isOrderConfirmed
+            ? orderConfirmedFooter
+            : isBranded
             ? "<div style=\"margin-top:20px;background:#111827;border-radius:14px;padding:22px 18px;text-align:center\">" +
               "<div style=\"font-size:14px;line-height:2\"><a href=\"https://www.jqydesigns.com\" style=\"color:#ffffff;text-decoration:none;font-weight:700\">🌐 jqydesigns.com</a><span style=\"color:#6b7280\"> &nbsp;·&nbsp; </span><a href=\"https://wa.me/13467603007\" style=\"color:#ffffff;text-decoration:none;font-weight:700\">💬 WhatsApp 346-760-3007</a></div>" +
               "<div style=\"font-size:13px;line-height:2\"><a href=\"https://www.instagram.com/jqydesigns\" style=\"color:#d1d5db;text-decoration:none\">Instagram</a><span style=\"color:#6b7280\"> &nbsp;·&nbsp; </span><a href=\"https://www.facebook.com/jqydesigns\" style=\"color:#d1d5db;text-decoration:none\">Facebook</a><span style=\"color:#6b7280\"> &nbsp;·&nbsp; </span><a href=\"https://youtube.com/@jqydesigns\" style=\"color:#d1d5db;text-decoration:none\">YouTube</a><span style=\"color:#6b7280\"> &nbsp;·&nbsp; </span><span style=\"color:#9ca3af\">@jqydesigns</span></div>" +
@@ -274,12 +298,12 @@ export const sendEmailTemplateTest = async (key: string, to: string) => {
     return sendTemplateEmail(key, to, {
         siteName:settings.websiteName || "JQYDesigns", customerName:"Jose", customerEmail:to, supportEmail:settings.supportEmail || "jqydesigns@gmail.com",
         requestCode:"REQ-2026-001", orderCode:"#1001", orderTotal:"$24.99", subtotal:"$19.99", shipping:"$5.00", tax:"$0.00",
-        orderItems:"Custom Mug × 1", shippingAddress:"123 Example St, Houston, TX 77001", carrier:"USPS", trackingNumber:"9400111899223856920000",
+        orderItems:"Custom Mug × 1", productImagesHtmlRaw:"<div style=\"display:inline-block;vertical-align:top;width:180px;max-width:100%;margin:8px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;text-align:center\"><img src=\"https://res.cloudinary.com/ydcdwyui/image/upload/v1793081556/magic-touch-designs/products/vwectykptifsp5rp6arw.webp\" alt=\"Personalized Fa-La-La Christmas Reindeer Mug\" width=\"160\" style=\"display:block;width:160px;max-width:100%;height:auto;margin:0 auto 8px;border:0;border-radius:6px\" /><div style=\"font-weight:700;font-size:13px;color:#172033\">Personalized Fa-La-La Christmas Reindeer Mug</div><div style=\"font-size:12px;color:#536174\">Qty: 1</div></div>", shippingAddress:"123 Example St, Houston, TX 77001", carrier:"USPS", trackingNumber:"9400111899223856920000",
         trackingUrl:"https://tools.usps.com/", orderUrl:FRONTEND_URL + "/track-order", accountUrl:FRONTEND_URL,
         paymentUrl:FRONTEND_URL + "/checkout", resetUrl:FRONTEND_URL + "/reset-password?token=TEST", verificationUrl:FRONTEND_URL + "/account",
         expiryMinutes:"30", mugModel:"Premium", mugSize:"15 oz", mugColor:"White", printSides:"Front + Back", quantity:"1",
         shippingText:"Shipping and applicable tax are calculated at checkout.", pendingText:"Your order has not been charged yet.",
-        paymentProvider:"Stripe", refundAmount:"$24.99", updateMessage:"This is a test update.", contactUrl:FRONTEND_URL + "/contact", message:"This is a test support message.",
+        paymentProvider:"Stripe", paymentMethod:"Visa •••• 4242", refundAmount:"$24.99", updateMessage:"This is a test update.", contactUrl:FRONTEND_URL + "/contact", message:"This is a test support message.",
         promotionSubject:"Summer Promotion", promotionPreheader:"A special offer.", promotionEyebrow:"SPECIAL OFFER", promotionTitle:"Summer collection",
         promotionMessage:"Discover our latest personalized designs.", promotionButtonText:"Shop Now", promotionUrl:FRONTEND_URL + "/products"
     }, "email-template-test:" + key + ":" + Date.now());
