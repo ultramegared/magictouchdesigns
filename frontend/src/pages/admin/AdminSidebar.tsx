@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { LayoutDashboard, ShoppingBag, Users, Star, Image, BarChart3, Settings, Store, Menu, X, LogOut, FolderKanban, Mail, Megaphone, BriefcaseBusiness } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Users, Star, Image, BarChart3, Settings, Store, Menu, X, LogOut, FolderKanban, Mail, Megaphone, BriefcaseBusiness, Trash2 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./AdminSidebar.css";
 
@@ -49,7 +49,7 @@ function AdminSidebar({ username }: AdminSidebarProps) {
                     <NavLink to="/admin/portfolio" className={getNavLinkClass} onClick={closeMobileMenu}><BriefcaseBusiness size={20} /><span>Portfolio</span></NavLink>
                     <NavLink to="/admin/reports" className={getNavLinkClass} onClick={closeMobileMenu}><BarChart3 size={20} /><span>Reports</span></NavLink>
                     <NavLink to="/admin/email-templates" className={getNavLinkClass} onClick={closeMobileMenu}><Mail size={20} /><span>Email Templates</span></NavLink><NavLink to="/admin/email-log" className={getNavLinkClass} onClick={closeMobileMenu}><Mail size={20} /><span>Email Log</span></NavLink>
-                    <NavLink to="/admin/settings" className={getNavLinkClass} onClick={closeMobileMenu}><Settings size={20} /><span>Settings</span></NavLink>
+                    <NavLink to="/admin/settings" className={getNavLinkClass} onClick={closeMobileMenu}><Settings size={20} /><span>Settings</span></NavLink><NavLink to="/admin/cleanup" className={getNavLinkClass} onClick={closeMobileMenu}><Trash2 size={20} /><span>Cleanup</span></NavLink>
                 </nav>
                 <div className="admin-sidebar__bottom">
                     <button type="button" className="admin-sidebar__store" onClick={() => { closeMobileMenu(); navigate("/"); }}><Store size={19} /><span>View Store</span></button>
