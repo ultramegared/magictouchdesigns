@@ -972,6 +972,17 @@ const runMarketingAutopilotOnce = async () => {
                  WHERE id=$1 AND claim_token=$3`,
                 [campaign.id, JSON.stringify({ autopilot: { blocked: true, reason: "Catalog item failed production eligibility checks; no social post was sent." } }), claimToken]
             );
+            // The queue step recorded this product as promoted, but the block
+            // means it never was. Release only the marker this queue wrote so
+            // a fixed product can be picked again. Best-effort: never breaks.
+            try {
+                if (productId) {
+                    await pool.query(
+                        `DELETE FROM marketing_catalog_promotions WHERE product_id=$1 AND campaign_id=$2`,
+                        [productId, campaign.id]
+                    );
+                }
+            } catch { /* Promotion rollback must never break the autopilot. */ }
             return { ran: false, reason: "Catalog item failed production eligibility checks; no social post was sent.", campaignId: campaign.id };
         }
     }
@@ -1042,6 +1053,32 @@ const runMarketingAutopilotOnce = async () => {
         );
         return { ran: false, paused: true, reason: "Marketing Autopilot was paused before publication; nothing was sent.", campaignId: campaign.id };
     }
+    // Publish-time dedup: never re-post a photo that already went out
+    // successfully in the last 30 days — even if two queues produced
+    // campaigns for the same image in one night. A skipped campaign is
+    // disabled, not retried, so the drain moves on to the next new item.
+    const campaignImageUrl = String(assets.imageUrl || "").trim();
+    if (campaignImageUrl) {
+        const dup = await pool.query(
+            `SELECT r.id FROM marketing_campaign_runs r
+             JOIN marketing_campaigns c ON c.id = r.campaign_id
+             WHERE r.published = TRUE
+               AND r.created_at >= NOW() - INTERVAL '30 days'
+               AND (c.results->'assets'->>'imageUrl') = $1
+             LIMIT 1`,
+            [campaignImageUrl]
+        );
+        if (dup.rows[0]) {
+            await pool.query(
+                `UPDATE marketing_campaigns
+                 SET autopilot_enabled=FALSE, next_run_at=NULL, claim_token=NULL, claim_expires_at=NULL,
+                     results=results || $2::jsonb
+                 WHERE id=$1 AND claim_token=$3`,
+                [campaign.id, JSON.stringify({ autopilot: { skippedDuplicate: true, skippedDuplicateAt: new Date().toISOString(), reason: "Photo already published within the last 30 days." } }), claimToken]
+            );
+            return { ran: false, reason: "Photo already published within the last 30 days; skipped to avoid republication.", campaignId: campaign.id, skippedDuplicate: true };
+        }
+    }
     const firstRun = Number(campaign.run_count || 0) === 0;
     const social: Record<string, unknown> = {};
     for (const channel of channelsToPublish) {
@@ -1092,12 +1129,32 @@ const runMarketingAutopilotOnce = async () => {
         results: publicationResults,
     });
 
-    const cadenceHours = 12;
-    const nextRun = new Date(Date.now() + cadenceHours * 60 * 60 * 1000);
+    const publishedAny = channelsToPublish.some((channel: SocialChannel) => {
+        const entry = (social as Record<string, any>)[channel];
+        return entry?.ok === true;
+    });
     const mergedResults = {
         ...(campaign.results || {}),
-        autopilot: { lastChannels: channelsToPublish, lastRunAt: new Date().toISOString(), runCount: Number(campaign.run_count || 0) + 1, result: social, skippedChannels: skippedYoutube ? [{ channel: "youtube", reason: "YouTube requires a video asset; this campaign has only an image." }] : [] },
+        autopilot: { lastChannels: channelsToPublish, lastRunAt: new Date().toISOString(), runCount: Number(campaign.run_count || 0) + 1, result: social, completed: publishedAny, skippedChannels: skippedYoutube ? [{ channel: "youtube", reason: "YouTube requires a video asset; this campaign has only an image." }] : [] },
     };
+    if (publishedAny) {
+        // One-shot autopilot: a campaign that published at least one channel
+        // never recurs. Recurring it every 12h is what re-posted the same
+        // photo night after night.
+        await pool.query(
+            `UPDATE marketing_campaigns
+             SET results=$2::jsonb, last_run_at=NOW(), autopilot_enabled=FALSE, next_run_at=NULL, run_count=run_count+1,
+                 claim_token=NULL, claim_expires_at=NULL
+             WHERE id=$1 AND claim_token=$3`,
+            [campaign.id, JSON.stringify(mergedResults), claimToken]
+        );
+        return { ran: true, campaignId: campaign.id, channels: channelsToPublish, social, nextRunAt: null, completed: true, contentQueue };
+    }
+    // Nothing published on any channel: keep the previous retry behavior
+    // exactly (reschedule +12h, still enabled). A campaign that never
+    // posted must not be disabled, or its item would never go out.
+    const cadenceHours = 12;
+    const nextRun = new Date(Date.now() + cadenceHours * 60 * 60 * 1000);
     await pool.query(
         `UPDATE marketing_campaigns
          SET results=$2::jsonb, last_run_at=NOW(), next_run_at=$3, run_count=run_count+1,
@@ -1105,7 +1162,7 @@ const runMarketingAutopilotOnce = async () => {
          WHERE id=$1 AND claim_token=$4`,
         [campaign.id, JSON.stringify(mergedResults), nextRun, claimToken]
     );
-    return { ran: true, campaignId: campaign.id, channels: channelsToPublish, social, nextRunAt: nextRun.toISOString(), contentQueue };
+    return { ran: true, campaignId: campaign.id, channels: channelsToPublish, social, nextRunAt: nextRun.toISOString(), completed: false, contentQueue };
 };
 
 export const runMarketingAutopilot = async (maxRuns = 10, source = "unknown") => {
