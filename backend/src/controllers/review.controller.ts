@@ -268,6 +268,21 @@ export const getById = async (
         }
 
 
+        // Pending reviews stay private: only approved reviews are
+        // visible through this public endpoint. Owners see their own
+        // pending reviews via /my-reviews and admins via the admin API.
+        if (!review.is_approved) {
+
+            return res.status(404).json({
+
+                message:
+                    "Review not found.",
+
+            });
+
+        }
+
+
         return res.status(200).json({
             review,
         });
