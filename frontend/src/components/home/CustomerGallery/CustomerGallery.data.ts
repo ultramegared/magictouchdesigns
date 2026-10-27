@@ -47,7 +47,7 @@ export const customerGalleryItems: CustomerGalleryItem[] = [
 
         productId: "product-2",
 
-        image: "/images/customers/customer-2.png",
+        image: "/images/customers/customer-1.png",
 
         customerName: "Michael",
 
@@ -66,7 +66,7 @@ export const customerGalleryItems: CustomerGalleryItem[] = [
 
         productId: "product-3",
 
-        image: "/images/customers/customer-3.png",
+        image: "/images/customers/customer-1.png",
 
         customerName: "Sophia",
 
@@ -85,7 +85,7 @@ export const customerGalleryItems: CustomerGalleryItem[] = [
 
         productId: "product-4",
 
-        image: "/images/customers/customer-4.png",
+        image: "/images/customers/customer-1.png",
 
         customerName: "Daniel",
 
