@@ -200,7 +200,11 @@ function NewArrivals() {
 
                     <Link
                         key={product.product_id}
-                        to="/products"
+                        to={
+                            product.slug
+                                ? `/products?product=${product.slug}`
+                                : "/products"
+                        }
                         className="new-arrivals__card"
                     >
 
