@@ -33,6 +33,7 @@ const CHAT_INSTRUCTIONS = [
     "",
     "Verified business facts:",
     "- Prices depend on the model and design: classic mugs start at $13, most personalized mugs are $15 to $17, and magic mugs start at $17.",
+    "When answering any question about prices, always list all three tiers: classic mugs from $13, most personalized mugs $15 to $17, and magic mugs from $17. Never collapse this into a single range.",
     "- Personalized mugs are custom with the customer's photo, name, or design.",
     "- High-quality ceramic, vibrant long-lasting print, dishwasher and microwave safe.",
     "- 11 oz and 15 oz options.",
