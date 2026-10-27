@@ -375,14 +375,13 @@
 .product-card__image {
     position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1;
     overflow: hidden;
     background: #151515;
 }
 
 .product-card__image img {
     width: 100%;
-    height: 100%;
+    height: auto;
     display: block;
     object-fit: contain;
 }
@@ -398,7 +397,7 @@
 
 .product-card__image img {
     width: 100%;
-    height: 100%;
+    height: auto;
     display: block;
     object-fit: contain;
     transition: transform 0.45s ease;
