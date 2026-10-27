@@ -109,9 +109,9 @@ function HeroSlider() {
                     </div>
                     <div className="hero-slider__media">
                         <img className="hero-slider__image" src={slide.image} alt="" />
-                        {slide.foreground ? <img className="hero-slider__foreground" src={slide.foreground} alt="" /> : null}
                     </div>
                 </div>
+                {slide.foreground ? <img className="hero-slider__foreground" src={slide.foreground} alt="" /> : null}
             </div>
             {slides.length > 1 && (
                 <>
