@@ -2,8 +2,7 @@ import type { NavigationItem } from "../types/navigation";
 
 const fallback: NavigationItem[] = [
     { id: 1, label: "Home", path: "/" },
-    { id: 2, label: "Products", path: "/products" },
-    { id: 3, label: "Collections", path: "/collections" },
+    { id: 2, label: "Collections", path: "/collections" },
     { id: 4, label: "Customize", path: "/customize" },
     { id: 5, label: "Contact", path: "/contact" },
 ];
