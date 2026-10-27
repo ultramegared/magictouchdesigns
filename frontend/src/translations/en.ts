@@ -1093,18 +1093,6 @@ businessBranding: {
           "Special mugs that reveal your personalized design when exposed to heat.",
       },
 
-      shirts: {
-        title: "CUSTOM APPAREL",
-        description:
-          "Personalized shirts and apparel for individuals, families, businesses, teams, and events.",
-      },
-
-      caps: {
-        title: "CUSTOM CAPS",
-        description:
-          "Personalized caps featuring your logo, name, team, business, or special design.",
-      },
-
       businesses: {
         title: "BUSINESS & BRANDING",
         description:
