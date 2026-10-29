@@ -889,6 +889,11 @@
 
 @media (max-width: 767px) {
 
+    /* Fixed header is 74px tall on mobile. */
+    .search-results {
+        padding-top: 104px;
+    }
+
     .collections-hero {
         height: 430px;
     }
@@ -1393,7 +1398,9 @@
 .search-results {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 48px 24px 72px;
+    /* Top padding clears the fixed header (86px) + breathing room,
+       so the "Results for" title is never hidden behind it. */
+    padding: 124px 24px 72px;
 }
 
 .search-results__title {
