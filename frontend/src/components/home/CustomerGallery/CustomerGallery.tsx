@@ -150,8 +150,12 @@ function CustomerGallery() {
         selectedImage,
         setSelectedImage,
     ] = useState<{
-        image: string;
+        photos: string[];
+        index: number;
         customerName: string;
+        rating: number | null;
+        verified: boolean;
+        review: string;
     } | null>(null);
 
 
@@ -222,6 +226,43 @@ function CustomerGallery() {
                 setSelectedImage(
                     null
                 );
+
+                return;
+
+            }
+
+            if (
+                selectedImage &&
+                selectedImage.photos.length > 1
+            ) {
+
+                if (
+                    event.key === "ArrowLeft"
+                ) {
+
+                    setSelectedImage({
+                        ...selectedImage,
+                        index:
+                            (selectedImage.index -
+                                1 +
+                                selectedImage.photos.length) %
+                            selectedImage.photos.length,
+                    });
+
+                }
+
+                if (
+                    event.key === "ArrowRight"
+                ) {
+
+                    setSelectedImage({
+                        ...selectedImage,
+                        index:
+                            (selectedImage.index + 1) %
+                            selectedImage.photos.length,
+                    });
+
+                }
 
             }
 
@@ -371,10 +412,22 @@ function CustomerGallery() {
                                                 aria-label={`View ${customerName}'s photo`}
                                                 onClick={() =>
                                                     setSelectedImage({
-                                                        image:
-                                                            firstPhoto,
+                                                        photos,
+
+                                                        index:
+                                                            0,
 
                                                         customerName,
+
+                                                        rating:
+                                                            item.rating ??
+                                                            null,
+
+                                                        verified:
+                                                            !!item.verified_purchase,
+
+                                                        review:
+                                                            item.review,
                                                     })
                                                 }
                                             >
@@ -399,7 +452,7 @@ function CustomerGallery() {
                                             >
 
                                                 {photos.slice(1).map(
-                                                    (photo) => (
+                                                    (photo, thumbIndex) => (
 
                                                         <button
                                                             key={photo}
@@ -408,10 +461,22 @@ function CustomerGallery() {
                                                             aria-label={`View ${customerName}'s photo`}
                                                             onClick={() =>
                                                                 setSelectedImage({
-                                                                    image:
-                                                                        photo,
+                                                                    photos,
+
+                                                                    index:
+                                                                        thumbIndex + 1,
 
                                                                     customerName,
+
+                                                                    rating:
+                                                                        item.rating ??
+                                                                        null,
+
+                                                                    verified:
+                                                                        !!item.verified_purchase,
+
+                                                                    review:
+                                                                        item.review,
                                                                 })
                                                             }
                                                         >
@@ -547,10 +612,99 @@ function CustomerGallery() {
 
                             <img
                                 src={
-                                    selectedImage.image
+                                    selectedImage.photos[
+                                        selectedImage.index
+                                    ]
                                 }
                                 alt={`${selectedImage.customerName}'s personalized mug`}
                             />
+
+                            {selectedImage.photos.length > 1 && (
+                                <>
+                                    <button
+                                        type="button"
+                                        className="customer-gallery__lightbox-nav customer-gallery__lightbox-nav--prev"
+                                        aria-label="Previous photo"
+                                        onClick={() =>
+                                            setSelectedImage({
+                                                ...selectedImage,
+                                                index:
+                                                    (selectedImage.index -
+                                                        1 +
+                                                        selectedImage.photos.length) %
+                                                    selectedImage.photos.length,
+                                            })
+                                        }
+                                    >
+                                        ‹
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="customer-gallery__lightbox-nav customer-gallery__lightbox-nav--next"
+                                        aria-label="Next photo"
+                                        onClick={() =>
+                                            setSelectedImage({
+                                                ...selectedImage,
+                                                index:
+                                                    (selectedImage.index + 1) %
+                                                    selectedImage.photos.length,
+                                            })
+                                        }
+                                    >
+                                        ›
+                                    </button>
+                                </>
+                            )}
+
+                        </div>
+
+                        <div
+                            className="customer-gallery__lightbox-caption"
+                        >
+
+                            <div
+                                className="customer-gallery__lightbox-caption-top"
+                            >
+
+                                <span
+                                    className="customer-gallery__lightbox-name"
+                                >
+                                    {selectedImage.customerName}
+                                </span>
+
+                                {selectedImage.rating != null &&
+                                    renderStars(
+                                        selectedImage.rating
+                                    )}
+
+                                {selectedImage.verified && (
+
+                                    <span
+                                        className="customer-gallery__lightbox-verified"
+                                    >
+                                        ✓ Verified Purchase
+                                    </span>
+
+                                )}
+
+                                {selectedImage.photos.length > 1 && (
+
+                                    <span
+                                        className="customer-gallery__lightbox-counter"
+                                    >
+                                        {selectedImage.index + 1} / {selectedImage.photos.length}
+                                    </span>
+
+                                )}
+
+                            </div>
+
+                            <p
+                                className="customer-gallery__lightbox-review"
+                            >
+                                {selectedImage.review}
+                            </p>
 
                         </div>
 

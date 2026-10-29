@@ -1793,3 +1793,82 @@
     object-fit: cover;
     display: block;
 }
+
+
+/* ================================================================
+   LIGHTBOX CAPTION + PHOTO NAVIGATION
+   Name, stars, verified badge, comment and prev/next
+   so every uploaded photo is reachable in large view.
+================================================================ */
+
+.customer-gallery__lightbox-content {
+    overflow-y: auto;
+}
+
+.customer-gallery__lightbox-frame img {
+    max-height: calc(88dvh - 44px - 150px);
+}
+
+.customer-gallery__lightbox-nav {
+    position: absolute;
+    top: 50%;
+    z-index: 4;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(216, 166, 60, 0.75);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #f0cb70;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+
+.customer-gallery__lightbox-nav--prev {
+    left: 12px;
+}
+
+.customer-gallery__lightbox-nav--next {
+    right: 12px;
+}
+
+.customer-gallery__lightbox-caption {
+    padding: 16px 10px 8px;
+}
+
+.customer-gallery__lightbox-caption-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.customer-gallery__lightbox-name {
+    color: #e2bd62;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.customer-gallery__lightbox-verified {
+    color: #9aa7b0;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.customer-gallery__lightbox-counter {
+    margin-left: auto;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+}
+
+.customer-gallery__lightbox-review {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
