@@ -19,6 +19,91 @@ import { translations } from "../../translations";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 
+/*
+ * Search helpers (module level): accent folding, plural stemming,
+ * Spanish-to-English keyword synonyms, and filler-word filtering
+ * so customer queries match the English catalog.
+ */
+
+const SEARCH_SYNONYMS: Record<string, string> = {
+  cup: "mug",
+  cups: "mug",
+  taza: "mug",
+  tazas: "mug",
+  amor: "love",
+  navidad: "christmas",
+  mama: "mom",
+  madre: "mom",
+  familia: "family",
+  regalo: "gift",
+  regalos: "gift",
+  cumpleanos: "birthday",
+  maestro: "teacher",
+  maestra: "teacher",
+  oro: "gold",
+  dorado: "gold",
+  personalizado: "personalized",
+  personalizada: "personalized",
+  reno: "reindeer",
+  muneco: "snowman",
+  nieve: "snow",
+};
+
+const SEARCH_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "the",
+  "and",
+  "or",
+  "for",
+  "of",
+  "in",
+  "on",
+  "at",
+  "to",
+  "with",
+  "de",
+  "la",
+  "el",
+  "las",
+  "los",
+  "en",
+  "un",
+  "una",
+  "con",
+  "por",
+  "para",
+  "y",
+  "o",
+  "del",
+  "al",
+  "su",
+  "mi",
+  "que",
+]);
+
+const searchNormalize = (value: string): string =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const searchSingular = (word: string): string => {
+  if (word.length > 3 && word.endsWith("s") && !word.endsWith("ss")) {
+    return word.slice(0, -1);
+  }
+  return word;
+};
+
+const searchWordCandidates = (word: string): string[] => {
+  const singular = searchSingular(word);
+  return [
+    SEARCH_SYNONYMS[word] ?? word,
+    SEARCH_SYNONYMS[singular] ?? singular,
+  ];
+};
+
+
 function CollectionsPage() {
   const { language } = useLanguage();
   const navigate = useNavigate();
@@ -112,42 +197,32 @@ function CollectionsPage() {
   }, [searching, searchQuery]);
 
   /*
-   * Smart product matching: every query word must appear somewhere
-   * in the name or description, in any order ("for mom" finds
-   * "Mom & Son"). Plurals are understood ("mugs" matches "mug")
-   * and common synonyms are mapped ("cup" matches "mug").
+   * Smart product matching.
+   * - Every query word must appear in the name, description or
+   *   collection name, in any order ("for mom" finds "Mom & Son").
+   * - Accents are ignored ("mama" matches "mamá").
+   * - Plurals are understood ("mugs" matches "mug").
+   * - Spanish queries are translated to the catalog's English
+   *   keywords ("amor" finds the love collection, "navidad"
+   *   finds Christmas). The catalog content itself stays English.
+   * - Filler words in both languages are ignored.
    */
-
-  const searchSynonym = (word: string): string => {
-    if (word === "cup" || word === "cups") {
-      return "mug";
-    }
-    return word;
-  };
-
-  const searchSingular = (word: string): string => {
-    if (word.length > 3 && word.endsWith("s") && !word.endsWith("ss")) {
-      return word.slice(0, -1);
-    }
-    return word;
-  };
 
   const searchResults = useMemo(() => {
     if (!searching) {
       return [];
     }
-    const words = searchQuery
-      .toLowerCase()
+    const words = searchNormalize(searchQuery)
       .split(/\s+/)
-      .filter((word) => word.length > 0)
-      .map(searchSynonym);
+      .filter((word) => word.length > 0 && !SEARCH_STOP_WORDS.has(word));
     return searchProducts.filter((product) => {
-      const haystack =
-        `${product.name} ${product.description ?? ""}`.toLowerCase();
-      return words.every(
-        (word) =>
-          haystack.includes(word) ||
-          haystack.includes(searchSingular(word))
+      const haystack = searchNormalize(
+        `${product.name} ${product.description ?? ""} ${product.collectionSlug.replace(/-/g, " ")}`
+      );
+      return words.every((word) =>
+        searchWordCandidates(word).some((candidate) =>
+          haystack.includes(candidate)
+        )
       );
     });
   }, [searching, searchQuery, searchProducts]);
