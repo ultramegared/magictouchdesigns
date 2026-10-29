@@ -3,7 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/home/Footer";
 import { clearCart, getCartItems } from "../../utils/cart";
-import { removeCustomizationSession } from "../../utils/customization";
+import { getCustomizationSession, removeCustomizationSession } from "../../utils/customization";
+import { markDesignPurchased } from "../../utils/download-watermark";
 import "./CheckoutSuccessPage.css";
 const API_URL = "https://api.jqydesigns.com/api";
 const PAYPAL_CONFIRMATION_KEY = "mtd-paypal-confirmation";
@@ -38,8 +39,30 @@ function trackVerifiedPurchase(order: Order) {
 
 function CheckoutSuccessPage() {
     const [searchParams] = useSearchParams(); const sessionId = searchParams.get("session_id"); const requestedOrderCode = searchParams.get("order_code"); const isPayPal = searchParams.get("paypal") === "1"; const [order, setOrder] = useState<Order | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
-    const clearSuccessfulCustomizations = () => { getCartItems().forEach((item) => { if (item.customizationId) removeCustomizationSession(item.customizationId); }); clearCart(); };
+    const [purchasedDesigns, setPurchasedDesigns] = useState<{ fileName: string; dataUrl: string }[]>([]);
+    const clearSuccessfulCustomizations = () => {
+        // Capture the print-ready files BEFORE the sessions are removed so the
+        // buyer can download them clean (no watermark) right after paying.
+        const designs: { fileName: string; dataUrl: string }[] = [];
+        getCartItems().forEach((item) => {
+            if (!item.customizationId) return;
+            const session = getCustomizationSession(item.customizationId);
+            if (session?.artworkFingerprint) markDesignPurchased(session.artworkFingerprint);
+            if (session?.designDataUrl) designs.push({ fileName: session.designFileName || "JQYDesigns-print-file.jpg", dataUrl: session.designDataUrl });
+            removeCustomizationSession(item.customizationId);
+        });
+        if (designs.length > 0) setPurchasedDesigns(designs);
+        clearCart();
+    };
+    const downloadPurchasedDesign = (design: { fileName: string; dataUrl: string }) => {
+        const link = document.createElement("a");
+        link.href = design.dataUrl;
+        link.download = design.fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    };
     useEffect(() => { let cancelled = false; const confirmStripe = async () => { if (!sessionId) throw new Error("The checkout session could not be found."); let lastError = "Order confirmation is still processing."; for (let attempt = 0; attempt < 10; attempt += 1) { if (cancelled) return null; const response = await fetch(`${API_URL}/orders/session/${encodeURIComponent(sessionId)}`); if (response.ok) { const data = await response.json() as Order; if (data.payment_status === "paid" || attempt === 9) return data; lastError = "Payment received. Finalizing your order confirmation…"; } else lastError = "Order confirmation is still processing."; await wait(1500); } throw new Error(lastError); }; const confirmPayPal = async () => { const raw = sessionStorage.getItem(PAYPAL_CONFIRMATION_KEY); if (!raw) throw new Error("PayPal confirmation details could not be found. Use Track My Order if needed."); const confirmation = JSON.parse(raw) as { orderCode?: string; email?: string }; const orderCode = confirmation.orderCode || requestedOrderCode; if (!orderCode || !confirmation.email) throw new Error("PayPal confirmation details are incomplete."); let lastError = "PayPal confirmation is still processing."; for (let attempt = 0; attempt < 10; attempt += 1) { if (cancelled) return null; const response = await fetch(`${API_URL}/orders/${encodeURIComponent(orderCode)}?email=${encodeURIComponent(confirmation.email)}`); if (response.ok) { const data = await response.json() as Order; if (data.payment_status === "paid" || attempt === 9) return data; lastError = "Payment received. Finalizing your order confirmation…"; } else lastError = "PayPal order confirmation is still processing."; await wait(1500); } throw new Error(lastError); }; (isPayPal ? confirmPayPal : confirmStripe)().then((data) => { if (!data || cancelled) return; setOrder(data); if (data.payment_status === "paid") { trackVerifiedPurchase(data); clearSuccessfulCustomizations(); if (isPayPal) sessionStorage.removeItem(PAYPAL_CONFIRMATION_KEY); } }).catch((requestError: unknown) => { if (!cancelled) setError(requestError instanceof Error ? requestError.message : "Unable to confirm the order."); }).finally(() => { if (!cancelled) setLoading(false); }); return () => { cancelled = true; }; }, [isPayPal, requestedOrderCode, sessionId]);
-    return <><Header /><main className="checkout-success-page"><section className="checkout-success-card">{loading ? <><span className="checkout-success-eyebrow">PROCESSING PAYMENT</span><div className="checkout-success-icon" aria-hidden="true">✓</div><h1>Confirming Your Order…</h1><p>Please wait while we securely confirm your payment and finalize your order.</p></> : order ? <><div className="checkout-success-icon" aria-hidden="true">✓</div><span className="checkout-success-eyebrow">PAYMENT CONFIRMED</span><h1>Thank You for Your Order</h1><p>We received your purchase successfully.</p><strong className="checkout-success-order">{order.order_code}</strong><p className="checkout-success-total">Total paid: <strong>${Number(order.total).toFixed(2)}</strong></p><div className="checkout-success-actions"><Link to={`/track-order?order=${encodeURIComponent(order.order_code)}`}>Track My Order</Link><Link to="/">Continue Shopping</Link></div></> : <><span className="checkout-success-eyebrow">ORDER STATUS</span><h1>We’re Confirming Your Order</h1><p>{error || "Your payment was submitted, but confirmation is still being processed."}</p><Link className="checkout-success-primary" to="/track-order">Track My Order</Link></>}</section></main><Footer /></>;
+    return <><Header /><main className="checkout-success-page"><section className="checkout-success-card">{loading ? <><span className="checkout-success-eyebrow">PROCESSING PAYMENT</span><div className="checkout-success-icon" aria-hidden="true">✓</div><h1>Confirming Your Order…</h1><p>Please wait while we securely confirm your payment and finalize your order.</p></> : order ? <><div className="checkout-success-icon" aria-hidden="true">✓</div><span className="checkout-success-eyebrow">PAYMENT CONFIRMED</span><h1>Thank You for Your Order</h1><p>We received your purchase successfully.</p><strong className="checkout-success-order">{order.order_code}</strong><p className="checkout-success-total">Total paid: <strong>${Number(order.total).toFixed(2)}</strong></p>{purchasedDesigns.length > 0 ? <div className="checkout-success-designs"><h2>Your print files</h2><p>No watermark — thank you for your order.</p>{purchasedDesigns.map((design, index) => <button key={index} type="button" className="checkout-success-designs__button" onClick={() => downloadPurchasedDesign(design)}>Download print file{ purchasedDesigns.length > 1 ? ` ${index + 1}` : ""}</button>)}</div> : null}<div className="checkout-success-actions"><Link to={`/track-order?order=${encodeURIComponent(order.order_code)}`}>Track My Order</Link><Link to="/">Continue Shopping</Link></div></> : <><span className="checkout-success-eyebrow">ORDER STATUS</span><h1>We’re Confirming Your Order</h1><p>{error || "Your payment was submitted, but confirmation is still being processed."}</p><Link className="checkout-success-primary" to="/track-order">Track My Order</Link></>}</section></main><Footer /></>;
 }
 export default CheckoutSuccessPage;
