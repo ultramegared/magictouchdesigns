@@ -1,5 +1,6 @@
 import { pool } from "../config/database";
 import { getActivePortfolio } from "./portfolio.service";
+import { queueNextCreativePost, getLastGenerated } from "./marketing-creative.service";
 
 const PUBLIC_SITE = process.env.FRONTEND_PUBLIC_URL?.trim() || "https://www.jqydesigns.com";
 const PUBLIC_CHANNELS = ["facebook","instagram","tiktok","youtube","pinterest"] as const;
@@ -491,11 +492,23 @@ export async function getContentAutopilotStatus(ownerUserId: string) {
     console.error("Unable to read Content Autopilot portfolio status:", error);
   }
 
-  return { ...catalog, pendingPortfolio, lastAutopilotRun: await getLastAutopilotRunEvent(ownerUserId) };
+  return { ...catalog, pendingPortfolio, lastGenerated: await getLastGenerated(), lastAutopilotRun: await getLastAutopilotRunEvent(ownerUserId) };
 }
 
 export async function queueNextContent(ownerUserId: string) {
   const catalog = await queueNextCatalogProduct(ownerUserId);
   const portfolio = await queueNextPortfolioWork(ownerUserId);
-  return { catalog, portfolio };
+  // Phase 2 fallback: only when BOTH real queues miss does the robot
+  // create an advertising poster from a real catalog photo. A new
+  // product upload refills the normal queue, so generation stays
+  // dormant whenever real content is available.
+  let generated: any = { queued: false, reason: "Real queue content is available; generation stays dormant." };
+  if (!catalog.queued && !portfolio.queued) {
+    try {
+      generated = await queueNextCreativePost(ownerUserId);
+    } catch (error) {
+      generated = { queued: false, reason: error instanceof Error ? error.message : "Creative generation failed." };
+    }
+  }
+  return { catalog, portfolio, generated };
 }
