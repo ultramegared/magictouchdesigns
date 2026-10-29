@@ -7,6 +7,7 @@
  * Language: TypeScript
  * Description:
  * Displays the authenticated user's reviews.
+ * A review is only: stars, purchase photos, comment.
  * ================================================================
  */
 
@@ -36,10 +37,43 @@ import "./Reviews.css";
 interface Review {
     id: string;
     review: string;
+    rating?: number | null;
+    verified_purchase?: boolean;
     image_url?: string | null;
+    image_urls?: string[] | null;
     is_approved: boolean;
     created_at: string;
 }
+
+
+/**
+ * All photos of a review, newest model first.
+ * Reviews written before multi-photo existed only carry
+ * the legacy single image_url, which counts as photo one.
+ */
+const photosOf = (review: Review): string[] => {
+
+    if (
+        review.image_urls &&
+        review.image_urls.length > 0
+    ) {
+
+        return review.image_urls;
+
+    }
+
+    if (
+        review.image_url &&
+        review.image_url.trim() !== ""
+    ) {
+
+        return [review.image_url];
+
+    }
+
+    return [];
+
+};
 
 
 const Reviews = () => {
@@ -130,22 +164,22 @@ const Reviews = () => {
 
                     <section className="reviews-header">
 
-                        <div className="reviews-icon">
-                            <Star size={30} />
+                        <div>
+
+                            <p className="reviews-eyebrow">
+                                MY REVIEWS
+                            </p>
+
+                            <h1>
+                                Your reviews
+                            </h1>
+
+                            <p>
+                                Share and manage your experiences
+                                with Magic Touch Designs.
+                            </p>
+
                         </div>
-
-                        <p className="reviews-eyebrow">
-                            MY REVIEWS
-                        </p>
-
-                        <h1>
-                            Your reviews
-                        </h1>
-
-                        <p>
-                            Share and manage your experiences
-                            with Magic Touch Designs.
-                        </p>
 
                         <Link
                             to="/account/reviews/create"
@@ -224,6 +258,17 @@ const Reviews = () => {
                                         reviews yet.
                                     </p>
 
+                                    <Link
+                                        to="/account/reviews/create"
+                                        className="reviews-create-button"
+                                    >
+                                        <Plus size={20} />
+
+                                        <span>
+                                            Write a review
+                                        </span>
+                                    </Link>
+
                                 </div>
 
                             )}
@@ -236,56 +281,115 @@ const Reviews = () => {
                                 <div className="reviews-list">
 
                                     {reviews.map(
-                                        (review) => (
+                                        (review) => {
 
-                                            <article
-                                                key={review.id}
-                                                className="review-card"
-                                            >
+                                            const photos =
+                                                photosOf(review);
 
-                                                <div className="review-card-header">
+                                            return (
 
-                                                    <Star
-                                                        size={20}
-                                                    />
+                                                <article
+                                                    key={review.id}
+                                                    className="review-card"
+                                                >
 
-                                                    <span>
-                                                        Your review
-                                                    </span>
+                                                    {photos.length > 0 && (
 
-                                                </div>
+                                                        <div className="review-card-photos">
+
+                                                            <img
+                                                                src={photos[0]}
+                                                                alt=""
+                                                                className="review-card-photo"
+                                                            />
+
+                                                            {photos.length > 1 && (
+
+                                                                <div className="review-card-thumbs">
+
+                                                                    {photos.slice(1).map(
+                                                                        (photo) => (
+
+                                                                            <img
+                                                                                key={photo}
+                                                                                src={photo}
+                                                                                alt=""
+                                                                                className="review-card-thumb"
+                                                                            />
+
+                                                                        )
+                                                                    )}
+
+                                                                </div>
+
+                                                            )}
+
+                                                        </div>
+
+                                                    )}
 
 
-                                                {review.image_url && (
+                                                    <div className="review-card-body">
 
-                                                    <img
-                                                        src={review.image_url}
-                                                        alt=""
-                                                        className="review-card-image"
-                                                    />
+                                                        {(review.rating != null ||
+                                                            review.verified_purchase) && (
 
-                                                )}
+                                                            <div className="review-card-meta">
+
+                                                                {review.rating != null && (
+
+                                                                    <span
+                                                                        className="review-card-stars"
+                                                                        role="img"
+                                                                        aria-label={`${review.rating} out of 5 stars`}
+                                                                    >
+                                                                        {"★".repeat(review.rating)}
+                                                                        {"☆".repeat(5 - review.rating)}
+                                                                    </span>
+
+                                                                )}
+
+                                                                {review.verified_purchase && (
+
+                                                                    <span className="review-card-verified">
+                                                                        ✓ Verified Purchase
+                                                                    </span>
+
+                                                                )}
+
+                                                            </div>
+
+                                                        )}
 
 
-                                                <p className="review-card-text">
+                                                        <p className="review-card-text">
 
-                                                    {review.review}
+                                                            {review.review}
 
-                                                </p>
-
-
-                                                <div className="review-card-status">
-
-                                                    {review.is_approved
-                                                        ? "Approved"
-                                                        : "Pending approval"}
-
-                                                </div>
+                                                        </p>
 
 
-                                            </article>
+                                                        <div
+                                                            className={
+                                                                review.is_approved
+                                                                    ? "review-card-status review-card-status--approved"
+                                                                    : "review-card-status review-card-status--pending"
+                                                            }
+                                                        >
 
-                                        )
+                                                            {review.is_approved
+                                                                ? "Approved"
+                                                                : "Pending approval"}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </article>
+
+                                            );
+
+                                        }
                                     )}
 
                                 </div>

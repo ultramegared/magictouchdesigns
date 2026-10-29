@@ -17,10 +17,6 @@ import {
     useState,
 } from "react";
 
-import {
-    Music2,
-} from "lucide-react";
-
 import "./CustomerGallery.css";
 
 import {
@@ -48,11 +44,13 @@ interface PublicReview {
 
     review: string;
 
+    rating?: number | null;
+
+    verified_purchase?: boolean;
+
     image_url: string;
 
-    social_platform?: string | null;
-
-    social_url?: string | null;
+    image_urls?: string[] | null;
 
     created_at: string;
 
@@ -61,147 +59,68 @@ interface PublicReview {
 }
 
 
+/*
+ * All photos of a review, newest model first.
+ * Reviews written before multi-photo existed only carry
+ * the legacy single image_url, which counts as photo one.
+ */
+
+const photosOf = (
+    item: PublicReview
+): string[] => {
+
+    if (
+        item.image_urls &&
+        item.image_urls.length > 0
+    ) {
+
+        return item.image_urls;
+
+    }
+
+    if (
+        item.image_url &&
+        item.image_url.trim() !== ""
+    ) {
+
+        return [item.image_url];
+
+    }
+
+    return [];
+
+};
+
+
+/*
+ * Star row for a 1-5 rating.
+ * NULL (reviews written before ratings existed)
+ * renders nothing: no default rating is ever invented.
+ */
+
+const renderStars = (
+    rating: number
+) => {
+
+    return (
+        <span
+            className="customer-gallery__stars"
+            role="img"
+            aria-label={`${rating} out of 5 stars`}
+        >
+            {"★".repeat(rating)}
+            {"☆".repeat(5 - rating)}
+        </span>
+    );
+
+};
+
+
 interface PublicReviewsResponse {
 
     reviews: PublicReview[];
 
 }
-
-
-/* ===============================================================
-   SOCIAL ICONS
-================================================================ */
-
-const getSocialIcon = (
-    platform:
-        | "instagram"
-        | "facebook"
-        | "youtube"
-        | "tiktok"
-) => {
-
-    switch (platform) {
-
-        case "instagram":
-
-            return (
-                <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                >
-
-                    <rect
-                        x="3"
-                        y="3"
-                        width="18"
-                        height="18"
-                        rx="5"
-                    />
-
-                    <circle
-                        cx="12"
-                        cy="12"
-                        r="4"
-                    />
-
-                    <circle
-                        cx="17.5"
-                        cy="6.5"
-                        r="1"
-                        fill="currentColor"
-                        stroke="none"
-                    />
-
-                </svg>
-            );
-
-
-        case "facebook":
-
-            return (
-                <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden="true"
-                >
-
-                    <path d="M14 8h3V4h-3c-3.3 0-5 2-5 5v3H6v4h3v8h4v-8h3.2l.8-4H13V9c0-.7.3-1 1-1z" />
-
-                </svg>
-            );
-
-
-        case "youtube":
-
-            return (
-                <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden="true"
-                >
-
-                    <path d="M23 12s0-4-1-5-2.2-1-3-1C16.5 5.8 12 5.8 12 5.8s-4.5 0-7 .2c-.8 0-2 .1-3 1s-1 5-1 5 0 4 1 5 2.2 1 3 1c2.5.2 7 .2 7 .2s4.5 0 7-.2c.8 0 2-.1 3-1s-1 5-1 5z" />
-
-                    <path
-                        d="M10 9l5 3-5 3V9z"
-                        fill="#0F0F10"
-                    />
-
-                </svg>
-            );
-
-
-        case "tiktok":
-
-            return (
-                <Music2
-                    size={18}
-                />
-            );
-
-
-        default:
-
-            return null;
-    }
-
-};
-
-
-/* ===============================================================
-   SOCIAL PLATFORM VALIDATION
-================================================================ */
-
-const isSupportedSocialPlatform = (
-    platform:
-        | string
-        | null
-        | undefined
-): platform is
-    | "instagram"
-    | "facebook"
-    | "youtube"
-    | "tiktok" => {
-
-    return (
-        platform === "instagram" ||
-        platform === "facebook" ||
-        platform === "youtube" ||
-        platform === "tiktok"
-    );
-
-};
 
 
 /* ===============================================================
@@ -413,13 +332,12 @@ function CustomerGallery() {
                                     item.username;
 
 
-                                const hasSocial =
-                                    Boolean(
-                                        item.social_url
-                                    ) &&
-                                    isSupportedSocialPlatform(
-                                        item.social_platform
-                                    );
+                                const photos =
+                                    photosOf(item);
+
+                                const firstPhoto =
+                                    photos[0] ??
+                                    item.image_url;
 
 
                                 return (
@@ -438,7 +356,7 @@ function CustomerGallery() {
 
                                             <img
                                                 src={
-                                                    item.image_url
+                                                    firstPhoto
                                                 }
                                                 alt={`${customerName}'s personalized mug`}
                                                 loading="lazy"
@@ -454,7 +372,7 @@ function CustomerGallery() {
                                                 onClick={() =>
                                                     setSelectedImage({
                                                         image:
-                                                            item.image_url,
+                                                            firstPhoto,
 
                                                         customerName,
                                                     })
@@ -472,6 +390,48 @@ function CustomerGallery() {
                                         </div>
 
 
+                                        {/* EXTRA PHOTOS */}
+
+                                        {photos.length > 1 && (
+
+                                            <div
+                                                className="customer-gallery__thumbs"
+                                            >
+
+                                                {photos.slice(1).map(
+                                                    (photo) => (
+
+                                                        <button
+                                                            key={photo}
+                                                            type="button"
+                                                            className="customer-gallery__thumb"
+                                                            aria-label={`View ${customerName}'s photo`}
+                                                            onClick={() =>
+                                                                setSelectedImage({
+                                                                    image:
+                                                                        photo,
+
+                                                                    customerName,
+                                                                })
+                                                            }
+                                                        >
+
+                                                            <img
+                                                                src={photo}
+                                                                alt=""
+                                                                loading="lazy"
+                                                            />
+
+                                                        </button>
+
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                        )}
+
+
                                         {/* CUSTOMER CONTENT */}
 
                                         <div
@@ -487,38 +447,39 @@ function CustomerGallery() {
                                             </span>
 
 
+                                            {(item.rating != null ||
+                                                item.verified_purchase) && (
+
+                                                <div
+                                                    className="customer-gallery__meta"
+                                                >
+
+                                                    {item.rating != null &&
+                                                        renderStars(
+                                                            item.rating
+                                                        )}
+
+                                                    {item.verified_purchase && (
+
+                                                        <span
+                                                            className="customer-gallery__verified"
+                                                        >
+                                                            ✓ Verified Purchase
+                                                        </span>
+
+                                                    )}
+
+                                                </div>
+
+                                            )}
+
+
                                             <p>
 
                                                 {item.review}
 
                                             </p>
 
-
-                                            {hasSocial && (
-
-                                                <a
-                                                    href={
-                                                        item.social_url!
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="customer-gallery__social"
-                                                    aria-label={`View ${customerName}'s ${item.social_platform}`}
-                                                >
-
-                                                    {
-                                                        getSocialIcon(
-                                                            item.social_platform as
-                                                                | "instagram"
-                                                                | "facebook"
-                                                                | "youtube"
-                                                                | "tiktok"
-                                                        )
-                                                    }
-
-                                                </a>
-
-                                            )}
 
                                         </div>
 

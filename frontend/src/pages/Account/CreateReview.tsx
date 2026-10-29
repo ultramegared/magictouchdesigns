@@ -6,8 +6,9 @@
  * Module: Account Reviews Page
  * Language: TypeScript React
  * Description:
- * Allows an authenticated user to create a new review
- * with an optional photo.
+ * Allows an authenticated user to create a new review.
+ * A review is only three things: a 1-5 star rating, up to
+ * 3 photos of the purchased mug, and a comment.
  * ================================================================
  */
 
@@ -41,6 +42,21 @@ import {
 } from "../../services/api";
 
 import "./CreateReview.css";
+
+
+/* ===============================================================
+   CONSTANTS
+================================================================ */
+
+const MAX_PHOTOS = 3;
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+const ALLOWED_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+];
 
 
 /* ===============================================================
@@ -80,30 +96,26 @@ function CreateReview() {
 
 
     const [
-        socialPlatform,
-        setSocialPlatform,
-    ] = useState("");
-
-
-    const [
-        socialUrl,
-        setSocialUrl,
-    ] = useState("");
-
-
-    const [
-        selectedImage,
-        setSelectedImage,
-    ] = useState<File | null>(
+        rating,
+        setRating,
+    ] = useState<number | null>(
         null
     );
 
 
     const [
-        imagePreview,
-        setImagePreview,
-    ] = useState<string | null>(
-        null
+        selectedImages,
+        setSelectedImages,
+    ] = useState<File[]>(
+        []
+    );
+
+
+    const [
+        imagePreviews,
+        setImagePreviews,
+    ] = useState<string[]>(
+        []
     );
 
 
@@ -122,86 +134,65 @@ function CreateReview() {
 
 
     /* ============================================================
-       CLEANUP IMAGE PREVIEW
+       CLEANUP IMAGE PREVIEWS
     ============================================================ */
 
     useEffect(() => {
 
         return () => {
 
-            if (imagePreview) {
-
-                URL.revokeObjectURL(
-                    imagePreview
-                );
-
-            }
+            imagePreviews.forEach(
+                (preview) =>
+                    URL.revokeObjectURL(
+                        preview
+                    )
+            );
 
         };
 
-    }, [
-        imagePreview,
-    ]);
+        // Previews are revoked on unmount only; the list is
+        // managed explicitly by add/remove below.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
 
     /* ============================================================
-       HANDLE IMAGE
+       HANDLE IMAGES (UP TO 3)
     ============================================================ */
 
-    const handleImageChange = (
+    const handleImagesChange = (
         event: ChangeEvent<HTMLInputElement>
     ) => {
 
-        const file =
-            event.target.files?.[0];
-
-
-        if (!file) {
-
-            return;
-
-        }
-
-
-        /*
-        ------------------------------------------------------------
-        Validate image type
-        ------------------------------------------------------------
-        */
-
-        if (
-            !file.type.startsWith(
-                "image/"
-            )
-        ) {
-
-            setErrorMessage(
-                "Please select a valid image file."
+        const files =
+            Array.from(
+                event.target.files ?? []
             );
 
-            return;
 
-        }
-
-
-        /*
-        ------------------------------------------------------------
-        Validate image size
-        Maximum: 5 MB
-        ------------------------------------------------------------
-        */
-
-        const maxFileSize =
-            5 * 1024 * 1024;
+        // Reset the input so the same file can be picked again.
+        event.target.value = "";
 
 
         if (
-            file.size >
-            maxFileSize
+            files.length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        const remainingSlots =
+            MAX_PHOTOS - selectedImages.length;
+
+
+        if (
+            remainingSlots <= 0
         ) {
 
             setErrorMessage(
-                "The image must be smaller than 5 MB."
+                `You can upload up to ${MAX_PHOTOS} photos.`
             );
 
             return;
@@ -209,46 +200,90 @@ function CreateReview() {
         }
 
 
-        /*
-        ------------------------------------------------------------
-        Remove previous preview
-        ------------------------------------------------------------
-        */
+        const acceptedFiles: File[] = [];
+        const acceptedPreviews: string[] = [];
+        let skippedForLimit = false;
+        let skippedForInvalid = false;
 
-        if (imagePreview) {
 
-            URL.revokeObjectURL(
-                imagePreview
+        for (
+            const file of files
+        ) {
+
+            if (
+                acceptedFiles.length >=
+                remainingSlots
+            ) {
+
+                skippedForLimit = true;
+                continue;
+
+            }
+
+            if (
+                !ALLOWED_TYPES.includes(
+                    file.type
+                ) ||
+                file.size > MAX_FILE_SIZE
+            ) {
+
+                skippedForInvalid = true;
+                continue;
+
+            }
+
+            acceptedFiles.push(file);
+            acceptedPreviews.push(
+                URL.createObjectURL(file)
             );
 
         }
 
 
-        /*
-        ------------------------------------------------------------
-        Create new preview
-        ------------------------------------------------------------
-        */
+        if (
+            acceptedFiles.length > 0
+        ) {
 
-        const previewUrl =
-            URL.createObjectURL(
-                file
+            setSelectedImages(
+                (previous) => [
+                    ...previous,
+                    ...acceptedFiles,
+                ]
             );
 
+            setImagePreviews(
+                (previous) => [
+                    ...previous,
+                    ...acceptedPreviews,
+                ]
+            );
 
-        setSelectedImage(
-            file
-        );
+        }
 
 
-        setImagePreview(
-            previewUrl
-        );
+        if (
+            skippedForLimit
+        ) {
 
+            setErrorMessage(
+                `You can upload up to ${MAX_PHOTOS} photos.`
+            );
 
-        setErrorMessage(
-            null
-        );
+        } else if (
+            skippedForInvalid
+        ) {
+
+            setErrorMessage(
+                "Photos must be JPG, PNG or WEBP and smaller than 5 MB."
+            );
+
+        } else {
+
+            setErrorMessage(
+                null
+            );
+
+        }
 
     };
 
@@ -257,32 +292,42 @@ function CreateReview() {
        REMOVE IMAGE
     ============================================================ */
 
-    const handleRemoveImage =
-        () => {
+    const handleRemoveImage = (
+        index: number
+    ) => {
 
-            if (imagePreview) {
+        const preview =
+            imagePreviews[index];
 
-                URL.revokeObjectURL(
-                    imagePreview
-                );
+        if (preview) {
 
-            }
-
-
-            setSelectedImage(
-                null
+            URL.revokeObjectURL(
+                preview
             );
 
+        }
 
-            setImagePreview(
-                null
-            );
+        setSelectedImages(
+            (previous) =>
+                previous.filter(
+                    (_, itemIndex) =>
+                        itemIndex !== index
+                )
+        );
 
-        };
+        setImagePreviews(
+            (previous) =>
+                previous.filter(
+                    (_, itemIndex) =>
+                        itemIndex !== index
+                )
+        );
+
+    };
 
 
     /* ============================================================
-       UPLOAD IMAGE
+       UPLOAD ONE IMAGE
     ============================================================ */
 
     const uploadReviewImage =
@@ -303,7 +348,7 @@ function CreateReview() {
             const result =
                 await apiRequest<UploadResponse>(
 
-                    "/api/upload",
+                    "/api/upload/review",
 
                     {
 
@@ -334,6 +379,26 @@ function CreateReview() {
         ) => {
 
             event.preventDefault();
+
+
+            /*
+            --------------------------------------------------------
+            Validate rating
+            A star rating from 1 to 5 is required.
+            --------------------------------------------------------
+            */
+
+            if (
+                rating === null
+            ) {
+
+                setErrorMessage(
+                    "Please select a star rating."
+                );
+
+                return;
+
+            }
 
 
             /*
@@ -369,23 +434,22 @@ function CreateReview() {
 
                 /*
                 ====================================================
-                UPLOAD IMAGE
+                UPLOAD PHOTOS (UP TO 3)
                 ====================================================
                 */
 
-                let imageUrl:
-                    string | null =
-                    null;
+                const imageUrls: string[] = [];
 
 
-                if (
-                    selectedImage
+                for (
+                    const file of selectedImages
                 ) {
 
-                    imageUrl =
+                    imageUrls.push(
                         await uploadReviewImage(
-                            selectedImage
-                        );
+                            file
+                        )
+                    );
 
                 }
 
@@ -393,6 +457,7 @@ function CreateReview() {
                 /*
                 ====================================================
                 CREATE REVIEW
+                A review is only: stars, photos, comment.
                 ====================================================
                 */
 
@@ -411,16 +476,10 @@ function CreateReview() {
                                 review:
                                     review.trim(),
 
-                                image_url:
-                                    imageUrl,
+                                rating,
 
-                                social_platform:
-                                    socialPlatform ||
-                                    null,
-
-                                social_url:
-                                    socialUrl.trim() ||
-                                    null,
+                                image_urls:
+                                    imageUrls,
 
                             }),
 
@@ -556,7 +615,7 @@ function CreateReview() {
 
 
                     {/* ==================================================
-                        FORM
+                        FORM: STARS, PHOTOS, COMMENT — NOTHING ELSE
                        ================================================== */}
 
                     <form
@@ -568,7 +627,78 @@ function CreateReview() {
 
 
                         {/* ==================================================
-                            PHOTO
+                            STAR RATING
+                           ================================================== */}
+
+                        <div
+                            className="create-review-field"
+                        >
+
+                            <span
+                                id="rating-label"
+                                className="create-review-rating-label"
+                            >
+
+                                Your rating
+
+                            </span>
+
+
+                            <div
+                                className="create-review-stars"
+                                role="radiogroup"
+                                aria-labelledby="rating-label"
+                            >
+
+                                {[1, 2, 3, 4, 5].map(
+                                    (value) => (
+
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={
+                                                rating === value
+                                            }
+                                            aria-label={
+                                                `Rate ${value} star${value > 1 ? "s" : ""}`
+                                            }
+                                            className={
+                                                rating !== null &&
+                                                value <= rating
+                                                    ? "create-review-star create-review-star--active"
+                                                    : "create-review-star"
+                                            }
+                                            onClick={() =>
+                                                setRating(value)
+                                            }
+                                            disabled={
+                                                isSubmitting
+                                            }
+                                        >
+
+                                            <Star
+                                                size={30}
+                                                fill={
+                                                    rating !== null &&
+                                                    value <= rating
+                                                        ? "currentColor"
+                                                        : "none"
+                                                }
+                                            />
+
+                                        </button>
+
+                                    )
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        {/* ==================================================
+                            PHOTOS (UP TO 3)
                            ================================================== */}
 
                         <div
@@ -576,82 +706,91 @@ function CreateReview() {
                         >
 
                             <label
-                                htmlFor="review-image"
+                                htmlFor="review-images"
                             >
 
-                                Your photo
+                                Photos of your purchase
 
                             </label>
 
 
                             <div
-                                className="create-review-image-wrapper"
+                                className="create-review-photos"
                             >
 
-                                <label
-                                    htmlFor="review-image"
-                                    className="create-review-upload"
-                                >
-
-                                    {imagePreview ? (
-
-                                        <img
-                                            src={
-                                                imagePreview
-                                            }
-                                            alt="Review preview"
-                                            className="create-review-preview"
-                                        />
-
-                                    ) : (
+                                {imagePreviews.map(
+                                    (
+                                        preview,
+                                        index
+                                    ) => (
 
                                         <div
-                                            className="create-review-upload-content"
+                                            key={preview}
+                                            className="create-review-photo-tile"
                                         >
 
-                                            <Camera
-                                                size={32}
+                                            <img
+                                                src={preview}
+                                                alt={`Purchase photo ${index + 1}`}
+                                                className="create-review-photo-preview"
                                             />
 
-                                            <span>
+                                            <button
+                                                type="button"
+                                                className="create-review-photo-remove"
+                                                onClick={() =>
+                                                    handleRemoveImage(
+                                                        index
+                                                    )
+                                                }
+                                                aria-label={
+                                                    `Remove photo ${index + 1}`
+                                                }
+                                                disabled={
+                                                    isSubmitting
+                                                }
+                                            >
 
-                                                Upload a photo
+                                                <X
+                                                    size={18}
+                                                />
 
-                                            </span>
-
-                                            <small>
-
-                                                Maximum size:
-                                                {" "}
-                                                5 MB
-
-                                            </small>
+                                            </button>
 
                                         </div>
 
-                                    )}
+                                    )
+                                )}
 
-                                </label>
 
+                                {selectedImages.length <
+                                    MAX_PHOTOS && (
 
-                                {imagePreview && (
-
-                                    <button
-                                        type="button"
-                                        className="create-review-remove-image"
-                                        onClick={
-                                            handleRemoveImage
-                                        }
-                                        aria-label={
-                                            "Remove image"
-                                        }
+                                    <label
+                                        htmlFor="review-images"
+                                        className="create-review-add-tile"
                                     >
 
-                                        <X
-                                            size={18}
+                                        <Camera
+                                            size={32}
                                         />
 
-                                    </button>
+                                        <span>
+
+                                            Add a photo
+
+                                        </span>
+
+                                        <small>
+
+                                            {selectedImages.length}
+                                            {" "}of{" "}
+                                            {MAX_PHOTOS}
+                                            {" "}· 5 MB max
+
+                                        </small>
+
+                                    </label>
 
                                 )}
 
@@ -659,20 +798,24 @@ function CreateReview() {
 
 
                             <input
-                                id="review-image"
+                                id="review-images"
                                 type="file"
-                                accept="image/*"
+                                accept="image/jpeg,image/png,image/webp"
+                                multiple
                                 onChange={
-                                    handleImageChange
+                                    handleImagesChange
                                 }
                                 className="create-review-file"
+                                disabled={
+                                    isSubmitting
+                                }
                             />
 
                         </div>
 
 
                         {/* ==================================================
-                            REVIEW
+                            COMMENT
                            ================================================== */}
 
                         <div
@@ -708,150 +851,6 @@ function CreateReview() {
                                 }
                                 rows={6}
                                 required
-                                disabled={
-                                    isSubmitting
-                                }
-                            />
-
-                        </div>
-
-
-                        {/* ==================================================
-                            SOCIAL PLATFORM
-                           ================================================== */}
-
-                        <div
-                            className="create-review-field"
-                        >
-
-                            <label
-                                htmlFor="social-platform"
-                            >
-
-                                Social platform
-
-                            </label>
-
-
-                            <select
-                                id="social-platform"
-                                value={
-                                    socialPlatform
-                                }
-                                onChange={
-                                    (
-                                        event
-                                    ) =>
-
-                                        setSocialPlatform(
-                                            event.target.value
-                                        )
-
-                                }
-                                disabled={
-                                    isSubmitting
-                                }
-                            >
-
-                                <option value="">
-
-                                    Select a platform
-
-                                </option>
-
-
-                                <option
-                                    value="instagram"
-                                >
-
-                                    Instagram
-
-                                </option>
-
-
-                                <option
-                                    value="facebook"
-                                >
-
-                                    Facebook
-
-                                </option>
-
-
-                                <option
-                                    value="tiktok"
-                                >
-
-                                    TikTok
-
-                                </option>
-
-
-                                <option
-                                    value="youtube"
-                                >
-
-                                    YouTube
-
-                                </option>
-
-
-                                <option
-                                    value="x"
-                                >
-
-                                    X
-
-                                </option>
-
-
-                                <option
-                                    value="other"
-                                >
-
-                                    Other
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        {/* ==================================================
-                            SOCIAL URL
-                           ================================================== */}
-
-                        <div
-                            className="create-review-field"
-                        >
-
-                            <label
-                                htmlFor="social-url"
-                            >
-
-                                Social profile link
-
-                            </label>
-
-
-                            <input
-                                id="social-url"
-                                type="url"
-                                value={
-                                    socialUrl
-                                }
-                                onChange={
-                                    (
-                                        event
-                                    ) =>
-
-                                        setSocialUrl(
-                                            event.target.value
-                                        )
-
-                                }
-                                placeholder="https://..."
                                 disabled={
                                     isSubmitting
                                 }
