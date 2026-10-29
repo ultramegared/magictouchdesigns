@@ -171,3 +171,9 @@
         width: 100%;
     }
 }
+
+.checkout-success-designs { margin: 22px 0 6px; padding: 18px; border: 1px solid #e7ddc9; border-radius: 14px; background: #fdf9ef; }
+.checkout-success-designs h2 { margin: 0 0 4px; font-size: 17px; color: #3d3428; }
+.checkout-success-designs p { margin: 0 0 12px; font-size: 13px; color: #81766a; }
+.checkout-success-designs__button { display: block; width: 100%; margin: 8px 0 0; padding: 12px; border: none; border-radius: 10px; background: #174a8b; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
+.checkout-success-designs__button:hover { background: #123a6e; }

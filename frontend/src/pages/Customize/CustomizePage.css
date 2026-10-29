@@ -146,3 +146,4 @@
 .customize-download__button:hover:not(:disabled) { background:#f5e8cf; box-shadow:0 7px 18px rgba(181,138,61,.13); }
 .customize-download__button:disabled { opacity:.45; cursor:not-allowed; }
 .customize-download__note { margin:7px 0 0; color:#81766a; font-size:10px; line-height:1.5; text-align:center; }
+.customize-download__status { margin:7px 0 0; color:#8a6d1f; font-size:10px; line-height:1.5; text-align:center; font-weight:600; }

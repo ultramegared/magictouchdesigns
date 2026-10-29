@@ -26,6 +26,8 @@ export type MugCustomization = {
     designRotation: number;
     mugRotation: number;
     createdAt: string;
+    /** SHA-256 fingerprint of the artwork, used by the download watermark rules. */
+    artworkFingerprint?: string;
 };
 
 const STORAGE_PREFIX = "mtd-customization-session:";
