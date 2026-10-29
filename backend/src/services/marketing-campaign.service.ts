@@ -4,6 +4,7 @@ import { getConnections, checkTikTokPublicationStatus, checkYouTubePublicationSt
 import { sendPromotion, type PromotionResult } from "./promotion.service";
 import { recordCampaignLaunchLearning, getMarketingLearningInsights } from "./marketing-learning.service";
 import { getCatalogOwners, queueNextContent, recordAutopilotRunEvent } from "./marketing-catalog.service";
+import { isAutopilotCadenceBlocked, releaseGeneratedVariant, consumeGeneratedVariant, withOrderingData } from "./marketing-creative.service";
 
 export interface MarketingCampaignInput {
     name: string;
@@ -19,7 +20,7 @@ export interface MarketingCampaignInput {
     sendEmail?: boolean;
     idempotencyKey?: string;
     autopilot?: boolean;
-    campaignType?: "manual" | "catalog" | "event";
+    campaignType?: "manual" | "catalog" | "event" | "generated";
     startsAt?: string;
     endsAt?: string;
     recurrenceHours?: number;
@@ -42,6 +43,13 @@ export interface MarketingCampaignResult {
 }
 
 const allowedChannels: SocialChannel[] = ["facebook", "instagram", "whatsapp", "tiktok", "youtube", "pinterest"];
+
+// Global autopilot cadence (owner rule): the robot publishes at most
+// one autopilot campaign every 3 days across catalog, portfolio, and
+// generated. A run blocked by this gate consumes nothing — due
+// campaigns stay due for the next window. Manual launches never pass
+// through this path and are untouched by it.
+const AUTOPILOT_CADENCE_REASON = "Autopilot cadence: a campaign published within the last 3 days; waiting for the next window.";
 
 const ensureCampaignTable = async () => {
     await pool.query(`
@@ -917,6 +925,12 @@ const runMarketingAutopilotOnce = async () => {
     if (!pauseState.rows[0] || pauseState.rows[0].enabled !== true) {
         return { ran: false, paused: true, reason: "Marketing Autopilot is paused; no content was queued or published." };
     }
+    // Global 3-day cadence, checked BEFORE queueing or claiming: a
+    // blocked run queues nothing and claims nothing, so no campaign
+    // is consumed while waiting for the next window.
+    if (await isAutopilotCadenceBlocked()) {
+        return { ran: false, reason: AUTOPILOT_CADENCE_REASON };
+    }
     const contentOwners = await getCatalogOwners();
     const contentQueue = [];
     for (const ownerId of contentOwners) {
@@ -984,6 +998,37 @@ const runMarketingAutopilotOnce = async () => {
                 }
             } catch { /* Promotion rollback must never break the autopilot. */ }
             return { ran: false, reason: "Catalog item failed production eligibility checks; no social post was sent.", campaignId: campaign.id };
+        }
+    }
+    // Generated posters carry the same base-product guarantee as
+    // catalog campaigns: if the base product became ineligible by run
+    // time (deactivated, $0, test name, image gone), disable the
+    // campaign without posting and release its variant reservation,
+    // mirroring the catalog blocked-path rollback.
+    if (source.type === "generated") {
+        const productId = String(source.productId || "");
+        const productCheck = productId
+            ? await pool.query(
+                `SELECT name, price, is_active, COALESCE(NULLIF(BTRIM(image_url), ''), NULLIF(BTRIM(image_urls->>0), '')) AS image_url
+                 FROM products WHERE product_id::text=$1 LIMIT 1`,
+                [productId]
+              )
+            : { rows: [] };
+        const product = productCheck.rows[0];
+        const isPlaceholder = !product || !product.is_active || Number(product.price) <= 0
+            || !String(product.name || "").trim()
+            || /(^|[^a-z])(test|sample|demo|placeholder)([^a-z]|$)/i.test(String(product.name || ""))
+            || !String(product.image_url || "").trim();
+        if (isPlaceholder) {
+            await pool.query(
+                `UPDATE marketing_campaigns
+                 SET autopilot_enabled=FALSE, next_run_at=NULL, claim_token=NULL, claim_expires_at=NULL,
+                     results=results || $2::jsonb
+                 WHERE id=$1 AND claim_token=$3`,
+                [campaign.id, JSON.stringify({ autopilot: { blocked: true, reason: "Generated base product failed production eligibility checks; no social post was sent." } }), claimToken]
+            );
+            await releaseGeneratedVariant(campaign.id);
+            return { ran: false, reason: "Generated base product failed production eligibility checks; no social post was sent.", campaignId: campaign.id };
         }
     }
     if (campaign.ends_at && new Date(campaign.ends_at) <= new Date()) {
@@ -1092,7 +1137,18 @@ const runMarketingAutopilotOnce = async () => {
                     String(source.productName || source.portfolioTitle || campaign.name || "Personalized design"),
                     String(assets.imageUrl || "")
                   )
-                : campaign.message,
+                : source.type === "generated"
+                    // Generated posts are advertising posters: the
+                    // caption must carry ordering data (website +
+                    // WhatsApp) so customers can place orders. No
+                    // price is added anywhere; the website already
+                    // in the generated caption plus the WhatsApp
+                    // line below are the only ordering data.
+                    ? withOrderingData(await generateAutopilotCaption(
+                        String(source.productName || campaign.name || "Personalized design"),
+                        String(assets.imageUrl || "")
+                      ))
+                    : campaign.message,
             subject: campaign.subject,
             channels: [channel],
             imageUrl: campaign.results?.assets?.imageUrl,
@@ -1148,6 +1204,9 @@ const runMarketingAutopilotOnce = async () => {
              WHERE id=$1 AND claim_token=$3`,
             [campaign.id, JSON.stringify(mergedResults), claimToken]
         );
+        // A generated variant is consumed ONLY on publish success, so
+        // a failed run keeps its reservation for the +12h retry below.
+        if (source.type === "generated") await consumeGeneratedVariant(campaign.id);
         return { ran: true, campaignId: campaign.id, channels: channelsToPublish, social, nextRunAt: null, completed: true, contentQueue };
     }
     // Nothing published on any channel: keep the previous retry behavior
@@ -1183,10 +1242,13 @@ export const runMarketingAutopilot = async (maxRuns = 10, source = "unknown") =>
         }
         runs.push(result);
 
-        // Stop as soon as there is no due work. A single hourly invocation can
-        // therefore drain several independent campaigns without letting one
+        // Stop as soon as there is no due work, or when the global
+        // 3-day cadence is closed: further iterations in this drain
+        // would hit the same gate, so there is nothing left to do.
+        // A single hourly invocation can therefore drain several
+        // independent campaigns without letting one
         // manual/catalog/portfolio campaign replace the others.
-        if (!result?.ran && result?.reason === "No campaign is due.") {
+        if (!result?.ran && (result?.reason === "No campaign is due." || result?.reason === AUTOPILOT_CADENCE_REASON)) {
             break;
         }
     }
@@ -1208,6 +1270,7 @@ export const runMarketingAutopilot = async (maxRuns = 10, source = "unknown") =>
         if (Array.isArray(queue)) for (const entry of queue) {
             if (entry?.catalog?.queued === false && entry.catalog.reason) queueReasons.push(`catalog: ${entry.catalog.reason}`);
             if (entry?.portfolio?.queued === false && entry.portfolio.reason) queueReasons.push(`portfolio: ${entry.portfolio.reason}`);
+            if (entry?.generated?.queued === false && entry.generated.reason) queueReasons.push(`generated: ${entry.generated.reason}`);
         }
     }
     await recordAutopilotRunEvent(workspaceId, source, {
