@@ -23,7 +23,30 @@ import {
     getReviewById,
     updateReview,
     deleteReview,
+    isValidRating,
+    MAX_REVIEW_PHOTOS,
 } from "../services/review.service";
+
+
+/**
+ * A photo list is valid only as an array of at most
+ * MAX_REVIEW_PHOTOS non-empty image URLs.
+ */
+const isValidPhotoUrls = (
+    value: unknown
+): value is string[] => {
+
+    return (
+        Array.isArray(value) &&
+        value.length <= MAX_REVIEW_PHOTOS &&
+        value.every(
+            (url) =>
+                typeof url === "string" &&
+                url.trim() !== ""
+        )
+    );
+
+};
 
 
 interface AuthenticatedRequest
@@ -62,7 +85,9 @@ export const create = async (
 
         const {
             review,
+            rating,
             image_url,
+            image_urls,
             social_platform,
             social_url,
         } = req.body;
@@ -81,6 +106,29 @@ export const create = async (
         }
 
 
+        if (!isValidRating(rating)) {
+
+            return res.status(400).json({
+                message:
+                    "A star rating between 1 and 5 is required.",
+            });
+
+        }
+
+
+        if (
+            image_urls !== undefined &&
+            !isValidPhotoUrls(image_urls)
+        ) {
+
+            return res.status(400).json({
+                message:
+                    `A review can have at most ${MAX_REVIEW_PHOTOS} photos.`,
+            });
+
+        }
+
+
         const newReview =
             await createReview({
 
@@ -88,7 +136,11 @@ export const create = async (
 
                 review,
 
+                rating,
+
                 image_url,
+
+                image_urls,
 
                 social_platform,
 
@@ -337,10 +389,39 @@ export const update = async (
 
         const {
             review,
+            rating,
             image_url,
+            image_urls,
             social_platform,
             social_url,
         } = req.body;
+
+
+        if (
+            rating !== undefined &&
+            rating !== null &&
+            !isValidRating(rating)
+        ) {
+
+            return res.status(400).json({
+                message:
+                    "A star rating must be an integer between 1 and 5.",
+            });
+
+        }
+
+
+        if (
+            image_urls !== undefined &&
+            !isValidPhotoUrls(image_urls)
+        ) {
+
+            return res.status(400).json({
+                message:
+                    `A review can have at most ${MAX_REVIEW_PHOTOS} photos.`,
+            });
+
+        }
 
 
         const updatedReview =
@@ -354,7 +435,11 @@ export const update = async (
 
                     review,
 
+                    rating,
+
                     image_url,
+
+                    image_urls,
 
                     social_platform,
 

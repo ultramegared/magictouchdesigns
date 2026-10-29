@@ -623,6 +623,57 @@
 
 
 /* ================================================================
+   RATING + VERIFIED PURCHASE
+   Small, subtle row under the customer name.
+================================================================ */
+
+.customer-gallery__meta {
+
+    display:
+        flex;
+
+    flex-wrap:
+        wrap;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+
+    margin:
+        0 0 8px;
+
+}
+
+.customer-gallery__stars {
+
+    color:
+        #c89b3c;
+
+    font-size:
+        0.85rem;
+
+    letter-spacing:
+        1px;
+
+}
+
+.customer-gallery__verified {
+
+    color:
+        #5b6573;
+
+    font-size:
+        0.72rem;
+
+    font-weight:
+        600;
+
+}
+
+
+/* ================================================================
    USERNAME TOP LIGHT
 ================================================================ */
 
@@ -1712,4 +1763,33 @@
 
     }
 
+}
+
+/* ================================================================
+   EXTRA PHOTO THUMBNAILS (2ND AND 3RD PHOTOS)
+   Open in the existing fullscreen lightbox.
+   ================================================================ */
+
+.customer-gallery__thumbs {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.customer-gallery__thumb {
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    background: transparent;
+    cursor: pointer;
+}
+
+.customer-gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
