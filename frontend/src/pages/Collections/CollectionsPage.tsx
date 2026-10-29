@@ -111,15 +111,45 @@ function CollectionsPage() {
     return () => { cancelled = true; };
   }, [searching, searchQuery]);
 
+  /*
+   * Smart product matching: every query word must appear somewhere
+   * in the name or description, in any order ("for mom" finds
+   * "Mom & Son"). Plurals are understood ("mugs" matches "mug")
+   * and common synonyms are mapped ("cup" matches "mug").
+   */
+
+  const searchSynonym = (word: string): string => {
+    if (word === "cup" || word === "cups") {
+      return "mug";
+    }
+    return word;
+  };
+
+  const searchSingular = (word: string): string => {
+    if (word.length > 3 && word.endsWith("s") && !word.endsWith("ss")) {
+      return word.slice(0, -1);
+    }
+    return word;
+  };
+
   const searchResults = useMemo(() => {
     if (!searching) {
       return [];
     }
-    const needle = searchQuery.toLowerCase();
-    return searchProducts.filter((product) =>
-      product.name.toLowerCase().includes(needle) ||
-      (product.description ?? "").toLowerCase().includes(needle)
-    );
+    const words = searchQuery
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((word) => word.length > 0)
+      .map(searchSynonym);
+    return searchProducts.filter((product) => {
+      const haystack =
+        `${product.name} ${product.description ?? ""}`.toLowerCase();
+      return words.every(
+        (word) =>
+          haystack.includes(word) ||
+          haystack.includes(searchSingular(word))
+      );
+    });
   }, [searching, searchQuery, searchProducts]);
 
   const searchCollectionName = (slug: string) =>
