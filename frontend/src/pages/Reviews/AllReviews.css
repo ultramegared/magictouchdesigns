@@ -1,0 +1,31 @@
+/**
+ * ===============================================================
+ * Author: ultramegared
+ * Project: Magic Touch Designs
+ * File: AllReviews.css
+ * Module: Frontend
+ * Language: CSS
+ * Description:
+ * Full customer reviews page. Reuses the home gallery card
+ * styles; only the fixed-header clearance and the empty
+ * state live here.
+ * ===============================================================
+ */
+
+.all-reviews-page {
+    width: 100%;
+    min-height: 100vh;
+
+    /* Fixed header clearance (86px) + breathing room. */
+    padding-top: 30px;
+
+    background: #09090a;
+}
+
+.all-reviews-page__empty {
+    margin: 0;
+    padding: 48px 0 24px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    text-align: center;
+}

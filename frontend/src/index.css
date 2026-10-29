@@ -459,6 +459,10 @@ html[data-jqy-theme="corporate"] .customer-gallery__name{
 html[data-jqy-theme="corporate"] .customer-gallery__content p{
     color:var(--skin-text)!important;
 }
+html[data-jqy-theme="corporate"] .customer-gallery__view-all{
+    color:#8a6d1f!important;
+    border-color:#c9a227!important;
+}
 html[data-jqy-theme="corporate"] .customer-gallery__zoom{
     background:var(--skin-primary)!important;color:#fff!important;border-color:var(--skin-primary)!important;
 }

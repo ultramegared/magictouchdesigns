@@ -167,6 +167,8 @@ export const es = {
         description:
             "Mira cómo nuestros clientes disfrutan sus tazas personalizadas.",
         viewGallery: "VER GALERÍA →",
+        viewAllReviews: "Ver todos los reviews",
+        empty: "Aún no hay reviews.",
     },
 
     home: {

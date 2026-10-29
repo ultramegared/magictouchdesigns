@@ -7,7 +7,7 @@
  * Language: TypeScript React
  * Description:
  * Customer Gallery Section.
- * Displays the four latest approved customer reviews with images.
+ * Displays the six latest approved customer reviews with images.
  * Includes a premium fullscreen image preview.
  * ===============================================================
  */
@@ -16,6 +16,10 @@ import {
     useEffect,
     useState,
 } from "react";
+
+import {
+    Link,
+} from "react-router-dom";
 
 import "./CustomerGallery.css";
 
@@ -172,7 +176,7 @@ function CustomerGallery() {
 
                     const result =
                         await apiRequest<PublicReviewsResponse>(
-                            "/api/reviews/public?limit=4"
+                            "/api/reviews/public?limit=6"
                         );
 
 
@@ -351,7 +355,7 @@ function CustomerGallery() {
 
                 {/* ==================================================
                     GALLERY
-                    Four latest approved customer reviews
+                    Six latest approved customer reviews
                     with images.
                 ================================================== */}
 
@@ -554,6 +558,31 @@ function CustomerGallery() {
 
                             }
                         )}
+
+                    </div>
+
+                )}
+
+
+                {/* ==================================================
+                    VIEW ALL REVIEWS
+                    Full list lives on its own page.
+                ================================================== */}
+
+                {reviews.length > 0 && (
+
+                    <div
+                        className="customer-gallery__view-all-wrap"
+                    >
+
+                        <Link
+                            to="/reviews"
+                            className="customer-gallery__view-all"
+                        >
+
+                            {t.customerGallery.viewAllReviews}
+
+                        </Link>
 
                     </div>
 

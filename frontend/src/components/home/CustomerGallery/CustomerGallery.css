@@ -1872,3 +1872,32 @@
     font-size: 0.92rem;
     line-height: 1.6;
 }
+
+
+/* ================================================================
+   VIEW ALL REVIEWS BUTTON
+   Opens the full reviews list on its own page.
+================================================================ */
+
+.customer-gallery__view-all-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 34px;
+}
+
+.customer-gallery__view-all {
+    display: inline-block;
+    padding: 13px 34px;
+    border: 1px solid rgba(226, 189, 98, 0.7);
+    border-radius: 999px;
+    color: #e2bd62;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.customer-gallery__view-all:hover {
+    background: rgba(226, 189, 98, 0.12);
+}
