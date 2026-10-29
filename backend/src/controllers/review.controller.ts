@@ -252,7 +252,7 @@ export const getPublic = async (
             requestedLimit > 0
                 ? Math.min(
                     requestedLimit,
-                    8
+                    100
                 )
                 : 8;
 

@@ -167,6 +167,8 @@ export const en = {
     description:
       "See how our customers are enjoying their personalized mugs.",
     viewGallery: "VIEW GALLERY →",
+    viewAllReviews: "View all reviews",
+    empty: "No reviews yet.",
   },
 
   home: {
