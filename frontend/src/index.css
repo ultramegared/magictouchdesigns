@@ -452,6 +452,13 @@ html[data-jqy-theme="corporate"] .customer-gallery__card{
     border-color:#d5dde6!important;
     box-shadow:0 12px 30px rgba(17,24,39,.10)!important;
 }
+html[data-jqy-theme="corporate"] .customer-gallery__name{
+    background:linear-gradient(145deg,#fff8e8,#f3e5bd)!important;
+    border-color:#dfc77f!important;
+}
+html[data-jqy-theme="corporate"] .customer-gallery__content p{
+    color:var(--skin-text)!important;
+}
 html[data-jqy-theme="corporate"] .customer-gallery__zoom{
     background:var(--skin-primary)!important;color:#fff!important;border-color:var(--skin-primary)!important;
 }
