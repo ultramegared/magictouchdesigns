@@ -4,101 +4,121 @@ import { useLanguage } from "../contexts/LanguageContext";
 
 type SeoEntry = { en: string; es: string; description: { en: string; es: string } };
 
+const SITE_URL = "https://www.jqydesigns.com";
+const LOGO_URL =
+  "https://res.cloudinary.com/ydcdwyui/image/upload/v1790738368/magic-touch-designs/logos/nneyxqq6xylcxciw3om7.png";
+
 const SEO: Record<string, SeoEntry> = {
   "/": {
-    en: "Custom Products & Personalized Gifts | JQYD Magic Touch Designs",
-    es: "Productos Personalizados y Regalos | JQYD Magic Touch Designs",
+    en: "Personalized Mugs & Custom Gifts | JQYDesigns Magic Touch Designs",
+    es: "Tazas Personalizadas y Regalos | JQYDesigns Magic Touch Designs",
     description: {
-      en: "Shop custom mugs, T-shirts, hats, personalized gifts and custom products made for every occasion at JQYD Magic Touch Designs.",
-      es: "Compra tazas, camisetas, gorras, regalos personalizados y productos hechos para cada ocasión en JQYD Magic Touch Designs.",
+      en: "Shop personalized mugs with your photo, name or design, made in Katy, TX. Custom gifts for every occasion at JQYDesigns Magic Touch Designs.",
+      es: "Compra tazas personalizadas con tu foto, nombre o diseño, hechas en Katy, TX. Regalos personalizados para cada ocasión en JQYDesigns Magic Touch Designs.",
     },
   },
   "/collections": {
-    en: "Personalized Gift Collections | JQYD Magic Touch Designs",
-    es: "Colecciones de Regalos Personalizados | JQYD Magic Touch Designs",
+    en: "Personalized Mug Collections | JQYDesigns Magic Touch Designs",
+    es: "Colecciones de Tazas Personalizadas | JQYDesigns Magic Touch Designs",
     description: {
-      en: "Browse curated personalized gift collections for love, family, business branding and special occasions.",
-      es: "Explora colecciones de regalos personalizados para amor, familia, negocios y ocasiones especiales.",
+      en: "Browse personalized mug collections for love, family, business branding and special occasions.",
+      es: "Explora colecciones de tazas personalizadas para amor, familia, negocios y ocasiones especiales.",
     },
   },
   "/collections/love-romance": {
-    en: "Personalized Gifts for Couples & Romance | JQYD",
-    es: "Regalos Personalizados para Parejas y Romance | JQYD",
+    en: "Personalized Mugs for Couples & Romance | JQYDesigns",
+    es: "Tazas Personalizadas para Parejas y Romance | JQYDesigns",
     description: {
-      en: "Personalized romantic gifts and custom products made for couples, anniversaries and special moments.",
-      es: "Regalos románticos y productos personalizados para parejas, aniversarios y momentos especiales.",
+      en: "Personalized romantic mugs made for couples, anniversaries and special moments.",
+      es: "Tazas románticas personalizadas para parejas, aniversarios y momentos especiales.",
     },
   },
   "/collections/family-memories": {
-    en: "Personalized Family Gifts & Memories | JQYD",
-    es: "Regalos Personalizados para Familia y Recuerdos | JQYD",
+    en: "Personalized Family Mugs & Gifts | JQYDesigns",
+    es: "Tazas y Regalos Personalizados para Familia | JQYDesigns",
     description: {
-      en: "Create personalized family gifts and keepsakes designed to preserve meaningful memories.",
-      es: "Crea regalos y recuerdos personalizados para conservar momentos importantes de tu familia.",
+      en: "Create personalized family mugs and keepsakes designed to preserve meaningful memories.",
+      es: "Crea tazas y recuerdos personalizados para conservar los momentos importantes de tu familia.",
     },
   },
   "/collections/business-branding": {
-    en: "Custom Business Branding Products | JQYD",
-    es: "Productos Personalizados para Empresas | JQYD",
+    en: "Custom Business Mugs & Branding | JQYDesigns",
+    es: "Tazas Personalizadas para Empresas | JQYDesigns",
     description: {
-      en: "Custom mugs, apparel and branded products for businesses, teams, employees and events.",
-      es: "Tazas, ropa y productos con marca personalizados para empresas, equipos, empleados y eventos.",
+      en: "Custom mugs with your logo for businesses, teams, employees and events.",
+      es: "Tazas personalizadas con tu logo para empresas, equipos, empleados y eventos.",
     },
   },
   "/collections/special-occasions": {
-    en: "Personalized Gifts for Special Occasions | JQYD",
-    es: "Regalos Personalizados para Ocasiones Especiales | JQYD",
+    en: "Personalized Mugs for Special Occasions | JQYDesigns",
+    es: "Tazas Personalizadas para Ocasiones Especiales | JQYDesigns",
     description: {
-      en: "Find personalized gifts for birthdays, holidays, celebrations and special occasions.",
-      es: "Encuentra regalos personalizados para cumpleaños, celebraciones, fiestas y ocasiones especiales.",
+      en: "Find personalized mugs for birthdays, holidays, Christmas and special occasions.",
+      es: "Encuentra tazas personalizadas para cumpleaños, Navidad, celebraciones y ocasiones especiales.",
+    },
+  },
+  "/reviews": {
+    en: "Customer Reviews | Personalized Mugs | JQYDesigns",
+    es: "Opiniones de Clientes | Tazas Personalizadas | JQYDesigns",
+    description: {
+      en: "Read real customer reviews and photos of personalized mugs from JQYDesigns.",
+      es: "Lee opiniones reales y fotos de clientes de las tazas personalizadas de JQYDesigns.",
     },
   },
   "/customize": {
-    en: "Customize Your Product | JQYD Magic Touch Designs",
-    es: "Personaliza tu Producto | JQYD Magic Touch Designs",
+    en: "Design Your Own Custom Mug | JQYDesigns",
+    es: "Diseña tu Propia Taza Personalizada | JQYDesigns",
     description: {
-      en: "Customize your product with your own design and create a personalized item with JQYD Magic Touch Designs.",
-      es: "Personaliza tu producto con tu propio diseño y crea un artículo único con JQYD Magic Touch Designs.",
+      en: "Design your own custom mug with your photo, name or text. Preview it in 3D and order online.",
+      es: "Diseña tu propia taza con tu foto, nombre o texto. Mírala en 3D y pídela en línea.",
     },
   },
   "/how-it-works": {
-    en: "How Custom Products Work | JQYD Magic Touch Designs",
-    es: "Cómo Funcionan los Productos Personalizados | JQYD",
+    en: "How Custom Mugs Work | JQYDesigns Magic Touch Designs",
+    es: "Cómo Funcionan las Tazas Personalizadas | JQYDesigns",
     description: {
-      en: "Learn how to choose, customize and order personalized products from JQYD Magic Touch Designs.",
-      es: "Aprende cómo elegir, personalizar y pedir productos personalizados de JQYD Magic Touch Designs.",
+      en: "Learn how to choose, customize and order your personalized mug from JQYDesigns.",
+      es: "Aprende cómo elegir, personalizar y pedir tu taza personalizada en JQYDesigns.",
     },
   },
   "/about": {
-    en: "About JQYD | Magic Touch Designs",
-    es: "Sobre JQYD | Magic Touch Designs",
+    en: "About JQYDesigns | Magic Touch Designs",
+    es: "Sobre JQYDesigns | Magic Touch Designs",
     description: {
-      en: "Learn about JQYD Magic Touch Designs and our approach to personalized products and gifts.",
-      es: "Conoce JQYD Magic Touch Designs y nuestra forma de crear productos y regalos personalizados.",
+      en: "Learn about JQYDesigns Magic Touch Designs — personalized mugs made in Katy, Texas.",
+      es: "Conoce JQYDesigns Magic Touch Designs — tazas personalizadas hechas en Katy, Texas.",
     },
   },
   "/contact": {
-    en: "Contact JQYD | Magic Touch Designs",
-    es: "Contacto | JQYD Magic Touch Designs",
+    en: "Contact JQYDesigns | Magic Touch Designs",
+    es: "Contacto | JQYDesigns Magic Touch Designs",
     description: {
-      en: "Contact JQYD Magic Touch Designs about custom products, orders, personalization and support.",
-      es: "Contacta a JQYD Magic Touch Designs sobre productos personalizados, pedidos y soporte.",
+      en: "Contact JQYDesigns about custom mug orders, personalization and support.",
+      es: "Contacta a JQYDesigns sobre pedidos de tazas personalizadas y soporte.",
+    },
+  },
+  "/track-order": {
+    en: "Track Your Order | JQYDesigns",
+    es: "Rastrea tu Pedido | JQYDesigns",
+    description: {
+      en: "Track your JQYDesigns personalized mug order with your order number and email.",
+      es: "Rastrea tu pedido de taza personalizada con tu número de orden y correo.",
     },
   },
   "/faqs": {
-    en: "FAQs | Custom Products & Personalized Gifts | JQYD",
-    es: "Preguntas Frecuentes | Productos Personalizados | JQYD",
+    en: "FAQs | Personalized Mugs | JQYDesigns",
+    es: "Preguntas Frecuentes | Tazas Personalizadas | JQYDesigns",
     description: {
-      en: "Answers to common questions about personalized products, orders, customization, shipping and returns.",
-      es: "Respuestas a preguntas frecuentes sobre productos personalizados, pedidos, personalización, envíos y devoluciones.",
+      en: "Answers to common questions about personalized mugs, orders, customization, shipping and returns.",
+      es: "Respuestas a preguntas frecuentes sobre tazas personalizadas, pedidos, personalización, envíos y devoluciones.",
     },
   },
   "/shipping-returns": {
-    en: "Shipping & Returns | JQYD Magic Touch Designs",
-    es: "Envíos y Devoluciones | JQYD Magic Touch Designs",
+    en: "Shipping & Returns | JQYDesigns Magic Touch Designs",
+    es: "Envíos y Devoluciones | JQYDesigns Magic Touch Designs",
     description: {
-      en: "Review shipping, delivery and returns information for JQYD Magic Touch Designs orders.",
-      es: "Consulta información de envíos, entregas y devoluciones de pedidos de JQYD Magic Touch Designs.",
+      en: "Shipping, delivery and returns information for JQYDesigns orders.",
+      es: "Información de envíos, entregas y devoluciones de pedidos de JQYDesigns.",
     },
   },
 };
@@ -131,7 +151,7 @@ export default function Seo() {
     const entry = SEO[pathname] || SEO["/"];
     const title = language === "es" ? entry.es : entry.en;
     const description = language === "es" ? entry.description.es : entry.description.en;
-    const url = `https://jqydesigns.com${pathname === "/" ? "/" : pathname}`;
+    const url = `${SITE_URL}${pathname === "/" ? "/" : pathname}`;
 
     document.title = title;
     upsertMeta("name", "description", description);
@@ -139,11 +159,11 @@ export default function Seo() {
     upsertMeta("property", "og:description", description);
     upsertMeta("property", "og:url", url);
     upsertMeta("property", "og:type", "website");
-    upsertMeta("property", "og:site_name", "JQYD | Magic Touch Designs");
-    upsertMeta("property", "og:image", "https://jqydesigns.com/images/logo/jqyd-logo-256.png");
+    upsertMeta("property", "og:site_name", "JQYDesigns");
+    upsertMeta("property", "og:image", LOGO_URL);
     upsertMeta("name", "twitter:title", title);
     upsertMeta("name", "twitter:description", description);
-    upsertMeta("name", "twitter:image", "https://jqydesigns.com/images/logo/jqyd-logo-256.png");
+    upsertMeta("name", "twitter:image", LOGO_URL);
     upsertMeta("name", "twitter:card", "summary_large_image");
     upsertLink("canonical", url);
   }, [language, pathname]);

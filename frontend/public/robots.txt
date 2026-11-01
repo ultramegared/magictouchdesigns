@@ -8,4 +8,4 @@ Disallow: /cart
 Disallow: /forgot-password
 Disallow: /reset-password
 
-Sitemap: https://jqydesigns.com/sitemap.xml
+Sitemap: https://www.jqydesigns.com/sitemap.xml
