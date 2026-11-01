@@ -361,11 +361,16 @@ export async function getAccessToken(userId: string, provider: SocialProvider, o
         }
         if (!row) throw new Error("Instagram is not connected. Configure INSTAGRAM_ACCESS_TOKEN in the Marketing backend.");
         const expiresAt = row.expires_at ? new Date(row.expires_at).getTime() : 0;
+        let storedToken: string;
+        try {
+            storedToken = decrypt(row.access_token) as string;
+        } catch {
+            throw new Error("Instagram token can't be decrypted (server encryption key changed) and INSTAGRAM_ACCESS_TOKEN is not set. Add INSTAGRAM_ACCESS_TOKEN to the Marketing backend env in Coolify, redeploy, then Verify live.");
+        }
         if (expiresAt && expiresAt - Date.now() < 7 * 24 * 60 * 60 * 1000) {
-            const current = decrypt(row.access_token) as string;
             const refreshUrl = new URL("https://graph.instagram.com/refresh_access_token");
             refreshUrl.searchParams.set("grant_type", "ig_refresh_token");
-            refreshUrl.searchParams.set("access_token", current);
+            refreshUrl.searchParams.set("access_token", storedToken);
             const refreshResponse = await fetch(refreshUrl);
             const refreshed = await refreshResponse.json();
             if (!refreshResponse.ok || !refreshed.access_token) throw new Error(refreshed.error?.message || "Instagram token refresh failed. Reconnect the Instagram account.");
@@ -373,7 +378,7 @@ export async function getAccessToken(userId: string, provider: SocialProvider, o
             await pool.query(`UPDATE marketing_social_connections SET access_token=$1, expires_at=$2, updated_at=NOW() WHERE user_id=$3 AND provider='instagram'`, [encrypt(refreshed.access_token), nextExpiresAt, userId]);
             return String(refreshed.access_token);
         }
-        return decrypt(row.access_token) as string;
+        return storedToken;
     }
     const result = await pool.query<{ access_token: string; refresh_token: string | null; expires_at: string | null }>(`SELECT access_token, refresh_token, expires_at FROM marketing_social_connections WHERE user_id=$1 AND provider=$2`, [userId, provider]);
     const row = result.rows[0];
