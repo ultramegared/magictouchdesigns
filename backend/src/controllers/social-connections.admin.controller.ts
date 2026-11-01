@@ -15,7 +15,7 @@ const marketingWorkspaceId = () => process.env.MARKETING_WORKSPACE_OWNER_ID?.tri
 export async function marketingEmailStatus(req: AuthenticatedRequest, res: Response) {
     void req;
     const apiKeyConfigured = Boolean(process.env.RESEND_API_KEY?.trim());
-    const fromEmail = (process.env.RESEND_FROM_EMAIL || "ventas@magictouchdesigns.com").trim();
+    const fromEmail = (process.env.RESEND_FROM_EMAIL || "ventas@jqydesigns.com").trim();
     const fromName = (process.env.RESEND_FROM_NAME || "Magic Touch Designs").trim();
     res.json({
         status: "success",

@@ -2,9 +2,9 @@ export interface SendEmailAttachment { filename: string; content: string; conten
 export interface SendEmailOptions { to: string | string[]; subject: string; html: string; text?: string; from?: string; replyTo?: string; attachments?: SendEmailAttachment[]; idempotencyKey?: string; }
 export interface SendEmailResult { id: string; }
 const resendApiKey = process.env.RESEND_API_KEY;
-const defaultFromEmail = process.env.RESEND_FROM_EMAIL || "ventas@magictouchdesigns.com";
+const defaultFromEmail = process.env.RESEND_FROM_EMAIL || "ventas@jqydesigns.com";
 const defaultFromName = process.env.RESEND_FROM_NAME || "Magic Touch Designs";
-const defaultReplyTo = process.env.RESEND_REPLY_TO || "jqyd.magic@gmail.com";
+const defaultReplyTo = process.env.RESEND_REPLY_TO || "jqydesigns@gmail.com";
 export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailResult> => {
     if (!resendApiKey) throw new Error("RESEND_API_KEY environment variable is not configured.");
     const recipients = Array.isArray(options.to) ? options.to : [options.to];
