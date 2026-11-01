@@ -660,7 +660,13 @@
 @media (max-width: 850px) {
 
     .checkout-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+
+    .checkout-form,
+    .checkout-summary {
+        min-width: 0;
     }
 
 
