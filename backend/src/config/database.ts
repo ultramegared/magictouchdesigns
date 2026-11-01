@@ -23,9 +23,11 @@ if (!databaseUrl) {
     );
 }
 
+// SSL solo cuando la URL lo exige (Neon: sslmode=require).
+// La base de datos local del VPS no usa SSL.
+const needsSsl = /sslmode=require/i.test(databaseUrl) || /neon\.tech/i.test(databaseUrl);
+
 export const pool = new Pool({
     connectionString: databaseUrl,
-    ssl: {
-        rejectUnauthorized: false,
-    },
+    ...(needsSsl ? { ssl: { rejectUnauthorized: false } } : {}),
 });
