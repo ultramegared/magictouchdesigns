@@ -308,7 +308,7 @@ export const createCheckoutSession = async (customer: CheckoutCustomerInput, ite
         params.set(`line_items[${index}][price_data][currency]`, "usd");
         params.set(`line_items[${index}][price_data][product_data][name]`, item.name);
         params.set(`line_items[${index}][price_data][product_data][tax_code]`, "txcd_99999999");
-        params.set(`line_items[${index}][price_data][product_data][tax_behavior]`, "exclusive");
+        params.set(`line_items[${index}][price_data][tax_behavior]`, "exclusive");
         if (item.image_url) params.set(`line_items[${index}][price_data][product_data][images][0]`, item.image_url);
         params.set(`line_items[${index}][price_data][unit_amount]`, String(Math.round(item.unit_price * 100)));
         params.set(`line_items[${index}][quantity]`, String(item.quantity));
@@ -498,7 +498,7 @@ export const materializePaidOrder = async (input: {
                 (order_code, stripe_checkout_session_id, stripe_payment_intent_id, paypal_order_id, paypal_capture_id,
                  payment_provider, payment_method, customer_first_name, customer_last_name, customer_email, customer_phone,
                  shipping_address, subtotal, shipping, tax, total, tax_calculation_id, carrier, shipping_service, shipping_delivery_days, shipping_rate_id, status, payment_status)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,'paid','paid')
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,'paid','paid')
              RETURNING id, order_code`,
             [
                 attempt.checkout_code,
