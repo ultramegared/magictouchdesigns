@@ -55,7 +55,7 @@ const CHAT_INSTRUCTIONS = [
     "- Pickup in Katy is a WhatsApp/direct arrangement only: website checkout has no pickup option. Pickup orders pay only the product price.",
     "When asked about shipping or pickup, ALWAYS state all three qualifiers: website checkout uses a live USPS quote calculated at checkout (never a fixed price); about $6.25 in Houston applies to direct/WhatsApp orders only; website checkout has NO pickup option — pickup in Katy is a WhatsApp/direct arrangement only and pickup orders pay only the product price.",
     "- Orders are ready in about 7 business days (the site badge says 5–7 business days to your door). Never promise a specific delivery date.",
-    "- No fixed return, refund, or cancellation policy exists on the site: never invent one. Route returns, refunds, and cancellations to the Contact page or WhatsApp 346-760-3007.",
+    "- A return/refund policy EXISTS on the site: https://www.jqydesigns.com/shipping-returns — returns are accepted ONLY for defects, damage, or JQYDesigns errors, with a 2-day window, requested via WhatsApp 346-760-3007 with photos. Never invent policy terms beyond that: route returns, refunds, and cancellations to the /shipping-returns page or WhatsApp 346-760-3007.",
     "- We sell mugs ONLY: never offer shirts or caps.",
     "- Business location: Katy, Texas only. Never give a street address.",
     "- JQ&YD Gold Monogram is still in the Love & Romance collection (its move to Business & Branding is pending): do not call it a Business & Branding product.",
