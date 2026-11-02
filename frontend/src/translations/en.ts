@@ -1050,7 +1050,7 @@ businessBranding: {
       titleAccent: "DESIGNS",
 
       intro:
-        "We are José and Yafira, the couple behind Magic Touch Designs, a small business built with creativity, dedication, and the desire to turn ideas into something special.",
+        "We are José and Yadira, the couple behind Magic Touch Designs, a small business built with creativity, dedication, and the desire to turn ideas into something special.",
     },
 
     story: {
@@ -1059,7 +1059,7 @@ businessBranding: {
       titleAccent: "MADE WITH PURPOSE",
 
       paragraphOne:
-        "Magic Touch Designs is a family-owned creative business founded by José and Yafira. What started as an entrepreneurial dream became a space where creativity, personalization, and quality come together.",
+        "Magic Touch Designs is a family-owned creative business founded by José and Yadira. What started as an entrepreneurial dream became a space where creativity, personalization, and quality come together.",
 
       paragraphTwo:
         "We create personalized products for individuals, families, businesses, restaurants, schools, teams, promotions, celebrations, and special occasions.",
@@ -1075,7 +1075,7 @@ businessBranding: {
       titleAccent: "OUR CRAFT.",
 
       description:
-        "We combine creativity, attention to detail, and personalized service to create products you can be proud to give, wear, use, or share.",
+        "We combine creativity, attention to detail, and personalized service to create products you can be proud to give, use, or share.",
     },
 
     services: {
@@ -1087,12 +1087,6 @@ businessBranding: {
         title: "PERSONALIZED MUGS",
         description:
           "Custom mugs designed with your photos, names, messages, logos, and ideas.",
-      },
-
-      magicMugs: {
-        title: "MAGIC MUGS",
-        description:
-          "Special mugs that reveal your personalized design when exposed to heat.",
       },
 
       businesses: {

@@ -21,10 +21,12 @@ type Slide = {
     secondaryLink: string;
 };
 
+// MUGS ONLY: the fallback renders before /api/settings resolves (or if it fails),
+// so every fallback slide must advertise mugs — never caps or shirts.
 const fallback: Slide[] = [
-    { id: "hero-1", image: "/images/hero/hero-mug.png", order: 1, active: true, title: { en: "YOUR STORY.\nYOUR MUG.", es: "TU HISTORIA.\nTU TAZA." }, subtitle: { en: "Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.", es: "Diseña una taza personalizada premium con tu nombre, logo o foto favorita. Creada para convertir momentos en regalos inolvidables y recuerdos duraderos." }, primaryButton: { en: "CREATE YOUR MUG", es: "CREA TU TAZA" }, primaryLink: "/customize", secondaryButton: { en: "EXPLORE COLLECTIONS", es: "EXPLORAR COLECCIONES" }, secondaryLink: "/collections" },
-    { id: "hero-2", image: "/images/hero/hero-cap.png", order: 2, active: true, title: { en: "WEAR\nYOUR BRAND.", es: "LLEVA\nTU MARCA." }, subtitle: { en: "Create premium custom caps with your logo, business name or team design.", es: "Crea gorras personalizadas premium con tu logo, nombre de negocio o diseño de tu equipo." }, primaryButton: { en: "CREATE YOUR CAP", es: "CREA TU GORRA" }, primaryLink: "/customize", secondaryButton: { en: "EXPLORE COLLECTIONS", es: "EXPLORAR COLECCIONES" }, secondaryLink: "/collections" },
-    { id: "hero-3", image: "/images/hero/hero-shirt.png", order: 3, active: true, title: { en: "YOUR STYLE.\nYOUR SHIRT.", es: "TU ESTILO.\nTU CAMISETA." }, subtitle: { en: "Design premium custom t-shirts with your logo, artwork or business branding.", es: "Diseña camisetas personalizadas premium con tu logo, arte o identidad de marca." }, primaryButton: { en: "CREATE YOUR SHIRT", es: "CREA TU CAMISETA" }, primaryLink: "/customize", secondaryButton: { en: "EXPLORE COLLECTIONS", es: "EXPLORAR COLECCIONES" }, secondaryLink: "/collections" },
+    { id: "fallback-mug-1", image: "/images/hero/hero-mug.png", order: 1, active: true, title: { en: "YOUR STORY.\nYOUR MUG.", es: "TU HISTORIA.\nTU TAZA." }, subtitle: { en: "Design a premium personalized mug with your name, logo or favorite photo. Crafted to create unforgettable gifts and lasting memories.", es: "Diseña una taza personalizada premium con tu nombre, logo o foto favorita. Creada para convertir momentos en regalos inolvidables y recuerdos duraderos." }, primaryButton: { en: "CREATE YOUR MUG", es: "CREA TU TAZA" }, primaryLink: "/customize", secondaryButton: { en: "EXPLORE COLLECTIONS", es: "EXPLORAR COLECCIONES" }, secondaryLink: "/collections" },
+    { id: "fallback-mug-2", image: "/images/hero/hero-mug.png", order: 2, active: true, title: { en: "PERFECT GIFTS.\nPERSONALIZED.", es: "REGALOS PERFECTOS.\nPERSONALIZADOS." }, subtitle: { en: "Birthdays, holidays, teams and businesses — a custom mug for every occasion, made in Katy, Texas.", es: "Cumpleaños, fiestas, equipos y negocios — una taza personalizada para cada ocasión, hecha en Katy, Texas." }, primaryButton: { en: "CREATE YOUR MUG", es: "CREA TU TAZA" }, primaryLink: "/customize", secondaryButton: { en: "EXPLORE COLLECTIONS", es: "EXPLORAR COLECCIONES" }, secondaryLink: "/collections" },
+    { id: "fallback-mug-3", image: "/images/hero/hero-mug.png", order: 3, active: true, title: { en: "YOUR LOGO.\nYOUR MUG.", es: "TU LOGO.\nTU TAZA." }, subtitle: { en: "Put your business, school or team branding on a premium ceramic mug they will actually use.", es: "Pon la marca de tu negocio, escuela o equipo en una taza de cerámica premium que sí usarán." }, primaryButton: { en: "CREATE YOUR MUG", es: "CREA TU TAZA" }, primaryLink: "/customize", secondaryButton: { en: "EXPLORE COLLECTIONS", es: "EXPLORAR COLECCIONES" }, secondaryLink: "/collections" },
 ];
 
 const safeLink = (link: string, fallbackLink: string) => {
@@ -36,14 +38,6 @@ const localized = (value: Text | string | undefined, language: "en" | "es") => {
     if (typeof value === "string") return value;
     const preferred = language === "es" ? value?.es : value?.en;
     return String(preferred || value?.en || value?.es || "");
-};
-
-const normalizePrimaryLabel = (slide: Slide, value: string, language: "en" | "es") => {
-    const raw = value.trim().toLowerCase();
-    if (slide.id === "hero-1" && (raw === "create your cap" || raw === "create your shirt")) return language === "es" ? "CREA TU TAZA" : "CREATE YOUR MUG";
-    if (slide.id === "hero-2" && (raw === "create your mug" || raw === "create your shirt")) return language === "es" ? "CREA TU GORRA" : "CREATE YOUR CAP";
-    if (slide.id === "hero-3" && (raw === "create your cap" || raw === "create your mug")) return language === "es" ? "CREA TU CAMISETA" : "CREATE YOUR SHIRT";
-    return value;
 };
 
 function HeroSlider() {
@@ -91,7 +85,7 @@ function HeroSlider() {
     const slide = slides[current] || slides[0];
     const text = localized(slide.title, language);
     const subtitle = localized(slide.subtitle, language);
-    const primary = normalizePrimaryLabel(slide, localized(slide.primaryButton, language), language);
+    const primary = localized(slide.primaryButton, language);
     const secondary = localized(slide.secondaryButton, language);
 
     return (

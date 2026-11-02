@@ -1066,7 +1066,7 @@ export const es = {
             titleAccent: "DESIGNS",
 
             intro:
-                "Somos José y Yafira, la pareja detrás de Magic Touch Designs, un pequeño negocio creado con creatividad, dedicación y el deseo de convertir ideas en algo especial.",
+                "Somos José y Yadira, la pareja detrás de Magic Touch Designs, un pequeño negocio creado con creatividad, dedicación y el deseo de convertir ideas en algo especial.",
         },
 
         story: {
@@ -1075,7 +1075,7 @@ export const es = {
             titleAccent: "CREADO CON PROPÓSITO",
 
             paragraphOne:
-                "Magic Touch Designs es un negocio creativo familiar fundado por José y Yafira. Lo que comenzó como un sueño emprendedor se convirtió en un espacio donde la creatividad, la personalización y la calidad se unen.",
+                "Magic Touch Designs es un negocio creativo familiar fundado por José y Yadira. Lo que comenzó como un sueño emprendedor se convirtió en un espacio donde la creatividad, la personalización y la calidad se unen.",
 
             paragraphTwo:
                 "Creamos productos personalizados para personas, familias, negocios, restaurantes, escuelas, equipos, promociones, celebraciones y ocasiones especiales.",
@@ -1109,18 +1109,6 @@ export const es = {
                 title: "TAZAS MÁGICAS",
                 description:
                     "Tazas especiales que revelan tu diseño personalizado cuando entran en contacto con el calor.",
-            },
-
-            shirts: {
-                title: "ROPA PERSONALIZADA",
-                description:
-                    "Camisetas y prendas personalizadas para personas, familias, negocios, equipos y eventos.",
-            },
-
-            caps: {
-                title: "GORRAS PERSONALIZADAS",
-                description:
-                    "Gorras personalizadas con tu logotipo, nombre, equipo, negocio o diseño especial.",
             },
 
             businesses: {
