@@ -41,10 +41,14 @@ export const calculateCheckoutQuote = async (
         if (!product || !product.is_active) throw new Error("One of the products is no longer available.");
         const isCustomMug = Boolean(input.customizationId);
         const isMugWithColoredHandle = String(input.color || "").toLowerCase().includes("handle");
+        // Official custom-mug table: Classic 11oz $13 / 15oz $15; Premium $17 both
+        // sizes; colored handle +$2. Matches /contact pricing (custom-mug.service.ts).
+        const isPremiumModel = String(input.model || "").trim().toLowerCase() === "premium";
+        const customMugBase = input.size === "15 oz"
+            ? (isPremiumModel ? 17 : 15)
+            : (isPremiumModel ? 17 : 13);
         const unitPrice = isCustomMug
-            ? (input.size === "15 oz"
-                ? (isMugWithColoredHandle ? 18.5 : 17)
-                : (isMugWithColoredHandle ? 16.5 : 15))
+            ? customMugBase + (isMugWithColoredHandle ? 2 : 0)
             : Number(product.price);
         normalizedItems.push({
             product_id: String(product.product_id),
