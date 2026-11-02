@@ -1,5 +1,7 @@
 import { getProductById } from "./product.service";
 import type { CheckoutCustomerInput, CheckoutItemInput } from "./order.service";
+import { isSafeImageDataUrl } from "./order.service";
+import { getCustomMugUnitPrice } from "./custom-mug.service";
 import { getShippingQuote } from "./shipping.service";
 import { calculateDestinationTax } from "./tax.service";
 
@@ -37,6 +39,25 @@ export const calculateCheckoutQuote = async (
 
         const quantity = Math.floor(Number(input.quantity));
         if (!input.productId || quantity < 1 || quantity > 99) throw new Error("Invalid cart item.");
+        // Studio custom-mug orders carry the synthetic "CUSTOM-MUG" product id: they are
+        // priced from the official custom-mug table instead of a catalog lookup.
+        if (String(input.productId).toUpperCase() === "CUSTOM-MUG") {
+            const customization = input.customization;
+            if (!input.customizationId || !customization || !isSafeImageDataUrl(customization.designDataUrl)) {
+                throw new Error("The custom mug artwork is missing or invalid. Please return to Customize and upload it again.");
+            }
+            const mugModel = input.options?.mugModel === "Premium" ? "Premium" : "Classic";
+            const printSides = input.options?.printSides === "2" ? "2" : "1";
+            const mugSize = input.size === "15 oz" ? "15 oz" : "11 oz";
+            const color = String(input.color || "Solid White");
+            normalizedItems.push({
+                product_id: "CUSTOM-MUG",
+                name: "Custom Personalized Mug",
+                unit_price: getCustomMugUnitPrice({ model: mugModel, size: mugSize, color, printSides }),
+                quantity,
+            });
+            continue;
+        }
         const product = await getProductById(input.productId);
         if (!product || !product.is_active) throw new Error("One of the products is no longer available.");
         const isCustomMug = Boolean(input.customizationId);
