@@ -254,6 +254,7 @@ function CheckoutPage() {
             model: item.model,
             size: item.size,
             color: item.color,
+            ...(item.options ? { options: item.options } : {}),
             ...(item.customRequestId ? { customRequestId: item.customRequestId } : {}),
             ...(item.customizationId && session ? { customizationId: item.customizationId, customization: { productId: session.productId, productName: session.productName, size: session.size, color: session.color, designDataUrl: session.designDataUrl, designFileName: session.designFileName, designScale: session.designScale, designX: session.designX, designY: session.designY, designRotation: session.designRotation, mugRotation: session.mugRotation } } : {}),
         };

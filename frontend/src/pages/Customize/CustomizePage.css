@@ -1,5 +1,5 @@
 .customize-page { min-height: 100vh; background: linear-gradient(180deg,#faf8f4 0%,#f3eee6 100%); }
-.customize-shell { width: min(1500px, calc(100% - 32px)); margin: 0 auto; padding: 34px 0 70px; }
+.customize-shell { width: min(1500px, calc(100% - 32px)); margin: 0 auto; padding: 120px 0 70px; }
 .customize-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:22px; }
 .customize-heading__eyebrow { display:block; margin-bottom:8px; color:#b58a3d; font-size:11px; font-weight:850; letter-spacing:.18em; }
 .customize-heading h1 { margin:0; color:#191714; font-size:clamp(32px,4vw,52px); line-height:1.02; letter-spacing:-.04em; }
@@ -20,7 +20,7 @@
 .customize-colors { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
 .customize-color { display:flex; flex-direction:column; align-items:center; gap:6px; width:100%; min-width:0; padding:5px 3px 6px; border:1px solid #e3ddd5; border-radius:12px; background:#fff; color:#615950; cursor:pointer; transition:.18s ease; }
 .customize-color span { display:block; width:30px; height:30px; border-radius:50%; background:var(--mug-swatch,#fff); box-shadow:inset 0 0 0 1px rgba(0,0,0,.12),0 0 0 2px #fff,0 0 0 3px #d6c8b5; }
-.customize-color small { display:block; width:100%; overflow:hidden; font-size:9px; font-weight:800; line-height:1.15; text-align:center; text-overflow:ellipsis; white-space:nowrap; }
+.customize-color small { display:block; width:100%; font-size:8.5px; font-weight:800; line-height:1.25; text-align:center; white-space:normal; overflow:visible; text-overflow:clip; min-height:2.5em; }
 .customize-color:hover,.customize-color--active { border-color:#b58a3d; color:#312a22; transform:translateY(-1px); box-shadow:0 8px 18px rgba(43,33,23,.08); }
 .customize-color--active span { box-shadow:inset 0 0 0 1px rgba(0,0,0,.14),0 0 0 2px #fff,0 0 0 3px #b58a3d; }
 .customize-upload { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:116px; padding:18px; border:1.5px dashed #c9ad7a; border-radius:14px; background:linear-gradient(145deg,#fffdf9,#f8f1e7); color:#796d5f; text-align:center; cursor:pointer; transition:.18s ease; }
@@ -147,3 +147,12 @@
 .customize-download__button:disabled { opacity:.45; cursor:not-allowed; }
 .customize-download__note { margin:7px 0 0; color:#81766a; font-size:10px; line-height:1.5; text-align:center; }
 .customize-download__status { margin:7px 0 0; color:#8a6d1f; font-size:10px; line-height:1.5; text-align:center; font-weight:600; }
+
+/* Audit fixes 2026-11-01: mug-model price hint inside the model choice buttons. */
+.customize-choice__sub { display:block; margin-top:3px; font-size:10px; font-weight:700; opacity:.75; }
+.customize-choice--active .customize-choice__sub { opacity:.9; }
+
+/* Audit fixes 2026-11-01: second-side print toggle in the Personalize step. */
+.customize-sides { display:flex; align-items:center; gap:10px; margin-top:12px; padding:11px 13px; border:1px solid #e3ddd5; border-radius:12px; background:#fffdfa; color:#4b433b; font-size:12px; font-weight:750; cursor:pointer; }
+.customize-sides input { width:17px; height:17px; accent-color:#b58a3d; }
+.customize-sides strong { color:#9b722f; }

@@ -250,22 +250,6 @@ function AboutPage() {
                             <article className="about-page__service-card">
 
                                 <div className="about-page__service-icon">
-                                    ✨
-                                </div>
-
-                                <h3>
-                                    {t.about.services.magicMugs.title}
-                                </h3>
-
-                                <p>
-                                    {t.about.services.magicMugs.description}
-                                </p>
-
-                            </article>
-
-                            <article className="about-page__service-card">
-
-                                <div className="about-page__service-icon">
                                     ✦
                                 </div>
 
