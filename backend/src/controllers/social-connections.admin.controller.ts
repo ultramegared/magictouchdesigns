@@ -491,7 +491,8 @@ export async function marketingProposalApprove(req: AuthenticatedRequest, res: R
         if (scope !== "once" && scope !== "week") {
             return res.status(400).json({ status: "error", error: "The scope field must be 'once' or 'week'." });
         }
-        const result = await approveProposal(marketingWorkspaceId(), String(req.params.proposalId || ""), scope as ProposalScope);
+        const variant = req.body?.variant === "B" ? "B" : req.body?.variant === "A" ? "A" : null;
+        const result = await approveProposal(marketingWorkspaceId(), String(req.params.proposalId || ""), scope as ProposalScope, variant);
         return res.json({ status: "success", ...result });
     } catch (error) {
         console.error("Unable to approve Marketing proposal:", error);

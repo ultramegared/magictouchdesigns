@@ -14,8 +14,9 @@
  *  - Aprende DEL DUEÑO: cada «sí», cada «no» y cada motivo de rechazo en
  *    el panel es una señal de primer orden (su gusto) que ajusta las
  *    próximas propuestas.
- *  - Sin techos rígidos: la cadencia se adapta sola según la respuesta
- *    real medida (ver marketing-schedule) y cada ajuste queda declarado.
+ *  - La cadencia de la casa NO se toca: aire mínimo de 3 días entre
+ *    propuestas (2 en ventana de fecha-regalo), como quedó aprobado.
+ *    Lo abierto es el APRENDIZAJE, no el ritmo de publicación.
  *  - Cada propuesta trae: puntaje con evidencia, pronóstico honesto
  *    (rango esperado según su historial, o "base insuficiente"),
  *    experimento A/B secuencial con hipótesis, y variantes de texto
@@ -44,6 +45,7 @@ export async function ensureIntelligenceTables() {
     proposal_id TEXT NOT NULL,
     decision TEXT NOT NULL,
     scope TEXT,
+    variant TEXT,
     reason_code TEXT,
     reason_text TEXT,
     source_type TEXT,
@@ -54,6 +56,7 @@ export async function ensureIntelligenceTables() {
     scheduled_hour INTEGER,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
+  await pool.query(`ALTER TABLE marketing_owner_feedback ADD COLUMN IF NOT EXISTS variant TEXT`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_owner_feedback_owner_idx ON marketing_owner_feedback(owner_user_id, created_at DESC)`);
   await pool.query(`CREATE TABLE IF NOT EXISTS marketing_intelligence_snapshots (
     id BIGSERIAL PRIMARY KEY,
@@ -80,6 +83,7 @@ export async function recordOwnerFeedback(ownerUserId: string, input: {
   proposalId: string;
   decision: "approved" | "rejected";
   scope?: string | null;
+  variant?: string | null;
   reasonCode?: string | null;
   reasonText?: string | null;
   proposal?: any;
@@ -90,16 +94,50 @@ export async function recordOwnerFeedback(ownerUserId: string, input: {
   const local = scheduled ? new Date(scheduled.toLocaleString("en-US", { timeZone: TZ })) : null;
   await pool.query(
     `INSERT INTO marketing_owner_feedback
-       (owner_user_id, proposal_id, decision, scope, reason_code, reason_text, source_type, source_id, title, channels, scheduled_weekday, scheduled_hour)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12)`,
+       (owner_user_id, proposal_id, decision, scope, variant, reason_code, reason_text, source_type, source_id, title, channels, scheduled_weekday, scheduled_hour)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12,$13)`,
     [
-      ownerUserId, input.proposalId, input.decision, input.scope || null,
+      ownerUserId, input.proposalId, input.decision, input.scope || null, input.variant || null,
       input.reasonCode || null, input.reasonText || null,
       proposal.source_type || null, proposal.source_id || null, proposal.title || null,
       JSON.stringify(proposal.channels || []),
       local ? local.getDay() : null, local ? local.getHours() : null,
     ],
   ).catch(() => undefined);
+  // La decisión TAMBIÉN entra al motor de aprendizaje como observación
+  // (source='user_feedback'): es la señal del gusto del dueño y cuenta en
+  // el mismo acumulado que el resto de las fuentes. Idempotente por
+  // propuesta+decisión: corregir la decisión no duplica la señal.
+  try {
+    const channels = Array.isArray(proposal.channels) ? proposal.channels.map(String) : [];
+    const known = ["instagram", "facebook", "marketplace", "youtube", "whatsapp", "tiktok", "pinterest", "email"];
+    const channel = channels.find((c: string) => known.includes(c)) || "instagram";
+    const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: TZ }));
+    await pool.query(
+      `INSERT INTO marketing_learning_observations
+         (campaign_id, channel, objective, target_area, hour, weekday, published,
+          attribution_key, source, medium, attribution_evidence, observation_date, decision, adjustment)
+       VALUES ($1,$2,'owner_feedback','panel',$3,$4,FALSE,$5,'user_feedback','owner',FALSE,$6,$7::jsonb,$8::jsonb)
+       ON CONFLICT (attribution_key) DO UPDATE SET
+         decision=EXCLUDED.decision, adjustment=EXCLUDED.adjustment, updated_at=NOW()`,
+      [
+        proposal.materialized_campaign_id ? String(proposal.materialized_campaign_id) : `proposal:${input.proposalId}`,
+        channel,
+        local ? local.getHours() : nowLocal.getHours(),
+        local ? local.getDay() : nowLocal.getDay(),
+        `feedback:${input.proposalId}:${input.decision}`,
+        nowLocal.toISOString().slice(0, 10).replace(/-/g, ""),
+        JSON.stringify({
+          stage: "OWNER_FEEDBACK", decision: input.decision, scope: input.scope || null,
+          variant: input.variant || null, reasonCode: input.reasonCode || null,
+          reasonText: input.reasonText || null, proposalId: input.proposalId,
+          sourceType: proposal.source_type || null, sourceId: proposal.source_id || null,
+          title: proposal.title || null, observedAt: new Date().toISOString(),
+        }),
+        JSON.stringify({ stage: "ADJUSTMENT", signal: "owner_taste", decision: input.decision }),
+      ],
+    );
+  } catch { /* la tabla de feedback ya guardó la señal; la observación es el espejo del motor */ }
 }
 
 export type OwnerTasteProfile = {
@@ -225,7 +263,7 @@ export async function getSalesSignals(days = 30) {
       [days],
     );
     const byProduct = await pool.query(
-      `SELECT COALESCE(oi.product_name, oi.name, 'Producto') AS name,
+      `SELECT COALESCE(oi.product_name, 'Producto') AS name,
               SUM(oi.quantity)::int AS units, COALESCE(SUM(oi.quantity * oi.unit_price),0)::numeric AS revenue
        FROM order_items oi
        JOIN orders o ON o.id = oi.order_id
@@ -395,13 +433,15 @@ export async function buildProposalIntelligence(ownerUserId: string, input: {
   const variantB = `${input.caption}\n\n💬 Pedilo directo por WhatsApp: ${input.whatsappLink}\n🛒 O en la tienda: ${input.productLink}`;
   const experiment = {
     id: `exp-${input.sourceType}-${input.rotationSeed}`,
+    // La variante sugerida rota entre propuestas, pero la que se publica
+    // la ELIGE el dueño al aprobar (A o B) en el panel: nada se cambia solo.
     designatedVariant,
     hypothesis: designatedVariant === "B"
-      ? "Hipótesis: cerrar el texto con el llamado directo a WhatsApp y a la tienda (variante B) genera más consultas que el texto base (variante A)."
-      : "Hipótesis: el texto base (variante A) rinde igual o mejor que el cierre con llamado directo; se alterna A/B entre propuestas y se compara con mediciones reales.",
+      ? "Hipótesis: cerrar el texto con el llamado directo a WhatsApp y a la tienda (variante B) genera más consultas que el texto base (variante A). Sugerida esta vez: B — el dueño elige cuál sale al aprobar."
+      : "Hipótesis: el texto base (variante A) rinde igual o mejor que el cierre con llamado directo. Sugerida esta vez: A — el dueño elige cuál sale al aprobar.",
     variantA: input.caption,
     variantB,
-    measureWith: "Se compara con la medición de 24–48 h (y la señal temprana de 4–20 h) de las publicaciones de cada variante: alcance, interacciones, sesiones y consultas.",
+    measureWith: "Se compara con la medición de 24–48 h (y la señal temprana de 4–20 h) de las publicaciones según la variante que el dueño eligió al aprobar: alcance, interacciones, sesiones y consultas.",
   };
 
   return {
@@ -447,8 +487,13 @@ export async function buildAlerts(ownerUserId: string): Promise<RobotAlert[]> {
     }
     if (channels.youtube) {
       const diagnosis: any = await getYouTubeDiagnosis(ownerUserId).catch(() => null);
-      if (diagnosis?.lastRefreshFailedAt) {
-        alerts.push({ level: "critical", title: "El token de YouTube está revocado", detail: "La renovación automática falló: hay que reconectarlo con un clic en el panel. Además, mientras la app de Google siga en modo Testing, el token vence a los ~7 días (el actual corre riesgo hacia el 21-nov)." });
+      // Solo es "revocado" si la última falla es POSTERIOR a la última
+      // actualización de la conexión (si el dueño reconectó después de la
+      // falla, el token actual es el nuevo y no hay que asustar de más).
+      const failedAt = diagnosis?.lastRefreshFailedAt ? new Date(diagnosis.lastRefreshFailedAt).getTime() : 0;
+      const updatedAt = diagnosis?.updatedAt ? new Date(diagnosis.updatedAt).getTime() : 0;
+      if (failedAt && failedAt > updatedAt) {
+        alerts.push({ level: "critical", title: "El token de YouTube está revocado", detail: "La renovación automática falló y no hubo reconexión posterior: hay que reconectarlo con un clic en el panel. Además, mientras la app de Google siga en modo Testing, el token vence a los ~7 días." });
       } else {
         alerts.push({ level: "warning", title: "YouTube: el token puede vencer hacia el 21-nov", detail: "La app OAuth de Google sigue en modo Testing y en ese modo los tokens mueren a los 7 días. El arreglo permanente es del dueño: publicar la app en Google Cloud y reconectar una vez más, en ese orden." });
       }
@@ -536,6 +581,95 @@ export async function buildMediaBuyerBrief(ownerUserId: string) {
   };
 }
 
+/* --------------- ingestión de señales: WhatsApp y ventas ------------------ */
+
+/**
+ * Las señales del negocio (consultas de WhatsApp y ventas reales) entran
+ * al motor como observaciones diarias, con su source/medium propios e
+ * idempotencia por día. Solo se escribe un día si hubo actividad REAL:
+ * un día en cero no se rellena con una fila inventada — la ausencia
+ * también se declara en el informe, no se disfraza.
+ */
+export async function syncStoreSignalsLearning(ownerUserId: string) {
+  const result = { whatsappDays: 0, whatsappMessages: 0, salesDays: 0, salesOrders: 0, salesRevenue: 0 };
+  // WhatsApp: un agregado por día (últimos 7 días) con el desglose por tema.
+  try {
+    const rows = await pool.query(
+      `SELECT (created_at AT TIME ZONE '${TZ}')::date::text AS day, body
+       FROM marketing_whatsapp_messages
+       WHERE direction='in' AND COALESCE(auto_reply, FALSE)=FALSE AND body <> ''
+         AND created_at >= NOW() - INTERVAL '7 days'`,
+    );
+    const byDay = new Map<string, { total: number; topics: Map<string, number> }>();
+    for (const row of rows.rows as any[]) {
+      const day = String(row.day);
+      if (!byDay.has(day)) byDay.set(day, { total: 0, topics: new Map() });
+      const entry = byDay.get(day)!;
+      entry.total += 1;
+      const text = ` ${String(row.body || "").toLowerCase()} `;
+      for (const topic of WHATSAPP_TOPICS) {
+        if (topic.patterns.some((p) => text.includes(p))) entry.topics.set(topic.code, (entry.topics.get(topic.code) || 0) + 1);
+      }
+    }
+    for (const [day, entry] of byDay) {
+      const [y, m, d] = day.split("-").map(Number);
+      const local = new Date(y, (m || 1) - 1, d || 1);
+      await pool.query(
+        `INSERT INTO marketing_learning_observations
+           (campaign_id, channel, objective, target_area, hour, weekday, published, sessions,
+            attribution_key, source, medium, attribution_evidence, observation_date, decision, adjustment)
+         VALUES ('store-whatsapp','whatsapp','customer_questions','store',12,$1,FALSE,$2,$3,'whatsapp','organic',TRUE,$4,$5::jsonb,$6::jsonb)
+         ON CONFLICT (attribution_key) DO UPDATE SET
+           sessions=EXCLUDED.sessions, decision=EXCLUDED.decision, adjustment=EXCLUDED.adjustment, updated_at=NOW()`,
+        [
+          local.getDay(), entry.total, `whatsapp:topics:${day.replace(/-/g, "")}`, day.replace(/-/g, ""),
+          JSON.stringify({ stage: "RESULT", kind: "whatsapp_daily", inboundMessages: entry.total, topics: Object.fromEntries(entry.topics), observedAt: new Date().toISOString() }),
+          JSON.stringify({ stage: "ADJUSTMENT", kind: "whatsapp_daily", topTopic: [...entry.topics.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null }),
+        ],
+      );
+      result.whatsappDays += 1;
+      result.whatsappMessages += entry.total;
+    }
+  } catch { /* sin bandeja accesible: la señal queda declarada en el informe */ }
+  // Ventas: un agregado por día con pedidos pagados (conversiones e
+  // ingresos reales de la tienda, hasta el dólar).
+  try {
+    const rows = await pool.query(
+      `SELECT (created_at AT TIME ZONE '${TZ}')::date::text AS day,
+              COUNT(*)::int AS orders, COALESCE(SUM(total),0)::numeric AS revenue
+       FROM orders
+       WHERE created_at >= NOW() - INTERVAL '30 days'
+         AND payment_status IN ('paid','completed','succeeded')
+       GROUP BY 1 ORDER BY 1`,
+    );
+    for (const row of rows.rows as any[]) {
+      const day = String(row.day);
+      const [y, m, d] = day.split("-").map(Number);
+      const local = new Date(y, (m || 1) - 1, d || 1);
+      const orders = Number(row.orders || 0);
+      const revenue = Number(row.revenue || 0);
+      if (!orders) continue;
+      await pool.query(
+        `INSERT INTO marketing_learning_observations
+           (campaign_id, channel, objective, target_area, hour, weekday, published, conversions, revenue,
+            attribution_key, source, medium, attribution_evidence, observation_date, decision, adjustment)
+         VALUES ('store-sales','store','store_sales','store',12,$1,FALSE,$2,$3,$4,'store_sales','direct',TRUE,$5,$6::jsonb,$7::jsonb)
+         ON CONFLICT (attribution_key) DO UPDATE SET
+           conversions=EXCLUDED.conversions, revenue=EXCLUDED.revenue, decision=EXCLUDED.decision, adjustment=EXCLUDED.adjustment, updated_at=NOW()`,
+        [
+          local.getDay(), orders, revenue, `sales:daily:${day.replace(/-/g, "")}`, day.replace(/-/g, ""),
+          JSON.stringify({ stage: "RESULT", kind: "store_sales_daily", orders, revenue, observedAt: new Date().toISOString() }),
+          JSON.stringify({ stage: "ADJUSTMENT", kind: "store_sales_daily", revenuePerOrder: orders ? Number((revenue / orders).toFixed(2)) : 0 }),
+        ],
+      );
+      result.salesDays += 1;
+      result.salesOrders += orders;
+      result.salesRevenue += revenue;
+    }
+  } catch { /* sin pedidos accesibles: se declara en el informe */ }
+  return result;
+}
+
 /* ------------------------- ciclo rápido de aprendizaje ---------------------- */
 
 /**
@@ -590,6 +724,8 @@ export async function runFastLearningCycle(ownerUserId: string) {
   await ensureIntelligenceTables();
   const early = await measureEarlyPublications(ownerUserId);
   const full = await measureRecentPublications(ownerUserId).catch(() => ({ measured: 0 }));
+  // Señales del negocio (WhatsApp + ventas) al motor, como etapa aislada.
+  const signals = await syncStoreSignalsLearning(ownerUserId).catch(() => null);
   const report = await getIntelligenceReport(ownerUserId).catch(() => null);
   if (report) {
     await pool.query(
@@ -597,7 +733,7 @@ export async function runFastLearningCycle(ownerUserId: string) {
       [ownerUserId, JSON.stringify(report)],
     ).catch(() => undefined);
   }
-  return { earlyMeasured: early.measured, fullMeasured: (full as any)?.measured ?? 0, snapshotSaved: Boolean(report) };
+  return { earlyMeasured: early.measured, fullMeasured: (full as any)?.measured ?? 0, signals, snapshotSaved: Boolean(report) };
 }
 
 /* ------------------------------ informe ULTRA ------------------------------ */
@@ -630,7 +766,7 @@ export async function getIntelligenceReport(ownerUserId: string) {
   if (whatsapp.topics[0]) lessons.push(`Lo que más preguntan por WhatsApp: «${whatsapp.topics[0].label}» (${whatsapp.topics[0].count} consultas en ${whatsapp.windowDays} días). Las propuestas deben responder eso en el texto.`);
   if (sales.topProducts[0]) lessons.push(`Lo que más se vende de verdad: ${sales.topProducts[0].name} (${sales.topProducts[0].units} unidades, $${sales.topProducts[0].revenue.toFixed(2)} en ${sales.windowDays} días).`);
   if (taste.decisions) lessons.push(taste.note);
-  if (cadence) lessons.push(`Cadencia adaptativa: aire actual de ${cadence.gapDays} día(s). ${cadence.reason}`);
+  if (cadence) lessons.push(`Cadencia de la casa: aire de ${cadence.gapDays} día(s) entre propuestas. ${cadence.reason}`);
 
   // Atribución publicación → sesiones → consultas → pedidos (ventanas honestas).
   let attribution: any[] = [];
@@ -658,7 +794,7 @@ export async function getIntelligenceReport(ownerUserId: string) {
     { key: "continuous_learning", label: "Aprendizaje continuo de todas las señales (orgánico + Google)", active: observations > 0, detail: `${observations} observaciones acumuladas.` },
     { key: "owner_taste", label: "Aprende del gusto del dueño (sí / no / motivo)", active: true, detail: taste.decisions ? taste.note : "Activo y esperando la primera decisión con motivo: se aprende desde el primer sí o no." },
     { key: "fast_measurement", label: "Medición rápida (señal 4–20 h + cierre 24–48 h)", active: true, detail: "El ciclo rápido corre con el despertador horario y en el ciclo diario." },
-    { key: "adaptive_cadence", label: "Cadencia que se adapta sola según la respuesta medida", active: true, detail: cadence ? `Aire actual: ${cadence.gapDays} día(s).` : "Se calcula al generar la próxima propuesta." },
+    { key: "house_cadence", label: "Cadencia de la casa respetada (publicar poco y bien)", active: true, detail: cadence ? `Aire vigente: ${cadence.gapDays} día(s) entre propuestas — regla fija aprobada por el dueño, el robot no la cambia solo.` : "Aire mínimo de 3 días entre propuestas (2 en ventana de fecha-regalo): regla fija aprobada por el dueño." },
     { key: "scored_proposals", label: "Propuestas con puntaje, evidencia, pronóstico y experimento A/B", active: true, detail: "Cada propuesta nueva nace con su ficha de inteligencia en el panel." },
     { key: "channel_variants", label: "Variantes de texto adaptadas por canal (IG / FB / Marketplace / YouTube)", active: true, detail: "Preparadas en cada propuesta; cada canal publica su formato cuando el canal está listo." },
     { key: "whatsapp_signals", label: "Señales de WhatsApp (preguntas y objeciones reales)", active: whatsapp.inboundMessages > 0, detail: whatsapp.inboundMessages ? `${whatsapp.inboundMessages} consultas en ${whatsapp.windowDays} días.` : "Sin consultas registradas todavía: se activa con el primer mensaje." },

@@ -170,7 +170,7 @@ export async function syncMarketingLearningFromAnalytics(days = 30) {
   const lifetimeConversions = insights.reduce((sum,item) => sum + Number(item.conversions||0), 0);
   const lifetimeRevenue = insights.reduce((sum,item) => sum + Number(item.revenue||0), 0);
   const level = observations >= 100 && lifetimeConversions >= 25 ? 5 : observations >= 50 && lifetimeConversions >= 10 ? 4 : observations >= 25 && lifetimeConversions >= 5 ? 3 : observations >= 10 ? 2 : 1;
-  const levelNames = {1:"Semilla",2:"Aprendiendo",3:"Detectando patrones",4:"Optimizando",5:"Autónomo"} as const;
+  const levelNames = {1:"Semilla",2:"Aprendiendo",3:"Detectando patrones",4:"Optimizando",5:"Experto"} as const;
   const nextTargets = {1:"Conseguir resultados atribuidos reales.",2:"Llegar a 25 observaciones y empezar a comparar conversiones.",3:"Llegar a 50 observaciones y 10 conversiones acumuladas.",4:"Llegar a 100 observaciones y 25 conversiones acumuladas.",5:"Seguir aprendiendo sin dejar de experimentar y validar clientes reales."} as const;
 
   return {

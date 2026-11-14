@@ -486,9 +486,10 @@ async function buildProposal(ownerUserId: string) {
     : null;
 
   // Inteligencia ULTRA: puntaje con evidencia, pronóstico desde su
-  // historial, experimento A/B secuencial y variantes por canal. Si el
-  // experimento designa la variante B, ESE es el texto que se publica
-  // (el dueño ve ambas variantes y cuál sale antes de aprobar).
+  // historial, experimento A/B y variantes por canal. Las variantes son
+  // BORRADORES para que el dueño elija al aprobar (A = texto base,
+  // B = cierre con llamado directo): el texto de la propuesta NO se
+  // cambia solo; sale la variante que el dueño marque con su «sí».
   let intelligence: ProposalIntelligence | null = null;
   try {
     intelligence = await buildProposalIntelligence(ownerUserId, {
@@ -506,9 +507,6 @@ async function buildProposal(ownerUserId: string) {
       price: candidate.type === "catalog" ? Number((candidate as any).product?.price || 0) || null : null,
       rotationSeed: Number(proposalCount.rows[0]?.n || 0),
     });
-    if (intelligence && intelligence.experiment.designatedVariant === "B") {
-      caption = intelligence.experiment.variantB;
-    }
   } catch { /* sin inteligencia calculada, la propuesta igual se arma */ }
 
   return {
@@ -697,7 +695,7 @@ async function materializeProposal(ownerUserId: string, proposal: any, scope: Pr
   return { campaignId, alreadyMaterialized: false, scheduledFor: runAt.toISOString() };
 }
 
-export async function approveProposal(ownerUserId: string, proposalId: string, scope: ProposalScope) {
+export async function approveProposal(ownerUserId: string, proposalId: string, scope: ProposalScope, variant?: "A" | "B" | null) {
   await ensureProposalTables();
   const result = await pool.query(`SELECT * FROM marketing_proposals WHERE id=$1 AND owner_user_id=$2 LIMIT 1`, [proposalId, ownerUserId]);
   const proposal = result.rows[0];
@@ -725,6 +723,18 @@ export async function approveProposal(ownerUserId: string, proposalId: string, s
   }
   if (!(proposal.channels || []).length) throw new Error("Proposal has no connected channel to publish to.");
 
+  // Experimento A/B: si el dueño eligió la variante B al aprobar, ESE es
+  // el texto que se materializa. Sin elección expresa sale la A (el
+  // texto base de la propuesta, tal como lo revisó).
+  const chosenVariant = variant === "B" ? "B" : "A";
+  if (chosenVariant === "B") {
+    const variantB = proposal.reasoning?.intelligence?.experiment?.variantB;
+    if (typeof variantB === "string" && variantB.trim()) {
+      proposal.caption = variantB;
+      await pool.query(`UPDATE marketing_proposals SET caption=$2 WHERE id=$1`, [proposal.id, variantB]).catch(() => undefined);
+    }
+  }
+
   let autoPublishUntil: string | null = null;
   if (scope === "week") {
     const updated = await pool.query(
@@ -737,9 +747,10 @@ export async function approveProposal(ownerUserId: string, proposalId: string, s
     autoPublishUntil = updated.rows[0]?.auto_publish_until ?? null;
   }
   const materialized = await materializeProposal(ownerUserId, proposal, scope);
-  // El «sí» del dueño es señal de aprendizaje de primer orden (su gusto).
-  await recordOwnerFeedback(ownerUserId, { proposalId, decision: "approved", scope, proposal }).catch(() => undefined);
-  return { approved: true, scope, proposalId, autoPublishUntil, ...materialized };
+  // El «sí» del dueño es señal de aprendizaje de primer orden (su gusto):
+  // queda registrado con la variante que eligió y con la campaña creada.
+  await recordOwnerFeedback(ownerUserId, { proposalId, decision: "approved", scope, variant: chosenVariant, proposal: { ...proposal, materialized_campaign_id: materialized.campaignId || null } }).catch(() => undefined);
+  return { approved: true, scope, proposalId, autoPublishUntil, variant: chosenVariant, ...materialized };
 }
 
 export async function rejectProposal(ownerUserId: string, proposalId: string, reason?: { reasonCode?: string | null; reasonText?: string | null }) {
