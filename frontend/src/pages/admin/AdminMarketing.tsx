@@ -306,6 +306,7 @@ function AdminMarketing() {
 
     const [proposalData, setProposalData] = useState<any>(null);
     const [proposalBusy, setProposalBusy] = useState(false);
+    const [proposalVariant, setProposalVariant] = useState<"A" | "B">("A");
     const [showReject, setShowReject] = useState(false);
     const [rejectReason, setRejectReason] = useState("");
     const [rejectText, setRejectText] = useState("");
@@ -333,16 +334,23 @@ function AdminMarketing() {
         return list.find((p: any) => p.status === "pending") || (proposalData?.today?.status === "pending" ? proposalData.today : null);
     }, [proposalData]);
 
+    // Al llegar una propuesta nueva, la variante arranca en la que el
+    // experimento recomienda; el dueño puede cambiarla antes de aprobar.
+    useEffect(() => {
+        const designated = (currentProposal as any)?.reasoning?.intelligence?.experiment?.designatedVariant;
+        setProposalVariant(designated === "B" ? "B" : "A");
+    }, [(currentProposal as any)?.id]);
+
     const approveCurrentProposal = useCallback(async (scope: "once" | "week") => {
         if (!currentProposal) return;
         try {
             setProposalBusy(true);
-            await apiRequest(`/api/admin/marketing/social/campaign/proposals/${encodeURIComponent(currentProposal.id)}/approve`, { method: "POST", body: JSON.stringify({ scope }) });
-            setNotice(scope === "week" ? "✅ Propuesta aprobada y semana autorizada: el robot publica esta y las de la ventana, siempre a su hora recomendada." : "✅ Propuesta aprobada: se publica a la hora recomendada. Tu «sí» quedó registrado como aprendizaje de tu gusto.");
+            await apiRequest(`/api/admin/marketing/social/campaign/proposals/${encodeURIComponent(currentProposal.id)}/approve`, { method: "POST", body: JSON.stringify({ scope, variant: proposalVariant }) });
+            setNotice(scope === "week" ? `✅ Propuesta aprobada (variante ${proposalVariant}) y semana autorizada: el robot publica esta y las de la ventana, siempre a su hora recomendada.` : `✅ Propuesta aprobada con la variante ${proposalVariant}: se publica a la hora recomendada. Tu «sí» quedó registrado como aprendizaje de tu gusto.`);
             await loadProposals(); await loadUltraReport();
         } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudo aprobar la propuesta."); }
         finally { setProposalBusy(false); }
-    }, [currentProposal, loadProposals, loadUltraReport]);
+    }, [currentProposal, proposalVariant, loadProposals, loadUltraReport]);
 
     const rejectCurrentProposal = useCallback(async () => {
         if (!currentProposal) return;
@@ -964,7 +972,13 @@ select.btn{appearance:none;-webkit-appearance:none}
                 <b>🧠 Inteligencia ULTRA — Puntaje {intel.score}/100 · {intel.scoreLabel}</b>
                 <ul style={{margin:"6px 0 6px 16px",padding:0}}>{(intel.components || []).map((c: any) => <li key={c.key}><b>{c.label}:</b> {c.points}/{c.max} — {c.evidence}</li>)}</ul>
                 <div>📈 <b>Pronóstico:</b> {intel.forecast?.note}{intel.forecast?.reach ? ` Alcance típico ${intel.forecast.reach.low}–${intel.forecast.reach.high} (mediana ${intel.forecast.reach.mid}), interacciones ${intel.forecast.interactions?.low}–${intel.forecast.interactions?.high}.` : ""}</div>
-                {intel.experiment ? <div style={{marginTop:6}}>🧪 <b>Experimento A/B:</b> {intel.experiment.hypothesis}<br/><b>Variante A{intel.experiment.designatedVariant === "A" ? " (se publica esta)" : ""}:</b> <span style={{whiteSpace:"pre-wrap"}}>{intel.experiment.variantA}</span><br/><b>Variante B{intel.experiment.designatedVariant === "B" ? " (se publica esta)" : ""}:</b> <span style={{whiteSpace:"pre-wrap"}}>{intel.experiment.variantB}</span></div> : null}
+                {intel.experiment ? <div style={{marginTop:6}}>🧪 <b>Experimento A/B:</b> {intel.experiment.hypothesis} El experimento recomienda la <b>{intel.experiment.designatedVariant}</b>, pero <b>la que sale es la que marques vos</b>:
+                  <div className="checks" style={{marginTop:6,flexWrap:"wrap"}}>
+                    <label className={`check ${proposalVariant === "A" ? "selected" : ""}`}><input type="radio" name="proposal-variant" checked={proposalVariant === "A"} onChange={() => setProposalVariant("A")}/><span><b>Variante A</b>{intel.experiment.designatedVariant === "A" ? " (recomendada)" : ""} — texto base</span></label>
+                    <label className={`check ${proposalVariant === "B" ? "selected" : ""}`}><input type="radio" name="proposal-variant" checked={proposalVariant === "B"} onChange={() => setProposalVariant("B")}/><span><b>Variante B</b>{intel.experiment.designatedVariant === "B" ? " (recomendada)" : ""} — cierre con llamado directo</span></label>
+                  </div>
+                  <div style={{marginTop:6}}><b>A:</b> <span style={{whiteSpace:"pre-wrap"}}>{intel.experiment.variantA}</span><br/><b>B:</b> <span style={{whiteSpace:"pre-wrap"}}>{intel.experiment.variantB}</span></div>
+                </div> : null}
                 {Array.isArray(intel.channelVariants) && intel.channelVariants.length ? <details style={{marginTop:6}}><summary><b>Variantes por canal</b> (Instagram ≠ Facebook ≠ Marketplace ≠ YouTube)</summary>{intel.channelVariants.map((v: any) => <div key={v.channel} style={{marginTop:6}}><b style={{textTransform:"capitalize"}}>{v.channel}:</b> <span style={{whiteSpace:"pre-wrap"}}>{v.text}</span><br/><i>Hipótesis: {v.hypothesis}</i></div>)}</details> : null}
               </div> : null}
               {!showReject ? <div className="actions" style={{marginTop:10}}>
