@@ -462,6 +462,9 @@ export async function recommendSlot(
   let experimentIndex: number | null = null;
 
   if (heat.mode === "data" || heat.mode === "weak") {
+    // Una ventana confirmada (2+ publicaciones) pesa más que una sola
+    // publicación con suerte: las celdas de una sola publicación compiten
+    // con descuento, para no coronar una "ventana ganadora" sin respaldo.
     let best: { dateKey: string; hour: number; score: number; cellPosts: number; avgReach: number; avgInteractions: number } | null = null;
     for (let offset = 0; offset <= 6; offset++) {
       const key = addDaysToKey(today, offset);
@@ -474,7 +477,7 @@ export async function recommendSlot(
       const candidate = {
         dateKey: key,
         hour: weekdayBest.hour,
-        score: weekdayBest.avgResponse,
+        score: weekdayBest.avgResponse * (weekdayBest.posts >= 2 ? 1 : 0.7),
         cellPosts: weekdayBest.posts,
         avgReach: weekdayBest.avgReach,
         avgInteractions: cell?.avgInteractions || 0,
@@ -486,7 +489,7 @@ export async function recommendSlot(
       hour = best.hour;
       const dayName = WEEKDAY_NAMES[weekdayOfKey(best.dateKey)];
       evidenceText = heat.mode === "data"
-        ? `Tu mejor ventana en ${CHANNEL_LABELS[primaryChannel]} es el ${dayName} a las ${String(best.hour).padStart(2, "0")}:00: ${best.cellPosts} publicaciones en ese horario rindieron en promedio ${best.avgReach} de alcance y ${best.avgInteractions} interacciones por publicación (datos reales de tu cuenta, ${heat.evidencePosts} publicaciones medidas). La publicación sale al inicio de esa ventana.`
+        ? `Tu mejor ventana en ${CHANNEL_LABELS[primaryChannel]} es el ${dayName} a las ${String(best.hour).padStart(2, "0")}:00: ${best.cellPosts} publicación(es) en ese horario rindieron en promedio ${best.avgReach} de alcance y ${best.avgInteractions} interacciones por publicación (datos reales de tu cuenta, ${heat.evidencePosts} publicaciones medidas). La publicación sale al inicio de esa ventana.${best.cellPosts < 2 ? " Ojo: esa ventana tiene una sola publicación medida — es la mejor pista disponible, no una certeza; la medición de esta publicación la confirma o la corrige." : ""}`
         : `Señal todavía débil en ${CHANNEL_LABELS[primaryChannel]} (${heat.evidencePosts} publicaciones medidas): la mejor pista es el ${dayName} a las ${String(best.hour).padStart(2, "0")}:00, con ${best.avgReach} de alcance promedio en ${best.cellPosts} publicación(es). Se confirma o se corrige con la medición de las próximas publicaciones.`;
     }
   }
