@@ -419,6 +419,78 @@ export async function getAnalyticsReport(days = 28) {
     };
 }
 
+export interface SearchBreakdownRow { key: string; clicks: number; impressions: number; ctr: number; position: number; }
+
+export async function getSearchAnalyticsBreakdown(days = 28) {
+    const safeDays = Math.min(Math.max(Math.floor(days), 1), 90);
+    const end = new Date(); end.setUTCDate(end.getUTCDate() - 2);
+    const start = new Date(end); start.setUTCDate(start.getUTCDate() - safeDays + 1);
+    const iso = (date: Date) => date.toISOString().slice(0, 10);
+
+    const access = await verifySearchConsoleAccess();
+    if (!access.connected || !access.resolvedSiteUrl) {
+        throw new Error(`The service account authenticated successfully, but Google Search Console does not expose access to ${getSiteUrl()}.`);
+    }
+    const siteUrl = access.resolvedSiteUrl;
+
+    const queryDimension = async (dimension: "query" | "page"): Promise<SearchBreakdownRow[]> => {
+        const data = await googleRequest<{ rows?: SearchAnalyticsRow[] }>(
+            SEARCH_CONSOLE_API,
+            `/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,
+            "https://www.googleapis.com/auth/webmasters.readonly",
+            { method: "POST", body: JSON.stringify({ startDate: iso(start), endDate: iso(end), dimensions: [dimension], rowLimit: 50, dataState: "final" }) },
+        );
+        return (data.rows || [])
+            .map((row) => ({
+                key: String(row.keys?.[0] || ""),
+                clicks: Number(row.clicks || 0),
+                impressions: Number(row.impressions || 0),
+                ctr: Number(row.ctr || 0),
+                position: Number(row.position || 0),
+            }))
+            .filter((row) => row.key)
+            .sort((a, b) => b.impressions - a.impressions)
+            .slice(0, 25);
+    };
+
+    const [queries, pages] = await Promise.all([queryDimension("query"), queryDimension("page")]);
+    return { siteUrl, startDate: iso(start), endDate: iso(end), queries, pages };
+}
+
+export interface AnalyticsPageRow { pagePath: string; screenPageViews: number; sessions: number; conversions: number; totalRevenue: number; }
+
+export async function getAnalyticsTopPages(days = 28) {
+    const propertyId = getAnalyticsPropertyId();
+    if (!propertyId) throw new Error("GOOGLE_ANALYTICS_PROPERTY_ID is not configured");
+    const safeDays = Math.min(Math.max(Math.floor(days), 1), 90);
+    const end = new Date(); end.setUTCDate(end.getUTCDate() - 1);
+    const start = new Date(end); start.setUTCDate(start.getUTCDate() - safeDays + 1);
+    const iso = (value: Date) => value.toISOString().slice(0, 10);
+    const data = await googleRequest<{ rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }> }>(
+        ANALYTICS_API,
+        `/properties/${encodeURIComponent(propertyId)}:runReport`,
+        "https://www.googleapis.com/auth/analytics.readonly",
+        {
+            method: "POST",
+            body: JSON.stringify({
+                dateRanges: [{ startDate: iso(start), endDate: iso(end) }],
+                dimensions: [{ name: "pagePath" }],
+                metrics: [{ name: "screenPageViews" }, { name: "sessions" }, { name: "conversions" }, { name: "totalRevenue" }],
+                orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
+                limit: "25",
+            }),
+        },
+    );
+    const rows: AnalyticsPageRow[] = (data.rows || []).map((row) => ({
+        pagePath: String(row.dimensionValues?.[0]?.value || ""),
+        screenPageViews: Number(row.metricValues?.[0]?.value || 0),
+        sessions: Number(row.metricValues?.[1]?.value || 0),
+        conversions: Number(row.metricValues?.[2]?.value || 0),
+        totalRevenue: Number(row.metricValues?.[3]?.value || 0),
+    })).filter((row) => row.pagePath);
+    return { propertyId, startDate: iso(start), endDate: iso(end), rows };
+}
+
 export async function getAnalyticsCampaignReport(days = 30) {
     const propertyId = getAnalyticsPropertyId();
     if (!propertyId || !getCredentials()) return { propertyId, days: Math.min(Math.max(Math.floor(days), 1), 90), rows: [] };

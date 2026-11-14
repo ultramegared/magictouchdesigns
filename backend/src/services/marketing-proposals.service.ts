@@ -17,11 +17,29 @@
  * existente (una sola vez: ends_at corto para que el motor no la repita),
  * así todo el camino de publicación, registro y aprendizaje ya probado se
  * reutiliza sin cambios.
+ *
+ * Ampliaciones del mismo día, por orden del dueño:
+ *  - Cada propuesta se prepara para los 4 medios de la casa (Instagram,
+ *    Facebook, Marketplace y YouTube) con su estado real por medio
+ *    (channel_plan): listo o bloqueado, y por qué.
+ *  - El robot también aprende del SEO de Google (marketing-seo-learning):
+ *    el ciclo diario ingiere Search Console + GA4 antes de proponer, las
+ *    propuestas usan los términos reales de búsqueda, y una oportunidad
+ *    SEO clara puede ser la propuesta del día (source_type "seo": es una
+ *    recomendación con evidencia; aprobarla no publica ni aplica nada).
  */
 import { randomUUID } from "crypto";
 import { pool } from "../config/database";
-import { getConnections } from "./social-connections.service";
+import { getConnections, getYouTubeDiagnosis } from "./social-connections.service";
 import { getMarketingLearningInsights } from "./marketing-learning.service";
+import {
+  syncSeoLearning,
+  getSeoInsights,
+  seoSearchedSlugs,
+  seoQueriesForProduct,
+  seoHashtags,
+  type SeoInsights,
+} from "./marketing-seo-learning.service";
 import {
   evaluateProductPromotability,
   evaluatePortfolioPromotability,
@@ -34,10 +52,23 @@ const PUBLIC_SITE = process.env.FRONTEND_PUBLIC_URL?.trim() || "https://www.jqyd
 // que acompaña cada propuesta.
 const WHATSAPP_NUMBER = "13467603007";
 const TARGET_AREA = "Houston, Texas + United States";
-// Canales donde una propuesta puede salir como publicación pública.
-// YouTube queda fuera hasta que su token reviva (revocado el 2026-11-14) y
-// WhatsApp no es canal de publicación pública (es el link de contacto).
-const PROPOSAL_CHANNELS = ["facebook", "instagram"] as const;
+// Regla del dueño (2026-11-14): TODA publicación de la tienda sale siempre
+// por los mismos 4 medios — Instagram, Facebook, Marketplace y YouTube —
+// así que cada propuesta diaria se prepara para los 4 y declara con
+// honestidad cuáles están listos y cuáles bloqueados (y por qué).
+// WhatsApp no es medio de publicación: es el link de contacto.
+// De los 4, hoy el motor publica la imagen de la propuesta en Facebook e
+// Instagram; YouTube publica con video y Marketplace todavía no tiene
+// publicador conectado en el sistema — ambos quedan en el plan con su
+// estado real hasta que estén operativos.
+const PROPOSAL_MEDIA = ["instagram", "facebook", "marketplace", "youtube"] as const;
+const PUBLISHABLE_CHANNELS = ["facebook", "instagram"] as const;
+
+export type ProposalChannelPlanEntry = {
+  channel: (typeof PROPOSAL_MEDIA)[number];
+  status: "ready" | "blocked";
+  note: string;
+};
 
 export type ProposalScope = "once" | "week";
 
@@ -68,6 +99,7 @@ const ensureProposalTables = async () => {
     UNIQUE(owner_user_id, proposal_date)
   )`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_proposals_owner_date_idx ON marketing_proposals(owner_user_id, proposal_date DESC)`);
+  await pool.query(`ALTER TABLE marketing_proposals ADD COLUMN IF NOT EXISTS channel_plan JSONB NOT NULL DEFAULT '[]'::jsonb`);
 };
 
 const houstonNow = () => new Date(new Date().toLocaleString("en-US", { timeZone: "America/Chicago" }));
@@ -101,7 +133,7 @@ type Candidate =
   | { type: "catalog"; product: any; decision: { eligible: boolean; score: number; reasons: string[] } }
   | { type: "portfolio"; item: any; decision: { eligible: boolean; score: number; reasons: string[] } };
 
-async function pickCandidate(ownerUserId: string): Promise<Candidate | null> {
+async function pickCandidate(ownerUserId: string, preferredSlugs: Set<string> = new Set()): Promise<Candidate | null> {
   // Never re-propose what was already proposed in the last 3 days.
   const recentExclusion = (alias: string, idExpr: string, sourceType: string) =>
     `AND NOT EXISTS (SELECT 1 FROM marketing_proposals mp
@@ -134,6 +166,12 @@ async function pickCandidate(ownerUserId: string): Promise<Candidate | null> {
      LIMIT 5`,
     [ownerUserId],
   );
+  // Lo que la gente ya busca en Google va primero: si uno de los productos
+  // candidatos es de los que Google ya muestra, se propone ese.
+  if (preferredSlugs.size) {
+    productResult.rows.sort((a: any, b: any) =>
+      Number(preferredSlugs.has(String(b.slug || ""))) - Number(preferredSlugs.has(String(a.slug || ""))));
+  }
   for (const product of productResult.rows) {
     const decision = await evaluateProductPromotability(product);
     if (decision.eligible) return { type: "catalog", product, decision };
@@ -166,9 +204,60 @@ async function pickCandidate(ownerUserId: string): Promise<Candidate | null> {
   return null;
 }
 
-async function proposalChannels(ownerUserId: string) {
+/**
+ * El plan de medios de cada propuesta: los 4 medios de la casa, cada uno
+ * con su estado real (listo o bloqueado, y por qué). Nunca se declara
+ * listo un medio que hoy no puede recibir la publicación.
+ */
+export async function buildChannelPlan(ownerUserId: string): Promise<ProposalChannelPlanEntry[]> {
   const connections = await getConnections(ownerUserId).catch(() => null);
-  const available = PROPOSAL_CHANNELS.filter((channel) => Boolean((connections as any)?.channels?.[channel]));
+  const channels = ((connections as any)?.channels || {}) as Record<string, boolean>;
+
+  let youtubeReady = false;
+  let youtubeNote = "YouTube no está conectado: hay que conectarlo desde el panel de Marketing.";
+  if (channels.youtube) {
+    try {
+      const diagnosis: any = await getYouTubeDiagnosis(ownerUserId);
+      if (diagnosis?.lastRefreshFailedAt) {
+        youtubeNote = "El token de YouTube está revocado (la renovación automática falló): hay que reconectarlo con un clic en el panel de Marketing. Cuando reviva, las propuestas salen también ahí (con video).";
+      } else if (diagnosis?.rowExists && diagnosis?.hasRefreshToken) {
+        youtubeReady = true;
+        youtubeNote = "Conectado y listo. En YouTube la publicación sale como video.";
+      }
+    } catch {
+      youtubeNote = "No se pudo verificar el estado de YouTube; se marca bloqueado por seguridad.";
+    }
+  }
+
+  const plan: ProposalChannelPlanEntry[] = [
+    {
+      channel: "instagram",
+      status: channels.instagram ? "ready" : "blocked",
+      note: channels.instagram ? "Conectado y listo para publicar." : "Instagram no está conectado.",
+    },
+    {
+      channel: "facebook",
+      status: channels.facebook ? "ready" : "blocked",
+      note: channels.facebook ? "Conectado y listo para publicar." : "La página de Facebook no está conectada.",
+    },
+    {
+      channel: "marketplace",
+      status: "blocked",
+      note: "Marketplace todavía no está conectado al sistema (no hay publicador de Marketplace): la propuesta queda preparada para este medio y saldrá por ahí cuando se conecte.",
+    },
+    {
+      channel: "youtube",
+      status: youtubeReady ? "ready" : "blocked",
+      note: youtubeNote,
+    },
+  ];
+  return plan;
+}
+
+async function proposalChannels(ownerUserId: string) {
+  const channelPlan = await buildChannelPlan(ownerUserId);
+  const available = PUBLISHABLE_CHANNELS.filter((channel) =>
+    channelPlan.some((entry) => entry.channel === channel && entry.status === "ready"));
   let recommended: string | null = null;
   let scores: Record<string, number> = {};
   try {
@@ -176,10 +265,169 @@ async function proposalChannels(ownerUserId: string) {
     scores = Object.fromEntries(insights.map((row: any) => [row.channel, Number(row.score || 0)]));
     const ranked = [...available].sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
     recommended = ranked[0] || null;
-    return { channels: ranked, recommended, scores };
+    return { channels: ranked, recommended, scores, channelPlan };
   } catch {
-    return { channels: [...available], recommended: available[0] || null, scores };
+    return { channels: [...available], recommended: available[0] || null, scores, channelPlan };
   }
+}
+
+/**
+ * Arma la propuesta del día SIN guardarla (la usa generateDailyProposal
+ * para insertarla y previewDailyProposal para mostrarla/verificarla).
+ * Usa lo aprendido de Google: prefiere productos que la gente ya busca,
+ * suma hashtags de términos reales de búsqueda y, si no hay contenido
+ * nuevo que proponer pero Google muestra una oportunidad clara, la
+ * propuesta del día ES esa oportunidad SEO, con su evidencia.
+ */
+async function buildProposal(ownerUserId: string) {
+  const today = houstonDateKey();
+  const { channels, recommended, scores, channelPlan } = await proposalChannels(ownerUserId);
+  const { occasion, context } = buildOccasion();
+  const seo: SeoInsights | null = await getSeoInsights(ownerUserId).catch(() => null);
+  const searchedSlugs = seoSearchedSlugs(seo);
+
+  const candidate = await pickCandidate(ownerUserId, searchedSlugs);
+
+  if (!candidate) {
+    const opportunity = seo?.opportunities?.[0];
+    if (seo && opportunity) {
+      let imageUrl: string | undefined;
+      let pageProductName = "";
+      try {
+        const pageUrl = new URL(opportunity.page);
+        const slug = pageUrl.searchParams.get("product") || pageUrl.pathname.split("/").filter(Boolean).pop() || "";
+        if (slug) {
+          const found = await pool.query(
+            `SELECT name, image_url FROM products WHERE slug=$1 AND is_active=TRUE LIMIT 1`,
+            [slug],
+          );
+          if (found.rows[0]) {
+            pageProductName = String(found.rows[0].name || "");
+            imageUrl = String(found.rows[0].image_url || "").trim() || undefined;
+          }
+        }
+      } catch { /* la página no mapea a un producto: la propuesta va sin imagen */ }
+      const title = `Oportunidad SEO en Google${pageProductName ? ` · ${pageProductName}` : ""}`;
+      const caption = [
+        `📈 Oportunidad detectada en Google (${seo.periodStart} a ${seo.periodEnd}):`,
+        opportunity.detail,
+        `Evidencia: ${opportunity.impressions} impresiones, ${opportunity.clicks} clics, CTR ${(opportunity.ctr * 100).toFixed(1)}%, posición promedio ${opportunity.position.toFixed(1)}.`,
+        `Página: ${opportunity.page}`,
+        "Esto es una recomendación: el robot no aplica cambios SEO ni publica nada por su cuenta. Si la aprobás, queda registrada como aceptada para trabajarla.",
+      ].join("\n");
+      return {
+        proposal: {
+          id: `prop-${today}-${randomUUID().slice(0, 8)}`,
+          owner_user_id: ownerUserId,
+          proposal_date: today,
+          status: "pending",
+          scope: null as string | null,
+          source_type: "seo",
+          source_id: opportunity.page,
+          title,
+          caption,
+          image_url: imageUrl || null,
+          product_link: opportunity.page,
+          whatsapp_link: whatsappLink(title, opportunity.page),
+          channels: [] as string[],
+          channel_plan: channelPlan,
+          occasion,
+          reasoning: {
+            kind: "seo_opportunity",
+            context,
+            opportunity,
+            seoEvidence: {
+              source: "search_console",
+              period: { start: seo.periodStart, end: seo.periodEnd },
+              totals: seo.totals,
+              topQueries: seo.topQueries.slice(0, 5),
+            },
+            recommendedChannel: null,
+            channelScores: scores,
+            channelPlan,
+            rule: "SEO opportunity proposal: it never publishes and never applies changes. Approval only records the owner's acceptance of the recommendation.",
+          },
+        },
+      };
+    }
+    return { reason: "No eligible new content to propose today." };
+  }
+
+  let title: string;
+  let caption: string;
+  let imageUrl: string | undefined;
+  let link: string;
+  let sourceId: string;
+  let seoEvidence: Record<string, unknown> | null = null;
+  if (candidate.type === "catalog") {
+    const product = candidate.product;
+    title = String(product.name || "Personalized design");
+    caption = buildProductMessage(product);
+    const imageUrls = Array.isArray(product.image_urls) ? product.image_urls.filter(Boolean) : [];
+    imageUrl = String(product.image_url || imageUrls[0] || "").trim() || undefined;
+    link = `${PUBLIC_SITE.replace(/\/$/, "")}/products?product=${encodeURIComponent(String(product.slug || product.product_id))}`;
+    sourceId = String(product.product_id);
+    if (seo) {
+      const matchedQueries = seoQueriesForProduct(seo, { name: title, slug: String(product.slug || "") });
+      const onSearchedPage = searchedSlugs.has(String(product.slug || ""));
+      if (matchedQueries.length || onSearchedPage) {
+        const tags = seoHashtags(matchedQueries.length ? matchedQueries : seo.topQueries.slice(0, 2).map((q) => q.key));
+        if (tags) caption = `${caption}\n\n${tags}`;
+        seoEvidence = {
+          source: "search_console",
+          period: { start: seo.periodStart, end: seo.periodEnd },
+          matchedQueries,
+          productAlreadyShownByGoogle: onSearchedPage,
+          topQueries: seo.topQueries.slice(0, 5),
+          note: "Search terms and hashtags come from real Google queries (Search Console), not invented keywords.",
+        };
+      }
+    }
+  } else {
+    const item = candidate.item;
+    title = String(item.title_en || "Custom work");
+    caption = buildPortfolioMessage(item);
+    imageUrl = String(item.image_url || "").trim() || undefined;
+    link = `${PUBLIC_SITE.replace(/\/$/, "")}/portfolio`;
+    sourceId = String(item.portfolio_id);
+  }
+
+  return {
+    proposal: {
+      id: `prop-${today}-${randomUUID().slice(0, 8)}`,
+      owner_user_id: ownerUserId,
+      proposal_date: today,
+      status: "pending",
+      scope: null as string | null,
+      source_type: candidate.type as string,
+      source_id: sourceId,
+      title,
+      caption,
+      image_url: imageUrl || null,
+      product_link: link,
+      whatsapp_link: whatsappLink(title, link),
+      channels,
+      channel_plan: channelPlan,
+      occasion,
+      reasoning: {
+        context,
+        candidateScore: candidate.decision.score,
+        candidateReasons: candidate.decision.reasons,
+        recommendedChannel: recommended,
+        channelScores: scores,
+        channelPlan,
+        ...(seoEvidence ? { seoEvidence } : {}),
+        rule: "One proposal per day, prepared for the store's 4 media (Instagram, Facebook, Marketplace, YouTube). It publishes only with the owner's authorization (once, or inside an approved weekly window), and only through the media marked ready.",
+      },
+    },
+  };
+}
+
+/** La propuesta que el robot armaría hoy, sin guardarla ni publicar nada. */
+export async function previewDailyProposal(ownerUserId: string) {
+  await ensureProposalTables();
+  const built = await buildProposal(ownerUserId);
+  return built.proposal ? { preview: true, proposal: built.proposal } : { preview: false, reason: built.reason };
 }
 
 export async function generateDailyProposal(ownerUserId: string) {
@@ -197,67 +445,19 @@ export async function generateDailyProposal(ownerUserId: string) {
   const existing = await pool.query(`SELECT * FROM marketing_proposals WHERE owner_user_id=$1 AND proposal_date=$2 LIMIT 1`, [ownerUserId, today]);
   if (existing.rows[0]) return { generated: false, existing: true, proposal: existing.rows[0] };
 
-  const candidate = await pickCandidate(ownerUserId);
-  if (!candidate) return { generated: false, reason: "No eligible new content to propose today." };
-
-  const { channels, recommended, scores } = await proposalChannels(ownerUserId);
-  const { occasion, context } = buildOccasion();
-
-  let title: string;
-  let caption: string;
-  let imageUrl: string | undefined;
-  let link: string;
-  let sourceId: string;
-  if (candidate.type === "catalog") {
-    const product = candidate.product;
-    title = String(product.name || "Personalized design");
-    caption = buildProductMessage(product);
-    const imageUrls = Array.isArray(product.image_urls) ? product.image_urls.filter(Boolean) : [];
-    imageUrl = String(product.image_url || imageUrls[0] || "").trim() || undefined;
-    link = `${PUBLIC_SITE.replace(/\/$/, "")}/products?product=${encodeURIComponent(String(product.slug || product.product_id))}`;
-    sourceId = String(product.product_id);
-  } else {
-    const item = candidate.item;
-    title = String(item.title_en || "Custom work");
-    caption = buildPortfolioMessage(item);
-    imageUrl = String(item.image_url || "").trim() || undefined;
-    link = `${PUBLIC_SITE.replace(/\/$/, "")}/portfolio`;
-    sourceId = String(item.portfolio_id);
-  }
-
-  const proposal = {
-    id: `prop-${today}-${randomUUID().slice(0, 8)}`,
-    owner_user_id: ownerUserId,
-    proposal_date: today,
-    status: "pending",
-    scope: null as string | null,
-    source_type: candidate.type,
-    source_id: sourceId,
-    title,
-    caption,
-    image_url: imageUrl || null,
-    product_link: link,
-    whatsapp_link: whatsappLink(title, link),
-    channels,
-    occasion,
-    reasoning: {
-      context,
-      candidateScore: candidate.decision.score,
-      candidateReasons: candidate.decision.reasons,
-      recommendedChannel: recommended,
-      channelScores: scores,
-      rule: "One proposal per day. It publishes only with the owner's authorization (once, or inside an approved weekly window).",
-    },
-  };
+  const built = await buildProposal(ownerUserId);
+  if (!built.proposal) return { generated: false, reason: built.reason };
+  const proposal = built.proposal;
 
   await pool.query(
     `INSERT INTO marketing_proposals
-       (id, owner_user_id, proposal_date, status, scope, source_type, source_id, title, caption, image_url, product_link, whatsapp_link, channels, occasion, reasoning)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15::jsonb)`,
+       (id, owner_user_id, proposal_date, status, scope, source_type, source_id, title, caption, image_url, product_link, whatsapp_link, channels, channel_plan, occasion, reasoning)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14::jsonb,$15,$16::jsonb)`,
     [
       proposal.id, proposal.owner_user_id, proposal.proposal_date, proposal.status, proposal.scope,
       proposal.source_type, proposal.source_id, proposal.title, proposal.caption, proposal.image_url,
-      proposal.product_link, proposal.whatsapp_link, JSON.stringify(proposal.channels), proposal.occasion,
+      proposal.product_link, proposal.whatsapp_link, JSON.stringify(proposal.channels),
+      JSON.stringify(proposal.channel_plan), proposal.occasion,
       JSON.stringify(proposal.reasoning),
     ],
   );
@@ -283,6 +483,11 @@ export async function listProposals(ownerUserId: string, limit = 14) {
 }
 
 async function materializeProposal(ownerUserId: string, proposal: any, scope: ProposalScope) {
+  if (proposal.source_type === "seo") {
+    // An SEO opportunity is a recommendation, never a publication: approving
+    // it must not create a campaign or post anything anywhere.
+    return { campaignId: "", alreadyMaterialized: true };
+  }
   if (proposal.materialized_campaign_id) {
     return { campaignId: String(proposal.materialized_campaign_id), alreadyMaterialized: true };
   }
@@ -346,6 +551,25 @@ export async function approveProposal(ownerUserId: string, proposalId: string, s
   const proposal = result.rows[0];
   if (!proposal) throw new Error("Proposal not found for this Marketing account.");
   if (proposal.status !== "pending") throw new Error(`Proposal is ${proposal.status}; only a pending proposal can be approved.`);
+  if (proposal.source_type === "seo") {
+    // Approving an SEO recommendation only records the owner's acceptance.
+    // Nothing is published and no SEO change is applied automatically, and
+    // it never opens a weekly auto-publish window.
+    await pool.query(
+      `UPDATE marketing_proposals SET status='approved', scope='once', decided_at=NOW() WHERE id=$1`,
+      [proposal.id],
+    );
+    return {
+      approved: true,
+      scope: "once" as ProposalScope,
+      proposalId,
+      autoPublishUntil: null,
+      campaignId: "",
+      alreadyMaterialized: true,
+      seoRecommendation: true,
+      note: "SEO recommendation approved and recorded. Nothing was published and no change was applied automatically.",
+    };
+  }
   if (!(proposal.channels || []).length) throw new Error("Proposal has no connected channel to publish to.");
 
   let autoPublishUntil: string | null = null;
@@ -388,10 +612,19 @@ export async function closeExpiredWeeklyWindow(ownerUserId: string) {
 export async function runDailyProposals(ownerUserId: string) {
   await ensureProposalTables();
   const closed = await closeExpiredWeeklyWindow(ownerUserId);
+  // Learn from Google first, so today's proposal is built with fresh
+  // Search Console / GA4 evidence. A Google outage must not block the
+  // proposal, so this stage is isolated.
+  let seoLearning: unknown = null;
+  try {
+    seoLearning = await syncSeoLearning(ownerUserId);
+  } catch (error) {
+    seoLearning = { error: error instanceof Error ? error.message : "SEO learning sync failed." };
+  }
   const generated = await generateDailyProposal(ownerUserId);
   let autoPublished: { campaignId: string } | null = null;
   const proposal: any = (generated as any).proposal || null;
-  if (proposal && proposal.status === "pending") {
+  if (proposal && proposal.status === "pending" && proposal.source_type !== "seo") {
     const state = await pool.query(`SELECT publish_enabled FROM marketing_catalog_autopilot WHERE owner_user_id=$1 LIMIT 1`, [ownerUserId]);
     if (state.rows[0]?.publish_enabled === true && (proposal.channels || []).length) {
       const materialized = await materializeProposal(ownerUserId, proposal, "week");
@@ -400,6 +633,7 @@ export async function runDailyProposals(ownerUserId: string) {
   }
   return {
     windowClosed: closed.closed,
+    seoLearning,
     generated: Boolean((generated as any).generated),
     existing: Boolean((generated as any).existing),
     reason: (generated as any).reason || null,
