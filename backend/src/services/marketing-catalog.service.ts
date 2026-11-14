@@ -29,6 +29,8 @@ const ensureCatalogTables = async () => {
   await pool.query(`ALTER TABLE marketing_catalog_promotions ADD COLUMN IF NOT EXISTS promotion_count INTEGER NOT NULL DEFAULT 0`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_catalog_promotions_campaign_idx ON marketing_catalog_promotions(campaign_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_catalog_promotions_due_idx ON marketing_catalog_promotions(last_promoted_at)`);
+  await pool.query(`ALTER TABLE marketing_catalog_autopilot ADD COLUMN IF NOT EXISTS publish_enabled BOOLEAN NOT NULL DEFAULT FALSE`);
+  await pool.query(`ALTER TABLE marketing_catalog_autopilot ADD COLUMN IF NOT EXISTS auto_publish_until TIMESTAMPTZ`);
   await pool.query(`CREATE TABLE IF NOT EXISTS marketing_portfolio_promotions (
     portfolio_id TEXT PRIMARY KEY,
     campaign_id TEXT NOT NULL,
@@ -64,6 +66,9 @@ export async function getCatalogAutopilotStatus(ownerUserId: string) {
     : { rows: [{ count: 0 }] };
   return {
     enabled: Boolean(state.enabled),
+    publishEnabled: Boolean(state.publish_enabled),
+    autoPublishUntil: state.auto_publish_until ?? null,
+    mode: state.publish_enabled ? "authorized-window" : "proposal",
     initializedAt: state.initialized_at,
     lastScanAt: state.last_scan_at,
     lastProductId: state.last_product_id,
@@ -89,18 +94,17 @@ export async function setCatalogAutopilot(ownerUserId: string, enabled: boolean)
   const status = await getCatalogAutopilotStatus(ownerUserId);
   if (!enabled) return status;
 
-  // Activation performs the first real scan immediately. The cron continues
-  // subsequent scans, but activation must not leave the user waiting for it.
-  const scan = await queueNextCatalogProduct(ownerUserId);
+  // Safe activation (owner rule, 2026-11-14): turning the robot ON must never
+  // queue or publish a product by itself. The robot works in Proposal Mode:
+  // it learns from every real campaign (GA4 + social APIs), prepares one
+  // complete daily proposal, and publishes only what the owner authorized —
+  // a single publication, or the proposals inside an approved weekly window.
   return {
     ...status,
-    ...(scan.queued ? {
-      lastProductId: scan.productId,
-      lastProductName: scan.productName,
-      lastCampaignId: scan.campaignId,
-      lastScanAt: new Date().toISOString(),
-    } : {}),
-    scan,
+    scan: {
+      queued: false,
+      reason: "Proposal mode: activation does not queue or publish anything. The robot prepares proposals and waits for the owner's authorization.",
+    },
   };
 }
 
@@ -129,7 +133,7 @@ const promotionHistory = async (sourceType: "catalog" | "portfolio", sourceId: s
   return result.rows[0] || { campaigns: 0, sessions: 0, conversions: 0, revenue: 0, success_rate: 0 };
 };
 
-const evaluateProductPromotability = async (product: any): Promise<PromotionDecision> => {
+export const evaluateProductPromotability = async (product: any): Promise<PromotionDecision> => {
   let score = 0;
   const reasons: string[] = [];
   const imageUrls = Array.isArray(product.image_urls) ? product.image_urls.filter(Boolean) : [];
@@ -158,7 +162,7 @@ const evaluateProductPromotability = async (product: any): Promise<PromotionDeci
   return { eligible: score >= 60, score, reasons };
 };
 
-const evaluatePortfolioPromotability = async (item: any): Promise<PromotionDecision> => {
+export const evaluatePortfolioPromotability = async (item: any): Promise<PromotionDecision> => {
   let score = 0;
   const reasons: string[] = [];
   if (String(item.image_url || "").trim()) { score += 35; reasons.push("has portfolio image"); } else reasons.push("missing portfolio image");
@@ -183,7 +187,7 @@ const evaluatePortfolioPromotability = async (item: any): Promise<PromotionDecis
   return { eligible: score >= 60, score, reasons };
 };
 
-const buildProductMessage = (product: any) => {
+export const buildProductMessage = (product: any) => {
   // Social copy intentionally uses only the product name as its factual input.
   // Never leak product descriptions, features, option objects, or prices into captions.
   const name = String(product.name || "Personalized design").replace(/\s+/g, " ").trim();
@@ -337,7 +341,7 @@ export async function getCatalogOwners() {
 }
 
 
-const buildPortfolioMessage = (item: any) => {
+export const buildPortfolioMessage = (item: any) => {
   const description = String(item.description_en || "").replace(/\s+/g, " ").trim();
   const characteristics = String(item.characteristics_en || "").replace(/\s+/g, " ").trim();
   return [
@@ -496,19 +500,17 @@ export async function getContentAutopilotStatus(ownerUserId: string) {
 }
 
 export async function queueNextContent(ownerUserId: string) {
-  const catalog = await queueNextCatalogProduct(ownerUserId);
-  const portfolio = await queueNextPortfolioWork(ownerUserId);
-  // Phase 2 fallback: only when BOTH real queues miss does the robot
-  // create an advertising poster from a real catalog photo. A new
-  // product upload refills the normal queue, so generation stays
-  // dormant whenever real content is available.
-  let generated: any = { queued: false, reason: "Real queue content is available; generation stays dormant." };
-  if (!catalog.queued && !portfolio.queued) {
-    try {
-      generated = await queueNextCreativePost(ownerUserId);
-    } catch (error) {
-      generated = { queued: false, reason: error instanceof Error ? error.message : "Creative generation failed." };
-    }
-  }
-  return { catalog, portfolio, generated };
+  // Proposal model (owner rule, 2026-11-14): the robot no longer queues
+  // product promotions on its own — not on activation, not on a schedule.
+  // It prepares one complete daily proposal and publishes only what the
+  // owner authorized (a single publication, or every proposal inside an
+  // approved weekly window). Autonomous queueing is retired; see
+  // marketing-proposals.service.ts.
+  void ownerUserId;
+  const reason = "Proposal mode: the robot publishes only owner-approved proposals; autonomous product queueing is retired.";
+  return {
+    catalog: { queued: false, reason },
+    portfolio: { queued: false, reason },
+    generated: { queued: false, reason },
+  };
 }

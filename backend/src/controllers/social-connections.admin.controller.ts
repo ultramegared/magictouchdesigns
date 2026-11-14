@@ -6,6 +6,7 @@ import { launchMarketingCampaign, retryMarketingCampaign, listMarketingCampaigns
 import { recordCampaignLearningFeedback, type LearningChannel } from "../services/marketing-learning.service";
 import { getMarketingDailySummary, getMarketingAutopilotStatus, sendMarketingDailySummary } from "../services/marketing-autopilot.service";
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
+import { listProposals, getTodayProposal, approveProposal, rejectProposal, type ProposalScope } from "../services/marketing-proposals.service";
 import { uploadImageAsset, uploadVideoAsset } from "../services/upload.service";
 import cloudinary from "../config/cloudinary";
 
@@ -459,5 +460,39 @@ export async function marketingCatalogToggle(req: AuthenticatedRequest, res: Res
     } catch (error) {
         console.error("Unable to update Content Autopilot:", error);
         return res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to update Catalog Autopilot." });
+    }
+}
+
+export async function marketingProposalsList(req: AuthenticatedRequest, res: Response) {
+    try {
+        const owner = marketingWorkspaceId();
+        res.json({ status: "success", today: await getTodayProposal(owner), proposals: await listProposals(owner, 14) });
+    } catch (error) {
+        console.error("Unable to load Marketing proposals:", error);
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing proposals." });
+    }
+}
+
+export async function marketingProposalApprove(req: AuthenticatedRequest, res: Response) {
+    try {
+        const scope = String(req.body?.scope || "once");
+        if (scope !== "once" && scope !== "week") {
+            return res.status(400).json({ status: "error", error: "The scope field must be 'once' or 'week'." });
+        }
+        const result = await approveProposal(marketingWorkspaceId(), String(req.params.proposalId || ""), scope as ProposalScope);
+        return res.json({ status: "success", ...result });
+    } catch (error) {
+        console.error("Unable to approve Marketing proposal:", error);
+        return res.status(400).json({ status: "error", error: error instanceof Error ? error.message : "Unable to approve Marketing proposal." });
+    }
+}
+
+export async function marketingProposalReject(req: AuthenticatedRequest, res: Response) {
+    try {
+        const result = await rejectProposal(marketingWorkspaceId(), String(req.params.proposalId || ""));
+        return res.json({ status: "success", ...result });
+    } catch (error) {
+        console.error("Unable to reject Marketing proposal:", error);
+        return res.status(400).json({ status: "error", error: error instanceof Error ? error.message : "Unable to reject Marketing proposal." });
     }
 }

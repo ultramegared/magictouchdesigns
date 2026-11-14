@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import { syncMarketingLearningFromAnalytics } from "../services/marketing-autopilot.service";
 import { runMarketingAutopilot } from "../services/marketing-campaign.service";
 import { recordAutopilotRunEvent } from "../services/marketing-catalog.service";
+import { syncSocialLearning } from "../services/marketing-social-learning.service";
+import { runDailyProposals } from "../services/marketing-proposals.service";
 
 export async function marketingAutopilotCron(req: Request, res: Response) {
   const expected = process.env.CRON_SECRET?.trim();
@@ -28,12 +30,14 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
     });
   }
 
-  // Isolate the two stages: an analytics/provider outage must not prevent the
-  // other stage from running, and a successful publication must not be reported
-  // as a total cron failure merely because analytics synchronization failed.
+  // Isolate the stages: an analytics/provider outage must not prevent the
+  // other stages from running, and a successful publication must not be
+  // reported as a total cron failure merely because a sync stage failed.
   const errors: Record<string, string> = {};
   let autopilot: unknown = null;
   let learning: unknown = null;
+  let socialLearning: unknown = null;
+  const workspaceId = process.env.MARKETING_WORKSPACE_OWNER_ID?.trim() || "a720d444-d23c-45ca-9086-d0d4dde26a1f";
 
   try {
     // Drain due campaign work and reconcile provider statuses first.
@@ -51,13 +55,35 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
     console.error("Marketing learning stage failed:", error);
   }
 
+  try {
+    // Social learning: ingest real Instagram/Facebook publication results so
+    // the engine learns from the campaigns the business actually runs, not
+    // only from GA4 attribution.
+    socialLearning = await syncSocialLearning(workspaceId);
+  } catch (error) {
+    errors.socialLearning = error instanceof Error ? error.message : "Marketing social learning sync failed.";
+    console.error("Marketing social learning stage failed:", error);
+  }
+
+  let proposals: unknown = null;
+  try {
+    // Daily proposal: prepare today's complete proposal; it publishes by
+    // itself only inside an owner-approved weekly window.
+    proposals = await runDailyProposals(workspaceId);
+  } catch (error) {
+    errors.proposals = error instanceof Error ? error.message : "Marketing daily proposal stage failed.";
+    console.error("Marketing daily proposal stage failed:", error);
+  }
+
   const failedStages = Object.keys(errors);
   const status = failedStages.length ? "partial" : "success";
-  return res.status(failedStages.length === 2 ? 503 : 200).json({
+  return res.status(failedStages.length === 4 ? 503 : 200).json({
     status,
     engine: "JQY Marketing Adaptive Engine v1",
     autopilot: autopilot ?? (errors.autopilot ? { status: "error", error: errors.autopilot } : null),
     learning: learning ?? (errors.learning ? { status: "error", error: errors.learning } : null),
+    socialLearning: socialLearning ?? (errors.socialLearning ? { status: "error", error: errors.socialLearning } : null),
+    proposals: proposals ?? (errors.proposals ? { status: "error", error: errors.proposals } : null),
     ...(failedStages.length ? { errors, failedStages } : {}),
   });
 }
