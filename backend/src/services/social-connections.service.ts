@@ -3,13 +3,13 @@ import jwt from "jsonwebtoken";
 import { pool } from "../config/database";
 
 export type SocialProvider = "meta" | "whatsapp" | "instagram" | "tiktok" | "youtube" | "pinterest";
-export type SocialChannel = "facebook" | "instagram" | "whatsapp" | "tiktok" | "youtube" | "pinterest";
+export type SocialChannel = "facebook" | "instagram" | "whatsapp" | "tiktok" | "youtube" | "pinterest" | "marketplace";
 interface ConnectionRow { provider: SocialProvider; profile: Record<string, unknown>; expires_at: string | null; created_at: string; updated_at: string; }
 const META_VERSION = process.env.META_GRAPH_API_VERSION || "v26.0";
 const FRONTEND_URL = process.env.FRONTEND_PUBLIC_URL || "https://jqydesigns.com";
 const BACKEND_URL = process.env.BACKEND_PUBLIC_URL || "https://api.jqydesigns.com";
 const providerConfig = (provider: SocialProvider) => {
-    if (provider === "meta" || provider === "whatsapp") return { configured: Boolean(process.env.META_APP_ID && process.env.META_APP_SECRET && (provider !== "whatsapp" || process.env.META_WHATSAPP_LOGIN_CONFIG_ID)), clientId: process.env.META_APP_ID, clientSecret: process.env.META_APP_SECRET, authorize: `https://www.facebook.com/${META_VERSION}/dialog/oauth`, token: `https://graph.facebook.com/${META_VERSION}/oauth/access_token`, scopes: ["pages_show_list", "pages_read_engagement", "pages_manage_posts", "whatsapp_business_management", "whatsapp_business_messaging"], envKeys: provider === "whatsapp" ? ["META_APP_ID", "META_APP_SECRET", "META_WHATSAPP_LOGIN_CONFIG_ID"] : ["META_APP_ID", "META_APP_SECRET"] };
+    if (provider === "meta" || provider === "whatsapp") return { configured: Boolean(process.env.META_APP_ID && process.env.META_APP_SECRET && (provider !== "whatsapp" || process.env.META_WHATSAPP_LOGIN_CONFIG_ID)), clientId: process.env.META_APP_ID, clientSecret: process.env.META_APP_SECRET, authorize: `https://www.facebook.com/${META_VERSION}/dialog/oauth`, token: `https://graph.facebook.com/${META_VERSION}/oauth/access_token`, scopes: ["pages_show_list", "pages_read_engagement", "pages_manage_posts", "business_management", "catalog_management", "whatsapp_business_management", "whatsapp_business_messaging"], envKeys: provider === "whatsapp" ? ["META_APP_ID", "META_APP_SECRET", "META_WHATSAPP_LOGIN_CONFIG_ID"] : ["META_APP_ID", "META_APP_SECRET"] };
     if (provider === "instagram") return { configured: Boolean(process.env.INSTAGRAM_ACCESS_TOKEN?.trim()), clientId: undefined, clientSecret: undefined, authorize: "https://www.instagram.com/oauth/authorize", token: "https://graph.instagram.com", scopes: ["instagram_business_basic", "instagram_business_content_publish", "instagram_business_manage_insights"], envKeys: ["INSTAGRAM_ACCESS_TOKEN"] };
     if (provider === "tiktok") return { configured: Boolean(process.env.TIKTOK_CLIENT_KEY && process.env.TIKTOK_CLIENT_SECRET), clientId: process.env.TIKTOK_CLIENT_KEY, clientSecret: process.env.TIKTOK_CLIENT_SECRET, authorize: "https://www.tiktok.com/v2/auth/authorize/", token: "https://open.tiktokapis.com/v2/oauth/token/", scopes: ["user.info.basic", "video.publish", "video.upload"], envKeys: ["TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET"] };
     if (provider === "youtube") return { configured: Boolean(process.env.GOOGLE_OAUTH_CLIENT_ID && process.env.GOOGLE_OAUTH_CLIENT_SECRET), clientId: process.env.GOOGLE_OAUTH_CLIENT_ID, clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET, authorize: "https://accounts.google.com/o/oauth2/v2/auth", token: "https://oauth2.googleapis.com/token", scopes: ["openid", "profile", "https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"], envKeys: ["GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET"] };
@@ -68,13 +68,16 @@ export async function getConnections(userId: string) {
             connected.instagram = { connected: true, profile: instagramProfile, expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString() };
         } catch { }
     }
+    let marketplaceReady = false;
+    try { marketplaceReady = (await getMarketplaceDiagnosis(userId)).ready; } catch { marketplaceReady = false; }
     return {
         configured, setup, connected, selections,
         channels: {
             facebook: Boolean((metaProfile as any).pages?.length),
             instagram: Boolean(instagramProfile?.id),
             whatsapp: whatsappReady,
-            tiktok: Boolean(connected.tiktok), youtube: Boolean(connected.youtube), pinterest: Boolean(connected.pinterest)
+            tiktok: Boolean(connected.tiktok), youtube: Boolean(connected.youtube), pinterest: Boolean(connected.pinterest),
+            marketplace: marketplaceReady
         }
     };
 }
@@ -426,7 +429,7 @@ export async function verifySocialConnection(userId: string, provider: SocialPro
 }
 export async function selectSocialAccount(userId: string, provider: SocialProvider, channel: SocialChannel, externalId: string) {
     await ensureSocialConnectionsTable();
-    const allowed: Record<SocialChannel, SocialProvider> = { facebook: "meta", instagram: "meta", whatsapp: "whatsapp", tiktok: "tiktok", youtube: "youtube", pinterest: "pinterest" };
+    const allowed: Record<SocialChannel, SocialProvider> = { facebook: "meta", instagram: "meta", whatsapp: "whatsapp", tiktok: "tiktok", youtube: "youtube", pinterest: "pinterest", marketplace: "meta" };
     if (allowed[channel] !== provider) throw new Error("Channel/provider selection mismatch.");
     const id = externalId.trim();
     if (!id) throw new Error("Account selection requires an external account ID.");
@@ -704,6 +707,254 @@ export async function publishInstagram(userId: string, text: string, imageUrl?: 
     };
 }
 export async function publishMeta(userId: string, channels: SocialChannel[], text: string, imageUrl?: string, link?: string, whatsappTo?: string, videoUrl?: string) { const token = await getAccessToken(userId, "meta"); const profile = await metaProfile(token); const selections = await pool.query<{channel:string; external_id:string}>(`SELECT channel, external_id FROM marketing_social_selections WHERE user_id=$1 AND provider='meta'`, [userId]); const selected = new Map(selections.rows.map(row => [String(row.channel), String(row.external_id)])); const results: Record<string, unknown> = {}; const base = `https://graph.facebook.com/${META_VERSION}`; for (const channel of channels) { try { if (channel === "facebook") { const page = selected.get("facebook") ? profile.pages?.find((item: any) => String(item.id) === selected.get("facebook")) : profile.pages?.length === 1 ? profile.pages[0] : null; if (!page) throw new Error("No Facebook Page was authorized."); let endpoint = `${base}/${page.id}/feed`; const params = new URLSearchParams({ message: text, access_token: page.accessToken }); if (imageUrl) { endpoint = `${base}/${page.id}/photos`; params.set("url", imageUrl); } if (link && !imageUrl) params.set("link", link); const r = await fetch(endpoint, { method: "POST", body: params }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "Facebook publication failed."); const publicationId = d.id || d.post_id; let url: string | undefined; if (publicationId) { try { const permalink = await fetch(`${base}/${publicationId}?fields=permalink_url&access_token=${encodeURIComponent(page.accessToken)}`); const permalinkData = await permalink.json(); if (permalink.ok && permalinkData.permalink_url) url = permalinkData.permalink_url; } catch { /* publication succeeded even if permalink lookup is unavailable */ } } results.facebook = { ok: true, id: publicationId, account: page.name, ...(url ? { url } : {}) }; } else if (channel === "instagram") { throw new Error("Instagram uses the dedicated Instagram Login connection."); } else if (channel === "whatsapp") { const whatsappToken = await getAccessToken(userId, "whatsapp"); const saved = await pool.query<{profile:any}>(`SELECT profile FROM marketing_social_connections WHERE user_id=$1 AND provider=$2`, [userId, "whatsapp"]); const whatsappProfile = saved.rows[0]?.profile || {}; const phoneId = String(whatsappProfile.phoneNumberId || whatsappProfile.whatsapp?.[0]?.id || ""); const phone = whatsappProfile.whatsapp?.find((item: any) => String(item.id) === phoneId) || whatsappProfile.whatsapp?.[0]; if (!phoneId) throw new Error("No WhatsApp Business phone was authorized."); if (!whatsappTo) throw new Error("WhatsApp requires a recipient phone number."); const r = await fetch(`${base}/${phoneId}/messages`, { method: "POST", headers: { Authorization: `Bearer ${whatsappToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ messaging_product: "whatsapp", to: whatsappTo, type: "text", text: { body: text } }) }); const d = await r.json(); if (!r.ok) throw new Error(d.error?.message || "WhatsApp message failed."); results.whatsapp = { ok: true, id: d.messages?.[0]?.id, account: phone?.display_phone_number || phone?.verified_name || "WhatsApp Business" }; } else results[channel] = { ok: false, error: `${channel} connection is supported, but its publisher requires channel-specific media/API handling.` }; } catch (error) { results[channel] = { ok: false, error: error instanceof Error ? error.message : "Publication failed." }; } } return results; }
+// ---------------------------------------------------------------------------
+// Marketplace — canal de venta de Meta Commerce (ruta oficial)
+// ---------------------------------------------------------------------------
+// Meta no ofrece una API pública para crear avisos personales de Marketplace
+// como negocio. La única vía oficial: los productos viven en el catálogo de
+// productos del negocio (Graph API / Catalog) y salen en Marketplace cuando
+// la cuenta de Commerce de la tienda tiene una tienda (Shop) con Marketplace
+// activado como canal de venta en Commerce Manager. Este bloque integra ese
+// canal al robot con el mismo modelo que los demás: diagnóstico honesto,
+// publicación solo desde campañas aprobadas y verificación de estado.
+
+const MARKETPLACE_CATALOG_NAME = "JQYDesigns";
+const MARKETPLACE_BRAND = "JQYDesigns";
+const MARKETPLACE_DIAGNOSIS_TTL_MS = 10 * 60 * 1000;
+
+export type MarketplaceStage = "no_meta" | "no_catalog_permission" | "no_shop" | "ready" | "error";
+
+export interface MarketplaceDiagnosis {
+    stage: MarketplaceStage;
+    ready: boolean;
+    hasCatalogScope: boolean;
+    businessId: string | null;
+    businessName: string | null;
+    pageId: string | null;
+    catalogId: string | null;
+    shopExists: boolean;
+    note: string;
+    checkedAt: string;
+}
+
+async function ensureMarketplaceSettingsTable() {
+    await pool.query(`CREATE TABLE IF NOT EXISTS marketing_marketplace_settings (owner_user_id TEXT PRIMARY KEY, business_id TEXT, catalog_id TEXT, ready BOOLEAN NOT NULL DEFAULT FALSE, diagnosis JSONB NOT NULL DEFAULT '{}'::jsonb, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
+}
+
+async function metaGraph(token: string, path: string, method: "GET" | "POST" = "GET", body?: Record<string, string>) {
+    const base = `https://graph.facebook.com/${META_VERSION}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), GRAPH_CALL_TIMEOUT_MS);
+    let response: Response;
+    try {
+        if (method === "POST") {
+            const params = new URLSearchParams({ access_token: token, ...(body || {}) });
+            response = await fetch(`${base}/${path}`, { method: "POST", body: params, signal: controller.signal });
+        } else {
+            response = await fetch(`${base}/${path}`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal });
+        }
+    } catch (error) {
+        if ((error as Error)?.name === "AbortError") throw new Error("Meta no respondió a tiempo (Graph API).");
+        throw error;
+    } finally {
+        clearTimeout(timeout);
+    }
+    const data: any = await response.json().catch(() => ({}));
+    if (!response.ok || data?.error) throw new Error(data?.error?.message || `Meta Graph API error (${response.status})`);
+    return data;
+}
+
+export async function getMarketplaceDiagnosis(userId: string, options?: { force?: boolean }): Promise<MarketplaceDiagnosis> {
+    await ensureMarketplaceSettingsTable();
+    const saved = await pool.query<{ business_id: string | null; catalog_id: string | null; diagnosis: any }>(
+        `SELECT business_id, catalog_id, diagnosis FROM marketing_marketplace_settings WHERE owner_user_id=$1`, [userId]);
+    const savedRow = saved.rows[0];
+    const savedDiagnosis = savedRow?.diagnosis && typeof savedRow.diagnosis === "object" && savedRow.diagnosis.stage
+        ? savedRow.diagnosis as MarketplaceDiagnosis : null;
+    if (!options?.force && savedDiagnosis?.checkedAt && Date.now() - new Date(savedDiagnosis.checkedAt).getTime() < MARKETPLACE_DIAGNOSIS_TTL_MS) {
+        return savedDiagnosis;
+    }
+    const checkedAt = new Date().toISOString();
+    const finish = async (diagnosis: MarketplaceDiagnosis): Promise<MarketplaceDiagnosis> => {
+        await pool.query(
+            `INSERT INTO marketing_marketplace_settings (owner_user_id, business_id, catalog_id, ready, diagnosis, updated_at)
+             VALUES ($1,$2,$3,$4,$5::jsonb,NOW())
+             ON CONFLICT (owner_user_id) DO UPDATE SET business_id=EXCLUDED.business_id, catalog_id=EXCLUDED.catalog_id, ready=EXCLUDED.ready, diagnosis=EXCLUDED.diagnosis, updated_at=NOW()`,
+            [userId, diagnosis.businessId, diagnosis.catalogId, diagnosis.ready, JSON.stringify(diagnosis)]);
+        return diagnosis;
+    };
+    const blank = { hasCatalogScope: false, businessId: null, businessName: null, pageId: null, catalogId: null, shopExists: false, checkedAt };
+    const metaRows = await pool.query(`SELECT 1 FROM marketing_social_connections WHERE user_id=$1 AND provider='meta' LIMIT 1`, [userId]).catch(() => ({ rows: [] as any[] }));
+    if (!metaRows.rows.length) {
+        return finish({ ...blank, stage: "no_meta", ready: false, note: "La cuenta de Meta no está conectada: conectala desde el panel de Marketing." });
+    }
+    let token = "";
+    try { token = await getAccessToken(userId, "meta"); } catch { token = ""; }
+    if (!token) {
+        return finish({ ...blank, stage: "no_meta", ready: false, note: "La conexión de Meta no devolvió un token válido: reconectala desde el panel de Marketing." });
+    }
+    let scopes: string[] = [];
+    try {
+        const appToken = `${process.env.META_APP_ID}|${process.env.META_APP_SECRET}`;
+        const dbg = await metaGraph(appToken, `debug_token?input_token=${encodeURIComponent(token)}`);
+        scopes = Array.isArray(dbg?.data?.scopes) ? dbg.data.scopes.map(String) : [];
+    } catch { scopes = []; }
+    const hasCatalogScope = scopes.includes("catalog_management");
+    let pageId: string | null = null;
+    let pageToken = "";
+    let businessId: string | null = savedRow?.business_id ? String(savedRow.business_id) : null;
+    let businessName: string | null = null;
+    try {
+        const accounts = await metaGraph(token, `me/accounts?fields=id,name,access_token`);
+        const pages: any[] = Array.isArray(accounts?.data) ? accounts.data : [];
+        const selections = await pool.query<{ external_id: string }>(`SELECT external_id FROM marketing_social_selections WHERE user_id=$1 AND provider='meta' AND channel='facebook' LIMIT 1`, [userId]).catch(() => ({ rows: [] as any[] }));
+        const selectedPageId = selections.rows[0]?.external_id ? String(selections.rows[0].external_id) : null;
+        const page = pages.find((p: any) => selectedPageId && String(p.id) === selectedPageId) || pages[0];
+        if (page) { pageId = String(page.id); pageToken = String(page.access_token || ""); }
+        const businesses = await metaGraph(token, `me/businesses?fields=id,name`);
+        const bizList: any[] = Array.isArray(businesses?.data) ? businesses.data : [];
+        for (const biz of bizList) {
+            try {
+                const owned = await metaGraph(token, `${biz.id}/owned_pages?fields=id`);
+                const ownedIds = (Array.isArray(owned?.data) ? owned.data : []).map((p: any) => String(p.id));
+                if (pageId && ownedIds.includes(pageId)) { businessId = String(biz.id); businessName = String(biz.name || ""); break; }
+            } catch { /* seguir con el siguiente negocio */ }
+        }
+        if (!businessId && bizList.length) { businessId = String(bizList[0].id); businessName = String(bizList[0].name || ""); }
+    } catch { /* sin página/negocio legibles: se reporta con lo que haya */ }
+    const savedCatalogId = savedRow?.catalog_id ? String(savedRow.catalog_id) : null;
+    if (!hasCatalogScope) {
+        return finish({ stage: "no_catalog_permission", ready: false, hasCatalogScope, businessId, businessName, pageId, catalogId: savedCatalogId, shopExists: false, checkedAt,
+            note: "Falta el permiso de catálogo de Meta (catalog_management): el robot ya lo pide al conectar, pero hay que reconectar la cuenta de Meta desde el panel de Marketing (un clic, con la cuenta del negocio) para autorizarlo. Con ese permiso el robot crea el catálogo de Commerce y publica los productos en Marketplace." });
+    }
+    let catalogId: string | null = savedCatalogId;
+    if (businessId) {
+        try {
+            const catalogs = await metaGraph(token, `${businessId}/owned_product_catalogs?fields=id,name`);
+            const list: any[] = Array.isArray(catalogs?.data) ? catalogs.data : [];
+            const found = list.find((c: any) => catalogId && String(c.id) === catalogId)
+                || list.find((c: any) => String(c.name || "") === MARKETPLACE_CATALOG_NAME)
+                || list[0];
+            if (found) catalogId = String(found.id);
+        } catch { /* el publicador reintenta y reporta el error real de Meta */ }
+    }
+    let shopExists = false;
+    if (pageId && pageToken) {
+        try {
+            const cms = await metaGraph(pageToken, `${pageId}/commerce_merchant_settings?fields=id`);
+            shopExists = Array.isArray(cms?.data) ? cms.data.length > 0 : Boolean(cms?.id);
+        } catch { shopExists = false; }
+    }
+    if (!shopExists) {
+        return finish({ stage: "no_shop", ready: false, hasCatalogScope, businessId, businessName, pageId, catalogId, shopExists, checkedAt,
+            note: "El permiso de catálogo ya está, pero la tienda todavía no tiene cuenta de Commerce (Shop) en Meta: sin eso, Marketplace no muestra los productos. Paso del dueño en Commerce Manager (business.facebook.com/commerce, con la cuenta del negocio): crear la tienda de JQYDesigns con este catálogo, completar los datos del negocio y activar «Marketplace» como canal de venta." });
+    }
+    return finish({ stage: "ready", ready: true, hasCatalogScope, businessId, businessName, pageId, catalogId, shopExists, checkedAt,
+        note: catalogId
+            ? "Conectado y listo: los productos aprobados se publican en Marketplace desde el catálogo de Commerce de la tienda."
+            : "Conectado y listo: el catálogo de Commerce se crea automáticamente con la primera publicación aprobada." });
+}
+
+async function resolveMarketplaceProduct(input: { link?: string; campaignName?: string }) {
+    let slug = "";
+    if (input.link) {
+        try {
+            const url = new URL(input.link);
+            slug = String(url.searchParams.get("product") || "");
+            if (!slug) {
+                const parts = url.pathname.split("/").filter(Boolean);
+                if (parts[0] === "products" && parts[1]) slug = decodeURIComponent(parts[1]);
+            }
+        } catch { slug = ""; }
+    }
+    if (slug) {
+        const bySlug = await pool.query(`SELECT product_id, name, slug, price, description, image_url FROM products WHERE slug=$1 AND is_active LIMIT 1`, [slug]);
+        if (bySlug.rows[0]) return bySlug.rows[0] as any;
+    }
+    const title = String(input.campaignName || "").replace(/^Propuesta\s*·\s*/i, "").trim();
+    if (title) {
+        const byName = await pool.query(`SELECT product_id, name, slug, price, description, image_url FROM products WHERE name=$1 AND is_active LIMIT 1`, [title]);
+        if (byName.rows[0]) return byName.rows[0] as any;
+    }
+    return null;
+}
+
+export async function publishMarketplace(userId: string, input: { text: string; imageUrl?: string; link?: string; campaignName?: string }) {
+    const diagnosis = await getMarketplaceDiagnosis(userId, { force: true });
+    if (diagnosis.stage === "no_meta" || diagnosis.stage === "no_catalog_permission" || diagnosis.stage === "no_shop") {
+        throw new Error(diagnosis.note);
+    }
+    if (!diagnosis.businessId) throw new Error("No se encontró el negocio de Meta dueño de la página de JQYDesigns.");
+    const token = await getAccessToken(userId, "meta");
+    const product = await resolveMarketplaceProduct(input);
+    if (!product) throw new Error("Marketplace necesita el producto real de la tienda (con su precio y su página) y no se encontró en el catálogo interno: la publicación no salió por este medio.");
+    let catalogId = diagnosis.catalogId;
+    if (!catalogId) {
+        const created = await metaGraph(token, `${diagnosis.businessId}/owned_product_catalogs`, "POST", { name: MARKETPLACE_CATALOG_NAME });
+        catalogId = created?.id ? String(created.id) : null;
+        if (!catalogId) throw new Error("Meta no devolvió el ID del catálogo de Commerce creado.");
+        await pool.query(`UPDATE marketing_marketplace_settings SET catalog_id=$2, updated_at=NOW() WHERE owner_user_id=$1`, [userId, catalogId]);
+    }
+    const slug = String(product.slug);
+    const itemData: Record<string, string> = {
+        retailer_id: slug,
+        title: String(product.name || "").slice(0, 200),
+        description: String(product.description || input.text || product.name || "").slice(0, 5000),
+        image_url: String(input.imageUrl || product.image_url || ""),
+        url: `https://www.jqydesigns.com/products?product=${encodeURIComponent(slug)}`,
+        price: String(Math.max(1, Math.round(Number(product.price || 0) * 100))),
+        currency: "USD",
+        availability: "in stock",
+        condition: "new",
+        brand: MARKETPLACE_BRAND,
+    };
+    // Idempotente: si el producto ya está en el catálogo, se actualiza el mismo aviso.
+    let itemId: string | null = null;
+    try {
+        const items = await metaGraph(token, `${catalogId}/products?fields=id,retailer_id&limit=100`);
+        const match = (Array.isArray(items?.data) ? items.data : []).find((item: any) => String(item.retailer_id || "") === slug);
+        if (match) itemId = String(match.id);
+    } catch { /* si no se puede listar, se intenta crear y Meta responde */ }
+    if (itemId) {
+        await metaGraph(token, `${encodeURIComponent(itemId)}`, "POST", itemData);
+    } else {
+        const createdItem = await metaGraph(token, `${catalogId}/products`, "POST", itemData);
+        itemId = createdItem?.id ? String(createdItem.id) : null;
+    }
+    if (!itemId) throw new Error("Meta no devolvió el ID del producto publicado en el catálogo.");
+    let reviewStatus = "";
+    let visibility = "";
+    try {
+        const item = await metaGraph(token, `${encodeURIComponent(itemId)}?fields=id,review_status,visibility`);
+        reviewStatus = typeof item?.review_status === "string" ? item.review_status : (item?.review_status?.status ? String(item.review_status.status) : "");
+        visibility = item?.visibility ? String(item.visibility) : "";
+    } catch { /* el estado se confirma después con checkMarketplacePublicationStatus */ }
+    const url = `https://www.facebook.com/marketplace/item/${itemId}/`;
+    if (/reject|disapprov/i.test(reviewStatus)) {
+        return { ok: false, id: itemId, url, account: "JQYDesigns · Marketplace", reviewStatus, error: "Meta rechazó el producto del catálogo para Marketplace: hay que revisar el aviso en Commerce Manager (calidad y políticas de comercio)." };
+    }
+    const approved = /approv/i.test(reviewStatus);
+    return { ok: true, id: itemId, url, account: "JQYDesigns · Marketplace", catalogId,
+        ...(approved ? {} : { status: "PROCESSING" }),
+        ...(reviewStatus ? { reviewStatus } : {}), ...(visibility ? { visibility } : {}),
+        message: approved
+            ? "Producto publicado en el catálogo de Commerce de la tienda y aprobado por Meta para Marketplace."
+            : "Producto cargado en el catálogo de Commerce; Meta lo está revisando y el estado se confirma solo." };
+}
+
+export async function checkMarketplacePublicationStatus(userId: string, itemId: string) {
+    const token = await getAccessToken(userId, "meta");
+    const item = await metaGraph(token, `${encodeURIComponent(itemId)}?fields=id,review_status,visibility,errors`);
+    const reviewStatus = typeof item?.review_status === "string" ? item.review_status : (item?.review_status?.status ? String(item.review_status.status) : "");
+    const url = `https://www.facebook.com/marketplace/item/${encodeURIComponent(itemId)}/`;
+    if (/reject|disapprov/i.test(reviewStatus)) {
+        const reason = Array.isArray(item?.errors) && item.errors[0]?.message ? String(item.errors[0].message) : "Meta rechazó el producto del catálogo.";
+        return { status: "FAILED", published: false, reviewStatus, failReason: reason, url };
+    }
+    const published = /approv/i.test(reviewStatus);
+    return { status: published ? "PUBLISHED" : "PROCESSING", published, ...(reviewStatus ? { reviewStatus } : {}), ...(item?.visibility ? { visibility: String(item.visibility) } : {}), url };
+}
+
 export async function checkTikTokPublicationStatus(userId: string, publishId: string) {
     const token = await getAccessToken(userId, "tiktok");
     const response = await fetch("https://open.tiktokapis.com/v2/post/publish/status/fetch/", {

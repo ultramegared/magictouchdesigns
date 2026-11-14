@@ -36,7 +36,7 @@
  */
 import { randomUUID } from "crypto";
 import { pool } from "../config/database";
-import { getConnections, getYouTubeDiagnosis } from "./social-connections.service";
+import { getConnections, getMarketplaceDiagnosis, getYouTubeDiagnosis } from "./social-connections.service";
 import { getMarketingLearningInsights } from "./marketing-learning.service";
 import {
   syncSeoLearning,
@@ -75,12 +75,12 @@ const TARGET_AREA = "Houston, Texas + United States";
 // así que cada propuesta diaria se prepara para los 4 y declara con
 // honestidad cuáles están listos y cuáles bloqueados (y por qué).
 // WhatsApp no es medio de publicación: es el link de contacto.
-// De los 4, hoy el motor publica la imagen de la propuesta en Facebook e
-// Instagram; YouTube publica con video y Marketplace todavía no tiene
-// publicador conectado en el sistema — ambos quedan en el plan con su
-// estado real hasta que estén operativos.
+// De los 4, el motor publica la imagen de la propuesta en Facebook e
+// Instagram; YouTube publica con video, y Marketplace publica el producto
+// en el catálogo de Meta Commerce (ruta oficial). Cada medio queda en el
+// plan con su estado real según su diagnóstico, hasta que esté operativo.
 const PROPOSAL_MEDIA = ["instagram", "facebook", "marketplace", "youtube"] as const;
-const PUBLISHABLE_CHANNELS = ["facebook", "instagram"] as const;
+const PUBLISHABLE_CHANNELS = ["facebook", "instagram", "marketplace"] as const;
 
 export type ProposalChannelPlanEntry = {
   channel: (typeof PROPOSAL_MEDIA)[number];
@@ -265,6 +265,16 @@ export async function buildChannelPlan(ownerUserId: string): Promise<ProposalCha
     }
   }
 
+  let marketplaceStatus: "ready" | "blocked" = "blocked";
+  let marketplaceNote = "Marketplace todavía no está conectado al sistema (no hay publicador de Marketplace): la propuesta queda preparada para este medio y saldrá por ahí cuando se conecte.";
+  try {
+    const mpDiagnosis: any = await getMarketplaceDiagnosis(ownerUserId);
+    marketplaceStatus = mpDiagnosis?.ready ? "ready" : "blocked";
+    if (mpDiagnosis?.note) marketplaceNote = String(mpDiagnosis.note);
+  } catch {
+    marketplaceNote = "No se pudo verificar el estado de Marketplace; se marca bloqueado por seguridad.";
+  }
+
   const plan: ProposalChannelPlanEntry[] = [
     {
       channel: "instagram",
@@ -278,8 +288,8 @@ export async function buildChannelPlan(ownerUserId: string): Promise<ProposalCha
     },
     {
       channel: "marketplace",
-      status: "blocked",
-      note: "Marketplace todavía no está conectado al sistema (no hay publicador de Marketplace): la propuesta queda preparada para este medio y saldrá por ahí cuando se conecte.",
+      status: marketplaceStatus,
+      note: marketplaceNote,
     },
     {
       channel: "youtube",

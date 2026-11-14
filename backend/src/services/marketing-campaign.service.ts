@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { pool } from "../config/database";
-import { getConnections, checkTikTokPublicationStatus, checkYouTubePublicationStatus, publishMeta, publishInstagram, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
+import { getConnections, checkMarketplacePublicationStatus, checkTikTokPublicationStatus, checkYouTubePublicationStatus, publishMarketplace, publishMeta, publishInstagram, publishPinterest, publishTikTokPhoto, publishTikTokVideo, publishYouTube, type SocialChannel } from "./social-connections.service";
 import { sendPromotion, type PromotionResult } from "./promotion.service";
 import { recordCampaignLaunchLearning, getMarketingLearningInsights } from "./marketing-learning.service";
 import { getCatalogOwners, queueNextContent, recordAutopilotRunEvent } from "./marketing-catalog.service";
@@ -42,7 +42,7 @@ export interface MarketingCampaignResult {
     };
 }
 
-const allowedChannels: SocialChannel[] = ["facebook", "instagram", "whatsapp", "tiktok", "youtube", "pinterest"];
+const allowedChannels: SocialChannel[] = ["facebook", "instagram", "whatsapp", "tiktok", "youtube", "pinterest", "marketplace"];
 
 // Global autopilot cadence (owner rule): the robot publishes at most
 // one autopilot campaign every 3 days across catalog, portfolio, and
@@ -300,6 +300,18 @@ const publishSocialCampaign = async (
             results.youtube = await publishYouTube(userId, socialCaption, input.videoUrl?.trim(), withCampaignTracking(input.link?.trim(), campaignId, "youtube"), input.youtubePrivacy || "public", youtubeTags);
         } catch (error) {
             results.youtube = { ok: false, error: error instanceof Error ? error.message : "YouTube publication failed." };
+        }
+    }
+    if (channels.includes("marketplace")) {
+        try {
+            results.marketplace = await publishMarketplace(userId, {
+                text: socialCaption,
+                imageUrl: input.imageUrl?.trim() || undefined,
+                link: input.link?.trim() || undefined,
+                campaignName: input.name,
+            });
+        } catch (error) {
+            results.marketplace = { ok: false, error: error instanceof Error ? error.message : "Marketplace publication failed." };
         }
     }
     return results;
@@ -882,7 +894,7 @@ const syncPendingPublicationStatuses = async () => {
          FROM marketing_campaign_runs
          WHERE status='PROCESSING' AND external_id IS NOT NULL
            AND created_at >= NOW() - INTERVAL '24 hours'
-           AND channel IN ('tiktok','youtube')
+           AND channel IN ('tiktok','youtube','marketplace')
          ORDER BY created_at ASC LIMIT 50`
     );
     let updated = 0;
@@ -890,6 +902,8 @@ const syncPendingPublicationStatuses = async () => {
         try {
             const result = row.channel === "tiktok"
                 ? await checkTikTokPublicationStatus(String(row.owner_user_id), String(row.external_id))
+                : row.channel === "marketplace"
+                ? await checkMarketplacePublicationStatus(String(row.owner_user_id), String(row.external_id))
                 : await checkYouTubePublicationStatus(String(row.owner_user_id), String(row.external_id));
             const published = Boolean(result.published);
             const status = published ? "PUBLISHED" : (result.status === "FAILED" ? "FAILED" : "PROCESSING");

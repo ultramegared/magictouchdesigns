@@ -340,7 +340,7 @@ export async function marketingPublicationActivity(req: AuthenticatedRequest, re
 export async function socialPublish(req: AuthenticatedRequest, res: Response) {
     try {
         const channels = Array.isArray(req.body?.channels) ? req.body.channels as SocialChannel[] : [];
-        const allowed: SocialChannel[] = ["facebook", "instagram", "whatsapp", "tiktok", "youtube", "pinterest"];
+        const allowed: SocialChannel[] = ["facebook", "instagram", "whatsapp", "tiktok", "youtube", "pinterest", "marketplace"];
         const selected = channels.filter((channel): channel is SocialChannel => allowed.includes(channel));
         if (!selected.length) return res.status(400).json({ error: "Select at least one social channel." });
         const text = String(req.body?.text || "").trim();
@@ -382,7 +382,7 @@ export async function marketingLearning(req: AuthenticatedRequest, res: Response
 export async function marketingLearningFeedback(req: AuthenticatedRequest, res: Response) {
     try {
         const channel = String(req.body?.channel || "") as LearningChannel;
-        const allowed: LearningChannel[] = ["facebook","instagram","whatsapp","tiktok","youtube","pinterest","email"];
+        const allowed: LearningChannel[] = ["facebook","instagram","whatsapp","tiktok","youtube","pinterest","marketplace","email"];
         if (!allowed.includes(channel)) return res.status(400).json({ error: "Unsupported learning channel." });
         if (!req.body?.campaignId) return res.status(400).json({ error: "Campaign ID is required." });
         const result = await recordCampaignLearningFeedback({

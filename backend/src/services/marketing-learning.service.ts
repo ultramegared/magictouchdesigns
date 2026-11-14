@@ -1,6 +1,6 @@
 import { pool } from "../config/database";
 
-export type LearningChannel = "facebook" | "instagram" | "whatsapp" | "tiktok" | "youtube" | "pinterest" | "email";
+export type LearningChannel = "facebook" | "instagram" | "whatsapp" | "tiktok" | "youtube" | "pinterest" | "marketplace" | "email";
 export interface LearningFeedback {
   campaignId: string;
   ownerUserId?: string;
@@ -23,7 +23,7 @@ export interface LearningInsight {
   revenue: number;
   recommended: boolean;
 }
-const channels: LearningChannel[] = ["facebook","instagram","whatsapp","tiktok","youtube","pinterest","email"];
+const channels: LearningChannel[] = ["facebook","instagram","whatsapp","tiktok","youtube","pinterest","marketplace","email"];
 
 const ensureLearningTables = async () => {
   await pool.query(`
