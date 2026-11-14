@@ -304,6 +304,58 @@ function AdminMarketing() {
         }
     }, []);
 
+    const [proposalData, setProposalData] = useState<any>(null);
+    const [proposalBusy, setProposalBusy] = useState(false);
+    const [showReject, setShowReject] = useState(false);
+    const [rejectReason, setRejectReason] = useState("");
+    const [rejectText, setRejectText] = useState("");
+    const [ultraReport, setUltraReport] = useState<any>(null);
+    const [ultraLoading, setUltraLoading] = useState(false);
+
+    const loadProposals = useCallback(async () => {
+        try {
+            const response = await apiRequest<any>("/api/admin/marketing/social/campaign/proposals");
+            setProposalData(response);
+        } catch { /* La propuesta es suplementaria y nunca bloquea Marketing. */ }
+    }, []);
+
+    const loadUltraReport = useCallback(async () => {
+        try {
+            setUltraLoading(true);
+            const response = await apiRequest<any>("/api/admin/marketing/social/campaign/intelligence-report");
+            setUltraReport(response.report || null);
+        } catch { /* El informe ULTRA es suplementario. */ }
+        finally { setUltraLoading(false); }
+    }, []);
+
+    const currentProposal = useMemo(() => {
+        const list: any[] = proposalData?.proposals || [];
+        return list.find((p: any) => p.status === "pending") || (proposalData?.today?.status === "pending" ? proposalData.today : null);
+    }, [proposalData]);
+
+    const approveCurrentProposal = useCallback(async (scope: "once" | "week") => {
+        if (!currentProposal) return;
+        try {
+            setProposalBusy(true);
+            await apiRequest(`/api/admin/marketing/social/campaign/proposals/${encodeURIComponent(currentProposal.id)}/approve`, { method: "POST", body: JSON.stringify({ scope }) });
+            setNotice(scope === "week" ? "✅ Propuesta aprobada y semana autorizada: el robot publica esta y las de la ventana, siempre a su hora recomendada." : "✅ Propuesta aprobada: se publica a la hora recomendada. Tu «sí» quedó registrado como aprendizaje de tu gusto.");
+            await loadProposals(); await loadUltraReport();
+        } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudo aprobar la propuesta."); }
+        finally { setProposalBusy(false); }
+    }, [currentProposal, loadProposals, loadUltraReport]);
+
+    const rejectCurrentProposal = useCallback(async () => {
+        if (!currentProposal) return;
+        try {
+            setProposalBusy(true);
+            await apiRequest(`/api/admin/marketing/social/campaign/proposals/${encodeURIComponent(currentProposal.id)}/reject`, { method: "POST", body: JSON.stringify({ reasonCode: rejectReason || null, reasonText: rejectText || null }) });
+            setNotice("❌ Propuesta rechazada. Tu «no» y su motivo quedaron registrados: el robot aprende de eso para la próxima.");
+            setShowReject(false); setRejectReason(""); setRejectText("");
+            await loadProposals(); await loadUltraReport();
+        } catch (error) { setNotice(error instanceof Error ? error.message : "No se pudo rechazar la propuesta."); }
+        finally { setProposalBusy(false); }
+    }, [currentProposal, rejectReason, rejectText, loadProposals, loadUltraReport]);
+
     const runAutopilotNow = useCallback(async () => {
         try {
             setAutopilotRunning(true);
@@ -384,7 +436,7 @@ function AdminMarketing() {
         }
     }, [load, loadCampaignHistory, loadPublicationActivity, loadLearning, loadDailySummary]);
 
-    useEffect(() => { void load(); void loadSocial(); void loadInstagramInsights(); void loadEmailStatus(); void loadCampaignHistory(); void loadPublicationActivity(); void loadLearning(); void loadDailySummary(); void loadCatalog(); }, [load, loadSocial, loadInstagramInsights, loadCampaignHistory, loadPublicationActivity, loadLearning, loadDailySummary, loadCatalog]);
+    useEffect(() => { void load(); void loadSocial(); void loadInstagramInsights(); void loadEmailStatus(); void loadCampaignHistory(); void loadPublicationActivity(); void loadLearning(); void loadDailySummary(); void loadCatalog(); void loadProposals(); void loadUltraReport(); }, [load, loadSocial, loadInstagramInsights, loadCampaignHistory, loadPublicationActivity, loadLearning, loadDailySummary, loadCatalog, loadProposals, loadUltraReport]);
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         if (params.get("social") === "connected") setNotice(`Cuenta ${params.get("provider") || "social"} conectada correctamente.`);
@@ -901,7 +953,32 @@ select.btn{appearance:none;-webkit-appearance:none}
               <button className="btn" onClick={() => void loadCatalog()} disabled={catalogLoading}><RefreshCw size={14}/> {catalogLoading ? "Updating..." : "Refresh"}</button>
             </div>
             {catalog?.enabled && <div className="notice">🟢 <b>El robot está prendido en modo propuesta:</b> prepara la publicación del día y <b>no publica nada solo</b> — cada propuesta espera el «sí» del dueño (o una autorización por toda la semana) antes de salir.</div>}
-            <div className="notice">📌 <b>Propuesta de hoy — pendiente de tu aprobación:</b> «Personalized My Favorite Gift Is You Christmas Mug» · para <b>Instagram y Facebook</b>. Queda en espera hasta que la apruebes; el robot no la publica por su cuenta.</div>
+            {currentProposal ? (() => { const p: any = currentProposal; const intel: any = p.reasoning?.intelligence || null; const sched: any = p.schedule || p.reasoning?.schedule || null; return <div className="notice" style={{borderColor:"#1D4ED8",background:"#EFF6FF"}}>
+              📌 <b>Propuesta pendiente de tu aprobación:</b> «{p.title}»<br/>
+              {p.image_url ? <img src={p.image_url} alt="" style={{display:"block",maxWidth:220,borderRadius:10,margin:"8px 0"}}/> : null}
+              <span style={{whiteSpace:"pre-wrap"}}>{p.caption}</span><br/>
+              <span>🛒 <a href={p.product_link} target="_blank" rel="noreferrer">Ver en la tienda</a> · 💬 <a href={p.whatsapp_link} target="_blank" rel="noreferrer">Link de WhatsApp</a></span><br/>
+              {Array.isArray(p.channel_plan) && p.channel_plan.length ? <span>{p.channel_plan.map((c: any) => <span key={c.channel} className={c.status === "ready" ? "pill ok" : "pill off"} style={{marginRight:6}} title={c.note}>{c.status === "ready" ? "✓" : "✕"} {c.channel}</span>)}</span> : null}
+              {sched ? <div style={{marginTop:6}}>🕐 <b>{sched.label}</b> (hora de Houston)<br/><i>{sched.evidenceText}</i></div> : null}
+              {intel ? <div style={{marginTop:8,borderTop:"1px solid #BFDBFE",paddingTop:8}}>
+                <b>🧠 Inteligencia ULTRA — Puntaje {intel.score}/100 · {intel.scoreLabel}</b>
+                <ul style={{margin:"6px 0 6px 16px",padding:0}}>{(intel.components || []).map((c: any) => <li key={c.key}><b>{c.label}:</b> {c.points}/{c.max} — {c.evidence}</li>)}</ul>
+                <div>📈 <b>Pronóstico:</b> {intel.forecast?.note}{intel.forecast?.reach ? ` Alcance típico ${intel.forecast.reach.low}–${intel.forecast.reach.high} (mediana ${intel.forecast.reach.mid}), interacciones ${intel.forecast.interactions?.low}–${intel.forecast.interactions?.high}.` : ""}</div>
+                {intel.experiment ? <div style={{marginTop:6}}>🧪 <b>Experimento A/B:</b> {intel.experiment.hypothesis}<br/><b>Variante A{intel.experiment.designatedVariant === "A" ? " (se publica esta)" : ""}:</b> <span style={{whiteSpace:"pre-wrap"}}>{intel.experiment.variantA}</span><br/><b>Variante B{intel.experiment.designatedVariant === "B" ? " (se publica esta)" : ""}:</b> <span style={{whiteSpace:"pre-wrap"}}>{intel.experiment.variantB}</span></div> : null}
+                {Array.isArray(intel.channelVariants) && intel.channelVariants.length ? <details style={{marginTop:6}}><summary><b>Variantes por canal</b> (Instagram ≠ Facebook ≠ Marketplace ≠ YouTube)</summary>{intel.channelVariants.map((v: any) => <div key={v.channel} style={{marginTop:6}}><b style={{textTransform:"capitalize"}}>{v.channel}:</b> <span style={{whiteSpace:"pre-wrap"}}>{v.text}</span><br/><i>Hipótesis: {v.hypothesis}</i></div>)}</details> : null}
+              </div> : null}
+              {!showReject ? <div className="actions" style={{marginTop:10}}>
+                <button className="btn primary" onClick={() => void approveCurrentProposal("once")} disabled={proposalBusy}>✅ Aprobar esta propuesta</button>
+                <button className="btn" onClick={() => void approveCurrentProposal("week")} disabled={proposalBusy}>📅 Aprobar y autorizar la semana</button>
+                <button className="btn" onClick={() => setShowReject(true)} disabled={proposalBusy}>❌ Rechazar</button>
+                <button className="btn" onClick={() => { void loadProposals(); void loadUltraReport(); }} disabled={proposalBusy}><RefreshCw size={13}/> Actualizar</button>
+              </div> : <div style={{marginTop:10}}>
+                <b>¿Por qué no? Tu motivo le enseña tu gusto al robot:</b>
+                <div className="checks" style={{marginTop:6,flexWrap:"wrap"}}>{[{code:"product",label:"No me gusta el producto elegido"},{code:"text",label:"El texto no me convence"},{code:"timing",label:"El día/hora no me cierra"},{code:"too_soon",label:"Muy seguido / todavía no"},{code:"price_offer",label:"Precio u oferta a ajustar"},{code:"other",label:"Otro motivo"}].map((r: any) => <label key={r.code} className={`check ${rejectReason === r.code ? "selected" : ""}`}><input type="radio" name="reject-reason" checked={rejectReason === r.code} onChange={() => setRejectReason(r.code)}/><span>{r.label}</span></label>)}</div>
+                <input className="input" style={{marginTop:6}} placeholder="Detalle opcional (lo que sea, con tus palabras)" value={rejectText} onChange={e => setRejectText(e.target.value)}/>
+                <div className="actions" style={{marginTop:8}}><button className="btn primary" onClick={() => void rejectCurrentProposal()} disabled={proposalBusy}>Confirmar rechazo</button><button className="btn" onClick={() => setShowReject(false)} disabled={proposalBusy}>Volver</button></div>
+              </div>}
+            </div>; })() : <div className="notice">📌 <b>Sin propuesta pendiente ahora:</b> {proposalData?.today ? `la de hoy quedó «${proposalData.today.status}».` : "hoy no toca proponer (cadencia de publicar poco y bien) o el robot está juntando evidencia."} Cuando haya una, aparece acá completa — con su puntaje, su pronóstico y sus variantes — y <b>solo se publica con tu sí</b>.</div>}
             <div className="metrics c5" style={{marginTop:14}}>
               <div className="metric"><b>{catalog?.pendingProducts ?? 0}</b><span>Productos en espera</span></div>
               <div className="metric"><b>{catalog?.pendingPortfolio ?? 0}</b><span>Trabajos Portfolio en espera</span></div>
@@ -921,6 +998,24 @@ select.btn{appearance:none;-webkit-appearance:none}
             {dailySummary && <><div style={{display:"flex",justifyContent:"space-between",fontSize:12.5,flexWrap:"wrap",gap:6}}><span><b>Nivel {dailySummary.learning.level} · {dailySummary.learning.levelName}</b></span><span style={{color:"var(--mk-muted)"}}>Meta siguiente: {dailySummary.learning.nextTarget}</span></div><div className="lvl"><i style={{width: Math.min(100, dailySummary.learning.level * 20) + "%"}}></i></div></>}
             <div className="metrics" style={{marginTop:14}}>{learningInsights.map(item => <div className="metric" key={item.channel}><b>{(item.score * 100).toFixed(1)}</b><span>{item.channel} · {item.observations} obs.{item.recommended ? " · recomendado" : ""}</span></div>)}</div>
             <div className="notice">{learningLoading ? "Actualizando aprendizaje..." : learningInsights.some(item => item.sessions > 0 || item.conversions > 0 || item.revenue > 0) ? "Learning activo con evidencia de GA4: sesiones, conversiones y/o revenue atribuidos." : "Sin evidencia de resultado atribuido todavía. Las publicaciones se registran, pero el sistema no las presenta como aprendizaje hasta recibir datos reales."}</div>
+          </div>
+          <div className="block">
+            <h2>🧠 Informe ULTRA del robot <span className="sub"><button className="btn sm" onClick={() => void loadUltraReport()} disabled={ultraLoading}><RefreshCw size={13}/> {ultraLoading ? "Updating..." : "Refresh"}</button></span></h2>
+            <p className="desc">Aprendizaje abierto y continuo: el robot aprende de todo — redes, Google, WhatsApp, ventas reales y de tus «sí» y «no» — y se ajusta solo. <b>La publicación no se abre: sigue solo con tu sí.</b></p>
+            {ultraReport ? <>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+                <span className="pill ok"><span className="dot"></span> Motor {ultraReport.capabilityTier} · {ultraReport.capabilitiesActive}/{ultraReport.capabilitiesTotal} capacidades activas</span>
+                {dailySummary && <span className="pill off"><span className="dot"></span> Nivel de aprendizaje por datos: {dailySummary.learning.level} · {dailySummary.learning.levelName} (sube con datos reales, no con el rótulo)</span>}
+                <span style={{color:"var(--mk-muted)",fontSize:12}}>{ultraReport.learning.observations} observaciones · actualizado {new Date(ultraReport.generatedAt).toLocaleString()}</span>
+              </div>
+              {ultraReport.alerts?.length ? <div style={{marginTop:10}}>{ultraReport.alerts.map((a: any, i: number) => <div key={i} className="notice" style={{marginTop:6,borderColor: a.level === "critical" ? "#B42318" : a.level === "warning" ? "#B45309" : "#1D4ED8", color: a.level === "critical" ? "#B42318" : undefined}}>{a.level === "critical" ? "🔴" : a.level === "warning" ? "🟠" : "🔵"} <b>{a.title}:</b> {a.detail}</div>)}</div> : <div className="notice" style={{marginTop:10}}>✅ Sin alertas: ningún canal caído ni publicación fallida detectada.</div>}
+              <div className="metrics" style={{marginTop:12}}>{(ultraReport.capabilities || []).map((c: any) => <div className="metric" key={c.key}><b>{c.active ? "✓" : "…"}</b><span>{c.label} — {c.detail}</span></div>)}</div>
+              {ultraReport.lessons?.length ? <div style={{marginTop:10}}><b>Lo que aprendió (con evidencia):</b><ul style={{margin:"6px 0 0 16px",padding:0}}>{ultraReport.lessons.map((l: string, i: number) => <li key={i}>{l}</li>)}</ul></div> : null}
+              {ultraReport.attribution?.length ? <div style={{marginTop:10}}><b>Atribución de las últimas publicaciones:</b>{ultraReport.attribution.map((a: any, i: number) => <div className="row" key={i}><b style={{textTransform:"capitalize"}}>{a.channel}</b><span>{a.title} · {a.impressions} alcance · {a.interactions} interacciones · {a.sessions} sesiones · {a.conversions} conversiones · ${Number(a.revenue).toFixed(2)}</span><span className="when">{a.note}</span></div>)}</div> : null}
+              {ultraReport.whatsapp?.topics?.length ? <div style={{marginTop:10}}><b>Lo que preguntan por WhatsApp ({ultraReport.whatsapp.inboundMessages} consultas en {ultraReport.whatsapp.windowDays} días):</b> {ultraReport.whatsapp.topics.map((t: any) => <span key={t.code} className="pill off" style={{marginRight:6}}>{t.label}: {t.count}</span>)}</div> : null}
+              <div className="notice" style={{marginTop:10}}>💼 <b>Comprador de anuncios:</b> {ultraReport.mediaBuyer?.status === "active" ? "activo con datos pagos reales." : ultraReport.mediaBuyer?.reason} {ultraReport.mediaBuyer?.campaigns?.length ? ultraReport.mediaBuyer.campaigns.map((c: any) => <span key={c.campaignId} style={{display:"block"}}>{c.campaignId}: {c.impressions} impresiones · CTR {(c.ctr * 100).toFixed(2)}% · gasto ${Number(c.spend).toFixed(2)} → <b>{c.recommendation}</b></span>) : null}</div>
+              <div className="notice" style={{marginTop:8,borderColor:"#C8102E"}}>🎯 <b>{ultraReport.nextMove}</b></div>
+            </> : <div className="notice">{ultraLoading ? "Cargando el informe ULTRA..." : "El informe ULTRA todavía no cargó. Tocá Refresh."}</div>}
           </div>
         </section>}
 
