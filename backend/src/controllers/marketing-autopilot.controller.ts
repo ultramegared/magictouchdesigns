@@ -3,6 +3,7 @@ import { syncMarketingLearningFromAnalytics } from "../services/marketing-autopi
 import { runMarketingAutopilot } from "../services/marketing-campaign.service";
 import { recordAutopilotRunEvent } from "../services/marketing-catalog.service";
 import { syncSocialLearning } from "../services/marketing-social-learning.service";
+import { syncMetaAdsLearning } from "../services/marketing-ads-learning.service";
 import { runDailyProposals } from "../services/marketing-proposals.service";
 
 export async function marketingAutopilotCron(req: Request, res: Response) {
@@ -37,6 +38,7 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
   let autopilot: unknown = null;
   let learning: unknown = null;
   let socialLearning: unknown = null;
+  let adsLearning: unknown = null;
   const workspaceId = process.env.MARKETING_WORKSPACE_OWNER_ID?.trim() || "a720d444-d23c-45ca-9086-d0d4dde26a1f";
 
   try {
@@ -65,6 +67,17 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
     console.error("Marketing social learning stage failed:", error);
   }
 
+  try {
+    // Meta Ads learning: ingest real paid campaign results (read-only) so the
+    // engine also learns from the ads the business runs in Ads Manager. If
+    // the Meta token still lacks ads_read, the service reports
+    // "missing_scope" without failing this stage or the whole cron.
+    adsLearning = await syncMetaAdsLearning(workspaceId);
+  } catch (error) {
+    errors.adsLearning = error instanceof Error ? error.message : "Marketing ads learning sync failed.";
+    console.error("Marketing ads learning stage failed:", error);
+  }
+
   let proposals: unknown = null;
   try {
     // Daily proposal: prepare today's complete proposal; it publishes by
@@ -77,12 +90,13 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
 
   const failedStages = Object.keys(errors);
   const status = failedStages.length ? "partial" : "success";
-  return res.status(failedStages.length === 4 ? 503 : 200).json({
+  return res.status(failedStages.length === 5 ? 503 : 200).json({
     status,
     engine: "JQY Marketing Adaptive Engine v1",
     autopilot: autopilot ?? (errors.autopilot ? { status: "error", error: errors.autopilot } : null),
     learning: learning ?? (errors.learning ? { status: "error", error: errors.learning } : null),
     socialLearning: socialLearning ?? (errors.socialLearning ? { status: "error", error: errors.socialLearning } : null),
+    adsLearning: adsLearning ?? (errors.adsLearning ? { status: "error", error: errors.adsLearning } : null),
     proposals: proposals ?? (errors.proposals ? { status: "error", error: errors.proposals } : null),
     ...(failedStages.length ? { errors, failedStages } : {}),
   });
