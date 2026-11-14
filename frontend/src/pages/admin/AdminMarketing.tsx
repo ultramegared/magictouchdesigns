@@ -1015,7 +1015,7 @@ select.btn{appearance:none;-webkit-appearance:none}
           </div>
           <div className="block">
             <h2>🧠 Informe ULTRA del robot <span className="sub"><button className="btn sm" onClick={() => void loadUltraReport()} disabled={ultraLoading}><RefreshCw size={13}/> {ultraLoading ? "Updating..." : "Refresh"}</button></span></h2>
-            <p className="desc">Aprendizaje abierto y continuo: el robot aprende de todo — redes, Google, WhatsApp, ventas reales y de tus «sí» y «no» — y se ajusta solo. <b>La publicación no se abre: sigue solo con tu sí.</b></p>
+            <p className="desc">Aprendizaje abierto y continuo: el robot aprende de todo — redes, Google, WhatsApp, ventas reales y de tus «sí» y «no» — y ajusta su aprendizaje solo. <b>La cadencia no se toca (regla fija de la casa: aire mínimo de 3 días) y la publicación no se abre: sigue solo con tu sí.</b></p>
             {ultraReport ? <>
               <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
                 <span className="pill ok"><span className="dot"></span> Motor {ultraReport.capabilityTier} · {ultraReport.capabilitiesActive}/{ultraReport.capabilitiesTotal} capacidades activas</span>
