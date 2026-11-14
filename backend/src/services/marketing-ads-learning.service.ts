@@ -9,20 +9,26 @@
  *
  * Este servicio cierra ese puente en modo SOLO LECTURA (jamás crea, edita,
  * pausa ni toca el gasto de ningún anuncio): lee las campañas de la cuenta
- * publicitaria con el token de Meta ya autorizado, registra cada una como
- * campaña "paid" en marketing_campaigns y guarda sus resultados reales
- * acumulados (impresiones, clics, alcance y gasto) como observaciones de
- * aprendizaje con source "meta_ads" y medium "paid", reutilizando el mismo
- * scoring que ya consume impresiones/clics por canal.
+ * publicitaria, registra cada una como campaña "paid" en
+ * marketing_campaigns y guarda sus resultados reales acumulados
+ * (impresiones, clics, alcance y gasto) como observaciones de aprendizaje
+ * con source "meta_ads" y medium "paid", reutilizando el mismo scoring
+ * que ya consume impresiones/clics por canal.
  *
- * Requiere el permiso ads_read en el token de Meta. Si el token vigente
- * todavía no lo tiene (falta reconectar Meta en el panel), el sync se
- * detiene con un log claro y un estado "missing_scope" — sin lanzar, sin
- * romper el cron de aprendizaje ni las demás fuentes.
+ * La lectura usa un token propio y dedicado: el de un System User del
+ * Business Manager, tomado de la variable de entorno
+ * META_ADS_SYSTEM_USER_TOKEN (con ads_read sobre la cuenta publicitaria).
+ * NO usa el token de la conexión social de Meta: pedir ads_read en ese
+ * Connect rompía la autorización, porque la app no tiene Advanced Access
+ * para ese permiso (arreglo B, 2026-11-14: ads_read salió de los scopes
+ * del Connect y la conexión volvió a funcionar como el 2026-11-01).
+ * Si el token dedicado no está configurado, el sync se detiene con un log
+ * claro y un estado "missing_token"; si Meta responde error de permiso,
+ * con un estado "missing_scope" — en ambos casos sin lanzar, sin romper
+ * el cron de aprendizaje ni las demás fuentes.
  */
 import { pool } from "../config/database";
 import { ensureMarketingLearningTables } from "./marketing-learning.service";
-import { getAccessToken } from "./social-connections.service";
 
 const META_VERSION = process.env.META_GRAPH_API_VERSION || "v26.0";
 const TARGET_AREA = "Houston, Texas + United States";
@@ -257,7 +263,7 @@ export async function syncMetaAdsLearning(ownerUserId: string) {
   await ensureMarketingLearningTables();
   const summary: {
     ownerUserId: string;
-    status: "ok" | "missing_scope" | "error";
+    status: "ok" | "missing_scope" | "missing_token" | "error";
     adAccountId: string | null;
     campaigns: number;
     observations: number;
@@ -274,8 +280,22 @@ export async function syncMetaAdsLearning(ownerUserId: string) {
     syncedAt: new Date().toISOString(),
   };
 
+  // Token propio de lectura de Ads: el del System User del Business
+  // Manager (META_ADS_SYSTEM_USER_TOKEN). Sin ese token no se lee nada y
+  // el sync se omite con gracia — jamás se cae al token de la conexión
+  // social, que ya no pide ads_read (arreglo B, 2026-11-14).
+  const token = process.env.META_ADS_SYSTEM_USER_TOKEN?.trim();
+  if (!token) {
+    summary.status = "missing_token";
+    console.warn(
+      "[marketing-ads] Falta el token de System User para leer Meta Ads: configurá META_ADS_SYSTEM_USER_TOKEN " +
+      "en el entorno del backend (Business Settings → Usuarios del sistema, con acceso a la cuenta publicitaria " +
+      "y el permiso ads_read). Sync de campañas pagas omitido por esta vez; el resto del aprendizaje no se ve afectado.",
+    );
+    return summary;
+  }
+
   try {
-    const token = await getAccessToken(ownerUserId, "meta");
     const adAccountId = await resolveAdAccountId(token);
     summary.adAccountId = adAccountId;
 
@@ -298,8 +318,8 @@ export async function syncMetaAdsLearning(ownerUserId: string) {
         summary.status = "missing_scope";
         summary.error = message;
         console.warn(
-          `[marketing-ads] El token de Meta todavía no tiene el permiso ads_read: "${message}". ` +
-          "Para activarlo hay que reconectar Meta en el panel de Marketing (Disconnect → Connect). " +
+          `[marketing-ads] El token de System User todavía no tiene el permiso ads_read sobre la cuenta publicitaria: "${message}". ` +
+          "Para activarlo hay que asignarle al usuario del sistema acceso a la cuenta en Business Settings, con el permiso ads_read. " +
           "Sync de campañas pagas omitido por esta vez; el resto del aprendizaje no se ve afectado.",
         );
         return summary;
