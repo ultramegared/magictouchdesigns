@@ -3,7 +3,8 @@ import { getAnalyticsCampaignReport } from "./google-search-console.service";
 import { ensureMarketingLearningTables, recordCampaignLearningFeedback, getMarketingLearningInsights } from "./marketing-learning.service";
 import { sendEmail } from "./email.service";
 import { getCatalogOwners, queueNextContent } from "./marketing-catalog.service";
-import { getTodayProposal } from "./marketing-proposals.service";
+import { getCurrentProposal } from "./marketing-proposals.service";
+import { getScheduleBrief } from "./marketing-schedule.service";
 
 const sourceToChannel: Record<string, "facebook"|"instagram"|"whatsapp"|"tiktok"|"youtube"|"pinterest"|"email"> = {
   facebook: "facebook",
@@ -224,15 +225,19 @@ export async function sendMarketingDailySummary() {
   const summary = await syncMarketingLearningFromAnalytics();
   if (summary.campaigns.total < 1) return { sent: false, reason: "No Marketing campaign exists yet.", summary };
 
-  // The robot's daily proposal rides in this report: it is how the owner
+  // The robot's current proposal rides in this report: it is how the owner
   // sees what the robot prepared and decides whether to authorize it.
   const workspaceId = process.env.MARKETING_WORKSPACE_OWNER_ID?.trim() || "a720d444-d23c-45ca-9086-d0d4dde26a1f";
-  const proposal: any = await getTodayProposal(workspaceId).catch(() => null);
+  const proposal: any = await getCurrentProposal(workspaceId).catch(() => null);
   const proposalStatusText = !proposal ? null
     : proposal.status === "pending" ? "Esperando tu autorización (no se publica sola)."
     : proposal.status === "approved" ? "Autorizada: se publica hoy."
     : proposal.status === "rejected" ? "Rechazada por vos."
     : `Estado: ${proposal.status}.`;
+  // Lógica de horarios: el día/hora recomendados con su evidencia, y el
+  // estado del mapa de calor por red con la cadencia vigente.
+  const proposalSchedule: any = proposal?.schedule || null;
+  const scheduleBrief: any = await getScheduleBrief(workspaceId).catch(() => null);
 
   const recipient = process.env.MARKETING_DAILY_REPORT_EMAIL?.trim() || "jqydesigns@gmail.com";
   const dateKey = new Date().toISOString().slice(0, 10);
@@ -257,20 +262,35 @@ export async function sendMarketingDailySummary() {
       `Next target: ${summary.learning.nextTarget}`,
       ...(proposal ? [
         "",
-        "🤖 PROPUESTA DEL ROBOT PARA HOY",
+        "🤖 PROPUESTA DEL ROBOT",
         `${proposal.occasion || ""}`,
         `Publicar: ${proposal.title}`,
         `Canales: ${(proposal.channels || []).join(", ")}`,
         `Estado: ${proposalStatusText}`,
+        ...(proposalSchedule ? [
+          `🕐 Día y hora recomendados: ${proposalSchedule.label} (hora de Houston)`,
+          `Por qué ese horario: ${proposalSchedule.evidenceText}`,
+        ] : []),
         `Texto de la publicación:`,
         String(proposal.caption || ""),
         `Imagen: ${proposal.image_url || ""}`,
         `Link de la página: ${proposal.product_link || ""}`,
         `Link de WhatsApp: ${proposal.whatsapp_link || ""}`,
         "Para autorizarla: aprobala en el panel de Marketing o pedile a Muse («sí, publicá la propuesta de hoy» o «autorizo la semana»). Sin tu sí, no se publica.",
+      ] : [
+        "",
+        "🤖 PROPUESTA DEL ROBOT",
+        scheduleBrief ? `Hoy no hay propuesta nueva. ${scheduleBrief.cadence.line}` : "Hoy no hay propuesta nueva.",
+      ]),
+      ...(scheduleBrief ? [
+        "",
+        "🗓️ MAPA DE CALOR Y CADENCIA (datos reales de tus redes)",
+        ...scheduleBrief.channels.map((row: any) => `- ${row.line}`),
+        `Cadencia: ${scheduleBrief.cadence.line}`,
+        ...(scheduleBrief.event ? [`Calendario: se viene ${scheduleBrief.event.name} (${scheduleBrief.event.eventDateKey}) — los regalos se publican antes.`] : []),
       ] : []),
     ].join("\n"),
-    html: `<div style="font-family:Arial,sans-serif;max-width:760px;margin:auto"><h1>JQY Marketing Daily Growth Report</h1><p>${dateKey}</p><h2>Nivel ${summary.learning.level} · ${summary.learning.levelName}</h2><p>${summary.learning.nextTarget}</p><table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;width:100%"><thead><tr><th>Canal</th><th>Publicaciones</th><th>OK</th><th>Sesiones</th><th>Conversiones</th><th>Ingresos</th></tr></thead><tbody>${channelRows}</tbody></table><p><b>Últimas 24h:</b> ${summary.last24.publications} publicaciones · ${summary.last24.sessions} sesiones · ${summary.last24.conversions} conversiones · $${summary.last24.revenue.toFixed(2)}.</p><p><b>Aprendizaje acumulado:</b> ${summary.learning.observations} observaciones · ${summary.learning.conversions} conversiones · $${summary.learning.revenue.toFixed(2)}.</p>${proposal ? `<hr/><h2>🤖 Propuesta del robot para hoy</h2><p>${proposal.occasion || ""}</p><p><b>Publicar:</b> ${proposal.title}</p><p><b>Canales:</b> ${(proposal.channels || []).join(", ")} · <b>Estado:</b> ${proposalStatusText}</p>${proposal.image_url ? `<p><img src="${proposal.image_url}" alt="" style="max-width:320px;border-radius:8px"/></p>` : ""}<p style="white-space:pre-wrap">${String(proposal.caption || "")}</p><p>🛒 <a href="${proposal.product_link || "#"}">Ver en la página</a> · 💬 <a href="${proposal.whatsapp_link || "#"}">WhatsApp del negocio</a></p><p>Para autorizarla: aprobala en el panel de Marketing o pedile a Muse. Sin tu sí, no se publica.</p>` : ""}</div>`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:760px;margin:auto"><h1>JQY Marketing Daily Growth Report</h1><p>${dateKey}</p><h2>Nivel ${summary.learning.level} · ${summary.learning.levelName}</h2><p>${summary.learning.nextTarget}</p><table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;width:100%"><thead><tr><th>Canal</th><th>Publicaciones</th><th>OK</th><th>Sesiones</th><th>Conversiones</th><th>Ingresos</th></tr></thead><tbody>${channelRows}</tbody></table><p><b>Últimas 24h:</b> ${summary.last24.publications} publicaciones · ${summary.last24.sessions} sesiones · ${summary.last24.conversions} conversiones · $${summary.last24.revenue.toFixed(2)}.</p><p><b>Aprendizaje acumulado:</b> ${summary.learning.observations} observaciones · ${summary.learning.conversions} conversiones · $${summary.learning.revenue.toFixed(2)}.</p>${proposal ? `<hr/><h2>🤖 Propuesta del robot</h2><p>${proposal.occasion || ""}</p><p><b>Publicar:</b> ${proposal.title}</p><p><b>Canales:</b> ${(proposal.channels || []).join(", ")} · <b>Estado:</b> ${proposalStatusText}</p>${proposalSchedule ? `<p>🕐 <b>Día y hora recomendados:</b> ${proposalSchedule.label} (hora de Houston)<br/><i>${proposalSchedule.evidenceText}</i></p>` : ""}${proposal.image_url ? `<p><img src="${proposal.image_url}" alt="" style="max-width:320px;border-radius:8px"/></p>` : ""}<p style="white-space:pre-wrap">${String(proposal.caption || "")}</p><p>🛒 <a href="${proposal.product_link || "#"}">Ver en la página</a> · 💬 <a href="${proposal.whatsapp_link || "#"}">WhatsApp del negocio</a></p><p>Para autorizarla: aprobala en el panel de Marketing o pedile a Muse. Sin tu sí, no se publica.</p>` : `<hr/><h2>🤖 Propuesta del robot</h2><p>Hoy no hay propuesta nueva. ${scheduleBrief ? scheduleBrief.cadence.line : ""}</p>`}${scheduleBrief ? `<hr/><h2>🗓️ Mapa de calor y cadencia</h2><ul>${scheduleBrief.channels.map((row: any) => `<li>${row.line}</li>`).join("")}</ul><p><b>Cadencia:</b> ${scheduleBrief.cadence.line}</p>${scheduleBrief.event ? `<p><b>Calendario:</b> se viene ${scheduleBrief.event.name} (${scheduleBrief.event.eventDateKey}) — los regalos se publican antes.</p>` : ""}` : ""}</div>`,
   });
   return { sent: true, recipient, summary };
 }

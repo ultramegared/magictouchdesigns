@@ -27,6 +27,12 @@
  *    propuestas usan los términos reales de búsqueda, y una oportunidad
  *    SEO clara puede ser la propuesta del día (source_type "seo": es una
  *    recomendación con evidencia; aprobarla no publica ni aplica nada).
+ *  - Lógica de horarios (marketing-schedule): mapa de calor día × hora
+ *    por red desde los datos reales, cadencia de publicar poco y bien
+ *    (aire mínimo entre propuestas; si un día no toca, no se propone),
+ *    calendario de fechas de regalo, y cada propuesta trae su DÍA Y HORA
+ *    recomendados con la evidencia. Al aprobarla, la publicación queda
+ *    programada para el inicio de esa ventana (next_run_at), nunca antes.
  */
 import { randomUUID } from "crypto";
 import { pool } from "../config/database";
@@ -46,6 +52,18 @@ import {
   buildProductMessage,
   buildPortfolioMessage,
 } from "./marketing-catalog.service";
+import {
+  rebuildHeatMaps,
+  getCadenceState,
+  recommendSlot,
+  measureRecentPublications,
+  upcomingGiftEvent,
+  matchesGiftEvent,
+  SCHEDULE_CHANNELS,
+  type GiftEvent,
+  type ScheduleChannel,
+  type SlotRecommendation,
+} from "./marketing-schedule.service";
 
 const PUBLIC_SITE = process.env.FRONTEND_PUBLIC_URL?.trim() || "https://www.jqydesigns.com";
 // WhatsApp del negocio JQYDesigns (+1 346-760-3007), para el link de contacto
@@ -100,6 +118,10 @@ const ensureProposalTables = async () => {
   )`);
   await pool.query(`CREATE INDEX IF NOT EXISTS marketing_proposals_owner_date_idx ON marketing_proposals(owner_user_id, proposal_date DESC)`);
   await pool.query(`ALTER TABLE marketing_proposals ADD COLUMN IF NOT EXISTS channel_plan JSONB NOT NULL DEFAULT '[]'::jsonb`);
+  // Lógica de horarios: cada propuesta guarda su día/hora recomendados
+  // (scheduled_for) y la evidencia completa del horario (schedule).
+  await pool.query(`ALTER TABLE marketing_proposals ADD COLUMN IF NOT EXISTS scheduled_for TIMESTAMPTZ`);
+  await pool.query(`ALTER TABLE marketing_proposals ADD COLUMN IF NOT EXISTS schedule JSONB`);
 };
 
 const houstonNow = () => new Date(new Date().toLocaleString("en-US", { timeZone: "America/Chicago" }));
@@ -133,7 +155,11 @@ type Candidate =
   | { type: "catalog"; product: any; decision: { eligible: boolean; score: number; reasons: string[] } }
   | { type: "portfolio"; item: any; decision: { eligible: boolean; score: number; reasons: string[] } };
 
-async function pickCandidate(ownerUserId: string, preferredSlugs: Set<string> = new Set()): Promise<Candidate | null> {
+async function pickCandidate(
+  ownerUserId: string,
+  preferredSlugs: Set<string> = new Set(),
+  seasonalKeywords: string[] = [],
+): Promise<Candidate | null> {
   // Never re-propose what was already proposed in the last 3 days.
   const recentExclusion = (alias: string, idExpr: string, sourceType: string) =>
     `AND NOT EXISTS (SELECT 1 FROM marketing_proposals mp
@@ -171,6 +197,16 @@ async function pickCandidate(ownerUserId: string, preferredSlugs: Set<string> = 
   if (preferredSlugs.size) {
     productResult.rows.sort((a: any, b: any) =>
       Number(preferredSlugs.has(String(b.slug || ""))) - Number(preferredSlugs.has(String(a.slug || ""))));
+  }
+  // Calendario de regalos: en la ventana previa a una fecha (Navidad, San
+  // Valentín, Día de la Madre/Padre), el producto de esa fecha va primero.
+  if (seasonalKeywords.length) {
+    const matchesSeason = (name: string) => {
+      const haystack = ` ${String(name || "").toLowerCase()} `;
+      return seasonalKeywords.some((keyword) => haystack.includes(keyword));
+    };
+    productResult.rows.sort((a: any, b: any) =>
+      Number(matchesSeason(b.name)) - Number(matchesSeason(a.name)));
   }
   for (const product of productResult.rows) {
     const decision = await evaluateProductPromotability(product);
@@ -285,8 +321,9 @@ async function buildProposal(ownerUserId: string) {
   const { occasion, context } = buildOccasion();
   const seo: SeoInsights | null = await getSeoInsights(ownerUserId).catch(() => null);
   const searchedSlugs = seoSearchedSlugs(seo);
+  const giftEvent: GiftEvent | null = await upcomingGiftEvent(ownerUserId).catch(() => null);
 
-  const candidate = await pickCandidate(ownerUserId, searchedSlugs);
+  const candidate = await pickCandidate(ownerUserId, searchedSlugs, giftEvent?.keywords || []);
 
   if (!candidate) {
     const opportunity = seo?.opportunities?.[0];
@@ -392,6 +429,46 @@ async function buildProposal(ownerUserId: string) {
     sourceId = String(item.portfolio_id);
   }
 
+  // Día y hora recomendados (lógica de horarios): la ventana ganadora de
+  // la red principal según el mapa de calor real — o un horario de
+  // experimento honesto si la red no tiene datos — casado con el
+  // calendario de regalos cuando el producto es de la fecha que viene.
+  const primaryChannel: ScheduleChannel =
+    (SCHEDULE_CHANNELS as readonly string[]).includes(String(recommended || ""))
+      ? (recommended as ScheduleChannel)
+      : (SCHEDULE_CHANNELS as readonly string[]).includes(String(channels[0] || ""))
+        ? (channels[0] as ScheduleChannel)
+        : "instagram";
+  const seasonalMatch = giftEvent ? matchesGiftEvent(giftEvent, title) : false;
+  const proposalCount = await pool.query(
+    `SELECT COUNT(*)::int AS n FROM marketing_proposals WHERE owner_user_id=$1`,
+    [ownerUserId],
+  ).catch(() => ({ rows: [{ n: 0 }] }));
+  let slot: SlotRecommendation | null = null;
+  try {
+    slot = await recommendSlot(ownerUserId, primaryChannel, {
+      event: seasonalMatch ? giftEvent : null,
+      rotationSeed: Number(proposalCount.rows[0]?.n || 0),
+    });
+  } catch { /* sin recomendación de horario, la propuesta igual se arma */ }
+  const schedule = slot
+    ? {
+        channel: slot.channel,
+        mode: slot.mode,
+        dateKey: slot.dateKey,
+        weekday: slot.weekday,
+        hour: slot.hour,
+        scheduledFor: slot.scheduledFor,
+        label: slot.label,
+        evidenceText: slot.evidenceText,
+        experimentIndex: slot.experimentIndex,
+        eventApplied: slot.eventApplied,
+        seasonalProduct: seasonalMatch,
+        perChannel: slot.perChannel,
+        rule: "Recommended day/time from the store's real per-network heat map (or an honest experiment when a network lacks data). If approved, the publication goes out at the start of that window — never before, never on its own.",
+      }
+    : null;
+
   return {
     proposal: {
       id: `prop-${today}-${randomUUID().slice(0, 8)}`,
@@ -409,6 +486,8 @@ async function buildProposal(ownerUserId: string) {
       channels,
       channel_plan: channelPlan,
       occasion,
+      scheduled_for: slot?.scheduledFor || null,
+      schedule,
       reasoning: {
         context,
         candidateScore: candidate.decision.score,
@@ -417,7 +496,8 @@ async function buildProposal(ownerUserId: string) {
         channelScores: scores,
         channelPlan,
         ...(seoEvidence ? { seoEvidence } : {}),
-        rule: "One proposal per day, prepared for the store's 4 media (Instagram, Facebook, Marketplace, YouTube). It publishes only with the owner's authorization (once, or inside an approved weekly window), and only through the media marked ready.",
+        ...(schedule ? { schedule } : {}),
+        rule: "Proposals follow the house cadence (publish little and well: a minimum gap between proposals, never daily spam), prepared for the store's 4 media (Instagram, Facebook, Marketplace, YouTube). A proposal publishes only with the owner's authorization (once, or inside an approved weekly window), only through the media marked ready, and at the start of its recommended window.",
       },
     },
   };
@@ -437,13 +517,34 @@ export async function generateDailyProposal(ownerUserId: string) {
     return { generated: false, reason: "The robot is off; no proposal was prepared." };
   }
   const today = houstonDateKey();
-  // Yesterday's unanswered proposals expire: without authorization, nothing moves.
+  // Unanswered proposals expire only once their recommended window has
+  // passed (+24 h of grace): a proposal waiting for its winning window
+  // stays alive until then. Without authorization, nothing ever moves.
   await pool.query(
-    `UPDATE marketing_proposals SET status='expired' WHERE owner_user_id=$1 AND status='pending' AND proposal_date < $2`,
+    `UPDATE marketing_proposals SET status='expired'
+     WHERE owner_user_id=$1 AND status='pending' AND proposal_date < $2
+       AND (scheduled_for IS NULL OR scheduled_for < NOW() - INTERVAL '24 hours')`,
     [ownerUserId, today],
   );
+  // A live pending proposal (waiting for its window) blocks new ones:
+  // one proposal at a time, with air between publications.
+  const live = await pool.query(
+    `SELECT * FROM marketing_proposals
+     WHERE owner_user_id=$1 AND status='pending'
+       AND (scheduled_for IS NULL OR scheduled_for >= NOW() - INTERVAL '24 hours')
+     ORDER BY proposal_date DESC LIMIT 1`,
+    [ownerUserId],
+  );
+  if (live.rows[0]) return { generated: false, existing: true, proposal: live.rows[0] };
   const existing = await pool.query(`SELECT * FROM marketing_proposals WHERE owner_user_id=$1 AND proposal_date=$2 LIMIT 1`, [ownerUserId, today]);
   if (existing.rows[0]) return { generated: false, existing: true, proposal: existing.rows[0] };
+
+  // Cadencia — publicar poco y bien: si el aire mínimo desde la última
+  // propuesta/publicación no se cumplió, hoy no se propone nada.
+  const cadence = await getCadenceState(ownerUserId).catch(() => null);
+  if (cadence && !cadence.eligible) {
+    return { generated: false, reason: cadence.reason, cadence };
+  }
 
   const built = await buildProposal(ownerUserId);
   if (!built.proposal) return { generated: false, reason: built.reason };
@@ -451,17 +552,19 @@ export async function generateDailyProposal(ownerUserId: string) {
 
   await pool.query(
     `INSERT INTO marketing_proposals
-       (id, owner_user_id, proposal_date, status, scope, source_type, source_id, title, caption, image_url, product_link, whatsapp_link, channels, channel_plan, occasion, reasoning)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14::jsonb,$15,$16::jsonb)`,
+       (id, owner_user_id, proposal_date, status, scope, source_type, source_id, title, caption, image_url, product_link, whatsapp_link, channels, channel_plan, occasion, reasoning, scheduled_for, schedule)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14::jsonb,$15,$16::jsonb,$17,$18::jsonb)`,
     [
       proposal.id, proposal.owner_user_id, proposal.proposal_date, proposal.status, proposal.scope,
       proposal.source_type, proposal.source_id, proposal.title, proposal.caption, proposal.image_url,
       proposal.product_link, proposal.whatsapp_link, JSON.stringify(proposal.channels),
       JSON.stringify(proposal.channel_plan), proposal.occasion,
       JSON.stringify(proposal.reasoning),
+      (proposal as any).scheduled_for || null,
+      JSON.stringify((proposal as any).schedule || null),
     ],
   );
-  return { generated: true, proposal };
+  return { generated: true, proposal, cadence };
 }
 
 export async function getTodayProposal(ownerUserId: string) {
@@ -494,7 +597,12 @@ async function materializeProposal(ownerUserId: string, proposal: any, scope: Pr
   const campaignId = `proposal-${proposal.id}`;
   const isCatalog = proposal.source_type === "catalog";
   const now = new Date();
-  const endsAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+  // Horario aprobado: la publicación sale al inicio de la ventana
+  // recomendada de la propuesta. Si la ventana ya pasó cuando el dueño
+  // aprueba, sale en cuanto aprueba (nunca antes de su sí).
+  const scheduledFor = proposal.scheduled_for ? new Date(proposal.scheduled_for) : null;
+  const runAt = scheduledFor && scheduledFor.getTime() > now.getTime() ? scheduledFor : now;
+  const endsAt = new Date(runAt.getTime() + 6 * 60 * 60 * 1000);
   await pool.query(
     `INSERT INTO marketing_campaigns
        (id,name,objective,target_area,message,subject,channels,results,idempotency_key,owner_user_id,autopilot_enabled,next_run_at,campaign_type,recurrence_hours,ends_at)
@@ -514,10 +622,11 @@ async function materializeProposal(ownerUserId: string, proposal: any, scope: Pr
         assets: { imageUrl: proposal.image_url || undefined, videoUrl: undefined, landingLink: proposal.product_link },
         source: { type: "proposal", proposalId: proposal.id, sourceType: proposal.source_type, sourceId: proposal.source_id },
         autopilot: { enabled: true, queued: true, source: "proposal", scope },
+        schedule: proposal.schedule || null,
       }),
       `proposal:${proposal.id}`,
       ownerUserId,
-      now,
+      runAt,
       endsAt,
     ],
   );
@@ -542,7 +651,7 @@ async function materializeProposal(ownerUserId: string, proposal: any, scope: Pr
     `UPDATE marketing_proposals SET status='approved', scope=$2, decided_at=NOW(), materialized_campaign_id=$3 WHERE id=$1`,
     [proposal.id, scope, campaignId],
   );
-  return { campaignId, alreadyMaterialized: false };
+  return { campaignId, alreadyMaterialized: false, scheduledFor: runAt.toISOString() };
 }
 
 export async function approveProposal(ownerUserId: string, proposalId: string, scope: ProposalScope) {
@@ -609,6 +718,22 @@ export async function closeExpiredWeeklyWindow(ownerUserId: string) {
   return { closed: Boolean(result.rows[0]) };
 }
 
+/**
+ * La propuesta vigente para mostrarle al dueño: la pendiente que espera
+ * su decisión (puede haberse generado días atrás para una ventana
+ * futura), o si no hay pendiente, la de hoy en cualquier estado.
+ */
+export async function getCurrentProposal(ownerUserId: string) {
+  await ensureProposalTables();
+  const pending = await pool.query(
+    `SELECT * FROM marketing_proposals WHERE owner_user_id=$1 AND status='pending'
+     ORDER BY proposal_date DESC LIMIT 1`,
+    [ownerUserId],
+  );
+  if (pending.rows[0]) return pending.rows[0];
+  return getTodayProposal(ownerUserId);
+}
+
 export async function runDailyProposals(ownerUserId: string) {
   await ensureProposalTables();
   const closed = await closeExpiredWeeklyWindow(ownerUserId);
@@ -620,6 +745,22 @@ export async function runDailyProposals(ownerUserId: string) {
     seoLearning = await syncSeoLearning(ownerUserId);
   } catch (error) {
     seoLearning = { error: error instanceof Error ? error.message : "SEO learning sync failed." };
+  }
+  // Lógica de horarios, antes de proponer: reconstruir el mapa de calor
+  // con las observaciones frescas de la noche y medir las publicaciones
+  // del robot que ya cumplieron 24–48 h (ese resultado refina el mapa).
+  let schedule: unknown = null;
+  try {
+    const heatMap = await rebuildHeatMaps(ownerUserId);
+    const measurements = await measureRecentPublications(ownerUserId);
+    schedule = {
+      heatmap: Object.fromEntries(
+        SCHEDULE_CHANNELS.map((channel) => [channel, { mode: heatMap[channel].mode, evidencePosts: heatMap[channel].evidencePosts, summary: heatMap[channel].summary }]),
+      ),
+      measurements,
+    };
+  } catch (error) {
+    schedule = { error: error instanceof Error ? error.message : "Schedule stage failed." };
   }
   const generated = await generateDailyProposal(ownerUserId);
   let autoPublished: { campaignId: string } | null = null;
@@ -634,10 +775,13 @@ export async function runDailyProposals(ownerUserId: string) {
   return {
     windowClosed: closed.closed,
     seoLearning,
+    schedule,
+    cadence: (generated as any).cadence || null,
     generated: Boolean((generated as any).generated),
     existing: Boolean((generated as any).existing),
     reason: (generated as any).reason || null,
     proposalId: proposal?.id || null,
+    proposalScheduledFor: proposal?.scheduled_for || null,
     proposalStatus: autoPublished ? "approved" : proposal?.status || null,
     autoPublished,
   };
