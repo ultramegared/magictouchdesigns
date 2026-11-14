@@ -64,6 +64,12 @@ import {
   type ScheduleChannel,
   type SlotRecommendation,
 } from "./marketing-schedule.service";
+import {
+  buildProposalIntelligence,
+  recordOwnerFeedback,
+  runFastLearningCycle,
+  type ProposalIntelligence,
+} from "./marketing-intelligence.service";
 
 const PUBLIC_SITE = process.env.FRONTEND_PUBLIC_URL?.trim() || "https://www.jqydesigns.com";
 // WhatsApp del negocio JQYDesigns (+1 346-760-3007), para el link de contacto
@@ -479,6 +485,32 @@ async function buildProposal(ownerUserId: string) {
       }
     : null;
 
+  // Inteligencia ULTRA: puntaje con evidencia, pronóstico desde su
+  // historial, experimento A/B secuencial y variantes por canal. Si el
+  // experimento designa la variante B, ESE es el texto que se publica
+  // (el dueño ve ambas variantes y cuál sale antes de aprobar).
+  let intelligence: ProposalIntelligence | null = null;
+  try {
+    intelligence = await buildProposalIntelligence(ownerUserId, {
+      title,
+      caption,
+      sourceType: candidate.type as string,
+      sourceId,
+      primaryChannel,
+      channels,
+      slot: slot ? { mode: slot.mode, evidenceText: slot.evidenceText, weekday: slot.weekday, hour: slot.hour } : null,
+      seoMatchedQueries: Array.isArray((seoEvidence as any)?.matchedQueries) ? (seoEvidence as any).matchedQueries.length : 0,
+      seasonalMatch,
+      productLink: link,
+      whatsappLink: whatsappLink(title, link),
+      price: candidate.type === "catalog" ? Number((candidate as any).product?.price || 0) || null : null,
+      rotationSeed: Number(proposalCount.rows[0]?.n || 0),
+    });
+    if (intelligence && intelligence.experiment.designatedVariant === "B") {
+      caption = intelligence.experiment.variantB;
+    }
+  } catch { /* sin inteligencia calculada, la propuesta igual se arma */ }
+
   return {
     proposal: {
       id: `prop-${today}-${randomUUID().slice(0, 8)}`,
@@ -507,6 +539,7 @@ async function buildProposal(ownerUserId: string) {
         channelPlan,
         ...(seoEvidence ? { seoEvidence } : {}),
         ...(schedule ? { schedule } : {}),
+        ...(intelligence ? { intelligence } : {}),
         rule: "Proposals follow the house cadence (publish little and well: a minimum gap between proposals, never daily spam), prepared for the store's 4 media (Instagram, Facebook, Marketplace, YouTube). A proposal publishes only with the owner's authorization (once, or inside an approved weekly window), only through the media marked ready, and at the start of its recommended window.",
       },
     },
@@ -678,6 +711,7 @@ export async function approveProposal(ownerUserId: string, proposalId: string, s
       `UPDATE marketing_proposals SET status='approved', scope='once', decided_at=NOW() WHERE id=$1`,
       [proposal.id],
     );
+    await recordOwnerFeedback(ownerUserId, { proposalId, decision: "approved", scope: "once", proposal }).catch(() => undefined);
     return {
       approved: true,
       scope: "once" as ProposalScope,
@@ -703,17 +737,27 @@ export async function approveProposal(ownerUserId: string, proposalId: string, s
     autoPublishUntil = updated.rows[0]?.auto_publish_until ?? null;
   }
   const materialized = await materializeProposal(ownerUserId, proposal, scope);
+  // El «sí» del dueño es señal de aprendizaje de primer orden (su gusto).
+  await recordOwnerFeedback(ownerUserId, { proposalId, decision: "approved", scope, proposal }).catch(() => undefined);
   return { approved: true, scope, proposalId, autoPublishUntil, ...materialized };
 }
 
-export async function rejectProposal(ownerUserId: string, proposalId: string) {
+export async function rejectProposal(ownerUserId: string, proposalId: string, reason?: { reasonCode?: string | null; reasonText?: string | null }) {
   await ensureProposalTables();
+  const before = await pool.query(`SELECT * FROM marketing_proposals WHERE id=$1 AND owner_user_id=$2 LIMIT 1`, [proposalId, ownerUserId]);
   const result = await pool.query(
     `UPDATE marketing_proposals SET status='rejected', decided_at=NOW()
      WHERE id=$1 AND owner_user_id=$2 AND status='pending' RETURNING id`,
     [proposalId, ownerUserId],
   );
   if (!result.rows[0]) throw new Error("Proposal not found or no longer pending.");
+  // El «no» del dueño — con su motivo si lo dio — es la señal que más
+  // enseña: queda guardada y pesa en las próximas propuestas.
+  await recordOwnerFeedback(ownerUserId, {
+    proposalId, decision: "rejected",
+    reasonCode: reason?.reasonCode || null, reasonText: reason?.reasonText || null,
+    proposal: before.rows[0] || {},
+  }).catch(() => undefined);
   return { rejected: true, proposalId };
 }
 
@@ -782,10 +826,20 @@ export async function runDailyProposals(ownerUserId: string) {
       autoPublished = { campaignId: materialized.campaignId };
     }
   }
+  // Ciclo rápido ULTRA: medición temprana (4–20 h) de lo ya publicado y
+  // foto fresca del informe de inteligencia. Aislado: si falla, el resto
+  // del ciclo diario no se entera.
+  let intelligence: unknown = null;
+  try {
+    intelligence = await runFastLearningCycle(ownerUserId);
+  } catch (error) {
+    intelligence = { error: error instanceof Error ? error.message : "Fast learning cycle failed." };
+  }
   return {
     windowClosed: closed.closed,
     seoLearning,
     schedule,
+    intelligence,
     cadence: (generated as any).cadence || null,
     generated: Boolean((generated as any).generated),
     existing: Boolean((generated as any).existing),

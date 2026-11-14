@@ -8,6 +8,7 @@ import { getMarketingDailySummary, getMarketingAutopilotStatus, sendMarketingDai
 import { getContentAutopilotStatus, setCatalogAutopilot } from "../services/marketing-catalog.service";
 import { listProposals, getTodayProposal, approveProposal, rejectProposal, type ProposalScope } from "../services/marketing-proposals.service";
 import { getScheduleBrief } from "../services/marketing-schedule.service";
+import { getIntelligenceReport, REJECTION_REASONS } from "../services/marketing-intelligence.service";
 import { uploadImageAsset, uploadVideoAsset } from "../services/upload.service";
 import cloudinary from "../config/cloudinary";
 
@@ -464,6 +465,16 @@ export async function marketingCatalogToggle(req: AuthenticatedRequest, res: Res
     }
 }
 
+export async function marketingIntelligenceReport(req: AuthenticatedRequest, res: Response) {
+    try {
+        const report = await getIntelligenceReport(marketingWorkspaceId());
+        res.json({ status: "success", report, rejectionReasons: REJECTION_REASONS });
+    } catch (error) {
+        console.error("Unable to load Marketing intelligence report:", error);
+        res.status(500).json({ status: "error", error: error instanceof Error ? error.message : "Unable to load Marketing intelligence report." });
+    }
+}
+
 export async function marketingProposalsList(req: AuthenticatedRequest, res: Response) {
     try {
         const owner = marketingWorkspaceId();
@@ -490,7 +501,9 @@ export async function marketingProposalApprove(req: AuthenticatedRequest, res: R
 
 export async function marketingProposalReject(req: AuthenticatedRequest, res: Response) {
     try {
-        const result = await rejectProposal(marketingWorkspaceId(), String(req.params.proposalId || ""));
+        const reasonCode = typeof req.body?.reasonCode === "string" ? req.body.reasonCode.slice(0, 40) : null;
+        const reasonText = typeof req.body?.reasonText === "string" ? req.body.reasonText.slice(0, 300) : null;
+        const result = await rejectProposal(marketingWorkspaceId(), String(req.params.proposalId || ""), { reasonCode, reasonText });
         return res.json({ status: "success", ...result });
     } catch (error) {
         console.error("Unable to reject Marketing proposal:", error);

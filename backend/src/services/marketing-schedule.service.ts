@@ -378,12 +378,55 @@ export type CadenceState = {
   lastActivityKey: string | null;
   nextEligibleKey: string | null;
   reason: string;
+  adaptiveNote?: string;
 };
+
+/**
+ * Cadencia ADAPTATIVA (nivel ULTRA, 2026-11-14): el aire entre propuestas
+ * ya no es un número fijo clavado en el código. Se deriva de la respuesta
+ * REAL medida de las últimas publicaciones: si la audiencia viene
+ * respondiendo fuerte, el robot puede proponer más seguido (2 días); si
+ * la respuesta cae, se espacia solo (4–5 días) para no quemar la cuenta.
+ * Sin mediciones suficientes se usa el aire base y se declara. El ajuste
+ * y su motivo quedan escritos en el estado (adaptiveNote) y en el
+ * informe, para que el dueño vea qué cambió y por qué.
+ */
+export async function adaptiveGapDays(ownerUserId: string): Promise<{ gap: number; note: string }> {
+  try {
+    await ensureScheduleTables();
+    const rows = await pool.query(
+      `SELECT response_score FROM marketing_schedule_measurements
+       WHERE owner_user_id=$1 ORDER BY published_at DESC LIMIT 6`,
+      [ownerUserId],
+    );
+    const scores = rows.rows.map((r: any) => Number(r.response_score || 0)).filter((n: number) => n > 0);
+    if (scores.length < 2) {
+      return { gap: MIN_GAP_DAYS, note: `Sin mediciones suficientes todavía (${scores.length}): aire base de ${MIN_GAP_DAYS} días; se ajusta solo cuando haya respuesta medida.` };
+    }
+    const recent = scores.slice(0, Math.min(3, scores.length));
+    const recentAvg = recent.reduce((a: number, b: number) => a + b, 0) / recent.length;
+    const rest = scores.slice(recent.length);
+    const baseline = rest.length ? rest.reduce((a: number, b: number) => a + b, 0) / rest.length : recentAvg;
+    if (baseline > 0 && recentAvg >= baseline * 1.2) {
+      return { gap: 2, note: `Cadencia adaptativa: la respuesta reciente (prom. ${Math.round(recentAvg)}) viene ≥20% sobre la base (${Math.round(baseline)}): el aire baja a 2 días.` };
+    }
+    if (baseline > 0 && recentAvg <= baseline * 0.6) {
+      return { gap: 5, note: `Cadencia adaptativa: la respuesta reciente (prom. ${Math.round(recentAvg)}) cayó a ≤60% de la base (${Math.round(baseline)}): el aire sube a 5 días para no quemar la cuenta.` };
+    }
+    if (baseline > 0 && recentAvg <= baseline * 0.85) {
+      return { gap: 4, note: `Cadencia adaptativa: la respuesta reciente (prom. ${Math.round(recentAvg)}) viene por debajo de la base (${Math.round(baseline)}): el aire sube a 4 días.` };
+    }
+    return { gap: MIN_GAP_DAYS, note: `Cadencia adaptativa: respuesta reciente (prom. ${Math.round(recentAvg)}) en línea con la base (${Math.round(baseline)}): aire de ${MIN_GAP_DAYS} días.` };
+  } catch {
+    return { gap: MIN_GAP_DAYS, note: `Aire base de ${MIN_GAP_DAYS} días (no se pudo leer la respuesta medida).` };
+  }
+}
 
 export async function getCadenceState(ownerUserId: string): Promise<CadenceState> {
   const today = houstonDateKey();
   const event = await upcomingGiftEvent(ownerUserId);
-  const gapDays = event ? EVENT_GAP_DAYS : MIN_GAP_DAYS;
+  const adaptive = await adaptiveGapDays(ownerUserId);
+  const gapDays = event ? Math.min(EVENT_GAP_DAYS, adaptive.gap) : adaptive.gap;
 
   const proposalRow = await pool.query(
     `SELECT MAX((created_at AT TIME ZONE '${TZ}')::date::text) AS last_key
@@ -401,7 +444,7 @@ export async function getCadenceState(ownerUserId: string): Promise<CadenceState
   const keys = [proposalRow.rows[0]?.last_key, runRow.rows[0]?.last_key].filter(Boolean) as string[];
   const lastActivityKey = keys.length ? keys.sort().slice(-1)[0] : null;
   if (!lastActivityKey) {
-    return { eligible: true, gapDays, eventActive: Boolean(event), lastActivityKey: null, nextEligibleKey: today, reason: "Sin propuestas ni publicaciones previas: se puede proponer." };
+    return { eligible: true, gapDays, eventActive: Boolean(event), lastActivityKey: null, nextEligibleKey: today, reason: "Sin propuestas ni publicaciones previas: se puede proponer.", adaptiveNote: adaptive.note };
   }
   const nextEligibleKey = addDaysToKey(lastActivityKey, gapDays);
   const eligible = today >= nextEligibleKey;
@@ -411,9 +454,10 @@ export async function getCadenceState(ownerUserId: string): Promise<CadenceState
     eventActive: Boolean(event),
     lastActivityKey,
     nextEligibleKey,
+    adaptiveNote: adaptive.note,
     reason: eligible
-      ? `Pasaron ${dayDiff(lastActivityKey, today)} días desde la última actividad (aire mínimo: ${gapDays}): toca proponer.`
-      : `Publicar poco y bien: la última actividad fue el ${lastActivityKey} y el aire mínimo es de ${gapDays} días — la próxima propuesta puede salir el ${nextEligibleKey}.`,
+      ? `Pasaron ${dayDiff(lastActivityKey, today)} días desde la última actividad (aire mínimo: ${gapDays}): toca proponer. ${adaptive.note}`
+      : `Publicar poco y bien: la última actividad fue el ${lastActivityKey} y el aire mínimo es de ${gapDays} días — la próxima propuesta puede salir el ${nextEligibleKey}. ${adaptive.note}`,
   };
 }
 

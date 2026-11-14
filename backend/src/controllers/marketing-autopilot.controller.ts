@@ -5,6 +5,7 @@ import { recordAutopilotRunEvent } from "../services/marketing-catalog.service";
 import { syncSocialLearning } from "../services/marketing-social-learning.service";
 import { syncMetaAdsLearning } from "../services/marketing-ads-learning.service";
 import { runDailyProposals } from "../services/marketing-proposals.service";
+import { runFastLearningCycle } from "../services/marketing-intelligence.service";
 
 export async function marketingAutopilotCron(req: Request, res: Response) {
   const expected = process.env.CRON_SECRET?.trim();
@@ -22,12 +23,26 @@ export async function marketingAutopilotCron(req: Request, res: Response) {
   }).format(new Date());
   if (houstonHour !== "00") {
     const workspaceId = process.env.MARKETING_WORKSPACE_OWNER_ID?.trim() || "a720d444-d23c-45ca-9086-d0d4dde26a1f";
-    await recordAutopilotRunEvent(workspaceId, "cron_midnight", { ran: false, processed: 0, reason: "Skipped: not midnight in Houston." });
+    // Nivel ULTRA — aprendizaje abierto y continuo: el despertador
+    // horario ya no pasa de largo. Corre el ciclo RÁPIDO de aprendizaje
+    // (re-ingesta social liviana + medición temprana 4–20 h + foto del
+    // informe). NO genera propuestas nuevas y NO publica nada: publicar
+    // sigue siendo solo con el sí del dueño, y el ciclo completo sigue
+    // a medianoche de Houston. Cada etapa aislada.
+    let fastCycle: unknown = null;
+    try {
+      await syncSocialLearning(workspaceId);
+      fastCycle = await runFastLearningCycle(workspaceId);
+    } catch (error) {
+      fastCycle = { error: error instanceof Error ? error.message : "Fast learning cycle failed." };
+    }
+    await recordAutopilotRunEvent(workspaceId, "cron_fast_learning", { ran: true, processed: 0, reason: "Fast learning cycle (hourly): fresh social signals + early measurement. No proposal generated, nothing published." });
     return res.status(200).json({
       status: "success",
       skipped: true,
-      reason: "Marketing Autopilot runs at midnight Houston time.",
+      reason: "Marketing Autopilot full cycle runs at midnight Houston time; hourly hits run the fast learning cycle only.",
       timezone: "America/Chicago",
+      fastCycle,
     });
   }
 

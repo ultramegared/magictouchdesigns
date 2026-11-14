@@ -2,7 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/auth.middleware";
 import { whatsappInboxConversations, whatsappInboxMessages, whatsappInboxReply, whatsappWebhookDiagnostics } from "../controllers/whatsapp-webhook.controller";
-import { marketingCampaignHistory, marketingCampaignDelete, marketingCampaignRetry, marketingPublicationActivity, marketingCampaignResults, marketingGoogleAdsStatus, marketingGoogleAdsVerify, marketingAutopilotStatus, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingProposalsList, marketingProposalApprove, marketingProposalReject, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish, instagramInsights, whatsappEmbeddedConfig, whatsappEmbeddedComplete, whatsappEmbeddedCompleteFallback, socialConnectEvents } from "../controllers/social-connections.admin.controller";
+import { marketingCampaignHistory, marketingCampaignDelete, marketingCampaignRetry, marketingPublicationActivity, marketingCampaignResults, marketingGoogleAdsStatus, marketingGoogleAdsVerify, marketingAutopilotStatus, marketingCampaignLaunch, marketingLearning, marketingLearningFeedback, marketingAutopilotRun, marketingAutopilotRunNow, marketingDailySummary, marketingDailySummaryCron, marketingCatalogStatus, marketingCatalogToggle, marketingProposalsList, marketingProposalApprove, marketingProposalReject, marketingIntelligenceReport, marketingMediaUpload, marketingMediaSignature, marketingEmailStatus, socialAuthorize, socialCallback, socialConnect, socialSelectAccount, socialVerify, socialConnections, socialDisconnect, socialPublish, instagramInsights, whatsappEmbeddedConfig, whatsappEmbeddedComplete, whatsappEmbeddedCompleteFallback, socialConnectEvents } from "../controllers/social-connections.admin.controller";
 
 const router = Router();
 
@@ -76,6 +76,7 @@ router.get("/campaign/proposals", marketingProposalsList);
 router.post("/campaign/proposals/:proposalId/approve", marketingProposalApprove);
 router.post("/campaign/proposals/:proposalId/reject", marketingProposalReject);
 router.get("/campaign/learning", marketingLearning);
+router.get("/campaign/intelligence-report", marketingIntelligenceReport);
 router.post("/campaign/learning/feedback", marketingLearningFeedback);
 
 export default router;
