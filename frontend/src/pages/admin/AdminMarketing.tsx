@@ -746,7 +746,9 @@ select.btn{appearance:none;-webkit-appearance:none}
 .check input{accent-color:var(--mk-blue)}
 .cf-h{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mk-text);margin:2px 0 9px;display:flex;align-items:center;gap:8px}.cf-h::after{content:"";flex:1;height:1px;background:var(--mk-border)}
 .cf-sec{margin-bottom:15px}
-.cf-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cf-2col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.cf-2col>.field{min-width:0}
+.cf-2col .input,.cf-2col .select{min-width:0;width:100%}
 .cf-3col{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:10px;margin-top:10px;align-items:end}
 .cf-seg{grid-template-columns:1fr 1fr}.cf-seg .check{justify-content:center;text-align:center}
 .cf-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
