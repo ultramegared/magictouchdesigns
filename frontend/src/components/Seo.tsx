@@ -148,6 +148,9 @@ export default function Seo() {
   const { language } = useLanguage();
 
   useEffect(() => {
+    // Las paginas de producto (/products/<slug>) manejan su propio <head>
+    // desde ProductPage (titulo, Open Graph y JSON-LD del producto).
+    if (pathname.startsWith("/products/")) return;
     const entry = SEO[pathname] || SEO["/"];
     const title = language === "es" ? entry.es : entry.en;
     const description = language === "es" ? entry.description.es : entry.description.en;

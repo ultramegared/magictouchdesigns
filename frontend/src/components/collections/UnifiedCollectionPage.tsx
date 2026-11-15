@@ -8,8 +8,8 @@ import { addToCart } from "../../utils/cart";
 import "./UnifiedCollectionPage.css";
 
 type ProductFeatureOption = { id?: string; label?: string };
-type ProductFeature = { id?: string; name?: string; options?: ProductFeatureOption[] };
-type CollectionProduct = {
+export type ProductFeature = { id?: string; name?: string; options?: ProductFeatureOption[] };
+export type CollectionProduct = {
     product_id: string;
     name: string;
     slug: string;
@@ -30,7 +30,7 @@ type CollectionConfig = {
     description: { en: string; es: string };
 };
 
-const COLLECTIONS: Record<string, CollectionConfig> = {
+export const COLLECTIONS: Record<string, CollectionConfig> = {
     "love-romance": {
         name: { en: "Love & Romance", es: "Amor y Romance" },
         eyebrow: { en: "LOVE & ROMANCE", es: "AMOR Y ROMANCE" },
@@ -57,8 +57,8 @@ const COLLECTIONS: Record<string, CollectionConfig> = {
     },
 };
 
-const DEFAULT_COLORS = ["White", "Black", "Red"];
-const DEFAULT_SIZES = ["11 oz", "15 oz"];
+export const DEFAULT_COLORS = ["White", "Black", "Red"];
+export const DEFAULT_SIZES = ["11 oz", "15 oz"];
 const COLOR_HEX: Record<string, string> = {
     white: "#ffffff", black: "#080808", red: "#d71920", green: "#168a45", blue: "#1f5fbf",
     purple: "#7b3fb5", yellow: "#f0c419", pink: "#e98ca8", orange: "#ef7d24", gray: "#777777",
@@ -66,7 +66,7 @@ const COLOR_HEX: Record<string, string> = {
     silver: "#bfc3c7", beige: "#d8c5a2", maroon: "#6f1d2b", turquoise: "#20b8b8",
 };
 
-function normalizeFeatures(value: CollectionProduct["features"]): ProductFeature[] {
+export function normalizeFeatures(value: CollectionProduct["features"]): ProductFeature[] {
     if (Array.isArray(value)) {
         return value.flatMap((item) => {
             if (!item || typeof item !== "object") return [];
@@ -89,12 +89,12 @@ function normalizeFeatures(value: CollectionProduct["features"]): ProductFeature
     return [];
 }
 
-function featureByName(features: ProductFeature[], names: string[]) {
+export function featureByName(features: ProductFeature[], names: string[]) {
     const normalized = names.map((name) => name.toLowerCase());
     return features.find((feature) => normalized.includes(String(feature.name || "").trim().toLowerCase()));
 }
 
-function swatchColor(label: string) {
+export function swatchColor(label: string) {
     const key = label.trim().toLowerCase();
     return COLOR_HEX[key] || label;
 }
@@ -300,14 +300,14 @@ function UnifiedCollectionPage({ slug }: { slug: string }) {
                             const productNumber = (currentPage - 1) * PRODUCTS_PER_PAGE + index + 1;
                             return <article className="unified-product" key={product.product_id}>
                                 <div className="unified-product__image" aria-label={language === "es" ? `Imagen de ${product.name}` : `Image of ${product.name}`}>
-                                    <img src={product.image_url || "/images/products/placeholder.jpg"} alt={product.name} />
+                                    <Link to={`/products/${product.slug}`}><img src={product.image_url || "/images/products/placeholder.jpg"} alt={product.name} /></Link>
                                     <span className="unified-product__number">{String(productNumber).padStart(2, "0")}</span>
                                     <button type="button" className="unified-product__zoom" onClick={() => { setSelectedProduct(product); setSelectedImageIndex(0); }} aria-label={language === "es" ? `Ver ${product.name} en grande` : `View ${product.name} enlarged`}>⌕</button>
                                     <div className="unified-product__gradient" />
                                 </div>
                                 <div className="unified-product__body">
                                     <div className="unified-product__title-row">
-                                        <h3>{product.name}</h3>
+                                        <h3><Link to={`/products/${product.slug}`}>{product.name}</Link></h3>
                                         <strong>${Number(product.price).toFixed(2)}</strong>
                                     </div>
                                     <div className="unified-rating" aria-label="5 out of 5 stars">★★★★★</div>

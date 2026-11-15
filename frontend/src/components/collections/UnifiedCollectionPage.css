@@ -113,3 +113,7 @@ html[data-jqy-theme="corporate"] .unified-back-button:hover{
 .admin-gallery-item__footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 9px;font-size:10px;font-weight:800;letter-spacing:.08em;color:#56606a}
 .admin-gallery-item__footer button{width:28px;height:28px;border:0;border-radius:8px;background:#fff;color:#7a838c;display:grid;place-items:center;cursor:pointer}
 @media(max-width:650px){.unified-lightbox__nav{width:40px;height:40px}.unified-lightbox__nav--prev{left:10px}.unified-lightbox__nav--next{right:10px}.admin-image-gallery{gap:8px}}
+.unified-product__image>a{display:block}
+.unified-product__image>a>img{width:100%;height:auto;display:block;object-fit:contain}
+.unified-product__title-row h3 a{color:inherit;text-decoration:none}
+.unified-product__title-row h3 a:hover{text-decoration:underline}

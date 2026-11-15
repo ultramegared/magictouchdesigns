@@ -143,8 +143,8 @@ const getProductLink = (
 
     const collectionSlug = collectionByProduct[product.product_id];
 
-    if (collectionSlug && product.slug) {
-        return `/collections/${collectionSlug}?product=${product.slug}`;
+    if (product.slug) {
+        return `/products/${product.slug}`;
     }
 
     if (collectionSlug) {

@@ -458,7 +458,7 @@ function CollectionsPage() {
                                                         )}
                                                         <Link
                                                             className="search-result-card__button"
-                                                            to={`/collections/${product.collectionSlug}?product=${product.slug}`}
+                                                            to={`/products/${product.slug}`}
                                                         >
                                                             {language === "es" ? "Ver producto" : "View product"}
                                                         </Link>
