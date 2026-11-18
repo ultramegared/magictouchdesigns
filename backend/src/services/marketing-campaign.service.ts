@@ -4,7 +4,7 @@ import { getConnections, checkMarketplacePublicationStatus, checkTikTokPublicati
 import { sendPromotion, type PromotionResult } from "./promotion.service";
 import { recordCampaignLaunchLearning, getMarketingLearningInsights } from "./marketing-learning.service";
 import { getCatalogOwners, queueNextContent, recordAutopilotRunEvent } from "./marketing-catalog.service";
-import { isAutopilotCadenceBlocked, releaseGeneratedVariant, consumeGeneratedVariant, withOrderingData } from "./marketing-creative.service";
+import { isAutopilotCadenceBlocked, releaseGeneratedVariant, consumeGeneratedVariant, withOrderingData, ensureOrderingBlock } from "./marketing-creative.service";
 
 export interface MarketingCampaignInput {
     name: string;
@@ -255,9 +255,17 @@ const publishSocialCampaign = async (
     channels: SocialChannel[],
     input: MarketingCampaignInput,
     campaignId: string,
+    isProposal = false,
 ): Promise<Record<string, unknown>> => {
     const results: Record<string, unknown> = {};
-    const socialCaption = sanitizeSocialCaption(input.message.trim());
+    // Proposal campaigns carry the caption the owner approved in the
+    // panel. At this last boundary, guarantee the ordering block (shop
+    // URL + WhatsApp) so a proposal can never reach publish without a
+    // way to order. The helper is idempotent: an already-complete
+    // caption comes back unchanged.
+    const socialCaption = isProposal
+        ? ensureOrderingBlock(sanitizeSocialCaption(input.message.trim()))
+        : sanitizeSocialCaption(input.message.trim());
     const metaChannels = channels.filter(channel => ["facebook", "whatsapp"].includes(channel));
     for (const channel of metaChannels) {
         Object.assign(
@@ -1169,7 +1177,7 @@ const runMarketingAutopilotOnce = async () => {
             videoUrl: campaign.results?.assets?.videoUrl,
             link: trackedLink,
         };
-        Object.assign(social, await publishSocialCampaign(userId, [channel], input, campaign.id));
+        Object.assign(social, await publishSocialCampaign(userId, [channel], input, campaign.id, source.type === "proposal"));
     }
     let autopilotEmail: PromotionResult | undefined;
     if (firstRun && Boolean(campaign.results?.sendEmail)) {

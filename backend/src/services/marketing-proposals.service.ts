@@ -70,6 +70,8 @@ import {
   runFastLearningCycle,
   type ProposalIntelligence,
 } from "./marketing-intelligence.service";
+import { ensureOrderingBlock } from "./marketing-creative.service";
+import { generateInventedAdImage } from "./marketing-image-gen.service";
 
 const PUBLIC_SITE = process.env.FRONTEND_PUBLIC_URL?.trim() || "https://www.jqydesigns.com";
 // WhatsApp del negocio JQYDesigns (+1 346-760-3007), para el link de contacto
@@ -412,6 +414,11 @@ async function buildProposal(ownerUserId: string) {
   let link: string;
   let sourceId: string;
   let seoEvidence: Record<string, unknown> | null = null;
+  // Invented ad image (catalog branch only): set only when Cloudflare
+  // Workers AI invented a brand-new ad. There is no fallback — if
+  // generation fails, buildProposal returns early with a reason and
+  // no proposal is created (see below).
+  let generatedImage: { generated: boolean; model?: string } | null = null;
   if (candidate.type === "catalog") {
     const product = candidate.product;
     title = String(product.name || "Personalized design");
@@ -436,6 +443,36 @@ async function buildProposal(ownerUserId: string) {
         };
       }
     }
+    // Ordering block guaranteed in what the owner reviews (and what
+    // publishes): canonical shop URL + WhatsApp, hashtags stay last.
+    // Applied AFTER the SEO-hashtag append so the URL lands before them.
+    caption = ensureOrderingBlock(caption);
+    // Invented ad image (owner rule: never repeat a catalog photo): the
+    // robot invents a brand-new ad design via Cloudflare Workers AI
+    // (free tier, one image per proposal). On any failure (no env vars,
+    // quota, provider error) NO proposal is created at all — the catalog
+    // photo is never offered again, so the owner can never approve by
+    // mistake the exact repeat he rejected on 2026-11-17. The next
+    // cycle retries generation.
+    try {
+      const invented = await generateInventedAdImage({
+        productName: title,
+        theme: giftEvent?.name,
+      });
+      if (!invented) {
+        return {
+          reason:
+            "No invented ad image could be generated (Cloudflare Workers AI unavailable, daily free quota used, or CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN missing) — no proposal was created, so the catalog photo is never offered again.",
+        };
+      }
+      imageUrl = invented.imageUrl;
+      generatedImage = { generated: true, model: invented.model };
+    } catch {
+      return {
+        reason:
+          "Invented ad image generation failed — no proposal was created, so the catalog photo is never offered again.",
+      };
+    }
   } else {
     const item = candidate.item;
     title = String(item.title_en || "Custom work");
@@ -443,6 +480,8 @@ async function buildProposal(ownerUserId: string) {
     imageUrl = String(item.image_url || "").trim() || undefined;
     link = `${PUBLIC_SITE.replace(/\/$/, "")}/portfolio`;
     sourceId = String(item.portfolio_id);
+    // Same guarantee as the catalog branch: URL + WhatsApp in the caption.
+    caption = ensureOrderingBlock(caption);
   }
 
   // Día y hora recomendados (lógica de horarios): la ventana ganadora de
@@ -538,6 +577,7 @@ async function buildProposal(ownerUserId: string) {
         ...(seoEvidence ? { seoEvidence } : {}),
         ...(schedule ? { schedule } : {}),
         ...(intelligence ? { intelligence } : {}),
+        ...(generatedImage ? { generatedImage } : {}),
         rule: "Proposals follow the house cadence (publish little and well: a minimum gap between proposals, never daily spam), prepared for the store's 4 media (Instagram, Facebook, Marketplace, YouTube). A proposal publishes only with the owner's authorization (once, or inside an approved weekly window), only through the media marked ready, and at the start of its recommended window.",
       },
     },
