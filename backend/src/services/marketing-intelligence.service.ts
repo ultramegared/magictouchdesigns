@@ -331,7 +331,6 @@ export function buildChannelVariants(input: {
   seoTags?: string;
 }) {
   const firstLine = String(input.baseCaption || "").split("\n").filter(Boolean)[0] || input.title;
-  const priceLine = input.price ? ` · $${Number(input.price).toFixed(2)}` : "";
   return [
     {
       channel: "instagram",
@@ -342,23 +341,32 @@ export function buildChannelVariants(input: {
     {
       channel: "facebook",
       format: "Texto conversacional con link directo a la tienda y a WhatsApp",
-      text: `${input.baseCaption}\n\n🛒 Pedilo acá: ${input.productLink}\n💬 O escribinos por WhatsApp: ${input.whatsappLink}`,
+      text: `${input.baseCaption}\n\n🛒 Shop here: ${input.productLink}\n💬 Or message us on WhatsApp: ${input.whatsappLink}`,
       hypothesis: "En Facebook el link visible y el camino corto a WhatsApp convierten mejor que un texto largo.",
     },
     {
       channel: "marketplace",
-      format: "Ficha estructurada: título claro, qué es, precio y cómo se pide",
-      text: `${input.title}${priceLine}\n\n${firstLine}\n\nPersonalizado a tu gusto. Pedidos por WhatsApp o desde la tienda: ${input.productLink}`,
-      hypothesis: "En Marketplace la gente compara precio y claridad de la ficha antes de escribir: estructura corta y precio visible.",
+      format: "Ficha estructurada: título claro, qué es y cómo se pide",
+      text: `${input.title}\n\n${firstLine}\n\nPersonalized just for you. Order on WhatsApp or from the store: ${input.productLink}`,
+      hypothesis: "En Marketplace la gente compara la claridad de la ficha antes de escribir: estructura corta y pedido por WhatsApp o tienda. Sin precio en el texto (el precio real va por mensaje).",
     },
     {
       channel: "youtube",
       format: "Título + descripción para video (sale cuando la propuesta tenga video)",
-      text: `${input.title} | JQYDesigns\n\n${firstLine}\n\nPedilo acá: ${input.productLink}\nWhatsApp: ${input.whatsappLink}`,
+      text: `${input.title} | JQYDesigns\n\n${firstLine}\n\nOrder here: ${input.productLink}\nWhatsApp: ${input.whatsappLink}`,
       hypothesis: "En YouTube el título con el nombre exacto del producto captura la búsqueda; la descripción lleva el link.",
     },
   ];
 }
+
+/** Inserta una línea antes del bloque final de hashtags (o al final si no hay). */
+const insertBeforeHashtags = (caption: string, line: string): string => {
+  const blocks = String(caption || "").split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+  const last = blocks[blocks.length - 1] || "";
+  if (/^#/.test(last)) blocks.splice(blocks.length - 1, 0, line);
+  else blocks.push(line);
+  return blocks.join("\n\n");
+};
 
 export async function buildProposalIntelligence(ownerUserId: string, input: {
   title: string;
@@ -430,14 +438,21 @@ export async function buildProposalIntelligence(ownerUserId: string, input: {
   };
 
   const designatedVariant: "A" | "B" = input.rotationSeed % 2 === 0 ? "A" : "B";
-  const variantB = `${input.caption}\n\n💬 Pedilo directo por WhatsApp: ${input.whatsappLink}\n🛒 O en la tienda: ${input.productLink}`;
+  // Variante B: el mismo texto base con un llamado directo insertado
+  // ANTES de los hashtags. No agrega links: el caption ya lleva la URL
+  // de la tienda y el WhatsApp (ensureOrderingBlock en buildProposal),
+  // así que repetirlos aquí duplicaría el bloque de pedido.
+  const variantB = insertBeforeHashtags(
+    input.caption,
+    "💬 Want one like this? Message us today — we make it just for you.",
+  );
   const experiment = {
     id: `exp-${input.sourceType}-${input.rotationSeed}`,
     // La variante sugerida rota entre propuestas, pero la que se publica
     // la ELIGE el dueño al aprobar (A o B) en el panel: nada se cambia solo.
     designatedVariant,
     hypothesis: designatedVariant === "B"
-      ? "Hipótesis: cerrar el texto con el llamado directo a WhatsApp y a la tienda (variante B) genera más consultas que el texto base (variante A). Sugerida esta vez: B — el dueño elige cuál sale al aprobar."
+      ? "Hipótesis: cerrar el texto con un llamado directo a escribirnos (variante B) genera más consultas que el texto base (variante A). Sugerida esta vez: B — el dueño elige cuál sale al aprobar."
       : "Hipótesis: el texto base (variante A) rinde igual o mejor que el cierre con llamado directo. Sugerida esta vez: A — el dueño elige cuál sale al aprobar.",
     variantA: input.caption,
     variantB,

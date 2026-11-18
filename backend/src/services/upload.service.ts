@@ -21,6 +21,7 @@ export type UploadFolder =
     | "customizations"
     | "promotions"
     | "portfolio"
+    | "generated-ads"
     | "hero";
 
 export interface UploadedImageAsset {

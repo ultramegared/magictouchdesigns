@@ -285,6 +285,32 @@ export function withOrderingData(caption: string): string {
     return blocks.join("\n\n");
 }
 
+/**
+ * Guarantees the full ordering block in a proposal caption: the
+ * canonical shop URL alone on its own line (before the trailing
+ * hashtag block, or at the end when there are no hashtags) plus the
+ * WhatsApp line from withOrderingData. Any jqydesigns.com URL form
+ * (http/https, with or without www) is canonicalized first, with the
+ * same regex as the caption safety net in marketing-campaign.service.ts.
+ * Idempotent: a caption that already carries the URL and the WhatsApp
+ * line comes back unchanged. No prices anywhere.
+ */
+export function ensureOrderingBlock(caption: string): string {
+    const canonical = caption.replace(
+        /https?:\/\/(?:www\.)?jqydesigns\.com\/?/gi,
+        "https://www.jqydesigns.com/",
+    );
+    let result = canonical;
+    if (!result.includes("https://www.jqydesigns.com/")) {
+        const blocks = result.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
+        const last = blocks[blocks.length - 1] || "";
+        if (/^#/.test(last)) blocks.splice(blocks.length - 1, 0, "https://www.jqydesigns.com/");
+        else blocks.push("https://www.jqydesigns.com/");
+        result = blocks.join("\n\n");
+    }
+    return withOrderingData(result);
+}
+
 // ---------------------------------------------------------------------------
 // Creative queue: the Phase 2 fallback
 // ---------------------------------------------------------------------------
